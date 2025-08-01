@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1104.1 (Updated header and imports for new folder structure)
+# Version 20250801.1104.2 (Updated child_notebook style to 'ScanningChild.TNotebook')
 
-current_version = "20250801.1104.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1104.2" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
@@ -56,6 +56,7 @@ class TAB_SCANNING_PARENT(ttk.Frame):
             None. Initializes the parent tab frame and its nested components.
 
         (2025-07-31) Change: Initial creation of TAB_SCANNING_PARENT.
+        (2025-08-01) Change: Updated child_notebook style to 'ScanningChild.TNotebook'.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -67,7 +68,7 @@ class TAB_SCANNING_PARENT(ttk.Frame):
 
         # Create the nested notebook for child tabs
         # The style is set in main_app._setup_styles to match the parent tab color
-        self.child_notebook = ttk.Notebook(self, style='ScanningChild.TNotebook')
+        self.child_notebook = ttk.Notebook(self, style='ScanningChild.TNotebook') # Updated style
         self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Instantiate and add child tabs
@@ -122,7 +123,7 @@ class TAB_SCANNING_PARENT(ttk.Frame):
 
         if hasattr(selected_tab_widget, '_on_tab_selected'):
             selected_tab_widget._on_tab_selected(event)
-            debug_print(f"�🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
+            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
                         file=f"tabs/TAB_SCANNING_PARENT.py - {current_version}",
                         function=inspect.currentframe().f_code.co_name,
                         console_print_func=self.console_print_func)

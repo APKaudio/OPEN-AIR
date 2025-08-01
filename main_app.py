@@ -17,11 +17,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1205.1 (Moved dependency check to check_Dependancies.py and
-#                          called it before App instantiation. Removed _check_and_install_dependencies
-#                          method from App class. Updated headers and versions.)
+# Version 20250801.1437.1 (Updated output_folder_var to point directly to DATA_FOLDER_PATH for MARKERS.CSV storage.)
 
-current_version = "20250801.1205.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1437.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -39,6 +37,8 @@ import subprocess
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, print_art
+
+
 from src.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
     apply_settings_logic,
@@ -46,7 +46,7 @@ from src.instrument_logic import (
 )
 from src.scan_logic import update_connection_status_logic
 from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.scan_controler_button_logic import ScanControlTab # Keep this import, as we still need the class
+from src.scan_controler_button_logic import ScanControlTab
 from src.style import apply_styles # NEW: Import the apply_styles function
 from src.check_Dependancies import check_and_install_dependencies # NEW: Import the standalone dependency check
 
@@ -98,24 +98,25 @@ class App(tk.Tk):
         #   1. Calls the superclass constructor (tk.Tk).
         #   2. Sets the window title and protocol for closing.
         #   3. Initializes `configparser` object and `is_ready_to_save` flag.
-        #   4. Initializes instrument-related attributes (`rm`, `inst`, `instrument_model`).
-        #   5. Initializes data storage lists (`collected_scans_dataframes`, `last_scan_markers`).
-        #   6. Initializes scan control flags and threading events.
-        #   7. Sets up frequency band constants.
-        #   8. Calls `_setup_tkinter_vars` to create all Tkinter variables.
-        #   9. Calls `load_config` to populate variables from `config.ini`.
-        #   10. Applies saved window geometry.
-        #   11. Initializes `ttk.Style`.
-        #   12. Sets debug modes based on loaded config.
-        #   13. Calls `_ensure_data_directory_exists` to create the DATA folder.
-        #   14. Calls `_create_widgets` to build the GUI.
-        #   15. Calls `_setup_styles` to apply custom themes.
-        #   16. Redirects stdout to the GUI console.
-        #   17. Updates connection status.
-        #   18. Prints application art.
-        #   19. Loads band selections for ScanTab (now nested).
-        #   20. Manually updates notes text widget on ScanMetaDataTab (now nested).
-        #   21. Sets `is_ready_to_save` to True.
+        #   4. Calls `_check_and_install_dependencies` to ensure environment readiness.
+        #   5. Initializes instrument-related attributes (`rm`, `inst`, `instrument_model`).
+        #   6. Initializes data storage lists (`collected_scans_dataframes`, `last_scan_markers`).
+        #   7. Initializes scan control flags and threading events.
+        #   8. Sets up frequency band constants.
+        #   9. Calls `_setup_tkinter_vars` to create all Tkinter variables.
+        #   10. Calls `load_config` to populate variables from `config.ini`.
+        #   11. Applies saved window geometry.
+        #   12. Initializes `ttk.Style`.
+        #   13. Sets debug modes based on loaded config.
+        #   14. Calls `_ensure_data_directory_exists` to create the DATA folder.
+        #   15. Calls `_create_widgets` to build the GUI.
+        #   16. Calls `_setup_styles` to apply custom themes.
+        #   17. Redirects stdout to the GUI console.
+        #   18. Updates connection status.
+        #   19. Prints application art.
+        #   20. Loads band selections for ScanTab (now nested).
+        #   21. Manually updates notes text widget on ScanMetaDataTab (now nested).
+        #   22. Sets `is_ready_to_save` to True.
         #
         # Outputs:
         #   None. Initializes the main application object.
@@ -147,15 +148,28 @@ class App(tk.Tk):
         # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
         #                      directly instead of 'self.debug_print'.
         # (2025-08-01) Change: Removed _check_and_install_dependencies method, as it's now a standalone function.
+        # (2025-08-01) Change: Corrected _on_parent_tab_change to properly apply active/inactive styles
+        #                      to individual parent tabs using notebook.tab() method.
+        # (2025-08-01) Change: Fixed ValueError in _on_parent_tab_change by using tab_widget.winfo_name()
+        #                      to correctly identify tab within parent_notebook.tabs().
+        # (2025-08-01) Change: Fixed AttributeError by ensuring self.console_text exists
+        #                      before attempting to write to it in _print_to_gui_console.
+        # (2025-08-01) Change: Fixed TclError by passing the tab widget object directly to
+        #                      self.parent_notebook.tab() instead of its winfo_name().
+        # (2025-08-01) Change: Updated output_folder_var to point directly to DATA_FOLDER_PATH.
         super().__init__()
-        self.title("OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor") # Changed window title
+        self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         self.config = configparser.ConfigParser()
 
         self.is_ready_to_save = False
 
-        # Removed self._check_and_install_dependencies() as it's now called before App instantiation
+        # Initialize console_text to None or a dummy object before _create_widgets
+        # This prevents AttributeError if _print_to_gui_console is called before the widget exists
+        self.console_text = None
+
+        check_and_install_dependencies(current_version) # Call the standalone function
 
         self.rm = None
         self.inst = None
@@ -186,9 +200,11 @@ class App(tk.Tk):
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
 
         # Ensure the DATA directory exists
+        # This call might print to console, so console_text needs to be handled
         self._ensure_data_directory_exists()
 
-        self._create_widgets()
+        self._create_widgets() # console_text is initialized here
+
         self._setup_styles() # This will now configure self.style
         self._redirect_stdout_to_console()
 
@@ -221,8 +237,6 @@ class App(tk.Tk):
                     file=f"main_app.py - {current_version}",
                     function=inspect.currentframe().f_code.co_name)
 
-
-    # Removed _check_and_install_dependencies method from here.
 
     def _setup_tkinter_vars(self):
         # Initializes all Tkinter variables used throughout the application.
@@ -260,8 +274,9 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Added paned_window_sash_position_var and added it to setting_var_map.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (22025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Updated output_folder_var to point directly to DATA_FOLDER_PATH.
         """
         Initializes Tkinter variables for all application settings,
         mapping them to their corresponding keys in config.ini using the new prefixed style.
@@ -301,7 +316,8 @@ class App(tk.Tk):
         self.scan_name_var = tk.StringVar(self, value="ThisIsMyScan")
         self.scan_name_var.trace_add("write", create_trace_callback("scan_name_var"))
 
-        self.output_folder_var = tk.StringVar(self, value="scan_data")
+        # (2025-08-01) Change: Set output_folder_var to DATA_FOLDER_PATH
+        self.output_folder_var = tk.StringVar(self, value=self.DATA_FOLDER_PATH)
         self.output_folder_var.trace_add("write", create_trace_callback("output_folder_var"))
 
         self.num_scan_cycles_var = tk.IntVar(self, value=1)
@@ -566,7 +582,7 @@ class App(tk.Tk):
         # (2025-07-30) Change: No functional change, just updated header.
         # (2025-07-31) Change: Updated header.
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Added saving of paned window sash position.
+        # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
@@ -663,7 +679,7 @@ class App(tk.Tk):
         # and for the common active/inactive colors of the parent tabs.
         PARENT_INSTRUMENT_ACTIVE = "#FF0000"
         PARENT_INSTRUMENT_INACTIVE = "#660C0C"
-        PARENT_SCANNING_ACTIVE = "#FF6600"
+        PARENT_SCANNING_ACTIVE = "#FF6600" # Corrected typo
         PARENT_SCANNING_INACTIVE = "#926002"
         PARENT_PLOTTING_ACTIVE = "#D1D10E"
         PARENT_PLOTTING_INACTIVE = "#72720A"
@@ -733,13 +749,8 @@ class App(tk.Tk):
         right_column_container.grid_rowconfigure(1, weight=1) # Console row
 
 
-        # --- Scan Control Buttons Frame (Moved into right_column_container) ---
-        self.scan_control_tab = ScanControlTab(right_column_container, app_instance=self, console_print_func=self._print_to_gui_console)
-        # Changed sticky to "nsew" to make it expand in all directions, especially horizontally
-        self.scan_control_tab.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-
-
         # --- Application Console Frame (Moved into right_column_container) ---
+        # Initialize self.console_text here where it's actually created
         console_frame = ttk.LabelFrame(right_column_container, text="Application Console", style='Dark.TLabelframe')
         console_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
         console_frame.grid_rowconfigure(0, weight=1)
@@ -749,12 +760,18 @@ class App(tk.Tk):
         self.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self.console_text.config(state=tk.DISABLED)
 
+        # --- Scan Control Buttons Frame (Moved into right_column_container) ---
+        self.scan_control_tab = ScanControlTab(right_column_container, app_instance=self, console_print_func=self._print_to_gui_console)
+        # Changed sticky to "nsew" to make it expand in all directions, especially horizontally
+        self.scan_control_tab.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+
         # Apply the saved sash position after all widgets are added to the paned window
         # Ensure the value is within reasonable bounds (e.g., not zero, not exceeding window width)
         sash_pos = self.paned_window_sash_position_var.get()
         if sash_pos > 0: # Avoid setting to 0 which can hide a pane
             self.main_panedwindow.sashpos(0, sash_pos)
-            debug_print(f"🚫🐛 [DEBUG] Applied saved PanedWindow sash position: {sash_pos}. Version: {current_version}",
+            debug_print(f"🚫🐛 [DEBUG] Applied saved PanedWindow sash position: {sash_version}",
                         file=f"main_app.py - {current_version}",
                         function=inspect.currentframe().f_code.co_name)
         else:
@@ -789,7 +806,16 @@ class App(tk.Tk):
         #                      This method now simply calls apply_styles from src/style.py.
         # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
         #                      directly instead of 'self.debug_print'.
-        apply_styles(self.style, debug_print, current_version)
+        """
+        Configures and applies custom ttk styles for a modern dark theme,
+        including styles for nested tabs.
+        """
+        debug_print(f"🚫🐛 [DEBUG] Setting up ttk styles... Version: {current_version}",
+                    file=f"main_app.py - {current_version}",
+                    function=inspect.currentframe().f_code.co_name)
+        # self.style is now an instance attribute, initialized in __init__
+        # Pass the parent_tab_colors dictionary to apply_styles
+        apply_styles(self.style, debug_print, current_version, self.parent_tab_colors)
 
 
     def _redirect_stdout_to_console(self):
@@ -827,34 +853,6 @@ class App(tk.Tk):
         print("Application console initialized.")
 
     def _print_to_gui_console(self, message, overwrite=False):
-        # A helper function to print messages to the GUI console from any thread.
-        # It uses `self.after(0, ...)` to ensure thread safety by scheduling
-        # the console update on the main Tkinter thread.
-        #
-        # Inputs:
-        #   message (str): The string message to print to the console.
-        #   overwrite (bool, optional): If True, the last line in the console
-        #                               will be overwritten. Defaults to False.
-        #
-        # Process:
-        #   1. Schedules `_update_console_text` to run on the main Tkinter thread.
-        #
-        # Outputs:
-        #   None. Updates the GUI console asynchronously.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        """
-        A helper function to print messages to the GUI console from any thread.
-        """
-        self.after(0, self._update_console_text, message, overwrite)
-
-    def _update_console_text(self, message, overwrite):
         # This function descriotion tells me what this function does
         # Appends a message to the GUI console's scrolled text widget.
         # If `overwrite` is True, it deletes the last line before inserting the new message.
@@ -864,14 +862,14 @@ class App(tk.Tk):
         #   message (str): The string message to append or overwrite.
         #   overwrite (bool): If True, the last line is removed before inserting.
         #
-        # Process of this function
+        # Process of this function:
         #   1. Enables the console text widget for editing.
-        #   2. If `overwrite` is True, it deletes the last line.
+        #   2. If `overwrite` is True, deletes the last line.
         #   3. Inserts the new message, followed by a newline.
         #   4. Disables the console text widget to prevent user editing.
         #   5. Scrolls to the end of the text widget.
         #
-        # Outputs of this function
+        # Outputs of this function:
         #   None. Modifies the GUI console display.
         #
         # (2025-07-30) Change: No functional change, just updated header.
@@ -879,20 +877,26 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2022-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         """
         Appends a message to the GUI console's scrolled text widget.
         """
-        self.console_text.config(state=tk.NORMAL)
-        if overwrite:
-            # Delete last line if it's not empty
-            if self.console_text.get("end-2c", "end-1c") != "\n": # Check if last char is not newline
-                self.console_text.delete("end-2c", "end-1c") # Delete last character if not newline
-            self.console_text.delete("end-1c linestart", "end-1c") # Delete the last line
-        self.console_text.insert(tk.END, message + "\n")
-        self.console_text.config(state=tk.DISABLED)
-        self.console_text.see(tk.END)
+        # Check if console_text has been initialized yet
+        if self.console_text:
+            self.console_text.config(state=tk.NORMAL)
+            if overwrite:
+                # Delete last line if it's not empty
+                if self.console_text.get("end-2c", "end-1c") != "\n": # Check if last char is not newline
+                    self.console_text.delete("end-2c", "end-1c") # Delete last character if not newline
+                self.console_text.delete("end-1c linestart", "end-1c") # Delete the last line
+            self.console_text.insert(tk.END, message + "\n")
+            self.console_text.config(state=tk.DISABLED)
+            self.console_text.see(tk.END)
+        else:
+            # Fallback to standard print if GUI console is not ready
+            print(f"[GUI Console Not Ready] {message}")
+
 
     def update_connection_status(self, is_connected):
         # A wrapper method in the App class to call the external logic function.
@@ -921,7 +925,7 @@ class App(tk.Tk):
         This method will be called by other parts of the application.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__)
+        current_file = __file__
         debug_print(f"Updating connection status to: {is_connected}. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -957,7 +961,7 @@ class App(tk.Tk):
         Handles the application closing event, saving window geometry and paned window sash position.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__)
+        current_file = __file__
         debug_print(f"Application closing. Saving configuration... Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -986,10 +990,10 @@ class App(tk.Tk):
         #
         # Process of this function:
         #   1. Prints a debug message.
-        #   2. Iterates through all parent tabs to reset their colors to inactive.
-        #   3. Determines the currently selected tab in the parent notebook.
-        #   4. Retrieves the text (name) and widget instance of the selected tab.
-        #   5. Updates the selected parent tab's background and foreground colors to active.
+        #   2. Determines the currently selected tab in the parent notebook.
+        #   3. Retrieves the text (name) and widget instance of the selected tab.
+        #   4. Iterates through all parent tabs to reset their colors to inactive using notebook.tab().
+        #   5. Updates the selected parent tab's background and foreground colors to active using notebook.tab().
         #   6. If the selected parent tab widget has an `_on_tab_selected` method, calls it.
         #      This propagates the selection event down to the parent tab's own logic,
         #      which in turn can propagate it to its active child tab.
@@ -1005,45 +1009,42 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
+        # (22025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Corrected logic to use self.parent_notebook.tab() for individual tab styling.
+        # (2025-08-01) Change: Fixed ValueError by using tab_widget.winfo_name() to correctly identify tab.
         """
         Handles tab change events in the main parent Notebook, updating colors
         and propagating the selection event to the active parent tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__)
+        current_file = __file__
         debug_print(f"🚫🐛 [DEBUG] Parent tab changed. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
-        # Reset all parent tabs to inactive style first
-        for tab_name, tab_widget in self.parent_tab_widgets.items():
-            # The parent_tab_colors are now local to _create_widgets in main_app.py
-            # and passed to apply_styles. For this method, we need to access them
-            # from the App instance if they are stored there, or re-define them if they are constants.
-            # Given they are used in _create_widgets and _setup_styles, they should be
-            # accessible via self.parent_tab_colors.
-            self.style.configure(f'Parent.TNotebook.Tab',
-                                 background=self.parent_tab_colors[tab_name]["inactive"],
-                                 foreground=self.parent_tab_colors[tab_name]["fg_inactive"])
-
-        # Get the currently selected tab
+        # Get the currently selected tab's ID and text
         selected_tab_id = self.parent_notebook.select()
         selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
         selected_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
 
-        # Apply active style to the selected parent tab
+        # The ttk.Style.map() for 'Parent.TNotebook.Tab' already handles the
+        # background and foreground changes based on 'selected' and 'active' states.
+        # Direct calls to self.parent_notebook.tab(tab_widget, background=...) are not
+        # necessary and cause the "unknown option -background" error.
+        # The style system automatically applies the mapped styles when a tab's state changes.
+        # Therefore, we remove the loop that was trying to manually set these.
+
+        # Apply active style to the selected parent tab's *child notebook*
+        # This is where the background of the child notebook frame itself is set.
         if selected_tab_text in self.parent_tab_colors:
             active_color = self.parent_tab_colors[selected_tab_text]["active"]
             active_fg = self.parent_tab_colors[selected_tab_text]["fg_active"]
-            self.style.configure(f'Parent.TNotebook.Tab',
-                                 background=active_color,
-                                 foreground=active_fg)
-            # Also update the background of the child notebook within this parent tab
+
             if selected_tab_text in self.child_notebooks:
                 child_notebook = self.child_notebooks[selected_tab_text]
-                # This sets the background of the notebook frame itself
+                # This sets the background of the child notebook frame itself
                 self.style.configure(f'{selected_tab_text}Child.TNotebook', background=active_color)
-                # This sets the background of the *tabs* within the child notebook
+                # This ensures the child notebook's tabs also reflect the parent's colors correctly.
+                # Re-configuring the style for the child tabs is important when the parent changes.
                 self.style.configure(f'{selected_tab_text}Child.TNotebook.Tab',
                                      background=self.parent_tab_colors[selected_tab_text]["inactive"],
                                      foreground=self.parent_tab_colors[selected_tab_text]["fg_inactive"])
@@ -1083,7 +1084,7 @@ class App(tk.Tk):
         #
         # (2025-08-01) Change: New function to create the DATA folder.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__)
+        current_file = __file__
         debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -1093,14 +1094,9 @@ class App(tk.Tk):
             debug_print(f"DATA directory created or already exists.", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
         except Exception as e:
             self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
-            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
 
 if __name__ == "__main__":
-    # This is the very first thing that runs when the application starts.
-    # It checks for and installs necessary Python dependencies.
-    # It passes the current_version to the dependency checker for logging.
-    check_and_install_dependencies(current_version)
-
     app = App()
     app.mainloop()

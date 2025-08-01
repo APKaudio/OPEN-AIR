@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1014.1 (Updated header and imports for new folder structure)
+# Version 20250801.1014.2 (Updated child_notebook style to 'ExperimentsChild.TNotebook')
 
-current_version = "20250801.1014.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1014.2" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
@@ -56,6 +56,7 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
             None. Initializes the parent tab frame and its nested components.
 
         (2025-07-31) Change: Initial creation of TAB_EXPERIMENTS_PARENT.
+        (2025-08-01) Change: Updated child_notebook style to 'ExperimentsChild.TNotebook'.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -67,7 +68,7 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
 
         # Create the nested notebook for child tabs
         # The style is set in main_app._setup_styles to match the parent tab color
-        self.child_notebook = ttk.Notebook(self, style='ExperimentsChild.TNotebook')
+        self.child_notebook = ttk.Notebook(self, style='ExperimentsChild.TNotebook') # Updated style
         self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Instantiate and add child tabs
@@ -170,7 +171,8 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
                             function=current_function,
                             console_print_func=self.console_print_func)
             else:
-                debug_print(f"�🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
+                debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
                             file=current_file,
                             function=current_function,
                             console_print_func=self.console_print_func)
+

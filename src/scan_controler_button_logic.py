@@ -14,13 +14,12 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.4 (Updated Start, Pause/Resume, Stop buttons to use 'BigScanButton.Green/Orange/Red.TButton' styles
-#                     defined in main_app.py. Removed redundant local ttk.Style configurations.
-#                     Adjusted flashing styles to use 'FlashingGreen.TButton' and 'FlashingDark.TButton'
-#                     which are now correctly configured in main_app.py.
-#                     Updated debug_print calls with new current_version.)
+# Version 20250801.5 (Renamed buttons to START, PAUSE/RESUME, STOP.
+#                     Ensured all scan control buttons consistently use 'BigScanButton'
+#                     styles for larger appearance. Adjusted _toggle_pause_resume
+#                     to correctly set 'PAUSE' and 'RESUME' text.)
 
-current_version = "20250801.4" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.5" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -76,6 +75,7 @@ class ScanControlTab(ttk.Frame):
         # Date / time of changes made to this file: 2025-07-30 18:00:00
         # (2025-08-01) Change: Added current_version to debug_print calls.
         # (2025-08-01) Change: Updated to use 'BigScanButton.TButton' style.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else print
@@ -119,22 +119,11 @@ class ScanControlTab(ttk.Frame):
         # (2025-08-01) Change: Updated Start, Pause/Resume, Stop buttons to use 'BigScanButton.TButton' style.
         #                     Removed redundant local ttk.Style configurations.
         # (2025-08-01) Change: Applied specific color styles (Green, Orange, Red) to BigScanButtons.
+        # (2025-08-01) Change: Renamed button texts to START, PAUSE, STOP.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Creating Scan Control widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-        # Removed local style configurations as they are now centralized in main_app.py
-        # style = ttk.Style()
-        # style.configure('TButton', font=('Helvetica', 40, 'bold'))
-        # style.configure('Green.TButton', padding=(10, 20))
-        # style.configure('Orange.TButton', padding=(10, 20))
-        # style.configure('Red.TButton', padding=(10, 20))
-        # style.configure('Blue.TButton', padding=(10, 20))
-        # style.configure('FlashingGreen.TButton', background='green', foreground='white', padding=(10, 20), font=('Helvetica', 40, 'bold'))
-        # style.map('FlashingGreen.TButton', background=[('active', 'lightgreen'), ('!active', 'green')], foreground=[('active', 'black'), ('!active', 'white')])
-        # style.configure('FlashingDark.TButton', background='darkgray', foreground='white', padding=(10, 20), font=('Helvetica', 40, 'bold'))
-        # style.map('FlashingDark.TButton', background=[('active', 'gray'), ('!active', 'darkgray')], foreground=[('active', 'black'), ('!active', 'white')])
-
 
         # Frame for scan control buttons
         scan_buttons_frame = ttk.LabelFrame(self, text="Scan Control", style='Dark.TLabelframe')
@@ -145,15 +134,15 @@ class ScanControlTab(ttk.Frame):
         scan_buttons_frame.columnconfigure(2, weight=1) # Column for Stop
 
         # Start Scan Button - Using the new 'BigScanButton.Green.TButton' style
-        self.start_button = ttk.Button(scan_buttons_frame, text="Start Scan", command=self._start_scan_thread, style='BigScanButton.Green.TButton')
+        self.start_button = ttk.Button(scan_buttons_frame, text="START", command=self._start_scan_thread, style='BigScanButton.Green.TButton')
         self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Pause/Resume Scan Button (combined) - Using the new 'BigScanButton.Orange.TButton' style
-        self.pause_resume_button = ttk.Button(scan_buttons_frame, text="Pause Scan", command=self._toggle_pause_resume, style='BigScanButton.Orange.TButton', state=tk.DISABLED)
+        self.pause_resume_button = ttk.Button(scan_buttons_frame, text="PAUSE", command=self._toggle_pause_resume, style='BigScanButton.Orange.TButton', state=tk.DISABLED)
         self.pause_resume_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         # Stop Scan Button - Using the new 'BigScanButton.Red.TButton' style
-        self.stop_button = ttk.Button(scan_buttons_frame, text="Stop Scan", command=self._stop_scan, style='BigScanButton.Red.TButton', state=tk.DISABLED)
+        self.stop_button = ttk.Button(scan_buttons_frame, text="STOP", command=self._stop_scan, style='BigScanButton.Red.TButton', state=tk.DISABLED)
         self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
         debug_print("Scan Control widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -188,6 +177,7 @@ class ScanControlTab(ttk.Frame):
         # (2025-08-01) Change: Ensures flashing is stopped when starting a new scan.
         # (2025-08-01) Change: Reset pause_resume_button style to 'Orange.TButton' (which is now based on BigScanButton).
         # (2025-08-01) Change: Reset pause_resume_button style to 'BigScanButton.Orange.TButton'.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print(f"Attempting to start scan thread. Current is_scanning: {self.is_scanning}, is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -205,7 +195,7 @@ class ScanControlTab(ttk.Frame):
             # Stop any flashing when a new scan starts
             self._stop_flashing()
             # Reset button appearance using the appropriate BigScanButton style
-            self.pause_resume_button.config(text="Pause Scan", style='BigScanButton.Orange.TButton') # Revert to default BigScanButton style
+            self.pause_resume_button.config(text="PAUSE", style='BigScanButton.Orange.TButton') # Revert to default BigScanButton style
 
             # Update GUI elements via app_instance's wrapper
             self.app_instance.update_connection_status(self.app_instance.inst is not None)
@@ -233,13 +223,13 @@ class ScanControlTab(ttk.Frame):
         #   2. If scanning and not paused:
         #      a. Sets the pause event for the background thread.
         #      b. Sets `is_paused` to True.
-        #      c. Changes button text to "Resume Scan".
+        #      c. Changes button text to "RESUME".
         #      d. Starts flashing the button.
         #      e. Prints a console message.
         #   3. If scanning and paused:
         #      a. Clears the pause event for the background thread.
         #      b. Sets `is_paused` to False.
-        #      c. Changes button text back to "Pause Scan".
+        #      c. Changes button text back to "PAUSE".
         #      d. Stops flashing the button.
         #      e. Prints a console message.
         #   4. Updates the GUI's connection status.
@@ -254,6 +244,8 @@ class ScanControlTab(ttk.Frame):
         # (2025-08-01) Change: Added flashing mechanism for the button when paused.
         # (2025-08-01) Change: Ensured console message is printed only once per state change.
         # (2025-08-01) Change: Updated button styles to use 'BigScanButton.TButton' as base for flashing.
+        # (2025-08-01) Change: Updated button texts to PAUSE and RESUME.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print(f"Attempting to toggle pause/resume. Current is_scanning: {self.is_scanning}, is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -264,16 +256,16 @@ class ScanControlTab(ttk.Frame):
                 self.pause_scan_event.set() # Signal pause
                 self.is_paused = True
                 # Change text and style for resume state (flashing will override)
-                self.pause_resume_button.config(text="Resume Scan", style='FlashingGreen.TButton')
+                self.pause_resume_button.config(text="RESUME", style='FlashingGreen.TButton')
                 self._start_flashing() # Start the flashing when paused
-                self.console_print_func("⏸️ Scan Paused. Click Resume to continue.")
+                self.console_print_func("⏸️ Scan Paused. Click RESUME to continue.")
                 debug_print("Scan paused.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             else:
                 # RESUME LOGIC
                 self.pause_scan_event.clear() # Signal resume
                 self.is_paused = False
                 # Change text and style back to pause state (non-flashing)
-                self.pause_resume_button.config(text="Pause Scan", style='BigScanButton.Orange.TButton') # Revert to default BigScanButton style
+                self.pause_resume_button.config(text="PAUSE", style='BigScanButton.Orange.TButton') # Revert to default BigScanButton style
                 self._stop_flashing() # Stop the flashing when resumed
                 self.console_print_func("▶️ Scan Resumed.")
                 debug_print("Scan resumed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -304,6 +296,7 @@ class ScanControlTab(ttk.Frame):
         #
         # Date / time of changes made to this file: 2025-08-01
         # (2025-08-01) Change: Updated to use 'FlashingGreen.TButton' and 'FlashingDark.TButton' styles.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Starting button flashing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -348,6 +341,7 @@ class ScanControlTab(ttk.Frame):
         #
         # Date / time of changes made to this file: 2025-08-01
         # (2025-08-01) Change: Adjusted to use 'BigScanButton.TButton' and 'FlashingGreen.TButton' for final states.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Stopping button flashing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -392,6 +386,8 @@ class ScanControlTab(ttk.Frame):
         # (2025-08-01) Change: Added current_version to debug_print calls.
         # (2025-08-01) Change: Ensures flashing is stopped and button text/style is reset upon stop.
         # (2025-08-01) Change: Reset pause_resume_button style to 'BigScanButton.TButton' upon stop.
+        # (2025-08-01) Change: Updated button text to STOP.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Attempting to stop scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -403,7 +399,7 @@ class ScanControlTab(ttk.Frame):
             
             self._stop_flashing() # Stop flashing immediately on stop
             # Reset button to default BigScanButton style
-            self.pause_resume_button.config(text="Pause Scan", style='BigScanButton.Orange.TButton')
+            self.pause_resume_button.config(text="PAUSE", style='BigScanButton.Orange.TButton')
             
             self.console_print_func("🛑 Stopping scan. Please wait...")
             debug_print("Stop event set. Waiting for scan thread to finish.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -470,6 +466,7 @@ class ScanControlTab(ttk.Frame):
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
         # (2025-08-01) Change: Added current_version to debug_print calls.
+        # (2025-08-01) Change: Updated version to 20250801.5.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         self.console_print_func("Debug: Entered _run_scan method (thread started successfully).")
@@ -616,10 +613,8 @@ class ScanControlTab(ttk.Frame):
                 ]
                 # Store individual scan data for multi-trace plotting (might be removed later if no plotting uses this)
                 self.app_instance.individual_scan_dfs_for_plotting = individual_scan_dfs_with_names
-
                 # Store aggregated data for plotting (might be removed later if no plotting uses this)
                 self.app_instance.aggregated_scan_dataframe = aggregated_df
-
                 self.app_instance.last_scan_markers = all_markers_data_from_scans # Store collected markers
 
                 self.app_instance.after(0, lambda: self.console_print_func("✅ Scan data processed. Finally, some progress!"))

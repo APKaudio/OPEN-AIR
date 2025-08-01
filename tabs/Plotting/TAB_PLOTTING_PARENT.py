@@ -15,9 +15,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1038.1 (Updated header and imports for new folder structure)
+# Version 20250801.1038.2 (Updated child_notebook style to 'PlottingChild.TNotebook')
 
-current_version = "20250801.1038.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1038.2" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
@@ -60,6 +60,7 @@ class TAB_PLOTTING_PARENT(ttk.Frame):
             None. Initializes the parent tab frame and its nested components.
 
         (2025-07-31) Change: Added Plotting3DTab as a new child tab.
+        (2025-08-01) Change: Updated child_notebook style to 'PlottingChild.TNotebook'.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -71,7 +72,7 @@ class TAB_PLOTTING_PARENT(ttk.Frame):
 
         # Create the nested notebook for child tabs
         # The style is set in main_app._setup_styles to match the parent tab color
-        self.child_notebook = ttk.Notebook(self, style='PlottingChild.TNotebook') # Reusing ScanningChild style for now, can be updated to PlottingChild if needed
+        self.child_notebook = ttk.Notebook(self, style='PlottingChild.TNotebook') # Updated style
         self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Instantiate and add child tabs
@@ -80,7 +81,7 @@ class TAB_PLOTTING_PARENT(ttk.Frame):
             app_instance=self.app_instance,
             console_print_func=self.console_print_func
         )
-        self.child_notebook.add(self.single_plotting_tab, text="Single Scan Plotting")
+        self.child_notebook.add(self.single_plotting_tab, text="Single Scan Plotting" )
 
         self.averaging_plotting_tab = AveragingTab(
             self.child_notebook,
@@ -185,3 +186,4 @@ class TAB_PLOTTING_PARENT(ttk.Frame):
                             file=current_file,
                             function=current_function,
                             console_print_func=self.console_print_func)
+
