@@ -15,9 +15,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1005.1 (Corrected import paths for numbered subfolders in 'tabs')
+# Version 20250801.1115.1 (Added logic to create a 'DATA' folder one level above the app directory)
 
-current_version = "20250801.1005.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1115.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -46,7 +46,7 @@ from src.scan_controler_button_logic import ScanControlTab
 
 from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
 
-# Import the new parent tab classes - CORRECTED PATHS
+# Import the new parent tab classes
 from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
 from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
 from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
@@ -73,6 +73,10 @@ class App(tk.Tk):
     _script_dir = os.path.dirname(os.path.abspath(__file__))
     CONFIG_FILE = os.path.join(_script_dir, 'config.ini')
 
+    # Define the path to the DATA folder, one level up from the application's root
+    DATA_FOLDER_PATH = os.path.join(os.path.dirname(_script_dir), 'DATA')
+
+
     DEFAULT_WINDOW_GEOMETRY = "1400x780+100+100" # This is now a fallback, actual default comes from config
 
     def __init__(self):
@@ -98,14 +102,15 @@ class App(tk.Tk):
         #   11. Applies saved window geometry.
         #   12. Initializes `ttk.Style`.
         #   13. Sets debug modes based on loaded config.
-        #   14. Calls `_create_widgets` to build the GUI.
-        #   15. Calls `_setup_styles` to apply custom themes.
-        #   16. Redirects stdout to the GUI console.
-        #   17. Updates connection status.
-        #   18. Prints application art.
-        #   19. Loads band selections for ScanTab (now nested).
-        #   20. Manually updates notes text widget on ScanMetaDataTab (now nested).
-        #   21. Sets `is_ready_to_save` to True.
+        #   14. Calls `_ensure_data_directory_exists` to create the DATA folder.
+        #   15. Calls `_create_widgets` to build the GUI.
+        #   16. Calls `_setup_styles` to apply custom themes.
+        #   17. Redirects stdout to the GUI console.
+        #   18. Updates connection status.
+        #   19. Prints application art.
+        #   20. Loads band selections for ScanTab (now nested).
+        #   21. Manually updates notes text widget on ScanMetaDataTab (now nested).
+        #   22. Sets `is_ready_to_save` to True.
         #
         # Outputs:
         #   None. Initializes the main application object.
@@ -120,6 +125,10 @@ class App(tk.Tk):
         # (2025-07-31) Change: Added initialization for paned_window_sash_position_var.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version. Verified import paths based on new directory structure.
+        # (2025-08-01) Change: Corrected import paths for numbered subfolders (e.g., '1_Instrument' instead of '1Instrument').
+        # (2025-08-01) Change: Corrected import paths to remove leading digits from folder names (e.g., 'tabs.Instrument' instead of 'tabs.1_Instrument').
+        # (2025-08-01) Change: Added logic to create the 'DATA' folder one level above the application directory on startup.
         super().__init__()
         self.title("OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -157,6 +166,9 @@ class App(tk.Tk):
         # These calls now use the Tkinter variables directly, which are populated by load_config
         set_debug_mode(self.general_debug_enabled_var.get())
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
+
+        # Ensure the DATA directory exists
+        self._ensure_data_directory_exists()
 
         self._create_widgets()
         self._setup_styles() # This will now configure self.style
@@ -218,6 +230,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Checks for necessary Python packages (pyvisa, pandas, beautifulsoup4, pdfplumber, requests)
         and attempts to install them if missing.
@@ -294,6 +307,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Added paned_window_sash_position_var and added it to setting_var_map.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Initializes Tkinter variables for all application settings,
         mapping them to their corresponding keys in config.ini using the new prefixed style.
@@ -601,6 +615,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -662,6 +677,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Applied saved sash position to the PanedWindow.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
@@ -837,6 +853,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Added new Markers tab specific styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
@@ -1167,6 +1184,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget.
         """
@@ -1199,31 +1217,31 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
-        A wrapper method in the App class to call the external logic function.
-        This method will be called by other parts of the application.
+        A helper function to print messages to the GUI console from any thread.
         """
-        self.after(0, lambda: self._update_console_text(message, overwrite))
+        self.after(0, self._update_console_text, message, overwrite)
 
     def _update_console_text(self, message, overwrite):
-        # Appends a message to the scrolled text widget that serves as the GUI console.
-        # It ensures the text widget is enabled for writing, inserts the message,
-        # scrolls to the end, and then disables the widget.
+        # This function descriotion tells me what this function does
+        # Appends a message to the GUI console's scrolled text widget.
+        # If `overwrite` is True, it deletes the last line before inserting the new message.
+        # It also ensures the console automatically scrolls to the end.
         #
-        # Inputs:
-        #   message (str): The string message to append.
-        #   overwrite (bool): If True, the last line of text is deleted before
-        #                     the new message is inserted.
+        # Inputs to this function
+        #   message (str): The string message to append or overwrite.
+        #   overwrite (bool): If True, the last line is removed before inserting.
         #
-        # Process:
-        #   1. Sets the console text widget state to `tk.NORMAL` to allow editing.
-        #   2. If `overwrite` is True, calculates the start of the last line and deletes it.
-        #   3. Inserts the new message at the end of the text widget, followed by a newline.
-        #   4. Scrolls the view to the end to show the latest message.
-        #   5. Sets the console text widget state back to `tk.DISABLED` to prevent user editing.
+        # Process of this function
+        #   1. Enables the console text widget for editing.
+        #   2. If `overwrite` is True, deletes the last line.
+        #   3. Inserts the new message, followed by a newline.
+        #   4. Disables the console text widget to prevent user editing.
+        #   5. Scrolls to the end of the text widget.
         #
-        # Outputs:
-        #   None. Modifies the content of the GUI console.
+        # Outputs of this function
+        #   None. Modifies the GUI console display.
         #
         # (2025-07-30) Change: No functional change, just updated header.
         # (2025-07-31) Change: Updated header.
@@ -1231,657 +1249,19 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
-        Appends a message to the scrolled text widget.
-        If overwrite is True, it deletes the last line before inserting.
+        Appends a message to the GUI console's scrolled text widget.
         """
         self.console_text.config(state=tk.NORMAL)
         if overwrite:
-            last_line_start = self.console_text.index("end-1c linestart")
-            self.console_text.delete(last_line_start, tk.END)
-
+            # Delete last line if it's not empty
+            if self.console_text.get("end-2c", "end-1c") != "\n": # Check if last char is not newline
+                self.console_text.delete("end-2c", "end-1c") # Delete last character if not newline
+            self.console_text.delete("end-1c linestart", "end-1c") # Delete the last line
         self.console_text.insert(tk.END, message + "\n")
-        self.console_text.see(tk.END)
         self.console_text.config(state=tk.DISABLED)
-
-
-    def _populate_resources(self):
-        # Delegates the task of populating VISA resources to the `InstrumentTab`.
-        # It acts as a centralized point for other parts of the application
-        # to request resource population.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `instrument_parent_tab` and its nested `instrument_connection_tab` exist.
-        #      If so, calls its `_populate_resources` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers resource population in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Connection tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Delegates the call to populate VISA resources to the Instrument Connection tab.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Delegating populate VISA resources to Instrument Connection tab... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'instrument_parent_tab') and hasattr(self.instrument_parent_tab, 'instrument_connection_tab'):
-            self.instrument_parent_tab.instrument_connection_tab._populate_resources()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Connection tab not initialized. Cannot populate resources.")
-            debug_print(f"🚫🐛 [WARNING] Instrument Connection tab not initialized for _populate_resources. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _on_resource_selected(self, event):
-        # Delegates the resource selection callback event to the `InstrumentTab`.
-        # This allows the `InstrumentTab` to handle the logic associated with
-        # a user selecting a different VISA resource from the dropdown.
-        #
-        # Inputs:
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `instrument_parent_tab` and its nested `instrument_connection_tab` exist.
-        #      If so, calls its `_on_resource_selected` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers resource selection handling in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Connection tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Delegates the resource selection callback to the Instrument Connection tab.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Delegating resource selection to Instrument Connection tab... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'instrument_parent_tab') and hasattr(self.instrument_parent_tab, 'instrument_connection_tab'):
-            self.instrument_parent_tab.instrument_connection_tab._on_resource_selected(event)
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Connection tab not initialized. Cannot handle resource selection.")
-            debug_print(f"🐛 [WARNING] Instrument Connection tab not initialized for _on_resource_selected. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _connect_instrument(self):
-        # Delegates the instrument connection request to the `InstrumentTab`.
-        # This provides a centralized method for other parts of the application
-        # to initiate an instrument connection.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `instrument_parent_tab` and its nested `instrument_connection_tab` exist.
-        #      If so, calls its `_connect_instrument` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers instrument connection in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Connection tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Delegates the connect instrument call to the Instrument Connection tab.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Delegating connect instrument to Instrument Connection tab... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'instrument_parent_tab') and hasattr(self.instrument_parent_tab, 'instrument_connection_tab'):
-            self.instrument_parent_tab.instrument_connection_tab._connect_instrument()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Connection tab not initialized. Cannot connect instrument.")
-            debug_print(f"🚫🐛 [WARNING] Instrument Connection tab not initialized for _connect_instrument. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _disconnect_instrument(self):
-        # Delegates the instrument disconnection request to the `InstrumentTab`.
-        # This provides a centralized method for other parts of the application
-        # to initiate an instrument disconnection.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `instrument_parent_tab` and its nested `instrument_connection_tab` exist.
-        #      If so, calls its `_disconnect_instrument` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers instrument disconnection in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Connection tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Delegates the disconnect instrument call to the Instrument Connection tab.
-        """
-        debug_print(f"�🐛 [DEBUG] Delegating disconnect instrument to Instrument Connection tab... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'instrument_parent_tab') and hasattr(self.instrument_parent_tab, 'instrument_connection_tab'):
-            self.instrument_parent_tab.instrument_connection_tab._disconnect_instrument()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Connection tab not initialized. Cannot disconnect instrument.")
-            debug_print(f"🚫🐛 [WARNING] Instrument Connection tab not initialized for _disconnect_instrument. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _apply_instrument_settings(self):
-        # Delegates the request to apply instrument settings to the `InstrumentTab`.
-        # This provides a centralized method for other parts of the application
-        # to initiate the application of current settings to the connected instrument.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `instrument_parent_tab` and its nested `instrument_connection_tab` exist.
-        #      If so, calls its `_apply_settings` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers settings application in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Connection tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Delegates the apply instrument settings call to the Instrument Connection tab.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Delegating apply instrument settings to Instrument Connection tab... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'instrument_parent_tab') and hasattr(self.instrument_parent_tab, 'instrument_connection_tab'):
-            self.instrument_parent_tab.instrument_connection_tab._apply_settings()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Connection tab not initialized. Cannot apply settings.")
-            debug_print(f"🚫🐛 [WARNING] Instrument Connection tab not initialized for _apply_instrument_settings. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _load_selected_preset(self):
-        # Loads the currently selected preset file onto the instrument.
-        # This function is called when the "Load Selected Preset" button is clicked.
-        # It delegates the actual loading logic to the nested `preset_files_tab`.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `presets_parent_tab` and its nested `preset_files_tab` exist.
-        #      If so, calls its `_load_selected_preset` method.
-        #   3. If not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers preset loading in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted delegation to target the nested Instrument Presets tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Loads the currently selected preset file onto the instrument.
-        This function is called when the "Load Selected Preset" button is clicked.
-        It delegates the actual loading logic to the nested Instrument Presets tab.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Loading selected preset... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'presets_parent_tab') and hasattr(self.presets_parent_tab, 'preset_files_tab'):
-            self.presets_parent_tab.preset_files_tab._load_selected_preset()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Instrument Presets tab not initialized.")
-            debug_print(f"🚫🐛 [WARNING] Instrument Presets tab not initialized. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _start_scan(self):
-        # Initiates the scan process by delegating the call to the `ScanControlTab`.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `scan_control_tab` exists. If so, calls its `_start_scan` method.
-        #   3. If `scan_control_tab` is not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers scan initiation in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Initiates the scan process in a separate thread.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Starting scan... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'scan_control_tab'):
-            self.scan_control_tab._start_scan_thread() # Changed to _start_scan_thread as per scan_controler_button_logic
-        else:
-            self._print_to_gui_console("⚠️ Warning: Scan Control tab not initialized.")
-            debug_print(f"🚫🐛 [WARNING] ScanControlTab not initialized for _start_scan. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _pause_scan(self):
-        # Pauses the active scan by delegating the call to the `ScanControlTab`.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `scan_control_tab` exists. If so, calls its `_pause_scan` method.
-        #   3. If `scan_control_tab` is not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers scan pausing in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Pauses the active scan.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Pausing scan... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'scan_control_tab'):
-            self.scan_control_tab._pause_scan()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Scan Control tab not initialized.")
-            debug_print(f"🚫🐛 [WARNING] ScanControlTab not initialized for _pause_scan. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _stop_scan(self):
-        # Stops the active scan by delegating the call to the `ScanControlTab`.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Checks if `scan_control_tab` exists. If so, calls its `_stop_scan` method.
-        #   3. If `scan_control_tab` is not initialized, prints a warning to the console and debug log.
-        #
-        # Outputs:
-        #   None. Triggers scan stopping in a delegated tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Stops the active scan.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Stopping scan... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        if hasattr(self, 'scan_control_tab'):
-            self.scan_control_tab._stop_scan()
-        else:
-            self._print_to_gui_console("⚠️ Warning: Scan Control tab not initialized.")
-            debug_print(f"🚫🐛 [WARNING] ScanControlTab not initialized for _stop_scan. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def _browse_output_folder(self):
-        # Opens a file dialog to allow the user to select an output folder
-        # for saving scan data. It updates the `output_folder_var` with the
-        # selected path.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Opens a directory selection dialog, defaulting to the current
-        #      value of `output_folder_var`.
-        #   3. If a folder is selected, updates `output_folder_var` and
-        #      prints a confirmation message to the GUI console and debug log.
-        #
-        # Outputs:
-        #   None. Updates a Tkinter variable and interacts with the file system.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Opens a file dialog to select the output folder for scan data.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Browsing output folder... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        folder_selected = filedialog.askdirectory(initialdir=self.output_folder_var.get())
-        if folder_selected:
-            self.output_folder_var.set(folder_selected)
-            self._print_to_gui_console(f"Output folder set to: {folder_selected}")
-            debug_print(f"🚫🐛 [DEBUG] Output folder set to: {folder_selected}. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-    def reset_setting_colors_logic(self):
-        # Resets the background color of all setting entry and checkbutton widgets
-        # to their default appearance. This is typically called after settings
-        # are applied or restored to remove any visual indication of unsaved changes.
-        # It iterates through all Tkinter variables in `setting_var_map` and
-        # attempts to find and reset the style of associated widgets across all tabs.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Iterates through each `tk_var_instance` in `self.setting_var_map`.
-        #   3. For each variable, it traverses the widget hierarchy (main window, parent notebooks, child notebooks, tabs, frames)
-        #      to find and reset the style of associated `ttk.Entry`, `ttk.Checkbutton`, and `ttk.Combobox` widgets.
-        #   4. Includes special handling for `notes_var` as it's linked to a `ScrolledText` widget,
-        #      which does not use `ttk.Style` for background.
-        #
-        # Outputs:
-        #   None. Modifies the visual style of Tkinter widgets.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted widget traversal to account for nested notebooks.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Resets the background color of all setting entry widgets to default.
-        This function is called after settings are applied or restored to remove
-        any visual indication of unsaved changes.
-        """
-        debug_print(f"🐛 [DEBUG] Resetting setting colors... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-
-        # Helper to recursively find widgets
-        def find_and_reset_widgets(parent_widget, tk_var_instance):
-            for child in parent_widget.winfo_children():
-                # Check if child is a notebook
-                if isinstance(child, ttk.Notebook):
-                    for tab_id in child.tabs():
-                        tab_widget = child.nametowidget(tab_id)
-                        find_and_reset_widgets(tab_widget, tk_var_instance) # Recurse into tabs
-                # Check if child is a panedwindow
-                elif isinstance(child, ttk.PanedWindow):
-                    for pane_child in child.winfo_children():
-                        find_and_reset_widgets(pane_child, tk_var_instance) # Recurse into panes
-                # Check if child is a frame or labelframe
-                elif isinstance(child, (ttk.Frame, ttk.LabelFrame)):
-                    find_and_reset_widgets(child, tk_var_instance) # Recurse into frames
-                # Check for Entry, Checkbutton, Combobox
-                elif isinstance(child, ttk.Entry) and child.cget('textvariable') == str(tk_var_instance):
-                    child.config(style='TEntry')
-                    debug_print(f"🚫🐛 [DEBUG] Reset color for {tk_var_instance.get()} (Entry) in {child.winfo_class()}. Version: {current_version}",
-                                file=f"main_app.py - {current_version}",
-                                function=inspect.currentframe().f_code.co_name)
-                elif isinstance(child, ttk.Checkbutton) and child.cget('variable') == str(tk_var_instance):
-                    child.config(style='TCheckbutton')
-                    debug_print(f"🚫🐛 [DEBUG] Reset color for {tk_var_instance.get()} (Checkbutton) in {child.winfo_class()}. Version: {current_version}",
-                                file=f"main_app.py - {current_version}",
-                                function=inspect.currentframe().f_code.co_name)
-                elif isinstance(child, ttk.Combobox) and child.cget('textvariable') == str(tk_var_instance):
-                    child.config(style='TCombobox')
-                    debug_print(f"🚫🐛 [DEBUG] Reset color for {tk_var_instance.get()} (Combobox) in {child.winfo_class()}. Version: {current_version}",
-                                file=f"main_app.py - {current_version}",
-                                function=inspect.currentframe().f_code.co_name)
-
-        # Start recursive search from the main panedwindow, as it's the top-level container now
-        find_and_reset_widgets(self.main_panedwindow, tk_var_instance)
-
-
-    def _on_closing(self):
-        # Handles the window closing event. It ensures that the current
-        # configuration settings are saved to `config.ini` before the
-        # application exits, but only if the application is fully initialized.
-        # It also updates the `notes_var` from the `ScrolledText` widget
-        # before saving.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Prints a debug message indicating application closing.
-        #   2. If the `scanning_parent_tab`, its `scan_meta_data_tab`, and its `notes_text_widget` exist,
-        #      it updates `notes_var` with the current content of the widget.
-        #   3. Checks `is_ready_to_save` flag. If True, it saves the current
-        #      configuration using `save_config`.
-        #   4. If `is_ready_to_save` is False, it skips saving and logs a message.
-        #   5. Destroys the main Tkinter window.
-        #
-        # Outputs:
-        #   None. Saves configuration and closes the application.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted notes_var update to target the nested Scan Meta Data tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Captured and saved the current PanedWindow sash position.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Handles the window closing event. Saves configuration before exiting,
-        but only if the application is fully initialized.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Application closing. Performing cleanup... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-
-        # Before saving, ensure the notes_var reflects the current content of the ScrolledText
-        if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_meta_data_tab') and hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
-            self.notes_var.set(self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.get("1.0", tk.END).strip())
-            debug_print(f"🚫🐛 [DEBUG] Updated notes_var from ScrolledText before saving: {self.notes_var.get()}. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-        # Capture current PanedWindow sash position before saving
-        if hasattr(self, 'main_panedwindow') and self.main_panedwindow.winfo_ismapped():
-            # Check if the panedwindow is mapped (visible) before trying to get sashpos
-            current_sash_pos = self.main_panedwindow.sashpos(0)
-            self.paned_window_sash_position_var.set(current_sash_pos)
-            debug_print(f"🚫🐛 [DEBUG] Captured current PanedWindow sash position: {current_sash_pos}. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-        else:
-            debug_print(f"🚫🐛 [WARNING] main_panedwindow not mapped or does not exist. Cannot save sash position. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-
-        if self.is_ready_to_save:
-            debug_print(f"🚫🐛 [DEBUG] --- State of band_vars before saving --- Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-            for i, band_item in enumerate(self.band_vars):
-                debug_print(f"🚫🐛 [DEBUG]   Band {band_item['band']['Band Name']}: {band_item['var'].get()}. Version: {current_version}",
-                            file=f"main_app.py - {current_version}",
-                            function=inspect.currentframe().f_code.co_name)
-            debug_print(f"🚫🐛 [DEBUG] --- End state of band_vars --- Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-            save_config(self)
-        else:
-            debug_print(f"🚫🐛 [WARNING] Application closing prematurely or not fully initialized. Skipping config save. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
-        self.destroy()
-
-
-    def _on_parent_tab_change(self, event):
-        # Handles tab change events in the parent Notebook.
-        # When a parent tab is selected, it ensures the corresponding parent tab's
-        # `_on_tab_selected` method is called, which then propagates the call
-        # to its currently active child tab. It also updates the visual style
-        # of the parent tabs.
-        #
-        # Inputs:
-        #   event (tkinter.Event): The event object that triggered the tab change.
-        #
-        # Process:
-        #   1. Determines the currently selected parent tab and its widget.
-        #   2. Gets the text of the selected parent tab.
-        #   3. Logs a debug message.
-        #   4. (Removed direct style application to individual tabs to fix TclError).
-        #      The `style.map` on `Parent.TNotebook.Tab` now handles the common
-        #      active/inactive appearance for all parent tab labels.
-        #   5. Calls the `_on_tab_selected` method of the selected parent tab itself,
-        #      which is responsible for activating and refreshing its default child tab.
-        #
-        # Outputs:
-        #   None. Triggers UI updates in the selected parent and its active child tabs.
-        #
-        # (2025-07-31) Change: New function to handle parent tab changes and default child tab selection.
-        # (2025-07-31) Change: Modified to call _on_tab_selected on the parent tab instance itself.
-        # (2025-07-31) Change: Removed redundant style re-application loop, as map handles it.
-        # (2025-07-31) Change: Dynamically updates parent tab colors based on selection.
-        # (2025-07-31) Change: Uses the stored widget instance for notebook.tab() calls.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        selected_parent_tab_id = self.parent_notebook.select()
-        selected_parent_tab_widget = self.parent_notebook.nametowidget(selected_parent_tab_id)
-        parent_tab_text = self.parent_notebook.tab(selected_parent_tab_id, "text")
-
-        debug_print(f"🚫🐛 [DEBUG] Parent tab changed to: {parent_tab_text}. Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-
-        # Removed the problematic style setting for individual parent tabs.
-        # The style.map on 'Parent.TNotebook.Tab' now handles the selected/unselected
-        # appearance automatically for all parent tab labels.
-
-        # Call the _on_tab_selected method on the selected parent tab instance itself
-        if hasattr(selected_parent_tab_widget, '_on_tab_selected'):
-            selected_parent_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Called _on_tab_selected on parent tab: {selected_parent_tab_widget.winfo_class()}. Version: {current_version}",
-                            file=f"main_app.py - {current_version}",
-                            function=inspect.currentframe().f_code.co_name)
-        else:
-            debug_print(f"🚫🐛 [WARNING] Parent tab {selected_parent_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
-                            file=f"main_app.py - {current_version}",
-                            function=inspect.currentframe().f_code.co_name)
-
-
-    def _on_tab_change(self, event):
-        # Handles tab change events in any Notebook (parent or child).
-        # It calls the `_on_tab_selected` method on the newly selected tab's
-        # widget if that method exists, allowing individual tabs to refresh
-        # their content or state when they become active. This method is
-        # generic and can be bound to any ttk.Notebook.
-        #
-        # Inputs:
-        #   event (tkinter.Event): The event object that triggered the tab change.
-        #
-        # Process:
-        #   1. Determines the notebook that triggered the event.
-        #   2. Gets the ID of the newly selected tab within that notebook.
-        #   3. Converts the tab ID to its corresponding widget instance.
-        #   4. Checks if the selected tab widget has an `_on_tab_selected` method.
-        #   5. If the method exists, calls it, logging the action.
-        #   6. If the method does not exist, logs that it was not found.
-        #
-        # Outputs:
-        #   None. Triggers UI updates in the selected tab.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Modified to handle tab changes for both parent and child notebooks,
-        #                      calling _on_tab_selected on the actual tab widget.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        """
-        Handles tab change events in any Notebook (parent or child).
-        Calls _on_tab_selected for the newly selected tab if available.
-        """
-        # Determine which notebook triggered the event
-        notebook_widget = event.widget
-
-        selected_tab_id = notebook_widget.select()
-        selected_tab_widget = notebook_widget.nametowidget(selected_tab_id)
-
-        if hasattr(selected_tab_widget, '_on_tab_selected'):
-            selected_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-        else:
-            debug_print(f"🚫🐛 [DEBUG] Tab changed to {selected_tab_widget.winfo_class()}. No _on_tab_selected method found. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
-
+        self.console_text.see(tk.END)
 
     def update_connection_status(self, is_connected):
         # A wrapper method in the App class to call the external logic function.
@@ -1904,11 +1284,180 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
         """
         A wrapper method in the App class to call the external logic function.
         This method will be called by other parts of the application.
         """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"Updating connection status to: {is_connected}. Version: {current_version}",
+                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+
+        # Call the external logic function
         update_connection_status_logic(self, is_connected, self._print_to_gui_console)
+
+    def _on_closing(self):
+        # Handles the application closing event.
+        # It saves the current window geometry and paned window sash position to config.ini,
+        # then destroys the main application window.
+        #
+        # Inputs:
+        #   None (operates on self).
+        #
+        # Process:
+        #   1. Prints a debug message.
+        #   2. Retrieves the current window geometry and stores it in `self.config`.
+        #   3. Retrieves the current paned window sash position and stores it in `self.config`.
+        #   4. Calls `save_config` to persist the settings.
+        #   5. Destroys the main Tkinter window.
+        #
+        # Outputs:
+        #   None. Closes the application.
+        #
+        # (2025-07-30) Change: No functional change, just updated header.
+        # (2025-07-31) Change: Updated header.
+        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
+        # (2025-07-31) Change: Added saving of paned window sash position.
+        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
+        """
+        Handles the application closing event, saving window geometry and paned window sash position.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"Application closing. Saving configuration... Version: {current_version}",
+                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+
+        # Save window geometry
+        self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', self.geometry())
+
+        # Save paned window sash position
+        # Get the position of the first (and only) sash
+        sash_position = self.main_panedwindow.sashpos(0)
+        self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__paned_window_sash_position', str(sash_position))
+
+        save_config(self) # Save the configuration to config.ini
+        self.destroy()
+
+    def _on_parent_tab_change(self, event):
+        # Function Description:
+        # Handles tab change events in the main parent Notebook.
+        # It updates the background and foreground colors of the selected parent tab
+        # and its corresponding child notebook to provide visual feedback.
+        # It also calls the `_on_tab_selected` method on the newly selected parent tab's
+        # widget if that method exists, allowing individual parent tabs to refresh
+        # their content or state when they become active.
+        #
+        # Inputs to this function:
+        #   event (tkinter.Event): The event object that triggered the tab change.
+        #
+        # Process of this function:
+        #   1. Prints a debug message.
+        #   2. Iterates through all parent tabs to reset their colors to inactive.
+        #   3. Determines the currently selected tab in the parent notebook.
+        #   4. Retrieves the text (name) and widget instance of the selected tab.
+        #   5. Updates the selected parent tab's background and foreground colors to active.
+        #   6. If the selected parent tab widget has an `_on_tab_selected` method, calls it.
+        #      This propagates the selection event down to the parent tab's own logic,
+        #      which in turn can propagate it to its active child tab.
+        #
+        # Outputs of this function:
+        #   None. Triggers UI updates and content refreshes.
+        #
+        # (2025-07-31) Change: Added to handle parent tab changes and update colors dynamically.
+        # (2025-07-31) Change: Refactored to use explicit style configurations for active/inactive tabs.
+        # (2025-07-31) Change: Implemented user-requested color scheme for parent tabs.
+        # (2025-07-31) Change: Storing parent tab widget instances for more robust color setting.
+        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
+        # (2025-07-31) Change: Version incremented for paned window sash position saving.
+        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
+        """
+        Handles tab change events in the main parent Notebook, updating colors
+        and propagating the selection event to the active parent tab.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"🚫🐛 [DEBUG] Parent tab changed. Version: {current_version}",
+                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+
+        # Reset all parent tabs to inactive style first
+        for tab_name, tab_widget in self.parent_tab_widgets.items():
+            self.style.configure(f'Parent.TNotebook.Tab',
+                                 background=self.parent_tab_colors[tab_name]["inactive"],
+                                 foreground=self.parent_tab_colors[tab_name]["fg_inactive"])
+
+        # Get the currently selected tab
+        selected_tab_id = self.parent_notebook.select()
+        selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
+        selected_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
+
+        # Apply active style to the selected parent tab
+        if selected_tab_text in self.parent_tab_colors:
+            active_color = self.parent_tab_colors[selected_tab_text]["active"]
+            active_fg = self.parent_tab_colors[selected_tab_text]["fg_active"]
+            self.style.configure(f'Parent.TNotebook.Tab',
+                                 background=active_color,
+                                 foreground=active_fg)
+            # Also update the background of the child notebook within this parent tab
+            if selected_tab_text in self.child_notebooks:
+                child_notebook = self.child_notebooks[selected_tab_text]
+                # This sets the background of the notebook frame itself
+                self.style.configure(f'{selected_tab_text}Child.TNotebook', background=active_color)
+                # This sets the background of the *tabs* within the child notebook
+                self.style.configure(f'{selected_tab_text}Child.TNotebook.Tab',
+                                     background=self.parent_tab_colors[selected_tab_text]["inactive"],
+                                     foreground=self.parent_tab_colors[selected_tab_text]["fg_inactive"])
+                self.style.map(f'{selected_tab_text}Child.TNotebook.Tab',
+                               background=[('selected', active_color), ('active', active_color)],
+                               foreground=[('selected', active_fg)],
+                               expand=[('selected', [1, 1, 1, 0])])
+
+
+        # Propagate _on_tab_selected to the active parent tab
+        if hasattr(selected_tab_widget, '_on_tab_selected'):
+            selected_tab_widget._on_tab_selected(event)
+            debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active parent tab: {selected_tab_text}. Version: {current_version}",
+                        file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        else:
+            debug_print(f"🚫🐛 [DEBUG] Active parent tab {selected_tab_text} has no _on_tab_selected method. Version: {current_version}",
+                        file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+
+    def _ensure_data_directory_exists(self):
+        # Function Description:
+        # Ensures that the dedicated 'DATA' directory exists one level above the application's root.
+        # If the directory does not exist, it creates it.
+        #
+        # Inputs to this function:
+        #   None (operates on self).
+        #
+        # Process of this function:
+        #   1. Uses `self.DATA_FOLDER_PATH` to determine the target directory.
+        #   2. Checks if the directory exists using `os.path.exists`.
+        #   3. If it doesn't exist, attempts to create it using `os.makedirs(exist_ok=True)`.
+        #      `exist_ok=True` prevents an error if the directory already exists (e.g., due to a race condition).
+        #   4. Prints informative messages to the console about the directory status.
+        #   5. Includes error handling for potential issues during directory creation.
+        #
+        # Outputs of this function:
+        #   None. Ensures the 'DATA' directory is available for file operations.
+        #
+        # (2025-08-01) Change: New function to create the DATA folder.
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}. Version: {current_version}",
+                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+
+        try:
+            os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
+            self._print_to_gui_console(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}")
+            debug_print(f"DATA directory created or already exists.", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        except Exception as e:
+            self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
+            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
 
 if __name__ == "__main__":
