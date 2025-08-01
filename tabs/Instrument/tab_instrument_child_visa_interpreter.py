@@ -15,9 +15,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1018.1 (Updated header and imports for new folder structure)
+# Version 20250801.1945.1 (Fixed _load_data to handle empty VISA_COMMANDS.CSV by loading defaults.)
 
-current_version = "20250801.1018.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1945.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -39,7 +39,15 @@ class VisaInterpreterTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else print
 
-        self.data_file = "visa_commands.csv" # File to save/load user-edited commands
+        # Use the VISA_COMMANDS_FILE_PATH from the app_instance
+        if self.app_instance and hasattr(self.app_instance, 'VISA_COMMANDS_FILE_PATH'):
+            self.data_file = self.app_instance.VISA_COMMANDS_FILE_PATH
+            debug_print(f"Using VISA commands file from app_instance: {self.data_file}", file=__file__, function=inspect.currentframe().f_code.co_name, console_print_func=self.console_print_func)
+        else:
+            # Fallback if app_instance or path is not available (should not happen if main_app is set up correctly)
+            self.data_file = os.path.join(os.getcwd(), "visa_commands.csv")
+            debug_print(f"WARNING: app_instance.VISA_COMMANDS_FILE_PATH not found. Falling back to default: {self.data_file}", file=__file__, function=inspect.currentframe().f_code.co_name, console_print_func=self.console_print_func)
+
 
         # Tkinter variable for the model selection dropdown (for filtering/defaulting new rows)
         self.selected_model = tk.StringVar(self)
@@ -187,26 +195,66 @@ class VisaInterpreterTab(ttk.Frame):
 
     def _load_data(self):
         """
-        Loads VISA commands from default commands.
-        Temporarily ignores CSV file as per user request for debugging.
+        Loads VISA commands from the CSV file. If the file doesn't exist or is empty,
+        it loads default commands and then attempts to save them to the file.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = __file__
-        debug_print(f"Loading default data...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print(f"Loading data from {self.data_file}...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         self.tree.delete(*self.tree.get_children()) # Clear existing data
 
-        commands = self._get_default_commands() # Always load defaults for now
+        commands_to_load = []
+        file_exists = os.path.exists(self.data_file)
+        file_needs_defaults = False # Flag to indicate if defaults should be loaded and saved
 
-        for model_name, cmd_type, action, command, variable in commands:
+        if file_exists:
+            try:
+                with open(self.data_file, 'r', newline='', encoding='utf-8') as f:
+                    reader = csv.reader(f)
+                    # Try to read the header. If no header, file is truly empty.
+                    try:
+                        header = next(reader)
+                    except StopIteration:
+                        debug_print(f"CSV file '{self.data_file}' is empty (no header).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                        file_needs_defaults = True
+                        # No need to break, commands_to_load remains empty
+                        pass
+
+                    if not file_needs_defaults: # Only read rows if header was found
+                        for row in reader:
+                            commands_to_load.append(row)
+
+                if not commands_to_load: # If file existed but contained no data rows (only header or completely empty)
+                    file_needs_defaults = True
+                    self.console_print_func(f"ℹ️ {os.path.basename(self.data_file)} found but contains no commands. Loading default commands.")
+                    debug_print(f"CSV file '{self.data_file}' found but no data rows. Loading defaults.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                else:
+                    self.console_print_func(f"✅ Loaded {len(commands_to_load)} commands from {os.path.basename(self.data_file)}.")
+                    debug_print(f"Loaded {len(commands_to_load)} commands from {self.data_file}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+
+            except Exception as e:
+                self.console_print_func(f"❌ Error loading commands from {os.path.basename(self.data_file)}: {e}. Loading default commands.")
+                debug_print(f"Error loading {self.data_file}: {e}. Loading default commands.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                file_needs_defaults = True # Treat as "empty" for default loading purposes
+        else: # File does not exist
+            self.console_print_func(f"ℹ️ {os.path.basename(self.data_file)} not found. Loading default commands and saving them.")
+            debug_print(f"{self.data_file} not found. Loading default commands.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            file_needs_defaults = True # Treat as "empty" for default loading purposes
+
+        if file_needs_defaults:
+            commands_to_load = self._get_default_commands()
+            self._save_data() # Save defaults to the file
+
+        for model_name, cmd_type, action, command, variable in commands_to_load:
             self.tree.insert("", "end", values=(model_name, cmd_type, action, command, variable))
-        self.console_print_func(f"✅ Loaded {len(commands)} default commands.")
-        debug_print(f"Displayed {len(commands)} default commands in Treeview.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print(f"Displayed {len(commands_to_load)} commands in Treeview.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
     def _save_data(self):
         """
-        Saves the current commands from the Treeview to the CSV file.
+        Saves the current commands from the Treeview to the CSV file defined by self.data_file.
+        Ensures the directory exists before saving.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = __file__
@@ -217,16 +265,20 @@ class VisaInterpreterTab(ttk.Frame):
             values = self.tree.item(item_id, 'values')
             data_to_save.append(list(values)) # Convert tuple to list for consistency
 
+        # Ensure the directory for self.data_file exists
+        output_dir = os.path.dirname(self.data_file)
+        os.makedirs(output_dir, exist_ok=True)
+
         try:
             with open(self.data_file, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 # Updated header to include 'Model'
                 writer.writerow(["Model", "Command Type", "Action", "VISA Command", "Variable"])
                 writer.writerows(data_to_save)
-            self.console_print_func(f"✅ Saved {len(data_to_save)} commands to {self.data_file}.")
+            self.console_print_func(f"✅ Saved {len(data_to_save)} commands to {os.path.basename(self.data_file)}.")
             debug_print(f"Saved {len(data_to_save)} commands to {self.data_file}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         except Exception as e:
-            self.console_print_func(f"❌ Error saving commands to {self.data_file}: {e}")
+            self.console_print_func(f"❌ Error saving commands to {os.path.basename(self.data_file)}: {e}")
             debug_print(f"Error saving {self.data_file}: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
     def _add_row(self):
@@ -411,7 +463,7 @@ class VisaInterpreterTab(ttk.Frame):
             ("N9340B", "Trace/4/Mode/Write", "SET", ":TRAC4:MODE", "WRITe"),
 
             # Trace Mode MaxHold
-            ("N9340B", "Trace/1/Mode/MaxHold", "SET", ":TRAC1:MODE", "MAXHold"),
+            ("N940B", "Trace/1/Mode/MaxHold", "SET", ":TRAC1:MODE", "MAXHold"),
             ("N9340B", "Trace/2/Mode/MaxHold", "SET", ":TRAC2:MODE", "MAXHold"),
             ("N9340B", "Trace/3/Mode/MaxHold", "SET", ":TRAC3:MODE", "MAXHold"),
             ("N9340B", "Trace/4/Mode/MaxHold", "SET", ":TRAC4:MODE", "MAXHold"),

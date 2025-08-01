@@ -16,8 +16,8 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1 (YYYYMMDD, Y should increment every time a new revision is made)
-current_version = "Version 20250801.1" # this variable should always be defined below the header to make the debuggin better
+# Version 20250801.1930.1 (Ensured MARKERS.CSV operations use app_instance.MARKERS_FILE_PATH.)
+current_version = "20250801.1930.1" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -242,7 +242,7 @@ class ReportConverterTab(ttk.Frame):
                 
                 # Inform MarkersDisplayTab about the change and save
                 self._update_markers_display_tab_data()
-                self._save_markers_file_to_output_folder()
+                self._save_markers_file_internally() # Changed to internal save
             else:
                 debug_print(f"Error: Row index {row_idx} out of bounds for self.tree_data.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
@@ -423,15 +423,19 @@ class ReportConverterTab(ttk.Frame):
         """
         Prompts the user to select a MARKERS.CSV file and loads its content
         into the Treeview. This is for the "Load CSV Marker Set" button.
+        It now uses the MARKERS_FILE_PATH from app_instance as initial directory.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
         debug_print("Loading MARKERS.CSV file (Load Marker Set button)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
+        # Use the directory of app_instance.MARKERS_FILE_PATH as initialdir
+        initial_dir = os.path.dirname(self.app_instance.MARKERS_FILE_PATH) if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH') else os.getcwd()
+
         file_path = filedialog.askopenfilename(
             title="Load MARKERS.CSV File",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-            initialdir=self.app_instance.output_folder_var.get() if self.app_instance else os.getcwd()
+            initialdir=initial_dir
         )
         if not file_path:
             self.console_print_func("ℹ️ Info: Load Marker Set cancelled.")
@@ -456,8 +460,8 @@ class ReportConverterTab(ttk.Frame):
                 debug_print(f"Loaded {len(rows)} markers from '{file_path}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                 # Inform MarkersDisplayTab about the new data
                 self._update_markers_display_tab_data()
-                # NEW: Save the loaded data to MARKERS.CSV in the output folder
-                self._save_markers_file_to_output_folder()
+                # NEW: Save the loaded data to MARKERS.CSV in the designated internal location
+                self._save_markers_file_internally()
             else:
                 self.console_print_func("ℹ️ Info: Selected CSV file is empty or has no data.")
                 debug_print(f"Selected CSV file '{file_path}' is empty.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -471,28 +475,31 @@ class ReportConverterTab(ttk.Frame):
             self.app_instance.after(0, self._enable_buttons) # Re-enable buttons
 
 
-    def _save_markers_file_to_output_folder(self):
+    def _save_markers_file_internally(self): # Renamed from _save_markers_file_to_output_folder
         """
-        Saves the current Treeview content to MARKERS.CSV in the application's output folder.
+        Saves the current Treeview content to MARKERS.CSV in the application's
+        designated internal data folder (app_instance.MARKERS_FILE_PATH).
         This is an internal helper function called after edits, loads, or conversions.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Saving current marker data to MARKERS.CSV in output folder...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print("Saving current marker data to internal MARKERS.CSV...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         if not self.tree_data:
-            debug_print("No data to save to MARKERS.CSV in output folder.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_print("No data to save to internal MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             return
 
-        output_dir = self.app_instance.output_folder_var.get()
-        if not output_dir:
-            self.console_print_func("⚠️ Warning: Output folder not configured. Cannot save MARKERS.CSV automatically.")
-            debug_print("Output folder not configured. Cannot save MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # Use the MARKERS_FILE_PATH from app_instance directly
+        markers_file_path = self.app_instance.MARKERS_FILE_PATH
+        output_dir = os.path.dirname(markers_file_path) # Get the directory part
+
+        if not markers_file_path:
+            self.console_print_func("⚠️ Warning: Internal MARKERS.CSV path not configured. Cannot save automatically.")
+            debug_print("Internal MARKERS.CSV path not configured. Cannot save.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             return
 
-        markers_file_path = os.path.join(output_dir, "MARKERS.CSV")
         try:
-            os.makedirs(output_dir, exist_ok=True) # Ensure output directory exists
+            os.makedirs(output_dir, exist_ok=True) # Ensure directory exists
             with open(markers_file_path, 'w', newline='', encoding='utf-8') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=self.tree_headers)
                 writer.writeheader()
@@ -501,14 +508,15 @@ class ReportConverterTab(ttk.Frame):
             self.console_print_func(f"✅ Auto-saved MARKERS.CSV to '{os.path.basename(markers_file_path)}'.")
             debug_print(f"Auto-saved MARKERS.CSV to '{markers_file_path}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         except Exception as e:
-            self.console_print_func(f"❌ Error auto-saving MARKERS.CSV: {e}")
-            debug_print(f"Error auto-saving MARKERS.CSV to '{markers_file_path}': {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.console_print_func(f"❌ Error auto-saving internal MARKERS.CSV: {e}")
+            debug_print(f"Error auto-saving internal MARKERS.CSV to '{markers_file_path}': {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
     def _save_open_air_csv(self):
         """
         Prompts the user for a new file path and saves the current Treeview content
         to "Open_Air_Markers - [Scan Name] - YYYYMMDD_HHMM.csv".
+        The initial directory for the save dialog will be the directory of MARKERS_FILE_PATH.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
@@ -531,12 +539,15 @@ class ReportConverterTab(ttk.Frame):
         # Construct default filename
         default_filename = f"Open_Air_Markers{scan_name} - {timestamp}.csv"
 
+        # Use the directory of app_instance.MARKERS_FILE_PATH as initialdir
+        initial_dir = os.path.dirname(self.app_instance.MARKERS_FILE_PATH) if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH') else os.getcwd()
+
         file_path = filedialog.asksaveasfilename(
             title="Save Markers as Open Air CSV",
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-            initialdir=self.app_instance.output_folder_var.get() if self.app_instance else os.getcwd(),
-            initialfile=default_filename # Use the new default filename
+            initialdir=initial_dir, # Use the directory of MARKERS_FILE_PATH
+            initialfile=default_filename
         )
         if not file_path:
             self.console_print_func("ℹ️ Info: Save As cancelled.")
@@ -622,12 +633,14 @@ class ReportConverterTab(ttk.Frame):
         headers = []
         rows = []
         error_message = None
-        # output_csv_path is now handled by _save_markers_file_to_output_folder
+        # output_csv_path is now handled by _save_markers_file_internally
 
         try:
             file_name = os.path.basename(file_path)
-            output_dir = self.app_instance.output_folder_var.get()
-            os.makedirs(output_dir, exist_ok=True) # Ensure output directory exists
+            # No longer using output_dir from app_instance for MARKERS.CSV operations
+            # Instead, ensure the directory for MARKERS_FILE_PATH exists
+            markers_dir = os.path.dirname(self.app_instance.MARKERS_FILE_PATH)
+            os.makedirs(markers_dir, exist_ok=True)
 
             if file_type == 'HTML':
                 self.console_print_func("Detected HTML file. Converting...")
@@ -654,7 +667,7 @@ class ReportConverterTab(ttk.Frame):
                 # Call the method on the main App instance to update the Markers Display tab
                 self._update_markers_display_tab_data()
                 # NEW: Save the converted data to MARKERS.CSV immediately
-                self._save_markers_file_to_output_folder()
+                self._save_markers_file_internally() # Changed to internal save
 
                 self.console_print_func(f"\n✅ Successfully converted '{file_name}' and saved to MARKERS.CSV.")
             else:
@@ -725,25 +738,20 @@ class ReportConverterTab(ttk.Frame):
     def _on_tab_selected(self, event):
         """
         Callback when this tab is selected. Ensures the marker tree is populated
-        if MARKERS.CSV exists in the output folder.
+        if MARKERS.CSV exists in the designated internal data folder.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        self.console_print_func("ReportConverterTab selected. Checking for MARKERS.CSV in output folder...")
-        debug_print("ReportConverterTab selected. Checking for MARKERS.CSV in output folder...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        self.console_print_func("ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...")
+        debug_print("ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         markers_file_path = None
-        if self.app_instance and hasattr(self.app_instance, 'output_folder_var'):
-            output_folder = self.app_instance.output_folder_var.get()
-            if output_folder:
-                markers_file_path = os.path.join(output_folder, 'MARKERS.CSV')
-                debug_print(f"Attempting to load MARKERS.CSV from configured output folder: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            else:
-                self.console_print_func("⚠️ Warning: Output folder not configured in main app. Cannot check for MARKERS.CSV.")
-                debug_print("Output folder not configured in main app. Cannot check for MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
+            markers_file_path = self.app_instance.MARKERS_FILE_PATH
+            debug_print(f"Attempting to load MARKERS.CSV from configured internal path: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("⚠️ Warning: App instance or output_folder_var not available. Cannot check for MARKERS.CSV.")
-            debug_print("App instance or output_folder_var not available. Cannot check for MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.console_print_func("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.")
+            debug_print("App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         if markers_file_path and os.path.exists(markers_file_path):
             debug_print(f"MARKERS.CSV found at: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -774,7 +782,7 @@ class ReportConverterTab(ttk.Frame):
                 self.tree_data = []
                 self._populate_marker_tree() # Clear the treeview
         else:
-            self.console_print_func("ℹ️ Info: MARKERS.CSV not found in output folder. Table is empty.")
+            self.console_print_func("ℹ️ Info: MARKERS.CSV not found in internal data folder. Table is empty.")
             self.tree_headers = []
             self.tree_data = []
             self._populate_marker_tree() # Clear the treeview

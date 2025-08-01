@@ -104,6 +104,7 @@ class App(tk.Tk):
     CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini') # Now points to DATA folder
     PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV') # Moved to DATA folder
     MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV') # Moved to DATA folder
+    VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'VISA_COMMANDS.CSV') # Moved to DATA folder
 
   
 

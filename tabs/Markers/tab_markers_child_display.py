@@ -16,9 +16,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1034.1 (Updated header and imports for new folder structure)
+# Version 20250801.1935.1 (Ensured MARKERS.CSV operations use app_instance.MARKERS_FILE_PATH.)
 
-current_version = "20250801.1034.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1935.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -79,8 +79,9 @@ class MarkersDisplayTab(ttk.Frame):
 
         # For managing selected device button state across selections
         self.current_selected_device_button = None # Reference to the currently active button widget
-        self.selected_device_unique_id = None # Unique ID of the currently selected device
+        self.selected_device_unique_id = None
         self.current_selected_device_data = None # NEW: Store the full data of the selected device
+
         self.last_selected_poke_button = None # NEW: To track the state of the POKE button
 
         # --- NEW: Tkinter StringVars for displaying selected device info and RBW ---
@@ -456,7 +457,7 @@ class MarkersDisplayTab(ttk.Frame):
         num_devices = len(devices_to_display)
         if num_devices > 20:
             num_columns = 3 # Always 3 columns if more than 20 devices
-            debug_print(f"�🐛 [{current_file}] More than 20 devices ({num_devices}). Using 3 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_print(f"🐛 [{current_file}] More than 20 devices ({num_devices}). Using 3 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
             num_columns = 2 # Default to 2 columns for 20 or fewer devices
             debug_print(f"🚫🐛 [{current_file}] 20 or fewer devices ({num_devices}). Using 2 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -506,7 +507,6 @@ class MarkersDisplayTab(ttk.Frame):
                     # --- NEW: Determine button style based on selection and active scan status ---
                     button_style = "DeviceButton.TButton" # Default style
 
-                    # Check if this device is currently being scanned
                     is_currently_scanned = False
                     if self.app_instance and hasattr(self.app_instance, 'scanning_active_var') and self.app_instance.scanning_active_var.get():
                         if hasattr(self.app_instance, 'current_scanned_device_unique_id') and self.app_instance.current_scanned_device_unique_id.get() == unique_device_id:
@@ -680,7 +680,7 @@ class MarkersDisplayTab(ttk.Frame):
             self._update_current_settings_display() # Update display after all commands
         else:
             self.console_print_func("⚠️ Warning: Cannot set focus frequency: Instrument not connected.")
-            debug_print(f"🚫🐛 [{current_file}] Cannot set focus frequency: Instrument not connected. Fucking useless!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_print(f"�🐛 [{current_file}] Cannot set focus frequency: Instrument not connected. Fucking useless!", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
     def _on_span_button_click(self, span_hz, button_widget, button_text_key):
@@ -1121,15 +1121,15 @@ class MarkersDisplayTab(ttk.Frame):
         """
         Function Description:
         Loads marker data from the MARKERS.CSV file located in the main app's
-        output folder and updates the display. This method is designed to be
+        internal MARKERS_FILE_PATH and updates the display. This method is designed to be
         called externally (e.g., by the main application instance) when the
         MARKERS.CSV file has changed.
 
         Inputs to this function:
-        - None (relies on self.app_instance and its output_folder_var)
+        - None (relies on self.app_instance and its MARKERS_FILE_PATH)
 
         Process of this function:
-        1. Dynamically determines the path to MARKERS.CSV.
+        1. Dynamically determines the path to MARKERS.CSV using MARKERS_FILE_PATH.
         2. Checks if the file exists.
         3. If it exists, reads the CSV data (headers and rows).
         4. Calls `update_markers_data` to refresh the GUI with the new data.
@@ -1140,6 +1140,7 @@ class MarkersDisplayTab(ttk.Frame):
         - Prints messages to the console.
 
         (2025-07-31) Change: New method to allow external triggering of data loading.
+        (2025-08-01) Change: Modified to use app_instance.MARKERS_FILE_PATH.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_display.py - {current_version}"
@@ -1147,17 +1148,12 @@ class MarkersDisplayTab(ttk.Frame):
         debug_print(f"🚫🐛 [{current_file}] load_markers_from_file called.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         markers_file_path = None
-        if self.app_instance and hasattr(self.app_instance, 'output_folder_var'):
-            output_folder = self.app_instance.output_folder_var.get()
-            if output_folder:
-                markers_file_path = os.path.join(output_folder, 'MARKERS.CSV')
-                debug_print(f"🚫🐛 [{current_file}] Determined MARKERS.CSV path: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            else:
-                self.console_print_func("⚠️ Warning: Output folder not configured in main app. Cannot load MARKERS.CSV.")
-                debug_print(f"🚫🐛 [{current_file}] Output folder not configured in main app. Cannot load MARKERS.CSV. What in the actual hell?", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
+            markers_file_path = self.app_instance.MARKERS_FILE_PATH
+            debug_print(f"🚫🐛 [{current_file}] Determined MARKERS.CSV path: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("⚠️ Warning: App instance or output_folder_var not available. Cannot load MARKERS.CSV.")
-            debug_print(f"🚫🐛 [{current_file}] App instance or output_folder_var not available. Cannot load MARKERS.CSV. This is a fucking mess!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.console_print_func("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV.")
+            debug_print(f"🚫🐛 [{current_file}] App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV. This is a fucking mess!", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         if markers_file_path and os.path.exists(markers_file_path):
             debug_print(f"🚫🐛 [{current_file}] MARKERS.CSV found at: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
