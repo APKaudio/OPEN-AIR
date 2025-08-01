@@ -15,9 +15,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1058.1 (Updated header and imports for new folder structure)
+# Version 20250801.1920.1 (Updated header to reflect circular import fix.)
 
-current_version = "20250801.1058.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1920.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -231,16 +231,18 @@ class InitialConfigurationTab(ttk.Frame):
                     debug_print(f"Synced Tkinter var '{tk_var_name}' to '{new_value_str}'", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
                     # Special handling for notes_var if it's a ScrolledText
-                    if tk_var_name == 'notes_var' and hasattr(self.app_instance, 'scan_meta_data_tab') and hasattr(self.app_instance.scan_meta_data_tab, 'notes_text_widget'):
-                        self.app_instance.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
-                        self.app_instance.scan_meta_data_tab.notes_text_widget.insert("1.0", new_value_str)
+                    if tk_var_name == 'notes_var' and hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_meta_data_tab') and hasattr(self.app_instance.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
+                        self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
+                        self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", new_value_str)
                         debug_print("Updated notes_text_widget from config edit.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
                     # For band selections, if the key is 'last_selected_bands' or 'default_selected_bands'
-                    if key == 'last_selected_bands' or key == 'default_selected_bands':
-                        if hasattr(self.app_instance, 'scan_tab'):
-                            self.app_instance.scan_tab._load_band_selections_from_config() # Reload checkboxes
-                            debug_print("Reloaded band selections in ScanTab after config edit.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    # This needs to be handled via the ScanConfigurationTab
+                    if (key == 'last_scan_configuration__selected_bands' or
+                        key == 'default_scan_configuration__selected_bands'):
+                        if hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_configuration_tab'):
+                            self.app_instance.scanning_parent_tab.scan_configuration_tab._load_band_selections_from_config() # Reload checkboxes
+                            debug_print("Reloaded band selections in Scan Configuration Tab after config edit.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
                     break # Found and updated the variable
                 except ValueError as e:
@@ -262,10 +264,10 @@ class InitialConfigurationTab(ttk.Frame):
         self.console_print_func("✅ Default configuration loaded and applied.")
         # Ensure all tabs that display settings are refreshed
         self.app_instance.update_idletasks()
-        for tab_id in self.app_instance.left_notebook.tabs():
-            tab_widget = self.app_instance.left_notebook.nametowidget(tab_id)
-            if hasattr(tab_widget, '_on_tab_selected'):
-                tab_widget._on_tab_selected(None) # Pass None as event
+        # Iterate through parent tabs and then their child tabs to trigger _on_tab_selected
+        for parent_tab_name, parent_tab_widget in self.app_instance.parent_tab_widgets.items():
+            if hasattr(parent_tab_widget, '_on_tab_selected'):
+                parent_tab_widget._on_tab_selected(None) # Trigger parent tab's refresh
         debug_print("Default config loaded and GUI refreshed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
@@ -281,10 +283,10 @@ class InitialConfigurationTab(ttk.Frame):
         self.console_print_func("✅ Previous configuration loaded and applied.")
         # Ensure all tabs that display settings are refreshed
         self.app_instance.update_idletasks()
-        for tab_id in self.app_instance.left_notebook.tabs():
-            tab_widget = self.app_instance.left_notebook.nametowidget(tab_id)
-            if hasattr(tab_widget, '_on_tab_selected'):
-                tab_widget._on_tab_selected(None) # Pass None as event
+        # Iterate through parent tabs and then their child tabs to trigger _on_tab_selected
+        for parent_tab_name, parent_tab_widget in self.app_instance.parent_tab_widgets.items():
+            if hasattr(parent_tab_widget, '_on_tab_selected'):
+                parent_tab_widget._on_tab_selected(None) # Trigger parent tab's refresh
         debug_print("Previous config loaded and GUI refreshed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
@@ -299,7 +301,10 @@ class InitialConfigurationTab(ttk.Frame):
         # Before saving, ensure the app_instance.config object is fully up-to-date
         # by calling the main app's save_config method without writing to file yet.
         # This updates the in-memory config object.
-        self.app_instance.save_config(self.app_instance)
+        # Note: app_instance.save_config is designed to save to the default path.
+        # For "Save As", we need to ensure the in-memory config is current, then use save_config_as_new_file.
+        # The app_instance.save_config method implicitly updates the in-memory config from Tkinter vars.
+        # So, we can directly proceed to ask for file path and use save_config_as_new_file.
 
         file_path = filedialog.asksaveasfilename(
             defaultextension=".ini",
@@ -329,4 +334,3 @@ class InitialConfigurationTab(ttk.Frame):
         current_file = __file__
         debug_print("Initial Configuration Tab selected. Refreshing table...", file=current_file, function=current_function, console_print_func=self.console_print_func)
         self._populate_config_table()
-

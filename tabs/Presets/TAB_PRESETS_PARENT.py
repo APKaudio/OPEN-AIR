@@ -15,19 +15,19 @@
 # Feature Request can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1800.1 (Added diagnostic print statement at module level to debug ImportError.
-#                      Updated debug prints to new format.)
+# Version 20250801.1920.1 (Updated to reflect child preset tab reconstruction and fix circular import.)
 
 # FUCKING DIAGNOSTIC PRINT: If you don't see this, the problem is before this file is fully loaded.
 print("🚫🐛 [DEBUG] Executing tabs/Presets/TAB_PRESETS_PARENT.py module...")
 
-current_version = "20250801.1800.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1920.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
 # Import the child tabs - CORRECTED PATHS
+# Ensure these imports do NOT import TAB_PRESETS_PARENT back
 from tabs.Presets.tab_presets_child_preset import PresetFilesTab
 from tabs.Presets.tab_presets_child_initial_configuration import InitialConfigurationTab
 from utils.utils_instrument_control import debug_print
@@ -63,6 +63,7 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         (2025-07-31) Change: Initial creation of TAB_PRESETS_PARENT.
         (2025-07-31) Change: Corrected import for InitialConfigurationTab.
         (2025-08-01) Change: Updated child_notebook style to 'PresetsChild.TNotebook'.
+        (2025-08-01 1920.1) Change: Updated header to reflect child preset tab reconstruction.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -196,4 +197,3 @@ class TAB_PRESETS_PARENT(ttk.Frame):
                             file=f"{current_file} - {current_version}",
                             function=current_function,
                             console_print_func=self.console_print_func)
-

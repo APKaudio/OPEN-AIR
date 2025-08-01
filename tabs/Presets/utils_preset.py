@@ -14,9 +14,9 @@
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 #
-# Version 20250801.1056.1 (Updated header and verified imports for new folder structure)
+# Version 20250801.1920.1 (Updated header to reflect circular import fix.)
 
-current_version = "20250801.1056.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1920.1" # this variable should always be defined below the header to make the debugging better
 
 import pyvisa
 import time
@@ -55,6 +55,7 @@ def get_presets_csv_path(config_file_path, console_print_func):
     #   str: The full path to the PRESETS.CSV file.
     #
     # (2025-07-30) Change: No functional change, just updated header.
+    # (2025-08-01 1920.1) Change: No functional changes.
     """
     Determines the full path to the PRESETS.CSV file.
     It assumes the CSV file is in the same directory as the main application's config file.
@@ -103,6 +104,7 @@ def load_user_presets_from_csv(config_file_path, console_print_func):
     #
     # (2025-07-31) Change: Added logic to create empty CSV with headers if FileNotFoundError occurs.
     # (2025-07-31) Change: Stripped whitespace from 'Filename' when reading from CSV.
+    # (2025-08-01 1920.1) Change: No functional changes.
     """
     Loads user-defined preset details from the PRESETS.CSV file.
     Returns a list of dictionaries, each representing a preset.
@@ -191,6 +193,7 @@ def save_user_preset_to_csv(preset_data, config_file_path, console_print_func):
     # (2025-07-30) Change: No functional change, just updated header.
     # (2025-07-31) Change: Added debug prints to trace Filename comparison for update logic.
     # (2025-07-31) Change: Ensured stripping of whitespace for filenames during comparison.
+    # (2025-08-01 1920.1) Change: No functional changes.
     """
     Saves a single user-defined preset's details to the PRESETS.CSV file.
     If the preset already exists (based on 'Filename'), it updates the existing entry.
@@ -345,8 +348,8 @@ def query_device_presets_logic(app_instance, console_print_func):
     if not app_instance.inst:
         console_print_func("⚠️ Warning: No instrument connected. Cannot query device presets.")
         debug_print("No instrument connected, cannot query device presets.", file=current_file, function=current_function, console_print_func=console_print_func)
-        if hasattr(app_instance, 'preset_files_tab'):
-            app_instance.preset_files_tab.populate_instrument_preset_buttons([]) # Clear buttons if no instrument
+        if hasattr(app_instance, 'presets_parent_tab') and hasattr(app_instance.presets_parent_tab, 'preset_files_tab'):
+            app_instance.presets_parent_tab.preset_files_tab.populate_instrument_preset_buttons([]) # Clear buttons if no instrument
         return None
     
     # Add debug print for app_instance.inst before calling query_device_presets
@@ -357,17 +360,17 @@ def query_device_presets_logic(app_instance, console_print_func):
     presets = query_device_presets(app_instance.inst, console_print_func)
     
     if presets is not None:
-        if hasattr(app_instance, 'preset_files_tab'):
+        if hasattr(app_instance, 'presets_parent_tab') and hasattr(app_instance.presets_parent_tab, 'preset_files_tab'):
             # FIX: Corrected function name and removed redundant 'source' argument
-            app_instance.preset_files_tab.populate_instrument_preset_buttons(presets)
+            app_instance.presets_parent_tab.preset_files_tab.populate_instrument_preset_buttons(presets)
         console_print_func(f"✅ Queried {len(presets)} presets from device.")
         debug_print(f"Queried {len(presets)} presets from device.", file=current_file, function=current_function, console_print_func=console_print_func)
         return presets # Return the list of presets
     else:
         console_print_func("❌ Failed to query presets from device.")
         debug_print("Failed to query presets from device.", file=current_file, function=current_function, console_print_func=console_print_func)
-        if hasattr(app_instance, 'preset_files_tab'):
-            app_instance.preset_files_tab.populate_instrument_preset_buttons([]) # Clear buttons on failure
+        if hasattr(app_instance, 'presets_parent_tab') and hasattr(app_instance.presets_parent_tab, 'preset_files_tab'):
+            app_instance.presets_parent_tab.preset_files_tab.populate_instrument_preset_buttons([]) # Clear buttons on failure
         return None
 
 def load_selected_preset(inst, preset_name, console_print_func):
@@ -483,10 +486,10 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
 
             # Update app_instance's current settings display variables
             # These are for the main Instrument tab's display, not the preset buttons
-            if hasattr(app_instance, 'instrument_tab'):
-                app_instance.instrument_tab.current_center_freq_var.set(f"{center_freq_hz / MHZ_TO_HZ:.3f}")
-                app_instance.instrument_tab.current_span_var.set(f"{span_hz / MHZ_TO_HZ:.3f}")
-                app_instance.instrument_tab.current_rbw_var.set(f"{rbw_hz:.0f}")
+            if hasattr(app_instance, 'instrument_parent_tab') and hasattr(app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_center_freq_var.set(f"{center_freq_hz / MHZ_TO_HZ:.3f}")
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_span_var.set(f"{span_hz / MHZ_TO_HZ:.3f}")
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_rbw_var.set(f"{rbw_hz:.0f}")
                 # The other variables (Ref Level, Freq Shift, High Sensitivity) are not updated here
                 # as this function is for basic settings only. They are handled by query_current_instrument_settings_logic.
             

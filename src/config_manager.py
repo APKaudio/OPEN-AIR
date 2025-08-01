@@ -15,9 +15,9 @@
 # Feature Request can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1600.4 (Updated load_config and save_config signatures to correctly handle config_obj and app_instance.)
+# Version 20250801.1915.1 (Ensured LAST_USED_SETTINGS are populated with defaults on first config creation.)
 
-current_version = "20250801.1600.4" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.1915.1" # this variable should always be defined below the header to make the debuggin better
 
 import configparser
 import os
@@ -58,14 +58,15 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     #      including new meta data and equipment fields.
     #   4. Populates `DEFAULT_SETTINGS` with any missing default values.
     #   5. Dynamically generates and sets default selected bands if missing.
-    #   6. Ensures `last_GLOBAL__window_geometry` is set.
-    #   7. Iterates through `app_instance.setting_var_map` to load values from `config.ini`
+    #   6. **NEW: If LAST_USED_SETTINGS is newly created or empty, it copies all default values into it.**
+    #   7. Ensures `last_GLOBAL__window_geometry` is set.
+    #   8. Iterates through `app_instance.setting_var_map` to load values from `config.ini`
     #      into the corresponding Tkinter variables, handling type conversions (Boolean, Int, Float, String).
     #      Crucially, it now attempts to convert old string labels from dropdowns into their
     #      numeric equivalents if direct conversion fails.
-    #   8. Includes robust error handling for type conversion failures.
-    #   9. Loads the last selected bands and updates `app_instance.band_vars`.
-    #   10. Prints debug messages throughout the process, including the final config contents.
+    #   9. Includes robust error handling for type conversion failures.
+    #   10. Loads the last selected bands and updates `app_instance.band_vars`.
+    #   11. Prints debug messages throughout the process, including the final config contents.
     #
     # Outputs of this function
     #   configparser.ConfigParser: The loaded and initialized ConfigParser object.
@@ -86,6 +87,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     #                     Updated debug prints to new format.
     # (2025-08-01 1600.3) Change: Corrected load_config signature to include app_instance.
     # (2025-08-01 1600.4) Change: Corrected load_config signature to accept config_obj as first argument, and updated save_config signature to correctly use app_instance.
+    # (2025-08-01 1915.1) Change: Added logic to populate LAST_USED_SETTINGS with DEFAULT_SETTINGS if config.ini is new or LAST_USED_SETTINGS is empty.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
@@ -96,6 +98,9 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
 
     config_obj.read(config_file_path) # Use config_obj here
 
+    # Flag to check if LAST_USED_SETTINGS was initially empty
+    last_used_settings_was_empty = False
+
     if 'DEFAULT_SETTINGS' not in config_obj:
         config_obj['DEFAULT_SETTINGS'] = {}
         debug_print(f"🚫🐛 [DEBUG] Created missing 'DEFAULT_SETTINGS' section. Version: {current_version}",
@@ -105,10 +110,18 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
 
     if 'LAST_USED_SETTINGS' not in config_obj:
         config_obj['LAST_USED_SETTINGS'] = {}
+        last_used_settings_was_empty = True # Mark as empty if section was just created
         debug_print(f"🐛 [DEBUG] Created missing 'LAST_USED_SETTINGS' section. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
+    elif not config_obj['LAST_USED_SETTINGS']: # Check if section exists but is empty
+        last_used_settings_was_empty = True
+        debug_print(f"🐛 [DEBUG] 'LAST_USED_SETTINGS' section found but is empty. Will populate with defaults. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+
 
     # Define default values for all settings using the new prefixed style
     default_values = {
@@ -178,9 +191,15 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
         'plotting__average_markers_to_plot__math_standard_deviation': 'True',
         'plotting__average_markers_to_plot__math_variance': 'True',
         'plotting__average_markers_to_plot__math_psd': 'True',
+
+        # NEW: Variables for persistent preset selection and its loaded details
+        'instrument_preset__selected_preset_name': '',
+        'instrument_preset__loaded_preset_center_freq_mhz': '',
+        'instrument_preset__loaded_preset_span_mhz': '',
+        'instrument_preset__loaded_preset_rbw_hz': '',
     }
 
-    # Ensure all default settings are present
+    # Ensure all default settings are present in DEFAULT_SETTINGS section
     for key, value in default_values.items():
         if f"default_{key}" not in config_obj['DEFAULT_SETTINGS']: # Use 'config_obj' here
             config_obj['DEFAULT_SETTINGS'][f"default_{key}"] = value
@@ -198,7 +217,32 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
                     function=current_function,
                     console_print_func=console_print_func)
 
+    # If LAST_USED_SETTINGS was empty or just created, populate it with defaults
+    if last_used_settings_was_empty:
+        debug_print(f"🐛 [DEBUG] Populating 'LAST_USED_SETTINGS' with default values as it was empty. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+        for key, value in default_values.items():
+            # Convert default_KEY to last_KEY format
+            last_key = f"last_{key}"
+            config_obj['LAST_USED_SETTINGS'][last_key] = value
+            debug_print(f"🚫🐛 [DEBUG] Copied default: {last_key}={value}. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
+        
+        # Also handle the selected bands for the first time setup
+        default_bands_str = config_obj['DEFAULT_SETTINGS'].get('default_scan_configuration__selected_bands', '')
+        config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands'] = default_bands_str
+        debug_print(f"🚫🐛 [DEBUG] Copied default bands: last_scan_configuration__selected_bands={default_bands_str}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+
+
     # Ensure last_GLOBAL__window_geometry is set in LAST_USED_SETTINGS
+    # This check is still needed in case the section existed but this specific key was missing
     if 'last_GLOBAL__window_geometry' not in config_obj['LAST_USED_SETTINGS']: # Use 'config_obj' here
         default_geometry = config_obj['DEFAULT_SETTINGS'].get('default_GLOBAL__window_geometry', '1400x780+100+100')
         config_obj['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = default_geometry # Use 'config_obj' here
@@ -356,8 +400,8 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
         for key, value in config_obj.items(section): # Use 'config_obj' here
             debug_print(f"  {key} = {value}",
                         file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=console_print_func)
+                    function=current_function,
+                    console_print_func=console_print_func)
     debug_print(f"🚫🐛 [DEBUG] --- End ConfigParser Contents --- Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
@@ -405,6 +449,7 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     #                     Removed app_instance parameter as it's no longer needed directly for saving.
     #                     Updated debug prints to new format.
     # (2025-08-01 1600.4) Change: Corrected load_config signature to accept config_obj as first argument, and updated save_config signature to correctly use app_instance.
+    # (2025-08-01 1915.1) Change: No functional changes.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
@@ -529,6 +574,7 @@ def save_config_as_new_file(config_obj, file_path, console_print_func):
     # (2025-07-30) Change: No functional change, just updated header.
     # (2025-07-31) Change: Updated header.
     # (2025-08-01) Change: Updated debug prints to new format.
+    # (2025-08-01 1915.1) Change: No functional changes.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
