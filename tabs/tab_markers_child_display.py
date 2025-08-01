@@ -16,8 +16,8 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1 (YYYYMMDD, Y should increment every time a new revision is made)
-current_version = "Version 20250801.1" # this variable should always be defined below the header to make the debuggin better
+# Version 20250801.4 (YYYYMMDD, Y should increment every time a new revision is made)
+current_version = "Version 20250801.4" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -25,6 +25,7 @@ import os
 import csv
 import inspect
 import json # Import json for serializing/deserializing row data
+import math # Import math for ceil function (still useful for general calculations, though not directly for this column logic)
 
 # Import new marker utility functions and constants
 from utils.utils_markers import SPAN_OPTIONS, RBW_OPTIONS, set_span_logic, set_frequency_logic, set_trace_modes_logic, set_marker_logic, blank_hold_traces_logic, set_rbw_logic
@@ -112,8 +113,11 @@ class MarkersDisplayTab(ttk.Frame):
         self.grid_rowconfigure(0, weight=1) # Allow main_split_frame to expand
         self.grid_columnconfigure(0, weight=1)
 
-        main_split_frame.grid_columnconfigure(0, weight=1) # Left half (treeview)
-        main_split_frame.grid_columnconfigure(1, weight=1) # Right half (device buttons)
+        # --- MODIFIED: Set fixed width for column 0 (Zones & Groups, Current Instrument Settings) ---
+        main_split_frame.grid_columnconfigure(0, weight=0, minsize=300) # Left half (treeview and settings) fixed 300px
+        main_split_frame.grid_columnconfigure(1, weight=1) # Right half (device buttons, manual freq) expands
+        # --- END MODIFIED ---
+
         main_split_frame.grid_rowconfigure(0, weight=1) # Top row for treeview and device buttons
 
         # NEW: Updated grid_rowconfigure for the new layout
@@ -125,7 +129,9 @@ class MarkersDisplayTab(ttk.Frame):
 
         # Left Half: Treeview for Zones and Groups
         tree_frame = ttk.LabelFrame(main_split_frame, text="Zones & Groups", padding=(1,1,1,1), style='Dark.TLabelframe')
+        # --- MODIFIED: Ensure tree_frame uses fixed width by being in column 0 with minsize ---
         tree_frame.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
+        # --- END MODIFIED ---
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
@@ -198,7 +204,9 @@ class MarkersDisplayTab(ttk.Frame):
 
         # --- NEW: Current Instrument Settings & Manual Frequency Control Frames (Now at row 2, with titles) ---
         self.current_settings_frame = ttk.LabelFrame(main_split_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
+        # --- MODIFIED: Ensure current_settings_frame uses fixed width by being in column 0 with minsize ---
         self.current_settings_frame.grid(row=2, column=0, sticky="nsew", padx=5, pady=5) # Left half of row 2
+        # --- END MODIFIED ---
         self.current_settings_frame.grid_columnconfigure(0, weight=1) # Allow label to expand
         self.current_settings_frame.grid_columnconfigure(1, weight=1) # For values
 
@@ -301,7 +309,7 @@ class MarkersDisplayTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"�🐛 [{current_file}] Populating zone/group tree (2 levels)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print(f"🚫🐛 [{current_file}] Populating zone/group tree (2 levels)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
         self.zone_group_tree.delete(*self.zone_group_tree.get_children()) # Clear existing data
 
         # Nested dictionary to store data: {ZONE: {GROUP: [rows]}}
@@ -424,10 +432,15 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 17:00) Change: Added logic to style buttons based on active scan status.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
         (2025-07-31 23:50) Change: Removed canvas-related scrollregion updates.
+        (2025-08-01 00:45) Change: Implemented dynamic column adjustment for device buttons.
+                                If more than 20 devices, aims for 3 rows. Otherwise, 2 columns.
+        (2025-08-01 00:50) Change: Corrected dynamic column adjustment to always be 3 columns if > 20 devices,
+                                and 2 columns if <= 20 devices.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/tab_markers_child_display.py - {current_version}"
         debug_print(f"🚫🐛 [{current_file}] Populating device buttons with {len(devices_to_display)} devices...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        
         # Clear existing buttons
         for widget in self.inner_buttons_frame.winfo_children():
             widget.destroy()
@@ -436,8 +449,30 @@ class MarkersDisplayTab(ttk.Frame):
             ttk.Label(self.inner_buttons_frame, text="Select a zone or group from the left to display devices.",
                       background="#1e1e1e", foreground="#cccccc", style='Markers.TLabel').grid(row=0, column=0, columnspan=2, padx=5, pady=5)
             self.inner_buttons_frame.update_idletasks()
-            # Removed: self.buttons_canvas.config(scrollregion=self.buttons_canvas.bbox("all"))
             return
+
+        # Determine the number of columns based on the number of devices
+        num_devices = len(devices_to_display)
+        if num_devices > 20:
+            num_columns = 3 # Always 3 columns if more than 20 devices
+            debug_print(f"�🐛 [{current_file}] More than 20 devices ({num_devices}). Using 3 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        else:
+            num_columns = 2 # Default to 2 columns for 20 or fewer devices
+            debug_print(f"🚫🐛 [{current_file}] 20 or fewer devices ({num_devices}). Using 2 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+
+        # Clear all previous column weights to ensure clean reconfiguration
+        # Get the current maximum column index that might have a weight configured
+        current_max_col = 0
+        if self.inner_buttons_frame.grid_size():
+            current_max_col = self.inner_buttons_frame.grid_size()[0]
+
+        for i in range(current_max_col):
+            self.inner_buttons_frame.grid_columnconfigure(i, weight=0) # Reset all to 0
+
+        # Configure only the necessary columns with weight=1
+        for i in range(num_columns):
+            self.inner_buttons_frame.grid_columnconfigure(i, weight=1)
+
 
         row_idx = 0
         col_idx = 0
@@ -490,7 +525,7 @@ class MarkersDisplayTab(ttk.Frame):
                     btn.grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="nsew")
 
                     col_idx += 1
-                    if col_idx >= 2: # Two columns per row
+                    if col_idx >= num_columns: # Wrap to next row based on calculated columns
                         col_idx = 0
                         row_idx += 1
                 except ValueError:
@@ -498,16 +533,12 @@ class MarkersDisplayTab(ttk.Frame):
             else:
                 debug_print(f"🚫🐛 [{current_file}] Frequency not found for device '{name}'. Skipping button. What the hell?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        # Ensure columns in inner_buttons_frame expand to fill available space
-        self.inner_buttons_frame.grid_columnconfigure(0, weight=1)
-        self.inner_buttons_frame.grid_columnconfigure(1, weight=1)
         # Ensure rows also expand if needed, though buttons will dictate row height
         for r in range(row_idx + 1):
             self.inner_buttons_frame.grid_rowconfigure(r, weight=1)
 
 
         self.inner_buttons_frame.update_idletasks() # Ensure layout is updated before calculating scrollregion
-        # Removed: self.buttons_canvas.config(scrollregion=self.buttons_canvas.bbox("all"))
 
     def _reset_span_button_styles(self, exclude_button=None):
         """Resets the style of all span buttons to default, except for the excluded one."""
