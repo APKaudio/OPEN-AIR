@@ -17,13 +17,11 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1135.1 (Corrected previous error where file was truncated by using the full original file.
-#                          Moved ttk.Style configurations for button fonts and flashing
-#                          states from scan_controler_button_logic.py to main_app.py.
-#                          Adjusted button font size to 30pt globally. Updated debug_print
-#                          calls with new current_version.)
+# Version 20250801.1205.1 (Moved dependency check to check_Dependancies.py and
+#                          called it before App instantiation. Removed _check_and_install_dependencies
+#                          method from App class. Updated headers and versions.)
 
-current_version = "20250801.1135.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1205.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -49,6 +47,8 @@ from src.instrument_logic import (
 from src.scan_logic import update_connection_status_logic
 from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
 from src.scan_controler_button_logic import ScanControlTab # Keep this import, as we still need the class
+from src.style import apply_styles # NEW: Import the apply_styles function
+from src.check_Dependancies import check_and_install_dependencies # NEW: Import the standalone dependency check
 
 from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
 
@@ -98,25 +98,24 @@ class App(tk.Tk):
         #   1. Calls the superclass constructor (tk.Tk).
         #   2. Sets the window title and protocol for closing.
         #   3. Initializes `configparser` object and `is_ready_to_save` flag.
-        #   4. Calls `_check_and_install_dependencies` to ensure environment readiness.
-        #   5. Initializes instrument-related attributes (`rm`, `inst`, `instrument_model`).
-        #   6. Initializes data storage lists (`collected_scans_dataframes`, `last_scan_markers`).
-        #   7. Initializes scan control flags and threading events.
-        #   8. Sets up frequency band constants.
-        #   9. Calls `_setup_tkinter_vars` to create all Tkinter variables.
-        #   10. Calls `load_config` to populate variables from `config.ini`.
-        #   11. Applies saved window geometry.
-        #   12. Initializes `ttk.Style`.
-        #   13. Sets debug modes based on loaded config.
-        #   14. Calls `_ensure_data_directory_exists` to create the DATA folder.
-        #   15. Calls `_create_widgets` to build the GUI.
-        #   16. Calls `_setup_styles` to apply custom themes.
-        #   17. Redirects stdout to the GUI console.
-        #   18. Updates connection status.
-        #   19. Prints application art.
-        #   20. Loads band selections for ScanTab (now nested).
-        #   21. Manually updates notes text widget on ScanMetaDataTab (now nested).
-        #   22. Sets `is_ready_to_save` to True.
+        #   4. Initializes instrument-related attributes (`rm`, `inst`, `instrument_model`).
+        #   5. Initializes data storage lists (`collected_scans_dataframes`, `last_scan_markers`).
+        #   6. Initializes scan control flags and threading events.
+        #   7. Sets up frequency band constants.
+        #   8. Calls `_setup_tkinter_vars` to create all Tkinter variables.
+        #   9. Calls `load_config` to populate variables from `config.ini`.
+        #   10. Applies saved window geometry.
+        #   11. Initializes `ttk.Style`.
+        #   12. Sets debug modes based on loaded config.
+        #   13. Calls `_ensure_data_directory_exists` to create the DATA folder.
+        #   14. Calls `_create_widgets` to build the GUI.
+        #   15. Calls `_setup_styles` to apply custom themes.
+        #   16. Redirects stdout to the GUI console.
+        #   17. Updates connection status.
+        #   18. Prints application art.
+        #   19. Loads band selections for ScanTab (now nested).
+        #   20. Manually updates notes text widget on ScanMetaDataTab (now nested).
+        #   21. Sets `is_ready_to_save` to True.
         #
         # Outputs:
         #   None. Initializes the main application object.
@@ -140,6 +139,14 @@ class App(tk.Tk):
         #                      Adjusted button font size to 30pt globally. Updated debug_print
         #                      calls with new current_version.
         # (2025-08-01) Change: Corrected previous error where file was truncated by using the full original file.
+        # (2025-08-01) Change: Reverted global TButton font to 15pt. Defined new 'BigScanButton.TButton' style for 30pt font.
+        # (2025-08-01) Change: Defined new specific color styles for BigScanButton (Green, Orange, Red, Disabled).
+        #                      Ensured flashing styles (FlashingGreen, FlashingDark) use 30pt font.
+        # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
+        #                      into a new external file: src/style.py.
+        # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
+        #                      directly instead of 'self.debug_print'.
+        # (2025-08-01) Change: Removed _check_and_install_dependencies method, as it's now a standalone function.
         super().__init__()
         self.title("OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -148,7 +155,7 @@ class App(tk.Tk):
 
         self.is_ready_to_save = False
 
-        self._check_and_install_dependencies()
+        # Removed self._check_and_install_dependencies() as it's now called before App instantiation
 
         self.rm = None
         self.inst = None
@@ -210,76 +217,12 @@ class App(tk.Tk):
 
 
         self.is_ready_to_save = True
-        debug_print(f"�🐛 [DEBUG] Application fully initialized and ready to save configuration. Version: {current_version}",
+        debug_print(f"🚫🐛 [DEBUG] Application fully initialized and ready to save configuration. Version: {current_version}",
                     file=f"main_app.py - {current_version}",
                     function=inspect.currentframe().f_code.co_name)
 
 
-    def _check_and_install_dependencies(self):
-        # Checks for necessary Python packages (pyvisa, pandas, beautifulsoup4, pdfplumber, requests)
-        # and attempts to install them if missing. If packages are missing and the user agrees,
-        # it installs them and then exits the application, prompting for a restart.
-        #
-        # Inputs:
-        #   None (operates on self).
-        #
-        # Process:
-        #   1. Defines a dictionary of required dependencies (import name: package name).
-        #   2. Iterates through the dependencies, attempting to import each.
-        #   3. If an ImportError occurs, adds the package name to a `missing_dependencies` list.
-        #   4. If `missing_dependencies` is not empty, prompts the user to install them.
-        #   5. If the user agrees, attempts to install using `pip`.
-        #   6. Shows success/failure messages and exits the application if installation occurs
-        #      or if the user declines installation.
-        #
-        # Outputs:
-        #   None. May exit the application if dependencies are missing or installed.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        """
-        Checks for necessary Python packages (pyvisa, pandas, beautifulsoup4, pdfplumber, requests)
-        and attempts to install them if missing.
-        """
-        dependencies = {
-            "pyvisa": "pyvisa",
-            "pandas": "pandas",
-            "bs4": "beautifulsoup4", # For BeautifulSoup
-            "pdfplumber": "pdfplumber",
-            "requests": "requests" # Added requests to the dependency check
-        }
-        missing_dependencies = []
-
-        for import_name, package_name in dependencies.items():
-            try:
-                __import__(import_name)
-            except ImportError:
-                missing_dependencies.append(package_name)
-
-        if missing_dependencies:
-            missing_str = ", ".join(missing_dependencies)
-            response = messagebox.askyesno(
-                "Missing Dependencies",
-                f"The following Python packages are missing: {missing_str}.\n"
-                "Do you want to install them now? This may take a few moments."
-            )
-            if response:
-                try:
-                    subprocess.check_call([sys.executable, "-m", "pip", "install", *missing_dependencies])
-                    messagebox.showinfo("Installation Complete", "Required packages installed successfully. Please restart the application.")
-                    sys.exit(0) # Exit to restart application
-                except Exception as e:
-                    messagebox.showerror("Installation Failed", f"Failed to install packages: {e}\nPlease install them manually using 'pip install {missing_str}'")
-                    sys.exit(1) # Exit if user chooses not to install
-            else:
-                messagebox.showwarning("Dependencies Missing", "Application may not function correctly without required packages.")
-                sys.exit(1) # Exit if user chooses not to install
-
+    # Removed _check_and_install_dependencies method from here.
 
     def _setup_tkinter_vars(self):
         # Initializes all Tkinter variables used throughout the application.
@@ -317,7 +260,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Added paned_window_sash_position_var and added it to setting_var_map.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (22025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         """
         Initializes Tkinter variables for all application settings,
@@ -835,355 +778,18 @@ class App(tk.Tk):
         #   None (operates on self).
         #
         # Process:
-        #   1. Prints a debug message.
-        #   2. Sets the ttk theme to 'clam'.
-        #   3. Defines a set of consistent color variables for the theme,
-        #      including specific colors for parent tabs.
-        #   4. Configures styles for general widgets like `TFrame`, `TLabel`, `TEntry`, `TCombobox`.
-        #   5. Defines and maps styles for various `TButton` types (default, Blue, Green, Red, Orange, Purple, LargeYAK).
-        #   6. Configures styles for `TCheckbutton`, `TLabelFrame`, and `TNotebook` (tabs).
-        #   7. Defines specific styles for parent notebooks, including unique
-        #      backgrounds for selected and unselected parent tabs.
-        #   8. Configures styles for `Treeview` widgets (headings and rows).
-        #   9. Defines specific styles for the "Markers Tab".
+        #   1. Calls the external `apply_styles` function from `src.style`
+        #      to apply all centralized style configurations.
         #
         # Outputs:
         #   None. Applies visual styling to the application's GUI.
         #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Adjusted preset button font size to 10pt and selected button color to orange.
-        # (2025-07-31) Change: Added custom styles for parent tabs to allow unique bright/muted colors.
-        # (2025-07-31) Change: Defined and applied specific styles for child notebooks to match parent colors.
-        # (2025-07-31) Change: Refactored parent tab styling to use individual styles per tab for correct color display.
-        # (2025-07-31) Change: Simplified parent tab styling to ensure consistent display and avoid TclError.
-        # (2025-07-31) Change: Implemented user-requested color scheme for parent and child tabs.
-        # (2025-07-31) Change: Removed problematic style.map for Parent.TNotebook.Tab as colors are now set dynamically.
-        # (2025-07-31) Change: Defined explicit active and inactive styles for each parent tab to fix "-background" error.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Added new Markers tab specific styles.
-        # (2025-08-01) Change: Updated header and version.
-        """
-        Configures and applies custom ttk styles for a modern dark theme,
-        including styles for nested tabs.
-        """
-        debug_print(f"🚫🐛 [DEBUG] Setting up ttk styles... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        # self.style is now an instance attribute, initialized in __init__
-        self.style.theme_use('clam')
-
-        # General background and foreground colors
-        BG_DARK = "#1e1e1e"
-        FG_LIGHT = "#cccccc"
-        ACCENT_BLUE = "#007bff"
-        ACCENT_GREEN = "#28a745"
-        ACCENT_RED = "#dc3545"
-        ACCENT_ORANGE = "#ffc107"
-        ACCENT_PURPLE = "#6f42c1"
-
-        # Parent Tab Colors (defined in _create_widgets now and used via self.parent_tab_colors)
-        # These constants are kept here for clarity but the actual values are pulled from self.parent_tab_colors
-        # in _create_widgets and _on_parent_tab_change.
-        PARENT_INSTRUMENT_ACTIVE = "#FF0000"
-        PARENT_INSTRUMENT_INACTIVE = "#660C0C"
-        PARENT_SCANNING_ACTIVE = "#FF6600"
-        PARENT_SCANNING_INACTIVE = "#926002"
-        PARENT_PLOTTING_ACTIVE = "#D1D10E"
-        PARENT_PLOTTING_INACTIVE = "#72720A"
-        PARENT_MARKERS_ACTIVE = "#319131"
-        PARENT_MARKERS_INACTIVE = "#1B4B1B"
-        PARENT_PRESETS_ACTIVE = "#0303C9"
-        PARENT_PRESETS_INACTIVE = "#00008B"
-        # ACCENT_PURPLE is already defined above, reusing for consistency
-        PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
-        PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
-
-
-        self.style.configure('.', background=BG_DARK, foreground=FG_LIGHT, font=('Helvetica', 10))
-        self.style.configure('TFrame', background=BG_DARK)
-        self.style.configure('TLabel', background=BG_DARK, foreground=FG_LIGHT)
-        self.style.configure('TEntry', fieldbackground="#3b3b3b", foreground="#ffffff", borderwidth=1, relief="flat")
-        self.style.map('TEntry', fieldbackground=[('focus', '#4a4a4a')])
-        self.style.configure('TCombobox', fieldbackground="#3b3b3b", foreground="#ffffff", selectbackground=ACCENT_BLUE, selectforeground="white")
-        self.style.map('TCombobox', fieldbackground=[('readonly', '#3b3b3b')], arrowcolor=[('!disabled', FG_LIGHT)])
-
-        # Buttons - General TButton style (font size 30pt, as requested by Anthony)
-        self.style.configure('TButton',
-                        background="#4a4a4a",
-                        foreground="white",
-                        font=('Helvetica', 30, 'bold'), # Set font size to 30pt here
-                        borderwidth=0,
-                        focusthickness=3,
-                        focuscolor=ACCENT_BLUE,
-                        padding=(10, 20)) # Set padding for ~50px height
-        self.style.map('TButton',
-                background=[('active', '#606060'), ('disabled', '#303030')],
-                foreground=[('disabled', '#808060')])
-
-        # Specific button styles (inherit from TButton, but override colors)
-        self.style.configure('Blue.TButton', background=ACCENT_BLUE, foreground="white")
-        self.style.map('Blue.TButton', background=[('active', '#0056b3'), ('disabled', '#004085')])
-
-        self.style.configure('Green.TButton', background=ACCENT_GREEN, foreground="white")
-        self.style.map('Green.TButton', background=[('active', '#218838'), ('disabled', '#1e7e34')])
-
-        self.style.configure('Red.TButton', background=ACCENT_RED, foreground="white")
-        self.style.map('Red.TButton', background=[('active', '#c82333'), ('disabled', '#bd2130')])
-
-        self.style.configure('Orange.TButton', background=ACCENT_ORANGE, foreground="#333333")
-        self.style.map('Orange.TButton', background=[('active', '#e0a800'), ('disabled', '#d39e00')])
-
-        self.style.configure('Purple.TButton', background=ACCENT_PURPLE, foreground="white")
-        self.style.map('Purple.TButton', background=[('active', '#5a2d9e'), ('disabled', '#4d2482')])
-
-        # Flashing styles for the Pause/Resume button
-        # These styles will be toggled by the _start_flashing and _stop_flashing methods
-        self.style.configure('FlashingGreen.TButton', background='green', foreground='white',
-                             font=('Helvetica', 30, 'bold'), padding=(10, 20))
-        self.style.map('FlashingGreen.TButton',
-                       background=[('active', 'lightgreen'), ('!active', 'green')],
-                       foreground=[('active', 'black'), ('!active', 'white')])
-
-        self.style.configure('FlashingDark.TButton', background='darkgray', foreground='white',
-                             font=('Helvetica', 30, 'bold'), padding=(10, 20))
-        self.style.map('FlashingDark.TButton',
-                       background=[('active', 'gray'), ('!active', 'darkgray')],
-                       foreground=[('active', 'black'), ('!active', 'white')])
-
-
-        # Checkbuttons
-        self.style.configure('TCheckbutton', background=BG_DARK, foreground=FG_LIGHT, indicatorcolor="#4a4a4a")
-        self.style.map('TCheckbutton',
-                background=[('active', BG_DARK)],
-                foreground=[('disabled', '#808080')],
-                indicatorcolor=[('selected', ACCENT_BLUE)])
-
-        # LabelFrame
-        self.style.configure('TLabelFrame', background=BG_DARK, foreground=FG_LIGHT, borderwidth=1, relief="solid")
-        self.style.configure('TLabelFrame.Label', background=BG_DARK, foreground=FG_LIGHT, font=('Helvetica', 10, 'bold'))
-        self.style.configure('Dark.TLabelframe', background="#1e1e1e", foreground="#cccccc")
-        self.style.configure('Dark.TLabelframe.Label', background="#1e1e1e", foreground="#cccccc")
-        self.style.configure('Dark.TFrame', background="#1e1e1e")
-
-        # --- Parent Notebook Styles ---
-        # Generic Parent Notebook style (for the notebook frame itself)
-        self.style.configure('Parent.TNotebook', background=BG_DARK, borderwidth=0)
-        # Configure the tab elements directly for Parent.TNotebook.Tab
-        # This will apply to ALL parent tabs. We use style.map for state-based changes.
-        self.style.configure('Parent.TNotebook.Tab',
-                             background="#3b3b3b", # Default inactive background
-                             foreground=FG_LIGHT,
-                             padding=[15, 8],
-                             font=('Helvetica', 11, 'bold'))
-
-        # Map colors for Parent.TNotebook.Tab based on state
-        self.style.map('Parent.TNotebook.Tab',
-                       background=[('selected', ACCENT_BLUE), ('active', ACCENT_BLUE)], # Common active color
-                       foreground=[('selected', 'white'), ('active', 'white')],
-                       expand=[('selected', [1, 1, 1, 0])]) # Expand selected tab
-
-        # --- Child Notebook Styles (Matching Parent Colors) ---
-        # These styles are applied to the *child notebooks themselves* and their tabs.
-        # Instrument Child Notebook Tabs (Red)
-        self.style.configure('InstrumentChild.TNotebook', background=self.parent_tab_colors["INSTRUMENT"]["active"], borderwidth=0)
-        self.style.configure('InstrumentChild.TNotebook.Tab', background=self.parent_tab_colors["INSTRUMENT"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-        self.style.map('InstrumentChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["INSTRUMENT"]["active"]), ('active', self.parent_tab_colors["INSTRUMENT"]["active"])],
-                foreground=[('selected', 'white')],
-                expand=[('selected', [1, 1, 1, 0])])
-
-        # Scanning Child Notebook Tabs (Orange)
-        self.style.configure('ScanningChild.TNotebook', background=self.parent_tab_colors["SCANNING"]["active"], borderwidth=0)
-        self.style.configure('ScanningChild.TNotebook.Tab', background=self.parent_tab_colors["SCANNING"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-        self.style.map('ScanningChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["SCANNING"]["active"]), ('active', self.parent_tab_colors["SCANNING"]["active"])],
-                foreground=[('selected', BG_DARK)],
-                expand=[('selected', [1, 1, 1, 0])])
-
-        # Plotting Child Notebook Tabs (Yellow)
-        self.style.configure('PlottingChild.TNotebook', background=self.parent_tab_colors["PLOTTING"]["active"], borderwidth=0)
-        self.style.configure('PlottingChild.TNotebook.Tab', background=self.parent_tab_colors["PLOTTING"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-        self.style.map('PlottingChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["PLOTTING"]["active"]), ('active', self.parent_tab_colors["PLOTTING"]["active"])],
-                foreground=[('selected', 'black')], # Black foreground for yellow for better contrast
-                expand=[('selected', [1, 1, 1, 0])])
-
-
-        # Markers Child Notebook Tabs (Green)
-        self.style.configure('MarkersChild.TNotebook', background=self.parent_tab_colors["MARKERS"]["active"], borderwidth=0)
-        self.style.configure('MarkersChild.TNotebook.Tab', background=self.parent_tab_colors["MARKERS"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-        self.style.map('MarkersChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["MARKERS"]["active"]), ('active', self.parent_tab_colors["MARKERS"]["active"])],
-                foreground=[('selected', BG_DARK)], # White foreground for green
-                expand=[('selected', [1, 1, 1, 0])])
-
-        # Presets Child Notebook Tabs (Blue)
-        self.style.configure('PresetsChild.TNotebook', background=self.parent_tab_colors["PRESETS"]["active"], borderwidth=0)
-        self.style.configure('PresetsChild.TNotebook.Tab', background=self.parent_tab_colors["PRESETS"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-        self.style.map('PresetsChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["PRESETS"]["active"]), ('active', self.parent_tab_colors["PRESETS"]["active"])],
-                foreground=[('selected', 'white')],
-                expand=[('selected', [1, 1, 1, 0])])
-
-        # Experiments Child Notebook Tabs (Purple)
-        self.style.configure('ExperimentsChild.TNotebook', background=self.parent_tab_colors["EXPERIMENTS"]["active"], borderwidth=0)
-        self.style.configure('ExperimentsChild.TNotebook.Tab', background=self.parent_tab_colors["EXPERIMENTS"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-        self.style.map('ExperimentsChild.TNotebook.Tab',
-                background=[('selected', self.parent_tab_colors["EXPERIMENTS"]["active"]), ('active', self.parent_tab_colors["EXPERIMENTS"]["active"])],
-                foreground=[('selected', 'white')],
-                expand=[('selected', [1, 1, 1, 0])])
-
-
-        # Treeview (for MarkersDisplayTab and VisaInterpreterTab)
-        self.style.configure('Treeview',
-                        background="#3b3b3b",
-                        foreground="#ffffff",
-                        fieldbackground="#3b3b3b",
-                        rowheight=25)
-        self.style.map('Treeview',
-                background=[('selected', ACCENT_BLUE)],
-                foreground=[('selected', 'white')])
-
-        self.style.configure('Treeview.Heading',
-                        background="#4a4a4a",
-                        foreground="white",
-                        font=('Helvetica', 10, "bold"))
-        self.style.map('Treeview.Heading',
-                background=[('active', '#606060')])
-
-        # Markers Tab Specific Styles (from the immersive artifact)
-        self.style.configure("Markers.TFrame",
-                            background="#1e1e1e", # Dark background for the main markers tab frame
-                            foreground="#cccccc") # Light grey text for general labels
-
-        self.style.configure("Dark.TLabelframe",
-                            background="#2b2b2b", # Slightly lighter dark for labelled frames
-                            foreground="#ffffff", # White text for the labelframe title
-                            bordercolor="#444444",
-                            lightcolor="#444444",
-                            darkcolor="#1a1a1a")
-        self.style.map("Dark.TLabelframe",
-                  background=[('active', '#3a3a3a')]) # Subtle change on active
-
-        self.style.configure("Dark.TLabelframe.Label",
-                            background="#2b2b2b",
-                            foreground="#ffffff",
-                            font=("Arial", 10, "bold"))
-
-        self.style.configure("Dark.TFrame",
-                            background="#1e1e1e") # For inner frames without a label
-
-        self.style.configure("Markers.Inner.Treeview",
-                            background="#2b2b2b", # Dark background for treeview
-                            foreground="#cccccc", # Light grey text
-                            fieldbackground="#2b2b2b",
-                            bordercolor="#444444",
-                            lightcolor="#444444",
-                            darkcolor="#1a1a1a",
-                            font=("Arial", 9))
-        self.style.map("Markers.Inner.Treeview",
-                  background=[('selected', '#555555')], # Darker grey when selected
-                  foreground=[('selected', '#ffffff')]) # White text when selected
-
-        self.style.configure("Markers.TLabel",
-                            background="#1e1e1e", # Dark background for labels
-                            foreground="#cccccc", # Light grey text
-                            font=("Arial", 9))
-
-        self.style.configure("Markers.TEntry",
-                            fieldbackground="#3a3a3a", # Darker input field
-                            foreground="#ffffff", # White text
-                            insertcolor="#ffffff", # White cursor
-                            bordercolor="#555555",
-                            lightcolor="#555555",
-                            darkcolor="#222222",
-                            font=("Arial", 9))
-        self.style.map("Markers.TEntry",
-                  fieldbackground=[('focus', '#4a4a4a')]) # Slightly lighter on focus
-
-        self.style.configure("Markers.TButton",
-                            background="#4a4a4a", # Default dark grey button
-                            foreground="white",
-                            font=("Arial", 9, "bold"),
-                            borderwidth=1,
-                            relief="raised",
-                            focusthickness=2,
-                            focuscolor="#007bff") # Blue focus highlight
-        self.style.map("Markers.TButton",
-                  background=[('active', '#5a5a5a'), # Lighter grey on hover
-                              ('pressed', '#3a3a3a')], # Darker grey on press
-                  foreground=[('active', '#ffffff'),
-                              ('pressed', '#ffffff')])
-
-        self.style.configure("ActiveScan.TButton",
-                            background="#28a745", # Green
-                            foreground="#000000", # Black text
-                            font=("Arial", 9, "bold"))
-        self.style.map("ActiveScan.TButton",
-                  background=[('active', '#218838'),
-                              ('pressed', '#1e7e34')],
-                  foreground=[('active', '#ffffff'),
-                              ('pressed', '#ffffff')])
-
-
-        self.style.configure("Markers.SelectedButton.TButton",
-                            background="#ff8c00", # Orange
-                            foreground="#000000", # Black text for contrast
-                            font=("Arial", 9, "bold"),
-                            borderwidth=2, # Thicker border for selected
-                            relief="solid", # Solid border
-                            bordercolor="#ffaa00") # Slightly lighter orange border
-        self.style.map("Markers.SelectedButton.TButton",
-                  background=[('active', '#e67e00'), # Darker orange on hover
-                              ('pressed', '#cc7000')], # Even darker on press
-                  foreground=[('active', '#ffffff'),
-                              ('pressed', '#ffffff')])
-
-        self.style.configure("DeviceButton.TButton",
-                            background="#007bff", # Blue
-                            foreground="#ffffff", # White text
-                            font=("Arial", 9, "bold"))
-        self.style.map("DeviceButton.TButton",
-                  background=[('active', '#0056b3'),
-                              ('pressed', '#004085')],
-                  foreground=[('active', '#ffffff'),
-                              ('pressed', '#ffffff')])
-
-
-        # Updated LargePreset.TButton font size to 10
-        self.style.configure("LargePreset.TButton",
-                        background="#4a4a4a",
-                        foreground="white",
-                        font=("Helvetica", 10, "bold"), # Changed font size from 14 to 10
-                        padding=[30, 15, 30, 15])
-        self.style.map("LargePreset.TButton",
-                background=[('active', '#606060')])
-
-        # Updated SelectedPreset.TButton to be orange and font size to 10
-        self.style.configure("SelectedPreset.Orange.TButton", # Renamed style to be explicit
-                        background="#ff8c00", # Orange color
-                        foreground="white",
-                        font=("Helvetica", 10, "bold"), # Changed font size from 14 to 10
-                        padding=[30, 15, 30, 15])
-        self.style.map("SelectedPreset.Orange.TButton",
-                background=[('active', '#e07b00')]) # Darker orange on active/hover
-
-        YAK_ORANGE = "#ff8c00"
-        self.style.configure('LargeYAK.TButton',
-                        font=('Helvetica', 100, 'bold'),
-                        background=YAK_ORANGE,
-                        foreground="white",
-                        padding=[20, 10])
-        self.style.map('LargeYAK.TButton',
-                  background=[('active', '#e07b00'), ('disabled', '#cc7000')])
-
-
-        debug_print(f"🚫🐛 [DEBUG] ttk styles set up. Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
+        # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
+        #                      into a new external file: src/style.py.
+        #                      This method now simply calls apply_styles from src/style.py.
+        # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
+        #                      directly instead of 'self.debug_print'.
+        apply_styles(self.style, debug_print, current_version)
 
 
     def _redirect_stdout_to_console(self):
@@ -1273,7 +879,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2022-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         """
         Appends a message to the GUI console's scrolled text widget.
@@ -1411,6 +1017,11 @@ class App(tk.Tk):
 
         # Reset all parent tabs to inactive style first
         for tab_name, tab_widget in self.parent_tab_widgets.items():
+            # The parent_tab_colors are now local to _create_widgets in main_app.py
+            # and passed to apply_styles. For this method, we need to access them
+            # from the App instance if they are stored there, or re-define them if they are constants.
+            # Given they are used in _create_widgets and _setup_styles, they should be
+            # accessible via self.parent_tab_colors.
             self.style.configure(f'Parent.TNotebook.Tab',
                                  background=self.parent_tab_colors[tab_name]["inactive"],
                                  foreground=self.parent_tab_colors[tab_name]["fg_inactive"])
@@ -1482,9 +1093,14 @@ class App(tk.Tk):
             debug_print(f"DATA directory created or already exists.", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
         except Exception as e:
             self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
-            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
 if __name__ == "__main__":
+    # This is the very first thing that runs when the application starts.
+    # It checks for and installs necessary Python dependencies.
+    # It passes the current_version to the dependency checker for logging.
+    check_and_install_dependencies(current_version)
+
     app = App()
     app.mainloop()
