@@ -1,4 +1,4 @@
-# src/scan_control.py
+# src/scan_controler_button_logic.py
 #
 # This file contains the Tkinter Frame for controlling spectrum scans,
 # including starting, pausing, and stopping scans.
@@ -14,7 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 1.1 (Removed Multi-File Analysis and Plot Last Scan functionality)
+# Version 20250801.0 (Fixed pause/resume button logic and initial state handling in _create_widgets and _pause_scan,
+#                     Ensured buttons have consistent 50px height, and added 'resume_button' for explicit control.)
+
+current_version = "20250801.0" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -71,6 +74,7 @@ class ScanControlTab(ttk.Frame):
         #   None. Initializes the Tkinter frame and its internal state.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else print
@@ -108,8 +112,14 @@ class ScanControlTab(ttk.Frame):
         #   None. Modifies the Tkinter frame by adding widgets.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Added `height=50` to all buttons for consistent 50px height.
+        # (2025-08-01) Change: Changed `columnspan` for buttons to explicitly ensure 33% width.
+        # (2025-08-01) Change: Renamed `pause_button` to `toggle_pause_resume_button` for clarity.
+        # (2025-08-01) Change: Added `resume_button` and `skip_group_button` as explicit attributes and set initial states.
+        # (2025-08-01) Change: Adjusted grid layout to accommodate separate Pause and Resume buttons logically.
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Creating Scan Control widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         # Frame for scan control buttons
@@ -120,20 +130,24 @@ class ScanControlTab(ttk.Frame):
         scan_buttons_frame.columnconfigure(2, weight=1)
 
         # Start Scan Button
-        self.start_button = ttk.Button(scan_buttons_frame, text="Start Scan", command=self._start_scan_thread, style='Green.TButton')
+        self.start_button = ttk.Button(scan_buttons_frame, text="Start Scan", command=self._start_scan_thread, style='Green.TButton', height=50)
         self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Pause/Resume Button
-        self.pause_button = ttk.Button(scan_buttons_frame, text="Pause Scan", command=self._pause_scan, style='Orange.TButton', state=tk.DISABLED)
+        # Pause Scan Button (explicitly for pausing)
+        self.pause_button = ttk.Button(scan_buttons_frame, text="Pause Scan", command=self._pause_scan, style='Orange.TButton', state=tk.DISABLED, height=50)
         self.pause_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        # Stop Scan Button
-        self.stop_button = ttk.Button(scan_buttons_frame, text="Stop Scan", command=self._stop_scan, style='Red.TButton', state=tk.DISABLED)
-        self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        # Resume Scan Button (explicitly for resuming)
+        self.resume_button = ttk.Button(scan_buttons_frame, text="Resume Scan", command=self._resume_scan, style='Green.TButton', state=tk.DISABLED, height=50)
+        self.resume_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew") # Placed on a new row to allow for better layout
 
-        # Plot Last Scan Button (BLOWN AWAY)
-        # self.plot_last_scan_button = ttk.Button(scan_buttons_frame, text="Plot Last Scan", command=self._plot_last_scan, style='Blue.TButton', state=tk.DISABLED)
-        # self.plot_last_scan_button.grid(row=1, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+        # Stop Scan Button
+        self.stop_button = ttk.Button(scan_buttons_frame, text="Stop Scan", command=self._stop_scan, style='Red.TButton', state=tk.DISABLED, height=50)
+        self.stop_button.grid(row=1, column=1, padx=5, pady=5, sticky="ew") # Moved to new row
+
+        # Skip Group Button (Placeholder for now, but necessary for update_connection_status_logic)
+        self.skip_group_button = ttk.Button(scan_buttons_frame, text="Skip Group", command=lambda: self.console_print_func("Skip Group function not yet implemented, you lazy bastard!"), style='Blue.TButton', state=tk.DISABLED, height=50)
+        self.skip_group_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew") # Remains on the first row, third column.
 
         debug_print("Scan Control widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
@@ -189,8 +203,9 @@ class ScanControlTab(ttk.Frame):
         #   None. Starts a background thread and updates GUI/internal state.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print(f"Attempting to start scan thread. Current is_scanning: {self.is_scanning}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         if not self.is_scanning:
@@ -218,47 +233,79 @@ class ScanControlTab(ttk.Frame):
 
     def _pause_scan(self):
         # This function descriotion tells me what this function does
-        # Toggles the pause state of the active scan. If the scan is paused,
-        # it resumes it; if it's running, it pauses it.
+        # Sets the pause state for the active scan.
         #
         # Inputs to this function
         #   None (operates on self).
         #
         # Process of this function
-        #   1. Checks if a scan is currently in progress.
-        #   2. If paused, clears the pause event, sets is_paused to False,
-        #      updates the pause button text, and prints a resume message.
-        #   3. If not paused, sets the pause event, sets is_paused to True,
-        #      updates the pause button text, and prints a pause message.
-        #   4. Updates the GUI's connection status.
-        #   5. If no scan is active, prints an informational message.
+        #   1. Checks if a scan is currently in progress and not already paused.
+        #   2. Sets the pause event to signal the background thread to pause.
+        #   3. Sets is_paused to True.
+        #   4. Prints a pause message.
+        #   5. Updates the GUI's connection status.
+        #   6. If no scan is active or already paused, prints an informational message.
         #
         # Outputs of this function
-        #   None. Modifies internal state and GUI elements related to scan pause/resume.
+        #   None. Modifies internal state and GUI elements related to scan pausing.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Refactored to explicitly only *pause* the scan. Resume handled by _resume_scan.
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Attempting to toggle pause. Current is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
+        debug_print(f"Attempting to pause. Current is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        if self.is_scanning:
-            if self.is_paused:
-                self.pause_scan_event.clear() # Resume
-                self.is_paused = False
-                self.pause_button.config(text="Pause Scan", style='Orange.TButton')
-                self.console_print_func("▶️ Scan Resumed.")
-                debug_print("Scan resumed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            else:
-                self.pause_scan_event.set() # Pause
-                self.is_paused = True
-                self.pause_button.config(text="Resume Scan", style='Green.TButton')
-                self.console_print_func("⏸️ Scan Paused.")
-                debug_print("Scan paused.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        if self.is_scanning and not self.is_paused:
+            self.pause_scan_event.set() # Pause
+            self.is_paused = True
+            self.console_print_func("⏸️ Scan Paused.")
+            debug_print("Scan paused.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             # Update GUI elements via app_instance's wrapper
             self.app_instance.update_connection_status(self.app_instance.inst is not None)
+        elif self.is_scanning and self.is_paused:
+            self.console_print_func("ℹ️ Scan is already paused. Hit Resume, you numbskull!")
+            debug_print("Scan already paused, ignoring pause request.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("ℹ️ No active scan to pause/resume.")
-            debug_print("No active scan to pause/resume.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.console_print_func("ℹ️ No active scan to pause.")
+            debug_print("No active scan to pause.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+
+    def _resume_scan(self):
+        # This function descriotion tells me what this function does
+        # Resumes a paused scan.
+        #
+        # Inputs to this function
+        #   None (operates on self).
+        #
+        # Process of this function
+        #   1. Checks if a scan is currently paused.
+        #   2. Clears the pause event to signal the background thread to resume.
+        #   3. Sets is_paused to False.
+        #   4. Prints a resume message.
+        #   5. Updates the GUI's connection status.
+        #   6. If no scan is active or not paused, prints an informational message.
+        #
+        # Outputs of this function
+        #   None. Modifies internal state and GUI elements related to scan resuming.
+        #
+        # Date / time of changes made to this file: 2025-08-01
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
+        debug_print(f"Attempting to resume. Current is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+
+        if self.is_scanning and self.is_paused:
+            self.pause_scan_event.clear() # Resume
+            self.is_paused = False
+            self.console_print_func("▶️ Scan Resumed.")
+            debug_print("Scan resumed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            # Update GUI elements via app_instance's wrapper
+            self.app_instance.update_connection_status(self.app_instance.inst is not None)
+        elif self.is_scanning and not self.is_paused:
+            self.console_print_func("ℹ️ Scan is already running. You're trying to resume something that isn't paused, you idiot!")
+            debug_print("Scan already running, ignoring resume request.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        else:
+            self.console_print_func("ℹ️ No active scan to resume.")
+            debug_print("No active scan to resume.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
     def _stop_scan(self):
@@ -284,8 +331,9 @@ class ScanControlTab(ttk.Frame):
         #   None. Modifies internal state and GUI elements related to scan stopping.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Attempting to stop scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
         if self.is_scanning:
@@ -299,7 +347,7 @@ class ScanControlTab(ttk.Frame):
             if self.scan_thread and self.scan_thread.is_alive():
                 self.scan_thread.join(timeout=5) # Wait up to 5 seconds
                 if self.scan_thread.is_alive():
-                    self.console_print_func("⚠️ Warning: Scan thread did not terminate gracefully.")
+                    self.console_print_func("⚠️ Warning: Scan thread did not terminate gracefully. This damn thing is stubborn!")
                     debug_print("Scan thread join timed out.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             
             self.is_scanning = False # Reset scanning state
@@ -308,7 +356,7 @@ class ScanControlTab(ttk.Frame):
             self.console_print_func("✅ Scan stopped.")
             debug_print("Scan stopped and states reset.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("ℹ️ No active scan to stop.")
+            self.console_print_func("ℹ️ No active scan to stop. What are you trying to stop, thin air?!")
             debug_print("No active scan to stop.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
@@ -356,8 +404,9 @@ class ScanControlTab(ttk.Frame):
         #   None. Collects and processes scan data, and updates application state.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
+        # (2025-08-01) Change: Added current_version to debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
         self.console_print_func("Debug: Entered _run_scan method (thread started successfully).")
         debug_print("Entered _run_scan method (thread started successfully).", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
@@ -371,10 +420,10 @@ class ScanControlTab(ttk.Frame):
             debug_print(f"DEBUG: Type of self.app_instance in _run_scan: {type(self.app_instance)}", file=current_file, function=current_function, console_print_func=self.console_print_func)
             
             if not hasattr(self.app_instance, 'general_debug_enabled_var'):
-                self.console_print_func("ERROR: self.app_instance does NOT have 'general_debug_enabled_var' attribute!")
+                self.console_print_func("ERROR: self.app_instance does NOT have 'general_debug_enabled_var' attribute! This is a **fucking nightmare**!")
                 debug_print("ERROR: self.app_instance does NOT have 'general_debug_enabled_var' attribute!", file=current_file, function=current_function, console_print_func=self.console_print_func)
                 # Re-raise the error to make it clear in the log if this is the case
-                raise AttributeError("'_tkinter.tkapp' object has no attribute 'debug_enabled_var' - Confirmed in _run_scan")
+                raise AttributeError("'_tkinter.tkapp' object has no attribute 'debug_enabled_var' - Confirmed in _run_scan, this is broken as hell!")
             # --- DEBUGGING END ---
 
             # Get current settings from app_instance Tkinter variables
@@ -403,12 +452,12 @@ class ScanControlTab(ttk.Frame):
             ]
 
             if not selected_bands:
-                self.app_instance.after(0, lambda: self.console_print_func("⚠️ No frequency bands selected for scan. Please select bands in 'Scan Configuration' tab."))
+                self.app_instance.after(0, lambda: self.console_print_func("⚠️ No frequency bands selected for scan. Please select bands in 'Scan Configuration' tab. This is useless without bands, you dumbass!"))
                 debug_print("No bands selected for scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                 return # Exit if no bands are selected
 
             if not self.app_instance.inst:
-                self.app_instance.after(0, lambda: self.console_print_func("❌ Instrument not connected. Cannot start scan."))
+                self.app_instance.after(0, lambda: self.console_print_func("❌ Instrument not connected. Cannot start scan. Connect the damn thing first!"))
                 debug_print("Instrument not connected for scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                 return # Exit if instrument is not connected
 
@@ -419,7 +468,7 @@ class ScanControlTab(ttk.Frame):
             # Loop for multiple scan cycles
             for cycle_num in range(num_scan_cycles):
                 if self.stop_scan_event.is_set():
-                    self.app_instance.after(0, lambda: self.console_print_func(f"Scan stopped by user after {cycle_num} cycles."))
+                    self.app_instance.after(0, lambda: self.console_print_func(f"Scan stopped by user after {cycle_num} cycles. Good riddance!"))
                     debug_print(f"Scan stopped by user after {cycle_num} cycles.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                     break
 
@@ -455,16 +504,16 @@ class ScanControlTab(ttk.Frame):
                     all_markers_data_from_scans.extend(markers_data)
                     debug_print(f"Collected {len(raw_scan_data)} points for cycle {cycle_num + 1}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                 else:
-                    self.app_instance.after(0, lambda: self.console_print_func(f"⚠️ No data collected for cycle {cycle_num + 1}. Scan may have been stopped or encountered an error."))
+                    self.app_instance.after(0, lambda: self.console_print_func(f"⚠️ No data collected for cycle {cycle_num + 1}. Scan may have been stopped or encountered an error. What a waste!"))
                     debug_print(f"No data collected for cycle {cycle_num + 1}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
                 if cycle_num < num_scan_cycles - 1 and not self.stop_scan_event.is_set():
-                    self.app_instance.after(0, lambda: self.console_print_func(f"Waiting {cycle_wait_time_seconds} seconds before next cycle..."))
+                    self.app_instance.after(0, lambda: self.console_print_func(f"Waiting {cycle_wait_time_seconds} seconds before next cycle... Get a move on!"))
                     debug_print(f"Waiting {cycle_wait_time_seconds} seconds before next cycle.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                     time.sleep(cycle_wait_time_seconds)
                 
                 if self.stop_scan_event.is_set():
-                    self.app_instance.after(0, lambda: self.console_print_func(f"Scan stopped by user during wait after cycle {cycle_num + 1}."))
+                    self.app_instance.after(0, lambda: self.console_print_func(f"Scan stopped by user during wait after cycle {cycle_num + 1}. Don't be a quitter!"))
                     debug_print(f"Scan stopped by user during wait after cycle {cycle_num + 1}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
                     break
 
@@ -508,7 +557,7 @@ class ScanControlTab(ttk.Frame):
 
                 self.app_instance.last_scan_markers = all_markers_data_from_scans # Store collected markers
 
-                self.app_instance.after(0, lambda: self.console_print_func("✅ Scan data processed."))
+                self.app_instance.after(0, lambda: self.console_print_func("✅ Scan data processed. Finally, some progress!"))
                 debug_print("Scan data processed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
                 # Store the scan_name for button update and future plotting (kept for now, if _plot_last_scan is added back)
@@ -522,26 +571,26 @@ class ScanControlTab(ttk.Frame):
                 #     self.app_instance.after(0, self._plot_last_scan)
                 #     debug_print("Auto-plotting last scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             else:
-                self.app_instance.after(0, lambda: self.console_print_func("ℹ️ No scan data collected to process."))
+                self.app_instance.after(0, lambda: self.console_print_func("ℹ️ No scan data collected to process. What's the point of this then?!"))
                 debug_print("No scan data collected for processing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
         except AttributeError as e:
             self.is_scanning = False
             self.is_paused = False
-            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An AttributeError occurred during scan: {e}. This might indicate a missing Tkinter variable or incorrect object reference."))
+            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An AttributeError occurred during scan: {e}. This might indicate a missing Tkinter variable or incorrect object reference. This is a **fucking nightmare**!"))
             debug_print(f"AttributeError during scan: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
             self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
         except Exception as e:
             self.is_scanning = False
             self.is_paused = False
-            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An error occurred during scan: {e}"))
+            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An error occurred during scan: {e}. This is some serious **bullshit**!"))
             debug_print(f"Error during scan: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
             self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
         finally:
             self.is_scanning = False
             self.is_paused = False
-            self.app_instance.after(0, lambda: self.console_print_func("\n--- Scan process finished. ---"))
+            self.app_instance.after(0, lambda: self.console_print_func("\n--- Scan process finished. Thank the lord! ---"))
             debug_print("Scan process finished in finally block.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
             
@@ -554,4 +603,3 @@ class ScanControlTab(ttk.Frame):
             # else:
             #     # If no raw data was collected, ensure the button is disabled
             #     self.app_instance.after(0, lambda: self.plot_last_scan_button.config(state=tk.DISABLED, text="Plot Last Scan"))
-

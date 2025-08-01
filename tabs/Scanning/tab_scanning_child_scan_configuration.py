@@ -138,7 +138,7 @@ class ScanTab(ttk.Frame):
 
 
         # DWELL (now controls maxhold_time_seconds_var, uses dwell_time_drop_down)
-        ttk.Label(scan_settings_frame, text="DWELL (s):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Dwell / Settle Time (s):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.dwell_time_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.maxhold_time_seconds_var, # NOW CONTROLS MAX HOLD TIME
@@ -154,7 +154,7 @@ class ScanTab(ttk.Frame):
 
 
         # Max Hold Time (now controls cycle_wait_time_seconds_var, uses wait_time_presets)
-        ttk.Label(scan_settings_frame, text="Max Hold Time (s):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Time Between Scans (s):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.max_hold_time_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.cycle_wait_time_seconds_var, # NOW CONTROLS CYCLE WAIT TIME
@@ -170,7 +170,7 @@ class ScanTab(ttk.Frame):
 
 
         # Scan RBW
-        ttk.Label(scan_settings_frame, text="Scan RBW (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Scanner RBW (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.scan_rbw_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.scan_rbw_hz_var, # Handled by _on_scan_rbw_selected
@@ -186,7 +186,7 @@ class ScanTab(ttk.Frame):
 
 
         # Reference Level
-        ttk.Label(scan_settings_frame, text="Reference Level (dBm):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Reference (dBm):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.reference_level_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.reference_level_dbm_var, # Handled by _on_reference_level_selected
@@ -202,7 +202,7 @@ class ScanTab(ttk.Frame):
 
 
         # Frequency Shift
-        ttk.Label(scan_settings_frame, text="Frequency Shift (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Shift Per Cycle:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.frequency_shift_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.freq_shift_hz_var, # Handled by _on_frequency_shift_selected
@@ -248,19 +248,22 @@ class ScanTab(ttk.Frame):
         ttk.Label(scan_settings_frame, textvariable=self.preamp_on_description_var, wraplength=350, justify="left").grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
-
+####Putting on ice for now, not sure if needed
         # Scan RBW Segmentation (remains as entry as it's not in a dropdown list)
-        ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        row_idx += 1
+        #ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        #ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        #row_idx += 1
 
+
+
+############# NOT SURE WHAT THIS WAS FOR, REMOVED FOR NOW #############
         # Desired Default Focus Width (remains as entry)
-        ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        row_idx += 1
+        #ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        #ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        #row_idx += 1
 
         # Number of Scan Cycles
-        ttk.Label(scan_settings_frame, text="Number of Scan Cycles:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(scan_settings_frame, text="Scan Cycles:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.num_scan_cycles_combobox = ttk.Combobox(
             scan_settings_frame,
             # textvariable=self.app_instance.num_scan_cycles_var, # Handled by _on_num_scan_cycles_selected
