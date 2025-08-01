@@ -1,4 +1,4 @@
-# main_app.py
+# OPEN-AIR/main_app.py
 #
 # This is the main entry point for the RF Spectrum Analyzer Controller application.
 # It handles initial setup, checks for and installs necessary Python dependencies,
@@ -15,9 +15,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250731.4 (Updated for new Markers tab styles)
+# Version 20250801.1005.1 (Corrected import paths for numbered subfolders in 'tabs')
 
-current_version = "20250731.4" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.1005.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -31,7 +31,8 @@ import inspect
 import subprocess
 
 
-# Import local modules
+# Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
+# and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, print_art
 from src.instrument_logic import (
@@ -45,17 +46,17 @@ from src.scan_controler_button_logic import ScanControlTab
 
 from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
 
-# NEW: Import the new parent tab classes
-from tabs.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
-from tabs.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
-from tabs.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
-from tabs.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
-from tabs.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
-from tabs.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
+# Import the new parent tab classes - CORRECTED PATHS
+from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
+from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
+from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
+from tabs.Markers.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
+from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
+from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
 
 
-# NEW: Import preset logic functions from utils.preset_utils
-from utils.utils_preset import load_selected_preset_logic, query_device_presets_logic
+# Import preset logic functions from utils.preset_utils
+from tabs.Presets.utils_preset import load_selected_preset_logic, query_device_presets_logic
 
 
 # Import constants from frequency_bands.py

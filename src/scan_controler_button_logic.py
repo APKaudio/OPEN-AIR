@@ -28,14 +28,14 @@ import subprocess # For opening folders (kept for now, but likely to be removed 
 import sys # For platform detection for opening folders (kept for now)
 
 # Import scan-related logic
-from utils.utils_scan_instrument import scan_bands # Simplified scan_bands
+from tabs.Scanning.utils_scan_instrument import scan_bands # Simplified scan_bands
 from process_math.scan_stitch import process_and_stitch_scan_data # New import for data stitching
 from ref.frequency_bands import MHZ_TO_HZ
 from utils.utils_instrument_control import debug_print
 
 
 # Import plotting functions (kept for now as other plotting might exist, but _open_plot_in_browser might go)
-from utils.utils_plotting import plot_single_scan_data, plot_multi_trace_data, _open_plot_in_browser # NEW: Import plot_single_scan_data and other plotting utilities
+from tabs.Plotting.utils_plotting import plot_single_scan_data, plot_multi_trace_data, _open_plot_in_browser # NEW: Import plot_single_scan_data and other plotting utilities
 
 # Import plotly express for colors in multi-trace plots (kept for now, might go)
 import plotly.express as px

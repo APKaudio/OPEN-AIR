@@ -24,7 +24,7 @@ import re
 import platform # For opening folder cross-platform
 
 # Import plotting functions and constants
-from utils.utils_plotting import plot_multi_trace_data, _open_plot_in_browser
+from tabs.Plotting.utils_plotting import plot_multi_trace_data, _open_plot_in_browser
 from ref.frequency_bands import (
     MHZ_TO_HZ,
     TV_PLOT_BAND_MARKERS,
