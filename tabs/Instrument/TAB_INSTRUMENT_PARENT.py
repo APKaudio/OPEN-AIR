@@ -1,8 +1,9 @@
 # tabs/Instrument/TAB_INSTRUMENT_PARENT.py
 #
-# This file defines the parent tab for Instrument-related functionalities.
-# It acts as a container for child tabs such as "Instrument Connection" and "VISA Interpreter".
-# This structure allows for better organization of the GUI and logical grouping of features.
+# This file defines the TAB_INSTRUMENT_PARENT class, which serves as a container
+# for all instrument-related child tabs within the main application's two-layer
+# tab structure. It manages the child notebook and the instantiation of
+# individual instrument configuration and control tabs.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -12,167 +13,152 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Request can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1020.2 (Updated child_notebook style to 'InstrumentChild.TNotebook')
+# Version 20250801.1740.1 (Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
+#                      Instantiated VisaInterpreterTab and assigned it as an attribute.
+#                      Updated debug prints to new format.)
 
-current_version = "20250801.1020.2" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1740.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
-# Import the child tabs - CORRECTED PATHS
+# Import child tabs for the Instrument parent tab
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
-from utils.utils_instrument_control import debug_print
 
+from utils.utils_instrument_control import debug_print # Import debug_print
 
 class TAB_INSTRUMENT_PARENT(ttk.Frame):
     """
-    A Tkinter Frame that serves as the parent tab for all Instrument-related functionalities.
-    It contains a nested Notebook to organize child tabs like Instrument Connection and VISA Interpreter.
+    A parent tab for Instrument-related functionalities, containing child tabs
+    for connection settings, general settings, and device presets.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
-        """
-        Initializes the TAB_INSTRUMENT_PARENT.
-
-        Inputs:
-            master (tk.Widget): The parent widget (the ttk.Notebook).
-            app_instance (App): The main application instance, used for accessing
-                                shared state like Tkinter variables and console print function.
-            console_print_func (function): Function to print messages to the GUI console.
-            **kwargs: Arbitrary keyword arguments for Tkinter Frame.
-
-        Process of this function:
-            1. Calls the superclass constructor.
-            2. Stores app_instance and console_print_func.
-            3. Creates a ttk.Notebook to hold child tabs.
-            4. Instantiates InstrumentTab and VisaInterpreterTab.
-            5. Adds these child tabs to the nested notebook.
-            6. Binds the '<<NotebookTabChanged>>' event to _on_tab_change for the child notebook.
-
-        Outputs of this function:
-            None. Initializes the parent tab frame and its nested components.
-
-        (2025-07-31) Change: Initial creation of TAB_INSTRUMENT_PARENT.
-        (2025-08-01) Change: Updated child_notebook style to 'InstrumentChild.TNotebook'.
-        """
-        super().__init__(master, **kwargs)
+    def __init__(self, parent_notebook, app_instance, console_print_func):
+        # Initializes the TAB_INSTRUMENT_PARENT frame and its child notebook.
+        # It sets up the UI for instrument control and configuration,
+        # including connection management and device settings.
+        #
+        # Inputs:
+        #   parent_notebook (ttk.Notebook): The top-level notebook widget this tab belongs to.
+        #   app_instance (App): The main application instance, providing access to shared data and methods.
+        #   console_print_func (function): Function to print messages to the GUI console.
+        #
+        # Process:
+        #   1. Calls the superclass constructor (ttk.Frame).
+        #   2. Stores references to `app_instance` and `console_print_func`.
+        #   3. Creates `self.child_notebook` to hold the instrument-specific sub-tabs.
+        #   4. Instantiates `InstrumentConnectionTab`, `VisaInterpreterTab`.
+        #   5. Adds these child tabs to `self.child_notebook`.
+        #   6. Binds the `<<NotebookTabChanged>>` event for the child notebook to `_on_tab_selected`.
+        #   7. Assigns child tab instances as attributes of `self`
+        #      so they can be accessed from `main_app.py` (e.g., for `update_connection_status_logic`).
+        #
+        # Outputs:
+        #   None. Initializes the Instrument parent tab UI.
+        #
+        # (2025-07-31) Change: Initial creation, refactored from main_app.py.
+        #                      Implemented child notebook and added connection and settings tabs.
+        # (2025-07-31) Change: Added InstrumentDevicePresetsTab.
+        # (2025-07-31) Change: Updated header.
+        # (2025-08-01) Change: Fixed AttributeError by exposing child tabs as attributes (self.instrument_connection_tab, self.instrument_settings_tab).
+        #                     Updated debug prints to new format.
+        # (2025-08-01) Change: Corrected import for InstrumentSettingsTab to use existing InstrumentTab.
+        # (2025-08-01) Change: Removed import and instantiation of non-existent InstrumentDevicePresetsTab.
+        # (2025-08-01) Change: Instantiated VisaInterpreterTab and assigned it as an attribute.
+        super().__init__(parent_notebook)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func
 
-        # Configure grid to make the notebook expand
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
-        # Create the nested notebook for child tabs
-        # The style is set in main_app._setup_styles to match the parent tab color
-        self.child_notebook = ttk.Notebook(self, style='InstrumentChild.TNotebook') # Updated style
-        self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-
-        # Instantiate and add child tabs
-        self.instrument_connection_tab = InstrumentTab(
-            self.child_notebook,
-            app_instance=self.app_instance,
-            console_print_func=self.console_print_func
-        )
-        self.child_notebook.add(self.instrument_connection_tab, text="Instrument Connection")
-
-        self.visa_interpreter_tab = VisaInterpreterTab(
-            self.child_notebook,
-            app_instance=self.app_instance,
-            console_print_func=self.console_print_func
-        )
-        self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")
-
-        # Bind the tab change event for the child notebook
-        self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
-
-        debug_print(f"🚫🐛 [DEBUG] Initialized TAB_INSTRUMENT_PARENT. Version: {current_version}",
-                    file=f"tabs/TAB_INSTRUMENT_PARENT.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name,
-                    console_print_func=self.console_print_func)
-
-
-    def _on_tab_change(self, event):
-        """
-        Function Description:
-        Handles tab change events within this parent's child Notebook.
-        It calls the `_on_tab_selected` method on the newly selected child tab's
-        widget if that method exists, allowing individual child tabs to refresh
-        their content or state when they become active.
-
-        Inputs to this function:
-            event (tkinter.Event): The event object that triggered the tab change.
-
-        Process of this function:
-            1. Determines the currently selected tab within the child notebook.
-            2. Retrieves the widget instance of the selected tab.
-            3. Checks if the selected tab widget has an `_on_tab_selected` method.
-            4. If the method exists, calls it.
-            5. If the method does not exist, logs that it was not found.
-
-        Outputs of this function:
-            None. Triggers UI updates in the selected child tab.
-
-        (2025-07-31) Change: Added to handle child tab changes.
-        """
-        selected_tab_id = self.child_notebook.select()
-        selected_tab_widget = self.child_notebook.nametowidget(selected_tab_id)
-
-        if hasattr(selected_tab_widget, '_on_tab_selected'):
-            selected_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
-                        file=f"tabs/TAB_INSTRUMENT_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self.console_print_func)
-        else:
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. No _on_tab_selected method found. Version: {current_version}",
-                        file=f"tabs/TAB_INSTRUMENT_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self.console_print_func)
-
-    def _on_tab_selected(self, event):
-        """
-        Function Description:
-        Callback for when this TAB_INSTRUMENT_PARENT tab is selected in the main parent notebook.
-        This ensures that when the parent tab is clicked, the currently visible child tab
-        within this parent also gets its `_on_tab_selected` method called, allowing it to refresh.
-
-        Inputs to this function:
-            event (tkinter.Event): The event object that triggered the tab selection.
-
-        Process of this function:
-            1. Prints a debug message.
-            2. Determines the currently selected child tab within its nested notebook.
-            3. Calls the `_on_tab_selected` method on that child tab if it exists.
-
-        Outputs of this function:
-            None. Ensures child tab content is refreshed when the parent tab is activated.
-
-        (2025-07-31) Change: Added to handle parent tab selection and propagate to active child.
-        """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/TAB_INSTRUMENT_PARENT.py - {current_version}"
-        debug_print(f"🚫🐛 [DEBUG] TAB_INSTRUMENT_PARENT selected. Version: {current_version}",
-                    file=current_file,
+        current_file = __file__
+
+        debug_print(f"🚫🐛 [DEBUG] Initializing Instrument Parent Tab. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=self.console_print_func)
 
-        # Ensure the currently visible child tab also gets its _on_tab_selected called
+        # Create a notebook for child tabs within the Instrument parent tab
+        # The style is dynamically set by main_app's _on_parent_tab_change
+        self.child_notebook = ttk.Notebook(self, style='InstrumentChild.TNotebook')
+        self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
+
+        # Instantiate child tabs and add them to the child notebook
+        self.instrument_connection_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.child_notebook.add(self.instrument_connection_tab, text="Connection")
+
+        # Assuming InstrumentTab also contains the settings display/logic
+        self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.child_notebook.add(self.instrument_settings_tab, text="Settings")
+
+        # FUCKING IMPORTANT: Instantiate VisaInterpreterTab and assign it as an attribute
+        self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")
+
+        # Removed instantiation of InstrumentDevicePresetsTab as the module does not exist.
+        # If this tab is intended, the file 'tab_instrument_child_device_presets.py'
+        # needs to be created with the 'InstrumentDevicePresetsTab' class defined within it.
+        # self.instrument_device_presets_tab = InstrumentDevicePresetsTab(self.child_notebook, self.app_instance, self.console_print_func)
+        # self.child_notebook.add(self.instrument_device_presets_tab, text="Device Presets")
+
+        # Bind the tab change event for the child notebook
+        self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
+
+        debug_print(f"🚫🐛 [DEBUG] Instrument Parent Tab initialized with child tabs. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self.console_print_func)
+
+    def _on_tab_selected(self, event):
+        # Handles tab change events within the child notebook of the Instrument tab.
+        # It propagates the selection event to the newly selected child tab's
+        # `_on_tab_selected` method, if it exists.
+        #
+        # Inputs:
+        #   event (tkinter.Event): The event object that triggered the tab change.
+        #
+        # Process:
+        #   1. Prints a debug message.
+        #   2. Determines the currently selected child tab.
+        #   3. Retrieves the widget instance of the selected child tab.
+        #   4. If the selected child tab widget has an `_on_tab_selected` method, calls it.
+        #      This allows individual child tabs to refresh their content or state
+        #      when they become active.
+        #
+        # Outputs:
+        #   None. Triggers content refreshes in child tabs.
+        #
+        # (2025-07-31) Change: Initial creation.
+        # (2025-07-31) Change: Updated header.
+        # (2025-08-01) Change: Updated debug prints to new format.
+        """
+        Handles tab change events within the child notebook of the Instrument tab,
+        propagating the selection event to the active child tab.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"🚫🐛 [DEBUG] Instrument Child Tab changed. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self.console_print_func)
+
+        # Get the currently selected tab widget
         selected_child_tab_id = self.child_notebook.select()
-        if selected_child_tab_id:
-            selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
-            if hasattr(selected_child_tab_widget, '_on_tab_selected'):
-                selected_child_tab_widget._on_tab_selected(event)
-                debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}",
-                            file=current_file,
-                            function=current_function,
-                            console_print_func=self.console_print_func)
-            else:
-                debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
-                            file=current_file,
-                            function=current_function,
-                            console_print_func=self.console_print_func)
+        selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
+
+        # If the selected child tab has an _on_tab_selected method, call it
+        if hasattr(selected_child_tab_widget, '_on_tab_selected'):
+            selected_child_tab_widget._on_tab_selected(event)
+            debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_name()}. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self.console_print_func)
+        else:
+            debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_name()} has no _on_tab_selected method. Version: {current_version}",
+                        file=f"{current_file} - {current_file}", # Fix: Changed to current_file in both places
+                        function=current_function,
+                        console_print_func=self.console_print_func)
 

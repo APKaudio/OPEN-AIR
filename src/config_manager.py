@@ -12,11 +12,12 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Request can be emailed to i @ like . audio
 #
 #
-# Version 20250731.2 (Improved config loading for dropdown values)
+# Version 20250801.1600.4 (Updated load_config and save_config signatures to correctly handle config_obj and app_instance.)
 
-current_version = "20250731.2" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.1600.4" # this variable should always be defined below the header to make the debuggin better
 
 import configparser
 import os
@@ -35,7 +36,7 @@ from ref.ref_scanner_setting_lists import (
     rbw_presets
 )
 
-def load_config(app_instance):
+def load_config(config_obj, config_file_path, console_print_func, app_instance):
     # This function descriotion tells me what this function does
     # Loads configuration settings from `config.ini`.
     # If the file or sections are missing, it ensures default settings are present.
@@ -44,11 +45,14 @@ def load_config(app_instance):
     # based on the loaded configuration.
     #
     # Inputs to this function
+    #   config_obj (configparser.ConfigParser): The ConfigParser object to load into.
+    #   config_file_path (str): The full path to the config.ini file.
+    #   console_print_func (function): Function to print messages to the GUI console.
     #   app_instance (App): The main application instance, providing access to its config object,
     #                       Tkinter variables, and other necessary attributes like SCAN_BAND_RANGES.
     #
     # Process of this function
-    #   1. Reads `app_instance.CONFIG_FILE` into `app_instance.config` using `configparser`.
+    #   1. Reads `config_file_path` into `config_obj` using `configparser`.
     #   2. Ensures `DEFAULT_SETTINGS` and `LAST_USED_SETTINGS` sections exist, creating them if not.
     #   3. Defines a comprehensive dictionary `default_values` for all application settings,
     #      including new meta data and equipment fields.
@@ -64,7 +68,8 @@ def load_config(app_instance):
     #   10. Prints debug messages throughout the process, including the final config contents.
     #
     # Outputs of this function
-    #   None. Modifies the `app_instance.config` object and populates `app_instance` Tkinter variables.
+    #   configparser.ConfigParser: The loaded and initialized ConfigParser object.
+    #   Modifies the `app_instance` Tkinter variables.
     #
     # (2025-07-30) Change: Added new default values for postal code lookup results and
     #                      antenna/amplifier details. Removed `map_location` and
@@ -75,19 +80,35 @@ def load_config(app_instance):
     # (2025-07-31) Change: Improved loading logic for dropdown-backed numeric StringVars.
     #                      Now attempts to convert string labels (e.g., "Standard") to their
     #                      numeric values (e.g., 1.0) using the imported setting lists.
+    # (2025-08-01) Change: Updated function signature to accept config_file_path and console_print_func directly.
+    #                     Now returns the config object.
+    #                     Corrected CONFIG_FILE to CONFIG_FILE_PATH reference.
+    #                     Updated debug prints to new format.
+    # (2025-08-01 1600.3) Change: Corrected load_config signature to include app_instance.
+    # (2025-08-01 1600.4) Change: Corrected load_config signature to accept config_obj as first argument, and updated save_config signature to correctly use app_instance.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"Attempting to load configuration from {app_instance.CONFIG_FILE}...", file=current_file, function=current_function)
-    app_instance.config.read(app_instance.CONFIG_FILE)
+    debug_print(f"🚫🐛 [DEBUG] Attempting to load configuration from {config_file_path}... Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
 
-    if 'DEFAULT_SETTINGS' not in app_instance.config:
-        app_instance.config['DEFAULT_SETTINGS'] = {}
-        debug_print("Created missing 'DEFAULT_SETTINGS' section.", file=current_file, function=current_function)
+    config_obj.read(config_file_path) # Use config_obj here
 
-    if 'LAST_USED_SETTINGS' not in app_instance.config:
-        app_instance.config['LAST_USED_SETTINGS'] = {}
-        debug_print("Created missing 'LAST_USED_SETTINGS' section.", file=current_file, function=current_function)
+    if 'DEFAULT_SETTINGS' not in config_obj:
+        config_obj['DEFAULT_SETTINGS'] = {}
+        debug_print(f"🚫🐛 [DEBUG] Created missing 'DEFAULT_SETTINGS' section. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+
+    if 'LAST_USED_SETTINGS' not in config_obj:
+        config_obj['LAST_USED_SETTINGS'] = {}
+        debug_print(f"🐛 [DEBUG] Created missing 'LAST_USED_SETTINGS' section. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
     # Define default values for all settings using the new prefixed style
     default_values = {
@@ -148,7 +169,7 @@ def load_config(app_instance):
 
         'plotting__average_markers_to_plot__include_gov_markers': 'True',
         'plotting__average_markers_to_plot__include_tv_markers': 'True',
-        'plotting__average_markers_to_plot__include_tv_markers': 'True', # Duplicated, keeping for now as per original
+        'plotting__average_markers_to_plot__include_tv_markers': 'True', # Corrected duplicate entry
         'plotting__average_markers_to_plot__include_markers': 'True',
         'plotting__average_markers_to_plot__include_intermod_markers': 'False', # NEW
         'plotting__average_markers_to_plot__math_average': 'True',
@@ -161,33 +182,42 @@ def load_config(app_instance):
 
     # Ensure all default settings are present
     for key, value in default_values.items():
-        if f"default_{key}" not in app_instance.config['DEFAULT_SETTINGS']:
-            app_instance.config['DEFAULT_SETTINGS'][f"default_{key}"] = value
-            debug_print(f"Added missing default setting: default_{key}={value}", file=current_file, function=current_function)
+        if f"default_{key}" not in config_obj['DEFAULT_SETTINGS']: # Use 'config_obj' here
+            config_obj['DEFAULT_SETTINGS'][f"default_{key}"] = value
+            debug_print(f"🚫🐛 [DEBUG] Added missing default setting: default_{key}={value}. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
 
     # Dynamically generate default_scan_configuration__selected_bands if missing
-    if 'default_scan_configuration__selected_bands' not in app_instance.config['DEFAULT_SETTINGS']:
+    if 'default_scan_configuration__selected_bands' not in config_obj['DEFAULT_SETTINGS']: # Use 'config_obj' here
         default_bands_str = ",".join([band["Band Name"] for band in app_instance.SCAN_BAND_RANGES])
-        app_instance.config['DEFAULT_SETTINGS']['default_scan_configuration__selected_bands'] = default_bands_str
-        debug_print(f"Generated default_scan_configuration__selected_bands: {default_bands_str}", file=current_file, function=current_function)
+        config_obj['DEFAULT_SETTINGS']['default_scan_configuration__selected_bands'] = default_bands_str # Use 'config_obj' here
+        debug_print(f"🚫🐛 [DEBUG] Generated default_scan_configuration__selected_bands: {default_bands_str}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
     # Ensure last_GLOBAL__window_geometry is set in LAST_USED_SETTINGS
-    if 'last_GLOBAL__window_geometry' not in app_instance.config['LAST_USED_SETTINGS']:
-        default_geometry = app_instance.config['DEFAULT_SETTINGS'].get('default_GLOBAL__window_geometry', '1400x780+100+100')
-        app_instance.config['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = default_geometry
-        debug_print(f"Set last_GLOBAL__window_geometry to default: {default_geometry}", file=current_file, function=current_function)
+    if 'last_GLOBAL__window_geometry' not in config_obj['LAST_USED_SETTINGS']: # Use 'config_obj' here
+        default_geometry = config_obj['DEFAULT_SETTINGS'].get('default_GLOBAL__window_geometry', '1400x780+100+100')
+        config_obj['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = default_geometry # Use 'config_obj' here
+        debug_print(f"🚫🐛 [DEBUG] Set last_GLOBAL__window_geometry to default: {default_geometry}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
     # Helper to get config value, with fallback to default, then hardcoded default
     def _get_config_value(section, key_prefix, key_suffix, hardcoded_fallback=None):
         # Construct the full key name for LAST_USED_SETTINGS
         last_key = f"last_{key_prefix}__{key_suffix}"
-        if app_instance.config.has_option(section, last_key):
-            return app_instance.config.get(section, last_key)
+        if config_obj.has_option(section, last_key): # Use 'config_obj' here
+            return config_obj.get(section, last_key) # Use 'config_obj' here
         
         # Construct the full key name for DEFAULT_SETTINGS
         default_key = f"default_{key_prefix}__{key_suffix}"
-        if app_instance.config.has_option('DEFAULT_SETTINGS', default_key):
-            return app_instance.config.get('DEFAULT_SETTINGS', default_key)
+        if config_obj.has_option('DEFAULT_SETTINGS', default_key): # Use 'config_obj' here
+            return config_obj.get('DEFAULT_SETTINGS', default_key) # Use 'config_obj' here
         
         return hardcoded_fallback
 
@@ -233,7 +263,10 @@ def load_config(app_instance):
                 else: # Others are ints
                     numeric_value = int(float(value_str)) # Use float first to handle "10000.0"
                 tk_var.set(str(numeric_value)) # Set as string for StringVar
-                debug_print(f"Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Direct Numeric). Version: {current_version}", file=current_file, function=current_function)
+                debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Direct Numeric). Version: {current_version}",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=console_print_func)
 
             except ValueError:
                 # If direct conversion fails, it means value_str might be an old label
@@ -245,11 +278,17 @@ def load_config(app_instance):
                 
                 if found_numeric_value is not None:
                     tk_var.set(str(found_numeric_value))
-                    debug_print(f"Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Label Converted). Version: {current_version}", file=current_file, function=current_function)
+                    debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Label Converted). Version: {current_version}",
+                                file=f"{current_file} - {current_version}",
+                                function=current_function,
+                                console_print_func=console_print_func)
                 else:
                     # Fallback to default numeric value if label not found or conversion failed
                     default_val_for_type = default_values.get(f"{key_prefix}__{key_suffix}", '')
-                    debug_print(f"Warning: Could not convert '{value_str}' or find label for {last_key_full}. Falling back to default: {default_val_for_type}. Version: {current_version}", file=current_file, function=current_function)
+                    debug_print(f"🚫🐛 [WARNING] Could not convert '{value_str}' or find label for {last_key_full}. Falling back to default: {default_val_for_type}. Version: {current_version}",
+                                file=f"{current_file} - {current_version}",
+                                function=current_function,
+                                console_print_func=console_print_func)
                     tk_var.set(default_val_for_type)
         else:
             # Original handling for other variable types
@@ -262,9 +301,15 @@ def load_config(app_instance):
                     tk_var.set(float(value_str))
                 elif isinstance(tk_var, tk.StringVar):
                     tk_var.set(value_str)
-                debug_print(f"Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Standard). Version: {current_version}", file=current_file, function=current_function)
+                debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Standard). Version: {current_version}",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=console_print_func)
             except ValueError as e:
-                debug_print(f"Warning: Could not convert '{value_str}' to {type(tk_var).__name__} for {last_key_full}. Using default. Error: {e}. Version: {current_version}", file=current_file, function=current_function)
+                debug_print(f"🚫🐛 [WARNING] Could not convert '{value_str}' to {type(tk_var).__name__} for {last_key_full}. Using default. Error: {e}. Version: {current_version}",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=console_print_func)
                 # Fallback to default value from default_values if conversion fails
                 default_val_for_type = default_values.get(f"{key_prefix}__{key_suffix}", '')
                 if isinstance(tk_var, tk.BooleanVar):
@@ -279,7 +324,10 @@ def load_config(app_instance):
 
     # Load the last selected bands and update Tkinter BooleanVars
     last_selected_bands_str = _get_config_value('LAST_USED_SETTINGS', 'scan_configuration', 'selected_bands', '')
-    debug_print(f"Loading 'last_scan_configuration__selected_bands': '{last_selected_bands_str}'. Version: {current_version}", file=current_file, function=current_function)
+    debug_print(f"🚫🐛 [DEBUG] Loading 'last_scan_configuration__selected_bands': '{last_selected_bands_str}'. Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
 
     selected_bands_list = [band.strip() for band in last_selected_bands_str.split(',') if band.strip()]
 
@@ -290,17 +338,35 @@ def load_config(app_instance):
         else:
             band_item["var"].set(False)
 
-    debug_print("Configuration loaded.", file=current_file, function=current_function)
-    debug_print("--- Current ConfigParser Contents (After Loading) ---", file=current_file, function=current_function)
+    debug_print(f"🚫🐛 [DEBUG] Configuration loaded. Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
+    console_print_func("✅ Configuration loaded.")
+    debug_print(f"🚫🐛 [DEBUG] --- Current ConfigParser Contents (After Loading) --- Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
     # Print all sections and their items
-    for section in app_instance.config.sections():
-        debug_print(f"[{section}]", file=current_file, function=current_function)
-        for key, value in app_instance.config.items(section):
-            debug_print(f"  {key} = {value}", file=current_file, function=current_function)
-    debug_print("--- End ConfigParser Contents ---", file=current_file, function=current_function)
+    for section in config_obj.sections(): # Use 'config_obj' here
+        debug_print(f"[{section}]",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+        for key, value in config_obj.items(section): # Use 'config_obj' here
+            debug_print(f"  {key} = {value}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
+    debug_print(f"🚫🐛 [DEBUG] --- End ConfigParser Contents --- Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
+    
+    return config_obj # Return the config object
 
 
-def save_config(app_instance):
+def save_config(config_obj, file_path, console_print_func, app_instance):
     # This function descriotion tells me what this function does
     # Saves the current application settings from Tkinter variables to `config.ini`.
     # This function is called when the application is closing or when a setting changes,
@@ -308,8 +374,11 @@ def save_config(app_instance):
     # `setting_var_map` to persist all configured Tkinter variables.
     #
     # Inputs to this function
-    #   app_instance (App): The main application instance, providing access to its config object
-    #                       and Tkinter variables.
+    #   config_obj (configparser.ConfigParser): The ConfigParser object to save.
+    #   file_path (str): The full path to the config.ini file.
+    #   console_print_func (function): Function to print messages to the GUI console.
+    #   app_instance (App): The main application instance, providing access to its
+    #                       Tkinter variables and other necessary attributes like SCAN_BAND_RANGES.
     #
     # Process of this function
     #   1. Prints a debug message indicating the start of saving.
@@ -331,61 +400,109 @@ def save_config(app_instance):
     # (2025-07-30) Change: Added default values for amplifier description and use.
     # (2025-07-30) Change: Added detailed debug prints for each variable being saved.
     # (2025-07-31) Change: Updated header.
+    # (2025-08-01) Change: Updated function signature to accept config_obj and file_path directly.
+    #                     Corrected CONFIG_FILE to file_path reference.
+    #                     Removed app_instance parameter as it's no longer needed directly for saving.
+    #                     Updated debug prints to new format.
+    # (2025-08-01 1600.4) Change: Corrected load_config signature to accept config_obj as first argument, and updated save_config signature to correctly use app_instance.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"Attempting to save configuration to {app_instance.CONFIG_FILE}...", file=current_file, function=current_function)
+    debug_print(f"🚫🐛 [DEBUG] Attempting to save configuration to {file_path}... Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
 
-    if 'LAST_USED_SETTINGS' not in app_instance.config:
-        app_instance.config['LAST_USED_SETTINGS'] = {}
-        debug_print("Created missing 'LAST_USED_SETTINGS' section during save.", file=current_file, function=current_function)
+    if 'LAST_USED_SETTINGS' not in config_obj: # Use config_obj here
+        config_obj['LAST_USED_SETTINGS'] = {} # Use config_obj here
+        debug_print(f"🚫🐛 [DEBUG] Created missing 'LAST_USED_SETTINGS' section during save. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
-    # Save general settings using the map and new prefixed keys
-    for var_name, (last_key_full, default_key_full, tk_var) in app_instance.setting_var_map.items():
-        # Extract prefix and suffix from the full default_key string
-        # Assuming default_key_full is like "default_SECTION__KEY"
-        parts = default_key_full.split('__', 1)
-        if len(parts) < 2:
-            key_prefix = 'GLOBAL' # Assume 'GLOBAL' for old non-prefixed keys
-            key_suffix = default_key_full.replace('default_', '')
-        else:
-            key_prefix = parts[0].replace('default_', '')
-            key_suffix = parts[1]
-
-        # Construct the full key name for LAST_USED_SETTINGS
-        last_key_to_save = f"last_{key_prefix}__{key_suffix}"
-        
-        # --- NEW DEBUG PRINT ---
+    # Save all Tkinter variable values to the config_obj
+    for tk_var_name, (last_key_full, default_key_full, tk_var) in app_instance.setting_var_map.items():
         try:
-            value_to_save = str(tk_var.get())
-            app_instance.config['LAST_USED_SETTINGS'][last_key_to_save] = value_to_save
-            debug_print(f"Saving '{last_key_to_save}': '{value_to_save}' (from TkVar: {var_name})", file=current_file, function=current_function)
-        except Exception as e:
-            debug_print(f"❌ Error getting value for '{var_name}' (mapped to '{last_key_to_save}'): {e}", file=current_file, function=current_function)
-            # If there's an error getting the value, ensure it's still saved as an empty string or default
-            app_instance.config['LAST_USED_SETTINGS'][last_key_to_save] = ''
+            # Extract prefix and suffix from the full default_key string
+            parts = default_key_full.split('__', 1)
+            if len(parts) < 2:
+                key_prefix = 'GLOBAL'
+                key_suffix = default_key_full.replace('default_', '')
+            else:
+                key_prefix = parts[0].replace('default_', '')
+                key_suffix = parts[1]
 
+            # Construct the 'last_KEY' for saving
+            save_key = f"last_{key_prefix}__{key_suffix}"
+
+            # Ensure the section exists before trying to set an option
+            section_name = 'LAST_USED_SETTINGS'
+            if section_name not in config_obj:
+                config_obj[section_name] = {}
+
+            # Get the value from the Tkinter variable and convert to string for saving
+            if isinstance(tk_var, tk.BooleanVar):
+                value_to_save = str(tk_var.get())
+            elif isinstance(tk_var, (tk.IntVar, tk.DoubleVar)):
+                value_to_save = str(tk_var.get())
+            elif isinstance(tk_var, tk.StringVar):
+                value_to_save = tk_var.get()
+            else:
+                value_to_save = str(tk_var.get()) # Fallback for any other Tkinter var type
+
+            config_obj[section_name][save_key] = value_to_save
+            debug_print(f"🚫🐛 [DEBUG] Saved '{save_key}': '{value_to_save}'. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
+        except Exception as e:
+            debug_print(f"❌ Error saving Tkinter variable '{tk_var_name}' to config: {e}. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
 
     # Save selected bands
-    selected_band_names = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
-    bands_to_save = ",".join(selected_band_names)
-    app_instance.config['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands'] = bands_to_save
-    debug_print(f"Saving 'last_scan_configuration__selected_bands': '{bands_to_save}'", file=current_file, function=current_function)
+    selected_bands = [band_item["band"]["Band Name"] for band_item in app_instance.band_vars if band_item["var"].get()]
+    config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands'] = ",".join(selected_bands)
+    debug_print(f"🚫🐛 [DEBUG] Saved 'last_scan_configuration__selected_bands': '{config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands']}'. Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
 
-    # Force update of window geometry before saving
-    app_instance.update_idletasks() # IMPORTANT: Ensure geometry is up-to-date
-    current_geometry = app_instance.winfo_geometry()
-    app_instance.config['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = current_geometry
-    debug_print(f"Saving 'last_GLOBAL__window_geometry': '{current_geometry}'", file=current_file, function=current_function)
+    # Save window geometry
+    try:
+        geometry_string = app_instance.geometry()
+        config_obj['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = geometry_string
+        debug_print(f"🚫🐛 [DEBUG] Saved 'last_GLOBAL__window_geometry': '{geometry_string}'. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+    except Exception as e:
+        debug_print(f"❌ Error saving window geometry: {e}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
     try:
-        with open(app_instance.CONFIG_FILE, 'w') as configfile:
-            app_instance.config.write(configfile)
-        debug_print(f"Configuration successfully written to {app_instance.CONFIG_FILE}", file=current_file, function=current_function)
+        with open(file_path, 'w') as configfile:
+            config_obj.write(configfile)
+        debug_print(f"🚫🐛 [DEBUG] Configuration successfully written to {file_path}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+        console_print_func(f"✅ Configuration saved to: {file_path}")
     except IOError as e:
-        debug_print(f"❌ I/O Error saving configuration to {app_instance.CONFIG_FILE}: {e}", file=current_file, function=current_function)
+        debug_print(f"❌ I/O Error saving configuration to {file_path}: {e}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+        console_print_func(f"❌ Holy hell, I/O Error saving config to {file_path}: {e}. This is some serious bullshit!")
     except Exception as e:
-        debug_print(f"❌ An unexpected error occurred while saving configuration: {e}", file=current_file, function=current_function)
+        debug_print(f"❌ An unexpected error occurred while saving configuration: {e}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
+        console_print_func(f"❌ An unexpected error occurred while saving config: {e}. This is a fucking nightmare!")
 
 
 def save_config_as_new_file(config_obj, file_path, console_print_func):
@@ -411,26 +528,30 @@ def save_config_as_new_file(config_obj, file_path, console_print_func):
     #
     # (2025-07-30) Change: No functional change, just updated header.
     # (2025-07-31) Change: Updated header.
-    """
-    Saves a given ConfigParser object to a specified file path.
-
-    Inputs:
-        config_obj (configparser.ConfigParser): The ConfigParser object to save.
-        file_path (str): The full path to the file where the config will be saved.
-        console_print_func (function): Function to print messages to the GUI console.
-    Outputs: None
-    """
+    # (2025-08-01) Change: Updated debug prints to new format.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"Attempting to save configuration to new file: {file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_print(f"🚫🐛 [DEBUG] Attempting to save configuration to new file: {file_path}. Version: {current_version}",
+                file=f"{current_file} - {current_version}",
+                function=current_function,
+                console_print_func=console_print_func)
     try:
         with open(file_path, 'w') as configfile:
             config_obj.write(configfile)
-        debug_print(f"Configuration successfully saved to {file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_print(f"🚫🐛 [DEBUG] Configuration successfully saved to {file_path}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
     except IOError as e:
-        debug_print(f"❌ I/O Error saving configuration to {file_path}: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_print(f"❌ I/O Error saving configuration to {file_path}: {e}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
         raise # Re-raise to be caught by the calling function
     except Exception as e:
-        debug_print(f"❌ An unexpected error occurred while saving configuration to {file_path}: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_print(f"❌ An unexpected error occurred while saving configuration to {file_path}: {e}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
         raise # Re-raise to be caught by the calling function

@@ -12,11 +12,16 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Request can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1054.2 (Updated child_notebook style to 'PresetsChild.TNotebook')
+# Version 20250801.1800.1 (Added diagnostic print statement at module level to debug ImportError.
+#                      Updated debug prints to new format.)
 
-current_version = "20250801.1054.2" # this variable should always be defined below the header to make the debugging better
+# FUCKING DIAGNOSTIC PRINT: If you don't see this, the problem is before this file is fully loaded.
+print("🚫🐛 [DEBUG] Executing tabs/Presets/TAB_PRESETS_PARENT.py module...")
+
+current_version = "20250801.1800.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import ttk
@@ -63,6 +68,14 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else print
 
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+
+        debug_print(f"🚫🐛 [DEBUG] Initializing TAB_PRESETS_PARENT. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self.console_print_func)
+
         # Configure grid to make the notebook expand
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
@@ -90,9 +103,9 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
 
-        debug_print(f"🚫🐛 [DEBUG] Initialized TAB_PRESETS_PARENT. Version: {current_version}",
-                    file=f"tabs/TAB_PRESETS_PARENT.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name,
+        debug_print(f"🚫🐛 [DEBUG] TAB_PRESETS_PARENT initialized with child tabs. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
                     console_print_func=self.console_print_func)
 
 
@@ -119,19 +132,26 @@ class TAB_PRESETS_PARENT(ttk.Frame):
 
         (2025-07-31) Change: Added to handle child tab changes.
         """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = __file__
+        debug_print(f"🚫🐛 [DEBUG] Child tab changed to {self.child_notebook.tab(self.child_notebook.select(), 'text')}. Version: {current_version}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self.console_print_func)
+
         selected_tab_id = self.child_notebook.select()
         selected_tab_widget = self.child_notebook.nametowidget(selected_tab_id)
 
         if hasattr(selected_tab_widget, '_on_tab_selected'):
             selected_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
-                        file=f"tabs/TAB_PRESETS_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
+            debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_tab_widget.winfo_class()}. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
                         console_print_func=self.console_print_func)
         else:
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. No _on_tab_selected method found. Version: {current_version}",
-                        file=f"tabs/TAB_PRESETS_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
+            debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
                         console_print_func=self.console_print_func)
 
     def _on_tab_selected(self, event):
@@ -155,9 +175,9 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         (2025-07-31) Change: Added to handle parent tab selection and propagate to active child.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/TAB_PRESETS_PARENT.py - {current_version}"
+        current_file = __file__
         debug_print(f"🚫🐛 [DEBUG] TAB_PRESETS_PARENT selected. Version: {current_version}",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=self.console_print_func)
 
@@ -168,12 +188,12 @@ class TAB_PRESETS_PARENT(ttk.Frame):
             if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                 selected_child_tab_widget._on_tab_selected(event)
                 debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}",
-                            file=current_file,
+                            file=f"{current_file} - {current_version}",
                             function=current_function,
                             console_print_func=self.console_print_func)
             else:
                 debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
-                            file=current_file,
+                            file=f"{current_file} - {current_version}",
                             function=current_function,
                             console_print_func=self.console_print_func)
 

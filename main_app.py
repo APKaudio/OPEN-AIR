@@ -15,11 +15,30 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1437.1 (Updated output_folder_var to point directly to DATA_FOLDER_PATH for MARKERS.CSV storage.)
+# Version 20250801.1807.10 (Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.)
 
-current_version = "20250801.1437.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1807.10" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 1807 * 10 # Calculated hash for version 20250801.1807.10
+
+
+# Project file structure
+#└── OPEN-AIR/
+#       ├── DATA/
+#       ├── process_math/
+#       ├── ref/
+#       ├── scan_data/
+#       ├── src/
+#       ├── tabs/
+#       │   ├── Experiments/
+#       │   ├── Instrument/
+#       │   ├── Markers/
+#       │   ├── Plotting/
+#       │   ├── Presets/
+#       │   └── Scanning/
+#       └── utils/
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -30,6 +49,7 @@ import time
 import pyvisa
 import configparser
 import inspect
+from datetime import datetime # For timestamp in debug_print
 import subprocess
 
 
@@ -51,6 +71,7 @@ from src.style import apply_styles # NEW: Import the apply_styles function
 from src.check_Dependancies import check_and_install_dependencies # NEW: Import the standalone dependency check
 
 from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
+
 
 # Import the new parent tab classes
 from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
@@ -77,15 +98,19 @@ class App(tk.Tk):
     communication, and data processing.
     """
     _script_dir = os.path.dirname(os.path.abspath(__file__))
-    CONFIG_FILE = os.path.join(_script_dir, 'config.ini')
-
-    # Define the path to the DATA folder, one level up from the application's root
+    # FUCKING IMPORTANT: Update CONFIG_FILE_PATH to the new DATA directory location!
+    # The DATA folder is one level up from the application's root (where main_app.py resides)
     DATA_FOLDER_PATH = os.path.join(os.path.dirname(_script_dir), 'DATA')
+    CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini') # Now points to DATA folder
+    PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV') # Moved to DATA folder
+    MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV') # Moved to DATA folder
 
+  
 
     DEFAULT_WINDOW_GEOMETRY = "1400x780+100+100" # This is now a fallback, actual default comes from config
 
     def __init__(self):
+        # Function Description:
         # Initializes the main application window and sets up core components.
         # It performs dependency checks, initializes instrument communication,
         # sets up Tkinter variables, loads configuration, creates UI widgets,
@@ -121,49 +146,19 @@ class App(tk.Tk):
         # Outputs:
         #   None. Initializes the main application object.
         #
-        # (2025-07-30) Change: Updated to initialize new Tkinter variables for Scan Meta Data tab.
-        # (2025-07-30) Change: Initialized new Tkinter StringVars for persistent preset selection and loaded details.
-        # (2025-07-31) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated window title to "OPEN AIR - RF Spectrum Analyzer".
-        # (2025-07-31) Change: Adjusted startup calls for band selections and notes to new nested tab structure.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Added initialization for paned_window_sash_position_var.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version. Verified import paths based on new directory structure.
-        # (2025-08-01) Change: Corrected import paths for numbered subfolders (e.g., '1_Instrument' instead of '1Instrument').
-        # (2025-08-01) Change: Corrected import paths to remove leading digits from folder names (e.g., 'tabs.Instrument' instead of 'tabs.1_Instrument').
-        # (2025-08-01) Change: Added logic to create the 'DATA' folder one level above the application directory on startup.
-        # (2025-08-01) Change: Moved ttk.Style configurations for button fonts and flashing
-        #                      states from scan_controler_button_logic.py to main_app.py.
-        #                      Adjusted button font size to 30pt globally. Updated debug_print
-        #                      calls with new current_version.
-        # (2025-08-01) Change: Corrected previous error where file was truncated by using the full original file.
-        # (2025-08-01) Change: Reverted global TButton font to 15pt. Defined new 'BigScanButton.TButton' style for 30pt font.
-        # (2025-08-01) Change: Defined new specific color styles for BigScanButton (Green, Orange, Red, Disabled).
-        #                      Ensured flashing styles (FlashingGreen, FlashingDark) use 30pt font.
-        # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
-        #                      into a new external file: src/style.py.
-        # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
-        #                      directly instead of 'self.debug_print'.
-        # (2025-08-01) Change: Removed _check_and_install_dependencies method, as it's now a standalone function.
-        # (2025-08-01) Change: Corrected _on_parent_tab_change to properly apply active/inactive styles
-        #                      to individual parent tabs using notebook.tab() method.
-        # (2025-08-01) Change: Fixed ValueError in _on_parent_tab_change by using tab_widget.winfo_name()
-        #                      to correctly identify tab within parent_notebook.tabs().
-        # (2025-08-01) Change: Fixed AttributeError by ensuring self.console_text exists
-        #                      before attempting to write to it in _print_to_gui_console.
-        # (2025-08-01) Change: Fixed TclError by passing the tab widget object directly to
-        #                      self.parent_notebook.tab() instead of its winfo_name().
-        # (2025-08-01) Change: Updated output_folder_var to point directly to DATA_FOLDER_PATH.
+        # (2025-08-01 18:07) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'is_scanning'.
+        # (2025-08-01 18:07) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
+        # (2025-08-01 18:07) Change: Corrected AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
+        # (2025-08-01 18:07) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab' by using correct child tab attributes.
+        # (2025-08-01 18:07) Change: Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'console_print_func' by conditionally passing console_print_func to debug_print during early initialization.
+        # (2025-08-01 18:07) Change: Fixed TypeError: load_config() takes 3 positional arguments but 4 were given by removing the extra 'self' argument from the call.
+        # (2025-08-01 1807.7) Change: Fixed AttributeError: 'function' object has no attribute 'SCAN_BAND_RANGES' by re-adding app_instance to load_config call and updating save_config signature.
+        # (2025-08-01 1807.8) Change: Fixed TypeError: load_config() takes 3 positional arguments but 4 were given by correcting argument passing to load_config and updating save_config signature.
+        # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
+        # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
-
-        self.config = configparser.ConfigParser()
-
-        self.is_ready_to_save = False
 
         # Initialize console_text to None or a dummy object before _create_widgets
         # This prevents AttributeError if _print_to_gui_console is called before the widget exists
@@ -187,10 +182,20 @@ class App(tk.Tk):
         self.MHZ_TO_HZ = MHZ_TO_HZ
         self.VBW_RBW_RATIO = VBW_RBW_RATIO
 
-        self._setup_tkinter_vars() # Initialize Tkinter variables BEFORE loading config
+        # Pass None for console_print_func initially, as console_text is not yet ready
+        self._setup_tkinter_vars(console_print_func=None) # Initialize Tkinter variables BEFORE loading config
 
-        load_config(self) # Now load_config will find the variables and populate them
-        self._apply_saved_geometry()
+        # Ensure the DATA directory exists. Pass None for console_print_func initially.
+        self._ensure_data_directory_exists(console_print_func=None)
+
+        # FUCKING IMPORTANT: Corrected load_config call to pass all required arguments
+        # and assign the returned config object to self.config
+        self.config = configparser.ConfigParser() # Initialize config parser before loading
+        # Corrected load_config call to pass self.config, CONFIG_FILE_PATH, print func, and self (app_instance)
+        load_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
+        
+        # Pass None for console_print_func initially, as console_text is not yet ready
+        self._apply_saved_geometry(console_print_func=None)
 
         # Initialize self.style BEFORE _create_widgets is called
         self.style = ttk.Style(self) # Make style an instance attribute
@@ -198,10 +203,6 @@ class App(tk.Tk):
         # These calls now use the Tkinter variables directly, which are populated by load_config
         set_debug_mode(self.general_debug_enabled_var.get())
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
-
-        # Ensure the DATA directory exists
-        # This call might print to console, so console_text needs to be handled
-        self._ensure_data_directory_exists()
 
         self._create_widgets() # console_text is initialized here
 
@@ -220,77 +221,118 @@ class App(tk.Tk):
         # Adjusted startup calls for band selections and notes to new nested tab structure
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_configuration_tab'):
             self.scanning_parent_tab.scan_configuration_tab._load_band_selections_from_config()
-            debug_print(f"🚫🐛 [DEBUG] Called _load_band_selections_from_config on Scan Configuration Tab during startup. Version: {current_version}",
+            debug_print(f"Called _load_band_selections_from_config on Scan Configuration Tab during startup.",
                         file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+                        function=inspect.currentframe().f_code.co_name,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
 
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_meta_data_tab'):
-            self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
-            self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", self.notes_var.get())
-            debug_print(f"🚫🐛 [DEBUG] Updated notes_text_widget on Scan Meta Data Tab during startup. Version: {current_version}",
+            # Ensure the notes_text_widget exists before trying to access it
+            if hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
+                self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
+                self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", self.notes_var.get())
+                debug_print(f"Updated notes_text_widget on Scan Meta Data Tab during startup.",
+                            file=f"main_app.py - {current_version}",
+                            function=inspect.currentframe().f_code.co_name,
+                            console_print_func=self._print_to_gui_console) # Added console_print_func
+            else:
+                debug_print(f"ScanMetaDataTab notes_text_widget not found for initial notes update.",
+                            file=f"main_app.py - {current_version}",
+                            function=inspect.currentframe().f_code.co_name,
+                            console_print_func=self._print_to_gui_console) # Added console_print_func
+        else:
+            debug_print(f"ScanMetaDataTab not found for initial notes update.",
                         file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+                        function=inspect.currentframe().f_code.co_name,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
         self.is_ready_to_save = True
-        debug_print(f"🚫🐛 [DEBUG] Application fully initialized and ready to save configuration. Version: {current_version}",
+        debug_print(f"Application fully initialized and ready to save configuration.",
                     file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
+                    function=inspect.currentframe().f_code.co_name,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
-    def _setup_tkinter_vars(self):
-        # Initializes all Tkinter variables used throughout the application.
-        # It creates StringVars, IntVars, and BooleanVars, and adds trace listeners
-        # to them. These trace listeners automatically trigger the `save_config`
-        # function whenever a variable's value changes, ensuring settings are persisted.
+    def _ensure_data_directory_exists(self, console_print_func=None):
+        # Function Description:
+        # Ensures that the DATA directory exists. If it doesn't, it creates it.
         #
         # Inputs:
-        #   None (operates on self).
+        #   console_print_func (function, optional): Function to use for console output.
         #
         # Process:
-        #   1. Defines a helper function `create_trace_callback` that returns a
-        #      closure to save configuration when a variable changes, but only
-        #      if the application is fully initialized.
-        #   2. Initializes global application variables (e.g., debug settings).
-        #   3. Initializes instrument connection variables.
-        #   4. Initializes scan configuration variables.
-        #   5. Initializes scan meta data variables, including new ones for
-        #      location lookup results and detailed antenna/amplifier properties.
-        #   6. Initializes plotting variables for both single scan and average plots.
-        #   7. Initializes new variables for persistent preset selection and its details.
-        #   8. Creates a `setting_var_map` dictionary that maps each Tkinter variable
-        #      to its corresponding keys in the `config.ini` file (last used and default).
-        #   9. Initializes `band_vars` for frequency band selections, adding traces.
+        #   1. Checks if `self.DATA_FOLDER_PATH` exists.
+        #   2. If not, attempts to create it using `os.makedirs`.
+        #   3. Logs success or failure to the console.
         #
         # Outputs:
-        #   None. Populates `self` with Tkinter variables and `setting_var_map`.
+        #   None. Creates a directory if necessary.
         #
-        # (2025-07-30) Change: Added new Tkinter variables for Venue Postal Code, Address Field, Province,
-        #                      Selected Antenna Type, Antenna Description, Antenna Use, Antenna Mount,
-        #                      and Selected Amplifier Type. Updated `setting_var_map` accordingly.
-        # (2025-07-30) Change: Verified and ensured all relevant Tkinter StringVars have trace listeners for auto-saving.
-        # (2025-07-30) Change: Added new Tkinter StringVars for persistent preset selection and loaded details.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Added paned_window_sash_position_var and added it to setting_var_map.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Updated output_folder_var to point directly to DATA_FOLDER_PATH.
-        """
-        Initializes Tkinter variables for all application settings,
-        mapping them to their corresponding keys in config.ini using the new prefixed style.
-        Also adds trace listeners to trigger config saving on changes.
-        """
+        # (2025-07-31) Change: Initial implementation for DATA folder creation.
+        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing.
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function, console_print_func=console_print_func)
+        try:
+            if not os.path.exists(self.DATA_FOLDER_PATH):
+                os.makedirs(self.DATA_FOLDER_PATH)
+                if console_print_func: # Only print to GUI console if function is provided
+                    console_print_func(f"✅ Created DATA directory: {self.DATA_FOLDER_PATH}")
+                debug_print(f"DATA directory created.",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function, console_print_func=console_print_func)
+            else:
+                if console_print_func: # Only print to GUI console if function is provided
+                    console_print_func(f"ℹ️ DATA directory already exists: {self.DATA_FOLDER_PATH}")
+                debug_print(f"DATA directory already exists.",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function, console_print_func=console_print_func)
+        except Exception as e:
+            if console_print_func: # Only print to GUI console if function is provided
+                console_print_func(f"❌ Error creating DATA directory {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!")
+            debug_print(f"Error creating DATA directory: {e}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function, console_print_func=console_print_func)
+
+    def _setup_tkinter_vars(self, console_print_func=None):
+        # Function Description:
+        # Initializes all Tkinter `StringVar`, `BooleanVar`, and `DoubleVar` instances
+        # used throughout the application. These variables are linked to GUI widgets
+        # and configuration settings.
+        #
+        # Inputs:
+        #   console_print_func (function, optional): Function to use for console output.
+        #
+        # Process:
+        #   1. Initializes StringVars for VISA resource names, selected resource,
+        #      instrument model, and various scan settings (frequency, RBW, Ref Level, etc.).
+        #   2. Initializes BooleanVars for debug modes, HTML output options, and marker inclusions.
+        #   3. Initializes DoubleVars for VBW/RBW ratio and sweep time.
+        #   4. Initializes IntegerVars for sweep points and average count.
+        #
+        # Outputs:
+        #   None. Populates `self` with Tkinter variable objects.
+        #
+        # (2025-07-31) Change: Added `include_scan_intermod_markers_var` and `avg_include_intermod_markers_var`.
+        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing during early init.
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print("Setting up Tkinter variables...",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function, console_print_func=console_print_func)
+
         # Define a helper function to add trace for saving config
         def create_trace_callback(var_name):
             def callback(*args):
                 # Only save if the app is fully initialized to avoid saving partial states during startup
                 if self.is_ready_to_save:
-                    debug_print(f"🚫🐛 [DEBUG] Tkinter variable '{var_name}' changed. Saving config. Version: {current_version}",
-                                file=f"main_app.py - {current_version}",
-                                function=inspect.currentframe().f_code.co_name)
-                    save_config(self)
+                    debug_print(f"Tkinter variable '{var_name}' changed. Saving config.",
+                                file=f"{current_file} - {current_version}", # Corrected file path
+                                function=inspect.currentframe().f_code.co_name,
+                                console_print_func=self._print_to_gui_console) # Added console_print_func
             return callback
 
         # GLOBAL variables
@@ -532,6 +574,7 @@ class App(tk.Tk):
             'last_loaded_preset_rbw_hz_var': ('last_instrument_preset__loaded_preset_rbw_hz', 'default_instrument_preset__loaded_preset_rbw_hz', self.last_loaded_preset_rbw_hz_var),
 
 
+            # Plotting variables (Scan Markers)
             'include_gov_markers_var': ('last_plotting__scan_markers_to_plot__include_gov_markers', 'default_plotting__scan_markers_to_plot__include_gov_markers', self.include_gov_markers_var),
             'include_tv_markers_var': ('last_plotting__scan_markers_to_plot__include_tv_markers', 'default_plotting__scan_markers_to_plot__include_tv_markers', self.include_tv_markers_var),
             'include_markers_var': ('last_plotting__scan_markers_to_plot__include_markers', 'default_plotting__scan_markers_to_plot__include_markers', self.include_markers_var),
@@ -539,6 +582,7 @@ class App(tk.Tk):
             'open_html_after_complete_var': ('last_plotting__scan_markers_to_plot__open_html_after_complete', 'default_plotting__scan_markers_to_plot__open_html_after_complete', self.open_html_after_complete_var),
             'create_html_var': ('last_plotting__scan_markers_to_plot__create_html', 'default_plotting__scan_markers_to_plot__create_html', self.create_html_var),
 
+            # Plotting variables (Average Markers)
             'avg_include_gov_markers_var': ('last_plotting__average_markers_to_plot__include_gov_markers', 'default_plotting__average_markers_to_plot__include_gov_markers', self.avg_include_gov_markers_var),
             'avg_include_tv_markers_var': ('last_plotting__average_markers_to_plot__include_tv_markers', 'default_plotting__average_markers_to_plot__include_tv_markers', self.avg_include_tv_markers_var),
             'avg_include_markers_var': ('last_plotting__average_markers_to_plot__include_markers', 'default_plotting__average_markers_to_plot__include_markers', self.avg_include_markers_var),
@@ -562,12 +606,13 @@ class App(tk.Tk):
             self.band_vars.append({"band": band, "var": band_var})
 
 
-    def _apply_saved_geometry(self):
+    def _apply_saved_geometry(self, console_print_func=None):
+        # Function Description:
         # Applies the window geometry saved in config.ini, or uses a default
         # if no saved geometry is found or if it's invalid.
         #
         # Inputs:
-        #   None (operates on self).
+        #   console_print_func (function, optional): Function to use for console output.
         #
         # Process:
         #   1. Retrieves the window geometry from the 'LAST_USED_SETTINGS'
@@ -586,82 +631,85 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+
         # Use the new prefixed key for window geometry
         saved_geometry = self.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback=self.DEFAULT_WINDOW_GEOMETRY)
         try:
             self.geometry(saved_geometry)
-            debug_print(f"🚫🐛 [DEBUG] Applied saved geometry: {saved_geometry}. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+            debug_print(f"Applied saved geometry: {saved_geometry}.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func) # Conditionally pass console_print_func
         except TclError as e:
-            debug_print(f"🚫🐛 [ERROR] Invalid saved geometry '{saved_geometry}': {e}. Using default. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+            debug_print(f"ERROR: Invalid saved geometry '{saved_geometry}': {e}. Using default.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func) # Conditionally pass console_print_func
             self.geometry(self.DEFAULT_WINDOW_GEOMETRY)
 
 
     def _create_widgets(self):
+        # Function Description:
         # Creates and arranges all GUI widgets in the main application window.
-        # It sets up a two-column layout using ttk.Notebook for parent tabs on the left
-        # which then contain nested ttk.Notebooks for child tabs, and a container
-        # for scan control and console on the right.
+        # It sets up a two-column layout using ttk.PanedWindow for a resizable divider,
+        # with parent tabs on the left and scan control/console on the right.
         #
         # Inputs:
         #   None (operates on self).
         #
         # Process:
         #   1. Prints a debug message.
-        #   2. Configures the main window's grid to have two columns.
-        #   3. Creates `self.parent_notebook` for the top-level parent tabs.
-        #   4. For each parent category (INSTRUMENT, SCANNING, MARKERS, PRESETS, EXPERIMENTS):
-        #      a. Instantiates the corresponding `TAB_X_PARENT` class.
-        #      b. Adds this parent tab instance to `self.parent_notebook`.
-        #      c. Stores a reference to the child notebook within the parent tab for easy access.
-        #   5. Binds the `<<NotebookTabChanged>>` event to `_on_parent_tab_change` for the parent notebook.
-        #   6. Creates `right_column_container` for the right column.
-        #   7. Instantiates `ScanControlTab` and places it in the right column.
-        #   8. Creates and configures the "Application Console" scrolled text widget
+        #   2. Configures the main window's grid to host the PanedWindow.
+        #   3. Creates `self.main_panedwindow` for the resizable layout.
+        #   4. Creates `self.parent_notebook` for the top-level parent tabs and adds it to the left pane.
+        #   5. Instantiates and adds all `TAB_X_PARENT` classes to `self.parent_notebook`,
+        #      storing references to parent tab widgets and their child notebooks.
+        #   6. Binds the `<<NotebookTabChanged>>` event for the parent notebook.
+        #   7. Creates `right_column_container` for the right pane and adds it to the PanedWindow.
+        #   8. Instantiates `ScanControlTab` and places it in the right column.
+        #   9. Creates and configures the "Application Console" scrolled text widget
         #      within the right column.
+        #   10. Applies the saved sash position to the PanedWindow.
         #
         # Outputs:
         #   None. Populates the main window with GUI elements.
         #
-        # (2025-07-30) Change: No functional change, just updated header.
         # (2025-07-31) Change: Implemented two-layer tab structure with parent and child notebooks.
         #                      Instantiated new parent tab classes and added them to the main notebook.
         #                      Adjusted child notebook references to point to the nested notebooks within parent tabs.
         # (2025-07-31) Change: Corrected typo in console_print_func argument for Markers Parent Tab.
         # (2025-07-31) Change: Applied specific styles to parent tabs for correct color display.
-        # (2025-07-31) Change: Removed 'style' argument from parent_notebook.add() calls to fix TclError.
-        # (2025-07-31) Change: Dynamically setting parent tab colors via notebook.tab() calls.
-        # (2025-07-31) Change: Storing parent tab widget instances for more robust color setting.
         # (2025-07-31) Change: Removed immediate notebook.tab() calls after add; initial color handled by _on_parent_tab_change.
         # (2025-07-31) Change: Storing parent tab instances as attributes of App for global access.
-        # (2025-07-31) Change: Updated header.
         # (2025-07-31) Change: Replaced fixed grid columns with ttk.PanedWindow for resizable divider.
         #                      Adjusted ScanControlTab's sticky option to expand horizontally.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Applied saved sash position to the PanedWindow.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Removed 'style' argument from add() calls to fix TclError.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
         """
-        debug_print(f"🚫🐛 [DEBUG] Creating main application widgets with nested tabs... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print(f"Creating main application widgets with nested tabs...",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
 
         # Configure grid for the main window - single row, single column for the PanedWindow
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
         # --- PanedWindow for resizable columns ---
-        # This allows the user to resize the left and right columns
         self.main_panedwindow = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
         self.main_panedwindow.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
@@ -679,7 +727,7 @@ class App(tk.Tk):
         # and for the common active/inactive colors of the parent tabs.
         PARENT_INSTRUMENT_ACTIVE = "#FF0000"
         PARENT_INSTRUMENT_INACTIVE = "#660C0C"
-        PARENT_SCANNING_ACTIVE = "#FF6600" # Corrected typo
+        PARENT_SCANNING_ACTIVE = "#FF6600"
         PARENT_SCANNING_INACTIVE = "#926002"
         PARENT_PLOTTING_ACTIVE = "#D1D10E"
         PARENT_PLOTTING_INACTIVE = "#72720A"
@@ -705,6 +753,8 @@ class App(tk.Tk):
 
 
         # Instantiate and add parent tabs, storing widget references as App attributes
+        # Removed 'style' argument from add() calls as it's not supported directly for tab labels.
+        # Initial styling will be handled by _on_parent_tab_change.
         self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
         self.parent_notebook.add(self.instrument_parent_tab, text="INSTRUMENT")
         self.child_notebooks["INSTRUMENT"] = self.instrument_parent_tab.child_notebook
@@ -771,21 +821,25 @@ class App(tk.Tk):
         sash_pos = self.paned_window_sash_position_var.get()
         if sash_pos > 0: # Avoid setting to 0 which can hide a pane
             self.main_panedwindow.sashpos(0, sash_pos)
-            debug_print(f"🚫🐛 [DEBUG] Applied saved PanedWindow sash position: {sash_pos}. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+            debug_print(f"Applied saved PanedWindow sash position: {sash_pos}.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
         else:
-            debug_print(f"🚫🐛 [WARNING] Invalid saved PanedWindow sash position: {sash_pos}. Using default. Version: {current_version}",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name)
+            debug_print(f"WARNING: Invalid saved PanedWindow sash position: {sash_pos}. Using default.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
-        debug_print(f"🚫🐛 [DEBUG] Main application widgets created. Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
+        debug_print(f"Main application widgets created.",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
     def _setup_styles(self):
+        # Function Description:
         # Configures and applies custom ttk styles for a modern dark theme
         # to various Tkinter widgets within the application. This includes
         # defining styles for parent and child notebooks to support the
@@ -804,21 +858,26 @@ class App(tk.Tk):
         # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
         #                      into a new external file: src/style.py.
         #                      This method now simply calls apply_styles from src.style.py.
-        # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
+        # (25-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
         #                      directly instead of 'self.debug_print'.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
         """
-        debug_print(f"🚫🐛 [DEBUG] Setting up ttk styles... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print(f"Setting up ttk styles...",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
         # self.style is now an instance attribute, initialized in __init__
         # Pass the parent_tab_colors dictionary to apply_styles
         apply_styles(self.style, debug_print, current_version, self.parent_tab_colors)
 
 
     def _redirect_stdout_to_console(self):
+        # Function Description:
         # Redirects standard output and error streams to the GUI's scrolled text widget.
         # This allows all `print()` statements and error messages to appear in the
         # application's console area.
@@ -842,110 +901,41 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget.
         """
-        debug_print(f"🚫🐛 [DEBUG] Redirecting stdout/stderr to GUI console... Version: {current_version}",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name)
-        sys.stdout = TextRedirector(self.console_text, "stdout")
-        sys.stderr = TextRedirector(self.console_text, "stderr")
-        print("Application console initialized.")
-
-    def _print_to_gui_console(self, message, overwrite=False):
-        # This function descriotion tells me what this function does
-        # Appends a message to the GUI console's scrolled text widget.
-        # If `overwrite` is True, it deletes the last line before inserting the new message.
-        # It also ensures the console automatically scrolls to the end.
-        #
-        # Inputs to this function
-        #   message (str): The string message to append or overwrite.
-        #   overwrite (bool): If True, the last line is removed before inserting.
-        #
-        # Process of this function:
-        #   1. Enables the console text widget for editing.
-        #   2. If `overwrite` is True, deletes the last line.
-        #   3. Inserts the new message, followed by a newline.
-        #   4. Disables the console text widget to prevent user editing.
-        #   5. Scrolls to the end of the text widget.
-        #
-        # Outputs of this function:
-        #   None. Modifies the GUI console display.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        """
-        Appends a message to the GUI console's scrolled text widget.
-        """
-        # Check if console_text has been initialized yet
-        if self.console_text:
-            self.console_text.config(state=tk.NORMAL)
-            if overwrite:
-                # Delete last line if it's not empty
-                if self.console_text.get("end-2c", "end-1c") != "\n": # Check if last char is not newline
-                    self.console_text.delete("end-2c", "end-1c") # Delete last character if not newline
-                self.console_text.delete("end-1c linestart", "end-1c") # Delete the last line
-            self.console_text.insert(tk.END, message + "\n")
-            self.console_text.config(state=tk.DISABLED)
-            self.console_text.see(tk.END)
-        else:
-            # Fallback to standard print if GUI console is not ready
-            print(f"[GUI Console Not Ready] {message}")
-
-
-    def update_connection_status(self, is_connected):
-        # A wrapper method in the App class to call the external logic function.
-        # This method will be called by other parts of the application.
-        #
-        # Inputs:
-        #   is_connected (bool): True if the instrument is connected, False otherwise.
-        #
-        # Process:
-        #   1. Calls the `update_connection_status_logic` function, passing
-        #      `self` (the App instance), `is_connected`, and the GUI console
-        #      print function.
-        #
-        # Outputs:
-        #   None. Updates the connection status display via external logic.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        """
-        A wrapper method in the App class to call the external logic function.
-        This method will be called by other parts of the application.
-        """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Updating connection status to: {is_connected}. Version: {current_version}",
-                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        current_file = os.path.basename(__file__)
+        debug_print(f"Redirecting stdout/stderr to GUI console...",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        sys.stdout = TextRedirector(self.console_text, "stdout")
+        sys.stderr = TextRedirector(self.console_text, "stderr") # Fix: Corrected to TextRedirector
 
-        # Call the external logic function
-        update_connection_status_logic(self, is_connected, self._print_to_gui_console)
+        self._print_to_gui_console(f"Application console initialized. Version: {current_version}")
+        debug_print(f"Console redirection complete.",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
+
 
     def _on_closing(self):
+        # Function Description:
         # Handles the application closing event.
-        # It saves the current window geometry and paned window sash position to config.ini,
-        # then destroys the main application window.
+        # It attempts to save the current configuration and gracefully
+        # disconnect from the instrument before destroying the main window.
         #
         # Inputs:
         #   None (operates on self).
         #
         # Process:
-        #   1. Prints a debug message.
-        #   2. Retrieves the current window geometry and stores it in `self.config`.
-        #   3. Retrieves the current paned window sash position and stores it in `self.config`.
-        #   4. Calls `save_config` to persist the settings.
-        #   5. Destroys the main Tkinter window.
+        #   1. Prints a debug message indicating application shutdown.
+        #   2. Attempts to save the current configuration to `config.ini`.
+        #   3. Calls `disconnect_instrument_logic` to ensure the instrument is properly
+        #      released, if connected.
+        #   4. Destroys the main Tkinter window.
         #
         # Outputs:
         #   None. Closes the application.
@@ -953,148 +943,306 @@ class App(tk.Tk):
         # (2025-07-30) Change: No functional change, just updated header.
         # (2025-07-31) Change: Updated header.
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Added saving of paned window sash position.
+        # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         """
-        Handles the application closing event, saving window geometry and paned window sash position.
+        Handles the application closing event, saving configuration and disconnecting.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Application closing. Saving configuration... Version: {current_version}",
-                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        current_file = os.path.basename(__file__)
+        debug_print(f"Application is shutting down. Saving configuration...",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
 
-        # Save window geometry
-        self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', self.geometry())
+        # Save the current sash position before closing
+        # Ensure self.main_panedwindow exists before trying to get its sash position
+        if hasattr(self, 'main_panedwindow') and self.main_panedwindow.winfo_exists():
+            sash_pos = self.main_panedwindow.sashpos(0)
+            self.paned_window_sash_position_var.set(sash_pos)
+            debug_print(f"Saved final sash position: {sash_pos}.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
 
-        # Save paned window sash position
-        # Get the position of the first (and only) sash
-        sash_position = self.main_panedwindow.sashpos(0)
-        self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__paned_window_sash_position', str(sash_position))
 
-        save_config(self) # Save the configuration to config.ini
-        self.destroy()
+        # FUCKING IMPORTANT: Pass the config object, file path, and console print func to save_config
+        save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self) # Corrected call to include app_instance
 
-    def _on_parent_tab_change(self, event):
+        if self.inst:
+            debug_print(f"Disconnecting instrument before exit.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            disconnect_instrument_logic(self, self._print_to_gui_console) # Pass app_instance and console_print_func
+
+        self.destroy() # Destroy the main window
+
+
+    def _print_to_gui_console(self, message):
         # Function Description:
-        # Handles tab change events in the main parent Notebook.
-        # It updates the background and foreground colors of the selected parent tab
-        # and its corresponding child notebook to provide visual feedback.
-        # It also calls the `_on_tab_selected` method on the newly selected parent tab's
-        # widget if that method exists, allowing individual parent tabs to refresh
-        # their content or state when they become active.
+        # Prints a message to the GUI's scrolled text console.
+        # This function is used as the `console_print_func` argument
+        # passed to various utility and logic functions, ensuring all
+        # relevant output is displayed in the GUI.
         #
-        # Inputs to this function:
-        #   event (tkinter.Event): The event object that triggered the tab change.
+        # Inputs:
+        #   message (str): The string message to print.
         #
-        # Process of this function:
-        #   1. Prints a debug message.
-        #   2. Determines the currently selected tab in the parent notebook.
-        #   3. Retrieves the text (name) and widget instance of the selected tab.
-        #   4. Iterates through all parent tabs to reset their colors to inactive using notebook.tab().
-        #   5. Updates the selected parent tab's background and foreground colors to active using notebook.tab().
-        #   6. If the selected parent tab widget has an `_on_tab_selected` method, calls it.
-        #      This propagates the selection event down to the parent tab's own logic,
-        #      which in turn can propagate it to its active child tab.
+        # Process:
+        #   1. Checks if `self.console_text` (the scrolled text widget) exists.
+        #   2. If it exists, enables the widget, inserts the message with a newline,
+        #      scrolls to the end, and then disables the widget.
+        #   3. If it doesn't exist (e.g., during early startup), it falls back to `print()`.
         #
-        # Outputs of this function:
-        #   None. Triggers UI updates and content refreshes.
+        # Outputs:
+        #   None. Displays text in the GUI console.
         #
-        # (2025-07-31) Change: Added to handle parent tab changes and update colors dynamically.
-        # (2025-07-31) Change: Refactored to use explicit style configurations for active/inactive tabs.
-        # (2025-07-31) Change: Implemented user-requested color scheme for parent tabs.
-        # (2025-07-31) Change: Storing parent tab widget instances for more robust color setting.
+        # (2025-07-30) Change: No functional change, just updated header.
+        # (2025-07-31) Change: Updated header.
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
         # (2025-07-31) Change: Version incremented for paned window sash position saving.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (22025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Corrected logic to use self.parent_notebook.tab() for individual tab styling.
-        # (2025-08-01) Change: Fixed ValueError by using tab_widget.winfo_name() to correctly identify tab.
+        # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Fixed AttributeError by ensuring self.console_text exists
+        #                      before attempting to write to it.
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         """
-        Handles tab change events in the main parent Notebook, updating colors
-        and propagating the selection event to the active parent tab.
+        Prints a message to the GUI's scrolled text console.
         """
-        current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"🚫🐛 [DEBUG] Parent tab changed. Version: {current_version}",
-                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
-
-        # Get the currently selected tab's ID and text
-        selected_tab_id = self.parent_notebook.select()
-        selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
-        selected_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
-
-        # The ttk.Style.map() for 'Parent.TNotebook.Tab' already handles the
-        # background and foreground changes based on 'selected' and 'active' states.
-        # Direct calls to self.parent_notebook.tab(tab_widget, background=...) are not
-        # necessary and cause the "unknown option -background" error.
-        # The style system automatically applies the mapped styles when a tab's state changes.
-        # Therefore, we remove the loop that was trying to manually set these.
-
-        # Apply active style to the selected parent tab's *child notebook*
-        # This is where the background of the child notebook frame itself is set.
-        if selected_tab_text in self.parent_tab_colors:
-            active_color = self.parent_tab_colors[selected_tab_text]["active"]
-            active_fg = self.parent_tab_colors[selected_tab_text]["fg_active"]
-
-            if selected_tab_text in self.child_notebooks:
-                child_notebook = self.child_notebooks[selected_tab_text]
-                # This sets the background of the child notebook frame itself
-                self.style.configure(f'{selected_tab_text}Child.TNotebook', background=active_color)
-                # This ensures the child notebook's tabs also reflect the parent's colors correctly.
-                # Re-configuring the style for the child tabs is important when the parent changes.
-                self.style.configure(f'{selected_tab_text}Child.TNotebook.Tab',
-                                     background=self.parent_tab_colors[selected_tab_text]["inactive"],
-                                     foreground=self.parent_tab_colors[selected_tab_text]["fg_inactive"])
-                self.style.map(f'{selected_tab_text}Child.TNotebook.Tab',
-                               background=[('selected', active_color), ('active', active_color)],
-                               foreground=[('selected', active_fg)],
-                               expand=[('selected', [1, 1, 1, 0])])
-
-
-        # Propagate _on_tab_selected to the active parent tab
-        if hasattr(selected_tab_widget, '_on_tab_selected'):
-            selected_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active parent tab: {selected_tab_text}. Version: {current_version}",
-                        file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        if self.console_text:
+            self.console_text.config(state=tk.NORMAL)
+            self.console_text.insert(tk.END, message + "\n")
+            self.console_text.see(tk.END)
+            self.console_text.config(state=tk.DISABLED)
         else:
-            debug_print(f"🚫🐛 [DEBUG] Active parent tab {selected_tab_text} has no _on_tab_selected method. Version: {current_version}",
-                        file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+            # Fallback to standard print if console_text is not yet initialized
+            print(f"[CONSOLE_FALLBACK] {message}")
 
-    def _ensure_data_directory_exists(self):
+
+    def _ensure_data_directory_exists(self, console_print_func=None):
         # Function Description:
-        # Ensures that the dedicated 'DATA' directory exists one level above the application's root.
-        # If the directory does not exist, it creates it.
+        # Ensures that the 'DATA' directory exists at the specified `self.DATA_FOLDER_PATH`.
+        # If the directory does not exist, it attempts to create it. This is crucial
+        # for storing configuration files, scan data, and other application-related files.
         #
         # Inputs to this function:
-        #   None (operates on self).
+        #   None (operates on self.DATA_FOLDER_PATH).
         #
         # Process of this function:
-        #   1. Uses `self.DATA_FOLDER_PATH` to determine the target directory.
-        #   2. Checks if the directory exists using `os.path.exists`.
-        #   3. If it doesn't exist, attempts to create it using `os.makedirs(exist_ok=True)`.
+        #   1. Prints a debug message indicating the attempt to create the directory.
+        #   2. Uses `os.makedirs` with `exist_ok=True` to create the directory.
         #      `exist_ok=True` prevents an error if the directory already exists (e.g., due to a race condition).
-        #   4. Prints informative messages to the console about the directory status.
-        #   5. Includes error handling for potential issues during directory creation.
+        #   3. Prints informative messages to the console about the directory status.
+        #   4. Includes error handling for potential issues during directory creation.
         #
         # Outputs of this function:
         #   None. Ensures the 'DATA' directory is available for file operations.
         #
         # (2025-08-01) Change: New function to create the DATA folder.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}. Version: {current_version}",
-                    file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+        current_file = os.path.basename(__file__)
+        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=console_print_func)
 
         try:
             os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
-            self._print_to_gui_console(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}")
-            debug_print(f"DATA directory created or already exists.", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+            if console_print_func:
+                self._print_to_gui_console(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}")
+            debug_print(f"DATA directory created or already exists.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
         except Exception as e:
-            self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
-            debug_print(f"Error creating DATA directory: {e}", file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
+            if console_print_func:
+                self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
+            debug_print(f"ERROR: Error creating DATA directory: {e}",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=console_print_func)
+
+
+    def update_connection_status(self, is_connected):
+        # Function Description:
+        # This function updates the state (enabled/disabled) of various GUI elements
+        # across different tabs based on the instrument's connection status and
+        # whether a scan is currently in progress. It ensures that only relevant
+        # actions are available to the user at any given time.
+        #
+        # Inputs:
+        #   is_connected (bool): True if the instrument is connected, False otherwise.
+        #   is_scanning (bool): True if a scan is active, False otherwise.
+        #
+        # Process:
+        #   1. Prints a debug message.
+        #   2. Calls `update_connection_status_logic` (from `src.scan_logic`) to
+        #      handle the core logic of enabling/disabling widgets. This centralizes
+        #      the UI state management.
+        #   3. Passes references to all relevant tabs and their child tabs.
+        #
+        # Outputs:
+        #   None. Modifies the state of GUI widgets.
+        #
+        # (2025-07-30) Change: Updated to pass all new tab instances (ScanConfig, ScanMetaData, Plotting, Markers, Presets).
+        # (2025-07-31) Change: Updated to pass new nested tab structure to `update_connection_status_logic`.
+        #                      Now passes parent tab instances, which then expose their child tabs.
+        # (2025-07-31) Change: Updated header.
+        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
+        # (2025-07-31) Change: Version incremented for paned window sash position saving.
+        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Fixed AttributeError by ensuring correct tab attribute names are passed.
+        #                      Specifically, changed `instrument_presets_tab` to `preset_files_tab`.
+        # (2025-08-01) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab'.
+        #                      Corrected access to child tab within TAB_PLOTTING_PARENT.
+        # (2025-08-01) Change: Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
+        #                      Instantiated VisaInterpreterTab and assigned it as an attribute.
+        # (2025-08-01) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
+        # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
+        # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
+        """
+        Updates the state of various GUI elements based on connection and scan status.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print(f"Updating connection status. Connected: {is_connected}.",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
+
+        # This central logic function now only takes the main app_instance
+        # and the connection status. It should access all necessary tabs
+        # and their widgets through the app_instance object.
+        update_connection_status_logic(
+            app_instance=self, # Pass the main app instance
+            is_connected=is_connected,
+            console_print_func=self._print_to_gui_console
+        )
+
+
+    def _on_parent_tab_change(self, event):
+        # Function Description:
+        # Handles the event when a parent tab is changed in the main notebook.
+        # It updates the visual style of the newly selected tab (making it active)
+        # and the previously selected tab (making it inactive). It also propagates
+        # the tab selection event to the active child tab within the newly selected
+        # parent tab, if that child tab has an `_on_tab_selected` method.
+        #
+        # Inputs:
+        #   event (tkinter.Event): The event object that triggered the tab change.
+        #                          Can be None during initial startup.
+        #
+        # Process:
+        #   1. Prints a debug message.
+        #   2. Determines the currently selected parent tab's ID and widget.
+        #   3. Iterates through all parent tabs:
+        #      a. For each tab, it determines if it's the currently selected one.
+        #      b. Applies the appropriate 'active' or 'inactive' style to the tab's background
+        #         and foreground using `self.parent_notebook.tab()`.
+        #   4. If a child notebook exists for the newly selected parent tab,
+        #      it identifies the currently active child tab within that notebook.
+        #   5. If the active child tab has an `_on_tab_selected` method, it calls it,
+        #      allowing the child tab to refresh its content or state.
+        #
+        # Outputs:
+        #   None. Updates parent tab visual styles and triggers child tab updates.
+        #
+        # (2025-07-31) Change: Initial creation to handle parent tab style changes.
+        #                      Implemented logic to set active/inactive colors.
+        # (2025-07-31) Change: Propagated _on_tab_selected to active child tab.
+        # (2025-07-31) Change: Updated header.
+        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
+        # (2025-07-31) Change: Version incremented for paned window sash position saving.
+        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
+        # (2025-07-31) Change: Version incremented for new Markers tab styles.
+        # (2025-08-01) Change: Updated header and version.
+        # (2025-08-01) Change: Corrected ValueError by using tab_widget.winfo_name() to identify tab.
+        #                      Fixed TclError by passing widget directly to notebook.tab().
+        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01) Change: Fixed TclError: unknown option "-style" when applying style to parent tabs.
+        #                      Now retrieves background and foreground from the style and applies them directly.
+        """
+        Handles parent tab changes, updates styles, and propagates to active child tab.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_print(f"Parent tab changed.",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function,
+                    console_print_func=self._print_to_gui_console) # Added console_print_func
+
+        # Get the currently selected parent tab widget
+        selected_tab_id = self.parent_notebook.select()
+        selected_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
+        selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
+
+
+        # Update styles for all parent tabs
+        for tab_name, tab_widget in self.parent_tab_widgets.items():
+            # Determine the style name based on whether it's the selected tab
+            if tab_name == selected_tab_text:
+                style_name = f'Parent.Tab.{tab_name}.Active'
+            else:
+                style_name = f'Parent.Tab.{tab_name}.Inactive'
+            
+            # Retrieve the background and foreground colors from the configured style
+            # This is the crucial change to avoid the "unknown option -style" TclError
+            try:
+                # Use element_options to get the configured options for the specific style
+                bg_color = self.style.lookup(style_name, "background")
+                fg_color = self.style.lookup(style_name, "foreground")
+                
+                self.parent_notebook.tab(tab_widget, background=bg_color, foreground=fg_color)
+                debug_print(f"Applied colors (BG: {bg_color}, FG: {fg_color}) to parent tab '{tab_name}' using style '{style_name}'.",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=self._print_to_gui_console)
+            except TclError as e:
+                debug_print(f"❌ TclError applying colors to parent tab '{tab_name}' with style '{style_name}': {e}. This is some bullshit!",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=self._print_to_gui_console)
+            except Exception as e:
+                debug_print(f"❌ An unexpected error occurred while applying colors to parent tab '{tab_name}': {e}. What the hell is going on?!",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=self._print_to_gui_console)
+
+
+        # Propagate _on_tab_selected to the currently active child tab within the selected parent tab
+        if selected_tab_text in self.child_notebooks:
+            active_child_notebook = self.child_notebooks[selected_tab_text]
+            selected_child_tab_id = active_child_notebook.select()
+            if selected_child_tab_id:
+                selected_child_tab_widget = active_child_notebook.nametowidget(selected_child_tab_id)
+                if hasattr(selected_child_tab_widget, '_on_tab_selected'):
+                    selected_child_tab_widget._on_tab_selected(event)
+                    debug_print(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
+                                file=f"{current_file} - {current_version}",
+                                function=current_function,
+                                console_print_func=self._print_to_gui_console) # Added console_print_func
+                else:
+                    debug_print(f"Active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}' has no _on_tab_selected method.",
+                                file=f"{current_file} - {current_version}",
+                                function=current_function,
+                                console_print_func=self._print_to_gui_console) # Added console_print_func
+            else:
+                debug_print(f"No child tab selected in parent '{selected_tab_text}'.",
+                            file=f"{current_file} - {current_version}",
+                            function=current_function,
+                            console_print_func=self._print_to_gui_console) # Added console_print_func
+        else:
+            debug_print(f"No child notebook found for parent tab '{selected_tab_text}'.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function,
+                        console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
 if __name__ == "__main__":

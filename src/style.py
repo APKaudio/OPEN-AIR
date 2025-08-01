@@ -14,8 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1330.1 (Initial creation, refactored from main_app.py's _setup_styles.
-#                     Now accepts parent_tab_colors to configure child notebook styles.)
+# Version 20250801.1600.11 (Added specific active/inactive styles for each parent notebook tab.
+#                      These styles will be applied dynamically in main_app.py's _on_parent_tab_change.
+#                      Updated debug prints to new format.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -180,6 +181,28 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
                    background=[('selected', ACCENT_BLUE), ('active', ACCENT_BLUE)], # Common active color
                    foreground=[('selected', 'white'), ('active', 'white')],
                    expand=[('selected', [1, 1, 1, 0])]) # Expand selected tab
+
+    # NEW: Specific styles for each parent tab (Active and Inactive states)
+    # These styles are applied to the individual tabs using notebook.tab(tab_id, style=...)
+    for tab_name, colors in parent_tab_colors.items():
+        # Active style for the specific parent tab
+        style.configure(f'Parent.Tab.{tab_name}.Active',
+                        background=colors["active"],
+                        foreground=colors["fg_active"],
+                        font=('Helvetica', 11, 'bold')) # Keep font consistent
+        style.map(f'Parent.Tab.{tab_name}.Active',
+                  background=[('active', colors["active"])], # Keep color on hover when active
+                  foreground=[('active', colors["fg_active"])])
+
+        # Inactive style for the specific parent tab
+        style.configure(f'Parent.Tab.{tab_name}.Inactive',
+                        background=colors["inactive"],
+                        foreground=colors["fg_inactive"],
+                        font=('Helvetica', 11, 'bold')) # Keep font consistent
+        style.map(f'Parent.Tab.{tab_name}.Inactive',
+                  background=[('active', colors["active"])], # Change to active color on hover when inactive
+                  foreground=[('active', colors["fg_active"])])
+
 
     # --- Child Notebook Styles (Matching Parent Colors) ---
     # These styles are applied to the *child notebooks themselves* and their tabs.
@@ -379,3 +402,4 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
     debug_print(f"🚫🐛 [DEBUG] ttk styles applied from src/style.py. Version: {current_version}",
                 file=f"src/style.py - {current_version}",
                 function=apply_styles.__name__)
+
