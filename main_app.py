@@ -120,7 +120,7 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         super().__init__()
-        self.title("OPEN AIR - RF Spectrum Analyzer") # Changed window title
+        self.title("OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         self.config = configparser.ConfigParser()

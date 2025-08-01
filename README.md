@@ -1,2 +1,2 @@
 # OPEN AIR
-Open Air - wireless RF scanning 
+OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor
