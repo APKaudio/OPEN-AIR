@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1807.10 (Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.)
+# Version 20250801.1900.2 (Fixed config.ini not being created/populated on first run and TclError in tab styling.)
 
-current_version = "20250801.1807.10" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 1807 * 10 # Calculated hash for version 20250801.1807.10
+current_version = "20250801.1900.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 1900 * 2 + -638010053603417879 # Calculated hash for version 20250801.1900.2
 
 
 # Project file structure
@@ -99,8 +99,8 @@ class App(tk.Tk):
     """
     _script_dir = os.path.dirname(os.path.abspath(__file__))
     # FUCKING IMPORTANT: Update CONFIG_FILE_PATH to the new DATA directory location!
-    # The DATA folder is one level up from the application's root (where main_app.py resides)
-    DATA_FOLDER_PATH = os.path.join(os.path.dirname(_script_dir), 'DATA')
+    # The DATA folder is now located directly within the application's root (where main_app.py resides)
+    DATA_FOLDER_PATH = os.path.join(_script_dir, 'DATA') # Changed to place DATA folder inside OPEN-AIR
     CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini') # Now points to DATA folder
     PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV') # Moved to DATA folder
     MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV') # Moved to DATA folder
@@ -114,7 +114,9 @@ class App(tk.Tk):
         # Initializes the main application window and sets up core components.
         # It performs dependency checks, initializes instrument communication,
         # sets up Tkinter variables, loads configuration, creates UI widgets,
-        # applies styling, and redirects console output.
+        # applies styling, and redirects console output. It now also checks
+        # for the presence of config.ini and enables general debugging if not found,
+        # displaying relevant status remarks on the GUI console.
         #
         # Inputs:
         #   None.
@@ -137,11 +139,12 @@ class App(tk.Tk):
         #   15. Calls `_create_widgets` to build the GUI.
         #   16. Calls `_setup_styles` to apply custom themes.
         #   17. Redirects stdout to the GUI console.
-        #   18. Updates connection status.
-        #   19. Prints application art.
-        #   20. Loads band selections for ScanTab (now nested).
-        #   21. Manually updates notes text widget on ScanMetaDataTab (now nested).
-        #   22. Sets `is_ready_to_save` to True.
+        #   18. **NEW: Checks for config.ini and sets debug mode if not found, displaying status.**
+        #   19. Updates connection status.
+        #   20. Prints application art.
+        #   21. Loads band selections for ScanTab (now nested).
+        #   22. Manually updates notes text widget on ScanMetaDataTab (now nested).
+        #   23. Sets `is_ready_to_save` to True.
         #
         # Outputs:
         #   None. Initializes the main application object.
@@ -156,9 +159,19 @@ class App(tk.Tk):
         # (2025-08-01 1807.8) Change: Fixed TypeError: load_config() takes 3 positional arguments but 4 were given by correcting argument passing to load_config and updating save_config signature.
         # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
         # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
+        # (2025-08-01 1807.11) Change: Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'is_ready_to_save' by initializing the flag earlier.
+        # (2025-08-01 1845.1) Change: Fixed DATA_FOLDER_PATH to be inside the main app directory.
+        # (2025-08-01 1850.2) Change: Implemented logic to check for config.ini and enable general debugging if missing, displaying status on console.
+        # (2025-08-01 1900.1) Change: Regenerated file to ensure latest version is presented. No functional changes from previous version.
+        # (2025-08-01 1900.2) Change: Ensured config.ini is created and populated with defaults on first run if it doesn't exist.
+        #                             Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
+
+        # Initialize is_ready_to_save to False at the very beginning
+        # This prevents AttributeError when Tkinter variable traces are triggered during setup.
+        self.is_ready_to_save = False
 
         # Initialize console_text to None or a dummy object before _create_widgets
         # This prevents AttributeError if _print_to_gui_console is called before the widget exists
@@ -188,12 +201,24 @@ class App(tk.Tk):
         # Ensure the DATA directory exists. Pass None for console_print_func initially.
         self._ensure_data_directory_exists(console_print_func=None)
 
+        # Check if config.ini exists before attempting to load
+        config_file_exists_on_startup = os.path.exists(self.CONFIG_FILE_PATH)
+
         # FUCKING IMPORTANT: Corrected load_config call to pass all required arguments
         # and assign the returned config object to self.config
         self.config = configparser.ConfigParser() # Initialize config parser before loading
         # Corrected load_config call to pass self.config, CONFIG_FILE_PATH, print func, and self (app_instance)
         load_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
         
+        # If config.ini did not exist on startup, save it now to populate with defaults
+        if not config_file_exists_on_startup:
+            debug_print(f"config.ini was not found on startup. Saving defaults to new file.",
+                        file=f"main_app.py - {current_version}",
+                        function=inspect.currentframe().f_code.co_name,
+                        console_print_func=self._print_to_gui_console)
+            save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
+
+
         # Pass None for console_print_func initially, as console_text is not yet ready
         self._apply_saved_geometry(console_print_func=None)
 
@@ -201,6 +226,7 @@ class App(tk.Tk):
         self.style = ttk.Style(self) # Make style an instance attribute
 
         # These calls now use the Tkinter variables directly, which are populated by load_config
+        # The initial setting here uses values from config.ini, which might be defaults if config.ini was not found.
         set_debug_mode(self.general_debug_enabled_var.get())
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
 
@@ -208,6 +234,9 @@ class App(tk.Tk):
 
         self._setup_styles() # This will now configure self.style
         self._redirect_stdout_to_console()
+
+        # NEW: Check for config.ini and enable debug if not found, reporting status to GUI console
+        self._check_config_and_set_debug()
 
         # Call _on_parent_tab_change to set initial tab colors after all widgets are created
         # Pass a dummy event as it's not triggered by a user action
@@ -247,16 +276,85 @@ class App(tk.Tk):
                         console_print_func=self._print_to_gui_console) # Added console_print_func
 
 
+        # Set to True only after all initialization is complete
         self.is_ready_to_save = True
         debug_print(f"Application fully initialized and ready to save configuration.",
                     file=f"main_app.py - {current_version}",
                     function=inspect.currentframe().f_code.co_name,
                     console_print_func=self._print_to_gui_console) # Added console_print_func
 
+    # Function Description:
+    # Checks for the presence of the config.ini file in the DATA_FOLDER_PATH.
+    # If config.ini is not found, it automatically enables general debugging
+    # and updates the GUI console with status remarks.
+    #
+    # Inputs:
+    #   None.
+    #
+    # Process:
+    #   1. Logs the start of the configuration check to the debug console.
+    #   2. Checks if self.CONFIG_FILE_PATH exists.
+    #   3. If it does not exist:
+    #      a. Prints a warning to the GUI console and debug log.
+    #      b. Sets the general_debug_enabled_var to True.
+    #      c. Calls set_debug_mode to activate debugging.
+    #   4. If it exists:
+    #      a. Prints a success message to the GUI console and debug log.
+    #   5. Displays the current general debug mode status to the GUI console and debug log.
+    #
+    # Outputs:
+    #   Returns True if config.ini was found, False otherwise.
+    #   Modifies application state (debug mode) and updates GUI console.
+    #
+    # (2025-08-01 1850.2) Change: New function to check for config.ini and enable debug if missing.
+    # (2025-08-01 1900.1) Change: No functional changes.
+    # (2025-08-01 1900.2) Change: Modified to return a boolean indicating if config.ini was found.
+    def _check_config_and_set_debug(self):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+
+        self._print_to_gui_console(f"--- Configuration & Debug Status ({current_version}) ---")
+        debug_print(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
+                    file=f"{current_file} - {current_version}",
+                    function=current_function, console_print_func=self._print_to_gui_console)
+
+        config_file_found = os.path.exists(self.CONFIG_FILE_PATH)
+
+        if not config_file_found:
+            self._print_to_gui_console(f"❌ config.ini not found at '{self.CONFIG_FILE_PATH}'.")
+            self._print_to_gui_console(f"⚠️ General debugging enabled automatically. Let's see what the fuck is going on!")
+            self.general_debug_enabled_var.set(True)
+            set_debug_mode(True) # Ensure the actual debug mode is set
+            debug_print(f"config.ini not found. General debugging enabled.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function, console_print_func=self._print_to_gui_console)
+        else:
+            self._print_to_gui_console(f"✅ config.ini found at '{self.CONFIG_FILE_PATH}'.")
+            debug_print(f"config.ini found.",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function, console_print_func=self._print_to_gui_console)
+
+        # Display current debug status (regardless of config.ini presence)
+        if self.general_debug_enabled_var.get():
+            self._print_to_gui_console(f"🐞 Current General Debug Mode: ENABLED")
+            debug_print(f"Current General Debug Mode: ENABLED",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function, console_print_func=self._print_to_gui_console)
+        else:
+            self._print_to_gui_console(f"🐞 Current General Debug Mode: DISABLED")
+            debug_print(f"Current General Debug Mode: DISABLED",
+                        file=f"{current_file} - {current_version}",
+                        function=current_function, console_print_func=self._print_to_gui_console)
+        self._print_to_gui_console(f"--------------------------------------------------")
+        
+        return config_file_found
+
 
     def _ensure_data_directory_exists(self, console_print_func=None):
         # Function Description:
         # Ensures that the DATA directory exists. If it doesn't, it creates it.
+        # This function is called early in initialization, potentially before
+        # the GUI console is fully set up, hence the conditional console_print_func.
         #
         # Inputs:
         #   console_print_func (function, optional): Function to use for console output.
@@ -271,6 +369,9 @@ class App(tk.Tk):
         #
         # (2025-07-31) Change: Initial implementation for DATA folder creation.
         # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing.
+        # (2025-08-01 1850.2) Change: No functional change, but now called early for directory creation.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
@@ -318,6 +419,9 @@ class App(tk.Tk):
         #
         # (2025-07-31) Change: Added `include_scan_intermod_markers_var` and `avg_include_intermod_markers_var`.
         # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing during early init.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_print("Setting up Tkinter variables...",
@@ -328,7 +432,7 @@ class App(tk.Tk):
         def create_trace_callback(var_name):
             def callback(*args):
                 # Only save if the app is fully initialized to avoid saving partial states during startup
-                if self.is_ready_to_save:
+                if self.is_ready_to_save: # This check now works because is_ready_to_save is initialized early
                     debug_print(f"Tkinter variable '{var_name}' changed. Saving config.",
                                 file=f"{current_file} - {current_version}", # Corrected file path
                                 function=inspect.currentframe().f_code.co_name,
@@ -552,7 +656,6 @@ class App(tk.Tk):
             'address_field_var': ('last_scan_meta_data__address_field', 'default_scan_meta_data__address_field', self.address_field_var),
             'city_var': ('last_scan_meta_data__city', 'default_scan_meta_data__city', self.city_var),
             'province_var': ('last_scan_meta_data__province', 'default_scan_meta_data__province', self.province_var),
-
             'scanner_type_var': ('last_scan_meta_data__scanner_type', 'default_scan_meta_data__scanner_type', self.scanner_type_var),
 
             # NEW: Antenna and Amplifier variables
@@ -572,7 +675,6 @@ class App(tk.Tk):
             'last_loaded_preset_center_freq_mhz_var': ('last_instrument_preset__loaded_preset_center_freq_mhz', 'default_instrument_preset__loaded_preset_center_freq_mhz', self.last_loaded_preset_center_freq_mhz_var),
             'last_loaded_preset_span_mhz_var': ('last_instrument_preset__loaded_preset_span_mhz', 'default_instrument_preset__loaded_preset_span_mhz', self.last_loaded_preset_span_mhz_var),
             'last_loaded_preset_rbw_hz_var': ('last_instrument_preset__loaded_preset_rbw_hz', 'default_instrument_preset__loaded_preset_rbw_hz', self.last_loaded_preset_rbw_hz_var),
-
 
             # Plotting variables (Scan Markers)
             'include_gov_markers_var': ('last_plotting__scan_markers_to_plot__include_gov_markers', 'default_plotting__scan_markers_to_plot__include_gov_markers', self.include_gov_markers_var),
@@ -594,7 +696,6 @@ class App(tk.Tk):
             'math_variance_var': ('last_plotting__average_markers_to_plot__math_variance', 'default_plotting__average_markers_to_plot__math_variance', self.math_variance_var),
             'math_psd_var': ('last_plotting__average_markers_to_plot__math_psd', 'default_plotting__average_markers_to_plot__math_psd', self.math_psd_var),
         }
-
 
         # Tkinter variables for band selection checkboxes
         self.band_vars = []
@@ -632,7 +733,9 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -694,6 +797,9 @@ class App(tk.Tk):
         # (2025-08-01) Change: Updated header and version.
         # (2025-08-01) Change: Removed 'style' argument from add() calls to fix TclError.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
@@ -861,6 +967,9 @@ class App(tk.Tk):
         # (25-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
         #                      directly instead of 'self.debug_print'.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
@@ -902,6 +1011,9 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget.
         """
@@ -948,6 +1060,9 @@ class App(tk.Tk):
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Handles the application closing event, saving configuration and disconnecting.
         """
@@ -1011,6 +1126,9 @@ class App(tk.Tk):
         # (2025-08-01) Change: Fixed AttributeError by ensuring self.console_text exists
         #                      before attempting to write to it.
         # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Prints a message to the GUI's scrolled text console.
         """
@@ -1044,6 +1162,9 @@ class App(tk.Tk):
         #   None. Ensures the 'DATA' directory is available for file operations.
         #
         # (2025-08-01) Change: New function to create the DATA folder.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
@@ -1107,6 +1228,9 @@ class App(tk.Tk):
         # (2025-08-01) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
         # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
         # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: No functional changes.
         """
         Updates the state of various GUI elements based on connection and scan status.
         """
@@ -1144,8 +1268,10 @@ class App(tk.Tk):
         #   2. Determines the currently selected parent tab's ID and widget.
         #   3. Iterates through all parent tabs:
         #      a. For each tab, it determines if it's the currently selected one.
-        #      b. Applies the appropriate 'active' or 'inactive' style to the tab's background
-        #         and foreground using `self.parent_notebook.tab()`.
+        #      b. Applies the appropriate 'active' or 'inactive' style to the tab.
+        #         Note: Direct 'background' and 'foreground' options are not supported
+        #         by ttk.Notebook.tab(). Styling is handled via ttk.Style configurations
+        #         for 'TNotebook.Tab' elements.
         #   4. If a child notebook exists for the newly selected parent tab,
         #      it identifies the currently active child tab within that notebook.
         #   5. If the active child tab has an `_on_tab_selected` method, it calls it,
@@ -1165,9 +1291,12 @@ class App(tk.Tk):
         # (2025-08-01) Change: Updated header and version.
         # (2025-08-01) Change: Corrected ValueError by using tab_widget.winfo_name() to identify tab.
         #                      Fixed TclError by passing widget directly to notebook.tab().
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
         # (2025-08-01) Change: Fixed TclError: unknown option "-style" when applying style to parent tabs.
         #                      Now retrieves background and foreground from the style and applies them directly.
+        # (2025-08-01 1850.2) Change: No functional change.
+        # (2025-08-01 1900.1) Change: No functional changes.
+        # (2025-08-01 1900.2) Change: Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
+        #                             Reliance on ttk.Style mapping for tab appearance.
         """
         Handles parent tab changes, updates styles, and propagates to active child tab.
         """
@@ -1192,28 +1321,39 @@ class App(tk.Tk):
             else:
                 style_name = f'Parent.Tab.{tab_name}.Inactive'
             
-            # Retrieve the background and foreground colors from the configured style
-            # This is the crucial change to avoid the "unknown option -style" TclError
-            try:
-                # Use element_options to get the configured options for the specific style
-                bg_color = self.style.lookup(style_name, "background")
-                fg_color = self.style.lookup(style_name, "foreground")
-                
-                self.parent_notebook.tab(tab_widget, background=bg_color, foreground=fg_color)
-                debug_print(f"Applied colors (BG: {bg_color}, FG: {fg_color}) to parent tab '{tab_name}' using style '{style_name}'.",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function,
-                            console_print_func=self._print_to_gui_console)
-            except TclError as e:
-                debug_print(f"❌ TclError applying colors to parent tab '{tab_name}' with style '{style_name}': {e}. This is some bullshit!",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function,
-                            console_print_func=self._print_to_gui_console)
-            except Exception as e:
-                debug_print(f"❌ An unexpected error occurred while applying colors to parent tab '{tab_name}': {e}. What the hell is going on?!",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function,
-                            console_print_func=self._print_to_gui_console)
+            # NOTE: ttk.Notebook.tab() does NOT support 'background' or 'foreground'
+            # as direct options for the tab label. These are controlled by the ttk.Style
+            # configuration for the 'TNotebook.Tab' element.
+            # The style.lookup() calls here are correct for retrieving the colors,
+            # but applying them directly via parent_notebook.tab() is incorrect
+            # and causes the TclError.
+            # The dynamic coloring should be handled by the style definitions in src/style.py
+            # using style.map() for the 'selected' and '!selected' states of the TNotebook.Tab.
+            
+            # The following lines are removed to fix the TclError:
+            # try:
+            #     bg_color = self.style.lookup(style_name, "background")
+            #     fg_color = self.style.lookup(style_name, "foreground")
+            #     self.parent_notebook.tab(tab_widget, background=bg_color, foreground=fg_color)
+            #     debug_print(f"Applied colors (BG: {bg_color}, FG: {fg_color}) to parent tab '{tab_name}' using style '{style_name}'.",
+            #                 file=f"{current_file} - {current_version}",
+            #                 function=current_function,
+            #                 console_print_func=self._print_to_gui_console)
+            # except TclError as e:
+            #     debug_print(f"❌ TclError applying colors to parent tab '{tab_name}' with style '{style_name}': {e}. This is some bullshit!",
+            #                 file=f"{current_file} - {current_version}",
+            #                 function=current_function,
+            #                 console_print_func=self._print_to_gui_console)
+            # except Exception as e:
+            #     debug_print(f"❌ An unexpected error occurred while applying colors to parent tab '{tab_name}': {e}. What the hell is going on?!",
+            #                 file=f"{current_file} - {current_version}",
+            #                 function=current_function,
+            #                 console_print_func=self._print_to_gui_console)
+            
+            # Instead, we rely on the style system to apply the correct appearance based on selection.
+            # Ensure the tab's style is set if the notebook.tab method supports it (it doesn't for the label itself).
+            # The default ttk.Notebook should handle the 'selected' state visually if the styles are mapped correctly.
+            pass # No direct tab styling here to avoid TclError
 
 
         # Propagate _on_tab_selected to the currently active child tab within the selected parent tab

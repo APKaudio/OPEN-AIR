@@ -1,7 +1,7 @@
-# tabs/Markers/tab_markers_child_import_and_edit.py
+# src/tab_markers_child_report_converter.py
 #
 # This file manages the Report Converter tab in the GUI, handling
-# functionality to convert spectrum analyzer report files (HTML, SHW, or Soundbase PDF)
+# It provides functionality to convert spectrum analyzer report files (HTML, SHW, or Soundbase PDF)
 # into CSV format. Crucially, it now displays the converted data in an editable, sortable table
 # (Treeview) and allows users to load, save, and save as MARKERS.CSV files directly.
 # The previous text-based conversion log has been replaced by this data table.
@@ -16,9 +16,8 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1028.1 (Updated header and imports for new folder structure)
-
-current_version = "20250801.1028.1" # this variable should always be defined below the header to make the debugging better
+# Version 20250801.1 (YYYYMMDD, Y should increment every time a new revision is made)
+current_version = "Version 20250801.1" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -32,7 +31,7 @@ import json # Import json for serializing/deserializing row data for Treeview ed
 import datetime # NEW: Import datetime for timestamp
 import re # NEW: Import regex for Ctrl+Enter logic
 
-# Import the new report converter utility functions - CORRECTED PATHS
+# Import the new report converter utility functions
 from process_math.report_converter_utils import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
 from src.gui_elements import TextRedirector # Keep TextRedirector for console output
 from utils.utils_instrument_control import debug_print # Import debug_print

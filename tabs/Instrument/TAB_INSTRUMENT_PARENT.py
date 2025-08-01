@@ -86,11 +86,7 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         self.child_notebook = ttk.Notebook(self, style='InstrumentChild.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # Instantiate child tabs and add them to the child notebook
-        self.instrument_connection_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
-        self.child_notebook.add(self.instrument_connection_tab, text="Connection")
-
-        # Assuming InstrumentTab also contains the settings display/logic
+         # Assuming InstrumentTab also contains the settings display/logic
         self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.instrument_settings_tab, text="Settings")
 
