@@ -771,7 +771,7 @@ class App(tk.Tk):
         sash_pos = self.paned_window_sash_position_var.get()
         if sash_pos > 0: # Avoid setting to 0 which can hide a pane
             self.main_panedwindow.sashpos(0, sash_pos)
-            debug_print(f"🚫🐛 [DEBUG] Applied saved PanedWindow sash position: {sash_version}",
+            debug_print(f"🚫🐛 [DEBUG] Applied saved PanedWindow sash position: {sash_pos}. Version: {current_version}",
                         file=f"main_app.py - {current_version}",
                         function=inspect.currentframe().f_code.co_name)
         else:
@@ -803,7 +803,7 @@ class App(tk.Tk):
         #
         # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
         #                      into a new external file: src/style.py.
-        #                      This method now simply calls apply_styles from src/style.py.
+        #                      This method now simply calls apply_styles from src.style.py.
         # (2025-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
         #                      directly instead of 'self.debug_print'.
         """
