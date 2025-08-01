@@ -4,6 +4,8 @@
 # It handles initial setup, checks for and installs necessary Python dependencies,
 # and then launches the main graphical user interface (GUI).
 # This file ensures that the application environment is ready before starting the UI.
+# It also centralizes Tkinter `ttk.Style` configurations for consistent button
+# styling across the application, including font sizes and flashing states for buttons.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,9 +17,13 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1115.1 (Added logic to create a 'DATA' folder one level above the app directory)
+# Version 20250801.1135.1 (Corrected previous error where file was truncated by using the full original file.
+#                          Moved ttk.Style configurations for button fonts and flashing
+#                          states from scan_controler_button_logic.py to main_app.py.
+#                          Adjusted button font size to 30pt globally. Updated debug_print
+#                          calls with new current_version.)
 
-current_version = "20250801.1115.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.1135.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, filedialog, TclError, ttk
@@ -42,7 +48,7 @@ from src.instrument_logic import (
 )
 from src.scan_logic import update_connection_status_logic
 from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.scan_controler_button_logic import ScanControlTab
+from src.scan_controler_button_logic import ScanControlTab # Keep this import, as we still need the class
 
 from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
 
@@ -129,6 +135,11 @@ class App(tk.Tk):
         # (2025-08-01) Change: Corrected import paths for numbered subfolders (e.g., '1_Instrument' instead of '1Instrument').
         # (2025-08-01) Change: Corrected import paths to remove leading digits from folder names (e.g., 'tabs.Instrument' instead of 'tabs.1_Instrument').
         # (2025-08-01) Change: Added logic to create the 'DATA' folder one level above the application directory on startup.
+        # (2025-08-01) Change: Moved ttk.Style configurations for button fonts and flashing
+        #                      states from scan_controler_button_logic.py to main_app.py.
+        #                      Adjusted button font size to 30pt globally. Updated debug_print
+        #                      calls with new current_version.
+        # (2025-08-01) Change: Corrected previous error where file was truncated by using the full original file.
         super().__init__()
         self.title("OPEN AIR - 🌐📡🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -199,7 +210,7 @@ class App(tk.Tk):
 
 
         self.is_ready_to_save = True
-        debug_print(f"🚫🐛 [DEBUG] Application fully initialized and ready to save configuration. Version: {current_version}",
+        debug_print(f"�🐛 [DEBUG] Application fully initialized and ready to save configuration. Version: {current_version}",
                     file=f"main_app.py - {current_version}",
                     function=inspect.currentframe().f_code.co_name)
 
@@ -612,7 +623,7 @@ class App(tk.Tk):
         # (2025-07-30) Change: No functional change, just updated header.
         # (2025-07-31) Change: Updated header.
         # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
+        # (2025-07-31) Change: Added saving of paned window sash position.
         # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
         # (2025-07-31) Change: Version incremented for new Markers tab styles.
         # (2025-08-01) Change: Updated header and version.
@@ -899,20 +910,20 @@ class App(tk.Tk):
         self.style.configure('TCombobox', fieldbackground="#3b3b3b", foreground="#ffffff", selectbackground=ACCENT_BLUE, selectforeground="white")
         self.style.map('TCombobox', fieldbackground=[('readonly', '#3b3b3b')], arrowcolor=[('!disabled', FG_LIGHT)])
 
-        # Buttons
+        # Buttons - General TButton style (font size 30pt, as requested by Anthony)
         self.style.configure('TButton',
                         background="#4a4a4a",
                         foreground="white",
-                        font=('Helvetica', 10, 'bold'),
+                        font=('Helvetica', 30, 'bold'), # Set font size to 30pt here
                         borderwidth=0,
                         focusthickness=3,
                         focuscolor=ACCENT_BLUE,
-                        padding=5)
+                        padding=(10, 20)) # Set padding for ~50px height
         self.style.map('TButton',
                 background=[('active', '#606060'), ('disabled', '#303030')],
                 foreground=[('disabled', '#808060')])
 
-        # Specific button styles
+        # Specific button styles (inherit from TButton, but override colors)
         self.style.configure('Blue.TButton', background=ACCENT_BLUE, foreground="white")
         self.style.map('Blue.TButton', background=[('active', '#0056b3'), ('disabled', '#004085')])
 
@@ -927,6 +938,20 @@ class App(tk.Tk):
 
         self.style.configure('Purple.TButton', background=ACCENT_PURPLE, foreground="white")
         self.style.map('Purple.TButton', background=[('active', '#5a2d9e'), ('disabled', '#4d2482')])
+
+        # Flashing styles for the Pause/Resume button
+        # These styles will be toggled by the _start_flashing and _stop_flashing methods
+        self.style.configure('FlashingGreen.TButton', background='green', foreground='white',
+                             font=('Helvetica', 30, 'bold'), padding=(10, 20))
+        self.style.map('FlashingGreen.TButton',
+                       background=[('active', 'lightgreen'), ('!active', 'green')],
+                       foreground=[('active', 'black'), ('!active', 'white')])
+
+        self.style.configure('FlashingDark.TButton', background='darkgray', foreground='white',
+                             font=('Helvetica', 30, 'bold'), padding=(10, 20))
+        self.style.map('FlashingDark.TButton',
+                       background=[('active', 'gray'), ('!active', 'darkgray')],
+                       foreground=[('active', 'black'), ('!active', 'white')])
 
 
         # Checkbuttons
@@ -1235,7 +1260,7 @@ class App(tk.Tk):
         #
         # Process of this function
         #   1. Enables the console text widget for editing.
-        #   2. If `overwrite` is True, deletes the last line.
+        #   2. If `overwrite` is True, it deletes the last line.
         #   3. Inserts the new message, followed by a newline.
         #   4. Disables the console text widget to prevent user editing.
         #   5. Scrolls to the end of the text widget.
@@ -1290,7 +1315,7 @@ class App(tk.Tk):
         This method will be called by other parts of the application.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = os.path.basename(__file__)
         debug_print(f"Updating connection status to: {is_connected}. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -1326,7 +1351,7 @@ class App(tk.Tk):
         Handles the application closing event, saving window geometry and paned window sash position.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = os.path.basename(__file__)
         debug_print(f"Application closing. Saving configuration... Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -1380,7 +1405,7 @@ class App(tk.Tk):
         and propagating the selection event to the active parent tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = os.path.basename(__file__)
         debug_print(f"🚫🐛 [DEBUG] Parent tab changed. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
@@ -1447,7 +1472,7 @@ class App(tk.Tk):
         #
         # (2025-08-01) Change: New function to create the DATA folder.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        current_file = os.path.basename(__file__)
         debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}. Version: {current_version}",
                     file=current_file, function=current_function, console_print_func=self._print_to_gui_console)
 
