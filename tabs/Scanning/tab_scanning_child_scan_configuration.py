@@ -249,18 +249,18 @@ class ScanTab(ttk.Frame):
         row_idx += 1
 
 ####Putting on ice for now, not sure if needed
-        # Scan RBW Segmentation (remains as entry as it's not in a dropdown list)
-        #ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        #ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        #row_idx += 1
+      #  Scan RBW Segmentation (remains as entry as it's not in a dropdown list)
+        ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        row_idx += 1
 
 
 
 ############# NOT SURE WHAT THIS WAS FOR, REMOVED FOR NOW #############
-        # Desired Default Focus Width (remains as entry)
-        #ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        #ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        #row_idx += 1
+       # Desired Default Focus Width (remains as entry)
+        ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        row_idx += 1
 
         # Number of Scan Cycles
         ttk.Label(scan_settings_frame, text="Scan Cycles:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
