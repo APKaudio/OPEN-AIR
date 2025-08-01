@@ -14,10 +14,12 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.0 (Fixed pause/resume button logic and initial state handling in _create_widgets and _pause_scan,
-#                     Ensured buttons have consistent 50px height, and added 'resume_button' for explicit control.)
+# Version 20250801.2 (Removed 'Skip Group' button. Combined Pause and Resume into a single
+#                     button that changes text and flashes when paused. Adjusted button
+#                     text size to 40pt via ttk.Style. Removed repetitive 'Scan Paused'
+#                     console messages.)
 
-current_version = "20250801.0" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.2" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -36,9 +38,6 @@ from process_math.scan_stitch import process_and_stitch_scan_data # New import f
 from ref.frequency_bands import MHZ_TO_HZ
 from utils.utils_instrument_control import debug_print
 
-
-# Import plotting functions (kept for now as other plotting might exist, but _open_plot_in_browser might go)
-from tabs.Plotting.utils_plotting import plot_single_scan_data, plot_multi_trace_data, _open_plot_in_browser # NEW: Import plot_single_scan_data and other plotting utilities
 
 # Import plotly express for colors in multi-trace plots (kept for now, might go)
 import plotly.express as px
@@ -82,13 +81,11 @@ class ScanControlTab(ttk.Frame):
         self.scan_thread = None
         self.is_scanning = False
         self.is_paused = False # New state for pausing
+        self.flash_id = None # To store the after ID for flashing, allows cancellation
 
         # Initialize threading.Event objects for controlling scan flow
         self.stop_scan_event = threading.Event()
         self.pause_scan_event = threading.Event()
-
-        # Placeholder for the last applied math folder for the "Open Folder" button
-        # self.last_applied_math_folder = None # BLOWN AWAY: This is part of the multi-file analysis
 
         self._create_widgets()
 
@@ -112,72 +109,61 @@ class ScanControlTab(ttk.Frame):
         #   None. Modifies the Tkinter frame by adding widgets.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
-        # (2025-08-01) Change: Added `height=50` to all buttons for consistent 50px height.
-        # (2025-08-01) Change: Changed `columnspan` for buttons to explicitly ensure 33% width.
-        # (2025-08-01) Change: Renamed `pause_button` to `toggle_pause_resume_button` for clarity.
-        # (2025-08-01) Change: Added `resume_button` and `skip_group_button` as explicit attributes and set initial states.
-        # (2025-08-01) Change: Adjusted grid layout to accommodate separate Pause and Resume buttons logically.
-        # (2025-08-01) Change: Added current_version to debug_print calls.
+        # (2025-08-01) Change: Removed 'Skip Group' button.
+        # (2025-08-01) Change: Combined Pause and Resume into a single button (`pause_resume_button`).
+        # (2025-08-01) Change: Adjusted column configuration for the new button layout.
+        # (2025-08-01) Change: Set font size for all buttons to 40pt.
+        # (2025-08-01) Change: Updated build version in debug_print calls.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Creating Scan Control widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
+        # Configure button styles for text size and padding
+        style = ttk.Style()
+        # Set font size for buttons to 40pt as requested by Anthony. This might make them huge!
+        style.configure('TButton', font=('Helvetica', 40, 'bold')) # Apply to all TButtons
+        style.configure('Green.TButton', padding=(10, 20)) # padx, pady to achieve ~50px height visually
+        style.configure('Orange.TButton', padding=(10, 20))
+        style.configure('Red.TButton', padding=(10, 20))
+        style.configure('Blue.TButton', padding=(10, 20)) # For any other blue buttons, though Skip Group is removed
+
+        # Define flashing styles
+        style.configure('FlashingGreen.TButton', background='green', foreground='white', padding=(10, 20), font=('Helvetica', 40, 'bold'))
+        style.map('FlashingGreen.TButton',
+                  background=[('active', 'lightgreen'), ('!active', 'green')],
+                  foreground=[('active', 'black'), ('!active', 'white')])
+
+        style.configure('FlashingDark.TButton', background='darkgray', foreground='white', padding=(10, 20), font=('Helvetica', 40, 'bold'))
+        style.map('FlashingDark.TButton',
+                  background=[('active', 'gray'), ('!active', 'darkgray')],
+                  foreground=[('active', 'black'), ('!active', 'white')])
+
+
         # Frame for scan control buttons
         scan_buttons_frame = ttk.LabelFrame(self, text="Scan Control", style='Dark.TLabelframe')
         scan_buttons_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        scan_buttons_frame.columnconfigure(0, weight=1)
-        scan_buttons_frame.columnconfigure(1, weight=1)
-        scan_buttons_frame.columnconfigure(2, weight=1)
+        # Configure columns for 33% width for three buttons per row (Start, Pause/Resume, Stop)
+        # Note: If only 2 buttons per row, then columnconfigure 0 and 1 would be weight=1
+        # With 3 buttons: Start, Pause/Resume, Stop (moved to column 2)
+        scan_buttons_frame.columnconfigure(0, weight=1) # Column for Start
+        scan_buttons_frame.columnconfigure(1, weight=1) # Column for Pause/Resume
+        scan_buttons_frame.columnconfigure(2, weight=1) # Column for Stop (or other if added back)
+
 
         # Start Scan Button
-        self.start_button = ttk.Button(scan_buttons_frame, text="Start Scan", command=self._start_scan_thread, style='Green.TButton', height=50)
+        self.start_button = ttk.Button(scan_buttons_frame, text="Start Scan", command=self._start_scan_thread, style='Green.TButton')
         self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Pause Scan Button (explicitly for pausing)
-        self.pause_button = ttk.Button(scan_buttons_frame, text="Pause Scan", command=self._pause_scan, style='Orange.TButton', state=tk.DISABLED, height=50)
-        self.pause_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-        # Resume Scan Button (explicitly for resuming)
-        self.resume_button = ttk.Button(scan_buttons_frame, text="Resume Scan", command=self._resume_scan, style='Green.TButton', state=tk.DISABLED, height=50)
-        self.resume_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew") # Placed on a new row to allow for better layout
+        # Pause/Resume Scan Button (combined)
+        self.pause_resume_button = ttk.Button(scan_buttons_frame, text="Pause Scan", command=self._toggle_pause_resume, style='Orange.TButton', state=tk.DISABLED)
+        self.pause_resume_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
         # Stop Scan Button
-        self.stop_button = ttk.Button(scan_buttons_frame, text="Stop Scan", command=self._stop_scan, style='Red.TButton', state=tk.DISABLED, height=50)
-        self.stop_button.grid(row=1, column=1, padx=5, pady=5, sticky="ew") # Moved to new row
-
-        # Skip Group Button (Placeholder for now, but necessary for update_connection_status_logic)
-        self.skip_group_button = ttk.Button(scan_buttons_frame, text="Skip Group", command=lambda: self.console_print_func("Skip Group function not yet implemented, you lazy bastard!"), style='Blue.TButton', state=tk.DISABLED, height=50)
-        self.skip_group_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew") # Remains on the first row, third column.
+        self.stop_button = ttk.Button(scan_buttons_frame, text="Stop Scan", command=self._stop_scan, style='Red.TButton', state=tk.DISABLED)
+        self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew") # Now in column 2
 
         debug_print("Scan Control widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        # Frame for multi-file analysis buttons (BLOWN AWAY)
-        # multi_file_frame = ttk.LabelFrame(self, text="Multi-File Analysis", style='Dark.TLabelframe')
-        # multi_file_frame.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        # multi_file_frame.columnconfigure(0, weight=1)
-        # multi_file_frame.columnconfigure(1, weight=1)
-
-        # Generate CSV Button (BLOWN AWAY)
-        # self.generate_csv_button = ttk.Button(multi_file_frame, text="Generate CSV from Average", command=self._generate_csv_from_average_data, style='Blue.TButton', state=tk.DISABLED)
-        # self.generate_csv_button.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        # Generate Plot Averages Button (BLOWN AWAY)
-        # self.generate_plot_averages_button = ttk.Button(multi_file_frame, text="Plot Averages", command=lambda: self._generate_multi_average_plot(include_individual_scans=False), style='Blue.TButton', state=tk.DISABLED)
-        # self.generate_plot_averages_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
-        # Generate Plot Averages with Scans Button (BLOWN AWAY)
-        # self.generate_plot_averages_with_scan_button = ttk.Button(multi_file_frame, text="Plot Averages w/ Scans", command=lambda: self._generate_multi_average_plot(include_individual_scans=True), style='Blue.TButton', state=tk.DISABLED)
-        # self.generate_plot_averages_with_scan_button.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-        # Generate Plot Scans Over Time Button (BLOWN AWAY)
-        # self.generate_plot_scans_over_time_button = ttk.Button(multi_file_frame, text="Plot Scans Over Time", command=self._generate_plot_scans_over_time, style='Blue.TButton', state=tk.DISABLED)
-        # self.generate_plot_scans_over_time_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        # Open Applied Math Folder Button (BLOWN AWAY)
-        # self.open_applied_math_folder_button = ttk.Button(multi_file_frame, text="Open Applied Math Folder", command=self._open_applied_math_folder, style='Blue.TButton', state=tk.DISABLED)
-        # self.open_applied_math_folder_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        # debug_print("Multi-File Analysis widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func) # BLOWN AWAY
 
     def _start_scan_thread(self):
         # This function descriotion tells me what this function does
@@ -192,18 +178,20 @@ class ScanControlTab(ttk.Frame):
         #   1. Checks if a scan is not already in progress.
         #   2. Clears any existing stop or pause signals to prepare for a new scan.
         #   3. Sets internal flags (is_scanning, is_paused) to reflect the new state.
-        #   4. Updates the GUI's connection status via the main app instance.
-        #   5. Creates a new threading.Thread object targeting the _run_scan method.
-        #   6. Sets the thread as a daemon thread so it exits with the main application.
-        #   7. Starts the newly created thread.
-        #   8. Prints messages to the console and debug log.
-        #   9. If a scan is already running, it prints an informational message.
+        #   4. Stops any active flashing animation on the pause/resume button.
+        #   5. Updates the GUI's connection status via the main app instance.
+        #   6. Creates a new threading.Thread object targeting the _run_scan method.
+        #   7. Sets the thread as a daemon thread so it exits with the main application.
+        #   8. Starts the newly created thread.
+        #   9. Prints messages to the console and debug log.
+        #   10. If a scan is already running, it prints an informational message.
         #
         # Outputs of this function
         #   None. Starts a background thread and updates GUI/internal state.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
         # (2025-08-01) Change: Added current_version to debug_print calls.
+        # (2025-08-01) Change: Ensures flashing is stopped when starting a new scan.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print(f"Attempting to start scan thread. Current is_scanning: {self.is_scanning}", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -218,6 +206,10 @@ class ScanControlTab(ttk.Frame):
             self.is_paused = False # Ensure not paused when starting
             debug_print("is_scanning set to True, is_paused set to False.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
+            # Stop any flashing when a new scan starts
+            self._stop_flashing()
+            self.pause_resume_button.config(text="Pause Scan", style='Orange.TButton') # Reset button appearance
+
             # Update GUI elements via app_instance's wrapper
             self.app_instance.update_connection_status(self.app_instance.inst is not None)
             debug_print("GUI connection status updated.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -227,85 +219,146 @@ class ScanControlTab(ttk.Frame):
             self.console_print_func("✅ Scan initiated. Check console for updates.")
             debug_print("Scan thread object created and started.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("ℹ️ Scan is already running.")
+            self.console_print_func("ℹ️ Scan is already running. This is annoying, you can't start two scans at once!")
             debug_print("Scan already running, ignoring start request.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
-    def _pause_scan(self):
+    def _toggle_pause_resume(self):
         # This function descriotion tells me what this function does
-        # Sets the pause state for the active scan.
+        # Toggles the pause/resume state of the active scan.
+        # It changes the button text, style, and starts/stops flashing.
         #
         # Inputs to this function
         #   None (operates on self).
         #
         # Process of this function
-        #   1. Checks if a scan is currently in progress and not already paused.
-        #   2. Sets the pause event to signal the background thread to pause.
-        #   3. Sets is_paused to True.
-        #   4. Prints a pause message.
-        #   5. Updates the GUI's connection status.
-        #   6. If no scan is active or already paused, prints an informational message.
+        #   1. Checks if a scan is currently running.
+        #   2. If scanning and not paused:
+        #      a. Sets the pause event for the background thread.
+        #      b. Sets `is_paused` to True.
+        #      c. Changes button text to "Resume Scan".
+        #      d. Starts flashing the button.
+        #      e. Prints a console message.
+        #   3. If scanning and paused:
+        #      a. Clears the pause event for the background thread.
+        #      b. Sets `is_paused` to False.
+        #      c. Changes button text back to "Pause Scan".
+        #      d. Stops flashing the button.
+        #      e. Prints a console message.
+        #   4. Updates the GUI's connection status.
+        #   5. If no scan is active, prints an informational message.
         #
         # Outputs of this function
-        #   None. Modifies internal state and GUI elements related to scan pausing.
+        #   None. Modifies internal state and GUI elements related to scan pausing/resuming.
         #
-        # Date / time of changes made to this file: 2025-07-30 18:00:00
-        # (2025-08-01) Change: Refactored to explicitly only *pause* the scan. Resume handled by _resume_scan.
-        # (2025-08-01) Change: Added current_version to debug_print calls.
+        # Date / time of changes made to this file: 2025-08-01
+        # (2025-08-01) Change: Combined _pause_scan and _resume_scan logic into a single toggle function.
+        # (2025-08-01) Change: Implemented button text and style changes based on pause/resume state.
+        # (2025-08-01) Change: Added flashing mechanism for the button when paused.
+        # (2025-08-01) Change: Ensured console message is printed only once per state change.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
-        debug_print(f"Attempting to pause. Current is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print(f"Attempting to toggle pause/resume. Current is_scanning: {self.is_scanning}, is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        if self.is_scanning and not self.is_paused:
-            self.pause_scan_event.set() # Pause
-            self.is_paused = True
-            self.console_print_func("⏸️ Scan Paused.")
-            debug_print("Scan paused.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        if self.is_scanning:
+            if not self.is_paused:
+                # PAUSE LOGIC
+                self.pause_scan_event.set() # Signal pause
+                self.is_paused = True
+                self.pause_resume_button.config(text="Resume Scan", style='Green.TButton') # Change text and color for resume state
+                self._start_flashing() # Start the flashing when paused
+                self.console_print_func("⏸️ Scan Paused. Click Resume to continue.")
+                debug_print("Scan paused.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            else:
+                # RESUME LOGIC
+                self.pause_scan_event.clear() # Signal resume
+                self.is_paused = False
+                self.pause_resume_button.config(text="Pause Scan", style='Orange.TButton') # Change text and color back to pause state
+                self._stop_flashing() # Stop the flashing when resumed
+                self.console_print_func("▶️ Scan Resumed.")
+                debug_print("Scan resumed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             # Update GUI elements via app_instance's wrapper
             self.app_instance.update_connection_status(self.app_instance.inst is not None)
-        elif self.is_scanning and self.is_paused:
-            self.console_print_func("ℹ️ Scan is already paused. Hit Resume, you numbskull!")
-            debug_print("Scan already paused, ignoring pause request.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
-            self.console_print_func("ℹ️ No active scan to pause.")
-            debug_print("No active scan to pause.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.console_print_func("ℹ️ No active scan to pause/resume. You're clicking nothing, you fool!")
+            debug_print("No active scan to pause/resume.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-    def _resume_scan(self):
+    def _start_flashing(self):
         # This function descriotion tells me what this function does
-        # Resumes a paused scan.
+        # Initiates a flashing effect on the `pause_resume_button`.
+        # It repeatedly toggles the button's style between 'Green.TButton'
+        # and 'FlashingDark.TButton' (or similar contrasting styles) using
+        # `after` calls.
         #
         # Inputs to this function
         #   None (operates on self).
         #
         # Process of this function
-        #   1. Checks if a scan is currently paused.
-        #   2. Clears the pause event to signal the background thread to resume.
-        #   3. Sets is_paused to False.
-        #   4. Prints a resume message.
-        #   5. Updates the GUI's connection status.
-        #   6. If no scan is active or not paused, prints an informational message.
+        #   1. Clears any existing flashing `after` calls to prevent conflicts.
+        #   2. Defines the two styles for flashing.
+        #   3. Toggles the button's style.
+        #   4. Schedules the next toggle using `self.after` and stores the ID
+        #      in `self.flash_id` for later cancellation.
         #
         # Outputs of this function
-        #   None. Modifies internal state and GUI elements related to scan resuming.
+        #   None. Modifies the button's visual style over time.
         #
         # Date / time of changes made to this file: 2025-08-01
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
-        debug_print(f"Attempting to resume. Current is_paused: {self.is_paused}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_print("Starting button flashing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        if self.is_scanning and self.is_paused:
-            self.pause_scan_event.clear() # Resume
-            self.is_paused = False
-            self.console_print_func("▶️ Scan Resumed.")
-            debug_print("Scan resumed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            # Update GUI elements via app_instance's wrapper
-            self.app_instance.update_connection_status(self.app_instance.inst is not None)
-        elif self.is_scanning and not self.is_paused:
-            self.console_print_func("ℹ️ Scan is already running. You're trying to resume something that isn't paused, you idiot!")
-            debug_print("Scan already running, ignoring resume request.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # Ensure any existing flashing is stopped before starting a new one
+        self._stop_flashing()
+
+        # Define the two styles for flashing
+        style1 = 'Green.TButton' # The "Resume Scan" color
+        style2 = 'FlashingDark.TButton' # A contrasting color for flashing
+
+        # Get the current style to determine the next one
+        current_style = self.pause_resume_button.cget("style")
+
+        if current_style == style1:
+            self.pause_resume_button.config(style=style2)
         else:
-            self.console_print_func("ℹ️ No active scan to resume.")
-            debug_print("No active scan to resume.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            self.pause_resume_button.config(style=style1)
+        
+        # Schedule the next toggle
+        self.flash_id = self.app_instance.after(500, self._start_flashing) # Flash every 500 ms (0.5 seconds)
+
+    def _stop_flashing(self):
+        # This function descriotion tells me what this function does
+        # Stops any active flashing effect on the `pause_resume_button`.
+        # It cancels the scheduled `after` call and resets the button's
+        # style to its default 'Green.TButton' for the "Resume Scan" state.
+        #
+        # Inputs to this function
+        #   None (operates on self).
+        #
+        # Process of this function
+        #   1. Checks if a flashing `after` call ID exists (`self.flash_id`).
+        #   2. If an ID exists, it cancels the scheduled call using `self.after_cancel`.
+        #   3. Resets `self.flash_id` to None.
+        #   4. Ensures the button's style is set back to its non-flashing state.
+        #
+        # Outputs of this function
+        #   None. Resets the button's visual style.
+        #
+        # Date / time of changes made to this file: 2025-08-01
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = f"src/scan_controler_button_logic.py - {current_version}"
+        debug_print("Stopping button flashing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+
+        if self.flash_id:
+            self.app_instance.after_cancel(self.flash_id)
+            self.flash_id = None
+        # Ensure the button is set back to its non-flashing state
+        if self.is_scanning and self.is_paused:
+            # If still paused but flashing stopped (e.g., manual intervention), keep it in resume style
+            self.pause_resume_button.config(style='Green.TButton')
+        elif not self.is_paused:
+            # If not paused, it should be in the normal 'Pause Scan' style
+            self.pause_resume_button.config(style='Orange.TButton')
 
 
     def _stop_scan(self):
@@ -320,18 +373,21 @@ class ScanControlTab(ttk.Frame):
         #   1. Checks if a scan is currently in progress.
         #   2. Sets the stop event to signal the background thread to terminate.
         #   3. Clears the pause event and resets the is_paused flag.
-        #   4. Prints a message indicating the scan is stopping.
-        #   5. Attempts to join the scan thread with a timeout to ensure it finishes.
-        #   6. Resets the is_scanning flag to False.
-        #   7. Updates the GUI's connection status.
-        #   8. Prints a confirmation message that the scan has stopped.
-        #   9. If no scan is active, prints an informational message.
+        #   4. Stops any active flashing on the pause/resume button.
+        #   5. Resets the pause/resume button text and style.
+        #   6. Prints a message indicating the scan is stopping.
+        #   7. Attempts to join the scan thread with a timeout to ensure it finishes.
+        #   8. Resets the is_scanning flag to False.
+        #   9. Updates the GUI's connection status.
+        #   10. Prints a confirmation message that the scan has stopped.
+        #   11. If no scan is active, prints an informational message.
         #
         # Outputs of this function
         #   None. Modifies internal state and GUI elements related to scan stopping.
         #
         # Date / time of changes made to this file: 2025-07-30 18:00:00
         # (2025-08-01) Change: Added current_version to debug_print calls.
+        # (2025-08-01) Change: Ensures flashing is stopped and button text/style is reset upon stop.
         current_function = inspect.currentframe().f_code.co_name
         current_file = f"src/scan_controler_button_logic.py - {current_version}"
         debug_print("Attempting to stop scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -340,6 +396,10 @@ class ScanControlTab(ttk.Frame):
             self.stop_scan_event.set() # Signal stop
             self.pause_scan_event.clear() # Ensure it's not paused if stopping
             self.is_paused = False # Reset pause state
+            
+            self._stop_flashing() # Stop flashing immediately on stop
+            self.pause_resume_button.config(text="Pause Scan", style='Orange.TButton') # Reset button to default state
+            
             self.console_print_func("🛑 Stopping scan. Please wait...")
             debug_print("Stop event set. Waiting for scan thread to finish.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
@@ -353,7 +413,7 @@ class ScanControlTab(ttk.Frame):
             self.is_scanning = False # Reset scanning state
             # Update GUI elements via app_instance's wrapper
             self.app_instance.update_connection_status(self.app_instance.inst is not None)
-            self.console_print_func("✅ Scan stopped.")
+            self.console_print_func("✅ Scan stopped. Finally, some peace and quiet!")
             debug_print("Scan stopped and states reset.", file=current_file, function=current_function, console_print_func=self.console_print_func)
         else:
             self.console_print_func("ℹ️ No active scan to stop. What are you trying to stop, thin air?!")
@@ -563,13 +623,6 @@ class ScanControlTab(ttk.Frame):
                 # Store the scan_name for button update and future plotting (kept for now, if _plot_last_scan is added back)
                 self.app_instance.last_scan_name_for_plot = scan_name 
 
-                # Update the "Plot Last Scan" button text and enable it (BLOWN AWAY)
-                # self.app_instance.after(0, self._update_plot_button_text_and_state, scan_name)
-
-                # Automatically plot after scan if enabled (BLOWN AWAY)
-                # if self.app_instance.open_html_after_complete_var.get():
-                #     self.app_instance.after(0, self._plot_last_scan)
-                #     debug_print("Auto-plotting last scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             else:
                 self.app_instance.after(0, lambda: self.console_print_func("ℹ️ No scan data collected to process. What's the point of this then?!"))
                 debug_print("No scan data collected for processing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
@@ -593,13 +646,3 @@ class ScanControlTab(ttk.Frame):
             self.app_instance.after(0, lambda: self.console_print_func("\n--- Scan process finished. Thank the lord! ---"))
             debug_print("Scan process finished in finally block.", file=current_file, function=current_function, console_print_func=self.console_print_func)
             self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
-            
-            # Ensure the plot button is enabled if raw data was collected,
-            # even if processing failed. The user can then attempt to plot. (BLOWN AWAY)
-            # if all_raw_scans_data_for_stitching: # Check if raw data was actually collected
-            #     # Ensure scan_name is available, it should be set at the beginning of _run_scan
-            #     scan_name_for_button = scan_name if 'scan_name' in locals() else "Last Scan"
-            #     self.app_instance.after(0, self._update_plot_button_text_and_state, scan_name_for_button)
-            # else:
-            #     # If no raw data was collected, ensure the button is disabled
-            #     self.app_instance.after(0, lambda: self.plot_last_scan_button.config(state=tk.DISABLED, text="Plot Last Scan"))

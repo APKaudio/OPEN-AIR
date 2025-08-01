@@ -15,12 +15,13 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250731.4 (Added hasattr checks for resume_button and skip_group_button in ScanControlTab
-#                     to prevent AttributeError if these buttons are not present in the class.
-#                     Also added hasattr checks for other buttons in PresetFilesTab and PlottingTab
-#                     for robustness.)
+# Version 20250801.5 (Updated logic in update_connection_status_logic to remove references
+#                     to 'resume_button' and 'skip_group_button', as these functionalities
+#                     are now handled by the combined 'pause_resume_button' in ScanControlTab.
+#                     Ensured correct state management for the combined pause/resume button.
+#                     Updated debug_print calls with new current_version.)
 
-current_version = "20250731.4" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250801.5" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 import inspect
@@ -48,7 +49,7 @@ def update_connection_status_logic(app_instance, is_connected, console_print_fun
         3. From the parent tab instances, retrieves references to the specific child tabs
            (e.g., Instrument Connection tab, Scan Control tab).
         4. Determines the current scanning and pausing state from the Scan Control tab.
-        5. Updates the state (enabled/disabled, hidden/shown) of various buttons and
+        5. Updates the state (enabled/disabled) of various buttons and
            other UI elements on the Instrument, Scan Control, Presets, Plotting, and Markers
            tabs based on `is_connected`, `is_scanning`, and `is_paused` flags.
         6. Logs debug messages if any expected tab instance is not found, indicating a potential
@@ -62,9 +63,14 @@ def update_connection_status_logic(app_instance, is_connected, console_print_fun
     (2025-07-31) Change: Ensured button states are correctly set for `ScanControlTab` (start, pause, stop, resume, skip).
     (2025-07-31) Change: Ensured `PresetFilesTab` buttons (load from device, load selected, save preset, open folder) are correctly enabled/disabled.
     (2025-07-31) Change: Updated header.
-    (2025-07-31) Change: Added `hasattr` checks for `resume_button` and `skip_group_button` in `ScanControlTab`
-                          to prevent `AttributeError` if these buttons are not defined in `ScanControlTab`.
-                          Also added `hasattr` checks for buttons in `PresetFilesTab` and `PlottingTab` for robustness.
+    (2025-07-31) Change: Added `hasattr` checks for resume_button and skip_group_button in ScanControlTab
+                          to prevent AttributeError if these buttons are not present in the class.
+                          Also added hasattr checks for other buttons in PresetFilesTab and PlottingTab
+                          for robustness.
+    (2025-08-01) Change: Removed logic for 'resume_button' and 'skip_group_button' as they no longer exist as separate entities.
+                          The 'pause_resume_button' in ScanControlTab now handles both pause and resume states.
+                          Adjusted button state logic for the single 'pause_resume_button'.
+    (2025-08-01) Change: Updated debug_print calls with current_version.
     """
     current_function = inspect.currentframe().f_code.co_name
     current_file = f"src/scan_logic.py - {current_version}"
@@ -72,7 +78,6 @@ def update_connection_status_logic(app_instance, is_connected, console_print_fun
                 file=current_file, function=current_function, console_print_func=console_print_func)
 
     # Get references to parent tabs (which are now attributes of app_instance)
-    # These are the instances of TAB_INSTRUMENT_PARENT, TAB_SCANNING_PARENT, etc.
     instrument_parent_tab = getattr(app_instance, 'instrument_parent_tab', None)
     scanning_parent_tab = getattr(app_instance, 'scanning_parent_tab', None)
     presets_parent_tab = getattr(app_instance, 'presets_parent_tab', None)
@@ -80,20 +85,10 @@ def update_connection_status_logic(app_instance, is_connected, console_print_fun
     markers_parent_tab = getattr(app_instance, 'markers_parent_tab', None)
 
     # Get references to child tabs from their parent tabs
-    # Based on TAB_INSTRUMENT_PARENT.py, InstrumentTab is self.instrument_connection_tab
     instrument_tab = getattr(instrument_parent_tab, 'instrument_connection_tab', None) if instrument_parent_tab else None
-
-    # Based on main_app.py, ScanControlTab is directly under app_instance.
-    scan_control_tab = getattr(app_instance, 'scan_control_tab', None)
-
-
-    # Based on TAB_PRESETS_PARENT.py, PresetFilesTab is self.preset_files_tab
+    scan_control_tab = getattr(app_instance, 'scan_control_tab', None) # Directly under app_instance.
     preset_files_tab = getattr(presets_parent_tab, 'preset_files_tab', None) if presets_parent_tab else None
-
-    # Based on TAB_PLOTTING_PARENT.py, PlottingTab is self.single_plotting_tab
     plotting_tab = getattr(plotting_parent_tab, 'single_plotting_tab', None) if plotting_parent_tab else None
-
-    # Based on TAB_MARKERS_PARENT.py, MarkersDisplayTab is self.markers_display_tab
     markers_display_tab = getattr(markers_parent_tab, 'markers_display_tab', None) if markers_parent_tab else None
 
 
@@ -165,81 +160,46 @@ def update_connection_status_logic(app_instance, is_connected, console_print_fun
                     file=current_file, function=current_function, console_print_func=console_print_func)
         if is_connected:
             if is_scanning and not is_paused:
+                # Actively scanning
                 if hasattr(scan_control_tab, 'start_button'):
                     scan_control_tab.start_button.config(state=tk.DISABLED)
-                if hasattr(scan_control_tab, 'pause_button'):
-                    scan_control_tab.pause_button.config(state=tk.NORMAL)
+                if hasattr(scan_control_tab, 'pause_resume_button'):
+                    scan_control_tab.pause_resume_button.config(state=tk.NORMAL, text="Pause Scan", style='Orange.TButton')
+                    scan_control_tab._stop_flashing() # Ensure no flashing if actively scanning
                 if hasattr(scan_control_tab, 'stop_button'):
                     scan_control_tab.stop_button.config(state=tk.NORMAL)
-                # Ensure resume and skip are disabled when actively scanning
-                if hasattr(scan_control_tab, 'resume_button'): # Check for existence
-                    scan_control_tab.resume_button.config(state=tk.DISABLED)
-                else:
-                    debug_print("ScanControlTab: resume_button not found. Fucking missing!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                if hasattr(scan_control_tab, 'skip_group_button'): # Check for existence
-                    scan_control_tab.skip_group_button.config(state=tk.NORMAL) # Allow skipping during active scan
-                else:
-                    debug_print("ScanControlTab: skip_group_button not found. Where the hell is it?!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                debug_print("ScanControlTab: Connected & Scanning - Start disabled, Pause/Stop/Skip enabled, Resume disabled.",
+                debug_print("ScanControlTab: Connected & Scanning - Start disabled, Pause/Resume enabled (as Pause), Stop enabled.",
                             file=current_file, function=current_function, console_print_func=console_print_func)
             elif is_scanning and is_paused:
+                # Paused during a scan
                 if hasattr(scan_control_tab, 'start_button'):
-                    scan_control_tab.start_button.config(state=tk.DISABLED) # Start button is not for resume here
-                if hasattr(scan_control_tab, 'pause_button'):
-                    scan_control_tab.pause_button.config(state=tk.DISABLED)
+                    scan_control_tab.start_button.config(state=tk.DISABLED)
+                if hasattr(scan_control_tab, 'pause_resume_button'):
+                    scan_control_tab.pause_resume_button.config(state=tk.NORMAL, text="Resume Scan", style='Green.TButton')
+                    scan_control_tab._start_flashing() # Start flashing when paused
                 if hasattr(scan_control_tab, 'stop_button'):
                     scan_control_tab.stop_button.config(state=tk.NORMAL)
-                if hasattr(scan_control_tab, 'resume_button'): # Check for existence
-                    scan_control_tab.resume_button.config(state=tk.NORMAL) # Resume enabled when paused
-                else:
-                    debug_print("ScanControlTab: resume_button not found. Still missing, goddammit!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                if hasattr(scan_control_tab, 'skip_group_button'): # Check for existence
-                    scan_control_tab.skip_group_button.config(state=tk.NORMAL) # Allow skipping when paused
-                else:
-                    debug_print("ScanControlTab: skip_group_button not found. Still nowhere to be seen!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                debug_print("ScanControlTab: Connected & Paused - Start/Pause disabled, Stop/Resume/Skip enabled.",
+                debug_print("ScanControlTab: Connected & Paused - Start disabled, Pause/Resume enabled (as Resume and flashing), Stop enabled.",
                             file=current_file, function=current_function, console_print_func=console_print_func)
             else: # Connected but not scanning/paused (initial state or after stop)
                 if hasattr(scan_control_tab, 'start_button'):
                     scan_control_tab.start_button.config(state=tk.NORMAL)
-                if hasattr(scan_control_tab, 'pause_button'):
-                    scan_control_tab.pause_button.config(state=tk.DISABLED)
+                if hasattr(scan_control_tab, 'pause_resume_button'):
+                    scan_control_tab.pause_resume_button.config(state=tk.DISABLED, text="Pause Scan", style='Orange.TButton')
+                    scan_control_tab._stop_flashing() # Ensure no flashing
                 if hasattr(scan_control_tab, 'stop_button'):
                     scan_control_tab.stop_button.config(state=tk.DISABLED)
-                if hasattr(scan_control_tab, 'resume_button'): # Check for existence
-                    scan_control_tab.resume_button.config(state=tk.DISABLED)
-                else:
-                    debug_print("ScanControlTab: resume_button not found. Still not here!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                if hasattr(scan_control_tab, 'skip_group_button'): # Check for existence
-                    scan_control_tab.skip_group_button.config(state=tk.DISABLED)
-                else:
-                    debug_print("ScanControlTab: skip_group_button not found. This is getting ridiculous!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-                debug_print("ScanControlTab: Connected & Not Scanning - Start enabled, others disabled.",
+                debug_print("ScanControlTab: Connected & Not Scanning - Start enabled, Pause/Resume disabled, Stop disabled.",
                             file=current_file, function=current_function, console_print_func=console_print_func)
         else: # Not connected
             if hasattr(scan_control_tab, 'start_button'):
                 scan_control_tab.start_button.config(state=tk.DISABLED)
-            if hasattr(scan_control_tab, 'pause_button'):
-                scan_control_tab.pause_button.config(state=tk.DISABLED)
+            if hasattr(scan_control_tab, 'pause_resume_button'):
+                scan_control_tab.pause_resume_button.config(state=tk.DISABLED, text="Pause Scan", style='Orange.TButton')
+                scan_control_tab._stop_flashing() # Ensure no flashing
             if hasattr(scan_control_tab, 'stop_button'):
                 scan_control_tab.stop_button.config(state=tk.DISABLED)
-            if hasattr(scan_control_tab, 'resume_button'): # Check for existence
-                scan_control_tab.resume_button.config(state=tk.DISABLED)
-            else:
-                debug_print("ScanControlTab: resume_button not found. Just give up already!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-            if hasattr(scan_control_tab, 'skip_group_button'): # Check for existence
-                scan_control_tab.skip_group_button.config(state=tk.DISABLED)
-            else:
-                debug_print("ScanControlTab: skip_group_button not found. What a pain in the ass!", file=current_file, function=current_function, console_print_func=console_print_func)
-
-            debug_print("ScanControlTab: Disconnected - All buttons disabled. Fucking useless without a connection!",
+            debug_print("ScanControlTab: Disconnected - All scan control buttons disabled. Fucking useless without a connection!",
                         file=current_file, function=current_function, console_print_func=console_print_func)
     else:
         debug_print("ScanControlTab not found when updating connection status. This is a critical bug, fix this shit!",
