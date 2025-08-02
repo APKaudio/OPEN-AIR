@@ -18,9 +18,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0200.1 (Fixed Combobox population by ensuring values are set before textvariable.)
+# Version 20250802.0230.1 (Refined _do_refresh_resources for robust combobox population and selection.)
 
-current_version = "20250802.0200.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0230.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 12 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -220,8 +220,10 @@ class InstrumentTab(ttk.Frame):
             
             # This function will be called on the main thread
             def update_combobox_and_selection():
-                self.resource_dropdown.config(values=resources) # Set values first
+                # Step 1: Set the values for the dropdown
+                self.resource_dropdown.config(values=resources) 
                 
+                # Step 2: Attempt to restore last selected resource or pick the first one
                 if resources:
                     last_selected = self.app_instance.selected_resource.get()
                     if last_selected and last_selected in resources:
@@ -231,10 +233,16 @@ class InstrumentTab(ttk.Frame):
                         self.app_instance.selected_resource.set(resources[0]) # Select the first one by default
                         console_log(f"Selected first available resource: {resources[0]}", function=current_function)
                     
+                    # Step 3: Save the selected resource to config.ini
+                    self.app_instance.config.set('LAST_USED_SETTINGS', 'last_instrument_connection__visa_resource', self.app_instance.selected_resource.get())
+                    # The trace on selected_resource will call save_config, so no explicit call here.
+                    console_log(f"Saved selected resource to config: {self.app_instance.selected_resource.get()}", function=current_function)
+
                     debug_log(f"Found resources: {resources}. Selected: {self.app_instance.selected_resource.get()}",
                                 file=current_file,
                                 version=current_version,
                                 function=current_function)
+                    # Step 4: Update UI elements visibility based on resource found (and not connected yet)
                     self._update_ui_elements_visibility(connected=False, resource_found=True)
                 else:
                     self.app_instance.selected_resource.set("") # Clear selection
@@ -245,7 +253,8 @@ class InstrumentTab(ttk.Frame):
                                 function=current_function)
                     self._update_ui_elements_visibility(connected=False, resource_found=False)
                 
-                self._enable_buttons_after_operation() # Always re-enable buttons after update
+                # Step 5: Always re-enable buttons after the operation
+                self._enable_buttons_after_operation() 
 
             self.app_instance.after(0, update_combobox_and_selection)
 
