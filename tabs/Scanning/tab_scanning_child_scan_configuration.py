@@ -17,9 +17,13 @@
 #
 # Version 20250802.0014.7 (Changed __init__ signature to use explicit positional arguments for master and app_instance.)
 # Version 20250802.1805.0 (Fixed dropdown freezing by re-introducing description StringVars and linking comboboxes.)
+# Version 20250802.1810.0 (Added debug log for ref_scanner_setting_lists.py version to diagnose ImportError.)
+# Version 20250802.1915.0 (Fixed AttributeError: 'freq_shift_hz_var' by changing to 'freq_shift_var'.)
+# Version 20250802.1920.0 (Added scan_mode_combobox and linked it to app_instance.scan_mode_var.)
+# Version 20250802.1930.0 (Removed 'console_print_func' argument from debug_log calls as it's not supported.)
 
-current_version = "20250802.1805.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1805 * 0 # Example hash, adjust as needed
+current_version = "20250802.1930.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1930 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -42,7 +46,9 @@ from ref.ref_scanner_setting_lists import (
     reference_level_drop_down,
     frequency_shift_presets,
     number_of_scans_presets,
-    rbw_presets
+    rbw_presets,
+    scan_modes, # NEW: Import scan_modes
+    current_version as ref_scanner_settings_version # Import the version from the ref file
 )
 
 
@@ -89,6 +95,10 @@ class ScanTab(ttk.Frame):
         # (20250802.0014.6) Change: Updated import for scan_modes to ref_scanner_setting_lists.py.
         # (20250802.0014.7) Change: Changed __init__ signature to use explicit positional arguments for master and app_instance.
         # (20250802.1805.0) Change: Re-introduced description StringVars and linked comboboxes via textvariable.
+        # (20250802.1810.0) Change: Added debug log for ref_scanner_setting_lists.py version.
+        # (20250802.1915.0) Change: Fixed AttributeError: 'freq_shift_hz_var' by changing to 'freq_shift_var'.
+        # (20250802.1920.0) Change: Added scan_mode_combobox and linked it to app_instance.scan_mode_var.
+        # (20250802.1930.0) Change: Removed 'console_print_func' argument from debug_log calls.
 
         # Filter out 'style_obj' from kwargs before passing to super().__init__
         filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
@@ -104,6 +114,12 @@ class ScanTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
+        # Log the version of the imported ref_scanner_setting_lists.py
+        debug_log(f"ref_scanner_setting_lists.py version: {ref_scanner_settings_version}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+
         # Initialize Tkinter variables for descriptions (NEWLY ADDED/UNCOMMENTED)
         self.graph_quality_description_var = tk.StringVar(self, value="")
         self.dwell_time_description_var = tk.StringVar(self, value="")
@@ -114,6 +130,7 @@ class ScanTab(ttk.Frame):
         self.high_sensitivity_description_var = tk.StringVar(self, value="")
         self.preamp_on_description_var = tk.StringVar(self, value="")
         self.num_scan_cycles_description_var = tk.StringVar(self, value="")
+        self.scan_mode_description_var = tk.StringVar(self, value="") # NEW: Scan Mode description
 
         self._create_widgets()
 
@@ -155,6 +172,10 @@ class ScanTab(ttk.Frame):
         # (20250802.0014.6) Change: No functional changes related to widget creation.
         # (20250802.0014.7) Change: No functional changes related to widget creation.
         # (20250802.1805.0) Change: Linked comboboxes to app_instance's StringVars and updated values format.
+        # (20250802.1810.0) Change: No functional changes in _create_widgets.
+        # (20250802.1915.0) Change: Fixed AttributeError: 'freq_shift_hz_var' by changing to 'freq_shift_var'.
+        # (20250802.1920.0) Change: Added scan_mode_combobox and linked it to app_instance.scan_mode_var.
+        # (20250802.1930.0) Change: Removed 'console_print_func' argument from debug_log calls.
 
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
@@ -284,7 +305,7 @@ class ScanTab(ttk.Frame):
         ttk.Label(scan_settings_frame, text="Frequency Shift (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         self.frequency_shift_combobox = ttk.Combobox(
             scan_settings_frame,
-            textvariable=self.app_instance.freq_shift_hz_var, # Linked to app_instance's StringVar
+            textvariable=self.app_instance.freq_shift_var, # Linked to app_instance's StringVar
             values=[f"{item['shift_hz']} Hz - {item['label']}" for item in frequency_shift_presets],
             state="readonly",
             width=35, # Increased width for the combobox
@@ -357,6 +378,21 @@ class ScanTab(ttk.Frame):
         ttk.Label(scan_settings_frame, textvariable=self.num_scan_cycles_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
+        # Scan Mode (NEWLY ADDED)
+        ttk.Label(scan_settings_frame, text="Scan Mode:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        self.scan_mode_combobox = ttk.Combobox( # Assign to an instance variable
+            scan_settings_frame,
+            textvariable=self.app_instance.scan_mode_var,
+            values=[item['Value'] for item in scan_modes],
+            state="readonly",
+            width=35,
+            style='Fixedwidth.TCombobox'
+        )
+        self.scan_mode_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
+        self.scan_mode_combobox.bind("<<ComboboxSelected>>", self._on_scan_mode_selected)
+        ttk.Label(scan_settings_frame, textvariable=self.scan_mode_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        row_idx += 1
+
 
         # Frame for Bands to Scan
         bands_frame = ttk.LabelFrame(self, text="Bands to Scan", style='Dark.TLabelframe')
@@ -424,30 +460,12 @@ class ScanTab(ttk.Frame):
         self.bands_canvas.configure(scrollregion=self.bands_canvas.bbox("all"))
 
 
-    def _populate_bands(self):
-        # This function description tells me what this function does
-        # Populates the `bands_inner_frame` with checkboxes for each frequency band
-        # defined in `SCAN_BAND_RANGES`. Each checkbox is linked to a Tkinter BooleanVar
-        # and an event handler to save the configuration when its state changes.
-        #
-        # Inputs to this function
-        #   None (operates on self).
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Clears any existing widgets in `bands_inner_frame`.
-        #   3. Iterates through `app_instance.band_vars` (which holds band data and BooleanVars).
-        #   4. For each band, creates a `ttk.Checkbutton` and packs it into the frame.
-        #   5. Binds the checkbutton's command to `_on_band_checkbox_change` to save config.
-        #   6. Stores a reference to the checkbutton widget in the `band_item` dictionary.
-        #
-        # Outputs of this function
-        #   None. Adds Checkbutton widgets to the UI.
-        #
-        # (2025-07-30) Change: Implemented dynamic creation of checkboxes for bands.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: Stored reference to the Checkbutton widget.
-        # (20250802.1805.0) Change: Renamed from _populate_band_checkboxes for consistency.
+    def _populate_band_checkboxes(self): # Renamed from _populate_bands for consistency
+        """
+        Populates the `bands_inner_frame` with checkboxes for each frequency band
+        defined in `SCAN_BAND_RANGES`. Each checkbox is linked to a Tkinter BooleanVar
+        and an event handler to save the configuration when its state changes.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Populating band selection checkboxes. Getting all the bands ready! Version: {current_version}",
@@ -487,26 +505,12 @@ class ScanTab(ttk.Frame):
 
 
     def _on_bands_frame_configure(self, event):
-        # This function description tells me what this function does
-        # Configures the scroll region of the `bands_canvas` when the `bands_inner_frame`
-        # changes size. This ensures the scrollbar correctly reflects the content height.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the configuration.
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Updates the `scrollregion` of `bands_canvas` to encompass the entire
-        #      bounding box of `bands_inner_frame`.
-        #
-        # Outputs of this function
-        #   None. Adjusts the canvas scroll region.
-        #
-        # (2025-07-30) Change: Implemented for scrollable band selection.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
-        current_file = os.path.basename(__file__)
+        """
+        Configures the scroll region of the `bands_canvas` when the `bands_inner_frame`
+        changes size. This ensures the scrollbar correctly reflects the content height.
+        """
         current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
         debug_log(f"Configuring bands frame. Adjusting scroll region. Version: {current_version}",
                     file=current_file,
                     version=current_function,
@@ -515,25 +519,10 @@ class ScanTab(ttk.Frame):
 
 
     def _browse_output_folder(self):
-        # This function description tells me what this function does
-        # Opens a file dialog to allow the user to select an output folder for scan data.
-        # It updates the `output_folder_var` with the selected path and saves the configuration.
-        #
-        # Inputs to this function
-        #   None (operates on self).
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Opens a directory selection dialog.
-        #   3. If a directory is selected, updates `app_instance.output_folder_var`.
-        #   4. Calls `save_config` to persist the new output folder.
-        #
-        # Outputs of this function
-        #   None. Updates a Tkinter variable and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented folder browsing.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
+        """
+        Opens a file dialog to allow the user to select an output folder for scan data.
+        It updates the `output_folder_var` with the selected path and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Opening folder browser for output directory. Let's pick a place to save scans! Version: {current_version}",
@@ -564,23 +553,23 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         output_path = self.app_instance.output_folder_var.get()
-        debug_log(f"Attempting to open output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Attempting to open output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function)
 
         if not output_path:
             self.console_print_func("❌ Output folder path is empty. Please set a folder first.")
-            debug_log(f"Output folder path is empty. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Output folder path is empty. Version: {current_version}", file=current_file, function=current_function)
             return
 
         if not os.path.exists(output_path):
             self.console_print_func(f"⚠️ Output folder does not exist: {output_path}. Attempting to create it.")
-            debug_log(f"Output folder does not exist: {output_path}. Attempting to create. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Output folder does not exist: {output_path}. Attempting to create. Version: {current_version}", file=current_file, function=current_function)
             try:
                 os.makedirs(output_path)
                 self.console_print_func(f"✅ Created output folder: {output_path}")
-                debug_log(f"Created output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Created output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function)
             except Exception as e:
                 self.console_print_func(f"❌ Failed to create output folder: {e}")
-                debug_log(f"Failed to create output folder: {e}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Failed to create output folder: {e}. Version: {current_version}", file=current_file, function=current_function)
                 return
 
         try:
@@ -591,63 +580,117 @@ class ScanTab(ttk.Frame):
             else:
                 subprocess.Popen(["xdg-open", output_path]) # For Linux
             self.console_print_func(f"✅ Opened output folder: {output_path}")
-            debug_log(f"Opened output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened output folder: {output_path}. Version: {current_version}", file=current_file, function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error opening output folder: {e}")
-            debug_log(f"Error opening output folder '{output_path}': {e}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening output folder '{output_path}': {e}. Version: {current_version}", file=current_file, function=current_function)
 
 
-    def _on_scan_mode_selected(self, event):
-        # This function description tells me what this function does
-        # Event handler for when a scan mode is selected from the dropdown.
-        # It updates the `app_instance.scan_mode_var` and saves the configuration.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Retrieves the selected scan mode.
-        #   3. Calls `save_config` to persist the new scan mode.
-        #
-        # Outputs of this function
-        #   None. Updates a Tkinter variable and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented scan mode selection and config saving.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
-        # (20250802.1805.0) Change: Updated description var and simplified save_config.
+    def _on_graph_quality_selected(self, event):
+        """
+        Event handler for when a graph quality is selected from the dropdown.
+        It updates the `app_instance.rbw_step_size_hz_var` and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Scan mode selected: {self.app_instance.scan_mode_var.get()}. Saving configuration! Version: {current_version}",
+        debug_log(f"Graph Quality selected: {self.app_instance.rbw_step_size_hz_var.get()} Hz. Saving configuration! Version: {current_version}",
                     file=current_file,
                     version=current_function,
                     function=current_function)
-        # Update description for Scan Mode (if applicable, currently not in ref_scanner_setting_lists)
-        # For now, just save config.
+        # Update description
+        selected_value_str = self.graph_quality_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = int(float(selected_value_str))
+        except ValueError:
+            selected_value = None # Handle cases where conversion fails
+
+        for item in graph_quality_drop_down:
+            if item["resolution_hz"] == selected_value:
+                self.graph_quality_description_var.set(f"{item['label']}: {item['description']}")
+                break
+        save_config(self.app_instance)
+
+
+    def _on_dwell_time_selected(self, event):
+        """
+        Event handler for when a dwell time is selected from the dropdown.
+        It updates the `app_instance.maxhold_time_seconds_var` and saves the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"DWELL time selected: {self.app_instance.maxhold_time_seconds_var.get()} s. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+        # Update description
+        selected_value_str = self.dwell_time_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = float(selected_value_str)
+        except ValueError:
+            selected_value = None
+
+        for item in dwell_time_drop_down:
+            if item["time_sec"] == selected_value:
+                self.dwell_time_description_var.set(f"{item['label']}: {item['description']}")
+                break
+        save_config(self.app_instance)
+
+
+    def _on_max_hold_time_selected(self, event):
+        """
+        Event handler for when a max hold time is selected from the dropdown.
+        It updates the `app_instance.cycle_wait_time_seconds_var` and saves the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Max Hold Time selected: {self.app_instance.cycle_wait_time_seconds_var.get()} s. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+        # Update description
+        selected_value_str = self.max_hold_time_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = float(selected_value_str)
+        except ValueError:
+            selected_value = None
+
+        for item in cycle_wait_time_presets:
+            if item["time_sec"] == selected_value:
+                self.max_hold_time_description_var.set(f"{item['label']}: {item['description']}")
+                break
+        save_config(self.app_instance)
+
+
+    def _on_scan_rbw_selected(self, event):
+        """
+        Event handler for when a scan RBW is selected from the dropdown.
+        It updates the `app_instance.scan_rbw_hz_var` and saves the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Scan RBW selected: {self.app_instance.scan_rbw_hz_var.get()} Hz. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+        # Update description
+        selected_value_str = self.scan_rbw_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = float(selected_value_str)
+        except ValueError:
+            selected_value = None
+
+        for item in rbw_presets:
+            if item["rbw_hz"] == selected_value:
+                self.scan_rbw_description_var.set(f"{item['label']}: {item['description']}")
+                break
         save_config(self.app_instance)
 
 
     def _on_reference_level_selected(self, event):
-        # This function description tells me what this function does
-        # Event handler for when a reference level is selected from the dropdown.
-        # It updates the `app_instance.reference_level_dbm_var` and saves the configuration.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Retrieves the selected reference level.
-        #   3. Calls `save_config` to persist the new reference level.
-        #
-        # Outputs of this function
-        #   None. Updates a Tkinter variable and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented reference level selection and config saving.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
-        # (20250802.1805.0) Change: Updated description var and simplified save_config.
+        """
+        Event handler for when a reference level is selected from the dropdown.
+        It updates the `app_instance.reference_level_dbm_var` and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Reference level selected: {self.app_instance.reference_level_dbm_var.get()} dBm. Saving configuration! Version: {current_version}",
@@ -655,7 +698,12 @@ class ScanTab(ttk.Frame):
                     version=current_function,
                     function=current_function)
         # Update description
-        selected_value = float(self.app_instance.reference_level_dbm_var.get())
+        selected_value_str = self.reference_level_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = float(selected_value_str)
+        except ValueError:
+            selected_value = None
+
         for item in reference_level_drop_down:
             if item["level_dbm"] == selected_value:
                 self.reference_level_description_var.set(f"{item['label']}: {item['description']}")
@@ -663,242 +711,153 @@ class ScanTab(ttk.Frame):
         save_config(self.app_instance)
 
 
-    def _on_attenuation_selected(self, event):
-        # This function description tells me what this function does
-        # Event handler for when an attenuation level is selected from the dropdown.
-        # It updates the `app_instance.attenuation_var` and saves the configuration.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Retrieves the selected attenuation level.
-        #   3. Calls `save_config` to persist the new attenuation level.
-        #
-        # Outputs of this function
-        #   None. Updates a Tkinter variable and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented attenuation selection and config saving.
-        # (250802.0014.1) Change: No functional changes.
-        # (20250802.1805.0) Change: Updated description var and simplified save_config.
+    def _on_frequency_shift_selected(self, event):
+        """
+        Event handler for when a frequency shift is selected from the dropdown.
+        It updates the `app_instance.freq_shift_var` and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Attenuation selected: {self.app_instance.attenuation_var.get()} dB. Saving configuration! Version: {current_version}",
+        debug_log(f"Frequency shift selected: {self.app_instance.freq_shift_var.get()} Hz. Saving configuration! Version: {current_version}",
                     file=current_file,
                     version=current_function,
                     function=current_function)
-        # Update description for Attenuation (if applicable, currently not in ref_scanner_setting_lists)
-        # For now, just save config.
+        # Update description
+        selected_value_str = self.frequency_shift_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = float(selected_value_str)
+        except ValueError:
+            selected_value = None
+
+        for item in frequency_shift_presets:
+            if item["shift_hz"] == selected_value:
+                self.frequency_shift_description_var.set(f"{item['label']}: {item['description']}")
+                break
         save_config(self.app_instance)
 
 
-    def _on_freq_shift_selected(self, event):
-        # This function description tells me what this function does
-        # Event handler for when a frequency shift is selected from the dropdown.
-        # It updates the `app_instance.freq_shift_var` and saves the configuration.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Retrieves the selected frequency shift.
-        #   3. Calls `save_config` to persist the new frequency shift.
-        #
-        # Outputs of this function
-        #   None. Updates a Tkinter variable and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented frequency shift selection and config saving.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
-        # (20250802.1805.0) Change: Updated description var and simplified save_config.
+    def _on_high_sensitivity_selected(self, event):
+        """
+        Event handler for when High Sensitivity is selected from the dropdown.
+        It updates the `app_instance.high_sensitivity_var` and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Frequency shift selected: {self.app_instance.freq_shift_var.get()} MHz. Saving configuration! Version: {current_version}",
+        debug_log(f"High Sensitivity selected: {self.app_instance.high_sensitivity_var.get()}. Saving configuration! Version: {current_version}",
                     file=current_file,
                     version=current_function,
                     function=current_function)
-        # Update description for Frequency Shift (if applicable, currently not in ref_scanner_setting_lists)
-        # For now, just save config.
+        # Update description
+        selected_value = self.high_sensitivity_combobox.get()
+        if selected_value == "Yes":
+            self.high_sensitivity_description_var.set("Yes: High sensitivity mode enabled, optimizing for detection of weak signals.")
+        else:
+            self.high_sensitivity_description_var.set("No: High sensitivity mode disabled, potentially faster scans but less sensitive.")
         save_config(self.app_instance)
 
 
-    def _on_band_checkbox_change(self):
-        # This function description tells me what this function does
-        # Event handler for when a band selection checkbox is toggled.
-        # It updates the `app_instance.selected_bands` list and saves the configuration.
-        #
-        # Inputs to this function
-        #   None (operates on self).
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Clears the `app_instance.selected_bands` list.
-        #   3. Iterates through `app_instance.band_vars`.
-        #   4. If a band's checkbox is checked, adds its name to `app_instance.selected_bands`.
-        #   5. Calls `save_config` to persist the updated selected bands.
-        #
-        # Outputs of this function
-        #   None. Updates a list and saves application configuration.
-        #
-        # (2025-07-30) Change: Implemented band selection and config saving.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
-        # (20250802.1805.0) Change: Simplified save_config.
+    def _on_preamp_on_selected(self, event):
+        """
+        Event handler for when Preamplifier ON is selected from the dropdown.
+        It updates the `app_instance.preamp_on_var` and saves the configuration.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Band checkbox changed. Updating selected bands and saving configuration! Version: {current_version}",
+        debug_log(f"Preamplifier ON selected: {self.app_instance.preamp_on_var.get()}. Saving configuration! Version: {current_version}",
                     file=current_file,
                     version=current_function,
                     function=current_function)
+        # Update description
+        selected_value = self.preamp_on_combobox.get()
+        if selected_value == "Yes":
+            self.preamp_on_description_var.set("Yes: Preamplifier is enabled, increasing sensitivity but potentially adding noise.")
+        else:
+            self.preamp_on_description_var.set("No: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal.")
+        save_config(self.app_instance)
 
-        self.app_instance.selected_bands.clear()
+
+    def _on_num_scan_cycles_selected(self, event):
+        """
+        Event handler for when Number of Scan Cycles is selected from the dropdown.
+        It updates the `app_instance.num_scan_cycles_var` and saves the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Number of Scan Cycles selected: {self.app_instance.num_scan_cycles_var.get()}. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+        # Update description
+        selected_value_str = self.num_scan_cycles_combobox.get().split(' ')[0] # Extract the numeric value
+        try:
+            selected_value = int(float(selected_value_str))
+        except ValueError:
+            selected_value = None
+
+        for item in number_of_scans_presets:
+            if item["scans"] == selected_value:
+                self.num_scan_cycles_description_var.set(f"{item['label']}: {item['description']}")
+                break
+        save_config(self.app_instance)
+
+
+    def _on_scan_mode_selected(self, event):
+        """
+        Event handler for when Scan Mode is selected from the dropdown.
+        It updates the `app_instance.scan_mode_var` and saves the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Scan Mode selected: {self.app_instance.scan_mode_var.get()}. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+        # Update description
+        selected_value = self.scan_mode_combobox.get()
+        found_item = next((item for item in scan_modes if item['Value'] == selected_value), None)
+        if found_item:
+            self.scan_mode_description_var.set(found_item['Description'])
+        else:
+            self.scan_mode_description_var.set("No matching description.")
+        save_config(self.app_instance)
+
+
+    def _select_all_bands(self):
+        """
+        Selects all band checkboxes and updates the configuration.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Selecting all bands. Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
         for band_item in self.app_instance.band_vars:
-            if band_item["var"].get():
-                self.app_instance.selected_bands.append(band_item["band"]["Band Name"])
-        save_config(self.app_instance)
+            band_item["var"].set(True)
+        self._on_band_checkbox_change() # Trigger save
 
 
-    def _load_current_settings_into_dropdowns(self):
+    def _deselect_all_bands(self):
         """
-        Loads the current instrument settings (from the app_instance's Tkinter variables)
-        into the respective dropdowns on the Scan Configuration tab.
+        Deselects all band checkboxes and updates the configuration.
         """
-        current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"Loading current settings into dropdowns. Syncing UI with config! Version: {current_version}",
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Deselecting all bands. Version: {current_version}",
                     file=current_file,
                     version=current_function,
                     function=current_function)
-
-        # Helper to find label and description for a given value, and format display string
-        def get_formatted_strings(value, dropdown_list, value_key, unit=""):
-            for item in dropdown_list:
-                # Ensure comparison is type-safe (e.g., convert value to int/float if necessary)
-                if isinstance(item[value_key], (int, float)) and isinstance(value, (int, float)):
-                    if item[value_key] == value:
-                        combobox_display = f"{item[value_key]}{unit}" if unit else f"{item[value_key]}"
-                        description_display = f"{item['label']}: {item['description']}"
-                        return combobox_display, description_display
-                elif str(item[value_key]) == str(value): # For string comparisons
-                    combobox_display = f"{item[value_key]}{unit}" if unit else f"{item[value_key]}"
-                    description_display = f"{item['label']}: {item['description']}"
-                    return combobox_display, description_display
-            # Fallback for custom values not in presets
-            combobox_display_fallback = f"{value}{unit}" if unit else f"{value}"
-            description_display_fallback = f"Custom: Custom value detected. Select from dropdown to get description."
-            return combobox_display_fallback, description_display_fallback
-
-        # Scan Name
-        self.scan_name_entry.delete(0, tk.END)
-        self.scan_name_entry.insert(0, self.app_instance.scan_name_var.get())
-
-        # Output Folder
-        self.output_folder_entry.delete(0, tk.END)
-        self.output_folder_entry.insert(0, self.app_instance.output_folder_var.get())
-
-        # Graph Quality (rbw_step_size_hz_var)
-        current_value = int(float(self.app_instance.rbw_step_size_hz_var.get()))
-        combobox_display, description_display = get_formatted_strings(current_value, graph_quality_drop_down, "resolution_hz", " Hz")
-        self.graph_quality_combobox.set(combobox_display)
-        self.graph_quality_description_var.set(description_display)
-        debug_log(f"Loaded Graph Quality: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # DWELL (maxhold_time_seconds_var)
-        current_value = float(self.app_instance.maxhold_time_seconds_var.get())
-        combobox_display, description_display = get_formatted_strings(current_value, dwell_time_drop_down, "time_sec", " s")
-        self.dwell_time_combobox.set(combobox_display)
-        self.dwell_time_description_var.set(description_display)
-        debug_log(f"Loaded DWELL: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-        # Max Hold Time (cycle_wait_time_seconds_var)
-        current_value = float(self.app_instance.cycle_wait_time_seconds_var.get())
-        combobox_display, description_display = get_formatted_strings(current_value, cycle_wait_time_presets, "time_sec", " s")
-        self.max_hold_time_combobox.set(combobox_display)
-        self.max_hold_time_description_var.set(description_display)
-        debug_log(f"Loaded Max Hold Time: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # Scan RBW (scan_rbw_hz_var)
-        current_value = float(self.app_instance.scan_rbw_hz_var.get())
-        combobox_display, description_display = get_formatted_strings(current_value, rbw_presets, "rbw_hz", " Hz")
-        self.scan_rbw_combobox.set(combobox_display)
-        self.scan_rbw_description_var.set(description_display)
-        debug_log(f"Loaded Scan RBW: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # Reference Level (reference_level_dbm_var)
-        current_value = float(self.app_instance.reference_level_dbm_var.get())
-        combobox_display, description_display = get_formatted_strings(current_value, reference_level_drop_down, "level_dbm", " dBm")
-        self.reference_level_combobox.set(combobox_display)
-        self.reference_level_description_var.set(description_display)
-        debug_log(f"Loaded Reference Level: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # Frequency Shift (freq_shift_hz_var)
-        current_value = float(self.app_instance.freq_shift_hz_var.get())
-        combobox_display, description_display = get_formatted_strings(current_value, frequency_shift_presets, "shift_hz", " Hz")
-        self.frequency_shift_combobox.set(combobox_display)
-        self.frequency_shift_description_var.set(description_display)
-        debug_log(f"Loaded Frequency Shift: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # Number of Scan Cycles (num_scan_cycles_var)
-        current_value = int(float(self.app_instance.num_scan_cycles_var.get()))
-        combobox_display, description_display = get_formatted_strings(current_value, number_of_scans_presets, "scans", " cycles")
-        self.num_scan_cycles_combobox.set(combobox_display)
-        self.num_scan_cycles_description_var.set(description_display)
-        debug_log(f"Loaded Number of Scan Cycles: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # Preamplifier ON (preamp_on_var)
-        current_value = self.app_instance.preamp_on_var.get()
-        label = "Yes" if current_value else "No"
-        description_text = "Preamplifier is enabled, increasing sensitivity but potentially adding noise." if current_value else "Preamplifier is disabled, reducing sensitivity but potentially cleaner signal."
-        combobox_display = label # For Yes/No, label is the display
-        description_display = f"{label}: {description_text}" # Label first, then description
-        self.preamp_on_combobox.set(combobox_display)
-        self.preamp_on_description_var.set(description_display)
-        debug_log(f"Loaded Preamplifier ON: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-
-        # High Sensitivity (high_sensitivity_var)
-        current_value = self.app_instance.high_sensitivity_var.get()
-        label = "Yes" if current_value else "No"
-        description_text = "High sensitivity mode enabled, optimizing for detection of weak signals." if current_value else "High sensitivity mode disabled, potentially faster scans but less sensitive."
-        combobox_display = label # For Yes/No, label is the display
-        description_display = f"{label}: {description_text}" # Label first, then description
-        self.high_sensitivity_combobox.set(combobox_display)
-        self.high_sensitivity_description_var.set(description_display)
-        debug_log(f"Loaded High Sensitivity: {combobox_display}. Description: {description_display}. Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
-        # RBW Segmentation and Default Focus Width are Entry widgets, not comboboxes,
-        # so their values are directly set by their textvariable.
-        # No explicit set() needed here as textvariable handles it.
+        for band_item in self.app_instance.band_vars:
+            band_item["var"].set(False)
+        self._on_band_checkbox_change() # Trigger save
 
 
     def _on_tab_selected(self, event):
-        # This function description tells me what this function does
-        # Called when this tab is selected in the notebook.
-        # Can be used to refresh data or update UI elements specific to this tab.
-        # For the scan configuration, we ensure settings are loaded/reloaded.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the call.
-        #
-        # Process of this function
-        #   1. Prints a debug message indicating the tab selection.
-        #   2. Calls `_load_current_settings_into_dropdowns` to refresh all input fields.
-        #   3. Calls `_load_band_selections_from_config` to update checkbox states.
-        #
-        # Outputs of this function
-        #   None. Refreshes the UI elements on tab selection.
-        #
-        # (2025-07-30) Change: Added to load settings and band selections on tab selection.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
+        """
+        Called when this tab is selected in the notebook.
+        Can be used to refresh data or update UI elements specific to this tab.
+        For the scan configuration, we ensure settings are loaded/reloaded.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"ScanTab selected. Refreshing settings... Let's get this updated! Version: {current_version}",
@@ -914,27 +873,10 @@ class ScanTab(ttk.Frame):
 
 
     def _load_band_selections_from_config(self):
-        # This function description tells me what this function does
-        # Loads the selected bands from config.ini into the checkboxes.
-        # This is called on tab selection to ensure the GUI reflects the config.
-        #
-        # Inputs to this function
-        #   None (operates on self).
-        #
-        # Process of this function
-        #   1. Prints a debug message.
-        #   2. Retrieves the last selected bands string from the application's configuration.
-        #   3. Parses the string into a list of band names.
-        #   4. Iterates through the `app_instance.band_vars` (which contains band data and BooleanVars).
-        #   5. Sets the state of each checkbox (BooleanVar) based on whether its band name
-        #      is present in the loaded `last_selected_band_names`.
-        #
-        # Outputs of this function
-        #   None. Updates the state of Tkinter checkboxes.
-        #
-        # (2025-07-30) Change: Implemented loading selected bands from config.
-        # (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0014.1) Change: No functional changes.
+        """
+        Loads the selected bands from config.ini into the checkboxes.
+        This is called on tab selection to ensure the GUI reflects the config.
+        """
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading band selections from config.ini... Syncing checkboxes with saved settings! Version: {current_version}",
@@ -951,5 +893,150 @@ class ScanTab(ttk.Frame):
             band_name = band_item["band"]["Band Name"]
             band_item["var"].set(band_name in last_selected_band_names)
 
-        debug_log(f"Loaded selected bands from config: {last_selected_band_names}. Checkboxes updated! Version: {current_version}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Loaded selected bands from config: {last_selected_band_names}. Checkboxes updated! Version: {current_version}", file=current_file, function=current_function)
 
+
+    def _on_band_checkbox_change(self):
+        """
+        Event handler for when a band selection checkbox is toggled.
+        It updates the 'last_scan_configuration__selected_bands' setting in the config.ini.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Band checkbox changed. Saving configuration! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+
+        selected_bands = [
+            band_item["band"]["Band Name"]
+            for band_item in self.app_instance.band_vars
+            if band_item["var"].get()
+        ]
+        self.app_instance.config.set(
+            'LAST_USED_SETTINGS',
+            'last_scan_configuration__selected_bands',
+            ",".join(selected_bands)
+        )
+        save_config(self.app_instance)
+        debug_log(f"Selected bands saved: {selected_bands}. Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+
+
+    def _load_current_settings_into_dropdowns(self):
+        """
+        Loads the current values from app_instance's Tkinter variables into the comboboxes
+        and updates their corresponding description labels. This ensures the GUI reflects
+        the loaded configuration when the tab is selected.
+        """
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Loading current settings into dropdowns. Syncing UI with config! Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)
+
+        # Graph Quality
+        current_value = self.app_instance.rbw_step_size_hz_var.get()
+        found_item = next((item for item in graph_quality_drop_down if str(item['resolution_hz']) == current_value), None)
+        if found_item:
+            self.graph_quality_combobox.set(f"{found_item['resolution_hz']} Hz - {found_item['label']}")
+            self.graph_quality_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.graph_quality_combobox.set("")
+            self.graph_quality_description_var.set("No matching description.")
+
+        # DWELL
+        current_value = self.app_instance.maxhold_time_seconds_var.get()
+        found_item = next((item for item in dwell_time_drop_down if str(item['time_sec']) == current_value), None)
+        if found_item:
+            self.dwell_time_combobox.set(f"{found_item['time_sec']} s - {found_item['label']}")
+            self.dwell_time_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.dwell_time_combobox.set("")
+            self.dwell_time_description_var.set("No matching description.")
+
+        # Max Hold Time
+        current_value = self.app_instance.cycle_wait_time_seconds_var.get()
+        found_item = next((item for item in cycle_wait_time_presets if str(item['time_sec']) == current_value), None)
+        if found_item:
+            self.max_hold_time_combobox.set(f"{found_item['time_sec']} s - {found_item['label']}")
+            self.max_hold_time_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.max_hold_time_combobox.set("")
+            self.max_hold_time_description_var.set("No matching description.")
+
+        # Scan RBW
+        current_value = self.app_instance.scan_rbw_hz_var.get()
+        found_item = next((item for item in rbw_presets if str(item['rbw_hz']) == current_value), None)
+        if found_item:
+            self.scan_rbw_combobox.set(f"{found_item['rbw_hz']} Hz - {found_item['label']}")
+            self.scan_rbw_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.scan_rbw_combobox.set("")
+            self.scan_rbw_description_var.set("No matching description.")
+
+        # Reference Level
+        current_value = self.app_instance.reference_level_dbm_var.get()
+        found_item = next((item for item in reference_level_drop_down if str(item['level_dbm']) == current_value), None)
+        if found_item:
+            self.reference_level_combobox.set(f"{found_item['level_dbm']} dBm - {found_item['label']}")
+            self.reference_level_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.reference_level_combobox.set("")
+            self.reference_level_description_var.set("No matching description.")
+
+        # Frequency Shift
+        current_value = self.app_instance.freq_shift_var.get() # Corrected variable name
+        found_item = next((item for item in frequency_shift_presets if str(item['shift_hz']) == current_value), None)
+        if found_item:
+            self.frequency_shift_combobox.set(f"{found_item['shift_hz']} Hz - {found_item['label']}")
+            self.frequency_shift_description_var.set(f"{item['label']}: {item['description']}")
+        else:
+            self.frequency_shift_combobox.set("")
+            self.frequency_shift_description_var.set("No matching description.")
+
+        # High Sensitivity
+        current_value_bool = self.app_instance.high_sensitivity_var.get()
+        current_value_str = "Yes" if current_value_bool else "No"
+        self.high_sensitivity_combobox.set(current_value_str)
+        if current_value_str == "Yes":
+            self.high_sensitivity_description_var.set("Yes: High sensitivity mode enabled, optimizing for detection of weak signals.")
+        else:
+            self.high_sensitivity_description_var.set("No: High sensitivity mode disabled, potentially faster scans but less sensitive.")
+
+        # Preamplifier ON
+        current_value_bool = self.app_instance.preamp_on_var.get()
+        current_value_str = "Yes" if current_value_bool else "No"
+        self.preamp_on_combobox.set(current_value_str)
+        if current_value_str == "Yes":
+            self.preamp_on_description_var.set("Yes: Preamplifier is enabled, increasing sensitivity but potentially adding noise.")
+        else:
+            self.preamp_on_description_var.set("No: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal.")
+
+        # Number of Scan Cycles
+        current_value = self.app_instance.num_scan_cycles_var.get()
+        found_item = next((item for item in number_of_scans_presets if str(item['scans']) == str(current_value)), None)
+        if found_item:
+            self.num_scan_cycles_combobox.set(f"{found_item['scans']} cycles - {found_item['label']}")
+            self.num_scan_cycles_description_var.set(f"{found_item['label']}: {found_item['description']}")
+        else:
+            self.num_scan_cycles_combobox.set("")
+            self.num_scan_cycles_description_var.set("No matching description.")
+
+        # Scan Mode (NEWLY ADDED)
+        current_value = self.app_instance.scan_mode_var.get()
+        found_item = next((item for item in scan_modes if item['Value'] == current_value), None)
+        if found_item:
+            self.scan_mode_combobox.set(found_item['Value'])
+            self.scan_mode_description_var.set(found_item['Description'])
+        else:
+            self.scan_mode_combobox.set("")
+            self.scan_mode_description_var.set("No matching description.")
+
+        debug_log(f"Current settings loaded into dropdowns and descriptions updated. Version: {current_version}",
+                    file=current_file,
+                    version=current_function,
+                    function=current_function)

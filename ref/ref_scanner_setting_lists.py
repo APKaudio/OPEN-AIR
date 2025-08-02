@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250802.0700.1 (Moved scan_modes into this file from its own module.)
+# Version 20250802.1815.1 (Ensured all required dropdown lists are present and updated version.)
 
-current_version = "20250802.0700.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.1815.1" # this variable should always be defined below the header to make the debugging better
 
 graph_quality_drop_down = [
     {
@@ -46,7 +46,87 @@ graph_quality_drop_down = [
     }
 ]
 
-num_scan_cycles_drop_down = [
+dwell_time_drop_down = [
+    {
+        "label": "Fast (0.1s)",
+        "time_sec": 0.1,
+        "description": "Quick sweeps, minimal dwell time."
+    },
+    {
+        "label": "Normal (0.5s)",
+        "time_sec": 0.5,
+        "description": "Standard dwell for general purpose scanning."
+    },
+    {
+        "label": "Medium (1s)",
+        "time_sec": 1.0,
+        "description": "Slightly longer dwell for more stable readings."
+    },
+    {
+        "label": "Slow (2s)",
+        "time_sec": 2.0,
+        "description": "Extended dwell, good for capturing transient signals."
+    },
+    {
+        "label": "Very Slow (5s)",
+        "time_sec": 5.0,
+        "description": "Maximum dwell, for detailed analysis of stable signals."
+    }
+]
+
+cycle_wait_time_presets = [
+    {
+        "label": "None (0s)",
+        "time_sec": 0,
+        "description": "No wait time between scan cycles."
+    },
+    {
+        "label": "Short (0.5s)",
+        "time_sec": 0.5,
+        "description": "A brief pause between cycles."
+    },
+    {
+        "label": "Medium (1s)",
+        "time_sec": 1.0,
+        "description": "A moderate pause to allow for instrument settling."
+    },
+    {
+        "label": "Long (2s)",
+        "time_sec": 2.0,
+        "description": "An extended pause for more stable measurements."
+    },
+    {
+        "label": "Very Long (5s)",
+        "time_sec": 5.0,
+        "description": "A significant pause for critical measurements or external events."
+    }
+]
+
+reference_level_drop_down = [
+    {"label": "Auto", "level_dbm": "Auto", "description": "Automatically adjusts reference level."},
+    {"label": "10 dBm", "level_dbm": 10, "description": "High signal levels."},
+    {"label": "0 dBm", "level_dbm": 0, "description": "Common reference for many signals."},
+    {"label": "-10 dBm", "level_dbm": -10, "description": "For slightly weaker signals."},
+    {"label": "-20 dBm", "level_dbm": -20, "description": "For typical signal analysis."},
+    {"label": "-30 dBm", "level_dbm": -30, "description": "For weaker signals."},
+    {"label": "-40 dBm", "level_dbm": -40, "description": "For very weak signals."},
+    {"label": "-50 dBm", "level_dbm": -50, "description": "For extremely weak signals."},
+    {"label": "-60 dBm", "level_dbm": -60, "description": "For noise floor measurements."},
+    {"label": "-70 dBm", "level_dbm": -70, "description": "Deep noise floor."},
+    {"label": "-80 dBm", "level_dbm": -80, "description": "Ultra-low signal detection."},
+    {"label": "-90 dBm", "level_dbm": -90, "description": "Near instrument noise floor."},
+    {"label": "-100 dBm", "level_dbm": -100, "description": "Lowest measurable signal."}
+]
+
+frequency_shift_presets = [
+    {"label": "None (0 Hz)", "shift_hz": 0, "description": "No frequency offset."},
+    {"label": "100 kHz", "shift_hz": 100_000, "description": "100 kHz offset."},
+    {"label": "1 MHz", "shift_hz": 1_000_000, "description": "1 MHz offset."},
+    {"label": "10 MHz", "shift_hz": 10_000_000, "description": "10 MHz offset."},
+    {"label": "Custom", "shift_hz": "Custom", "description": "Enter a custom frequency shift."}
+]
+
+number_of_scans_presets = [
     {
         "label": "Single Shot",
         "scans": 1,
@@ -99,7 +179,6 @@ num_scan_cycles_drop_down = [
     }
 ]
 
-# NEW: Placeholder for rbw_presets
 rbw_presets = [
     {
         "label": "SLOW",
@@ -114,48 +193,30 @@ rbw_presets = [
     {
         "label": "10 kHz",
         "rbw_hz": 10_000,
-        "description": "Standard resolution for general purpose measurements."
+        "description": "A wider filter, good for faster sweeps or broader signals."
     },
     {
         "label": "30 kHz",
         "rbw_hz": 30_000,
-        "description": "Faster scan, good for wider signals or quicker sweeps."
+        "description": "General purpose RBW, common for many applications."
     },
     {
         "label": "100 kHz",
         "rbw_hz": 100_000,
-        "description": "Even faster, useful for broad signals or spectrum overview."
+        "description": "For wideband signals or very fast sweeps."
     },
     {
-        "label": "FAST",
+        "label": "300 kHz",
         "rbw_hz": 300_000,
-        "description": "Quickest scan, for capturing transient signals or very wide-band analysis."
+        "description": "Very wide filter, for extremely fast scans or very broad signals."
+    },
+    {
+        "label": "1 MHz",
+        "rbw_hz": 1_000_000,
+        "description": "Maximum RBW, for fastest possible sweeps, sacrificing resolution."
     }
 ]
 
-# NEW: Scan Modes (moved from ref/scan_modes.py)
-scan_modes = [
-    {"Mode": "Swept", "Description": "Standard swept measurement, good for general purpose spectrum analysis."},
-    {"Mode": "FFT", "Description": "Fast Fourier Transform for real-time analysis, ideal for capturing intermittent signals."},
-    {"Mode": "Zero Span", "Description": "Time domain analysis at a fixed frequency, useful for observing signal stability over time."},
-]
-
-# Reference Levels (moved from ref/reference_levels.py)
-reference_levels = [
-    {"Level": 0, "Description": "0 dBm"},
-    {"Level": -10, "Description": "-10 dBm"},
-    {"Level": -20, "Description": "-20 dBm"},
-    {"Level": -30, "Description": "-30 dBm"},
-    {"Level": -40, "Description": "-40 dBm"},
-    {"Level": -50, "Description": "-50 dBm"},
-    {"Level": -60, "Description": "-60 dBm"},
-    {"Level": -70, "Description": "-70 dBm"},
-    {"Level": -80, "Description": "-80 dBm"},
-    {"Level": -90, "Description": "-90 dBm"},
-    {"Level": -100, "Description": "-100 dBm"},
-]
-
-# Attenuation Levels (moved from ref/attenuation_levels.py)
 attenuation_levels = [
     {"Value": 0, "Description": "0 dB - No attenuation"},
     {"Value": 5, "Description": "5 dB attenuation"},
@@ -170,14 +231,15 @@ attenuation_levels = [
     {"Value": 50, "Description": "50 dB attenuation"},
 ]
 
-# Frequency Shifts (moved from ref/frequency_shifts.py)
 frequency_shifts = [
-    {"Shift": 0, "Description": "0 MHz - No frequency shift"},
-    {"Shift": 0.5, "Description": "0.5 MHz shift"},
-    {"Shift": 1, "Description": "1 MHz shift"},
-    {"Shift": 5, "Description": "5 MHz shift"},
-    {"Shift": 10, "Description": "10 MHz shift"},
-    {"Shift": 20, "Description": "20 MHz shift"},
-    {"Shift": 50, "Description": "50 MHz shift"},
-    {"Shift": 100, "Description": "100 MHz shift"},
+    {"Value": 0, "Description": "0 Hz - No shift"},
+    {"Value": 100000, "Description": "100 kHz shift"},
+    {"Value": 1000000, "Description": "1 MHz shift"},
+    {"Value": 10000000, "Description": "10 MHz shift"},
+]
+
+scan_modes = [
+    {"Value": "NORMAL", "Description": "Normal sweep mode"},
+    {"Value": "MAX_HOLD", "Description": "Max hold trace mode"},
+    {"Value": "MIN_HOLD", "Description": "Min hold trace mode"},
 ]

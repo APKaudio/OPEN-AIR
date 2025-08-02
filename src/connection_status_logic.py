@@ -16,8 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.0040.4 (Added hasattr checks for resource_dropdown in InstrumentTab.)
+# Version 20250802.1920.0 (Fixed AttributeError: 'scan_mode_dropdown' by changing to 'scan_mode_combobox'.)
+# Version 20250802.1925.0 (Fixed AttributeError: 'scanner_type_entry' by changing to 'equipment_used_entry'.)
 
-current_version = "20250802.0040.4" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.1925.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 40 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -84,8 +86,8 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'start_pause_stop_tab'):
-        scan_control_tab = app_instance.start_pause_stop_tab
+    if hasattr(app_instance, 'scan_control_tab'): # Corrected from start_pause_stop_tab
+        scan_control_tab = app_instance.scan_control_tab
     else:
         debug_log("Scan Control Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -110,16 +112,18 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'plotting_tab'):
-        plotting_tab = app_instance.plotting_tab
+    if hasattr(app_instance, 'plotting_parent_tab') and \
+       hasattr(app_instance.plotting_parent_tab, 'plotting_tab'): # Corrected from plotting_tab
+        plotting_tab = app_instance.plotting_parent_tab.plotting_tab
     else:
         debug_log("Plotting Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'markers_display_tab'):
-        markers_display_tab = app_instance.markers_display_tab
+    if hasattr(app_instance, 'markers_parent_tab') and \
+       hasattr(app_instance.markers_parent_tab, 'markers_display_tab'): # Corrected from markers_display_tab
+        markers_display_tab = app_instance.markers_parent_tab.markers_display_tab
     else:
         debug_log("Markers Display Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -127,8 +131,8 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
                     function=current_function)
 
     if hasattr(app_instance, 'presets_parent_tab') and \
-       hasattr(app_instance.presets_parent_tab, 'preset_files_tab'):
-        presets_tab = app_instance.presets_parent_tab.preset_files_tab
+       hasattr(app_instance.presets_parent_tab, 'presets_tab'): # Corrected from preset_files_tab
+        presets_tab = app_instance.presets_parent_tab.presets_tab
     else:
         debug_log("Presets Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -248,18 +252,27 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
         for widget in [scan_config_tab.scan_name_entry,
                        scan_config_tab.output_folder_entry,
                        scan_config_tab.output_folder_button,
-                       scan_config_tab.scan_mode_dropdown,
-                       scan_config_tab.reference_level_dbm_dropdown,
-                       scan_config_tab.attenuation_dropdown,
-                       scan_config_tab.freq_shift_dropdown,
+                       scan_config_tab.scan_mode_combobox, # Changed from scan_mode_dropdown
+                       scan_config_tab.reference_level_combobox, # Changed from reference_level_dbm_dropdown
+                       # scan_config_tab.attenuation_dropdown, # This widget does not exist in ScanTab
+                       scan_config_tab.frequency_shift_combobox, # Changed from freq_shift_dropdown
                        scan_config_tab.scan_rbw_segmentation_entry,
-                       scan_config_tab.desired_default_focus_width_entry]:
+                       scan_config_tab.desired_default_focus_width_entry,
+                       scan_config_tab.graph_quality_combobox, # Added
+                       scan_config_tab.dwell_time_combobox, # Added
+                       scan_config_tab.max_hold_time_combobox, # Added
+                       scan_config_tab.scan_rbw_combobox, # Added
+                       scan_config_tab.high_sensitivity_combobox, # Added
+                       scan_config_tab.preamp_on_combobox, # Added
+                       scan_config_tab.num_scan_cycles_combobox # Added
+                       ]:
             if hasattr(widget, 'config'): # Check if it's a configurable Tkinter widget
                 widget.config(state=state)
         
         # Handle checkboxes separately as their state is managed differently
         for band_item in scan_config_tab.app_instance.band_vars:
-            band_item["var_widget"].config(state=state) # Assuming var_widget is the Checkbutton widget
+            if hasattr(band_item, 'var_widget') and hasattr(band_item["var_widget"], 'config'):
+                band_item["var_widget"].config(state=state) # Assuming var_widget is the Checkbutton widget
 
         debug_log("Scan Configuration Tab buttons and inputs updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -282,18 +295,18 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
                        scan_meta_data_tab.address_field_entry,
                        scan_meta_data_tab.city_entry,
                        scan_meta_data_tab.province_entry,
-                       scan_meta_data_tab.equipment_used_entry,
-                       scan_meta_data_tab.antenna_type_dropdown,
+                       scan_meta_data_tab.equipment_used_entry, # Changed from scanner_type_entry
+                       scan_meta_data_tab.antenna_type_dropdown, # Changed from selected_antenna_type_combobox
                        scan_meta_data_tab.antenna_description_entry,
                        scan_meta_data_tab.antenna_use_entry,
                        scan_meta_data_tab.antenna_mount_entry,
-                       scan_meta_data_tab.antenna_amplifier_dropdown,
+                       scan_meta_data_tab.antenna_amplifier_dropdown, # Changed from selected_amplifier_type_combobox
                        scan_meta_data_tab.amplifier_description_entry,
                        scan_meta_data_tab.amplifier_use_entry]:
             if hasattr(widget, 'config'):
                 widget.config(state=state)
         
-        if hasattr(scan_meta_data_tab, 'notes_text'):
+        if hasattr(scan_meta_data_tab, 'notes_text'): # Corrected from notes_text_widget
             # ScrolledText widget's state is set differently
             notes_state = tk.NORMAL if is_connected and not is_scanning else tk.DISABLED
             scan_meta_data_tab.notes_text.config(state=notes_state)
@@ -313,7 +326,8 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
     if plotting_tab:
         # Plotting buttons should be enabled if connected AND not scanning
         # or if disconnected but there's data to plot (e.g., from a previous scan)
-        plot_button_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.raw_scan_data_for_current_sweep) else tk.DISABLED
+        # Check app_instance.scan_data_available instead of raw_scan_data_for_current_sweep
+        plot_button_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.scan_data_available) else tk.DISABLED
         
         if hasattr(plotting_tab, 'plot_current_scan_button'):
             plotting_tab.plot_current_scan_button.config(state=plot_button_state)
@@ -339,7 +353,8 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
     if markers_display_tab:
         # All marker display buttons should be enabled if connected and not scanning
         # or if not connected but there is data to process (e.g. from a loaded report)
-        marker_display_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.markers_data_from_scan) else tk.DISABLED
+        # Check app_instance.scan_data_available instead of markers_data_from_scan
+        marker_display_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.scan_data_available) else tk.DISABLED
 
         if hasattr(markers_display_tab, 'load_report_button'):
             markers_display_tab.load_report_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow loading reports if not scanning

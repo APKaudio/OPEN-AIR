@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1701.15 (Updated imports and tab instantiation for refactored modules.)
+# Version 20250802.1910.1 (Fixed KeyError: 'Mode' by using 'Value' for scan_modes initialization.)
 
-current_version = "20250802.1701.15" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 15 # Example hash, adjust as needed
+current_version = "20250802.1910.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1910 * 1 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -93,8 +93,8 @@ from tabs.Console.ConsoleTab import ConsoleTab # NEW: Import ConsoleTab directly
 
 # Import constants from frequency_bands.py
 from ref.frequency_bands import SCAN_BAND_RANGES, MHZ_TO_HZ, VBW_RBW_RATIO
-# NEW: Import scan_modes, attenuation_levels, and frequency_shifts for initializing Tkinter variables
-from ref.ref_scanner_setting_lists import scan_modes, attenuation_levels, frequency_shifts
+# NEW: Import scan_modes, attenuation_levels, and frequency_shift_presets for initializing Tkinter variables
+from ref.ref_scanner_setting_lists import scan_modes, attenuation_levels, frequency_shift_presets
 
 
 class App(tk.Tk):
@@ -559,8 +559,13 @@ class App(tk.Tk):
         self.attenuation_var = tk.StringVar(self, value=str(attenuation_levels[0]["Value"])) # NEW: Initialize attenuation_var
         self.attenuation_var.trace_add("write", create_trace_callback("attenuation_var"))
 
-        self.freq_shift_var = tk.StringVar(self, value=str(frequency_shifts[0]["Shift"])) # NEW: Initialize freq_shift_var
+        # FIX: Corrected to use frequency_shift_presets and 'shift_hz' key
+        self.freq_shift_var = tk.StringVar(self, value=str(frequency_shift_presets[0]["shift_hz"])) # NEW: Initialize freq_shift_var
         self.freq_shift_var.trace_add("write", create_trace_callback("freq_shift_var"))
+
+        # FIX: Corrected to use scan_modes and 'Value' key
+        self.scan_mode_var = tk.StringVar(self, value=scan_modes[0]["Value"]) # Initialize with first mode
+        self.scan_mode_var.trace_add("write", create_trace_callback("scan_mode_var"))
 
         self.maxhold_enabled_var = tk.BooleanVar(self, value=True)
         self.maxhold_enabled_var.trace_add("write", create_trace_callback("maxhold_enabled_var"))
@@ -576,10 +581,6 @@ class App(tk.Tk):
 
         self.desired_default_focus_width_var = tk.StringVar(self, value="10000000") # Corrected default value to string
         self.desired_default_focus_width_var.trace_add("write", create_trace_callback("desired_default_focus_width_var"))
-
-        # NEW: Initialize scan_mode_var
-        self.scan_mode_var = tk.StringVar(self, value=scan_modes[0]["Mode"]) # Initialize with first mode
-        self.scan_mode_var.trace_add("write", create_trace_callback("scan_mode_var"))
 
 
         # Scan Meta Data variables
@@ -731,12 +732,12 @@ class App(tk.Tk):
             'reference_level_dbm_var': ('last_scan_configuration__reference_level_dbm', 'default_scan_configuration__reference_level_dbm', self.reference_level_dbm_var),
             'attenuation_var': ('last_scan_configuration__attenuation', 'default_scan_configuration__attenuation', self.attenuation_var), # NEW MAPPING
             'freq_shift_var': ('last_scan_configuration__freq_shift_hz', 'default_scan_configuration__freq_shift_hz', self.freq_shift_var), # NEW MAPPING
+            'scan_mode_var': ('last_scan_configuration__scan_mode', 'default_scan_configuration__scan_mode', self.scan_mode_var), # NEW MAPPING
             'maxhold_enabled_var': ('last_scan_configuration__maxhold_enabled', 'default_scan_configuration__maxhold_enabled', self.maxhold_enabled_var),
             'high_sensitivity_var': ('last_scan_configuration__sensitivity', 'default_scan_configuration__sensitivity', self.high_sensitivity_var),
             'preamp_on_var': ('last_scan_configuration__preamp_on', 'default_scan_configuration__preamp_on', self.preamp_on_var),
             'scan_rbw_segmentation_var': ('last_scan_configuration__scan_rbw_segmentation', 'default_scan_configuration__scan_rbw_segmentation', self.scan_rbw_segmentation_var),
             'desired_default_focus_width_var': ('last_scan_configuration__default_focus_width', 'default_scan_configuration__default_focus_width', self.desired_default_focus_width_var),
-            'scan_mode_var': ('last_scan_configuration__scan_mode', 'default_scan_configuration__scan_mode', self.scan_mode_var), # NEW MAPPING
 
 
             'operator_name_var': ('last_scan_meta_data__operator_name', 'default_scan_meta_data__operator_name', self.operator_name_var),
