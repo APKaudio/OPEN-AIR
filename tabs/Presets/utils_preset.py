@@ -32,7 +32,7 @@ from src.debug_logic import debug_log, log_visa_command
 from src.console_logic import console_log
 
 # Import necessary functions from instrument_logic and frequency_bands
-from src.instrument_logic import query_current_instrument_settings_logic
+from tabs.Instrument.instrument_logic import query_current_instrument_settings_logic
 from ref.frequency_bands import MHZ_TO_HZ
 
 # Define constants

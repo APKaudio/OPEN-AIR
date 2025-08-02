@@ -30,7 +30,7 @@ import os
 import threading
 
 # Import instrument control logic functions - CORRECTED PATHS
-from src.instrument_logic import (
+from tabs.Instrument.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
     query_current_instrument_settings_logic, apply_settings_logic
 )

@@ -63,7 +63,7 @@ import src.debug_logic as debug_logic_module
 import src.console_logic as console_logic_module
 
 
-from src.instrument_logic import (
+from tabs.Instrument.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
     apply_settings_logic,
     query_current_instrument_settings_logic
