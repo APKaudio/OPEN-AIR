@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.6 (Removed redundant print_art import; added update_idletasks after style setup.)
+# Version 20250802.0045.8 (Fixed TypeError: update_connection_status_logic() got unexpected keyword argument 'console_log_func'.)
 
-current_version = "20250802.0045.6" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 6 # Example hash, adjust as needed
+current_version = "20250802.0045.8" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 45 * 8 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -187,8 +187,10 @@ class App(tk.Tk):
         # (25-08-02 0045.3) Change: Moved parent_tab_colors initialization to __init__ to fix AttributeError.
         # (25-08-02 0045.4) Change: Added self.update_idletasks() after _setup_styles() to ensure styles are registered.
         # (25-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         super().__init__()
-        self.title("OPEN AIR - �🗺️ - Zone Awareness Processor") # Changed window title
+        self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         # Store original stdout and stderr to restore on close
@@ -1291,54 +1293,52 @@ class App(tk.Tk):
                         version=current_version,
                         function=current_function)
             raise
-
-
+    # Function Description:
+    # This function updates the state (enabled/disabled) of various GUI elements
+    # across different tabs based on the instrument's connection status and
+    # whether a scan is currently in progress. It ensures that only relevant
+    # actions are available to the user at any given time.
+    #
+    # Inputs:
+    #   is_connected (bool): True if the instrument is connected, False otherwise.
+    #   is_scanning (bool): True if a scan is active, False otherwise.
+    #
+    # Process:
+    #   1. Prints a debug message.
+    #   2. Calls `update_connection_status_logic` (from `src.scan_logic`) to
+    #      handle the core logic of enabling/disabling widgets. This centralizes
+    #      the UI state management.
+    #   3. Passes references to all relevant tabs and their child tabs.
+    #   4. Updates the connection status label.
+    #
+    # Outputs:
+    #   None. Modifies the state of GUI widgets.
+    #
+    # (2025-07-30) Change: Updated to pass all new tab instances (ScanConfig, ScanMetaData, Plotting, Markers, Presets).
+    # (2025-07-31) Change: Updated to pass new nested tab structure to `update_connection_status_logic`.
+    #                      Now passes parent tab instances, which then expose their child tabs.
+    # (2025-07-31) Change: Updated header.
+    # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
+    # (2025-07-31) Change: Version incremented for paned window sash position saving.
+    # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
+    # (2025-07-31) Change: Version incremented for new Markers tab styles.
+    # (2025-08-01) Change: Updated header and version.
+    # (2025-08-01) Change: Fixed AttributeError by ensuring correct tab attribute names are passed.
+    #                      Specifically, changed `instrument_presets_tab` to `preset_files_tab`.
+    # (2025-08-01) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab'.
+    #                      Corrected access to child tab within TAB_PLOTTING_PARENT.
+    # (2025-08-01) Change: Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
+    #                      Instantiated VisaInterpreterTab and assigned it as an attribute.
+    # (2025-08-01) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
+    # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
+    # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
+    # (2025-08-01 1850.2) Change: No functional change.
+    # (2025-08-01 1900.1) Change: No functional changes.
+    # (2025-08-01 1900.2) Change: No functional changes.
+    # (2025-08-01 2015.1) Change: Updated connection status label text and style.
+    # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
     def update_connection_status(self, is_connected):
-        # Function Description:
-        # This function updates the state (enabled/disabled) of various GUI elements
-        # across different tabs based on the instrument's connection status and
-        # whether a scan is currently in progress. It ensures that only relevant
-        # actions are available to the user at any given time.
-        #
-        # Inputs:
-        #   is_connected (bool): True if the instrument is connected, False otherwise.
-        #   is_scanning (bool): True if a scan is active, False otherwise.
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Calls `update_connection_status_logic` (from `src.scan_logic`) to
-        #      handle the core logic of enabling/disabling widgets. This centralizes
-        #      the UI state management.
-        #   3. Passes references to all relevant tabs and their child tabs.
-        #   4. Updates the connection status label.
-        #
-        # Outputs:
-        #   None. Modifies the state of GUI widgets.
-        #
-        # (2025-07-30) Change: Updated to pass all new tab instances (ScanConfig, ScanMetaData, Plotting, Markers, Presets).
-        # (2025-07-31) Change: Updated to pass new nested tab structure to `update_connection_status_logic`.
-        #                      Now passes parent tab instances, which then expose their child tabs.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Fixed AttributeError by ensuring correct tab attribute names are passed.
-        #                      Specifically, changed `instrument_presets_tab` to `preset_files_tab`.
-        # (2025-08-01) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab'.
-        #                      Corrected access to child tab within TAB_PLOTTING_PARENT.
-        # (2025-08-01) Change: Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
-        #                      Instantiated VisaInterpreterTab and assigned it as an attribute.
-        # (2025-08-01) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
-        # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
-        # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2015.1) Change: Updated connection status label text and style.
-        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         Updates the state of various GUI elements based on connection and scan status.
         """
@@ -1356,7 +1356,7 @@ class App(tk.Tk):
             app_instance=self, # Pass the main app instance
             is_connected=is_connected,
             is_scanning=self.scanning, # Pass the actual scanning state
-            console_log_func=console_log # Pass the console_log function
+            console_print_func=console_log # Pass the console_log function with the correct parameter name
         )
 
         # Update the connection status label
@@ -1394,7 +1394,7 @@ class App(tk.Tk):
         #      b. Applies the appropriate 'active' or 'inactive' style to the tab.
         #         Note: Direct 'background' and 'foreground' options are not supported
         #         by ttk.Notebook.tab(). Styling is handled via ttk.Style configurations
-        #         for 'TNotebook.Tab' elements.
+        #         for the 'TNotebook.Tab' elements.
         #   4. If a child notebook exists for the newly selected parent tab,
         #      it identifies the currently active child tab within that notebook.
         #   5. If the active child tab has an `_on_tab_selected` method, it calls it,
