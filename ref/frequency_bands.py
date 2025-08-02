@@ -19,6 +19,7 @@ MHZ_TO_HZ = 1_000_000
 
 # Ratio for Video Bandwidth (VBW) to Resolution Bandwidth (RBW)
 VBW_RBW_RATIO = 1/3
+
 # Define the frequency bands to *SCAN* (User's specified bands for instrument operation)
 # This list will be used by the scan_bands function.
 # Each dictionary contains:
@@ -100,8 +101,6 @@ TV_PLOT_BAND_MARKERS = [
     {"Band Name": "TV Channel 51", "Start MHz": 692, "Stop MHz": 698},
 ]
 
-
-
 EU_TV_BAND_MARKERS = [
     {"Band Name": "TV Channel E5", "Start MHz": 174, "Stop MHz": 181},
     {"Band Name": "TV Channel E6", "Start MHz": 181, "Stop MHz": 188},
@@ -109,60 +108,53 @@ EU_TV_BAND_MARKERS = [
     {"Band Name": "TV Channel E8", "Start MHz": 195, "Stop MHz": 202},
     {"Band Name": "TV Channel E9", "Start MHz": 202, "Stop MHz": 209},
     {"Band Name": "TV Channel E10", "Start MHz": 209, "Stop MHz": 216},
-    {"Band Name": "TV Channel E11", "Start MHz": 216, "Stop MHz": 223},
-    {"Band Name": "TV Channel E12", "Start MHz": 223, "Stop MHz": 230},
-    {"Band Name": "TV Channel 21", "Start MHz": 470, "Stop MHz": 478},
-    {"Band Name": "TV Channel 22", "Start MHz": 478, "Stop MHz": 486},
-    {"Band Name": "TV Channel 23", "Start MHz": 486, "Stop MHz": 494},
-    {"Band Name": "TV Channel 24", "Start MHz": 494, "Stop MHz": 502},
-    {"Band Name": "TV Channel 25", "Start MHz": 502, "Stop MHz": 510},
-    {"Band Name": "TV Channel 26", "Start MHz": 510, "Stop MHz": 518},
-    {"Band Name": "TV Channel 27", "Start MHz": 518, "Stop MHz": 526},
-    {"Band Name": "TV Channel 28", "Start MHz": 526, "Stop MHz": 534},
-    {"Band Name": "TV Channel 29", "Start MHz": 534, "Stop MHz": 542},
-    {"Band Name": "TV Channel 30", "Start MHz": 542, "Stop MHz": 550},
-    {"Band Name": "TV Channel 31", "Start MHz": 550, "Stop MHz": 558},
-    {"Band Name": "TV Channel 32", "Start MHz": 558, "Stop MHz": 566},
-    {"Band Name": "TV Channel 33", "Start MHz": 566, "Stop MHz": 574},
-    {"Band Name": "TV Channel 34", "Start MHz": 574, "Stop MHz": 582},
-    {"Band Name": "TV Channel 35", "Start MHz": 582, "Stop MHz": 590},
-    {"Band Name": "TV Channel 36", "Start MHz": 590, "Stop MHz": 598},
-    {"Band Name": "TV Channel 37", "Start MHz": 598, "Stop MHz": 606},
-    {"Band Name": "TV Channel 38", "Start MHz": 606, "Stop MHz": 614},
-    {"Band Name": "TV Channel 39", "Start MHz": 614, "Stop MHz": 622},
-    {"Band Name": "TV Channel 40", "Start MHz": 622, "Stop MHz": 630},
-    {"Band Name": "TV Channel 41", "Start MHz": 630, "Stop MHz": 638},
-    {"Band Name": "TV Channel 42", "Start MHz": 638, "Stop MHz": 646},
-    {"Band Name": "TV Channel 43", "Start MHz": 646, "Stop MHz": 654},
-    {"Band Name": "TV Channel 44", "Start MHz": 654, "Stop MHz": 662},
-    {"Band Name": "TV Channel 45", "Start MHz": 662, "Stop MHz": 670},
-    {"Band Name": "TV Channel 46", "Start MHz": 670, "Stop MHz": 678},
-    {"Band Name": "TV Channel 47", "Start MHz": 678, "Stop MHz": 686},
-    {"Band Name": "TV Channel 48", "Start MHz": 686, "Stop MHz": 694},
-    # Note: Ch. 49–60 are now repurposed in many EU countries for LTE/5G use
+    {"Band Name": "TV Channel E21", "Start MHz": 470, "Stop MHz": 478},
+    {"Band Name": "TV Channel E22", "Start MHz": 478, "Stop MHz": 486},
+    {"Band Name": "TV Channel E23", "Start MHz": 486, "Stop MHz": 494},
+    {"Band Name": "TV Channel E24", "Start MHz": 494, "Stop MHz": 502},
+    {"Band Name": "TV Channel E25", "Start MHz": 502, "Stop MHz": 510},
+    {"Band Name": "TV Channel E26", "Start MHz": 510, "Stop MHz": 518},
+    {"Band Name": "TV Channel E27", "Start MHz": 518, "Stop MHz": 526},
+    {"Band Name": "TV Channel E28", "Start MHz": 526, "Stop MHz": 534},
+    {"Band Name": "TV Channel E29", "Start MHz": 534, "Stop MHz": 542},
+    {"Band Name": "TV Channel E30", "Start MHz": 542, "Stop MHz": 550},
+    {"Band Name": "TV Channel E31", "Start MHz": 550, "Stop MHz": 558},
+    {"Band Name": "TV Channel E32", "Start MHz": 558, "Stop MHz": 566},
+    {"Band Name": "TV Channel E33", "Start MHz": 566, "Stop MHz": 574},
+    {"Band Name": "TV Channel E34", "Start MHz": 574, "Stop MHz": 582},
+    {"Band Name": "TV Channel E35", "Start MHz": 582, "Stop MHz": 590},
+    {"Band Name": "TV Channel E36", "Start MHz": 590, "Stop MHz": 598},
+    {"Band Name": "TV Channel E37", "Start MHz": 598, "Stop MHz": 606},
+    {"Band Name": "TV Channel E38", "Start MHz": 606, "Stop MHz": 614},
+    {"Band Name": "TV Channel E39", "Start MHz": 614, "Stop MHz": 622},
+    {"Band Name": "TV Channel E40", "Start MHz": 622, "Stop MHz": 630},
+    {"Band Name": "TV Channel E41", "Start MHz": 630, "Stop MHz": 638},
+    {"Band Name": "TV Channel E42", "Start MHz": 638, "Stop MHz": 646},
+    {"Band Name": "TV Channel E43", "Start MHz": 646, "Stop MHz": 654},
+    {"Band Name": "TV Channel E44", "Start MHz": 654, "Stop MHz": 662},
+    {"Band Name": "TV Channel E45", "Start MHz": 662, "Stop MHz": 670},
+    {"Band Name": "TV Channel E46", "Start MHz": 670, "Stop MHz": 678},
+    {"Band Name": "TV Channel E47", "Start MHz": 678, "Stop MHz": 686},
+    {"Band Name": "TV Channel E48", "Start MHz": 686, "Stop MHz": 694},
 ]
 
-#Australia / New Zealand (Band III – 7 MHz spacing)
+# Common Resolution Bandwidth (RBW) options in Hz
+RBW_OPTIONS = [10, 100, 1000, 3000, 10000, 30000, 100000, 300000, 1000000, 3000000]
 
-ANZ_TV_BAND_MARKERS = [
+# Common Video Bandwidth (VBW) to Resolution Bandwidth (RBW) ratio options
+VBW_RBW_RATIO_OPTIONS = [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1, 3, 10]
 
-    {"Band Name": "TV Channel 6", "Start MHz": 174, "Stop MHz": 181},
-    {"Band Name": "TV Channel 7", "Start MHz": 181, "Stop MHz": 188},
-    {"Band Name": "TV Channel 8", "Start MHz": 188, "Stop MHz": 195},
-    {"Band Name": "TV Channel 9", "Start MHz": 195, "Stop MHz": 202},
-    {"Band Name": "TV Channel 9A", "Start MHz": 202, "Stop MHz": 209},
-    {"Band Name": "TV Channel 10", "Start MHz": 209, "Stop MHz": 216},
-    {"Band Name": "TV Channel 11", "Start MHz": 216, "Stop MHz": 223},
-    {"Band Name": "TV Channel 12", "Start MHz": 223, "Stop MHz": 230},
-]
+# Default Reference Level options in dBm
+DEFAULT_REF_LEVEL_OPTIONS = [-100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10, 20, 30]
 
+# Default Frequency Shift options in Hz
+DEFAULT_FREQ_SHIFT_OPTIONS = [0, 1000000, 2000000, 5000000, 10000000] # Example shifts
 
-# Government/Commercial Frequency Bands (for plotting)
+# Government/Commercial Plot Band Markers (for plotting)
 # This list is used by the plotting functions to overlay visual markers
-# on the spectrum plots, helping to identify common government and commercial
-# radio frequency allocations.
+# on the spectrum plots for various government and commercial frequency allocations.
 # Each dictionary contains:
-# - "Band Name": The name of the band (e.g., "FM Broadcast", "Amateur Radio 6m").
+# - "Band Name": A human-readable name for the band (e.g., "Public Safety 700 MHz").
 # - "Start MHz": The starting frequency of the band in Megahertz.
 # - "Stop MHz": The stopping frequency of the band in Megahertz.
 GOV_PLOT_BAND_MARKERS = [

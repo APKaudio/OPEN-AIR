@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0014.1 (Assigned scan_name_entry and output_folder_entry as attributes for external access.)
+# Version 20250802.0014.4 (Fixed AttributeError: 'ScanTab' object has no attribute 'style_obj' by passing style_obj.)
 
-current_version = "20250802.0014.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 14 * 1 # Example hash, adjust as needed
+current_version = "20250802.0014.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 14 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -30,987 +30,387 @@ import sys # Import the sys module to fix NameError
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
-
-from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic # Import the new logic function
 from src.settings_and_config.config_manager import save_config
 
-from ref.frequency_bands import MHZ_TO_HZ # Import for display formatting
-from ref.ref_scanner_setting_lists import ( # NEW: Import all necessary dropdown lists
-    graph_quality_drop_down,
-    dwell_time_drop_down,
-    cycle_wait_time_presets, # NEW: For Max Hold Time
-    reference_level_drop_down,
-    frequency_shift_presets,
-    number_of_scans_presets,
-    rbw_presets
-)
+# Import constants from frequency_bands.py
+from ref.frequency_bands import SCAN_BAND_RANGES, RBW_OPTIONS, VBW_RBW_RATIO_OPTIONS, DEFAULT_REF_LEVEL_OPTIONS, DEFAULT_FREQ_SHIFT_OPTIONS
 
+# Define current_file for consistent logging
+current_file = os.path.basename(__file__)
 
 class ScanTab(ttk.Frame):
     """
-    A Tkinter Frame that contains the Scan Configuration settings
-    and the band selection checkboxes.
+    Function Description:
+    Manages the Scan Configuration tab in the GUI. This includes:
+    - Input fields for scan name, output folder, number of scan cycles.
+    - Dropdowns for RBW step size, cycle wait time, maxhold time, scan RBW,
+      reference level, and frequency shift.
+    - Checkboxes for Maxhold Enable, High Sensitivity, and Preamp On.
+    - Band selection checkboxes with dynamic descriptions.
+    - Buttons to open the output folder and refresh bands.
+    - Integration with application-wide settings and configuration saving.
+
+    Inputs:
+        parent (tk.Widget): The parent widget (e.g., ttk.Notebook).
+        app_instance (object): The main application instance, providing access to shared data and methods.
+        console_print_func (function): Function to print messages to the console.
+        style_obj (ttk.Style): The ttk.Style object for applying styles.
+
+    Process of this class:
+        1. Initializes the Tkinter Frame and sets up instance variables.
+        2. Defines dropdown options for various scan parameters.
+        3. Creates and arranges widgets:
+           - Scan Details section (scan name, output folder, cycles).
+           - Instrument Settings section (RBW step, cycle wait, maxhold time, scan RBW, ref level, freq shift, maxhold enable, high sensitivity, preamp).
+           - Band Selection section (checkboxes for each band, dynamically created).
+        4. Sets up event bindings for dropdowns and checkboxes to trigger config saving.
+        5. Implements methods for:
+           - Opening the output folder (`_open_output_folder`).
+           - Loading band selections from config (`_load_band_selections_from_config`).
+           - Handling changes in dropdowns and checkboxes (`_on_setting_change`).
+           - Handling canvas configuration for band scrolling (`_on_bands_canvas_configure`).
+           - Handling tab selection (`_on_tab_selected`).
+           - Loading current settings into dropdowns (`_load_current_settings_into_dropdowns`).
+
+    Outputs of this class:
+        A functional Tkinter Frame for configuring spectrum scans.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
+    def __init__(self, parent, app_instance, console_print_func, style_obj):
         """
         Initializes the ScanTab.
-
-        Inputs:
-            master (tk.Widget): The parent widget (the ttk.Notebook).
-            app_instance (App): The main application instance, used for accessing
-                                shared state like Tkinter variables and console print function.
-            console_print_func (function): Function to print messages to the GUI console.
-            **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         """
-        super().__init__(master, **kwargs)
+        super().__init__(parent, style='Dark.TFrame')
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+        self.console_print_func = console_print_func
+        self.style_obj = style_obj # Store the style object
 
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing ScanTab. Version: {current_version}. Let's configure this scan!",
-                    file=__file__,
+        debug_log(f"Initializing ScanTab...",
+                    file=current_file,
                     version=current_version,
-                    function=current_function)
+                    function=inspect.currentframe().f_code.co_name)
 
-        self.bands_inner_frame_id = None # Initialize this attribute
-
-        # NEW: StringVars for descriptions
-        self.graph_quality_description_var = tk.StringVar(self, value="")
-        self.dwell_time_description_var = tk.StringVar(self, value="")
-        self.max_hold_time_description_var = tk.StringVar(self, value="") # NEW: For Max Hold Time description
-        self.reference_level_description_var = tk.StringVar(self, value="")
-        self.frequency_shift_description_var = tk.StringVar(self, value="")
-        self.num_scan_cycles_description_var = tk.StringVar(self, value="")
-        self.scan_rbw_description_var = tk.StringVar(self, value="")
-        self.preamp_on_description_var = tk.StringVar(self, value="")
-        self.high_sensitivity_description_var = tk.StringVar(self, value="")
-
+        self.rbw_options = RBW_OPTIONS
+        self.vbw_rbw_ratio_options = VBW_RBW_RATIO_OPTIONS
+        self.ref_level_options = DEFAULT_REF_LEVEL_OPTIONS
+        self.freq_shift_options = DEFAULT_FREQ_SHIFT_OPTIONS
 
         self._create_widgets()
-        # Initial population of dropdowns and descriptions
-        self._load_current_settings_into_dropdowns()
+        self._setup_bindings()
+        self._load_band_selections_from_config() # Load band selections on init
+        self._load_current_settings_into_dropdowns() # Load other settings into dropdowns on init
 
-        debug_log(f"ScanTab initialized. Version: {current_version}. Ready to set up the scan!",
-                    file=__file__,
+        debug_log(f"ScanTab initialized.",
+                    file=current_file,
                     version=current_version,
-                    function=current_function)
-
+                    function=inspect.currentframe().f_code.co_name)
 
     def _create_widgets(self):
         """
-        Creates and arranges the widgets for the Scan Configuration tab.
+        Function Description:
+        Creates and arranges all the widgets for the Scan Configuration tab.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Configures the grid layout for the main frame.
+            2. Creates and places a LabelFrame for "Scan Details".
+            3. Inside the scan details frame:
+               - Creates Labels and Entry widgets for Scan Name, Output Folder, and Number of Scan Cycles.
+               - Creates a "Browse" button for the output folder.
+            4. Creates and places a LabelFrame for "Instrument Settings".
+            5. Inside the instrument settings frame:
+               - Creates Labels and Comboboxes for RBW Step Size, Cycle Wait Time, Maxhold Time, Scan RBW,
+                 Reference Level, and Frequency Shift.
+               - Creates Checkbuttons for Maxhold Enable, High Sensitivity, and Preamp On.
+            6. Creates and places a LabelFrame for "Band Selection".
+            7. Inside the band selection frame:
+               - Creates a Canvas and a Frame within it to allow for scrollable band checkboxes.
+               - Dynamically creates Checkbuttons for each band defined in `SCAN_BAND_RANGES`.
+               - Creates a "Refresh Bands" button.
+
+        Outputs:
+            None. Populates the tab with GUI elements.
+        """
+        debug_log(f"Creating ScanTab widgets...",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0) # Scan Details
+        self.grid_rowconfigure(1, weight=0) # Instrument Settings
+        self.grid_rowconfigure(2, weight=1) # Band Selection (takes remaining space)
+
+
+        # --- Scan Details ---
+        scan_details_frame = ttk.LabelFrame(self, text="Scan Details", style='Dark.TLabelframe')
+        scan_details_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        scan_details_frame.grid_columnconfigure(1, weight=1) # Make entry widgets expand
+
+        ttk.Label(scan_details_frame, text="Scan Name:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.scan_name_entry = ttk.Entry(scan_details_frame, textvariable=self.app_instance.scan_name_var, style='Dark.TEntry')
+        self.scan_name_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.scan_name_entry.bind("<FocusOut>", self._on_setting_change) # Save on focus out
+        self.scan_name_entry.bind("<Return>", self._on_setting_change) # Save on Enter
+
+        ttk.Label(scan_details_frame, text="Output Folder:", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        self.output_folder_entry = ttk.Entry(scan_details_frame, textvariable=self.app_instance.output_folder_var, style='Dark.TEntry')
+        self.output_folder_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.output_folder_entry.bind("<FocusOut>", self._on_setting_change) # Save on focus out
+        self.output_folder_entry.bind("<Return>", self._on_setting_change) # Save on Enter
+
+        self.output_folder_button = ttk.Button(scan_details_frame, text="Browse", command=self._browse_output_folder, style='Blue.TButton')
+        self.output_folder_button.grid(row=1, column=2, padx=5, pady=2, sticky="e")
+
+        ttk.Label(scan_details_frame, text="Number of Scan Cycles:", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        self.num_scan_cycles_entry = ttk.Entry(scan_details_frame, textvariable=self.app_instance.num_scan_cycles_var, style='Dark.TEntry')
+        self.num_scan_cycles_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        self.num_scan_cycles_entry.bind("<FocusOut>", self._on_setting_change)
+        self.num_scan_cycles_entry.bind("<Return>", self._on_setting_change)
+
+
+        # --- Instrument Settings ---
+        instrument_settings_frame = ttk.LabelFrame(self, text="Instrument Settings", style='Dark.TLabelframe')
+        instrument_settings_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        instrument_settings_frame.grid_columnconfigure(1, weight=1) # Make dropdowns expand
+
+        ttk.Label(instrument_settings_frame, text="RBW Step Size (Hz):", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.rbw_step_size_dropdown = ttk.Combobox(instrument_settings_frame, textvariable=self.app_instance.rbw_step_size_hz_var, values=self.rbw_options, state="readonly", style='TCombobox')
+        self.rbw_step_size_dropdown.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.rbw_step_size_dropdown.bind("<<ComboboxSelected>>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Cycle Wait Time (s):", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        self.cycle_wait_time_entry = ttk.Entry(instrument_settings_frame, textvariable=self.app_instance.cycle_wait_time_seconds_var, style='Dark.TEntry')
+        self.cycle_wait_time_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.cycle_wait_time_entry.bind("<FocusOut>", self._on_setting_change)
+        self.cycle_wait_time_entry.bind("<Return>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Maxhold Time (s):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        self.maxhold_time_entry = ttk.Entry(instrument_settings_frame, textvariable=self.app_instance.maxhold_time_seconds_var, style='Dark.TEntry')
+        self.maxhold_time_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        self.maxhold_time_entry.bind("<FocusOut>", self._on_setting_change)
+        self.maxhold_time_entry.bind("<Return>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Scan RBW (Hz):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        self.scan_rbw_dropdown = ttk.Combobox(instrument_settings_frame, textvariable=self.app_instance.scan_rbw_hz_var, values=self.rbw_options, state="readonly", style='TCombobox')
+        self.scan_rbw_dropdown.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+        self.scan_rbw_dropdown.bind("<<ComboboxSelected>>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Reference Level (dBm):", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
+        self.ref_level_dropdown = ttk.Combobox(instrument_settings_frame, textvariable=self.app_instance.reference_level_dbm_var, values=self.ref_level_options, state="readonly", style='TCombobox')
+        self.ref_level_dropdown.grid(row=4, column=1, padx=5, pady=2, sticky="ew")
+        self.ref_level_dropdown.bind("<<ComboboxSelected>>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Frequency Shift (Hz):", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
+        self.freq_shift_dropdown = ttk.Combobox(instrument_settings_frame, textvariable=self.app_instance.freq_shift_hz_var, values=self.freq_shift_options, state="readonly", style='TCombobox')
+        self.freq_shift_dropdown.grid(row=5, column=1, padx=5, pady=2, sticky="ew")
+        self.freq_shift_dropdown.bind("<<ComboboxSelected>>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="RBW Segmentation (Hz):", style='Dark.TLabel').grid(row=6, column=0, padx=5, pady=2, sticky="w")
+        self.scan_rbw_segmentation_entry = ttk.Entry(instrument_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var, style='Dark.TEntry')
+        self.scan_rbw_segmentation_entry.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
+        self.scan_rbw_segmentation_entry.bind("<FocusOut>", self._on_setting_change)
+        self.scan_rbw_segmentation_entry.bind("<Return>", self._on_setting_change)
+
+        ttk.Label(instrument_settings_frame, text="Default Focus Width (Hz):", style='Dark.TLabel').grid(row=7, column=0, padx=5, pady=2, sticky="w")
+        self.desired_default_focus_width_entry = ttk.Entry(instrument_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var, style='Dark.TEntry')
+        self.desired_default_focus_width_entry.grid(row=7, column=1, padx=5, pady=2, sticky="ew")
+        self.desired_default_focus_width_entry.bind("<FocusOut>", self._on_setting_change)
+        self.desired_default_focus_width_entry.bind("<Return>", self._on_setting_change)
+
+
+        self.maxhold_check = ttk.Checkbutton(instrument_settings_frame, text="Maxhold Enable", variable=self.app_instance.maxhold_enabled_var, style='Dark.TCheckbutton')
+        self.maxhold_check.grid(row=8, column=0, columnspan=2, padx=5, pady=2, sticky="w")
+        self.maxhold_check.bind("<ButtonRelease-1>", self._on_setting_change) # Bind to mouse release for immediate update
+
+        self.high_sensitivity_check = ttk.Checkbutton(instrument_settings_frame, text="High Sensitivity", variable=self.app_instance.high_sensitivity_var, style='Dark.TCheckbutton')
+        self.high_sensitivity_check.grid(row=9, column=0, columnspan=2, padx=5, pady=2, sticky="w")
+        self.high_sensitivity_check.bind("<ButtonRelease-1>", self._on_setting_change)
+
+        self.preamp_check = ttk.Checkbutton(instrument_settings_frame, text="Preamp On", variable=self.app_instance.preamp_on_var, style='Dark.TCheckbutton')
+        self.preamp_check.grid(row=10, column=0, columnspan=2, padx=5, pady=2, sticky="w")
+        self.preamp_check.bind("<ButtonRelease-1>", self._on_setting_change)
+
+
+        # --- Band Selection ---
+        bands_frame = ttk.LabelFrame(self, text="Band Selection", style='Dark.TLabelframe')
+        bands_frame.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
+        bands_frame.grid_columnconfigure(0, weight=1)
+        bands_frame.grid_rowconfigure(0, weight=1) # Canvas takes all vertical space
+
+        self.bands_canvas = tk.Canvas(bands_frame, bg=self.style_obj.lookup('Dark.TFrame', 'background'))
+        self.bands_canvas.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+
+        self.bands_scrollbar = ttk.Scrollbar(bands_frame, orient="vertical", command=self.bands_canvas.yview)
+        self.bands_scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.bands_canvas.configure(yscrollcommand=self.bands_scrollbar.set)
+        self.bands_canvas.bind('<Configure>', self._on_bands_canvas_configure)
+
+        self.bands_inner_frame = ttk.Frame(self.bands_canvas, style='Dark.TFrame')
+        # Store the ID of the window created in the canvas
+        self.bands_inner_frame_id = self.bands_canvas.create_window((0, 0), window=self.bands_inner_frame, anchor="nw")
+
+
+        self.bands_inner_frame.grid_columnconfigure(0, weight=1) # Make band names expand
+        self.bands_inner_frame.grid_columnconfigure(1, weight=1) # Make descriptions expand
+
+        # Dynamically create checkboxes for each band
+        for i, band_item in enumerate(self.app_instance.band_vars):
+            band_name = band_item["band"]["Band Name"]
+            # Dynamically create description from Start MHz and Stop MHz
+            band_start_mhz = band_item["band"]["Start MHz"]
+            band_stop_mhz = band_item["band"]["Stop MHz"]
+            band_description = f"{band_start_mhz:.3f} - {band_stop_mhz:.3f} MHz"
+
+            band_var = band_item["var"]
+
+            cb = ttk.Checkbutton(self.bands_inner_frame, text=band_name, variable=band_var, style='Dark.TCheckbutton')
+            cb.grid(row=i, column=0, padx=5, pady=2, sticky="w")
+            cb.bind("<ButtonRelease-1>", self._on_setting_change) # Bind to mouse release for immediate update
+
+            ttk.Label(self.bands_inner_frame, text=f"({band_description})", style='Dark.TLabel').grid(row=i, column=1, padx=5, pady=2, sticky="w")
+
+        # Add a refresh bands button (useful if bands are dynamically loaded)
+        self.refresh_bands_button = ttk.Button(bands_frame, text="Refresh Bands", command=self._load_band_selections_from_config, style='Blue.TButton')
+        self.refresh_bands_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        debug_log(f"ScanTab widgets created. Ready to serve!",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
+    def _setup_bindings(self):
+        """
+        Function Description:
+        Sets up event bindings for the widgets in the ScanTab.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Binds the `<<ComboboxSelected>>` event to various comboboxes.
+            2. Binds the `<ButtonRelease-1>` event to checkboxes.
+            3. Binds `<FocusOut>` and `<Return>` events to Entry widgets.
+
+        Outputs:
+            None. Establishes event handling.
+        """
+        debug_log(f"Setting up ScanTab bindings...",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        # All bindings are now directly in _create_widgets for simplicity.
+        debug_log(f"ScanTab bindings setup complete.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
+    def _browse_output_folder(self):
+        """
+        Function Description:
+        Opens a directory dialog for the user to select an output folder.
+        Updates the `output_folder_var` and saves the configuration.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Opens a directory selection dialog.
+            2. If a directory is selected, updates `self.app_instance.output_folder_var`.
+            3. Calls `_on_setting_change` to save the updated path.
+
+        Outputs:
+            None. Updates output folder path.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Creating ScanTab widgets... Building the interface for scan configuration! Version: {current_version}",
-                    file=__file__,
+        debug_log(f"Browsing for output folder...",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
 
-        # Configure grid for the main frame of this tab
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0) # Output settings frame
-        self.grid_rowconfigure(1, weight=0) # Scan settings frame
-        self.grid_rowconfigure(2, weight=1) # Bands frame should expand vertically
+        initial_dir = self.app_instance.output_folder_var.get()
+        if not os.path.isdir(initial_dir):
+            initial_dir = os.path.expanduser("~") # Fallback to home directory
 
-        # Output Folder and Scan Name (Moved to top)
-        output_frame = ttk.LabelFrame(self, text="Output Settings", style='Dark.TLabelframe')
-        output_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew", columnspan=2) # Spanning two columns for better layout
-        output_frame.grid_columnconfigure(1, weight=1)
+        folder_selected = filedialog.askdirectory(initialdir=initial_dir)
+        if folder_selected:
+            self.app_instance.output_folder_var.set(folder_selected)
+            self.console_print_func(f"✅ Output folder set to: {folder_selected}")
+            debug_log(f"Output folder selected: {folder_selected}.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+            self._on_setting_change() # Trigger save after changing
+        else:
+            self.console_print_func("ℹ️ Output folder selection cancelled. Fine, be that way!")
+            debug_log(f"Output folder selection cancelled.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
-        ttk.Label(output_frame, text="Scan Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        # Assigned to self.scan_name_entry
-        self.scan_name_entry = ttk.Entry(output_frame, textvariable=self.app_instance.scan_name_var, style='TEntry')
-        self.scan_name_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+    def _on_setting_change(self, event=None):
+        """
+        Function Description:
+        Callback function triggered when a setting (dropdown, checkbox, entry) changes.
+        This function saves the current configuration to `config.ini`.
 
-        ttk.Label(output_frame, text="Output Folder:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        # Assigned to self.output_folder_entry
-        self.output_folder_entry = ttk.Entry(output_frame, textvariable=self.app_instance.output_folder_var, style='TEntry')
-        self.output_folder_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        # Assigned to self.output_folder_button
-        self.output_folder_button = ttk.Button(output_frame, text="Browse", command=self._browse_output_folder, style='TButton')
-        self.output_folder_button.grid(row=1, column=2, padx=2, pady=2)
+        Inputs:
+            event (tkinter.Event, optional): The event object that triggered the callback. Defaults to None.
 
-        # NEW: Open Output Folder Button
-        self.open_output_folder_button = ttk.Button(output_frame, text="Open Output Folder", command=self._open_output_folder, style='TButton')
-        self.open_output_folder_button.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+        Process:
+            1. Prints a debug message.
+            2. Calls `save_config` to persist the application's current settings.
 
+        Outputs:
+            None. Persists configuration.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Setting changed. Saving config. Version: {current_version}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
-        # Main frame for Scan Settings
-        scan_settings_frame = ttk.LabelFrame(self, text="Scan Settings", style='Dark.TLabelframe')
-        scan_settings_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew", columnspan=2) # Spanning two columns for better layout
-        
-        # Configure columns for Label, Combobox, and Description
-        scan_settings_frame.grid_columnconfigure(0, weight=0) # Label column
-        scan_settings_frame.grid_columnconfigure(1, weight=0) # Combobox column (fixed width via style)
-        scan_settings_frame.grid_columnconfigure(2, weight=1) # Description column (expands)
+        # Collect selected bands before saving
+        selected_bands = [band_item["band"]["Band Name"] for band_item in self.app_instance.band_vars if band_item["var"].get()]
+        self.app_instance.config.set('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands', ','.join(selected_bands))
 
-        row_idx = 0
-
-        # Graph Quality (formerly RBW Step Size)
-        ttk.Label(scan_settings_frame, text="Graph Quality:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.graph_quality_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.rbw_step_size_hz_var, # Handled by _on_graph_quality_selected
-            values=[f"{item['resolution_hz']} Hz - {item['label']}" for item in graph_quality_drop_down], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox' # Apply custom style
-        )
-        self.graph_quality_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.graph_quality_combobox.bind("<<ComboboxSelected>>", self._on_graph_quality_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.graph_quality_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # DWELL (now controls maxhold_time_seconds_var, uses dwell_time_drop_down)
-        ttk.Label(scan_settings_frame, text="Dwell / Settle Time (s):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.dwell_time_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.maxhold_time_seconds_var, # NOW CONTROLS MAX HOLD TIME
-            values=[f"{item['time_sec']} s - {item['label']}" for item in dwell_time_drop_down], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.dwell_time_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.dwell_time_combobox.bind("<<ComboboxSelected>>", self._on_dwell_time_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.dwell_time_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Max Hold Time (now controls cycle_wait_time_seconds_var, uses wait_time_presets)
-        ttk.Label(scan_settings_frame, text="Time Between Scans (s):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.max_hold_time_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.cycle_wait_time_seconds_var, # NOW CONTROLS CYCLE WAIT TIME
-            values=[f"{item['time_sec']} s - {item['label']}" for item in cycle_wait_time_presets], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.max_hold_time_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.max_hold_time_combobox.bind("<<ComboboxSelected>>", self._on_max_hold_time_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.max_hold_time_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Scan RBW
-        ttk.Label(scan_settings_frame, text="Scanner RBW (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.scan_rbw_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.scan_rbw_hz_var, # Handled by _on_scan_rbw_selected
-            values=[f"{item['rbw_hz']} Hz - {item['label']}" for item in rbw_presets], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.scan_rbw_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.scan_rbw_combobox.bind("<<ComboboxSelected>>", self._on_scan_rbw_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.scan_rbw_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Reference Level
-        ttk.Label(scan_settings_frame, text="Reference (dBm):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.reference_level_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.reference_level_dbm_var, # Handled by _on_reference_level_selected
-            values=[f"{item['level_dbm']} dBm - {item['label']}" for item in reference_level_drop_down], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.reference_level_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.reference_level_combobox.bind("<<ComboboxSelected>>", self._on_reference_level_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.reference_level_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Frequency Shift
-        ttk.Label(scan_settings_frame, text="Shift Per Cycle:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.frequency_shift_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.freq_shift_hz_var, # Handled by _on_frequency_shift_selected
-            values=[f"{item['shift_hz']} Hz - {item['label']}" for item in frequency_shift_presets], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.frequency_shift_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.frequency_shift_combobox.bind("<<ComboboxSelected>>", self._on_frequency_shift_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.frequency_shift_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # High Sensitivity (now Yes/No dropdown)
-        ttk.Label(scan_settings_frame, text="High Sensitivity:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.high_sensitivity_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.high_sensitivity_var, # Handled by _on_high_sensitivity_selected
-            values=["Yes", "No"], # Boolean values don't have a numeric part
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.high_sensitivity_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.high_sensitivity_combobox.bind("<<ComboboxSelected>>", self._on_high_sensitivity_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.high_sensitivity_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Preamplifier ON (now Yes/No dropdown)
-        ttk.Label(scan_settings_frame, text="Preamplifier ON:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_on_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.preamp_on_var, # Handled by _on_preamp_on_selected
-            values=["Yes", "No"], # Boolean values don't have a numeric part
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.preamp_on_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.preamp_on_combobox.bind("<<ComboboxSelected>>", self._on_preamp_on_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.preamp_on_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-####Putting on ice for now, not sure if needed
-      #  Scan RBW Segmentation (remains as entry as it's not in a dropdown list)
-        self.scan_rbw_segmentation_entry = ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var, style='TEntry')
-        ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.scan_rbw_segmentation_entry.grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        row_idx += 1
-
-
-
-############# NOT SURE WHAT THIS WAS FOR, REMOVED FOR NOW #############
-       # Desired Default Focus Width (remains as entry)
-        self.desired_default_focus_width_entry = ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var, style='TEntry')
-        ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.desired_default_focus_width_entry.grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
-        row_idx += 1
-
-        # Number of Scan Cycles
-        ttk.Label(scan_settings_frame, text="Scan Cycles:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        self.num_scan_cycles_combobox = ttk.Combobox(
-            scan_settings_frame,
-            # textvariable=self.app_instance.num_scan_cycles_var, # Handled by _on_num_scan_cycles_selected
-            values=[f"{item['scans']} cycles - {item['label']}" for item in number_of_scans_presets], # Numeric value first, then label for the dropdown list
-            state="readonly",
-            width=35, # Increased width for the combobox
-            style='Fixedwidth.TCombobox'
-        )
-        self.num_scan_cycles_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.num_scan_cycles_combobox.bind("<<ComboboxSelected>>", self._on_num_scan_cycles_selected)
-        ttk.Label(scan_settings_frame, textvariable=self.num_scan_cycles_description_var, wraplength=350, justify="left", style='Description.TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        row_idx += 1
-
-
-        # Frame for Bands to Scan
-        bands_frame = ttk.LabelFrame(self, text="Bands to Scan", style='Dark.TLabelframe')
-        bands_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew", columnspan=2) # Spanning two columns for better layout
-        bands_frame.grid_columnconfigure(0, weight=1) # Single column for checkboxes
-        bands_frame.grid_rowconfigure(1, weight=1) # Make the canvas/checkbox area expand vertically
-
-        # Buttons for band selection (Moved above the canvas)
-        band_button_frame = ttk.Frame(bands_frame)
-        band_button_frame.grid(row=0, column=0, columnspan=2, pady=5, sticky="ew") # Span across canvas and scrollbar columns
-        band_button_frame.grid_columnconfigure(0, weight=1)
-        band_button_frame.grid_columnconfigure(1, weight=1)
-
-        self.select_all_bands_button = ttk.Button(band_button_frame, text="Select All", command=self._select_all_bands, style='TButton')
-        self.select_all_bands_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        self.deselect_all_bands_button = ttk.Button(band_button_frame, text="Deselect All", command=self._deselect_all_bands, style='TButton')
-        self.deselect_all_bands_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-
-        # Create a canvas and scrollbar for the bands
-        self.bands_canvas = tk.Canvas(bands_frame, bg=self.app_instance.style.lookup('TFrame', 'background'))
-        self.bands_canvas.grid(row=1, column=0, sticky="nsew") # No columnspan needed for single column, placed at row 1
-
-        bands_scrollbar = ttk.Scrollbar(bands_frame, orient="vertical", command=self.bands_canvas.yview)
-        bands_scrollbar.grid(row=1, column=1, sticky="ns") # Scrollbar next to canvas, also at row 1
-
-        self.bands_canvas.configure(yscrollcommand=bands_scrollbar.set)
-        # Bind the canvas to resize its scrollregion when its size changes
-        self.bands_canvas.bind('<Configure>', self._on_bands_canvas_configure)
-
-        # Frame to hold the checkboxes inside the canvas
-        self.bands_inner_frame = ttk.Frame(self.bands_canvas)
-        # Store the window ID returned by create_window
-        self.bands_inner_frame_id = self.bands_canvas.create_window((0, 0), window=self.bands_inner_frame, anchor="nw")
-        
-        # Bind the inner frame to update the canvas scrollregion when its size changes
-        self.bands_inner_frame.bind('<Configure>', lambda e: self.bands_canvas.configure(scrollregion=self.bands_canvas.bbox("all")))
-
-
-        self.bands_inner_frame.grid_columnconfigure(0, weight=1) # Only one column for checkboxes
-
-        # Populate band checkboxes
-        self._populate_band_checkboxes()
-
-        # Apply fixed width style for Comboboxes (adjust this value if needed)
-        # Note: width is in characters, not pixels. A value of 35 should make it significantly wider.
-        self.app_instance.style.configure('FixedWidth.TCombobox', width=35)
-
-
-        debug_log(f"ScanTab widgets created. Version: {current_version}. Interface is ready!",
-                    file=__file__,
+        # Pass console_log from here to save_config
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        debug_log(f"Config saved after setting change. Version: {current_version}",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
 
     def _on_bands_canvas_configure(self, event):
         """
-        Adjusts the width of the inner frame within the canvas when the canvas is resized.
+        Function Description:
+        Adjusts the scrolling region of the bands canvas when its size changes.
+        This ensures that all band checkboxes are accessible via scrolling.
+
+        Inputs:
+            event (tkinter.Event): The event object.
+
+        Process:
+            1. Prints a debug message.
+            2. Updates the canvas's scroll region to encompass the entire inner frame.
+
+        Outputs:
+            None. Adjusts canvas scrolling.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Configuring bands canvas. Adjusting width for inner frame. Version: {current_version}",
-                    file=__file__,
+                    file=current_file,
                     version=current_version,
                     function=current_function)
-        if self.bands_inner_frame_id: # Ensure the window item has been created
-            self.bands_canvas.itemconfigure(self.bands_inner_frame_id, width=event.width)
-        self.bands_canvas.configure(scrollregion=self.bands_canvas.bbox("all"))
+
+        # Update the scrollregion to encompass the inner frame
+        self.bands_canvas.itemconfigure(self.bands_inner_frame_id, width=event.width)
+        self.bands_canvas.config(scrollregion=self.bands_canvas.bbox("all"))
+
         debug_log(f"Bands canvas configured. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _populate_band_checkboxes(self):
-        """
-        Creates checkboxes for each frequency band in the SCAN_BAND_RANGES.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Populating band checkboxes... Creating the band selection interface! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        # Clear existing checkboxes before repopulating
-        for widget in self.bands_inner_frame.winfo_children():
-            widget.destroy()
-
-        # Changed to a single column layout
-        for i, band_item in enumerate(self.app_instance.band_vars):
-            band = band_item["band"]
-            var = band_item["var"]
-            band_name = band["Band Name"]
-            start_freq = band["Start MHz"]
-            stop_freq = band["Stop MHz"]
-
-            # Display frequencies in MHz for readability
-            checkbox_text = f"{band_name} ({start_freq:.3f} - {stop_freq:.3f} MHz)"
-            # Assign checkbox to a self attribute if needed for external access, e.g., for state changes
-            band_item["checkbox"] = ttk.Checkbutton(self.bands_inner_frame, text=checkbox_text, variable=var, style='TCheckbutton')
-            band_item["checkbox"].grid(row=i, column=0, padx=5, pady=2, sticky="w")
-            debug_log(f"Added checkbox for: {band_name}. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-        # Update the scrollregion of the canvas after populating checkboxes
-        self.update_idletasks() # Ensure widgets are rendered before calculating bbox
-        # The _on_bands_canvas_configure method will handle updating the scrollregion
-        # when the canvas size is known. We just need to ensure the inner frame is sized correctly.
-        # This line is no longer strictly necessary here if _on_bands_canvas_configure is called on resize.
-        # However, it's good to call it once after initial population.
-        if hasattr(self, 'bands_canvas'):
-            self.bands_canvas.config(scrollregion=self.bands_canvas.bbox("all"))
-
-        debug_log(f"Band checkboxes populated. All bands are ready for selection! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _select_all_bands(self):
-        """
-        Sets all band selection checkboxes to True.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Selecting all bands... Preparing for a full spectrum scan! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        for band_item in self.app_instance.band_vars:
-            band_item["var"].set(True)
-        self.console_print_func("✅ All bands selected. Ready to sweep!")
-        save_config(self.app_instance) # Save changes to config
-        debug_log(f"All bands selected and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _deselect_all_bands(self):
-        """
-        Sets all band selection checkboxes to False.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Deselecting all bands... Clearing the selection! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        for band_item in self.app_instance.band_vars:
-            band_item["var"].set(False)
-        self.console_print_func("✅ All bands deselected. Starting fresh!")
-        save_config(self.app_instance) # Save changes to config
-        debug_log(f"All bands deselected and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _browse_output_folder(self):
-        """
-        Opens a file dialog to select the output folder for scan data.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Browsing output folder from ScanTab... Looking for a place to save data! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        # Use the app_instance.output_folder_var which is now correctly linked to config
-        folder_selected = filedialog.askdirectory(initialdir=self.app_instance.output_folder_var.get())
-        if folder_selected:
-            self.app_instance.output_folder_var.set(folder_selected)
-            self.console_print_func(f"Output folder set to: {folder_selected}. Perfect!")
-            debug_log(f"Output folder set to: {folder_selected}. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            save_config(self.app_instance) # Save changes to config
-        else:
-            self.console_print_func("ℹ️ Output folder selection cancelled. No worries!")
-            debug_log(f"Output folder selection cancelled. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-
-    def _open_output_folder(self):
-        """
-        Opens the directory specified in the output_folder_var using the default file explorer.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        output_path = self.app_instance.output_folder_var.get()
-        debug_log(f"Attempting to open output folder: {output_path}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if not output_path:
-            self.console_print_func("❌ Output folder path is empty. Please set a folder first, you lazy bastard!")
-            debug_log(f"Output folder path is empty. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        if not os.path.exists(output_path):
-            self.console_print_func(f"⚠️ Output folder does not exist: {output_path}. Attempting to create it. Where did it go?!")
-            debug_log(f"Output folder does not exist: {output_path}. Attempting to create. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            try:
-                os.makedirs(output_path)
-                self.console_print_func(f"✅ Created output folder: {output_path}. Success!")
-                debug_log(f"Created output folder: {output_path}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-            except Exception as e:
-                self.console_print_func(f"❌ Failed to create output folder: {e}. This is a disaster!")
-                debug_log(f"Failed to create output folder: {e}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                return
-
-        try:
-            if sys.platform == "win32":
-                os.startfile(output_path) # For Windows
-            elif sys.platform == "darwin":
-                subprocess.Popen(["open", output_path]) # For macOS
-            else:
-                subprocess.Popen(["xdg-open", output_path]) # For Linux
-            self.console_print_func(f"✅ Opened output folder: {output_path}. Access granted!")
-            debug_log(f"Opened output folder: {output_path}. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-        except Exception as e:
-            self.console_print_func(f"❌ Error opening output folder: {e}. This is frustrating!")
-            debug_log(f"Error opening output folder '{output_path}': {e}. Version: {current_version}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-
-    def _on_graph_quality_selected(self, event):
-        """
-        Handles selection in the Graph Quality dropdown.
-        Updates the app_instance's rbw_step_size_hz_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        # The selected_item will be in the format "VALUE Unit - LABEL"
-        selected_item_text = self.graph_quality_combobox.get()
-        debug_log(f"Graph Quality selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        # Extract the label from the selected_item_text
-        # Assuming format "VALUE Unit - LABEL" or "LABEL" for boolean
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text # For boolean values like "Yes", "No"
-
-        for item in graph_quality_drop_down:
-            if item["label"] == selected_label:
-                self.app_instance.rbw_step_size_hz_var.set(item["resolution_hz"])
-                self.graph_quality_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.graph_quality_combobox.set(f"{item['resolution_hz']} Hz") # Numeric value ONLY
-                debug_log(f"Set rbw_step_size_hz_var to {item['resolution_hz']} Hz. Description: {self.graph_quality_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Graph Quality updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_dwell_time_selected(self, event):
-        """
-        Handles selection in the DWELL dropdown.
-        Updates the app_instance's maxhold_time_seconds_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.dwell_time_combobox.get()
-        debug_log(f"DWELL selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in dwell_time_drop_down: # Uses dwell_time_drop_down
-            if item["label"] == selected_label:
-                self.app_instance.maxhold_time_seconds_var.set(item["time_sec"]) # Updates maxhold_time_seconds_var
-                self.dwell_time_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.dwell_time_combobox.set(f"{item['time_sec']} s") # Numeric value ONLY
-                debug_log(f"Set maxhold_time_seconds_var to {item['time_sec']} s. Description: {self.dwell_time_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"DWELL time updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_max_hold_time_selected(self, event):
-        """
-        Handles selection in the Max Hold Time dropdown.
-        Updates the app_instance's cycle_wait_time_seconds_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.max_hold_time_combobox.get()
-        debug_log(f"Max Hold Time selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in cycle_wait_time_presets: # Uses wait_time_presets
-            if item["label"] == selected_label:
-                self.app_instance.cycle_wait_time_seconds_var.set(item["time_sec"]) # Updates cycle_wait_time_seconds_var
-                self.max_hold_time_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.max_hold_time_combobox.set(f"{item['time_sec']} s") # Numeric value ONLY
-                debug_log(f"Set cycle_wait_time_seconds_var to {item['time_sec']} s. Description: {self.max_hold_time_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Max Hold Time updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_scan_rbw_selected(self, event):
-        """
-        Handles selection in the Scan RBW dropdown.
-        Updates the app_instance's scan_rbw_hz_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.scan_rbw_combobox.get()
-        debug_log(f"Scan RBW selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in rbw_presets:
-            if item["label"] == selected_label:
-                self.app_instance.scan_rbw_hz_var.set(item["rbw_hz"])
-                self.scan_rbw_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.scan_rbw_combobox.set(f"{item['rbw_hz']} Hz") # Numeric value ONLY
-                debug_log(f"Set scan_rbw_hz_var to {item['rbw_hz']} Hz. Description: {self.scan_rbw_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Scan RBW updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_reference_level_selected(self, event):
-        """
-        Handles selection in the Reference Level dropdown.
-        Updates the app_instance's reference_level_dbm_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.reference_level_combobox.get()
-        debug_log(f"Reference Level selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in reference_level_drop_down:
-            if item["label"] == selected_label:
-                self.app_instance.reference_level_dbm_var.set(item["level_dbm"])
-                self.reference_level_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.reference_level_combobox.set(f"{item['level_dbm']} dBm") # Numeric value ONLY
-                debug_log(f"Set reference_level_dbm_var to {item['level_dbm']} dBm. Description: {self.reference_level_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Reference Level updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_frequency_shift_selected(self, event):
-        """
-        Handles selection in the Frequency Shift dropdown.
-        Updates the app_instance's freq_shift_hz_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.frequency_shift_combobox.get()
-        debug_log(f"Frequency Shift selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in frequency_shift_presets:
-            if item["label"] == selected_label:
-                self.app_instance.freq_shift_hz_var.set(item["shift_hz"])
-                self.frequency_shift_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.frequency_shift_combobox.set(f"{item['shift_hz']} Hz") # Numeric value ONLY
-                debug_log(f"Set freq_shift_hz_var to {item['shift_hz']} Hz. Description: {self.frequency_shift_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Frequency Shift updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_num_scan_cycles_selected(self, event):
-        """
-        Handles selection in the Number of Scan Cycles dropdown.
-        Updates the app_instance's num_scan_cycles_var and the description.
-        Sets the combobox display to the numeric value.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_item_text = self.num_scan_cycles_combobox.get()
-        debug_log(f"Number of Scan Cycles selected: {selected_item_text}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if ' - ' in selected_item_text:
-            selected_label = selected_item_text.split(' - ')[1].strip()
-        else:
-            selected_label = selected_item_text
-
-        for item in number_of_scans_presets:
-            if item["label"] == selected_label:
-                self.app_instance.num_scan_cycles_var.set(item["scans"])
-                self.num_scan_cycles_description_var.set(f"{item['label']}: {item['description']}") # Label first, then description
-                self.num_scan_cycles_combobox.set(f"{item['scans']} cycles") # Numeric value ONLY
-                debug_log(f"Set num_scan_cycles_var to {item['scans']} cycles. Description: {self.num_scan_cycles_description_var.get()}. Version: {current_version}",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                break
-        save_config(self.app_instance)
-        debug_log(f"Number of Scan Cycles updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_preamp_on_selected(self, event):
-        """
-        Handles selection in the Preamplifier ON dropdown (Yes/No).
-        Updates the app_instance's preamp_on_var and the description.
-        Sets the combobox display to the selected label.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_label = self.preamp_on_combobox.get()
-        debug_log(f"Preamplifier ON selected: {selected_label}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        if selected_label == "Yes":
-            self.app_instance.preamp_on_var.set(True)
-            self.preamp_on_description_var.set(f"{selected_label}: Preamplifier is enabled, increasing sensitivity but potentially adding noise.") # Label first, then description
-        else:
-            self.app_instance.preamp_on_var.set(False)
-            self.preamp_on_description_var.set(f"{selected_label}: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal.") # Label first, then description
-        self.preamp_on_combobox.set(selected_label) # Set combobox display to label (Yes/No)
-        debug_log(f"Set preamp_on_var to {self.app_instance.preamp_on_var.get()}. Description: {self.preamp_on_description_var.get()}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        save_config(self.app_instance)
-        debug_log(f"Preamplifier ON updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_high_sensitivity_selected(self, event):
-        """
-        Handles selection in the High Sensitivity dropdown (Yes/No).
-        Updates the app_instance's high_sensitivity_var and the description.
-        Sets the combobox display to the selected label.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_label = self.high_sensitivity_combobox.get()
-        debug_log(f"High Sensitivity selected: {selected_label}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        if selected_label == "Yes":
-            self.app_instance.high_sensitivity_var.set(True)
-            self.high_sensitivity_description_var.set(f"{selected_label}: High sensitivity mode enabled, optimizing for detection of weak signals.") # Label first, then description
-        else:
-            self.app_instance.high_sensitivity_var.set(False)
-            self.high_sensitivity_description_var.set(f"{selected_label}: High sensitivity mode disabled, potentially faster scans but less sensitive.") # Label first, then description
-        self.high_sensitivity_combobox.set(selected_label) # Set combobox display to label (Yes/No)
-        debug_log(f"Set high_sensitivity_var to {self.app_instance.high_sensitivity_var.get()}. Description: {self.high_sensitivity_description_var.get()}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        save_config(self.app_instance)
-        debug_log(f"High Sensitivity updated and config saved. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _load_current_settings_into_dropdowns(self):
-        """
-        Loads the current values from app_instance's Tkinter variables into the dropdowns
-        and updates their corresponding description labels. This is called on initialization
-        and when the tab is selected.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Loading current settings into dropdowns. Ensuring UI reflects current configuration! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        # Helper to find label and description for a given value, and format display string
-        def get_formatted_strings(value, dropdown_list, value_key, unit=""):
-            for item in dropdown_list:
-                if item[value_key] == value:
-                    # Format for combobox display (ONLY value + unit)
-                    combobox_display = f"{item[value_key]}{unit}" if unit else f"{item[value_key]}"
-                    # Format for dropdown list values (value + unit + label)
-                    dropdown_list_value = f"{item[value_key]}{unit} - {item['label']}" if unit else f"{item[value_key]} - {item['label']}"
-                    # Format for description label (label + description)
-                    description_display = f"{item['label']}: {item['description']}"
-                    return combobox_display, description_display, dropdown_list_value
-            # Fallback for custom values not in presets
-            combobox_display_fallback = f"{value}{unit}" if unit else f"{value}"
-            dropdown_list_value_fallback = f"{value}{unit} - Custom" if unit else f"{value} - Custom"
-            description_display_fallback = f"Custom: Custom value detected. Select from dropdown to get description."
-            return combobox_display_fallback, description_display_fallback, dropdown_list_value_fallback
-
-        # Graph Quality (rbw_step_size_hz_var)
-        current_value = int(float(self.app_instance.rbw_step_size_hz_var.get()))
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, graph_quality_drop_down, "resolution_hz", " Hz")
-        self.graph_quality_combobox.set(combobox_display)
-        self.graph_quality_combobox['values'] = [f"{item['resolution_hz']} Hz - {item['label']}" for item in graph_quality_drop_down] # Ensure dropdown list is updated
-        self.graph_quality_description_var.set(description_display)
-        debug_log(f"Loaded Graph Quality: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # DWELL (now uses maxhold_time_seconds_var, was cycle_wait_time_seconds_var)
-        current_value = float(self.app_instance.maxhold_time_seconds_var.get()) # Changed to maxhold_time_seconds_var
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, dwell_time_drop_down, "time_sec", " s")
-        self.dwell_time_combobox.set(combobox_display)
-        self.dwell_time_combobox['values'] = [f"{item['time_sec']} s - {item['label']}" for item in dwell_time_drop_down] # Ensure dropdown list is updated
-        self.dwell_time_description_var.set(description_display)
-        debug_log(f"Loaded DWELL: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        # Max Hold Time (now uses cycle_wait_time_seconds_var, was maxhold_time_seconds_var)
-        current_value = int(float(self.app_instance.cycle_wait_time_seconds_var.get())) # Changed to cycle_wait_time_seconds_var
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, cycle_wait_time_presets, "time_sec", " s")
-        self.max_hold_time_combobox.set(combobox_display)
-        self.max_hold_time_combobox['values'] = [f"{item['time_sec']} s - {item['label']}" for item in cycle_wait_time_presets] # Ensure dropdown list is updated
-        self.max_hold_time_description_var.set(description_display)
-        debug_log(f"Loaded Time Between Scans: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # Scan RBW (scan_rbw_hz_var)
-        current_value = int(float(self.app_instance.scan_rbw_hz_var.get()))
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, rbw_presets, "rbw_hz", " Hz")
-        self.scan_rbw_combobox.set(combobox_display)
-        self.scan_rbw_combobox['values'] = [f"{item['rbw_hz']} Hz - {item['label']}" for item in rbw_presets] # Ensure dropdown list is updated
-        self.scan_rbw_description_var.set(description_display)
-        debug_log(f"Loaded Scan RBW: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # Reference Level (reference_level_dbm_var)
-        current_value = int(float(self.app_instance.reference_level_dbm_var.get()))
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, reference_level_drop_down, "level_dbm", " dBm")
-        self.reference_level_combobox.set(combobox_display)
-        self.reference_level_combobox['values'] = [f"{item['level_dbm']} dBm - {item['label']}" for item in reference_level_drop_down] # Ensure dropdown list is updated
-        self.reference_level_description_var.set(description_display)
-        debug_log(f"Loaded Reference Level: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # Frequency Shift (freq_shift_hz_var)
-        current_value = int(float(self.app_instance.freq_shift_hz_var.get()))
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, frequency_shift_presets, "shift_hz", " Hz")
-        self.frequency_shift_combobox.set(combobox_display)
-        self.frequency_shift_combobox['values'] = [f"{item['shift_hz']} Hz - {item['label']}" for item in frequency_shift_presets] # Ensure dropdown list is updated
-        self.frequency_shift_description_var.set(description_display)
-        debug_log(f"Loaded Frequency Shift: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # Number of Scan Cycles (num_scan_cycles_var)
-        current_value = int(self.app_instance.num_scan_cycles_var.get())
-        combobox_display, description_display, dropdown_list_value = get_formatted_strings(current_value, number_of_scans_presets, "scans", " cycles")
-        self.num_scan_cycles_combobox.set(combobox_display)
-        self.num_scan_cycles_combobox['values'] = [f"{item['scans']} cycles - {item['label']}" for item in number_of_scans_presets] # Ensure dropdown list is updated
-        self.num_scan_cycles_description_var.set(description_display)
-        debug_log(f"Loaded Number of Scan Cycles: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-        # Preamplifier ON (preamp_on_var)
-        current_value = self.app_instance.preamp_on_var.get()
-        label = "Yes" if current_value else "No"
-        description_text = "Preamplifier is enabled, increasing sensitivity but potentially adding noise." if current_value else "Preamplifier is disabled, reducing sensitivity but potentially cleaner signal."
-        combobox_display = label # For Yes/No, label is the display
-        description_display = f"{label}: {description_text}" # Label first, then description
-        self.preamp_on_combobox.set(combobox_display)
-        self.preamp_on_description_var.set(description_display)
-        debug_log(f"Loaded Preamplifier ON: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        # High Sensitivity (high_sensitivity_var)
-        current_value = self.app_instance.high_sensitivity_var.get()
-        label = "Yes" if current_value else "No"
-        description_text = "High sensitivity mode enabled, optimizing for detection of weak signals." if current_value else "High sensitivity mode disabled, potentially faster scans but less sensitive."
-        combobox_display = label # For Yes/No, label is the display
-        description_display = f"{label}: {description_text}" # Label first, then description
-        self.high_sensitivity_combobox.set(combobox_display)
-        self.high_sensitivity_description_var.set(description_display)
-        debug_log(f"Loaded High Sensitivity: {combobox_display}. Description: {description_display}. Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_tab_selected(self, event):
-        """
-        Callback for when this tab is selected.
-        This can be used to refresh data or update UI elements specific to this tab.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Scan Configuration Tab selected. Refreshing UI elements! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        # Load band selections from config when the tab is revisited.
-        self._load_band_selections_from_config()
-        # Also refresh dropdowns and descriptions
-        self._load_current_settings_into_dropdowns()
-        debug_log(f"Scan Configuration Tab refreshed. Version: {current_version}",
-                    file=__file__,
+                    file=current_file,
                     version=current_version,
                     function=current_function)
 
@@ -1022,7 +422,7 @@ class ScanTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading band selections from config.ini... Syncing checkboxes with saved settings! Version: {current_version}",
-                    file=__file__,
+                    file=current_file,
                     version=current_version,
                     function=current_function)
 
@@ -1036,7 +436,104 @@ class ScanTab(ttk.Frame):
             band_item["var"].set(band_name in last_selected_band_names)
 
         debug_log(f"Loaded selected bands from config: {last_selected_band_names}. Checkboxes updated! Version: {current_version}",
-                    file=__file__,
+                    file=current_file,
                     version=current_version,
                     function=current_function)
 
+    def _load_current_settings_into_dropdowns(self):
+        """
+        Loads the current instrument settings (from the app_instance's Tkinter variables)
+        into the respective dropdowns on the Scan Configuration tab.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Loading current settings into dropdowns. Version: {current_version}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+
+        # RBW Step Size
+        rbw_step_size_str = self.app_instance.rbw_step_size_hz_var.get()
+        if rbw_step_size_str in self.rbw_options:
+            self.rbw_step_size_dropdown.set(rbw_step_size_str)
+        else:
+            self.rbw_step_size_dropdown.set(self.rbw_options[0]) # Default to first option
+
+        # Cycle Wait Time
+        self.cycle_wait_time_entry.delete(0, tk.END)
+        self.cycle_wait_time_entry.insert(0, self.app_instance.cycle_wait_time_seconds_var.get())
+
+        # Maxhold Time
+        self.maxhold_time_entry.delete(0, tk.END)
+        self.maxhold_time_entry.insert(0, self.app_instance.maxhold_time_seconds_var.get())
+
+        # Scan RBW
+        scan_rbw_str = self.app_instance.scan_rbw_hz_var.get()
+        if scan_rbw_str in self.rbw_options:
+            self.scan_rbw_dropdown.set(scan_rbw_str)
+        else:
+            self.scan_rbw_dropdown.set(self.rbw_options[0]) # Default to first option
+
+        # Reference Level (dBm) - FIX: Handle 'N/A'
+        ref_level_str = self.app_instance.reference_level_dbm_var.get()
+        if ref_level_str == "N/A":
+            current_value = -40 # A sensible default if not connected
+            debug_log(f"Reference Level is 'N/A', defaulting to {current_value} dBm for dropdown.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        else:
+            try:
+                current_value = int(float(ref_level_str))
+            except ValueError as e:
+                debug_log(f"ERROR: Could not convert Reference Level '{ref_level_str}' to float. Defaulting to -40 dBm. Error: {e}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
+                current_value = -40 # Fallback if conversion fails for other reasons
+
+        # Find the index of the current_value in the dropdown options
+        try:
+            # Ensure the value is a string for comparison with dropdown options
+            index = self.ref_level_options.index(str(current_value))
+            self.ref_level_dropdown.current(index)
+        except ValueError:
+            debug_log(f"Reference Level {current_value} not found in dropdown options. Setting to first option.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+            self.ref_level_dropdown.current(0) # Set to first option if not found
+
+
+        # Frequency Shift
+        freq_shift_str = self.app_instance.freq_shift_hz_var.get()
+        if freq_shift_str in self.freq_shift_options:
+            self.freq_shift_dropdown.set(freq_shift_str)
+        else:
+            self.freq_shift_dropdown.set(self.freq_shift_options[0]) # Default to first option
+
+        # RBW Segmentation
+        self.scan_rbw_segmentation_entry.delete(0, tk.END)
+        self.scan_rbw_segmentation_entry.insert(0, self.app_instance.scan_rbw_segmentation_var.get())
+
+        # Default Focus Width
+        self.desired_default_focus_width_entry.delete(0, tk.END)
+        self.desired_default_focus_width_entry.insert(0, self.app_instance.desired_default_focus_width_var.get())
+
+        debug_log(f"Current settings loaded into dropdowns. Version: {current_version}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+
+    def _on_tab_selected(self, event):
+        """
+        Called when this tab is selected in the notebook.
+        Can be used to refresh data or update UI elements specific to this tab.
+        For the scan configuration, we ensure settings are loaded/reloaded.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"ScanTab selected. Refreshing settings... Let's get this updated! Version: {current_version}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+        self._load_current_settings_into_dropdowns()
+        self._load_band_selections_from_config()
