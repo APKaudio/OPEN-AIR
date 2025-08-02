@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2335.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250801.2335.3 (Fixed TclError: unknown option "-style_obj" by removing it from kwargs for child tabs.)
 
-current_version = "20250801.2335.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2335 * 1 # Example hash, adjust as needed
+current_version = "20250801.2335.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2335 * 3 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -63,6 +63,8 @@ class TAB_SCANNING_PARENT(ttk.Frame):
         (2025-07-31) Change: Initial creation of TAB_SCANNING_PARENT.
         (2025-08-01) Change: Updated child_notebook style to 'ScanningChild.TNotebook'.
         (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
+        (20250801.2335.2) Change: Passed style_obj to child tabs.
+        (20250801.2335.3) Change: Fixed TclError by removing style_obj from kwargs passed to super().__init__ of child tabs.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -85,17 +87,21 @@ class TAB_SCANNING_PARENT(ttk.Frame):
         self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
 
         # Instantiate and add child tabs
+        # Pass the style_obj from app_instance to the child tabs
+        # The style argument for the ttk.Frame is handled by the child class's __init__
         self.scan_configuration_tab = ScanTab(
             self.child_notebook,
             app_instance=self.app_instance,
-            console_print_func=self.console_print_func
+            console_print_func=self.console_print_func,
+            style_obj=self.app_instance.style # Pass style_obj here
         )
         self.child_notebook.add(self.scan_configuration_tab, text="Scan Configuration")
 
         self.scan_meta_data_tab = ScanMetaDataTab(
             self.child_notebook,
             app_instance=self.app_instance,
-            console_print_func=self.console_print_func
+            console_print_func=self.console_print_func,
+            style_obj=self.app_instance.style # Pass style_obj here
         )
         self.child_notebook.add(self.scan_meta_data_tab, text="Scan Meta Data")
 
