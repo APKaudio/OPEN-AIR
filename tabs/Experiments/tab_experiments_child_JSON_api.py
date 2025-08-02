@@ -12,11 +12,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1012.1 (Updated header and imports for new folder structure)
+# Version 20250801.2155.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1012.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2155.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2155 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, scrolledtext
@@ -29,7 +31,9 @@ import time # For brief pauses
 import sys # Explicitly import sys for use with sys.executable
 import requests # For making HTTP requests to the Flask API
 
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 
 
 class JsonApiTab(ttk.Frame):
@@ -50,7 +54,7 @@ class JsonApiTab(ttk.Frame):
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
         self.json_api_process = None # To store the subprocess for the JSON API
         self.json_api_port = 5000 # Default port for the Flask API
         self.json_api_url_base = f"http://127.0.0.1:{self.json_api_port}"
@@ -64,8 +68,11 @@ class JsonApiTab(ttk.Frame):
         Creates and arranges the widgets for the JSON API tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Creating JsonApiTab widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Creating JsonApiTab widgets...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -103,18 +110,24 @@ class JsonApiTab(ttk.Frame):
         self.dynamic_scan_buttons_frame.grid_columnconfigure(0, weight=1)
         self.dynamic_scan_buttons_frame.grid_remove()
 
-        debug_print("JsonApiTab widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("JsonApiTab widgets created.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _run_json_api_thread_target(self):
         """
         Target function for the thread that runs the Flask JSON API.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("JSON API thread target started.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("JSON API thread target started.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         script_path = os.path.join(self.app_instance._script_dir, 'process_math', 'json_host.py')
-        
+
         try:
             self.json_api_process = subprocess.Popen(
                 [sys.executable, script_path],
@@ -124,15 +137,27 @@ class JsonApiTab(ttk.Frame):
             )
             self.app_instance.after(100, self._update_api_button_states)
             self.console_print_func(f"▶️ JSON API started on {self.json_api_url_base}")
-            debug_print(f"JSON API subprocess started with PID: {self.json_api_process.pid}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"JSON API subprocess started with PID: {self.json_api_process.pid}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except FileNotFoundError:
             self.console_print_func(f"❌ Error: Python interpreter not found at {sys.executable}. Ensure Python is in your PATH.")
-            debug_print(f"Python interpreter not found: {sys.executable}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Python interpreter not found: {sys.executable}. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error starting JSON API: {e}")
-            debug_print(f"Error starting JSON API: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error starting JSON API: {e}. This thing is a pain in the ass!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-        debug_print("JSON API thread target finished.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("JSON API thread target finished.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _start_json_api(self):
@@ -140,12 +165,18 @@ class JsonApiTab(ttk.Frame):
         Starts the Flask JSON API in a separate thread.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to start JSON API...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to start JSON API...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if self.json_api_process and self.json_api_process.poll() is None:
             self.console_print_func("ℹ️ JSON API is already running.")
-            debug_print("JSON API already running.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API already running. Fucking redundant!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         api_thread = threading.Thread(target=self._run_json_api_thread_target)
@@ -157,8 +188,11 @@ class JsonApiTab(ttk.Frame):
         Stops the Flask JSON API subprocess.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to stop JSON API...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to stop JSON API...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if self.json_api_process and self.json_api_process.poll() is None:
             try:
@@ -167,18 +201,30 @@ class JsonApiTab(ttk.Frame):
                 if self.json_api_process.poll() is None:
                     self.json_api_process.kill()
                     self.console_print_func("⚠️ JSON API process killed (forcefully terminated).")
-                    debug_print("JSON API process forcefully killed.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log("JSON API process forcefully killed. Take that, you bastard!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                 self.console_print_func("⏹️ JSON API stopped.")
-                debug_print("JSON API process terminated.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("JSON API process terminated.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             except Exception as e:
                 self.console_print_func(f"❌ Error stopping JSON API: {e}")
-                debug_print(f"Error stopping JSON API: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Error stopping JSON API: {e}. This thing refuses to die!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             finally:
                 self.json_api_process = None
                 self.app_instance.after(100, self._update_api_button_states)
         else:
             self.console_print_func("ℹ️ JSON API is not running.")
-            debug_print("JSON API not running.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running. Fucking pointless to stop what's not there!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._update_api_button_states()
 
 
@@ -191,7 +237,7 @@ class JsonApiTab(ttk.Frame):
         self.stop_api_button.config(state=tk.NORMAL if is_api_running else tk.DISABLED)
         self.view_all_scans_button.config(state=tk.NORMAL if is_api_running else tk.DISABLED)
         self.view_markers_api_button.config(state=tk.NORMAL if is_api_running else tk.DISABLED)
-        
+
         # Check if scan_control_tab exists and is_scanning is True
         is_scanning = getattr(self.app_instance, 'scan_control_tab', None) and self.app_instance.scan_control_tab.is_scanning
         self.view_in_progress_api_button.config(state=tk.NORMAL if is_api_running and is_scanning else tk.DISABLED)
@@ -205,12 +251,18 @@ class JsonApiTab(ttk.Frame):
         Fetches the list of scan files from the API and creates dynamic buttons for each.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to fetch all API scans and display buttons...", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to fetch all API scans and display buttons...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
         if not (self.json_api_process and self.json_api_process.poll() is None):
             self.console_print_func("⚠️ JSON API is not running. Please start it first to view available scans.")
-            debug_print("JSON API not running for _open_all_api_scans.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running for _open_all_api_scans. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Clear existing buttons
@@ -227,7 +279,7 @@ class JsonApiTab(ttk.Frame):
                 if scan_files:
                     self.app_instance.after(0, lambda: self.console_print_func(f"✅ Found {len(scan_files)} scan files from API."))
                     self.app_instance.after(0, lambda: self.dynamic_scan_buttons_frame.grid())
-                    
+
                     for i, filename in enumerate(scan_files):
                         button = ttk.Button(
                             self.dynamic_scan_buttons_frame,
@@ -240,17 +292,29 @@ class JsonApiTab(ttk.Frame):
                 else:
                     self.app_instance.after(0, lambda: self.console_print_func("ℹ️ No scan files found via API."))
                     self.app_instance.after(0, lambda: self.dynamic_scan_buttons_frame.grid_remove())
-                    debug_print("No scan files found via API.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log("No scan files found via API. Fucking empty!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
 
             except requests.exceptions.ConnectionError:
                 self.app_instance.after(0, lambda: self.console_print_func("❌ Error: Could not connect to JSON API. Is it running?"))
-                debug_print("ConnectionError to JSON API.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("ConnectionError to JSON API. What the hell?!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             except requests.exceptions.RequestException as e:
                 self.app_instance.after(0, lambda: self.console_print_func(f"❌ Error fetching scan list from API: {e}"))
-                debug_print(f"RequestException fetching scan list: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"RequestException fetching scan list: {e}. This thing is a pain in the ass!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             except Exception as e:
                 self.app_instance.after(0, lambda: self.console_print_func(f"❌ An unexpected error occurred while fetching scan list: {e}"))
-                debug_print(f"Unexpected error fetching scan list: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Unexpected error fetching scan list: {e}. This is a goddamn mess!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             finally:
                 self.app_instance.after(0, self._update_api_button_states)
 
@@ -264,44 +328,68 @@ class JsonApiTab(ttk.Frame):
         Opens the API endpoint for a specific scan file in the browser.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Attempting to open API scan data for: {filename}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log(f"Attempting to open API scan data for: {filename}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not (self.json_api_process and self.json_api_process.poll() is None):
             self.console_print_func("⚠️ JSON API is not running. Please start it first.")
-            debug_print("JSON API not running for _open_api_scan_data.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running for _open_api_scan_data. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         api_link = f"{self.json_api_url_base}/api/scan_data/{filename}"
         try:
             webbrowser.open_new_tab(api_link)
             self.console_print_func(f"✅ Opened API link for scan: {filename}")
-            debug_print(f"Opened {api_link}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened {api_link}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error opening API scan link for {filename}: {e}")
-            debug_print(f"Error opening API scan link for {filename}: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening API scan link for {filename}: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _open_markers_api(self):
         """
         Opens the API endpoint for MARKERS.csv in the browser.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to open Markers API link...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to open Markers API link...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not (self.json_api_process and self.json_api_process.poll() is None):
             self.console_print_func("⚠️ JSON API is not running. Please start it first.")
-            debug_print("JSON API not running for _open_markers_api.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running for _open_markers_api. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         api_link = f"{self.json_api_url_base}/api/markers_data"
         try:
             webbrowser.open_new_tab(api_link)
             self.console_print_func("✅ Opened API link for MARKERS.csv data.")
-            debug_print(f"Opened {api_link}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened {api_link}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error opening Markers API link: {e}")
-            debug_print(f"Error opening Markers API link: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening Markers API link: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def _open_latest_api_scan(self):
@@ -310,22 +398,34 @@ class JsonApiTab(ttk.Frame):
         This endpoint is static and the API handles finding the latest file.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to open latest API scan link...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to open latest API scan link...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not (self.json_api_process and self.json_api_process.poll() is None):
             self.console_print_func("⚠️ JSON API is not running. Please start it first.")
-            debug_print("JSON API not running for _open_latest_api_scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running for _open_latest_api_scan. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
-        
+
         api_link = f"{self.json_api_url_base}/api/latest_scan_data" # Static URL for latest scan
         try:
             webbrowser.open_new_tab(api_link)
             self.console_print_func(f"✅ Opened API link for latest scan data.")
-            debug_print(f"Opened {api_link}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened {api_link}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error opening latest API scan link: {e}")
-            debug_print(f"Error opening latest API scan link: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening latest API scan link: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _open_scan_in_progress_api(self):
         """
@@ -333,29 +433,44 @@ class JsonApiTab(ttk.Frame):
         This endpoint is static.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting to open scan in progress API link...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Attempting to open scan in progress API link...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not (self.json_api_process and self.json_api_process.poll() is None):
             self.console_print_func("⚠️ JSON API is not running. Please start it first.")
-            debug_print("JSON API not running for _open_scan_in_progress_api.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("JSON API not running for _open_scan_in_progress_api. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Check if a scan is actually in progress
         is_scanning = getattr(self.app_instance, 'scan_control_tab', None) and self.app_instance.scan_control_tab.is_scanning
         if not is_scanning:
             self.console_print_func("ℹ️ No scan is currently in progress.")
-            debug_print("No scan in progress for _open_scan_in_progress_api.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No scan in progress for _open_scan_in_progress_api. Fucking pointless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         api_link = f"{self.json_api_url_base}/api/scan_in_progress_data" # Static URL for scan in progress
         try:
             webbrowser.open_new_tab(api_link)
             self.console_print_func(f"✅ Opened API link for scan in progress data.")
-            debug_print(f"Opened {api_link}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened {api_link}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error opening scan in progress API link: {e}")
-            debug_print(f"Error opening scan in progress API link: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening scan in progress API link: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def _on_tab_selected(self, event):
@@ -364,9 +479,11 @@ class JsonApiTab(ttk.Frame):
         This can be used to refresh data or update UI elements specific to this tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("JSON API Tab selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        
+        # current_file will be derived from __file__ in debug_log
+        debug_log("JSON API Tab selected.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
         # Update API button states when the tab is selected
         self._update_api_button_states()
-

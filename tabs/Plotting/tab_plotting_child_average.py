@@ -13,11 +13,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1046.1 (Updated header and imports for new folder structure)
+# Version 20250801.2225.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1046.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2225.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2225 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
@@ -34,7 +36,10 @@ import numpy as np # Added for PSD calculation
 # CORRECTED: Import plotting functions and _open_plot_in_browser directly from utils.plotting_utils
 from tabs.Plotting.utils_plotting import plot_multi_trace_data, _open_plot_in_browser
 
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
+
 from process_math.averaging_utils import average_scan # NEW import
 # Removed: from utils.plot_scans_over_time import plot_Scans_over_time # Moved to tab_plotting_child_3D.py
 
@@ -56,7 +61,7 @@ class AveragingTab(ttk.Frame):
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print # Use provided func or print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use provided func or console_log
         self.current_plot_file = None # To store the path of the last generated plot HTML
         self.last_opened_folder = None # To remember the last opened folder for averaging
         self.last_applied_math_folder = None # To store the path of the last folder created by applied math
@@ -64,11 +69,16 @@ class AveragingTab(ttk.Frame):
         self.selected_group_prefix = None # Stores the prefix of the currently selected group
 
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self._create_widgets()
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _create_widgets(self):
         """
@@ -94,8 +104,10 @@ class AveragingTab(ttk.Frame):
         (2025-07-31) Change: Removed "Generate Plot of Scans Over Time" button.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # --- Plotting Averages from Folder Section ---
         self.averaging_folder_frame = ttk.LabelFrame(self, text="Plotting Averages from Folder", padding="10")
@@ -131,7 +143,7 @@ class AveragingTab(ttk.Frame):
             "Variance": self.app_instance.math_variance_var,
             "Power Spectral Density (PSD)": self.app_instance.math_psd_var
         }
-        
+
         # Tooltip definitions (example, you'd integrate a proper tooltip class)
         tooltip_texts = {
             "Average": "Calculates the arithmetic mean of power levels across all scans.",
@@ -146,7 +158,7 @@ class AveragingTab(ttk.Frame):
             chk = ttk.Checkbutton(apply_math_frame, text=text, variable=var,
                                   command=self._on_avg_type_checkbox_changed)
             chk.grid(row=i, column=0, padx=5, pady=2, sticky="w")
-            
+
             # --- Tooltip Integration Suggestion ---
             # To add tooltips, you would typically use a custom Tooltip class
             # or bind to <Enter> and <Leave> events to show/hide a Label.
@@ -205,7 +217,10 @@ class AveragingTab(ttk.Frame):
         make_averages_frame.grid_columnconfigure(0, weight=1)
 
 
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _on_avg_type_checkbox_changed(self):
         """
@@ -219,15 +234,15 @@ class AveragingTab(ttk.Frame):
         Process of this function:
             1. Retrieves the state of all "math_average_var" Tkinter variables from app_instance.
             2. Filters out unselected types.
-            3. Logs the selected types to the debug console and the GUI console.
+            3. Logs the selected types to the debug log and the GUI console.
 
         Outputs of this function:
             None. Updates console output.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
         # Now directly use app_instance variables as they are linked
         selected_types = [
             "Average" if self.app_instance.math_average_var.get() else None,
@@ -238,7 +253,10 @@ class AveragingTab(ttk.Frame):
             "Power Spectral Density (PSD)" if self.app_instance.math_psd_var.get() else None
         ]
         selected_types = [t for t in selected_types if t is not None]
-        debug_print(f"Checkbox changed. Currently selected average types: {selected_types}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Checkbox changed. Currently selected average types: {selected_types}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.console_print_func(f"Selected average types: {', '.join(selected_types) if selected_types else 'None'}")
 
     def _on_multi_file_marker_checkbox_changed(self):
@@ -253,15 +271,15 @@ class AveragingTab(ttk.Frame):
         Process of this function:
             1. Retrieves the state of all "avg_include_..." Tkinter variables from app_instance.
             2. Builds a list of selected marker types.
-            3. Logs the selected types to the debug console and the GUI console.
+            3. Logs the selected types to the debug log and the GUI console.
 
         Outputs of this function:
             None. Updates console output.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
         selected_markers = []
         if self.app_instance.avg_include_tv_markers_var.get(): # NEW variable
             selected_markers.append("TV Band Markers")
@@ -272,7 +290,10 @@ class AveragingTab(ttk.Frame):
         if self.app_instance.avg_include_intermod_markers_var.get(): # NEW variable
             selected_markers.append("Intermodulations")
 
-        debug_print(f"Multi-File Plotting - Selected markers: {selected_markers}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Multi-File Plotting - Selected markers: {selected_markers}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.console_print_func(f"Multi-File Plotting - Markers: {', '.join(selected_markers) if selected_markers else 'None'}")
 
     def _open_folder_for_averaging(self):
@@ -295,13 +316,19 @@ class AveragingTab(ttk.Frame):
             None. Updates GUI state and initiates file grouping.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         folder_path = filedialog.askdirectory(initialdir=self.last_opened_folder)
-        debug_print(f"Selected folder_path: {folder_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Selected folder_path: {folder_path}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if folder_path:
             self.last_opened_folder = folder_path
             self.console_print_func(f"Selected folder for averaging: {folder_path}")
@@ -311,7 +338,10 @@ class AveragingTab(ttk.Frame):
             self.generate_plot_averages_button.config(state=tk.NORMAL)
             self.generate_plot_averages_with_scan_button.config(state=tk.NORMAL)
             # Removed: self.generate_plot_scans_over_time_button.config(state=tk.NORMAL)
-            debug_print("Averaging buttons enabled (folder selected).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Averaging buttons enabled (folder selected).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.console_print_func("Folder selection cancelled.")
             # Disable buttons if folder selection is cancelled
@@ -319,8 +349,14 @@ class AveragingTab(ttk.Frame):
             self.generate_plot_averages_button.config(state=tk.DISABLED)
             self.generate_plot_averages_with_scan_button.config(state=tk.DISABLED)
             # Removed: self.generate_plot_scans_over_time_button.config(state=tk.DISABLED)
-            debug_print("Folder selection cancelled. Averaging buttons disabled.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Folder selection cancelled. Averaging buttons disabled.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _find_and_group_csv_files(self, folder_path):
@@ -346,17 +382,26 @@ class AveragingTab(ttk.Frame):
             None. Populates `self.grouped_csv_files` and updates the GUI with group selection buttons.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function} with folder_path: {folder_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function} with folder_path: {folder_path}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         csv_files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
-        debug_print(f"Found CSV files: {csv_files}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Found CSV files: {csv_files}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if not csv_files:
             self.console_print_func("No CSV files found in the selected folder. FUCK! Where did they go?!")
             self._clear_dynamic_buttons()
-            debug_print(f"Exiting {current_function} (no CSVs)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no CSVs)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         file_groups = {}
@@ -386,13 +431,19 @@ class AveragingTab(ttk.Frame):
             if prefix not in file_groups:
                 file_groups[prefix] = []
             file_groups[prefix].append(os.path.join(folder_path, filename))
-        debug_print(f"Grouped CSV files: {file_groups}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Grouped CSV files: {file_groups}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self._clear_dynamic_buttons() # Clear any previous buttons
 
         if not file_groups:
             self.console_print_func("No identifiable groups of CSV files found. This is a bloody mess!")
-            debug_print(f"Exiting {current_function} (no file groups)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no file groups)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         self.console_print_func(f"Found {len(file_groups)} groups of similar CSV files. Let's get this show on the road!")
@@ -412,8 +463,14 @@ class AveragingTab(ttk.Frame):
             style = ttk.Style()
             style.configure('Orange.TButton', background='orange', foreground='black')
         except Exception as e:
-            debug_print(f"Could not apply orange style: {e}. Damn you, Tkinter styles!", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Could not apply orange style: {e}. Damn you, Tkinter styles!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _select_group_for_plotting(self, prefix):
@@ -436,28 +493,43 @@ class AveragingTab(ttk.Frame):
             None. Updates `self.selected_group_prefix` and GUI button appearance.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function} with prefix: {prefix}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function} with prefix: {prefix}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self.selected_group_prefix = prefix
         self.console_print_func(f"Selected group for plotting: '{prefix}'")
-        debug_print(f"Selected group for plotting: '{prefix}'", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Selected group for plotting: '{prefix}'",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         for widget in self.dynamic_avg_buttons_frame.winfo_children():
             if isinstance(widget, ttk.Button):
                 if widget.cget("text").startswith(f"Group '{prefix}'"):
                     widget.config(relief="sunken", style='SelectedOrange.TButton')
-                    debug_print(f"Highlighted button for group: {prefix}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Highlighted button for group: {prefix}",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                 else:
                     widget.config(relief="raised", style='Orange.TButton')
         try:
             style = ttk.Style()
             style.configure('SelectedOrange.TButton', background='darkorange', foreground='white')
         except Exception as e:
-            debug_print(f"Could not apply selected orange style: {e}. This style system is a real pain in the ass!", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Could not apply selected orange style: {e}. This style system is a real pain in the ass!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _clear_dynamic_buttons(self):
@@ -476,14 +548,23 @@ class AveragingTab(ttk.Frame):
             None. Clears the dynamic button area in the GUI.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         for widget in self.dynamic_avg_buttons_frame.winfo_children():
             widget.destroy()
-        debug_print(f"Cleared dynamic buttons.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Cleared dynamic buttons.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _generate_csv_selected_series(self):
@@ -508,26 +589,41 @@ class AveragingTab(ttk.Frame):
             None. Creates CSV files and updates GUI button state.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not hasattr(self, 'grouped_csv_files') or not self.grouped_csv_files:
             self.console_print_func("Warning: No data. Please select a folder and identify CSV file groups first. What the hell are you trying to average?")
-            debug_print(f"Exiting {current_function} (no grouped_csv_files)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no grouped_csv_files)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         if not self.selected_group_prefix:
             self.console_print_func("Warning: No group selected. Please click on one of the group buttons to select files for averaging. Pick one, for crying out loud!")
-            debug_print(f"Exiting {current_function} (no selected_group_prefix)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no selected_group_prefix)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         files_to_average = self.grouped_csv_files[self.selected_group_prefix]
-        debug_print(f"Files to average for selected group '{self.selected_group_prefix}': {files_to_average}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Files to average for selected group '{self.selected_group_prefix}': {files_to_average}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if not files_to_average:
             self.console_print_func("Error: No files found for the selected group. This is utterly useless!")
-            debug_print(f"Exiting {current_function} (files_to_average is empty)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (files_to_average is empty)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Get selected average types from app_instance variables
@@ -541,11 +637,17 @@ class AveragingTab(ttk.Frame):
         ]
         selected_avg_types = [t for t in selected_avg_types if t is not None]
 
-        debug_print(f"Selected average types BEFORE check: {selected_avg_types}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Selected average types BEFORE check: {selected_avg_types}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not selected_avg_types:
             self.console_print_func("Warning: No average type selected. Please select at least one type of average to generate CSVs (e.g., Average, Median). Are you even trying?!")
-            debug_print(f"Exiting {current_function} (no selected_avg_types)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no selected_avg_types)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         self.console_print_func(f"Generating CSVs for selected series. This may take some time depending on the number and size of scans. Don't go anywhere!")
@@ -565,11 +667,14 @@ class AveragingTab(ttk.Frame):
             self.last_applied_math_folder = output_folder_path
             self.console_print_func(f"CSV files generated in: {output_folder_path}")
             self.open_applied_math_folder_button.config(state=tk.NORMAL) # Enable the button
-            self.console_print_func("🎉 CSV generation complete! Now that's what I call progress! �")
+            self.console_print_func("🎉 CSV generation complete! Now that's what I call progress! 🎉")
         else:
             self.console_print_func("🚫 CSV generation failed. FML, this is frustrating!")
             self.open_applied_math_folder_button.config(state=tk.DISABLED)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _open_applied_math_folder(self):
@@ -592,10 +697,13 @@ class AveragingTab(ttk.Frame):
             None. Opens a file explorer window.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if self.last_applied_math_folder and os.path.exists(self.last_applied_math_folder):
             self.console_print_func(f"Opening folder: {self.last_applied_math_folder}")
@@ -610,11 +718,20 @@ class AveragingTab(ttk.Frame):
                     subprocess.Popen(["xdg-open", self.last_applied_math_folder])
             except Exception as e:
                 self.console_print_func(f"❌ Error opening folder: {e}. Are you kidding me?!")
-                debug_print(f"Error opening folder {self.last_applied_math_folder}: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Error opening folder {self.last_applied_math_folder}: {e}",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         else:
             self.console_print_func("No folder of applied math available. Please generate CSVs first. What did you expect, magic?")
-            debug_print("No applied math folder to open.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No applied math folder to open.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _generate_multi_average_plot(self, include_scans=False):
@@ -643,19 +760,28 @@ class AveragingTab(ttk.Frame):
             None. Generates an HTML plot file and updates `self.current_plot_file`.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function} with include_scans={include_scans}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function} with include_scans={include_scans}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not self.last_applied_math_folder or not os.path.exists(self.last_applied_math_folder):
             self.console_print_func("Error: No 'Applied Math' folder found. Please generate CSVs first. What the hell are you trying to plot?")
-            debug_print("No 'Applied Math' folder found.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No 'Applied Math' folder found.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         if not self.selected_group_prefix:
             self.console_print_func("Warning: No group selected. Please click on one of the group buttons to select files for averaging. Pick a damn group!")
-            debug_print(f"Exiting {current_function} (no selected_group_prefix)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no selected_group_prefix)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         self.console_print_func(f"Generating plot for selected series. This may take some time depending on the number and size of scans. Patience, my friend, patience!")
@@ -666,19 +792,28 @@ class AveragingTab(ttk.Frame):
 
         if not complete_math_csv_files:
             self.console_print_func(f"Error: No COMPLETE_MATH CSV found in '{self.last_applied_math_folder}' for group '{self.selected_group_prefix}'. This is a nightmare!")
-            debug_print(f"No COMPLETE_MATH CSV found for group '{self.selected_group_prefix}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"No COMPLETE_MATH CSV found for group '{self.selected_group_prefix}'.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Take the most recent COMPLETE_MATH CSV if multiple exist
         complete_math_csv_path = max(complete_math_csv_files, key=os.path.getctime)
         self.console_print_func(f"Loaded COMPLETE_MATH CSV from: {complete_math_csv_path}")
-        debug_print(f"Loaded COMPLETE_MATH CSV from: {complete_math_csv_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Loaded COMPLETE_MATH CSV from: {complete_math_csv_path}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         try:
             # Read the COMPLETE_MATH CSV. Assuming the first column is Frequency (Hz) and others are data.
             # Use header=True to correctly read the column names (Average, Median, etc.)
             aggregated_df = pd.read_csv(complete_math_csv_path)
-            debug_print(f"Loaded aggregated_df columns: {aggregated_df.columns.tolist()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Loaded aggregated_df columns: {aggregated_df.columns.tolist()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
             # Filter aggregated_df to include only selected average types for plotting
             selected_avg_types = [
@@ -702,14 +837,20 @@ class AveragingTab(ttk.Frame):
                 "Power Spectral Density (PSD)": "PSD (dBm/Hz)"
             }
             plot_columns = ['Frequency (Hz)'] + [column_name_map[t] for t in selected_avg_types if column_name_map[t] in aggregated_df.columns]
-            
+
             if not plot_columns or len(plot_columns) < 2: # Need at least Frequency and one data column
                 self.console_print_func("Error: No selected average types found in the loaded COMPLETE_MATH CSV for plotting. This is a goddamn travesty!")
-                debug_print("No selected average types found in COMPLETE_MATH CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("No selected average types found in COMPLETE_MATH CSV.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return
 
             aggregated_df_for_plot = aggregated_df[plot_columns].copy()
-            debug_print(f"DataFrame for plotting (selected averages) columns: {aggregated_df_for_plot.columns.tolist()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"DataFrame for plotting (selected averages) columns: {aggregated_df_for_plot.columns.tolist()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
             individual_scan_dfs_for_overlay = []
             if include_scans:
@@ -720,10 +861,16 @@ class AveragingTab(ttk.Frame):
                         scan_df = pd.read_csv(f_path, header=None, names=['Frequency (Hz)', 'Power (dBm)'])
                         scan_name = os.path.splitext(os.path.basename(f_path))[0]
                         individual_scan_dfs_for_overlay.append((scan_df, scan_name))
-                        debug_print(f"Loaded individual scan for overlay: {scan_name}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                        debug_log(f"Loaded individual scan for overlay: {scan_name}",
+                                    file=__file__,
+                                    version=current_version,
+                                    function=current_function)
                     except Exception as e:
                         self.console_print_func(f"Warning: Could not load individual scan {os.path.basename(f_path)} for overlay: {e}. What a pain!")
-                        debug_print(f"Could not load individual scan {os.path.basename(f_path)}: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                        debug_log(f"Could not load individual scan {os.path.basename(f_path)}: {e}",
+                                    file=__file__,
+                                    version=current_version,
+                                    function=current_function)
 
             # Define historical_dfs_with_names as None before the debug print
             historical_dfs_with_names = None
@@ -740,18 +887,54 @@ class AveragingTab(ttk.Frame):
                 y_range_max_override_val = 30 # Set to 30 for these statistical plots
 
             # --- DEEPER DEBUGGING FOR plot_multi_trace_data CALL ---
-            debug_print(f"DEBUG: Calling plot_multi_trace_data with the following arguments:", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  aggregated_df_for_plot (shape): {aggregated_df_for_plot.shape}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  plot_title: {plot_title}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  include_tv_markers: {self.app_instance.avg_include_tv_markers_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func) # Use app_instance var
-            debug_print(f"  include_gov_markers: {self.app_instance.avg_include_gov_markers_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func) # Use app_instance var
-            debug_print(f"  include_markers: {self.app_instance.avg_include_markers_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func) # Use app_instance var
-            debug_print(f"  include_intermod_markers: {self.app_instance.avg_include_intermod_markers_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func) # NEW
-            debug_print(f"  historical_dfs_with_names: {historical_dfs_with_names is not None}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  individual_scan_dfs_with_names (count): {len(individual_scan_dfs_for_overlay) if individual_scan_dfs_for_overlay else 0}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  output_html_path: {os.path.join(self.last_applied_math_folder, f'{self.selected_group_prefix}_MultiFileAverage_Plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html')}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  y_range_max_override: {y_range_max_override_val}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"  scan_data_folder: {self.last_opened_folder}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"DEBUG: Calling plot_multi_trace_data with the following arguments:",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  aggregated_df_for_plot (shape): {aggregated_df_for_plot.shape}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  plot_title: {plot_title}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  include_tv_markers: {self.app_instance.avg_include_tv_markers_var.get()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function) # Use app_instance var
+            debug_log(f"  include_gov_markers: {self.app_instance.avg_include_gov_markers_var.get()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function) # Use app_instance var
+            debug_log(f"  include_markers: {self.app_instance.avg_include_markers_var.get()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function) # Use app_instance var
+            debug_log(f"  include_intermod_markers: {self.app_instance.avg_include_intermod_markers_var.get()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function) # NEW
+            debug_log(f"  historical_dfs_with_names: {historical_dfs_with_names is not None}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  individual_scan_dfs_with_names (count): {len(individual_scan_dfs_for_overlay) if individual_scan_dfs_for_overlay else 0}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  output_html_path: {os.path.join(self.last_applied_math_folder, f'{self.selected_group_prefix}_MultiFileAverage_Plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html')}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  y_range_max_override: {y_range_max_override_val}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"  scan_data_folder: {self.last_opened_folder}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             # --- END DEEPER DEBUGGING ---
 
             fig, plot_html_path_return = plot_multi_trace_data(
@@ -764,6 +947,7 @@ class AveragingTab(ttk.Frame):
                 historical_dfs_with_names=None, # No historical overlays for this multi-file average from external folder
                 individual_scan_dfs_with_names=individual_scan_dfs_for_overlay if include_scans else None,
                 output_html_path=os.path.join(self.last_applied_math_folder, f"{self.selected_group_prefix}_MultiFileAverage_Plot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"),
+                y_range_min_override=None, # Let the plotting function determine min
                 y_range_max_override=y_range_max_override_val, # Pass the dynamically set override
                 console_print_func=self.console_print_func,
                 # CORRECTED: Pass the original folder where scans were opened for MARKERS.CSV
@@ -772,16 +956,38 @@ class AveragingTab(ttk.Frame):
 
             if fig:
                 self.current_plot_file = plot_html_path_return
-                self.console_print_func(f"✅ Multi-file averaged plot saved to: {self.current_plot_file}. BOOM! Nailed it!")
-                debug_print(f"Multi-file averaged plot saved to: {self.current_plot_file}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                if self.app_instance.create_html_var.get():
+                    self.console_print_func(f"✅ Multi-file averaged plot saved to: {self.current_plot_file}. BOOM! Nailed it!")
+                    debug_log(f"Multi-file averaged plot saved to: {self.current_plot_file}",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
+                else:
+                    self.console_print_func("✅ Multi-file averaged plot data processed (HTML not saved as per setting).")
+                    debug_log("Plot data processed, HTML not saved.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
+
+                if self.app_instance.open_html_after_complete_var.get() and self.app_instance.create_html_var.get() and plot_html_path_return:
+                    _open_plot_in_browser(plot_html_path_return, self.console_print_func)
             else:
                 self.console_print_func("🚫 Plotly figure was not generated for multi-file averaged data. Fucking hell, not again!")
-                debug_print("Plotly figure not generated for multi-file averaged data.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("Plotly figure not generated for multi-file averaged data.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
         except Exception as e:
             self.console_print_func(f"❌ Error generating plot: {e}. This is a nightmare!")
-            debug_print(f"Error generating plot: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error generating plot: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     # Removed: _generate_plot_scans_over_time - Moved to tab_plotting_child_3D.py
@@ -807,12 +1013,18 @@ class AveragingTab(ttk.Frame):
             None. Updates the state of various GUI buttons.
 
         (2025-07-31) Change: Moved from tab_plotting_child_Single.py and adapted for AveragingTab. Removed 3D plot button state management.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/tab_plotting_child_Average.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-        debug_print("Averaging Tab selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("Averaging Tab selected.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Enable/Disable multi-file averaging buttons based on last_opened_folder and grouped_csv_files
         if hasattr(self, 'last_opened_folder') and self.last_opened_folder and \
@@ -821,20 +1033,35 @@ class AveragingTab(ttk.Frame):
             self.generate_plot_averages_button.config(state=tk.NORMAL)
             self.generate_plot_averages_with_scan_button.config(state=tk.NORMAL)
             # Removed: self.generate_plot_scans_over_time_button.config(state=tk.NORMAL)
-            debug_print("Multi-file averaging buttons enabled (folder and groups exist).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Multi-file averaging buttons enabled (folder and groups exist).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.generate_csv_button.config(state=tk.DISABLED)
             self.generate_plot_averages_button.config(state=tk.DISABLED)
             self.generate_plot_averages_with_scan_button.config(state=tk.DISABLED)
             # Removed: self.generate_plot_scans_over_time_button.config(state=tk.DISABLED)
-            debug_print("Multi-file averaging buttons disabled (no folder or groups).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Multi-file averaging buttons disabled (no folder or groups).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         # Enable/Disable "Open Applied Math Folder" button
         if self.last_applied_math_folder and os.path.exists(self.last_applied_math_folder):
             self.open_applied_math_folder_button.config(state=tk.NORMAL)
-            debug_print("Open Applied Math Folder button enabled.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Open Applied Math Folder button enabled.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.open_applied_math_folder_button.config(state=tk.DISABLED)
-            debug_print("Open Applied Math Folder button disabled.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Open Applied Math Folder button disabled.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)

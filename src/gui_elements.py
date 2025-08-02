@@ -8,15 +8,9 @@ import inspect # Added for debug_print
 # For this file, we'll make a local version or assume it's imported.
 # In a real application, you'd ensure debug_print is properly imported or passed.
 # For now, let's define a dummy if it's not explicitly imported to prevent errors.
-try:
-    from utils.utils_instrument_control import debug_print
-except ImportError:
-    # Define a dummy debug_print if it cannot be imported, for standalone testing
-    def debug_print(message, file="", function="", console_print_func=None):
-        if console_print_func:
-            console_print_func(f"[DEBUG_DUMMY] {file}:{function}: {message}")
-        else:
-            print(f"[DEBUG_DUMMY] {file}:{function}: {message}")
+#Import the debug logic module to use debug_print
+from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_print
+
 
 
 class TextRedirector(object):

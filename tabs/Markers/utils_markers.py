@@ -12,14 +12,18 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1032.1 (Updated header and verified imports for new folder structure)
+# Version 20250801.2145.1 (Refactored debug_print, write_safe, query_safe to use new logging.)
 
-current_version = "20250801.1032.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2145.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2145 * 1 # Example hash, adjust as needed
 
 import inspect
-from utils.utils_instrument_control import debug_print, write_safe, query_safe
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 from ref.frequency_bands import MHZ_TO_HZ
 import time # Import time for potential small delays
 
@@ -45,6 +49,103 @@ RBW_OPTIONS = {
 }
 # --- END NEW ---
 
+# Helper functions for instrument communication, using the new logging
+def write_safe(inst, command, console_print_func):
+    """
+    Function Description:
+    Safely writes a SCPI command to the instrument.
+    Logs the command and handles potential errors.
+
+    Inputs to this function:
+    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
+    - command (str): The SCPI command string to write.
+    - console_print_func (function): Function to print messages to the GUI console.
+
+    Process of this function:
+    1. Checks if the instrument is connected.
+    2. Attempts to write the command.
+    3. Logs success or failure to the console and debug log.
+
+    Outputs of this function:
+    - bool: True if the command was written successfully, False otherwise.
+
+    (2025-08-01) Change: Refactored from utils_instrument_control to use new logging.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    # current_file will be derived from __file__ in debug_log
+    debug_log(f"Attempting to write command: {command}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    if not inst:
+        console_print_func("⚠️ Warning: Instrument not connected. Cannot write command.")
+        debug_log("Instrument not connected. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return False
+    try:
+        inst.write(command)
+        log_visa_command(command, "SENT") # Log the VISA command
+        return True
+    except Exception as e:
+        console_print_func(f"❌ Error writing command '{command}': {e}")
+        debug_log(f"Error writing command '{command}': {e}. This thing is a pain in the ass!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return False
+
+def query_safe(inst, command, console_print_func):
+    """
+    Function Description:
+    Safely queries the instrument with a SCPI command and returns the response.
+    Logs the command and response, and handles potential errors.
+
+    Inputs to this function:
+    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
+    - command (str): The SCPI query command string.
+    - console_print_func (function): Function to print messages to the GUI console.
+
+    Process of this function:
+    1. Checks if the instrument is connected.
+    2. Attempts to query the instrument.
+    3. Logs the command, response, and handles errors.
+
+    Outputs of this function:
+    - str or None: The instrument's response if successful, None otherwise.
+
+    (2025-08-01) Change: Refactored from utils_instrument_control to use new logging.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    # current_file will be derived from __file__ in debug_log
+    debug_log(f"Attempting to query command: {command}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    if not inst:
+        console_print_func("⚠️ Warning: Instrument not connected. Cannot query command.")
+        debug_log("Instrument not connected. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return None
+    try:
+        response = inst.query(command).strip()
+        log_visa_command(command, "SENT") # Log the VISA command
+        log_visa_command(response, "RECEIVED") # Log the VISA response
+        return response
+    except Exception as e:
+        console_print_func(f"❌ Error querying command '{command}': {e}")
+        debug_log(f"Error querying command '{command}': {e}. This goddamn thing is broken!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return None
+
+# Import log_visa_command from debug_logic
+from src.debug_logic import log_visa_command
+
 def set_frequency_logic(inst, frequency_hz, console_print_func):
     """
     Function Description:
@@ -65,24 +166,36 @@ def set_frequency_logic(inst, frequency_hz, console_print_func):
     - bool: True if the frequency was set successfully, False otherwise.
 
     (2025-07-31 16:15) Change: New function created to handle frequency setting independently.
+    (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print(f"Attempting to set instrument frequency to {frequency_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Attempting to set instrument frequency to {frequency_hz} Hz.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot set frequency.")
-        debug_print("Instrument not connected for set_frequency_logic. Fucking useless!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected for set_frequency_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     command = f":SENSe:FREQuency:CENTer {frequency_hz}"
     if write_safe(inst, command, console_print_func):
         console_print_func(f"✅ Frequency set to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-        debug_print(f"Frequency set successfully to {frequency_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Frequency set successfully to {frequency_hz} Hz.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return True
     else:
         console_print_func(f"❌ Failed to set frequency to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-        debug_print(f"Failed to set frequency to {frequency_hz} Hz. What the hell went wrong?!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Failed to set frequency to {frequency_hz} Hz. What the hell went wrong?!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
 
@@ -106,14 +219,20 @@ def set_span_logic(inst, span_hz, console_print_func):
     - bool: True if the span was set successfully, False otherwise.
 
     (2025-07-31 16:15) Change: Modified to only set span. Removed center_freq_hz and trace mode parameters.
+    (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print(f"Attempting to set instrument span to {span_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Attempting to set instrument span to {span_hz} Hz.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot set span.")
-        debug_print("Instrument not connected for set_span_logic. Fucking useless!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected for set_span_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     success = True
@@ -121,25 +240,43 @@ def set_span_logic(inst, span_hz, console_print_func):
     # Set Span
     if span_hz == 0.0: # Special case for "Full Span"
         command = ":SENSe:FREQuency:SPAN MAX"
-        debug_print(f"Attempting to send Span MAX command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Attempting to send Span MAX command: {command}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if not write_safe(inst, command, console_print_func): # Use MAX for full span
             success = False
             console_print_func("❌ Failed to set Full Span.")
-            debug_print(f"write_safe returned False for Span MAX command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log(f"write_safe returned False for Span MAX command: {command}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
     else:
         command = f":SENSe:FREQuency:SPAN {span_hz}"
-        debug_print(f"Attempting to send Span command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Attempting to send Span command: {command}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if not write_safe(inst, command, console_print_func):
             success = False
             console_print_func(f"❌ Failed to set span to {span_hz / MHZ_TO_HZ:.3f} MHz.")
-            debug_print(f"write_safe returned False for Span command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log(f"write_safe returned False for Span command: {command}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     if success:
         console_print_func("✅ Span applied.")
-        debug_print("Span applied successfully.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Span applied successfully.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
         console_print_func("❌ Failed to apply span.")
-        debug_print("Failed to apply span. This bugger is being problematic!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Failed to apply span. This bugger is being problematic!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     return success
 
 
@@ -164,22 +301,33 @@ def set_rbw_logic(inst, rbw_hz, console_print_func):
     - bool: True if the RBW was set successfully, False otherwise.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print(f"Attempting to set instrument RBW to {rbw_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Attempting to set instrument RBW to {rbw_hz} Hz.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot set RBW.")
-        debug_print("Instrument not connected for set_rbw_logic. Fucking useless!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected for set_rbw_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     command = f":SENSe:BANDwidth:RESolution {rbw_hz}"
     if write_safe(inst, command, console_print_func):
         console_print_func(f"✅ RBW set to {rbw_hz / (MHZ_TO_HZ if rbw_hz >= MHZ_TO_HZ else 1000):.3f} {'MHz' if rbw_hz >= MHZ_TO_HZ else 'kHz'}.")
-        debug_print(f"RBW set successfully to {rbw_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"RBW set successfully to {rbw_hz} Hz.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return True
     else:
         console_print_func(f"❌ Failed to set RBW to {rbw_hz / (MHZ_TO_HZ if rbw_hz >= MHZ_TO_HZ else 1000):.3f} {'MHz' if rbw_hz >= MHZ_TO_HZ else 'kHz'}.")
-        debug_print(f"Failed to set RBW to {rbw_hz} Hz. What the hell went wrong?!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Failed to set RBW to {rbw_hz} Hz. What the hell went wrong?!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 # --- END NEW ---
 
@@ -208,14 +356,20 @@ def set_trace_modes_logic(inst, live_mode, max_hold_mode, min_hold_mode, console
 
     (2025-07-31 16:15) Change: New function created to handle trace modes independently.
     (2025-07-31 16:40) Change: Added small delays after each write to ensure instrument processing.
+    (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print(f"Applying trace modes: Live: {live_mode}, MaxHold: {max_hold_mode}, MinHold: {min_hold_mode}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Applying trace modes: Live: {live_mode}, MaxHold: {max_hold_mode}, MinHold: {min_hold_mode}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot set trace modes.")
-        debug_print("Instrument not connected for set_trace_modes_logic. Fucking useless!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected for set_trace_modes_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     success = True
@@ -249,9 +403,15 @@ def set_trace_modes_logic(inst, live_mode, max_hold_mode, min_hold_mode, console
 
     if success:
         console_print_func("✅ Trace modes applied.")
-        debug_print("Trace modes applied successfully.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Trace modes applied successfully.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
-        console_print_func("❌ Failed to apply trace modes. This is a goddamn mess!", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("❌ Failed to apply trace modes. This is a goddamn mess!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
     return success
 
 
@@ -275,13 +435,19 @@ def blank_hold_traces_logic(inst, console_print_func):
 
     (2025-07-31 16:30) Change: New function to specifically blank hold traces.
     (2025-07-31 16:40) Change: Added small delays after each write to ensure instrument processing.
+    (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print("Attempting to blank Max Hold and Min Hold traces.", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Attempting to blank Max Hold and Min Hold traces.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
-        debug_print("Instrument not connected. Cannot blank hold traces.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected. Cannot blank hold traces.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     success = True
@@ -292,10 +458,16 @@ def blank_hold_traces_logic(inst, console_print_func):
 
     if success:
         console_print_func("ℹ️ Max Hold and Min Hold traces blanked.")
-        debug_print("Max Hold and Min Hold traces blanked successfully.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Max Hold and Min Hold traces blanked successfully.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
         console_print_func("❌ Failed to blank Max Hold or Min Hold traces.")
-        debug_print("Failed to blank Max Hold or Min Hold traces. What the hell?!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Failed to blank Max Hold or Min Hold traces. What the hell?!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     return success
 
 
@@ -320,14 +492,20 @@ def set_marker_logic(inst, frequency_hz, marker_name, console_print_func):
     - bool: True if the marker was set successfully, False otherwise.
 
     (2025-07-31 16:15) Change: Modified to only set the marker; removed Y-value query.
+    (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = f"utils/utils_markers.py - {current_version}"
-    debug_print(f"Setting marker to {frequency_hz} Hz for '{marker_name}'...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Setting marker to {frequency_hz} Hz for '{marker_name}'...",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot set marker.")
-        debug_print("Instrument not connected for set_marker_logic. Fucking useless!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Instrument not connected for set_marker_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     success = True
@@ -343,12 +521,21 @@ def set_marker_logic(inst, frequency_hz, marker_name, console_print_func):
 
         if success:
             console_print_func(f"✅ Marker set to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-            debug_print(f"Marker 1 set to {frequency_hz} Hz.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log(f"Marker 1 set to {frequency_hz} Hz.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             console_print_func(f"❌ Failed to set marker for {marker_name}.")
-            debug_print(f"Failed to set marker for {marker_name}. This bugger is being problematic!", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log(f"Failed to set marker for {marker_name}. This bugger is being problematic!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         return success
     except Exception as e:
         console_print_func(f"❌ Error setting marker: {e}")
-        debug_print(f"Error setting marker: {e}. What the hell is its problem?!", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Error setting marker: {e}. What the hell is its problem?!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False

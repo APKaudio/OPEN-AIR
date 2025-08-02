@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1900.2 (Fixed config.ini not being created/populated on first run and TclError in tab styling.)
+# Version 20250801.2200.1 (Refactored logging to use src/debug_logic and src/console_logic.)
 
-current_version = "20250801.1900.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 1900 * 2 + -638010053603417879 # Calculated hash for version 20250801.1900.2
+current_version = "20250801.2200.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2200 * 1 + -638010053603417879 # Calculated hash for version 20250801.2200.1
 
 
 # Project file structure
@@ -49,14 +49,17 @@ import time
 import pyvisa
 import configparser
 import inspect
-from datetime import datetime # For timestamp in debug_print
-import subprocess
+from datetime import datetime # For timestamp in debug_log
 
 
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, print_art
+
+# Import the new debug_logic and console_logic modules
+from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_gui_console_redirector
+from src.console_logic import console_log, set_console_redirector # Import console_log and its redirector setter
 
 
 from src.instrument_logic import (
@@ -69,8 +72,6 @@ from src.settings_logic import restore_default_settings_logic, restore_last_used
 from src.scan_controler_button_logic import ScanControlTab
 from src.style import apply_styles # NEW: Import the apply_styles function
 from src.check_Dependancies import check_and_install_dependencies # NEW: Import the standalone dependency check
-
-from utils.utils_instrument_control import set_debug_mode, set_log_visa_commands_mode, debug_print
 
 
 # Import the new parent tab classes
@@ -162,20 +163,35 @@ class App(tk.Tk):
         # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
         # (2025-08-01 1807.11) Change: Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'is_ready_to_save' by initializing the flag earlier.
         # (2025-08-01 1845.1) Change: Fixed DATA_FOLDER_PATH to be inside the main app directory.
-        # (2025-08-01 1850.2) Change: Implemented logic to check for config.ini and enable general debugging if missing, displaying status on console.
+        # (2025-08-01 1850.2) Change: Implemented logic to check for config.ini and enable general debugging if missing, displaying relevant status remarks on GUI console.
         # (2025-08-01 1900.1) Change: Regenerated file to ensure latest version is presented. No functional changes from previous version.
         # (2025-08-01 1900.2) Change: Ensured config.ini is created and populated with defaults on first run if it doesn't exist.
         #                             Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
+        # (2025-08-01 2015.1) Change: Added binding for window configure event to save geometry.
+        #                             Stored original stdout/stderr for redirection on close.
+        #                             Added connection status label to the right column.
+        # (2025-08-01 2023.1) Change: Added 'debug_to_terminal_var' to control debug output redirection.
+        #                             Modified _redirect_stdout_to_console and _print_to_gui_console to respect this setting.
+        # (2025-08-01 2045.1) Change: Refactored logging to use src/debug_logic.py for separate debug and console output.
+        #                             Removed _print_to_gui_console method.
+        #                             Updated all calls to use debug_print and console_log.
+        #                             Simplified _redirect_stdout_to_console.
+        # (2025-08-01 2200.1) Change: Fully integrated debug_log and console_log, removed _print_to_gui_console.
+        #                             Updated all calls to reflect new logging functions and their parameters.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
+
+        # Store original stdout and stderr to restore on close
+        # These are now managed by debug_logic and console_logic, but keeping references for explicit restoration on app close
+        self._original_stdout = sys.stdout
+        self._original_stderr = sys.stderr
 
         # Initialize is_ready_to_save to False at the very beginning
         # This prevents AttributeError when Tkinter variable traces are triggered during setup.
         self.is_ready_to_save = False
 
-        # Initialize console_text to None or a dummy object before _create_widgets
-        # This prevents AttributeError if _print_to_gui_console is called before the widget exists
+        # console_text will be initialized in _create_widgets
         self.console_text = None
 
         check_and_install_dependencies(current_version) # Call the standalone function
@@ -196,11 +212,11 @@ class App(tk.Tk):
         self.MHZ_TO_HZ = MHZ_TO_HZ
         self.VBW_RBW_RATIO = VBW_RBW_RATIO
 
-        # Pass None for console_print_func initially, as console_text is not yet ready
-        self._setup_tkinter_vars(console_print_func=None) # Initialize Tkinter variables BEFORE loading config
+        # No need to pass console_print_func here, as console_log is directly imported
+        self._setup_tkinter_vars() # Initialize Tkinter variables BEFORE loading config
 
-        # Ensure the DATA directory exists. Pass None for console_print_func initially.
-        self._ensure_data_directory_exists(console_print_func=None)
+        # Ensure the DATA directory exists.
+        self._ensure_data_directory_exists()
 
         # Check if config.ini exists before attempting to load
         config_file_exists_on_startup = os.path.exists(self.CONFIG_FILE_PATH)
@@ -208,36 +224,48 @@ class App(tk.Tk):
         # FUCKING IMPORTANT: Corrected load_config call to pass all required arguments
         # and assign the returned config object to self.config
         self.config = configparser.ConfigParser() # Initialize config parser before loading
-        # Corrected load_config call to pass self.config, CONFIG_FILE_PATH, print func, and self (app_instance)
-        load_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
+        # Corrected load_config call to pass self.config, CONFIG_FILE_PATH, and console_log
+        load_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
         
         # If config.ini did not exist on startup, save it now to populate with defaults
         if not config_file_exists_on_startup:
-            debug_print(f"config.ini was not found on startup. Saving defaults to new file.",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self._print_to_gui_console)
-            save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
+            debug_log(f"config.ini was not found on startup. Saving defaults to new file.",
+                        file=__file__,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
+            save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
 
 
-        # Pass None for console_print_func initially, as console_text is not yet ready
-        self._apply_saved_geometry(console_print_func=None)
+        # Apply saved geometry.
+        self._apply_saved_geometry()
 
         # Initialize self.style BEFORE _create_widgets is called
         self.style = ttk.Style(self) # Make style an instance attribute
 
-        # These calls now use the Tkinter variables directly, which are populated by load_config
-        # The initial setting here uses values from config.ini, which might be defaults if config.ini was not found.
+        # Set debug modes based on loaded config. These now call functions in debug_logic.
         set_debug_mode(self.general_debug_enabled_var.get())
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
+        set_debug_to_terminal_mode(self.debug_to_terminal_var.get()) # Set this early
 
         self._create_widgets() # console_text is initialized here
 
+        # Now that console_text is created, set the redirectors
+        set_gui_console_redirector(TextRedirector(self.console_text, "stdout"), TextRedirector(self.console_text, "stderr"))
+        set_console_redirector(TextRedirector(self.console_text, "stdout")) # Set for console_log specifically
+
+
         self._setup_styles() # This will now configure self.style
+        # _redirect_stdout_to_console is now implicitly handled by set_debug_to_terminal_mode and console_log
+        # We still call it here to ensure the initial state is correctly set up,
+        # but its internal logic is simplified.
         self._redirect_stdout_to_console()
+
 
         # NEW: Check for config.ini and enable debug if not found, reporting status to GUI console
         self._check_config_and_set_debug()
+
+        # Bind window configure event to save geometry
+        self.bind("<Configure>", self._on_window_configure)
 
         # Call _on_parent_tab_change to set initial tab colors after all widgets are created
         # Pass a dummy event as it's not triggered by a user action
@@ -251,38 +279,38 @@ class App(tk.Tk):
         # Adjusted startup calls for band selections and notes to new nested tab structure
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_configuration_tab'):
             self.scanning_parent_tab.scan_configuration_tab._load_band_selections_from_config()
-            debug_print(f"Called _load_band_selections_from_config on Scan Configuration Tab during startup.",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"Called _load_band_selections_from_config on Scan Configuration Tab during startup.",
+                        file=__file__,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
 
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_meta_data_tab'):
             # Ensure the notes_text_widget exists before trying to access it
             if hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
                 self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
                 self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", self.notes_var.get())
-                debug_print(f"Updated notes_text_widget on Scan Meta Data Tab during startup.",
-                            file=f"main_app.py - {current_version}",
-                            function=inspect.currentframe().f_code.co_name,
-                            console_print_func=self._print_to_gui_console) # Added console_print_func
+                debug_log(f"Updated notes_text_widget on Scan Meta Data Tab during startup.",
+                            file=__file__,
+                            version=current_version,
+                            function=inspect.currentframe().f_code.co_name)
             else:
-                debug_print(f"ScanMetaDataTab notes_text_widget not found for initial notes update.",
-                            file=f"main_app.py - {current_version}",
-                            function=inspect.currentframe().f_code.co_name,
-                            console_print_func=self._print_to_gui_console) # Added console_print_func
+                debug_log(f"ScanMetaDataTab notes_text_widget not found for initial notes update.",
+                            file=__file__,
+                            version=current_version,
+                            function=inspect.currentframe().f_code.co_name)
         else:
-            debug_print(f"ScanMetaDataTab not found for initial notes update.",
-                        file=f"main_app.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"ScanMetaDataTab not found for initial notes update.",
+                        file=__file__,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
 
 
         # Set to True only after all initialization is complete
         self.is_ready_to_save = True
-        debug_print(f"Application fully initialized and ready to save configuration.",
-                    file=f"main_app.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Application fully initialized and ready to save configuration.",
+                    file=__file__,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
 
     # Function Description:
     # Checks for the presence of the config.ini file in the DATA_FOLDER_PATH.
@@ -310,55 +338,62 @@ class App(tk.Tk):
     # (2025-08-01 1850.2) Change: New function to check for config.ini and enable debug if missing.
     # (2025-08-01 1900.1) Change: No functional changes.
     # (2025-08-01 1900.2) Change: Modified to return a boolean indicating if config.ini was found.
+    # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
     def _check_config_and_set_debug(self):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
 
-        self._print_to_gui_console(f"--- Configuration & Debug Status ({current_version}) ---")
-        debug_print(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function, console_print_func=self._print_to_gui_console)
+        console_log(f"--- Configuration & Debug Status ({current_version}) ---", function=current_function)
+        debug_log(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         config_file_found = os.path.exists(self.CONFIG_FILE_PATH)
 
         if not config_file_found:
-            self._print_to_gui_console(f"❌ config.ini not found at '{self.CONFIG_FILE_PATH}'.")
-            self._print_to_gui_console(f"⚠️ General debugging enabled automatically. Let's see what the fuck is going on!")
+            console_log(f"❌ config.ini not found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
+            console_log(f"⚠️ General debugging enabled automatically. Let's see what the fuck is going on!", function=current_function)
             self.general_debug_enabled_var.set(True)
             set_debug_mode(True) # Ensure the actual debug mode is set
-            debug_print(f"config.ini not found. General debugging enabled.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function, console_print_func=self._print_to_gui_console)
+            debug_log(f"config.ini not found. General debugging enabled.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            self._print_to_gui_console(f"✅ config.ini found at '{self.CONFIG_FILE_PATH}'.")
-            debug_print(f"config.ini found.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function, console_print_func=self._print_to_gui_console)
+            console_log(f"✅ config.ini found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
+            debug_log(f"config.ini found.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         # Display current debug status (regardless of config.ini presence)
         if self.general_debug_enabled_var.get():
-            self._print_to_gui_console(f"🐞 Current General Debug Mode: ENABLED")
-            debug_print(f"Current General Debug Mode: ENABLED",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function, console_print_func=self._print_to_gui_console)
+            console_log(f"🐞 Current General Debug Mode: ENABLED", function=current_function)
+            debug_log(f"Current General Debug Mode: ENABLED",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            self._print_to_gui_console(f"🐞 Current General Debug Mode: DISABLED")
-            debug_print(f"Current General Debug Mode: DISABLED",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function, console_print_func=self._print_to_gui_console)
-        self._print_to_gui_console(f"--------------------------------------------------")
+            console_log(f"🐞 Current General Debug Mode: DISABLED", function=current_function)
+            debug_log(f"Current General Debug Mode: DISABLED",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        console_log(f"--------------------------------------------------", function=current_function)
         
         return config_file_found
 
 
-    def _ensure_data_directory_exists(self, console_print_func=None):
+    def _ensure_data_directory_exists(self):
         # Function Description:
         # Ensures that the DATA directory exists. If it doesn't, it creates it.
         # This function is called early in initialization, potentially before
         # the GUI console is fully set up, hence the conditional console_print_func.
         #
         # Inputs:
-        #   console_print_func (function, optional): Function to use for console output.
+        #   None.
         #
         # Process:
         #   1. Checks if `self.DATA_FOLDER_PATH` exists.
@@ -373,40 +408,42 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change, but now called early for directory creation.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function, console_print_func=console_print_func)
+        debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         try:
-            if not os.path.exists(self.DATA_FOLDER_PATH):
-                os.makedirs(self.DATA_FOLDER_PATH)
-                if console_print_func: # Only print to GUI console if function is provided
-                    console_print_func(f"✅ Created DATA directory: {self.DATA_FOLDER_PATH}")
-                debug_print(f"DATA directory created.",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function, console_print_func=console_print_func)
-            else:
-                if console_print_func: # Only print to GUI console if function is provided
-                    console_print_func(f"ℹ️ DATA directory already exists: {self.DATA_FOLDER_PATH}")
-                debug_print(f"DATA directory already exists.",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function, console_print_func=console_print_func)
+            os.makedirs(self.DATA_FOLDER_PATH)
+            console_log(f"✅ Created DATA directory: {self.DATA_FOLDER_PATH}", function=current_function)
+            debug_log(f"DATA directory created.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        except FileExistsError: # Added specific handling for already existing directory
+            console_log(f"ℹ️ DATA directory already exists: {self.DATA_FOLDER_PATH}", function=current_function)
+            debug_log(f"DATA directory already exists.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
-            if console_print_func: # Only print to GUI console if function is provided
-                console_print_func(f"❌ Error creating DATA directory {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!")
-            debug_print(f"Error creating DATA directory: {e}",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function, console_print_func=console_print_func)
+            console_log(f"❌ Error creating DATA directory {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!", function=current_function)
+            debug_log(f"Error creating DATA directory: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-    def _setup_tkinter_vars(self, console_print_func=None):
+    def _setup_tkinter_vars(self):
         # Function Description:
         # Initializes all Tkinter `StringVar`, `BooleanVar`, and `DoubleVar` instances
         # used throughout the application. These variables are linked to GUI widgets
         # and configuration settings.
         #
         # Inputs:
-        #   console_print_func (function, optional): Function to use for console output.
+        #   None.
         #
         # Process:
         #   1. Initializes StringVars for VISA resource names, selected resource,
@@ -423,23 +460,28 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2023.1) Change: Added 'debug_to_terminal_var' for controlling debug output redirection.
+        # (2025-08-01 2045.1) Change: Removed console_print_func parameter from signature.
+        #                             Updated debug_print calls to remove console_print_func.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print("Setting up Tkinter variables...",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function, console_print_func=console_print_func)
+        debug_log("Setting up Tkinter variables...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Define a helper function to add trace for saving config
         def create_trace_callback(var_name):
             def callback(*args):
                 # Only save if the app is fully initialized to avoid saving partial states during startup
                 if self.is_ready_to_save: # This check now works because is_ready_to_save is initialized early
-                    debug_print(f"Tkinter variable '{var_name}' changed. Saving config.",
-                                file=f"{current_file} - {current_version}", # Corrected file path
-                                function=inspect.currentframe().f_code.co_name,
-                                console_print_func=self._print_to_gui_console) # Added console_print_func
+                    debug_log(f"Tkinter variable '{var_name}' changed. Saving config.",
+                                file=__file__,
+                                version=current_version, # Corrected file path
+                                function=inspect.currentframe().f_code.co_name)
                     # FUCKING IMPORTANT: Call save_config here!
-                    save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
+                    save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
             return callback
 
         # GLOBAL variables
@@ -448,6 +490,10 @@ class App(tk.Tk):
 
         self.log_visa_commands_enabled_var = tk.BooleanVar(self, value=False)
         self.log_visa_commands_enabled_var.trace_add("write", create_trace_callback("log_visa_commands_enabled_var"))
+
+        # NEW: Debug to Terminal variable
+        self.debug_to_terminal_var = tk.BooleanVar(self, value=False)
+        self.debug_to_terminal_var.trace_add("write", create_trace_callback("debug_to_terminal_var"))
 
         # NEW: PanedWindow sash position variable
         self.paned_window_sash_position_var = tk.IntVar(self, value=700) # Default to a reasonable split
@@ -632,6 +678,7 @@ class App(tk.Tk):
         self.setting_var_map = {
             'general_debug_enabled_var': ('last_GLOBAL__debug_enabled', 'default_GLOBAL__debug_enabled', self.general_debug_enabled_var),
             'log_visa_commands_enabled_var': ('last_GLOBAL__log_visa_commands_enabled', 'default_GLOBAL__log_visa_commands_enabled', self.log_visa_commands_enabled_var),
+            'debug_to_terminal_var': ('last_GLOBAL__debug_to_Terminal', 'default_GLOBAL__debug_to_Terminal', self.debug_to_terminal_var), # NEW
             'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var), # NEW
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
 
@@ -710,13 +757,13 @@ class App(tk.Tk):
             self.band_vars.append({"band": band, "var": band_var})
 
 
-    def _apply_saved_geometry(self, console_print_func=None):
+    def _apply_saved_geometry(self):
         # Function Description:
         # Applies the window geometry saved in config.ini, or uses a default
         # if no saved geometry is found or if it's invalid.
         #
         # Inputs:
-        #   console_print_func (function, optional): Function to use for console output.
+        #   None.
         #
         # Process:
         #   1. Retrieves the window geometry from the 'LAST_USED_SETTINGS'
@@ -739,6 +786,9 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2045.1) Change: Removed console_print_func parameter from signature.
+        #                             Updated debug_print calls to remove console_print_func.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -749,15 +799,15 @@ class App(tk.Tk):
         saved_geometry = self.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback=self.DEFAULT_WINDOW_GEOMETRY)
         try:
             self.geometry(saved_geometry)
-            debug_print(f"Applied saved geometry: {saved_geometry}.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=console_print_func) # Conditionally pass console_print_func
+            debug_log(f"Applied saved geometry: {saved_geometry}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except TclError as e:
-            debug_print(f"ERROR: Invalid saved geometry '{saved_geometry}': {e}. Using default.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=console_print_func) # Conditionally pass console_print_func
+            debug_log(f"ERROR: Invalid saved geometry '{saved_geometry}': {e}. Using default.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self.geometry(self.DEFAULT_WINDOW_GEOMETRY)
 
 
@@ -803,16 +853,19 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+        #                             Removed console_print_func from tab instantiations.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Creating main application widgets with nested tabs...",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Creating main application widgets with nested tabs...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Configure grid for the main window - single row, single column for the PanedWindow
         self.grid_columnconfigure(0, weight=1)
@@ -853,7 +906,7 @@ class App(tk.Tk):
         # and for the child notebook tabs.
         self.parent_tab_colors = {
             "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "SCANNING": {"active": PAPARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
             "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
             "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
             "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
@@ -864,32 +917,32 @@ class App(tk.Tk):
         # Instantiate and add parent tabs, storing widget references as App attributes
         # Removed 'style' argument from add() calls as it's not supported directly for tab labels.
         # Initial styling will be handled by _on_parent_tab_change.
-        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.instrument_parent_tab, text="INSTRUMENT")
         self.child_notebooks["INSTRUMENT"] = self.instrument_parent_tab.child_notebook
         self.parent_tab_widgets["INSTRUMENT"] = self.instrument_parent_tab # Store widget reference
 
-        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.scanning_parent_tab, text="SCANNING")
         self.child_notebooks["SCANNING"] = self.scanning_parent_tab.child_notebook
         self.parent_tab_widgets["SCANNING"] = self.scanning_parent_tab # Store widget reference
 
-        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.plotting_parent_tab, text="PLOTTING")
         self.child_notebooks["PLOTTING"] = self.plotting_parent_tab.child_notebook
         self.parent_tab_widgets["PLOTTING"] = self.plotting_parent_tab # Store widget reference
 
-        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.markers_parent_tab, text="MARKERS")
         self.child_notebooks["MARKERS"] = self.markers_parent_tab.child_notebook
         self.parent_tab_widgets["MARKERS"] = self.markers_parent_tab # Store widget reference
 
-        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.presets_parent_tab, text="PRESETS")
         self.child_notebooks["PRESETS"] = self.presets_parent_tab.child_notebook
         self.parent_tab_widgets["PRESETS"] = self.presets_parent_tab # Store widget reference
 
-        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self, console_print_func=self._print_to_gui_console)
+        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self)
         self.parent_notebook.add(self.experiments_parent_tab, text="EXPERIMENTS")
         self.child_notebooks["EXPERIMENTS"] = self.experiments_parent_tab.child_notebook
         self.parent_tab_widgets["EXPERIMENTS"] = self.experiments_parent_tab # Store widget reference
@@ -908,6 +961,20 @@ class App(tk.Tk):
         right_column_container.grid_rowconfigure(1, weight=1) # Console row
 
 
+        # --- Scan Control Buttons Frame (Moved into right_column_container) ---
+        scan_control_frame = ttk.Frame(right_column_container, style='Dark.TFrame')
+        scan_control_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        scan_control_frame.grid_columnconfigure(0, weight=1)
+        scan_control_frame.grid_columnconfigure(1, weight=0) # For connection status label
+
+        self.scan_control_tab = ScanControlTab(scan_control_frame, app_instance=self)
+        self.scan_control_tab.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+
+        # NEW: Connection Status Label
+        self.connection_status_label = ttk.Label(scan_control_frame, text="Disconnected", style='Red.TLabel')
+        self.connection_status_label.grid(row=0, column=1, padx=5, pady=0, sticky="e")
+
+
         # --- Application Console Frame (Moved into right_column_container) ---
         # Initialize self.console_text here where it's actually created
         console_frame = ttk.LabelFrame(right_column_container, text="Application Console", style='Dark.TLabelframe')
@@ -919,32 +986,27 @@ class App(tk.Tk):
         self.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self.console_text.config(state=tk.DISABLED)
 
-        # --- Scan Control Buttons Frame (Moved into right_column_container) ---
-        self.scan_control_tab = ScanControlTab(right_column_container, app_instance=self, console_print_func=self._print_to_gui_console)
-        # Changed sticky to "nsew" to make it expand in all directions, especially horizontally
-        self.scan_control_tab.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-
 
         # Apply the saved sash position after all widgets are added to the paned window
         # Ensure the value is within reasonable bounds (e.g., not zero, not exceeding window width)
         sash_pos = self.paned_window_sash_position_var.get()
         if sash_pos > 0: # Avoid setting to 0 which can hide a pane
             self.main_panedwindow.sashpos(0, sash_pos)
-            debug_print(f"Applied saved PanedWindow sash position: {sash_pos}.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"Applied saved PanedWindow sash position: {sash_pos}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            debug_print(f"WARNING: Invalid saved PanedWindow sash position: {sash_pos}. Using default.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"WARNING: Invalid saved PanedWindow sash position: {sash_pos}. Using default.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
-        debug_print(f"Main application widgets created.",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Main application widgets created.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _setup_styles(self):
@@ -973,35 +1035,39 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Setting up ttk styles...",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Setting up ttk styles...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         # self.style is now an instance attribute, initialized in __init__
         # Pass the parent_tab_colors dictionary to apply_styles
-        apply_styles(self.style, debug_print, current_version, self.parent_tab_colors)
+        apply_styles(self.style, debug_log, current_version, self.parent_tab_colors)
 
 
     def _redirect_stdout_to_console(self):
         # Function Description:
         # Redirects standard output and error streams to the GUI's scrolled text widget.
         # This allows all `print()` statements and error messages to appear in the
-        # application's console area.
+        # application's console area. If `debug_to_terminal_var` is True, output
+        # remains in the terminal.
         #
         # Inputs:
         #   None (operates on self).
         #
         # Process:
         #   1. Prints a debug message.
-        #   2. Reassigns `sys.stdout` and `sys.stderr` to instances of `TextRedirector`,
-        #      which directs output to `self.console_text`.
-        #   3. Prints an initial message to the console to confirm initialization.
+        #   2. Checks `self.debug_to_terminal_var`.
+        #   3. If False, reassigns `sys.stdout` and `sys.stderr` to instances of `TextRedirector`.
+        #   4. If True, ensures `sys.stdout` and `sys.stderr` are set to original terminal streams.
+        #   5. Prints an initial message to the console to confirm initialization.
         #
         # Outputs:
         #   None. Modifies global system streams.
@@ -1017,23 +1083,75 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2023.1) Change: Added logic to respect 'debug_to_terminal_var' for redirection.
+        # (2025-08-01 2045.1) Change: Simplified redirection logic as it's now handled by debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
-        Redirects standard output and error streams to the GUI's scrolled text widget.
+        Redirects standard output and error streams to the GUI's scrolled text widget
+        or keeps them in the terminal based on configuration.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Redirecting stdout/stderr to GUI console...",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
-        sys.stdout = TextRedirector(self.console_text, "stdout")
-        sys.stderr = TextRedirector(self.console_text, "stderr") # Fix: Corrected to TextRedirector
 
-        self._print_to_gui_console(f"Application console initialized. Version: {current_version}")
-        debug_print(f"Console redirection complete.",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        # The actual redirection of sys.stdout/stderr is now handled by set_debug_to_terminal_mode
+        # and set_gui_console_redirector in debug_logic.py.
+        # This function primarily serves to trigger that setup and log its state.
+
+        if not self.debug_to_terminal_var.get():
+            debug_log(f"Redirecting stdout/stderr to GUI console...",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            console_log(f"Application console initialized. Version: {current_version}", function=current_function)
+            debug_log(f"Console redirection complete.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log(f"Console redirection bypassed. Debug output to terminal.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            # Normal console messages will still attempt to go to GUI via console_log
+            console_log(f"Normal application messages will go to GUI console. Debug output will remain in terminal. Version: {current_version}", function=current_function)
+
+
+    def _on_window_configure(self, event):
+        # Function Description:
+        # Handles the window's <Configure> event, which fires on size, position, and stacking changes.
+        # This method is used to save the window's geometry to config.ini.
+        #
+        # Inputs:
+        #   event (tkinter.Event): The event object.
+        #
+        # Process:
+        #   1. Checks if the event is a geometry change (width, height, x, or y changed).
+        #   2. If a change is detected and `is_ready_to_save` is True, it saves the current geometry
+        #      to the config and updates the `last_GLOBAL__window_geometry` setting.
+        #
+        # Outputs:
+        #   None. Persists window geometry.
+        #
+        # (2025-08-01 2015.1) Change: New function to handle window configure events and save geometry.
+        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+
+        # Only save if the app is fully initialized and it's a geometry change, not just a stacking order change
+        if self.is_ready_to_save and (event.widget == self):
+            current_geometry = self.geometry()
+            # Get the previous saved geometry to avoid saving if nothing changed
+            # This is important because <Configure> fires frequently.
+            previous_geometry = self.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback="")
+            
+            if current_geometry != previous_geometry:
+                self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', current_geometry)
+                save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+                debug_log(f"Window geometry changed and saved: {current_geometry}.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
 
     def _on_closing(self):
@@ -1041,6 +1159,7 @@ class App(tk.Tk):
         # Handles the application closing event.
         # It attempts to save the current configuration and gracefully
         # disconnect from the instrument before destroying the main window.
+        # It also restores stdout/stderr to their original values.
         #
         # Inputs:
         #   None (operates on self).
@@ -1050,7 +1169,8 @@ class App(tk.Tk):
         #   2. Attempts to save the current configuration to `config.ini`.
         #   3. Calls `disconnect_instrument_logic` to ensure the instrument is properly
         #      released, if connected.
-        #   4. Destroys the main Tkinter window.
+        #   4. Restores `sys.stdout` and `sys.stderr` to their original values.
+        #   5. Destroys the main Tkinter window.
         #
         # Outputs:
         #   None. Closes the application.
@@ -1066,86 +1186,53 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2015.1) Change: Added restoration of original stdout/stderr.
+        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+        #                             Restored original stdout/stderr at the end.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         Handles the application closing event, saving configuration and disconnecting.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Application is shutting down. Saving configuration...",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Application is shutting down. Saving configuration...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Save the current sash position before closing
         # Ensure self.main_panedwindow exists before trying to get its sash position
         if hasattr(self, 'main_panedwindow') and self.main_panedwindow.winfo_exists():
             sash_pos = self.main_panedwindow.sashpos(0)
             self.paned_window_sash_position_var.set(sash_pos)
-            debug_print(f"Saved final sash position: {sash_pos}.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"Saved final sash position: {sash_pos}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
         # FUCKING IMPORTANT: Pass the config object, file path, and console print func to save_config
-        save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self) # Corrected call to include app_instance
+        save_config(self.config, self.CONFIG_FILE_PATH, console_log, self) # Corrected call to include app_instance
 
         if self.inst:
-            debug_print(f"Disconnecting instrument before exit.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
-            disconnect_instrument_logic(self, self._print_to_gui_console) # Pass app_instance and console_print_func
+            debug_log(f"Disconnecting instrument before exit.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            disconnect_instrument_logic(self, console_log) # Pass app_instance and console_log
+
+        # Restore original stdout and stderr before destroying the window
+        sys.stdout = self._original_stdout
+        sys.stderr = self._original_stderr
+        print(f"Debug output redirected back to terminal. Application closing. Version: {current_version}")
 
         self.destroy() # Destroy the main window
 
 
-    def _print_to_gui_console(self, message):
-        # Function Description:
-        # Prints a message to the GUI's scrolled text console.
-        # This function is used as the `console_print_func` argument
-        # passed to various utility and logic functions, ensuring all
-        # relevant output is displayed in the GUI.
-        #
-        # Inputs:
-        #   message (str): The string message to print.
-        #
-        # Process:
-        #   1. Checks if `self.console_text` (the scrolled text widget) exists.
-        #   2. If it exists, enables the widget, inserts the message with a newline,
-        #      scrolls to the end, and then disables the widget.
-        #   3. If it doesn't exist (e.g., during early startup), it falls back to `print()`.
-        #
-        # Outputs:
-        #   None. Displays text in the GUI console.
-        #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Fixed AttributeError by ensuring self.console_text exists
-        #                      before attempting to write to it.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        """
-        Prints a message to the GUI's scrolled text console.
-        """
-        if self.console_text:
-            self.console_text.config(state=tk.NORMAL)
-            self.console_text.insert(tk.END, message + "\n")
-            self.console_text.see(tk.END)
-            self.console_text.config(state=tk.DISABLED)
-        else:
-            # Fallback to standard print if console_text is not yet initialized
-            print(f"[CONSOLE_FALLBACK] {message}")
+    # Removed _print_to_gui_console as its functionality is now split between debug_log and console_log
 
 
-    def _ensure_data_directory_exists(self, console_print_func=None):
+    def _ensure_data_directory_exists(self):
         # Function Description:
         # Ensures that the 'DATA' directory exists at the specified `self.DATA_FOLDER_PATH`.
         # If the directory does not exist, it attempts to create it. This is crucial
@@ -1168,28 +1255,28 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=console_print_func)
+        debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         try:
             os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
-            if console_print_func:
-                self._print_to_gui_console(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}")
-            debug_print(f"DATA directory created or already exists.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=console_print_func)
+            console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
+            debug_log(f"DATA directory created or already exists.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
-            if console_print_func:
-                self._print_to_gui_console(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}")
-            debug_print(f"ERROR: Error creating DATA directory: {e}",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=console_print_func)
+            console_log(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}", function=current_function)
+            debug_log(f"ERROR: Error creating DATA directory: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def update_connection_status(self, is_connected):
@@ -1209,6 +1296,7 @@ class App(tk.Tk):
         #      handle the core logic of enabling/disabling widgets. This centralizes
         #      the UI state management.
         #   3. Passes references to all relevant tabs and their child tabs.
+        #   4. Updates the connection status label.
         #
         # Outputs:
         #   None. Modifies the state of GUI widgets.
@@ -1234,15 +1322,18 @@ class App(tk.Tk):
         # (2025-08-01 1850.2) Change: No functional change.
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: No functional changes.
+        # (2025-08-01 2015.1) Change: Updated connection status label text and style.
+        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         Updates the state of various GUI elements based on connection and scan status.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Updating connection status. Connected: {is_connected}.",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Updating connection status. Connected: {is_connected}.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # This central logic function now only takes the main app_instance
         # and the connection status. It should access all necessary tabs
@@ -1250,8 +1341,22 @@ class App(tk.Tk):
         update_connection_status_logic(
             app_instance=self, # Pass the main app instance
             is_connected=is_connected,
-            console_print_func=self._print_to_gui_console
+            console_log_func=console_log # Pass the console_log function
         )
+
+        # Update the connection status label
+        if is_connected:
+            self.connection_status_label.config(text="Connected", style='Green.TLabel')
+            debug_log(f"Connection status label set to 'Connected'.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        else:
+            self.connection_status_label.config(text="Disconnected", style='Red.TLabel')
+            debug_log(f"Connection status label set to 'Disconnected'.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def _on_parent_tab_change(self, event):
@@ -1300,15 +1405,17 @@ class App(tk.Tk):
         # (2025-08-01 1900.1) Change: No functional changes.
         # (2025-08-01 1900.2) Change: Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
         #                             Reliance on ttk.Style mapping for tab appearance.
+        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
+        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         Handles parent tab changes, updates styles, and propagates to active child tab.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_print(f"Parent tab changed.",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self._print_to_gui_console) # Added console_print_func
+        debug_log(f"Parent tab changed.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Get the currently selected parent tab widget
         selected_tab_id = self.parent_notebook.select()
@@ -1338,20 +1445,20 @@ class App(tk.Tk):
             #     bg_color = self.style.lookup(style_name, "background")
             #     fg_color = self.style.lookup(style_name, "foreground")
             #     self.parent_notebook.tab(tab_widget, background=bg_color, foreground=fg_color)
-            #     debug_print(f"Applied colors (BG: {bg_color}, FG: {fg_color}) to parent tab '{tab_name}' using style '{style_name}'.",
-            #                 file=f"{current_file} - {current_version}",
-            #                 function=current_function,
-            #                 console_print_func=self._print_to_gui_console)
+            #     debug_log(f"Applied colors (BG: {bg_color}, FG: {fg_color}) to parent tab '{tab_name}' using style '{style_name}'.",
+            #                 file=__file__,
+            #                 version=current_version,
+            #                 function=current_function)
             # except TclError as e:
-            #     debug_print(f"❌ TclError applying colors to parent tab '{tab_name}' with style '{style_name}': {e}. This is some bullshit!",
-            #                 file=f"{current_file} - {current_version}",
-            #                 function=current_function,
-            #                 console_print_func=self._print_to_gui_console)
+            #     debug_log(f"❌ TclError applying colors to parent tab '{tab_name}' with style '{style_name}': {e}. This is some bullshit!",
+            #                 file=__file__,
+            #                 version=current_version,
+            #                 function=current_function)
             # except Exception as e:
-            #     debug_print(f"❌ An unexpected error occurred while applying colors to parent tab '{tab_name}': {e}. What the hell is going on?!",
-            #                 file=f"{current_file} - {current_version}",
-            #                 function=current_function,
-            #                 console_print_func=self._print_to_gui_console)
+            #     debug_log(f"❌ An unexpected error occurred while applying colors to parent tab '{tab_name}': {e}. What the hell is going on?!",
+            #                 file=__file__,
+            #                 version=current_version,
+            #                 function=current_function)
             
             # Instead, we rely on the style system to apply the correct appearance based on selection.
             # Ensure the tab's style is set if the notebook.tab method supports it (it doesn't for the label itself).
@@ -1367,25 +1474,25 @@ class App(tk.Tk):
                 selected_child_tab_widget = active_child_notebook.nametowidget(selected_child_tab_id)
                 if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                     selected_child_tab_widget._on_tab_selected(event)
-                    debug_print(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
-                                file=f"{current_file} - {current_version}",
-                                function=current_function,
-                                console_print_func=self._print_to_gui_console) # Added console_print_func
+                    debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                 else:
-                    debug_print(f"Active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}' has no _on_tab_selected method.",
-                                file=f"{current_file} - {current_version}",
-                                function=current_function,
-                                console_print_func=self._print_to_gui_console) # Added console_print_func
+                    debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}' has no _on_tab_selected method.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
             else:
-                debug_print(f"No child tab selected in parent '{selected_tab_text}'.",
-                            file=f"{current_file} - {current_version}",
-                            function=current_function,
-                            console_print_func=self._print_to_gui_console) # Added console_print_func
+                debug_log(f"No child tab selected in parent '{selected_tab_text}'.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         else:
-            debug_print(f"No child notebook found for parent tab '{selected_tab_text}'.",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self._print_to_gui_console) # Added console_print_func
+            debug_log(f"No child notebook found for parent tab '{selected_tab_text}'.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
 if __name__ == "__main__":

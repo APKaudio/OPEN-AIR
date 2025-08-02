@@ -13,11 +13,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1010.1 (Updated header and imports for new folder structure)
+# Version 20250801.2150.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1010.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2150.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2150 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, scrolledtext
@@ -33,7 +35,9 @@ import sys
 from process_math.calculate_intermod import multi_zone_intermods, ZoneData
 from process_math.ploting_intermod_zones import plot_zones
 
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 
 class InterModTab(ttk.Frame):
     """
@@ -45,7 +49,7 @@ class InterModTab(ttk.Frame):
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
 
         self.markers_file_path_var = tk.StringVar(self, value="")
         self.intermod_results_csv_path = "INTERMOD.csv"
@@ -69,8 +73,11 @@ class InterModTab(ttk.Frame):
         Creates and arranges the widgets for the Inter Mod tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Creating widgets for InterModTab...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Creating widgets for InterModTab...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0)
@@ -146,12 +153,15 @@ class InterModTab(ttk.Frame):
         # Bind click event for column sorting
         self.imd_treeview.bind("<Button-1>", self._on_treeview_header_click)
 
-        debug_print("InterModTab widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("InterModTab widgets created.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _browse_markers_file(self):
         """Opens a file dialog to select the MARKERS.CSV file."""
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
         file_path = filedialog.askopenfilename(
             title="Select MARKERS.CSV",
             filetypes=[("CSV files", "*.csv")]
@@ -159,10 +169,16 @@ class InterModTab(ttk.Frame):
         if file_path:
             self.markers_file_path_var.set(file_path)
             self.console_print_func(f"Selected Markers CSV: {file_path}")
-            debug_print(f"Selected Markers CSV: {file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Selected Markers CSV: {file_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.console_print_func("No Markers CSV file selected.")
-            debug_print("No Markers CSV file selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No Markers CSV file selected. What a waste of a click!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _parse_markers_csv(self, csv_path: str) -> ZoneData:
         """
@@ -174,8 +190,11 @@ class InterModTab(ttk.Frame):
         """
         import random
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Parsing {csv_path}...", file=current_file, function=current_function)
+        # current_file will be derived from __file__ in debug_log
+        debug_log(f"Parsing {csv_path}...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         zones_data = {}
         try:
@@ -188,7 +207,7 @@ class InterModTab(ttk.Frame):
 
             for zone_name in df["ZONE"].unique():
                 zone_df = df[df["ZONE"] == zone_name].dropna(subset=["FREQ"])
-                
+
                 # Combine DEVICE and NAME for a more descriptive device_name
                 # Handle cases where DEVICE or NAME might be missing/NaN
                 freq_device_pairs = []
@@ -196,7 +215,7 @@ class InterModTab(ttk.Frame):
                     freq = row["FREQ"]
                     device = str(row["DEVICE"]) if pd.notna(row["DEVICE"]) else "Unknown Device"
                     name = str(row["NAME"]) if pd.notna(row["NAME"]) else "Unknown Name"
-                    
+
                     # If both DEVICE and NAME are "None - None - G10" or similar, just use the NAME
                     if "None - None" in device and "None" in name:
                         device_name = name
@@ -206,7 +225,7 @@ class InterModTab(ttk.Frame):
                         device_name = device
                     else:
                         device_name = f"{device} - {name}"
-                    
+
                     freq_device_pairs.append((freq, device_name))
 
                 # Assign dummy coordinates if not available in CSV
@@ -216,19 +235,28 @@ class InterModTab(ttk.Frame):
                 zones_data[zone_name] = (freq_device_pairs, (x, y))
 
             self.console_print_func(f"Successfully parsed {len(zones_data)} zones from CSV.")
-            debug_print(f"Parsed zones data: {zones_data}", file=current_file, function=current_function)
+            debug_log(f"Parsed zones data: {zones_data}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return zones_data
 
         except Exception as e:
             self.console_print_func(f"❌ Failed to parse markers CSV: {e}")
-            debug_print(f"Error parsing markers CSV: {e}", file=current_file, function=current_function)
+            debug_log(f"Error parsing markers CSV: {e}. This CSV is a stubborn bastard!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return {}
 
     def _display_imd_results(self, df: pd.DataFrame):
         """Displays the intermodulation results DataFrame in the Treeview."""
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Displaying IMD results. DataFrame has {len(df)} rows.", file=current_file, function=current_function)
+        # current_file will be derived from __file__ in debug_log
+        debug_log(f"Displaying IMD results. DataFrame has {len(df)} rows.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Clear existing data
         for item in self.imd_treeview.get_children():
@@ -236,8 +264,10 @@ class InterModTab(ttk.Frame):
 
         if df.empty:
             self.console_print_func("No IMD results to display.")
-            self.imd_treeview["columns"] = []
-            debug_print("IMD DataFrame is empty, no results to display.", file=current_file, function=current_function)
+            debug_log("IMD DataFrame is empty, no results to display. Fucking empty!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Define the desired order of columns for display
@@ -246,7 +276,7 @@ class InterModTab(ttk.Frame):
             "Zone_2", "Device_2", "Parent_Freq2",
             "Type", "Order", "Distance", "Frequency_MHz", "Severity"
         ]
-        
+
         # Ensure all display_columns exist in the DataFrame, add missing ones if necessary
         for col in display_columns:
             if col not in df.columns:
@@ -284,7 +314,10 @@ class InterModTab(ttk.Frame):
                 self.imd_treeview.insert("", "end", values=values_to_insert)
             except Exception as e:
                 self.console_print_func(f"❌ Error displaying IMD row (index {index}): {row.to_dict()} - {e}")
-                debug_print(f"Error inserting row into Treeview (index {index}): {row.to_dict()} - {e}", file=current_file, function=current_function)
+                debug_log(f"Error inserting row into Treeview (index {index}): {row.to_dict()} - {e}. This row is a pain in the ass!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 continue
         self.console_print_func(f"Displayed {len(df)} IMD products.")
         self.last_imd_df = df.copy()
@@ -295,14 +328,20 @@ class InterModTab(ttk.Frame):
         Initiates the IMD calculation and plot generation based on selected options.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
         self.console_print_func("\n--- Starting IMD Calculation & Plot Generation ---")
-        debug_print("Starting IMD Calculation & Plot Generation...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("Starting IMD Calculation & Plot Generation...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         markers_csv_path = self.markers_file_path_var.get()
         if not markers_csv_path or not os.path.exists(markers_csv_path):
             self.console_print_func("Error: Please select a valid MARKERS.CSV file first.")
-            debug_print("No valid Markers CSV selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No valid Markers CSV selected. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
@@ -310,7 +349,10 @@ class InterModTab(ttk.Frame):
             zones = self._parse_markers_csv(markers_csv_path)
             if not zones:
                 self.console_print_func("IMD calculation aborted due to empty or invalid zone data.")
-                debug_print("Empty or invalid zone data after parsing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("Empty or invalid zone data after parsing. What the hell?!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return
 
             # Determine output paths relative to the markers CSV
@@ -320,7 +362,10 @@ class InterModTab(ttk.Frame):
 
             # 2. Calculate Intermodulation Products
             self.console_print_func("Calculating intermodulation products...")
-            debug_print(f"Calling multi_zone_intermods with zones: {zones}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Calling multi_zone_intermods with zones: {zones}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
             imd_results_df = multi_zone_intermods(
                 zones=zones,
@@ -332,8 +377,14 @@ class InterModTab(ttk.Frame):
                 include_3rd_order=self.include_3rd_order_var.get(),
                 include_5th_order=self.include_5th_order_var.get()
             )
-            debug_print(f"multi_zone_intermods returned DataFrame. Type: {type(imd_results_df)}, Shape: {imd_results_df.shape}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"First 5 rows of IMD DataFrame:\n{imd_results_df.head().to_string()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"multi_zone_intermods returned DataFrame. Type: {type(imd_results_df)}, Shape: {imd_results_df.shape}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"First 5 rows of IMD DataFrame:\n{imd_results_df.head().to_string()}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
             self.console_print_func(f"IMD calculation complete. Results saved to: {intermod_csv_output}")
@@ -344,23 +395,32 @@ class InterModTab(ttk.Frame):
             self.console_print_func("✅ IMD analysis results displayed.")
 
             self.console_print_func("--- IMD Analysis Complete! ---")
-            debug_print("IMD Analysis Complete.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("IMD Analysis Complete. Fucking awesome!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         except Exception as e:
             self.console_print_func(f"❌ An error occurred during IMD analysis: {e}")
-            debug_print(f"Error during IMD analysis: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error during IMD analysis: {e}. This bugger is being problematic!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _open_intermod_map(self):
         """
         Opens the generated HTML intermod map in the default web browser.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
 
         markers_csv_path = self.markers_file_path_var.get()
         if not markers_csv_path:
             self.console_print_func("Error: Please select a Markers CSV file and run IMD calculation first to generate the map.")
-            debug_print("No Markers CSV selected, cannot open map.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No Markers CSV selected, cannot open map. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         output_dir = os.path.dirname(markers_csv_path)
@@ -368,7 +428,10 @@ class InterModTab(ttk.Frame):
 
         if not os.path.exists(html_file_path):
             self.console_print_func(f"Error: Intermod map HTML file not found at {html_file_path}. Please run IMD calculation first.")
-            debug_print(f"HTML map not found: {html_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"HTML map not found: {html_file_path}. Where the hell is it?!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
@@ -379,22 +442,31 @@ class InterModTab(ttk.Frame):
             else: # Linux
                 subprocess.Popen(["xdg-open", html_file_path])
             self.console_print_func(f"✅ Opened Intermod Map: {html_file_path}")
-            debug_print(f"Opened Intermod Map: {html_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened Intermod Map: {html_file_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Failed to open Intermod Map: {e}")
-            debug_print(f"Error opening Intermod Map: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening Intermod Map: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _open_intermod_csv(self):
         """
         Opens the generated INTERMOD.csv file in the default associated application.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
 
         markers_csv_path = self.markers_file_path_var.get()
         if not markers_csv_path:
             self.console_print_func("Error: Please select a Markers CSV file and run IMD calculation first to generate the CSV.")
-            debug_print("No Markers CSV selected, cannot open intermod CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No Markers CSV selected, cannot open intermod CSV. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         output_dir = os.path.dirname(markers_csv_path)
@@ -402,7 +474,10 @@ class InterModTab(ttk.Frame):
 
         if not os.path.exists(csv_file_path):
             self.console_print_func(f"Error: Intermod CSV file not found at {csv_file_path}. Please run IMD calculation first.")
-            debug_print(f"Intermod CSV file not found: {csv_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Intermod CSV file not found: {csv_file_path}. Where the hell is it?!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
@@ -413,34 +488,49 @@ class InterModTab(ttk.Frame):
             else: # Linux
                 subprocess.Popen(["xdg-open", csv_file_path])
             self.console_print_func(f"✅ Opened Intermod CSV: {csv_file_path}")
-            debug_print(f"Opened Intermod CSV: {csv_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened Intermod CSV: {csv_file_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Failed to open Intermod CSV: {e}")
-            debug_print(f"Error opening Intermod CSV: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error opening Intermod CSV: {e}. This is a goddamn mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _plot_imd_results(self):
         """
         Generates and opens the Plotly HTML dashboard based on the last calculated/loaded IMD results.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
 
         if self.last_imd_df.empty:
             self.console_print_func("Error: No IMD results available to plot. Please calculate or load results first.")
-            debug_print("No IMD data to plot.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No IMD data to plot. Fucking empty!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         markers_csv_path = self.markers_file_path_var.get()
         if not markers_csv_path or not os.path.exists(markers_csv_path):
             self.console_print_func("Error: Markers CSV path is required to generate the plot (for zone coordinates). Please select it.")
-            debug_print("Markers CSV path missing for plotting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Markers CSV path missing for plotting. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
             zones = self._parse_markers_csv(markers_csv_path)
             if not zones:
                 self.console_print_func("Error: Cannot plot without valid zone data from Markers CSV.")
-                debug_print("No zones parsed for plotting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("No zones parsed for plotting. What the hell?!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return
 
             output_dir = os.path.dirname(markers_csv_path)
@@ -459,14 +549,17 @@ class InterModTab(ttk.Frame):
 
         except Exception as e:
             self.console_print_func(f"❌ An error occurred during plot generation: {e}")
-            debug_print(f"Error during plot generation: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error during plot generation: {e}. This bugger is being problematic!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _load_intermod_csv(self):
         """
         Loads an existing INTERMOD.csv file into the Treeview for display and makes it available for plotting.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
 
         file_path = filedialog.askopenfilename(
             title="Select Intermod Results CSV",
@@ -475,17 +568,26 @@ class InterModTab(ttk.Frame):
         )
         if not file_path:
             self.console_print_func("No Intermod CSV file selected for loading.")
-            debug_print("No Intermod CSV selected for loading.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No Intermod CSV selected for loading. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
             df = pd.read_csv(file_path)
             self._display_imd_results(df)
             self.console_print_func(f"✅ Loaded IMD results from: {file_path}")
-            debug_print(f"Loaded IMD results from: {file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Loaded IMD results from: {file_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Failed to load Intermod CSV: {e}")
-            debug_print(f"Error loading Intermod CSV: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error loading Intermod CSV: {e}. This CSV is a stubborn bastard!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def _on_treeview_header_click(self, event):
@@ -493,46 +595,64 @@ class InterModTab(ttk.Frame):
         Handles clicks on Treeview column headers to sort the data.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
+        # current_file will be derived from __file__ in debug_log
 
         region = self.imd_treeview.identify("region", event.x, event.y)
         if region == "heading":
             col = self.imd_treeview.identify_column(event.x)
             column_id = int(col.replace('#', '')) - 1
-            
+
             if 0 <= column_id < len(self.imd_treeview["columns"]):
                 column_name = self.imd_treeview["columns"][column_id]
-                debug_print(f"Header '{column_name}' clicked for sorting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Header '{column_name}' clicked for sorting.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
                 if not hasattr(self, '_sort_order'):
                     self._sort_order = {}
-                
+
                 current_sort_order = self._sort_order.get(column_name, 'ascending')
                 new_sort_order = 'descending' if current_sort_order == 'ascending' else 'ascending'
                 self._sort_order[column_name] = new_sort_order
 
                 self._sort_treeview(column_name, new_sort_order)
             else:
-                debug_print(f"Clicked column ID {column_id} is out of bounds for current columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Clicked column ID {column_id} is out of bounds for current columns. What the hell?!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         else:
-            debug_print(f"Click not on heading region: {region}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Click not on heading region: {region}. Fucking useless click!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _sort_treeview(self, col_name, order):
         """
         Sorts the Treeview content by the given column and order.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Sorting Treeview by column '{col_name}' in '{order}' order.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log(f"Sorting Treeview by column '{col_name}' in '{order}' order.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if self.last_imd_df.empty:
             self.console_print_func("No data to sort.")
-            debug_print("No data in last_imd_df to sort.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No data in last_imd_df to sort. Fucking empty!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         if col_name not in self.last_imd_df.columns:
             self.console_print_func(f"Error: Cannot sort by column '{col_name}' as it does not exist in the data.")
-            debug_print(f"Column '{col_name}' not found for sorting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Column '{col_name}' not found for sorting. What the hell?!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         ascending = (order == 'ascending')
@@ -543,7 +663,7 @@ class InterModTab(ttk.Frame):
                 self.last_imd_df[num_col] = pd.to_numeric(self.last_imd_df[num_col], errors='coerce')
 
         sorted_df = self.last_imd_df.sort_values(by=col_name, ascending=ascending, na_position='last')
-        
+
         self._display_imd_results(sorted_df)
         self.console_print_func(f"Sorted results by '{col_name}' ({order}).")
 
@@ -553,5 +673,8 @@ class InterModTab(ttk.Frame):
         Can be used to refresh data or update UI elements specific to this tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Inter Mod Tab selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        # current_file will be derived from __file__ in debug_log
+        debug_log("Inter Mod Tab selected.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)

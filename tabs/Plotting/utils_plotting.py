@@ -14,11 +14,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1040.1 (Updated header and verified imports for new folder structure)
+# Version 20250801.2240.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1040.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2240.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2240 * 1 # Example hash, adjust as needed
 
 import pandas as pd
 import plotly.express as px
@@ -27,635 +29,632 @@ import webbrowser
 import os
 import re # Added import for regular expressions
 import csv # New: Import csv for MARKERS.CSV
-import inspect # Import inspect for debug_print
+import inspect # Import inspect for debug_log
+
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 
 # Import constants from frequency_bands.py - CORRECTED PATH
 try:
     from ref.frequency_bands import (
         MHZ_TO_HZ,
-        TV_PLOT_BAND_MARKERS,
-        GOV_PLOT_BAND_MARKERS
+        TV_BAND_MARKERS_MHZ,
+        GOVERNMENT_BAND_MARKERS_MHZ,
+        DEFAULT_MARKERS_FILE,
+        DEFAULT_INTERMOD_FILE
     )
 except ImportError:
-    # Fallback if frequency_bands.py is not in ref, assume it's directly accessible
-    try:
-        from ref.frequency_bands import (
-            MHZ_TO_HZ,
-            TV_PLOT_BAND_MARKERS,
-            GOV_PLOT_BAND_MARKERS
-        )
-    except ImportError:
-        print("Error: frequency_bands.py not found in 'ref' or current directory.")
-        # Define placeholders to prevent errors if file is completely missing
-        MHZ_TO_HZ = 1_000_000
-        TV_PLOT_BAND_MARKERS = []
-        GOV_PLOT_BAND_MARKERS = []
-
-# Assuming debug_print exists or define a dummy one for standalone testing - CORRECTED PATH
-try:
-    from utils.utils_instrument_control import debug_print
-except ImportError:
-    print("Warning: debug_print not found in utils.utils_instrument_control. Using dummy.")
-    def debug_print(*args, **kwargs):
-        pass # Dummy function
+    # Fallback if frequency_bands.py is not found or constants are missing
+    debug_log("Error: frequency_bands.py or its constants not found in 'ref'. Using default values. This is a goddamn mess!",
+                file=__file__,
+                version=current_version,
+                function=inspect.currentframe().f_code.co_name)
+    MHZ_TO_HZ = 1_000_000
+    TV_BAND_MARKERS_MHZ = {
+        "VHF-Low": [54, 88], "FM Radio": [88, 108], "VHF-High": [174, 216],
+        "UHF": [470, 698], "600 MHz Repack Guard Band": [614, 617],
+        "600 MHz Duplex Gap": [652, 663]
+    }
+    GOVERNMENT_BAND_MARKERS_MHZ = {
+        "Public Safety": [700, 800], "LTE Band 14": [788, 798],
+        "WLAN (5 GHz)": [5150, 5825]
+    }
+    DEFAULT_MARKERS_FILE = "MARKERS.csv"
+    DEFAULT_INTERMOD_FILE = "INTERMOD.csv"
 
 
-def _open_plot_in_browser(html_file_path, console_print_func=None):
+def _open_plot_in_browser(html_file_path, console_print_func):
     """
+    Function Description:
     Opens the generated HTML plot in the default web browser.
+
+    Inputs to this function:
+        html_file_path (str): The full path to the HTML plot file.
+        console_print_func (function): Function to print messages to the GUI console.
+
+    Process of this function:
+        1. Checks if the HTML file exists.
+        2. If it exists, uses `webbrowser.open_new_tab` to open it.
+        3. Logs success or failure to the console and debug log.
+
+    Outputs of this function:
+        None. Opens a web browser tab.
+
+    (2025-07-31) Change: Moved from main_app.py to utils_plotting.py.
+    (2025-08-01) Change: Updated debug_print to debug_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Entering {current_function} with html_file_path: {html_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-    try:
-        if os.path.exists(html_file_path):
+    debug_log(f"Attempting to open plot in browser: {html_file_path}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    if os.path.exists(html_file_path):
+        try:
             webbrowser.open_new_tab(html_file_path)
-            if console_print_func:
-                console_print_func(f"Plot opened in browser: {html_file_path}")
-            debug_print(f"Successfully opened plot: {html_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-        else:
-            if console_print_func:
-                console_print_func(f"Error: HTML file not found at {html_file_path}")
-            debug_print(f"Error: HTML file not found at {html_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-    except Exception as e:
-        if console_print_func:
-            console_print_func(f"Failed to open plot in browser: {e}")
-        debug_print(f"Failed to open plot in browser: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-    debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func(f"✅ Plot opened in browser: {os.path.basename(html_file_path)}")
+            debug_log(f"Plot opened successfully: {html_file_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        except Exception as e:
+            console_print_func(f"❌ Error opening plot in browser: {e}. This is a goddamn mess!")
+            debug_log(f"Error opening plot {html_file_path} in browser: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+    else:
+        console_print_func(f"❌ Error: Plot file not found at {html_file_path}. What the hell?!")
+        debug_log(f"Plot file not found: {html_file_path}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
-def _load_custom_markers(data_df, console_print_func=None, scan_data_folder=None):
+def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, console_print_func):
     """
-    Loads custom markers from MARKERS.CSV (expected in 'ref' directory or scan_data_folder)
-    and prepares them as Plotly shapes and annotations.
-    Markers are filtered based on the frequency range of the provided data_df.
+    Function Description:
+    Adds rectangular shape annotations to a Plotly figure to represent frequency bands.
 
-    Returns:
-        tuple: A tuple containing two lists: (list of shapes, list of annotations).
-               Returns ([], []) if an error occurs or no markers are found.
+    Inputs to this function:
+        fig (go.Figure): The Plotly figure object to which markers will be added.
+        markers_dict (dict): A dictionary where keys are band names (str) and values are
+                             lists of [min_freq_MHz, max_freq_MHz].
+        line_color (str): The color for the band outlines (e.g., 'rgba(255, 0, 0, 0.5)').
+        line_dash (str): The dash style for the band outlines (e.g., 'dot', 'dash').
+        band_name_suffix (str): A suffix to add to the band names for legend clarity (e.g., " (TV)").
+        console_print_func (function): Function to print messages to the GUI console.
+
+    Process of this function:
+        1. Iterates through the `markers_dict`.
+        2. For each band, creates a rectangular shape annotation using `fig.add_shape`.
+        3. Sets the x-axis range for the rectangle based on the band's frequencies (converted to Hz).
+        4. Sets the y-axis range to 'paper' (0 to 1) to span the entire plot height.
+        5. Configures line color, width, and dash style.
+        6. Adds a legend entry for each band.
+        7. Logs debug information about added markers.
+
+    Outputs of this function:
+        Modifies the `fig` object by adding shapes.
+
+    (2025-07-31) Change: Moved from main_app.py to utils_plotting.py.
+    (2025-08-01) Change: Updated debug_print to debug_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Adding band markers with suffix '{band_name_suffix}'...",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    for band_name, freq_range_mhz in markers_dict.items():
+        min_freq_hz = freq_range_mhz[0] * MHZ_TO_HZ
+        max_freq_hz = freq_range_mhz[1] * MHZ_TO_HZ
+        fig.add_shape(
+            type="rect",
+            xref="x", yref="paper",
+            x0=min_freq_hz, y0=0, x1=max_freq_hz, y1=1,
+            line=dict(color=line_color, width=1, dash=line_dash),
+            fillcolor=line_color.replace('0.5', '0.1'), # Lighter fill
+            layer="below",
+            name=f"{band_name}{band_name_suffix}",
+            # Add a legend group to show these as distinct items in the legend
+            # but still allow toggling them together if desired by Plotly's default behavior
+            legendgroup=f"{band_name_suffix.strip()}_bands",
+            showlegend=True # Ensure they appear in the legend
+        )
+        # Add a dummy trace for the legend entry if the shape's name doesn't show up correctly
+        fig.add_trace(go.Scatter(
+            x=[None], y=[None],
+            mode='lines',
+            line=dict(color=line_color, width=1, dash=line_dash),
+            name=f"{band_name}{band_name_suffix}",
+            legendgroup=f"{band_name_suffix.strip()}_bands",
+            showlegend=True
+        ))
+        debug_log(f"Added band marker: {band_name}{band_name_suffix} ({min_freq_hz/MHZ_TO_HZ:.2f}-{max_freq_hz/MHZ_TO_HZ:.2f} MHz)",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+    debug_log(f"Finished adding band markers with suffix '{band_name_suffix}'.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-    # IMPORTANT: Ensure data_df has 'Frequency (MHz)' column before proceeding
-    if data_df.empty or 'Frequency (MHz)' not in data_df.columns:
-        if console_print_func:
-            console_print_func("Warning: Data for custom markers is empty or missing 'Frequency (MHz)' column. Skipping custom markers.")
-        debug_print("Data for custom markers is invalid. Skipping.", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return [], []
 
-    markers_file_path = None
-    # Prioritize scan_data_folder if provided
-    if scan_data_folder and os.path.exists(os.path.join(scan_data_folder, 'MARKERS.CSV')):
-        markers_file_path = os.path.join(scan_data_folder, 'MARKERS.CSV')
-        debug_print(f"Attempting to load MARKERS.CSV from scan_data_folder: {markers_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-    else:
-        # Fallback to ref directory
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        potential_path = os.path.join(script_dir, '..', 'ref', 'MARKERS.CSV')
-        if os.path.exists(potential_path):
-            markers_file_path = potential_path
-            debug_print(f"Attempting to load MARKERS.CSV from ref directory: {markers_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-        else:
-            if console_print_func:
-                console_print_func(f"Info: MARKERS.CSV not found in scan data folder or 'ref' directory. Skipping custom markers.")
-            debug_print(f"MARKERS.CSV not found. Skipping custom markers.", file=current_file, function=current_function, console_print_func=console_print_func)
-            debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-            return [], []
+def _add_markers_from_csv(fig, markers_csv_path, console_print_func):
+    """
+    Function Description:
+    Reads markers from a specified CSV file and adds vertical line annotations to a Plotly figure.
+    The CSV is expected to have 'FREQ' and 'NAME' columns.
 
-    parsed_markers = [] # Renamed to avoid conflict with 'markers' in the loop
+    Inputs to this function:
+        fig (go.Figure): The Plotly figure object to which markers will be added.
+        markers_csv_path (str): The path to the CSV file containing marker data.
+        console_print_func (function): Function to print messages to the GUI console.
 
-    if not markers_file_path:
-        debug_print(f"No valid markers_file_path determined. Exiting {current_function}.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return [], []
+    Process of this function:
+        1. Checks if the `markers_csv_path` exists.
+        2. If it exists, reads the CSV into a Pandas DataFrame.
+        3. Iterates through each row of the DataFrame.
+        4. For each row, creates a vertical line annotation using `fig.add_vline` at the specified frequency.
+        5. Adds a text label for the marker name.
+        6. Logs debug information about added markers.
+
+    Outputs of this function:
+        Modifies the `fig` object by adding vertical lines and text annotations.
+
+    (2025-07-31) Change: Moved from main_app.py to utils_plotting.py.
+    (2025-08-01) Change: Updated debug_print to debug_log.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Attempting to add markers from CSV: {markers_csv_path}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    if not os.path.exists(markers_csv_path):
+        console_print_func(f"⚠️ Warning: Markers CSV file not found at {markers_csv_path}. Cannot add markers. What the hell?!")
+        debug_log(f"Markers CSV not found: {markers_csv_path}. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return
 
     try:
-        debug_print(f"Attempting to open MARKERS.CSV from: {markers_file_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-        with open(markers_file_path, 'r', newline='', encoding='utf-8') as csvfile:
-            reader = csv.DictReader(csvfile)
-            debug_print(f"MARKERS.CSV headers found: {reader.fieldnames}", file=current_file, function=current_function, console_print_func=console_print_func)
+        df_markers = pd.read_csv(markers_csv_path)
+        if 'FREQ' not in df_markers.columns or 'NAME' not in df_markers.columns:
+            console_print_func(f"❌ Error: Markers CSV '{markers_csv_path}' must contain 'FREQ' and 'NAME' columns. This is a goddamn mess!")
+            debug_log(f"Markers CSV '{markers_csv_path}' missing required columns.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            return
 
-            # Check for expected columns based on the user's provided MARKERS.CSV structure
-            expected_columns = ['ZONE', 'GROUP', 'DEVICE', 'NAME', 'FREQ']
-            if not all(col in reader.fieldnames for col in expected_columns):
-                if console_print_func:
-                    console_print_func(f"Error: MARKERS.CSV at {markers_file_path} is missing one or more expected columns ({', '.join(expected_columns)}). Headers found: {reader.fieldnames}. Skipping custom markers.")
-                debug_print(f"MARKERS.CSV missing required columns. Skipping.", file=current_file, function=current_function, console_print_func=console_print_func)
-                debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-                return [], []
-
-            for row in reader:
-                debug_print(f"Processing marker row: {row}", file=current_file, function=current_function, console_print_func=console_print_func)
-                try:
-                    # The 'FREQ' column in MARKERS.CSV is assumed to be in MHz based on user's data snippet.
-                    marker_freq_mhz = float(row['FREQ'])
-                    
-                    # Combine relevant information for the marker name/annotation
-                    marker_name_parts = []
-                    if 'ZONE' in row and row['ZONE'].strip():
-                        marker_name_parts.append(row['ZONE'].strip())
-                    if 'GROUP' in row and row['GROUP'].strip():
-                        marker_name_parts.append(row['GROUP'].strip())
-                    if 'DEVICE' in row and row['DEVICE'].strip():
-                        marker_name_parts.append(row['DEVICE'].strip())
-                    if 'NAME' in row and row['NAME'].strip():
-                        marker_name_parts.append(row['NAME'].strip())
-                    
-                    # Create a multi-line annotation text
-                    # Concatenate up to the first 3 parts, then add frequency
-                    display_parts = marker_name_parts[:3] # Take up to the first 3 parts
-                    marker_annotation_text = "<br>".join(display_parts) + f"<br>{marker_freq_mhz:.3f} MHz"
-
-
-                    parsed_markers.append({'freq_mhz': marker_freq_mhz, 'name': marker_annotation_text})
-                    debug_print(f"Parsed marker: {{'freq_mhz': {marker_freq_mhz}, 'name': '{marker_annotation_text}'}}", file=current_file, function=current_function, console_print_func=console_print_func)
-                except ValueError as ve:
-                    debug_print(f"Warning: Skipping row in MARKERS.CSV due to invalid frequency/data: {row} - {ve}", file=current_file, function=current_function, console_print_func=console_print_func)
+        for index, row in df_markers.iterrows():
+            freq_hz = row['FREQ']
+            marker_name = row['NAME']
+            fig.add_vline(x=freq_hz, line_width=1, line_dash="dash", line_color="purple",
+                          annotation_text=marker_name, annotation_position="top right")
+            debug_log(f"Added marker from CSV: {marker_name} at {freq_hz/MHZ_TO_HZ:.3f} MHz",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        console_print_func(f"✅ Added markers from {os.path.basename(markers_csv_path)}.")
     except Exception as e:
-        if console_print_func:
-            console_print_func(f"Error reading MARKERS.CSV: {e}")
-        debug_print(f"Error reading MARKERS.CSV: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return [], []
-
-    plot_shapes = []
-    plot_annotations = []
-
-    if parsed_markers:
-        plot_min_freq_mhz = data_df['Frequency (MHz)'].min()
-        plot_max_freq_mhz = data_df['Frequency (MHz)'].max()
-        debug_print(f"Plot frequency range: {plot_min_freq_mhz:.3f} MHz to {plot_max_freq_mhz:.3f} MHz", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"All parsed markers array: {parsed_markers}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"❌ Error reading or adding markers from CSV {os.path.basename(markers_csv_path)}: {e}. This CSV is a stubborn bastard!")
+        debug_log(f"Error adding markers from CSV {markers_csv_path}: {e}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
-        # Add vertical lines and annotations for custom markers
-        # Define a list of colors for custom markers
-        custom_marker_colors = [
-            "purple", "red", "orange", "gold", "yellow", "lime", "green", "cyan", "blue", "magenta",
-            "darkred", "darkorange", "darkgoldenrod", "olivedrab", "seagreen", "teal", "steelblue",
-            "darkblue", "indigo", "darkmagenta"
-        ]
-        
-        # Staggered Y-offset levels for text markers (relative to plot height)
-        # Using a fixed set of Y-offsets to prevent overlap
-        y_offset_levels = [0.95, 0.90, 0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50] # Relative to the top of the plot
-
-        current_marker_index = 0
-        for marker in parsed_markers:
-            marker_freq_mhz = marker['freq_mhz']
-            marker_annotation_text = marker['name'] # This now contains multi-line text
-
-            if plot_min_freq_mhz <= marker_freq_mhz <= plot_max_freq_mhz:
-                # Cycle through colors and y-offsets
-                color_to_use = custom_marker_colors[current_marker_index % len(custom_marker_colors)]
-                y_offset_ratio = y_offset_levels[current_marker_index % len(y_offset_levels)]
-
-                # Add vertical line as a shape
-                plot_shapes.append(
-                    dict(
-                        type="line",
-                        x0=marker_freq_mhz, y0=0, x1=marker_freq_mhz, y1=1,
-                        xref="x", yref="paper",
-                        line=dict(color=color_to_use, width=1, dash="dash")
-                    )
-                )
-                
-                # Add annotation
-                plot_annotations.append(
-                    dict(
-                        x=marker_freq_mhz,
-                        yref="paper", # Reference to the paper (plot area) height
-                        y=y_offset_ratio, # Position relative to the top of the plot area
-                        text=marker_annotation_text,
-                        showarrow=False,
-                        font=dict(color=color_to_use, size=8),
-                        xanchor="left", # Anchor text to the left of the marker line
-                        yanchor="top", # Anchor text to the top of the y-position
-                        bgcolor="rgba(0,0,0,0.7)",
-                        bordercolor=color_to_use,
-                        borderwidth=0.5,
-                        align="left" # Align text to the left within its box
-                    )
-                )
-                debug_print(f"Prepared custom marker: {marker_annotation_text} at {marker_freq_mhz:.3f} MHz with color {color_to_use} and y_offset {y_offset_ratio}", file=current_file, function=current_function, console_print_func=console_print_func)
-                current_marker_index += 1
-        
-        if console_print_func:
-            console_print_func(f"Prepared {current_marker_index} custom markers from MARKERS.CSV within plot range.")
-    else:
-        if console_print_func:
-            console_print_func("No valid custom markers found in MARKERS.CSV or none within plot range.")
-        debug_print("No valid custom markers found or none within plot range.", file=current_file, function=current_function, console_print_func=console_print_func)
-
-    debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-    return plot_shapes, plot_annotations
-
-
-def _create_spectrum_plot(
-    data_traces, # List of dicts: [{'df': DataFrame, 'name': str, 'color': str, 'dash': str, 'width': int, 'show_legend': bool, 'y_column_name': str}]
-    plot_title,
-    include_tv_markers=False,
-    include_gov_markers=False,
-    include_markers=True,
-    include_intermod_markers=False,
-    output_html_path=None,
-    y_range_min_override=None,
-    y_range_max_override=0,
-    console_print_func=None,
-    scan_data_folder=None
-):
+def _add_intermodulation_markers(fig, intermod_csv_path, console_print_func):
     """
-    Generates an interactive Plotly HTML plot for spectrum analyzer data.
-    This is a unified function to handle both single and multi-trace plots.
+    Function Description:
+    Reads intermodulation product frequencies from a specified CSV file and adds
+    vertical line annotations to a Plotly figure. The CSV is expected to have
+    a 'Frequency_MHz' column.
 
-    Inputs:
-        data_traces (list): A list of dictionaries, each describing a trace to plot.
-                            Each dict should contain:
-                            - 'df' (pd.DataFrame): DataFrame with 'Frequency (MHz)' and a specified Y-axis column.
-                            - 'name' (str): Name for the trace (used in legend).
-                            - 'color' (str): Line color (e.g., 'blue', 'rgba(150, 150, 150, 0.5)').
-                            - 'dash' (str, optional): Line dash style (e.g., 'solid', 'dot', 'dash').
-                            - 'width' (int, optional): Line width.
-                            - 'show_legend' (bool, optional): Whether to show this trace in the legend.
-                            - 'y_column_name' (str): The name of the column to use for the Y-axis (e.g., 'Power (dBm)', 'Average').
-        plot_title (str): Title of the plot.
-        include_tv_markers (bool): Whether to include TV channel markers.
-        include_gov_markers (bool): Whether to include Government band markers.
-        include_markers (bool): Whether to include custom markers from MARKERS.CSV.
-        include_intermod_markers (bool): Whether to include Intermodulation markers (logic to be implemented).
-        output_html_path (str, optional): Full path to save the HTML plot.
-        y_range_min_override (float, optional): If provided, overrides the calculated minimum Y-axis value.
-        y_range_max_override (float, optional): If provided, overrides the calculated maximum Y-axis value (default 0).
-        console_print_func (function, optional): Function to print messages to the GUI console.
-        scan_data_folder (str, optional): Path to the folder containing scan data, used for finding MARKERS.CSV.
+    Inputs to this function:
+        fig (go.Figure): The Plotly figure object to which markers will be added.
+        intermod_csv_path (str): The path to the CSV file containing intermodulation data.
+        console_print_func (function): Function to print messages to the GUI console.
 
-    Returns:
-        tuple: A tuple containing the Plotly figure object and the output HTML path,
-               or (None, None) if an error occurs.
+    Process of this function:
+        1. Checks if the `intermod_csv_path` exists.
+        2. If it exists, reads the CSV into a Pandas DataFrame.
+        3. Iterates through each row of the DataFrame.
+        4. For each row, creates a vertical line annotation using `fig.add_vline` at the specified
+           intermodulation frequency (converted to Hz).
+        5. Adds a text label for the IMD product.
+        6. Logs debug information about added markers.
+
+    Outputs of this function:
+        Modifies the `fig` object by adding vertical lines and text annotations.
+
+    (2025-08-01) Change: New function to add intermodulation markers.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Entering {current_function} with plot_title: {plot_title}", file=current_file, function=current_function, console_print_func=console_print_func)
-    debug_print(f"Data traces for plotting: {[{'name': t['name'], 'y_column_name': t['y_column_name'], 'df_head': t['df'].head().to_dict('records')} for t in data_traces if not t['df'].empty]}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Attempting to add intermodulation markers from CSV: {intermod_csv_path}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    if not os.path.exists(intermod_csv_path):
+        console_print_func(f"⚠️ Warning: Intermodulation CSV file not found at {intermod_csv_path}. Cannot add IMD markers. What the hell?!")
+        debug_log(f"Intermodulation CSV not found: {intermod_csv_path}. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return
+
+    try:
+        df_intermod = pd.read_csv(intermod_csv_path)
+        if 'Frequency_MHz' not in df_intermod.columns:
+            console_print_func(f"❌ Error: Intermodulation CSV '{intermod_csv_path}' must contain 'Frequency_MHz' column. This is a goddamn mess!")
+            debug_log(f"Intermodulation CSV '{intermod_csv_path}' missing required 'Frequency_MHz' column.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            return
+
+        for index, row in df_intermod.iterrows():
+            freq_mhz = row['Frequency_MHz']
+            freq_hz = freq_mhz * MHZ_TO_HZ
+            # Create a descriptive name for the IMD marker
+            imd_name = f"IMD {row.get('Order', '')} ({row.get('Type', '')}) from {row.get('Parent_Freq1', 'N/A')} & {row.get('Parent_Freq2', 'N/A')} MHz"
+            fig.add_vline(x=freq_hz, line_width=1, line_dash="solid", line_color="red",
+                          annotation_text=f"IMD {freq_mhz:.3f} MHz", annotation_position="bottom right")
+            debug_log(f"Added intermodulation marker: {imd_name} at {freq_mhz:.3f} MHz",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        console_print_func(f"✅ Added intermodulation markers from {os.path.basename(intermod_csv_path)}.")
+    except Exception as e:
+        console_print_func(f"❌ Error reading or adding intermodulation markers from CSV {os.path.basename(intermod_csv_path)}: {e}. This IMD CSV is a stubborn bastard!")
+        debug_log(f"Error adding intermodulation markers from CSV {intermod_csv_path}: {e}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
-    if not data_traces:
-        if console_print_func:
-            console_print_func("No data traces provided, cannot create plot.")
-        debug_print("No data traces provided, cannot create plot.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return None, None
+def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_gov_markers,
+                          include_markers, include_intermod_markers, output_html_path,
+                          y_range_min_override, y_range_max_override, console_print_func,
+                          scan_data_folder):
+    """
+    Function Description:
+    Generates a Plotly HTML interactive plot for spectrum analyzer data.
+    This is a core plotting function that can handle multiple traces (e.g., current, historical, averages).
+    It includes options for adding TV, Government, and custom markers.
+
+    Inputs to this function:
+        data_traces (list of dict): A list where each dict represents a trace to plot, e.g.:
+                                    `{'df': DataFrame, 'name': 'Trace Name', 'color': 'blue', 'width': 2, 'dash': 'solid', 'show_legend': True, 'y_column_name': 'Power (dBm)'}`
+        plot_title (str): The title of the plot.
+        include_tv_markers (bool): If True, TV band markers are added.
+        include_gov_markers (bool): If True, Government band markers are added.
+        include_markers (bool): If True, custom markers from MARKERS.csv are added.
+        include_intermod_markers (bool): If True, intermodulation markers from INTERMOD.csv are added.
+        output_html_path (str or None): If a string, saves the plot to this HTML file. If None, does not save.
+        y_range_min_override (float or None): Optional minimum Y-axis value.
+        y_range_max_override (float or None): Optional maximum Y-axis value.
+        console_print_func (function): Function to print messages to the GUI console.
+        scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+
+    Process of this function:
+        1. Initializes an empty Plotly figure.
+        2. Adds each trace from `data_traces` to the figure.
+        3. Configures the layout (title, axes labels, hover mode).
+        4. Conditionally adds TV, Government, custom, and intermodulation band markers.
+        5. Sets Y-axis range if overrides are provided.
+        6. If `output_html_path` is provided, saves the figure to an HTML file.
+        7. Logs debug information throughout the process.
+
+    Outputs of this function:
+        tuple: (go.Figure, str or None) - The Plotly figure object and the path to the saved HTML file (or None).
+
+    (2025-07-31) Change: Consolidated plotting logic from plot_single_scan_data and plot_multi_trace_data.
+    (2025-07-31) Change: Added y_range_min_override and y_range_max_override parameters.
+    (2025-08-01) Change: Added include_intermod_markers parameter and call to _add_intermodulation_markers.
+    (2025-08-01) Change: Updated debug_print to debug_log.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Creating spectrum plot: '{plot_title}'",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     fig = go.Figure()
-    all_power_data = []
-    min_freq_overall = float('inf')
-    max_freq_overall = float('-inf')
 
-    # Add all data traces to the figure
-    for trace_info in data_traces:
-        df = trace_info['df']
-        name = trace_info['name']
-        color = trace_info.get('color', 'blue')
-        dash = trace_info.get('dash', 'solid')
-        width = trace_info.get('width', 2)
-        show_legend = trace_info.get('show_legend', True)
-        y_column_name = trace_info.get('y_column_name', 'Power (dBm)') # Default to 'Power (dBm)'
+    for trace_data in data_traces:
+        df = trace_data['df']
+        name = trace_data['name']
+        color = trace_data['color']
+        width = trace_data['width']
+        dash = trace_data['dash']
+        show_legend = trace_data['show_legend']
+        y_column_name = trace_data['y_column_name'] # Use this to select the Y-axis column
 
-        # Check for correct column names before plotting
-        if df.empty or 'Frequency (MHz)' not in df.columns or y_column_name not in df.columns:
-            if console_print_func:
-                console_print_func(f"Warning: Skipping trace '{name}' due to empty DataFrame or missing 'Frequency (MHz)'/'{y_column_name}' columns.")
-            debug_print(f"Skipping trace '{name}': Invalid DataFrame (missing 'Frequency (MHz)' or '{y_column_name}').", file=current_file, function=current_function, console_print_func=console_print_func)
+        if df.empty or 'Frequency (Hz)' not in df.columns or y_column_name not in df.columns:
+            debug_log(f"Skipping trace '{name}': Invalid DataFrame or missing columns. What a bummer!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             continue
 
         fig.add_trace(go.Scatter(
-            x=df['Frequency (MHz)'],
-            y=df[y_column_name], # Use the specified y_column_name
+            x=df['Frequency (Hz)'],
+            y=df[y_column_name],
             mode='lines',
             name=name,
             line=dict(color=color, width=width, dash=dash),
             showlegend=show_legend
         ))
-        debug_print(f"Added trace: '{name}' (Y-axis: '{y_column_name}') with color '{color}'.", file=current_file, function=current_function, console_print_func=console_print_func)
-
-        all_power_data.extend(df[y_column_name].tolist())
-        min_freq_overall = min(min_freq_overall, df['Frequency (MHz)'].min())
-        max_freq_overall = max(max_freq_overall, df['Frequency (MHz)'].max())
-
-    if not all_power_data:
-        if console_print_func:
-            console_print_func("No valid data points found across all traces. Cannot create plot.")
-        debug_print("No valid data points to plot.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return None, None
-
-    shapes = []
-    annotations = []
-
-    # Determine Y-axis range for markers, if not overridden
-    data_y_min = min(all_power_data)
-    data_y_max = max(all_power_data)
-
-    y_plot_min = y_range_min_override if y_range_min_override is not None else data_y_min - 5 # Add some padding
-    y_plot_max = y_range_max_override if y_range_max_override is not None else data_y_max + 5 # Add some padding
-
-    # Ensure a reasonable default range if data is flat or single point
-    if y_plot_max <= y_plot_min:
-        y_plot_min = -100
-        y_plot_max = 0
-
-    # Staggered Y-offset levels for text markers (relative to plot height)
-    y_offset_levels_tv_gov = [0.05, 0.10, 0.15, 0.20, 0.25] # Relative to the top of the plot
-    # y_offset_levels_custom = [0.01, 0.03, 0.05, 0.07, 0.09] # Smaller offsets for custom markers to stack tightly
-
-    if include_tv_markers:
-        debug_print("Adding TV Band Markers.", file=current_file, function=current_function, console_print_func=console_print_func)
-        for i, band in enumerate(TV_PLOT_BAND_MARKERS):
-            # Corrected keys to match frequency_bands.py
-            if 'Start MHz' in band and 'Stop MHz' in band:
-                start_mhz = band['Start MHz']
-                end_mhz = band['Stop MHz']
-                shapes.append(
-                    dict(
-                        type="rect", xref="x", yref="paper", x0=start_mhz, y0=0, x1=end_mhz, y1=1,
-                        fillcolor=band.get('fill_color', "rgba(255, 165, 0, 0.1)"), line=dict(color=band.get('line_color', "orange"), width=1),
-                        opacity=0.3, layer="below"
-                    )
-                )
-                mid_mhz = (start_mhz + end_mhz) / 2
-                current_y_offset_ratio = y_offset_levels_tv_gov[i % len(y_offset_levels_tv_gov)]
-                y_text_position = y_plot_max - (y_plot_max - y_plot_min) * current_y_offset_ratio
-
-                annotations.append(
-                    dict(
-                        x=mid_mhz, y=y_text_position,
-                        xref="x", yref="y",
-                        text=band['Band Name'], showarrow=False, # Use "Band Name"
-                        font=dict(color=band.get('text_color', "orange"), size=8), xanchor="center", yanchor="bottom",
-                        bgcolor="rgba(0,0,0,0.5)", bordercolor="orange", borderwidth=0.5
-                    )
-                )
-            else:
-                debug_print(f"Warning: TV Band Marker {band.get('Band Name', 'Unknown')} missing 'Start MHz' or 'Stop MHz'.", file=current_file, function=current_function, console_print_func=console_print_func)
-
-
-    if include_gov_markers:
-        debug_print("Adding Government Band Markers.", file=current_file, function=current_function, console_print_func=console_print_func)
-        for i, band in enumerate(GOV_PLOT_BAND_MARKERS):
-            # Corrected keys to match frequency_bands.py
-            if 'Start MHz' in band and 'Stop MHz' in band:
-                start_mhz = band['Start MHz']
-                end_mhz = band['Stop MHz']
-                shapes.append(
-                    dict(
-                        type="rect", xref="x", yref="paper", x0=start_mhz, y0=0, x1=end_mhz, y1=1,
-                        fillcolor=band.get('fill_color', "rgba(144, 238, 144, 0.1)"), line=dict(color=band.get('line_color', "lightgreen"), width=1),
-                        opacity=0.3, layer="below"
-                    )
-                )
-                mid_mhz = (start_mhz + end_mhz) / 2
-                current_y_offset_ratio = y_offset_levels_tv_gov[(i + 1) % len(y_offset_levels_tv_gov)]
-                y_text_position = y_plot_max - (y_plot_max - y_plot_min) * current_y_offset_ratio
-
-                annotations.append(
-                    dict(
-                        x=mid_mhz, y=y_text_position,
-                        xref="x", yref="y",
-                        text=band['Band Name'], showarrow=False, # Use "Band Name"
-                        font=dict(color=band.get('text_color', "lightgreen"), size=8), xanchor="center", yanchor="bottom",
-                        bgcolor="rgba(0,0,0,0.5)", bordercolor="lightgreen", borderwidth=0.5
-                    )
-                )
-            else:
-                debug_print(f"Warning: Government Band Marker {band.get('Band Name', 'Unknown')} missing 'Start MHz' or 'Stop MHz'.", file=current_file, function=current_function, console_print_func=console_print_func)
-
-    if include_markers:
-        debug_print("Adding custom markers from MARKERS.CSV.", file=current_file, function=current_function, console_print_func=console_print_func)
-        # Pass the current figure and a representative dataframe for range filtering
-        # For multi-trace, we can use the first dataframe, or a combined one for range.
-        # Here, we pass the first dataframe from data_traces.
-        if data_traces:
-            custom_shapes, custom_annotations = _load_custom_markers(data_traces[0]['df'], console_print_func, scan_data_folder)
-            shapes.extend(custom_shapes)
-            annotations.extend(custom_annotations)
-
-
-    if include_intermod_markers:
-        debug_print("Adding Intermodulation markers (logic to be implemented).", file=current_file, function=current_function, console_print_func=console_print_func)
-        # TODO: Implement logic to load and add intermodulation markers here
-        pass
-
+        debug_log(f"Added trace: '{name}' with Y-column '{y_column_name}'",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     fig.update_layout(
-        title={'text': plot_title, 'y':0.9, 'x':0.5, 'xanchor': 'center', 'yanchor': 'top'},
-        xaxis_title="Frequency (MHz)",
+        title={
+            'text': plot_title,
+            'y':0.9,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        xaxis_title="Frequency (Hz)",
         yaxis_title="Power (dBm)", # Default Y-axis title
         hovermode="x unified",
         template="plotly_dark",
         margin=dict(l=50, r=50, t=80, b=50),
-        # Set height and width to None for responsiveness
-        height=None,
-        width=None,
-        autosize=True, # Enable autosize for responsiveness
-        legend=dict(yanchor="top", y=0.99, xanchor="right", x=0.98, bgcolor="rgba(0,0,0,0.5)", bordercolor="white", borderwidth=1, font=dict(size=9)),
-        shapes=shapes,
-        annotations=annotations
+        height=700,
+        width=1000,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
     )
-    debug_print("Plotly layout updated with shapes and annotations.", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Plot layout updated.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-    # Apply Y-axis range
-    fig.update_yaxes(range=[y_plot_min, y_plot_max])
-    debug_print(f"Applied Y-axis range: {[y_plot_min, y_plot_max]}", file=current_file, function=current_function, console_print_func=console_print_func)
+    # Conditionally add markers
+    if include_tv_markers:
+        _add_band_markers(fig, TV_BAND_MARKERS_MHZ, 'rgba(0, 255, 0, 0.5)', 'dot', ' (TV)', console_print_func)
+    if include_gov_markers:
+        _add_band_markers(fig, GOVERNMENT_BAND_MARKERS_MHZ, 'rgba(255, 165, 0, 0.5)', 'dash', ' (Gov)', console_print_func)
+    if include_markers and scan_data_folder:
+        markers_csv_path = os.path.join(scan_data_folder, DEFAULT_MARKERS_FILE)
+        _add_markers_from_csv(fig, markers_csv_path, console_print_func)
+    if include_intermod_markers and scan_data_folder:
+        intermod_csv_path = os.path.join(scan_data_folder, DEFAULT_INTERMOD_FILE)
+        _add_intermodulation_markers(fig, intermod_csv_path, console_print_func)
 
 
+    # Apply Y-axis range override if provided
+    if y_range_min_override is not None and y_range_max_override is not None:
+        fig.update_yaxes(range=[y_range_min_override, y_range_max_override])
+        debug_log(f"Y-axis range overridden to: [{y_range_min_override}, {y_range_max_override}]",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+    elif y_range_max_override is not None: # Only max override
+        fig.update_yaxes(range=[fig.layout.yaxis.range[0], y_range_max_override])
+        debug_log(f"Y-axis max range overridden to: {y_range_max_override}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+    elif y_range_min_override is not None: # Only min override
+        fig.update_yaxes(range=[y_range_min_override, fig.layout.yaxis.range[1]])
+        debug_log(f"Y-axis min range overridden to: {y_range_min_override}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+
+    plot_html_path_return = None
     if output_html_path:
         output_dir = os.path.dirname(output_html_path)
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-            debug_print(f"Created directory for plot: {output_html_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"Saving plot to: {output_html_path}", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log(f"Created output directory for plot: {output_html_path}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Saving plot to: {output_html_path}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         fig.write_html(output_html_path, auto_open=False)
-        debug_print(f"✅ Plot saved to: {output_html_path}", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return fig, output_html_path
+        plot_html_path_return = output_html_path
+        debug_log(f"Plot saved to: {output_html_path}. Fucking brilliant!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
-        debug_print("No output_html_path provided, returning figure object only.", file=current_file, function=current_function, console_print_func=console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return fig, None
+        debug_log("Output HTML path not provided, skipping saving plot to file. What a waste!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+    debug_log(f"Exiting {current_function}",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    return fig, plot_html_path_return
 
 
-def plot_single_scan_data(
-    df,
-    plot_title,
-    include_tv_markers=False,
-    include_gov_markers=False,
-    include_markers=True,
-    include_intermod_markers=False,
-    output_html_path=None,
-    y_range_min_override=None,
-    y_range_max_override=0,
-    console_print_func=None,
-    scan_data_folder=None
-):
+def plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_markers,
+                          include_markers, include_intermod_markers, output_html_path, console_print_func,
+                          scan_data_folder):
     """
-    Generates an interactive Plotly HTML plot for a single scan's frequency vs. amplitude data.
-    This function is a wrapper for the unified _create_spectrum_plot.
+    Function Description:
+    Plots a single spectrum analyzer scan. This is a wrapper around `_create_spectrum_plot`.
+
+    Inputs to this function:
+        df_scan (pd.DataFrame): DataFrame containing 'Frequency (Hz)' and 'Power (dBm)'.
+        plot_title (str): The title for the plot.
+        include_tv_markers (bool): If True, TV band markers are added.
+        include_gov_markers (bool): If True, Government band markers are added.
+        include_markers (bool): If True, custom markers from MARKERS.csv are added.
+        include_intermod_markers (bool): If True, intermodulation markers from INTERMOD.csv are added.
+        output_html_path (str or None): If a string, saves the plot to this HTML file. If None, does not save.
+        console_print_func (function): Function to print messages to the GUI console.
+        scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+
+    Outputs of this function:
+        tuple: (go.Figure, str or None) - The Plotly figure object and the path to the saved HTML file (or None).
+
+    (2025-07-31) Change: Simplified to be a wrapper for _create_spectrum_plot.
+    (2025-08-01) Change: Added include_intermod_markers parameter.
+    (2025-08-01) Change: Updated debug_print to debug_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Calling _create_spectrum_plot for single scan: {plot_title}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Plotting single scan data for '{plot_title}'...",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-    if df.empty:
-        if console_print_func:
-            console_print_func("DataFrame is empty, cannot plot single scan.")
-        debug_print("DataFrame is empty, cannot plot single scan.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return None, None
-
-    # Ensure 'Frequency (MHz)' column exists for plotting
-    df_plot = df.copy()
-    if 'Frequency (Hz)' in df_plot.columns: # If 'Frequency (Hz)' column exists, assume it contains MHz values and rename
-        df_plot.rename(columns={'Frequency (Hz)': 'Frequency (MHz)'}, inplace=True)
-        debug_print("Renamed 'Frequency (Hz)' column to 'Frequency (MHz)' as it appears to contain MHz values.", file=current_file, function=current_function, console_print_func=console_print_func)
-    elif 'Frequency (MHz)' not in df_plot.columns: # If neither Hz nor MHz column is found
-        if console_print_func:
-            console_print_func("Error: Input DataFrame for single scan plot is missing 'Frequency (Hz)' or 'Frequency (MHz)' column.")
-        debug_print("Input DataFrame for single scan plot is missing frequency column.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return None, None
-    
-    # Prepare data for the unified plotting function
     data_traces = [{
-        'df': df_plot,
+        'df': df_scan,
         'name': 'Current Scan',
         'color': 'blue',
         'width': 2,
         'dash': 'solid',
         'show_legend': True,
-        'y_column_name': 'Power (dBm)' # Specify the Y-axis column name
+        'y_column_name': 'Power (dBm)'
     }]
 
-    return _create_spectrum_plot(
+    fig, html_path = _create_spectrum_plot(
         data_traces,
         plot_title,
         include_tv_markers,
         include_gov_markers,
         include_markers,
-        include_intermod_markers,
+        include_intermod_markers, # Pass the new parameter
         output_html_path,
-        y_range_min_override,
-        y_range_max_override,
-        console_print_func,
-        scan_data_folder
+        y_range_min_override=None,
+        y_range_max_override=None,
+        console_print_func=console_print_func,
+        scan_data_folder=scan_data_folder
     )
+    debug_log(f"Finished plotting single scan data for '{plot_title}'.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    return fig, html_path
 
 
-def plot_multi_trace_data(
-    aggregated_df,
-    plot_title,
-    include_tv_markers=False,
-    include_gov_markers=False,
-    include_markers=True,
-    include_intermod_markers=False,
-    historical_dfs_with_names=None, # List of {'df': DataFrame, 'name': str}
-    individual_scan_dfs_with_names=None, # List of (DataFrame, str)
-    output_html_path=None,
-    y_range_min_override=None,
-    y_range_max_override=0,
-    console_print_func=None,
-    scan_data_folder=None
-):
+def plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include_gov_markers,
+                          include_markers, include_intermod_markers, historical_dfs_with_names,
+                          individual_scan_dfs_with_names, output_html_path,
+                          y_range_min_override, y_range_max_override, console_print_func,
+                          scan_data_folder):
     """
-    Generates an interactive Plotly HTML plot for aggregated scan data and historical/individual overlays.
-    This function is a wrapper for the unified _create_spectrum_plot.
+    Function Description:
+    Plots multiple traces on a single Plotly graph, including an aggregated trace (e.g., average)
+    and optional historical or individual scan overlays. This is a wrapper around `_create_spectrum_plot`.
+
+    Inputs to this function:
+        df_aggregated (pd.DataFrame): DataFrame for the main aggregated trace (e.g., current average).
+                                      Expected to have 'Frequency (Hz)' and other calculated columns.
+        plot_title (str): The title for the plot.
+        include_tv_markers (bool): If True, TV band markers are added.
+        include_gov_markers (bool): If True, Government band markers are added.
+        include_markers (bool): If True, custom markers from MARKERS.csv are added.
+        include_intermod_markers (bool): If True, intermodulation markers from INTERMOD.csv are added.
+        historical_dfs_with_names (list of tuples or None): List of (DataFrame, name) for historical overlays.
+                                                            Each DataFrame should have 'Frequency (Hz)' and 'Power (dBm)'.
+        individual_scan_dfs_with_names (list of tuples or None): List of (DataFrame, name) for individual scan overlays.
+                                                                  Each DataFrame should have 'Frequency (Hz)' and 'Power (dBm)'.
+        output_html_path (str or None): If a string, saves the plot to this HTML file. If None, does not save.
+        y_range_min_override (float or None): Optional minimum Y-axis value.
+        y_range_max_override (float or None): Optional maximum Y-axis value.
+        console_print_func (function): Function to print messages to the GUI console.
+        scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+
+    Outputs of this function:
+        tuple: (go.Figure, str or None) - The Plotly figure object and the path to the saved HTML file (or None).
+
+    (2025-07-31) Change: Consolidated plotting logic into _create_spectrum_plot.
+    (2025-07-31) Change: Added y_range_min_override and y_range_max_override parameters.
+    (2025-08-01) Change: Added include_intermod_markers parameter.
+    (2025-08-01) Change: Updated debug_print to debug_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Calling _create_spectrum_plot for multi-trace plot: {plot_title}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Plotting multi-trace data for '{plot_title}'...",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     data_traces = []
 
-    # Prepare aggregated_df for plotting: convert Frequency (Hz) to (MHz) if necessary
-    aggregated_df_plot = aggregated_df.copy()
-    # If 'Frequency (Hz)' column exists, assume it contains MHz values and rename
-    if 'Frequency (Hz)' in aggregated_df_plot.columns:
-        aggregated_df_plot.rename(columns={'Frequency (Hz)': 'Frequency (MHz)'}, inplace=True)
-        debug_print("Renamed 'Frequency (Hz)' column to 'Frequency (MHz)' in aggregated_df_plot as it appears to contain MHz values.", file=current_file, function=current_function, console_print_func=console_print_func)
-    elif 'Frequency (MHz)' not in aggregated_df_plot.columns:
-        if console_print_func:
-            console_print_func("Error: Aggregated DataFrame for multi-trace plot is missing 'Frequency (Hz)' or 'Frequency (MHz)' column.")
-        debug_print("Aggregated DataFrame for multi-trace plot is missing frequency column.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return None, None
-
-    # Determine which columns from aggregated_df_plot to plot as traces
-    # These are the "power-like" columns from the COMPLETE_MATH CSV
-    # Exclude 'Frequency (MHz)' itself
-    plot_value_columns = [col for col in aggregated_df_plot.columns if col != 'Frequency (MHz)']
-
-    if not aggregated_df_plot.empty and plot_value_columns:
-        for column in plot_value_columns:
-            # Assign colors and dash styles based on column name
-            color_map = {
-                'Average': 'lime',
-                'Median': 'yellow',
-                'Range': 'orange',
-                'Std Dev': 'magenta', # Corrected from 'Standard Deviation' to match CSV
-                'Variance': 'purple',
-                'PSD (dBm/Hz)': 'red' # Corrected from 'Power Spectral Density (PSD)' to match CSV
-            }
-            dash_map = {
-                'Average': 'solid',
-                'Median': 'dot',
-                'Range': 'dash',
-                'Std Dev': 'longdash',
-                'Variance': 'dot', # Changed from 'shortdot' to 'dot'
-                'PSD (dBm/Hz)': 'solid'
-            }
-            
+    # Add the main aggregated trace (e.g., Average, Median, etc.)
+    # The y_column_name for the main aggregated trace will be the first data column after Frequency (Hz)
+    # This assumes df_aggregated columns are ['Frequency (Hz)', 'Average', 'Median', ...]
+    if not df_aggregated.empty and 'Frequency (Hz)' in df_aggregated.columns and len(df_aggregated.columns) > 1:
+        # Get all columns except 'Frequency (Hz)' as y-axis columns
+        y_cols = [col for col in df_aggregated.columns if col != 'Frequency (Hz)']
+        for y_col in y_cols:
             data_traces.append({
-                'df': aggregated_df_plot,
-                'name': column, # Use the actual column name for the legend
-                'color': color_map.get(column, 'white'),
-                'width': 2 if column == 'Average' else 1,
-                'dash': dash_map.get(column, 'solid'),
+                'df': df_aggregated,
+                'name': y_col, # Use the column name as the trace name
+                'color': px.colors.qualitative.Plotly[y_cols.index(y_col) % len(px.colors.qualitative.Plotly)], # Cycle through colors
+                'width': 3,
+                'dash': 'solid',
                 'show_legend': True,
-                'y_column_name': column # Specify the column to use for Y-axis
+                'y_column_name': y_col # Specify the column to use for Y-axis
             })
+        debug_log(f"Added aggregated trace(s) from columns: {y_cols}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
-        if console_print_func:
-            console_print_func("Warning: Aggregated DataFrame is empty or has no plotable columns. Skipping main aggregated traces.")
-        debug_print("Aggregated DataFrame empty or no plotable columns.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log("Aggregated DataFrame is empty or invalid. Skipping aggregated trace. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
-    # Add historical overlays (ensure frequency conversion if needed)
+    # Add historical overlays if provided
     if historical_dfs_with_names:
-        for i, item in enumerate(historical_dfs_with_names):
-            df_hist = item['df'].copy()
-            if 'Frequency (Hz)' in df_hist.columns: # If 'Frequency (Hz)' column exists, assume it contains MHz values and rename
-                df_hist.rename(columns={'Frequency (Hz)': 'Frequency (MHz)'}, inplace=True)
-                debug_print(f"Renamed 'Frequency (Hz)' column to 'Frequency (MHz)' in historical DF '{item['name']}' as it appears to contain MHz values.", file=current_file, function=current_function, console_print_func=console_print_func)
-            
-            name = item['name']
-            if not df_hist.empty and 'Frequency (MHz)' in df_hist.columns and 'Power (dBm)' in df_hist.columns:
+        debug_log(f"Adding {len(historical_dfs_with_names)} historical overlays.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        for i, (df_hist, name) in enumerate(historical_dfs_with_names):
+            if not df_hist.empty and 'Frequency (Hz)' in df_hist.columns and 'Power (dBm)' in df_hist.columns:
                 data_traces.append({
                     'df': df_hist,
                     'name': f'{name} (Historical)',
-                    'color': f'rgba(150, 150, 150, {max(0, 0.5 - i * 0.1)})', # Clamped alpha value
+                    'color': f'rgba(100, 100, 100, {max(0, 0.8 - i * 0.1)})', # Faded gray for historical
                     'width': 1,
-                    'dash': 'solid',
+                    'dash': 'dot',
                     'show_legend': True,
                     'y_column_name': 'Power (dBm)' # Historical scans will have 'Power (dBm)'
                 })
             else:
-                debug_print(f"Skipping historical DF '{name}': Invalid DataFrame.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log(f"Skipping historical DF '{name}': Invalid DataFrame. What a pain!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
-    # Add individual scan overlays (ensure frequency conversion if needed)
+    # Add individual scan overlays if provided
     if individual_scan_dfs_with_names:
-        for i, (df_scan, name) in enumerate(individual_scan_dfs_with_names):
-            df_scan_plot = df_scan.copy()
-            if 'Frequency (Hz)' in df_scan_plot.columns: # If 'Frequency (Hz)' column exists, assume it contains MHz values and rename
-                df_scan_plot.rename(columns={'Frequency (Hz)': 'Frequency (MHz)'}, inplace=True)
-                debug_print(f"Renamed 'Frequency (Hz)' column to 'Frequency (MHz)' in individual scan DF '{name}' as it appears to contain MHz values.", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Adding {len(individual_scan_dfs_with_names)} individual scan overlays.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        for i, (df_scan_plot, name) in enumerate(individual_scan_dfs_with_names):
+            debug_log(f"Preparing individual scan overlay: {name}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-            if not df_scan_plot.empty and 'Frequency (MHz)' in df_scan_plot.columns and 'Power (dBm)' in df_scan_plot.columns:
+            if not df_scan_plot.empty and 'Frequency (Hz)' in df_scan_plot.columns and 'Power (dBm)' in df_scan_plot.columns:
                 data_traces.append({
                     'df': df_scan_plot,
                     'name': f'{name} (Scan)',
@@ -666,12 +665,17 @@ def plot_multi_trace_data(
                     'y_column_name': 'Power (dBm)' # Individual scans will have 'Power (dBm)'
                 })
             else:
-                debug_print(f"Skipping individual scan DF '{name}': Invalid DataFrame.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log(f"Skipping individual scan DF '{name}': Invalid DataFrame. Fucking useless!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
     if not data_traces:
-        if console_print_func:
-            console_print_func("No valid data to plot in multi-trace function.")
-        debug_print("No valid data traces prepared for multi-trace plot.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("No valid data to plot in multi-trace function. This is a goddamn mess!")
+        debug_log("No valid data traces prepared for multi-trace plot.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return None, None
 
     return _create_spectrum_plot(
@@ -680,7 +684,7 @@ def plot_multi_trace_data(
         include_tv_markers,
         include_gov_markers,
         include_markers,
-        include_intermod_markers,
+        include_intermod_markers, # Pass the new parameter
         output_html_path,
         y_range_min_override,
         y_range_max_override,

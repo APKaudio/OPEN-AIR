@@ -25,6 +25,10 @@ import tkinter as tk # Import tkinter for update_idletasks
 from utils.utils_instrument_control import debug_print # Import debug_print
 import inspect # Import inspect module for debug_print
 
+#Import the debug logic module to use debug_print
+from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_print
+
+
 # NEW: Import all necessary dropdown lists for value lookup during loading
 from ref.ref_scanner_setting_lists import (
     graph_quality_drop_down,
@@ -88,10 +92,11 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     # (2025-08-01 1600.3) Change: Corrected load_config signature to include app_instance.
     # (2025-08-01 1600.4) Change: Corrected load_config signature to accept config_obj as first argument, and updated save_config signature to correctly use app_instance.
     # (2025-08-01 1915.1) Change: Added logic to populate LAST_USED_SETTINGS with DEFAULT_SETTINGS if config.ini is new or LAST_USED_SETTINGS is empty.
+    # (2025-08-01 2029.1) Change: Added 'GLOBAL__debug_to_Terminal' to default_values.
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"🚫🐛 [DEBUG] Attempting to load configuration from {config_file_path}... Version: {current_version}",
+    debug_print(f" Attempting to load configuration from {config_file_path}... Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
@@ -103,7 +108,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
 
     if 'DEFAULT_SETTINGS' not in config_obj:
         config_obj['DEFAULT_SETTINGS'] = {}
-        debug_print(f"🚫🐛 [DEBUG] Created missing 'DEFAULT_SETTINGS' section. Version: {current_version}",
+        debug_print(f" Created missing 'DEFAULT_SETTINGS' section. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -128,6 +133,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
         'GLOBAL__window_geometry': '1400x780+100+100',
         'GLOBAL__debug_enabled': 'False',
         'GLOBAL__log_visa_commands_enabled': 'False',
+        'GLOBAL__debug_to_Terminal': 'False', # NEW: Default to False (debug to GUI console)
         'GLOBAL__paned_window_sash_position': '700', # NEW: Default sash position
 
         'instrument_connection__visa_resource': 'N/A',
@@ -203,7 +209,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     for key, value in default_values.items():
         if f"default_{key}" not in config_obj['DEFAULT_SETTINGS']: # Use 'config_obj' here
             config_obj['DEFAULT_SETTINGS'][f"default_{key}"] = value
-            debug_print(f"🚫🐛 [DEBUG] Added missing default setting: default_{key}={value}. Version: {current_version}",
+            debug_print(f" Added missing default setting: default_{key}={value}. Version: {current_version}",
                         file=f"{current_file} - {current_version}",
                         function=current_function,
                         console_print_func=console_print_func)
@@ -212,7 +218,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     if 'default_scan_configuration__selected_bands' not in config_obj['DEFAULT_SETTINGS']: # Use 'config_obj' here
         default_bands_str = ",".join([band["Band Name"] for band in app_instance.SCAN_BAND_RANGES])
         config_obj['DEFAULT_SETTINGS']['default_scan_configuration__selected_bands'] = default_bands_str # Use 'config_obj' here
-        debug_print(f"🚫🐛 [DEBUG] Generated default_scan_configuration__selected_bands: {default_bands_str}. Version: {current_version}",
+        debug_print(f"�🐛 [DEBUG] Generated default_scan_configuration__selected_bands: {default_bands_str}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -227,7 +233,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
             # Convert default_KEY to last_KEY format
             last_key = f"last_{key}"
             config_obj['LAST_USED_SETTINGS'][last_key] = value
-            debug_print(f"🚫🐛 [DEBUG] Copied default: {last_key}={value}. Version: {current_version}",
+            debug_print(f" Copied default: {last_key}={value}. Version: {current_version}",
                         file=f"{current_file} - {current_version}",
                         function=current_function,
                         console_print_func=console_print_func)
@@ -235,7 +241,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
         # Also handle the selected bands for the first time setup
         default_bands_str = config_obj['DEFAULT_SETTINGS'].get('default_scan_configuration__selected_bands', '')
         config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands'] = default_bands_str
-        debug_print(f"🚫🐛 [DEBUG] Copied default bands: last_scan_configuration__selected_bands={default_bands_str}. Version: {current_version}",
+        debug_print(f" Copied default bands: last_scan_configuration__selected_bands={default_bands_str}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -246,7 +252,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
     if 'last_GLOBAL__window_geometry' not in config_obj['LAST_USED_SETTINGS']: # Use 'config_obj' here
         default_geometry = config_obj['DEFAULT_SETTINGS'].get('default_GLOBAL__window_geometry', '1400x780+100+100')
         config_obj['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = default_geometry # Use 'config_obj' here
-        debug_print(f"🚫🐛 [DEBUG] Set last_GLOBAL__window_geometry to default: {default_geometry}. Version: {current_version}",
+        debug_print(f" Set last_GLOBAL__window_geometry to default: {default_geometry}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -307,7 +313,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
                 else: # Others are ints
                     numeric_value = int(float(value_str)) # Use float first to handle "10000.0"
                 tk_var.set(str(numeric_value)) # Set as string for StringVar
-                debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Direct Numeric). Version: {current_version}",
+                debug_print(f" Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Direct Numeric). Version: {current_version}",
                             file=f"{current_file} - {current_version}",
                             function=current_function,
                             console_print_func=console_print_func)
@@ -322,7 +328,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
                 
                 if found_numeric_value is not None:
                     tk_var.set(str(found_numeric_value))
-                    debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Label Converted). Version: {current_version}",
+                    debug_print(f" Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Label Converted). Version: {current_version}",
                                 file=f"{current_file} - {current_version}",
                                 function=current_function,
                                 console_print_func=console_print_func)
@@ -345,7 +351,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
                     tk_var.set(float(value_str))
                 elif isinstance(tk_var, tk.StringVar):
                     tk_var.set(value_str)
-                debug_print(f"🚫🐛 [DEBUG] Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Standard). Version: {current_version}",
+                debug_print(f" Loading '{last_key_full}' (Type: {type(tk_var).__name__}): '{tk_var.get()}' (Standard). Version: {current_version}",
                             file=f"{current_file} - {current_version}",
                             function=current_function,
                             console_print_func=console_print_func)
@@ -368,7 +374,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
 
     # Load the last selected bands and update Tkinter BooleanVars
     last_selected_bands_str = _get_config_value('LAST_USED_SETTINGS', 'scan_configuration', 'selected_bands', '')
-    debug_print(f"🚫🐛 [DEBUG] Loading 'last_scan_configuration__selected_bands': '{last_selected_bands_str}'. Version: {current_version}",
+    debug_print(f" Loading 'last_scan_configuration__selected_bands': '{last_selected_bands_str}'. Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
@@ -382,12 +388,12 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
         else:
             band_item["var"].set(False)
 
-    debug_print(f"🚫🐛 [DEBUG] Configuration loaded. Version: {current_version}",
+    debug_print(f" Configuration loaded. Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
     console_print_func("✅ Configuration loaded.")
-    debug_print(f"🚫🐛 [DEBUG] --- Current ConfigParser Contents (After Loading) --- Version: {current_version}",
+    debug_print(f" --- Current ConfigParser Contents (After Loading) --- Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
@@ -402,7 +408,7 @@ def load_config(config_obj, config_file_path, console_print_func, app_instance):
                         file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
-    debug_print(f"🚫🐛 [DEBUG] --- End ConfigParser Contents --- Version: {current_version}",
+    debug_print(f" --- End ConfigParser Contents --- Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
@@ -453,14 +459,14 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"🚫🐛 [DEBUG] Attempting to save configuration to {file_path}... Version: {current_version}",
+    debug_print(f" Attempting to save configuration to {file_path}... Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
 
     if 'LAST_USED_SETTINGS' not in config_obj: # Use config_obj here
         config_obj['LAST_USED_SETTINGS'] = {} # Use config_obj here
-        debug_print(f"🚫🐛 [DEBUG] Created missing 'LAST_USED_SETTINGS' section during save. Version: {current_version}",
+        debug_print(f" Created missing 'LAST_USED_SETTINGS' section during save. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -496,7 +502,7 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
                 value_to_save = str(tk_var.get()) # Fallback for any other Tkinter var type
 
             config_obj[section_name][save_key] = value_to_save
-            debug_print(f"🚫🐛 [DEBUG] Saved '{save_key}': '{value_to_save}'. Version: {current_version}",
+            debug_print(f" Saved '{save_key}': '{value_to_save}'. Version: {current_version}",
                         file=f"{current_file} - {current_version}",
                         function=current_function,
                         console_print_func=console_print_func)
@@ -509,7 +515,7 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     # Save selected bands
     selected_bands = [band_item["band"]["Band Name"] for band_item in app_instance.band_vars if band_item["var"].get()]
     config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands'] = ",".join(selected_bands)
-    debug_print(f"🚫🐛 [DEBUG] Saved 'last_scan_configuration__selected_bands': '{config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands']}'. Version: {current_version}",
+    debug_print(f" Saved 'last_scan_configuration__selected_bands': '{config_obj['LAST_USED_SETTINGS']['last_scan_configuration__selected_bands']}'. Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
@@ -518,7 +524,7 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     try:
         geometry_string = app_instance.geometry()
         config_obj['LAST_USED_SETTINGS']['last_GLOBAL__window_geometry'] = geometry_string
-        debug_print(f"🚫🐛 [DEBUG] Saved 'last_GLOBAL__window_geometry': '{geometry_string}'. Version: {current_version}",
+        debug_print(f" Saved 'last_GLOBAL__window_geometry': '{geometry_string}'. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
@@ -531,11 +537,11 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     try:
         with open(file_path, 'w') as configfile:
             config_obj.write(configfile)
-        debug_print(f"🚫🐛 [DEBUG] Configuration successfully written to {file_path}. Version: {current_version}",
+        debug_print(f" Configuration successfully written to {file_path}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)
-        console_print_func(f"✅ Configuration saved to: {file_path}")
+
     except IOError as e:
         debug_print(f"❌ I/O Error saving configuration to {file_path}: {e}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
@@ -578,14 +584,14 @@ def save_config_as_new_file(config_obj, file_path, console_print_func):
     current_function = inspect.currentframe().f_code.co_name
     current_file = __file__
 
-    debug_print(f"🚫🐛 [DEBUG] Attempting to save configuration to new file: {file_path}. Version: {current_version}",
+    debug_print(f" Attempting to save configuration to new file: {file_path}. Version: {current_version}",
                 file=f"{current_file} - {current_version}",
                 function=current_function,
                 console_print_func=console_print_func)
     try:
         with open(file_path, 'w') as configfile:
             config_obj.write(configfile)
-        debug_print(f"🚫🐛 [DEBUG] Configuration successfully saved to {file_path}. Version: {current_version}",
+        debug_print(f" Configuration successfully saved to {file_path}. Version: {current_version}",
                     file=f"{current_file} - {current_version}",
                     function=current_function,
                     console_print_func=console_print_func)

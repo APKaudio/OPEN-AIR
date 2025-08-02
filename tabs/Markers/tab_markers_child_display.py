@@ -16,9 +16,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1935.1 (Ensured MARKERS.CSV operations use app_instance.MARKERS_FILE_PATH.)
+# Version 20250801.2200.1 (Refactored logging to use src/debug_logic and src/console_logic.)
 
-current_version = "20250801.1935.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2200.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -30,7 +30,9 @@ import math # Import math for ceil function (still useful for general calculatio
 
 # Import new marker utility functions and constants - CORRECTED PATHS
 from tabs.Markers.utils_markers import SPAN_OPTIONS, RBW_OPTIONS, set_span_logic, set_frequency_logic, set_trace_modes_logic, set_marker_logic, blank_hold_traces_logic, set_rbw_logic
-from utils.utils_instrument_control import debug_print # Keep debug_print
+# Import the new debug_logic and console_logic modules
+from src.debug_logic import debug_log # Changed from debug_print
+from src.console_logic import console_log # Changed from console_print_func
 from ref.frequency_bands import MHZ_TO_HZ # Import MHZ_TO_HZ for conversion
 
 
@@ -42,7 +44,7 @@ class MarkersDisplayTab(ttk.Frame):
     A Tkinter Frame that displays extracted frequency markers in a hierarchical treeview
     and as clickable buttons.
     """
-    def __init__(self, master=None, headers=None, rows=None, app_instance=None, console_print_func=None, **kwargs):
+    def __init__(self, master=None, headers=None, rows=None, app_instance=None, **kwargs): # Removed console_print_func
         """
         Initializes the MarkersDisplayTab.
 
@@ -53,18 +55,20 @@ class MarkersDisplayTab(ttk.Frame):
                          a row of marker data with keys matching the headers.
             app_instance (App): The main application instance, used for accessing
                                 shared state like instrument connection and focus width.
-            console_print_func (function, optional): Function to use for console output.
             **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Initializing MarkersDisplayTab...", file=current_file, function=current_function, console_print_func=console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Initializing MarkersDisplayTab...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         super().__init__(master, **kwargs)
         self.headers = headers if headers is not None else []
         self.rows = rows if rows is not None else [] # Store full rows data
         self.app_instance = app_instance # Store reference to the main app instance
-        self.console_print_func = console_print_func if console_print_func else print # Use provided func or default print
+        # self.console_print_func is removed, using console_log directly
 
         # Apply style to the main frame (this style is now defined globally in main_app.py)
         self.config(style="Markers.TFrame")
@@ -106,8 +110,11 @@ class MarkersDisplayTab(ttk.Frame):
         for zones/groups and the frame for device buttons.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Creating MarkersDisplayTab widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Creating MarkersDisplayTab widgets...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Main frame for the split layout
         main_split_frame = ttk.Frame(self, style="Markers.TFrame") # Use ttk.Frame
@@ -310,8 +317,11 @@ class MarkersDisplayTab(ttk.Frame):
         If GROUP is empty, it will not create a group node, but the markers will still be associated with the zone.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Populating zone/group tree (2 levels)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Populating zone/group tree (2 levels)...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         self.zone_group_tree.delete(*self.zone_group_tree.get_children()) # Clear existing data
 
         # Nested dictionary to store data: {ZONE: {GROUP: [rows]}}
@@ -352,8 +362,11 @@ class MarkersDisplayTab(ttk.Frame):
         Also resets the selected device button state.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Tree item selected...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Tree item selected...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         selected_items = self.zone_group_tree.selection()
 
         # Reset selected device button state when tree selection changes
@@ -438,10 +451,14 @@ class MarkersDisplayTab(ttk.Frame):
                                 If more than 20 devices, aims for 3 rows. Otherwise, 2 columns.
         (2025-08-01 00:50) Change: Corrected dynamic column adjustment to always be 3 columns if > 20 devices,
                                 and 2 columns if <= 20 devices.
+        (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Populating device buttons with {len(devices_to_display)} devices...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Populating device buttons with {len(devices_to_display)} devices...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         
         # Clear existing buttons
         for widget in self.inner_buttons_frame.winfo_children():
@@ -457,10 +474,16 @@ class MarkersDisplayTab(ttk.Frame):
         num_devices = len(devices_to_display)
         if num_devices > 20:
             num_columns = 3 # Always 3 columns if more than 20 devices
-            debug_print(f"🐛 [{current_file}] More than 20 devices ({num_devices}). Using 3 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"More than 20 devices ({num_devices}). Using 3 columns.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         else:
             num_columns = 2 # Default to 2 columns for 20 or fewer devices
-            debug_print(f"🚫🐛 [{current_file}] 20 or fewer devices ({num_devices}). Using 2 columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"20 or fewer devices ({num_devices}). Using 2 columns.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
         # Clear all previous column weights to ensure clean reconfiguration
         # Get the current maximum column index that might have a weight configured
@@ -530,9 +553,15 @@ class MarkersDisplayTab(ttk.Frame):
                         col_idx = 0
                         row_idx += 1
                 except ValueError:
-                    debug_print(f"🚫🐛 [{current_file}] Could not convert frequency '{freq_mhz}' to float for button. Skipping. This bugger is a pain in the ass!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Could not convert frequency '{freq_mhz}' to float for button. Skipping. This bugger is a pain in the ass!",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
             else:
-                debug_print(f"🚫🐛 [{current_file}] Frequency not found for device '{name}'. Skipping button. What the hell?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Frequency not found for device '{name}'. Skipping button. What the hell?!",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
 
         # Ensure rows also expand if needed, though buttons will dictate row height
         for r in range(row_idx + 1):
@@ -544,8 +573,11 @@ class MarkersDisplayTab(ttk.Frame):
     def _reset_span_button_styles(self, exclude_button=None):
         """Resets the style of all span buttons to default, except for the excluded one."""
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Resetting span button styles...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Resetting span button styles...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         for btn in self.span_buttons.values():
             if btn != exclude_button:
                 btn.config(style="Markers.TButton")
@@ -554,8 +586,11 @@ class MarkersDisplayTab(ttk.Frame):
     def _reset_rbw_button_styles(self, exclude_button=None):
         """Resets the style of all RBW buttons to default, except for the excluded one."""
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Resetting RBW button styles...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Resetting RBW button styles...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         for btn in self.rbw_buttons.values():
             if btn != exclude_button:
                 btn.config(style="Markers.TButton")
@@ -568,8 +603,11 @@ class MarkersDisplayTab(ttk.Frame):
         or when a different control group (like POKE) is activated.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Resetting device button styles...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Resetting device button styles...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Iterate over all currently displayed buttons and reset their style
         # This is crucial because _populate_device_buttons might not re-create all widgets
@@ -615,9 +653,10 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 17:00) Change: Updated to display selected device info in the settings box.
         (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
+        (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
 
         freq_hz = float(device_data.get('FREQ')) * MHZ_TO_HZ
         name = device_data.get('NAME', '').strip() # Ensure name is stripped for display
@@ -626,8 +665,11 @@ class MarkersDisplayTab(ttk.Frame):
 
         # Format frequency for display without decimal if it's a whole number
         display_freq_mhz = int(freq_hz / MHZ_TO_HZ) if (freq_hz / MHZ_TO_HZ) == int(freq_hz / MHZ_TO_HZ) else f"{freq_hz / MHZ_TO_HZ:.3f}"
-        self.console_print_func(f"\nSetting instrument to '{name}' at {display_freq_mhz} MHz...")
-        debug_print(f"🚫🐛 [{current_file}] Device button clicked: {name} at {freq_hz} Hz (ID: {unique_device_id})", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        console_log(f"\nSetting instrument to '{name}' at {display_freq_mhz} MHz...", function=current_function)
+        debug_log(f"Device button clicked: {name} at {freq_hz} Hz (ID: {unique_device_id})",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Clear only previous device selection and poke button
         self._reset_device_button_styles(exclude_button=clicked_button_widget)
@@ -657,30 +699,33 @@ class MarkersDisplayTab(ttk.Frame):
 
             # Blank Max Hold and Min Hold traces if they were active
             if original_max_hold_mode or original_min_hold_mode:
-                blank_hold_traces_logic(inst, self.console_print_func)
+                blank_hold_traces_logic(inst, console_log) # Passed console_log
 
             # 1. Set Frequency
-            set_frequency_logic(inst, freq_hz, self.console_print_func)
+            set_frequency_logic(inst, freq_hz, console_log) # Passed console_log
 
             # 2. Set Span (using the currently selected span or default)
             span_to_use_hz = self.current_span_hz if self.current_span_hz is not None else \
                              float(self.app_instance.desired_default_focus_width_var.get()) * MHZ_TO_HZ
-            set_span_logic(inst, span_to_use_hz, self.console_print_func)
+            set_span_logic(inst, span_to_use_hz, console_log) # Passed console_log
 
             # 3. Set Marker (no read back)
-            set_marker_logic(inst, freq_hz, name, self.console_print_func)
+            set_marker_logic(inst, freq_hz, name, console_log) # Passed console_log
 
             # 4. Restore Trace Modes to their original states
             set_trace_modes_logic(inst,
                                   original_live_mode,
                                   original_max_hold_mode,
                                   original_min_hold_mode,
-                                  self.console_print_func)
+                                  console_log) # Passed console_log
 
             self._update_current_settings_display() # Update display after all commands
         else:
-            self.console_print_func("⚠️ Warning: Cannot set focus frequency: Instrument not connected.")
-            debug_print(f"�🐛 [{current_file}] Cannot set focus frequency: Instrument not connected. Fucking useless!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Cannot set focus frequency: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot set focus frequency: Instrument not connected. Fucking useless!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
 
     def _on_span_button_click(self, span_hz, button_widget, button_text_key):
@@ -712,11 +757,15 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 16:30) Change: Implemented blanking and restoration of hold traces before/after span change.
         (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
+        (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        self.console_print_func(f"Setting span to {span_hz / MHZ_TO_HZ:.3f} MHz...")
-        debug_print(f"🚫🐛 [{current_file}] Span button clicked: Setting span to {span_hz} Hz (Button: {button_text_key})", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log(f"Setting span to {span_hz / MHZ_TO_HZ:.3f} MHz...", function=current_function)
+        debug_log(f"Span button clicked: Setting span to {span_hz} Hz (Button: {button_text_key})",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Clear only other span button selections
         self._reset_span_button_styles(exclude_button=button_widget)
@@ -740,37 +789,44 @@ class MarkersDisplayTab(ttk.Frame):
 
             # Blank Max Hold and Min Hold traces if they are active
             if original_max_hold_mode or original_min_hold_mode:
-                blank_hold_traces_logic(inst, self.console_print_func)
+                blank_hold_traces_logic(inst, console_log) # Passed console_log
 
             # 1. Set Span
-            set_span_logic(inst, span_hz, self.console_print_func)
+            set_span_logic(inst, span_hz, console_log) # Passed console_log
 
             # Optional: Re-center if a device is currently selected
             if self.current_selected_device_data:
                 try:
                     center_freq_to_use = float(self.current_selected_device_data.get('FREQ')) * MHZ_TO_HZ
-                    set_frequency_logic(inst, center_freq_to_use, self.console_print_func)
-                    self.console_print_func(f"Re-centering on selected device at {center_freq_to_use / MHZ_TO_HZ:.3f} MHz with new span.")
+                    set_frequency_logic(inst, center_freq_to_use, console_log) # Passed console_log
+                    console_log(f"Re-centering on selected device at {center_freq_to_use / MHZ_TO_HZ:.3f} MHz with new span.", function=current_function)
                 except ValueError:
-                    debug_print(f"🚫🐛 [{current_file}] Could not convert selected device frequency to float for re-centering. What a fumbling idiot of a bug!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Could not convert selected device frequency to float for re-centering. What a fumbling idiot of a bug!",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
             
             # 2. Restore Trace Modes to their original states
             set_trace_modes_logic(inst,
                                   original_live_mode,
                                   original_max_hold_mode,
                                   original_min_hold_mode,
-                                  self.console_print_func)
+                                  console_log) # Passed console_log
 
             self._update_current_settings_display() # Update display after span change
         else:
-            self.console_print_func("⚠️ Warning: Cannot set span: Instrument not connected.")
-            debug_print(f"🚫🐛 [{current_file}] Cannot set span: Instrument not connected. What the hell is this thing doing?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Cannot set span: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot set span: Instrument not connected. What the hell is this thing doing?!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
 
     # --- NEW: RBW Button Click Handler ---
     # (2025-07-31 17:15) Change: Added new RBW button click handler.
     # (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
     # (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
     def _on_rbw_button_click(self, rbw_hz, button_widget, button_text_key):
         """
         Callback for RBW control buttons. Changes the instrument's RBW.
@@ -792,9 +848,12 @@ class MarkersDisplayTab(ttk.Frame):
         4. Updates the GUI's current settings display.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        self.console_print_func(f"Setting RBW to {button_text_key}...")
-        debug_print(f"🚫🐛 [{current_file}] RBW button clicked: Setting RBW to {rbw_hz} Hz (Button: {button_text_key})", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log(f"Setting RBW to {button_text_key}...", function=current_function)
+        debug_log(f"RBW button clicked: Setting RBW to {rbw_hz} Hz (Button: {button_text_key})",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Clear only other RBW button selections
         self._reset_rbw_button_styles(exclude_button=button_widget)
@@ -817,52 +876,65 @@ class MarkersDisplayTab(ttk.Frame):
 
             # Blank Max Hold and Min Hold traces if they are active
             if original_max_hold_mode or original_min_hold_mode:
-                blank_hold_traces_logic(inst, self.console_print_func)
+                blank_hold_traces_logic(inst, console_log) # Passed console_log
 
             # Set RBW
-            set_rbw_logic(inst, rbw_hz, self.console_print_func)
+            set_rbw_logic(inst, rbw_hz, console_log) # Passed console_log
 
             # Restore Trace Modes to their original states
             set_trace_modes_logic(inst,
                                   original_live_mode,
                                   original_max_hold_mode,
                                   original_min_hold_mode,
-                                  self.console_print_func)
+                                  console_log) # Passed console_log
 
             self._update_current_settings_display() # Update display after RBW change
         else:
-            self.console_print_func("⚠️ Warning: Cannot set RBW: Instrument not connected.")
-            debug_print(f"🚫🐛 [{current_file}] Cannot set RBW: Instrument not connected. What the hell is this thing doing?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Cannot set RBW: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot set RBW: Instrument not connected. What the hell is this thing doing?!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
     # --- END NEW ---
 
     # --- NEW: Poke Button Click Handler ---
     # (2025-07-31 17:15) Change: Added new poke button click handler.
     # (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
     # (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style and fix POKE display.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
     def _on_poke_button_click(self):
         """
         Callback for the POKE button. Sets the instrument's center frequency
         based on the manual input, treating it like a 'wild device'.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
         manual_freq_str = self.manual_freq_entry_var.get().strip()
 
         if not manual_freq_str:
-            self.console_print_func("⚠️ Warning: Please enter a frequency in the manual control box.")
-            debug_print(f"🚫🐛 [{current_file}] Manual frequency input is empty. You gotta put something in, you know?", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Please enter a frequency in the manual control box.", function=current_function)
+            debug_log(f"Manual frequency input is empty. You gotta put something in, you know?",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
             manual_freq_mhz = float(manual_freq_str)
             freq_hz = manual_freq_mhz * MHZ_TO_HZ
         except ValueError:
-            self.console_print_func("❌ Error: Invalid frequency entered. Please enter a numerical value in MHz.")
-            debug_print(f"🚫🐛 [{current_file}] Invalid manual frequency input: '{manual_freq_str}'. What the hell is this garbage?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("❌ Error: Invalid frequency entered. Please enter a numerical value in MHz.", function=current_function)
+            debug_log(f"Invalid manual frequency input: '{manual_freq_str}'. What the hell is this garbage?!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
-        self.console_print_func(f"\nPOKE: Setting instrument frequency to {manual_freq_mhz:.3f} MHz (Manual Input)...")
-        debug_print(f"🚫🐛 [{current_file}] POKE button clicked: Setting frequency to {freq_hz} Hz from manual input.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        console_log(f"\nPOKE: Setting instrument frequency to {manual_freq_mhz:.3f} MHz (Manual Input)...", function=current_function)
+        debug_log(f"POKE button clicked: Setting frequency to {freq_hz} Hz from manual input.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Clear existing device selection and reset its style
         self._reset_device_button_styles(exclude_button=None) # Ensure no device button is selected
@@ -886,17 +958,17 @@ class MarkersDisplayTab(ttk.Frame):
 
             # Blank Max Hold and Min Hold traces if they were active
             if original_max_hold_mode or original_min_hold_mode:
-                blank_hold_traces_logic(inst, self.console_print_func)
+                blank_hold_traces_logic(inst, console_log) # Passed console_log
 
             # Set Frequency (like a wild device, no span or marker change implied by 'poke')
-            set_frequency_logic(inst, freq_hz, self.console_print_func)
+            set_frequency_logic(inst, freq_hz, console_log) # Passed console_log
 
             # Restore Trace Modes to their original states
             set_trace_modes_logic(inst,
                                   original_live_mode,
                                   original_max_hold_mode,
                                   original_min_hold_mode,
-                                  self.console_print_func)
+                                  console_log) # Passed console_log
 
             # Update the displayed selected frequency to reflect the manually set one
             self.current_displayed_center_freq_var.set(f"{manual_freq_mhz:.3f}")
@@ -906,8 +978,11 @@ class MarkersDisplayTab(ttk.Frame):
 
             self._update_current_settings_display() # Update display after all commands
         else:
-            self.console_print_func("⚠️ Warning: Cannot POKE frequency: Instrument not connected.")
-            debug_print(f"🚫🐛 [{current_file}] Cannot POKE frequency: Instrument not connected. Fucking useless!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Cannot POKE frequency: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot POKE frequency: Instrument not connected. Fucking useless!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
     # --- END NEW ---
 
 
@@ -934,10 +1009,14 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 16:15) Change: Modified to only apply trace modes.
                                 Removed span and frequency setting from here.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
+        (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Trace mode button clicked: {mode_name}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Trace mode button clicked: {mode_name}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Toggle the state of the clicked button's variable
         # Since these are independent toggles, just invert the current state
@@ -959,21 +1038,28 @@ class MarkersDisplayTab(ttk.Frame):
                                   self.live_mode_var.get(),
                                   self.max_hold_mode_var.get(),
                                   self.min_hold_mode_var.get(),
-                                  self.console_print_func)
+                                  console_log) # Passed console_log
             self._update_current_settings_display() # NEW: Update display after trace mode change
         else:
-            self.console_print_func("⚠️ Warning: Cannot set trace mode: Instrument not connected.")
-            debug_print(f"🚫🐛 [{current_file}] Cannot set trace mode: Instrument not connected. This is a fucking joke!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Cannot set trace mode: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot set trace mode: Instrument not connected. This is a fucking joke!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
 
     def _update_trace_mode_button_styles(self):
         """
         Updates the visual style of the trace mode buttons based on their BooleanVar states.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
+        (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Updating trace mode button styles...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Updating trace mode button styles...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
         for mode_name, data in self.trace_mode_buttons.items():
             button = data["button"]
             var = data["var"]
@@ -1005,10 +1091,14 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 17:00) Change: Added logic to display selected device information.
         (2025-07-31 17:15) Change: Added RBW display.
         (2025-07-31 23:30) Change: Ensured POKE display is correct.
+        (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Updating current settings display (GUI only, no instrument query)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Updating current settings display (GUI only, no instrument query)...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Update Span Display
         display_span = "N/A"
@@ -1020,7 +1110,10 @@ class MarkersDisplayTab(ttk.Frame):
             else:
                 display_span = f"{self.current_span_hz / 1000:.0f} KHz"
         self.current_span_var.set(display_span)
-        debug_print(f"🚫🐛 [{current_file}] Displaying Span: {display_span}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Displaying Span: {display_span}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Update Trace Modes Display
         active_modes = []
@@ -1033,15 +1126,24 @@ class MarkersDisplayTab(ttk.Frame):
 
         if active_modes:
             self.current_trace_modes_var.set(', '.join(active_modes))
-            debug_print(f"🐛 [{current_file}] Displaying Trace Modes: {', '.join(active_modes)}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Displaying Trace Modes: {', '.join(active_modes)}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         else:
             self.current_trace_modes_var.set("None Active")
-            debug_print(f"🚫🐛 [{current_file}] Displaying Trace Modes: None Active", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Displaying Trace Modes: None Active",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
         # Update RBW Display
         # self.current_rbw_var is already updated by _on_rbw_button_click
         # No need to re-calculate here, just ensure it's set.
-        debug_print(f"🚫🐛 [{current_file}] Displaying RBW: {self.current_rbw_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Displaying RBW: {self.current_rbw_var.get()}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
 
         # Update Selected Device Info Display
@@ -1097,11 +1199,14 @@ class MarkersDisplayTab(ttk.Frame):
     #   None
     #
     # (2025-08-01 00:30) Change: Added public method to update marker data from external sources.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
     def update_marker_data(self, new_headers, new_rows):
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Received request to update marker data. Number of rows: {len(new_rows)}",
-                    file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Received request to update marker data. Number of rows: {len(new_rows)}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         self.headers = new_headers
         self.rows = new_rows
@@ -1114,7 +1219,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_selected_device_data = None
         self._populate_device_buttons([]) # Explicitly clear device buttons until a new selection is made
 
-        self.console_print_func(f"✅ Markers Display Tab updated with {len(new_rows)} markers.")
+        console_log(f"✅ Markers Display Tab updated with {len(new_rows)} markers.", function=current_function)
 
 
     def load_markers_from_file(self):
@@ -1141,22 +1246,35 @@ class MarkersDisplayTab(ttk.Frame):
 
         (2025-07-31) Change: New method to allow external triggering of data loading.
         (2025-08-01) Change: Modified to use app_instance.MARKERS_FILE_PATH.
+        (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        self.console_print_func("Attempting to load MARKERS.CSV to refresh display...")
-        debug_print(f"🚫🐛 [{current_file}] load_markers_from_file called.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log("Attempting to load MARKERS.CSV to refresh display...", function=current_function)
+        debug_log(f"load_markers_from_file called.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         markers_file_path = None
         if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
             markers_file_path = self.app_instance.MARKERS_FILE_PATH
-            debug_print(f"🚫🐛 [{current_file}] Determined MARKERS.CSV path: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Determined MARKERS.CSV path: {markers_file_path}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         else:
-            self.console_print_func("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV.")
-            debug_print(f"🚫🐛 [{current_file}] App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV. This is a fucking mess!", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV.", function=current_function)
+            debug_log(f"App instance or MARKERS_FILE_PATH not available. Cannot load MARKERS.CSV. This is a fucking mess!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
         if markers_file_path and os.path.exists(markers_file_path):
-            debug_print(f"🚫🐛 [{current_file}] MARKERS.CSV found at: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"MARKERS.CSV found at: {markers_file_path}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             try:
                 headers = []
                 rows = []
@@ -1167,20 +1285,32 @@ class MarkersDisplayTab(ttk.Frame):
                         rows.append(row_data)
 
                 if headers and rows:
-                    debug_print(f"🚫🐛 [{current_file}] Loaded {len(rows)} markers from MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Loaded {len(rows)} markers from MARKERS.CSV.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
                     self.update_marker_data(headers, rows)
-                    self.console_print_func(f"✅ Loaded {len(rows)} markers from MARKERS.CSV.")
+                    console_log(f"✅ Loaded {len(rows)} markers from MARKERS.CSV.", function=current_function)
                 else:
-                    debug_print(f"🚫🐛 [{current_file}] MARKERS.CSV is empty or has no data rows. Fucking useless!", file=current_file, function=current_function, console_print_func=self.console_print_func)
-                    self.console_print_func("ℹ️ Info: The MARKERS.CSV file was found but contains no data.")
+                    debug_log(f"MARKERS.CSV is empty or has no data rows. Fucking useless!",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+                    console_log("ℹ️ Info: The MARKERS.CSV file was found but contains no data.", function=current_function)
                     self.update_marker_data([], []) # Clear any existing display
             except Exception as e:
-                debug_print(f"🚫🐛 [{current_file}] Error loading MARKERS.CSV: {e}. This bugger is a pain in the ass!", file=current_file, function=current_function, console_print_func=self.console_print_func)
-                self.console_print_func(f"❌ Error Loading Markers: An error occurred while loading MARKERS.CSV: {e}")
+                debug_log(f"Error loading MARKERS.CSV: {e}. This bugger is a pain in the ass!",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
+                console_log(f"❌ Error Loading Markers: An error occurred while loading MARKERS.CSV: {e}", function=current_function)
                 self.update_marker_data([], []) # Clear any existing display on error
         else:
-            debug_print(f"🚫🐛 [{current_file}] MARKERS.CSV not found or path not determined. Path: {markers_file_path}. What the hell?!", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            self.console_print_func("ℹ️ Info: MARKERS.CSV not found. Please generate a report first.")
+            debug_log(f"MARKERS.CSV not found or path not determined. Path: {markers_file_path}. What the hell?!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+            console_log("ℹ️ Info: MARKERS.CSV not found. Please generate a report first.", function=current_function)
             self.update_marker_data([], []) # Ensure display is clear if file doesn't exist
 
         self._update_current_settings_display() # Always update display based on internal state
@@ -1192,9 +1322,12 @@ class MarkersDisplayTab(ttk.Frame):
         It no longer queries the instrument automatically.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        self.console_print_func("MarkersDisplayTab selected. Refreshing display.")
-        debug_print(f"🚫🐛 [{current_file}] MarkersDisplayTab selected. Refreshing display.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log("MarkersDisplayTab selected. Refreshing display.", function=current_function)
+        debug_log(f"MarkersDisplayTab selected. Refreshing display.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Instead of loading directly, we'll call the dedicated load method.
         # This allows for external triggers to use the same loading logic.
@@ -1205,6 +1338,7 @@ class MarkersDisplayTab(ttk.Frame):
 
     # --- NEW: Method to update device button styles based on external scan status ---
     # (2025-07-31 17:00) Change: Added method to refresh device button styles.
+    # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
     def update_device_button_styles(self):
         """
         Refreshes the styles of all device buttons based on current selection
@@ -1212,8 +1346,11 @@ class MarkersDisplayTab(ttk.Frame):
         when the scanning status changes.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_display.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Refreshing device button styles due to external status change...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Refreshing device button styles due to external status change...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Re-call _populate_device_buttons with the last known list of devices
         # This will iterate through all displayed buttons and apply the correct style

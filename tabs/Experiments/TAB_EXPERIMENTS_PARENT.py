@@ -12,11 +12,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1014.2 (Updated child_notebook style to 'ExperimentsChild.TNotebook')
+# Version 20250801.2200.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1014.2" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2200.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2200 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,7 +27,9 @@ import inspect
 # Import the child tabs - CORRECTED PATHS
 from tabs.Experiments.tab_experiments_child_intermod import InterModTab
 from tabs.Experiments.tab_experiments_child_JSON_api import JsonApiTab
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 
 
 class TAB_EXPERIMENTS_PARENT(ttk.Frame):
@@ -57,10 +61,11 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
 
         (2025-07-31) Change: Initial creation of TAB_EXPERIMENTS_PARENT.
         (2025-08-01) Change: Updated child_notebook style to 'ExperimentsChild.TNotebook'.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
 
         # Configure grid to make the notebook expand
         self.grid_rowconfigure(0, weight=1)
@@ -89,10 +94,10 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
 
-        debug_print(f"🚫🐛 [DEBUG] Initialized TAB_EXPERIMENTS_PARENT. Version: {current_version}",
-                    file=f"tabs/TAB_EXPERIMENTS_PARENT.py - {current_version}",
-                    function=inspect.currentframe().f_code.co_name,
-                    console_print_func=self.console_print_func)
+        debug_log(f"Initialized TAB_EXPERIMENTS_PARENT.",
+                    file=__file__,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
 
 
     def _on_tab_change(self, event):
@@ -117,21 +122,22 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
             None. Triggers UI updates in the selected child tab.
 
         (2025-07-31) Change: Added to handle child tab changes.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         selected_tab_id = self.child_notebook.select()
         selected_tab_widget = self.child_notebook.nametowidget(selected_tab_id)
 
         if hasattr(selected_tab_widget, '_on_tab_selected'):
             selected_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected. Version: {current_version}",
-                        file=f"tabs/TAB_EXPERIMENTS_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self.console_print_func)
+            debug_log(f"Child tab changed to {selected_tab_widget.winfo_class()}. Calling _on_tab_selected.",
+                        file=__file__,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
         else:
-            debug_print(f"🚫🐛 [DEBUG] Child tab changed to {selected_tab_widget.winfo_class()}. No _on_tab_selected method found. Version: {current_version}",
-                        file=f"tabs/TAB_EXPERIMENTS_PARENT.py - {current_version}",
-                        function=inspect.currentframe().f_code.co_name,
-                        console_print_func=self.console_print_func)
+            debug_log(f"Child tab changed to {selected_tab_widget.winfo_class()}. No _on_tab_selected method found. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
 
     def _on_tab_selected(self, event):
         """
@@ -152,13 +158,15 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
             None. Ensures child tab content is refreshed when the parent tab is activated.
 
         (2025-07-31) Change: Added to handle parent tab selection and propagate to active child.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"tabs/TAB_EXPERIMENTS_PARENT.py - {current_version}"
-        debug_print(f"🚫🐛 [DEBUG] TAB_EXPERIMENTS_PARENT selected. Version: {current_version}",
-                    file=current_file,
+        # current_file will be derived from __file__ in debug_log
+        debug_log(f"TAB_EXPERIMENTS_PARENT selected.",
+                    file=__file__,
+                    version=current_version,
                     function=current_function,
-                    console_print_func=self.console_print_func)
+                    special=True) # Adding special flag as per your style
 
         # Ensure the currently visible child tab also gets its _on_tab_selected called
         selected_child_tab_id = self.child_notebook.select()
@@ -166,13 +174,12 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
             selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
             if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                 selected_child_tab_widget._on_tab_selected(event)
-                debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}",
-                            file=current_file,
-                            function=current_function,
-                            console_print_func=self.console_print_func)
+                debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             else:
-                debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. Version: {current_version}",
-                            file=current_file,
-                            function=current_function,
-                            console_print_func=self.console_print_func)
-
+                debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)

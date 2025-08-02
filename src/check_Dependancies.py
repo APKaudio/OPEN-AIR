@@ -28,14 +28,9 @@ import os # For debug_print
 # Import debug_print from utils.utils_instrument_control
 # We need a way to print debug messages before the main app's console is ready.
 # For this specific function, we'll use a fallback print if debug_print isn't available yet.
-try:
-    from utils.utils_instrument_control import debug_print
-except ImportError:
-    # Fallback debug_print if the utility module isn't available yet
-    def debug_print(message, file="", function="", console_print_func=None):
-        # In this very early stage, console_print_func won't be available,
-        # so we just print directly to stdout/stderr.
-        print(f"🚫🐛 [DEBUG] {file} - {function}: {message}")
+#Import the debug logic module to use debug_print
+from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_print
+
 
 
 def check_and_install_dependencies(current_version):

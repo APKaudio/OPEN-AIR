@@ -14,109 +14,95 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
+# Version 20250802.0000.1 (Refactored debug_print to use debug_log and console_log; added flair.)
+
+current_version = "20250802.0000.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 0000 * 1 # Example hash, adjust as needed
+
 import pyvisa
 import time
 import inspect # Import inspect module
 import os # Import os module to fix NameError
 from datetime import datetime # Import datetime for timestamp
 
-# Global variable for debug mode, controlled by GUI checkbox
-DEBUG_MODE = False
-LOG_VISA_COMMANDS = False # New global variable for VISA command logging
+# Updated imports for new logging functions
+from src.debug_logic import debug_log, log_visa_command # Ensure log_visa_command is imported
+from src.console_logic import console_log
 
-def set_debug_mode(mode):
-    """
-    Sets the global debug mode flag. When debug mode is True,
-    general debug messages are printed to the console.
-
-    Inputs:
-        mode (bool): True to enable debug mode, False to disable.
-    Process:
-        1. Updates the global DEBUG_MODE variable.
-    Outputs: None
-    """
-    global DEBUG_MODE
-    DEBUG_MODE = mode
-
-def set_log_visa_commands_mode(mode):
-    """
-    Sets the global VISA command logging flag. When True,
-    all VISA commands sent and received are printed.
-
-    Inputs:
-        mode (bool): True to enable logging, False to disable.
-    Process:
-        1. Updates the global LOG_VISA_COMMANDS variable.
-    Outputs: None
-    """
-    global LOG_VISA_COMMANDS
-    LOG_VISA_COMMANDS = mode
-
-def debug_print(message, file=None, function=None, console_print_func=None):
-    """
-    Prints a debug message if DEBUG_MODE is enabled.
-    Includes file and function context for better traceability.
-    """
-    if DEBUG_MODE:
-        timestamp = datetime.now().strftime("%M.%S")
-        prefix = ""
-        if file:
-            prefix += f"[{os.path.basename(file)}"
-            if function:
-                prefix += f":{function}] "
-            else:
-                prefix += "] "
-        elif function:
-            prefix += f"[{function}] "
-        
-        full_message = f"🚫🐛 [{timestamp}] {prefix}{message}"
-        if console_print_func:
-            console_print_func(full_message)
-        else:
-            print(full_message) # Fallback to standard print
-
-
-def log_visa_command(command, direction="SENT", console_print_func=None):
-    """
-    Logs VISA commands sent to or received from the instrument if LOG_VISA_COMMANDS is enabled.
-    """
-    if LOG_VISA_COMMANDS:
-        timestamp = datetime.now().strftime("%M.%S")
-        log_message = f"🌲 [{timestamp}] {direction}: {command.strip()}"
-        if console_print_func:
-            console_print_func(log_message)
-        else:
-            print(log_message)
-
+# Global variable for debug mode, controlled by GUI checkbox (These are now managed by src.debug_logic directly)
+# DEBUG_MODE = False
+# LOG_VISA_COMMANDS = False # New global variable for VISA command logging
 
 def list_visa_resources(console_print_func=None):
     """
+    Function Description:
     Lists available VISA resources (instruments).
+
+    Inputs to this function:
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Initializes PyVISA ResourceManager.
+    2. Lists available resources.
+    3. Logs the discovered resources or any errors.
+
+    Outputs of this function:
+    - list: A list of strings, where each string is a VISA resource name.
+            Returns an empty list if no resources are found or an error occurs.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Listing VISA resources...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Listing VISA resources... Let's find some devices!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
     try:
         rm = pyvisa.ResourceManager()
         resources = rm.list_resources()
-        debug_print(f"Found VISA resources: {resources}", file=current_file, function=current_function, console_print_func=console_print_func)
+        debug_log(f"Found VISA resources: {resources}. Success!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return list(resources)
     except Exception as e:
-        error_msg = f"❌ Error listing VISA resources: {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"❌ Error listing VISA resources: {e}. This is a disaster!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return []
 
 
 def connect_to_instrument(resource_name, console_print_func=None):
     """
+    Function Description:
     Establishes a connection to a VISA instrument.
+
+    Inputs to this function:
+    - resource_name (str): The VISA resource string (e.g., "GPIB0::1::INSTR").
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Initializes PyVISA ResourceManager.
+    2. Opens the specified resource.
+    3. Sets instrument timeout, read/write termination characters, and query delay.
+    4. Logs connection status.
+
+    Outputs of this function:
+    - pyvisa.resources.Resource or None: The connected PyVISA instrument object if successful,
+                                         None otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Connecting to instrument: {resource_name}", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log(f"Connecting to instrument: {resource_name}. Fingers crossed!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
     try:
         rm = pyvisa.ResourceManager()
         inst = rm.open_resource(resource_name)
@@ -124,116 +110,199 @@ def connect_to_instrument(resource_name, console_print_func=None):
         inst.read_termination = '\n' # Set read termination character
         inst.write_termination = '\n' # Set write termination character
         inst.query_delay = 0.1 # Small delay between write and read for query
-        if console_print_func:
-            console_print_func(f"✅ Successfully connected to {resource_name}")
-        debug_print(f"Connection successful to {resource_name}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"✅ Successfully connected to {resource_name}. It's alive!")
+        debug_log(f"Connection successful to {resource_name}. We're in!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return inst
     except pyvisa.errors.VisaIOError as e:
-        error_msg = f"❌ VISA error connecting to {resource_name}: {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"❌ VISA error connecting to {resource_name}: {e}. This is a nightmare!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return None
     except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while connecting to {resource_name}: {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"❌ An unexpected error occurred while connecting to {resource_name}: {e}. What a mess!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return None
 
 
 def disconnect_instrument(inst, console_print_func=None):
     """
+    Function Description:
     Closes the connection to a VISA instrument.
+
+    Inputs to this function:
+    - inst (pyvisa.resources.Resource): The PyVISA instrument object to disconnect.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Checks if the instrument object is valid.
+    2. Attempts to close the instrument connection.
+    3. Logs disconnection status.
+
+    Outputs of this function:
+    - bool: True if disconnection is successful, False otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Disconnecting instrument...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Disconnecting instrument... Saying goodbye!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
     if inst:
         try:
             inst.close()
-            if console_print_func:
-                console_print_func("✅ Instrument disconnected.")
-            debug_print("Instrument connection closed.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func("✅ Instrument disconnected. See ya!")
+            debug_log("Instrument connection closed. All done!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return True
         except pyvisa.errors.VisaIOError as e:
-            error_msg = f"❌ VISA error disconnecting instrument: {e}"
-            if console_print_func:
-                console_print_func(error_msg)
-            debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+            error_msg = f"❌ VISA error disconnecting instrument: {e}. This thing is stuck!"
+            console_print_func(error_msg)
+            debug_log(error_msg,
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
         except Exception as e:
-            error_msg = f"❌ An unexpected error occurred while disconnecting instrument: {e}"
-            if console_print_func:
-                console_print_func(error_msg)
-            debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+            error_msg = f"❌ An unexpected error occurred while disconnecting instrument: {e}. What a pain!"
+            console_print_func(error_msg)
+            debug_log(error_msg,
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
+    debug_log("No instrument to disconnect. Already gone!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
     return False
 
 
 def write_safe(inst, command, console_print_func=None):
     """
+    Function Description:
     Safely writes a command to the instrument.
+
+    Inputs to this function:
+    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
+    - command (str): The SCPI command string to write.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Checks if the instrument is connected.
+    2. Logs the command using `log_visa_command`.
+    3. Attempts to write the command to the instrument.
+    4. Handles and logs any VISA or general exceptions.
+
+    Outputs of this function:
+    - bool: True if the command was written successfully, False otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
     if not inst:
-        debug_print(f"Not connected to instrument, cannot write command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
-        if console_print_func:
-            console_print_func(f"⚠️ Warning: Not connected. Failed to write: {command}")
+        debug_log(f"Not connected to instrument, cannot write command: {command}. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        console_print_func(f"⚠️ Warning: Not connected. Failed to write: {command}. Connect the damn thing first!")
         return False
     try:
-        log_visa_command(command, "SENT", console_print_func)
+        log_visa_command(command, "SENT") # Use the imported log_visa_command
         inst.write(command)
         return True
     except pyvisa.errors.VisaIOError as e:
-        error_msg = f"🛑 VISA error sending command '{command.strip()}': {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"🛑 VISA error sending command '{command.strip()}': {e}. This is a nightmare!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
     except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while sending command '{command.strip()}': {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"❌ An unexpected error occurred while sending command '{command.strip()}': {e}. What a mess!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
 
 def query_safe(inst, command, console_print_func=None):
     """
+    Function Description:
     Safely queries the instrument and returns the response.
     Returns an empty string if an error occurs or no response, to prevent NoneType errors.
+
+    Inputs to this function:
+    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
+    - command (str): The SCPI query command string.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Checks if the instrument is connected.
+    2. Logs the command using `log_visa_command`.
+    3. Attempts to query the instrument and retrieve the response.
+    4. Logs the response using `log_visa_command`.
+    5. Handles and logs any VISA or general exceptions.
+
+    Outputs of this function:
+    - str: The instrument's response (stripped of whitespace) if successful,
+           an empty string otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
     if not inst:
-        debug_print(f"Not connected to instrument, cannot query command: {command}", file=current_file, function=current_function, console_print_func=console_print_func)
-        if console_print_func:
-            console_print_func(f"⚠️ Warning: Not connected. Failed to query: {command}")
+        debug_log(f"Not connected to instrument, cannot query command: {command}. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        console_print_func(f"⚠️ Warning: Not connected. Failed to query: {command}. Connect the damn thing first!")
         return "" # Return empty string on error if not connected
     try:
-        log_visa_command(command, "SENT", console_print_func)
+        log_visa_command(command, "SENT") # Use the imported log_visa_command
         response = inst.query(command).strip()
-        log_visa_command(response, "RECEIVED", console_print_func)
-        debug_print(f"Query '{command.strip()}' response: {response}", file=current_file, function=current_function, console_print_func=console_print_func)
+        log_visa_command(response, "RECEIVED") # Use the imported log_visa_command
+        debug_log(f"Query '{command.strip()}' response: {response}. Got it!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return response
     except pyvisa.errors.VisaIOError as e:
-        error_msg = f"🛑 VISA error querying '{command.strip()}': {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"🛑 VISA error querying '{command.strip()}': {e}. This goddamn thing is broken!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return "" # Return empty string on error
     except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while querying '{command.strip()}': {e}"
-        if console_print_func:
-            console_print_func(error_msg)
-        debug_print(error_msg, file=current_file, function=current_function, console_print_func=console_print_func)
+        error_msg = f"❌ An unexpected error occurred while querying '{command.strip()}': {e}. What a pain!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return "" # Return empty string on error
 
 
 def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, rbw_config_val, vbw_config_val, model_match, console_print_func=None):
     """
+    Function Description:
     Initializes the spectrum analyzer with basic settings such as reference level,
     preamplifier state, high sensitivity mode, and trace configurations.
     This function sets up the instrument for a scan.
@@ -252,6 +321,7 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
         model_match (str): The detected model of the instrument (e.g., "N9340B", "N9342CN").
                             Used for model-specific SCPI commands.
         console_print_func (function, optional): Function to use for console output.
+                                               Defaults to console_log if None.
     Process:
         1. **Reset**: Sends `*RST` to reset the instrument to a known state, then waits for operation completion.
         2. **Reference Level**: Sets the display reference level.
@@ -266,194 +336,302 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
     Outputs:
         bool: True if initialization is successful; False on failure.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    if console_print_func:
-        console_print_func("✨ Initializing instrument with desired settings.")
-    debug_print("Initializing instrument with desired settings...", file=current_file, function=current_function, console_print_func=console_print_func)
+    console_print_func("✨ Initializing instrument with desired settings. Getting ready for action!")
+    debug_log("Initializing instrument with desired settings... Let's make this machine sing!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
     try:
         # Reset the instrument to a known state using *RST first
         if not write_safe(inst, "*RST", console_print_func):
-            debug_print("Failed to send *RST.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to send *RST. This is a bad start!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
         time.sleep(0.5) # Small delay after reset to allow instrument to process
         if not query_safe(inst, "*OPC?", console_print_func):
-            debug_print("Failed to query *OPC? after *RST (timeout likely).", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to query *OPC? after *RST (timeout likely). Instrument not responding!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False # Wait for operation to complete
         time.sleep(1) # Give it a moment after reset and OPC
 
         
-                # Set preamplifier
+        # Set preamplifier
         if preamp_on:
             if not write_safe(inst, ":POWer:ATTenuation:AUTO ON", console_print_func):
-                debug_print("Failed to set :POWer:ATTenuation:AUTO ON.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log("Failed to set :POWer:ATTenuation:AUTO ON. Preamplifier issue!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
             if not write_safe(inst, ":POWer:GAIN ON", console_print_func):
-                debug_print("Failed to set :POWer:GAIN ON.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log("Failed to set :POWer:GAIN ON. Preamplifier gain problem!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
-            if console_print_func:
-                console_print_func("✅ Preamplifier ON.")
-            debug_print("Preamplifier ON.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func("✅ Preamplifier ON. Boosting the signal!")
+            debug_log("Preamplifier ON. Powering up!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             # Note: The original code re-set RLEVel here, preserving that behavior
             if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {ref_level_dbm}", console_print_func):
-                debug_print(f"Failed to re-set reference level to {ref_level_dbm} dBm after preamp config.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log(f"Failed to re-set reference level to {ref_level_dbm} dBm after preamp config. What a mess!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
-            if console_print_func:
-                console_print_func(f"✅ Set reference level to {ref_level_dbm} dBm.")
-            debug_print(f"Re-set reference level to {ref_level_dbm} dBm after preamp config.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func(f"✅ Set reference level to {ref_level_dbm} dBm. Perfect!")
+            debug_log(f"Re-set reference level to {ref_level_dbm} dBm after preamp config. Level adjusted!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             if not write_safe(inst, ":POWer:GAIN OFF", console_print_func):
-                debug_print("Failed to set :POWer:GAIN OFF.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log("Failed to set :POWer:GAIN OFF. Preamplifier won't turn off!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
-            if console_print_func:
-                console_print_func("✅ Preamplifier OFF.")
-            debug_print("Preamplifier OFF.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func("✅ Preamplifier OFF. Keeping it clean.")
+            debug_log("Preamplifier OFF. Done!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         # Set high sensitivity (preamplifier)
         if high_sensitivity_on:
             # Apply :POWer:HSENsitive ON only for N9342CN
             if model_match == "N9342CN":
                 if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel -50", console_print_func):
-                    debug_print("Failed to set reference level to -50 dBm for high sensitivity (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set reference level to -50 dBm for high sensitivity (N9342CN). This is a disaster!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
                 if not write_safe(inst, ":POWer:ATTenuation 0", console_print_func):
-                    debug_print("Failed to set :POWer:ATTenuation 0 (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set :POWer:ATTenuation 0 (N9342CN). Attenuation problem!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
                 if not write_safe(inst, ":POWer:GAIN 1", console_print_func):
-                    debug_print("Failed to set :POWer:GAIN 1 (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set :POWer:GAIN 1 (N9342CN). Gain issue!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
                 if not write_safe(inst, ":POWer:HSENsitive ON", console_print_func):
-                    debug_print("Failed to set :POWer:HSENsitive ON (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set :POWer:HSENsitive ON (N9342CN). High sensitivity won't activate!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
-                if console_print_func:
-                    console_print_func("✅ High sensitivity turned ON for N9342CN.")
-                debug_print("High sensitivity turned ON for N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+                console_print_func("✅ High sensitivity turned ON for N9342CN. Detecting weak signals!")
+                debug_log("High sensitivity turned ON for N9342CN. Activated!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             else:
-                if console_print_func:
-                    console_print_func(f"ℹ️ High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN.")
-                debug_print(f"High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+                console_print_func(f"ℹ️ High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN. No worries!")
+                debug_log(f"High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN. Not applicable!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         else:
             # Apply :POWer:HSENsitive OFF only for N9342CN
             if model_match == "N9342CN":
                 if not write_safe(inst, ":POWer:HSENsitive OFF", console_print_func):
-                    debug_print("Failed to set :POWer:HSENsitive OFF (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set :POWer:HSENsitive OFF (N9342CN). High sensitivity won't deactivate!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
                 if not write_safe(inst, ":POWer:ATTenuation 10", console_print_func):
-                    debug_print("Failed to set :POWer:ATTenuation 10 (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log("Failed to set :POWer:ATTenuation 10 (N9342CN). Attenuation problem!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
                 # Note: The original code re-set RLEVel here, preserving that behavior
                 if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {ref_level_dbm}", console_print_func):
-                    debug_print(f"Failed to re-set reference level to {ref_level_dbm} dBm after high sensitivity config (N9342CN).", file=current_file, function=current_function, console_print_func=console_print_func)
+                    debug_log(f"Failed to re-set reference level to {ref_level_dbm} dBm after high sensitivity config (N9342CN). What a mess!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                     return False
-                if console_print_func:
-                    console_print_func(f"✅ Set reference level to {ref_level_dbm} dBm.")
-                    console_print_func("✅ High sensitivity turned OFF for N9342CN.")
-                debug_print("High sensitivity turned OFF for N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+                console_print_func(f"✅ Set reference level to {ref_level_dbm} dBm.")
+                console_print_func("✅ High sensitivity turned OFF for N9342CN. Back to normal!")
+                debug_log("High sensitivity turned OFF for N9342CN. Deactivated!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             else:
-                if console_print_func:
-                    console_print_func(f"ℹ️ High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN.")
-                debug_print(f"High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+                console_print_func(f"ℹ️ High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN. No worries!")
+                debug_log(f"High Sensitivity (HSENsitive) command skipped for model {model_match}. It's specific to N9342CN. Not applicable!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         
         # Configure Trace Modes (These are now handled by set_span_logic when called from GUI)
         # The initial setup of trace modes here should reflect a default state,
         # which is usually Live (WRITe).
         if not write_safe(inst, ":TRAC1:MODE WRITe", console_print_func):
-            debug_print("Failed to set :TRAC1:MODE WRITe.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :TRAC1:MODE WRITe. Trace 1 issue!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
-        if console_print_func:
-            console_print_func(f"✅ Trace 1 sent to write")
-        debug_print("Trace 1 set to WRITE.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"✅ Trace 1 set to write. Live data incoming!")
+        debug_log("Trace 1 set to WRITE. Ready for live display!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Ensure other traces are blanked on initialization
         if not write_safe(inst, ":TRAC2:MODE BLANK", console_print_func):
-            debug_print("Failed to set :TRAC2:MODE BLANK.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :TRAC2:MODE BLANK. Trace 2 issue!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
-        if console_print_func:
-            console_print_func(f"✅ Trace 2 sent to BLANK")
-        debug_print("Trace 2 set to BLANK.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"✅ Trace 2 set to BLANK. Cleared!")
+        debug_log("Trace 2 set to BLANK. Wiped clean!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not write_safe(inst, ":TRAC3:MODE BLANK", console_print_func):
-            debug_print("Failed to set :TRAC3:MODE BLANK.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :TRAC3:MODE BLANK. Trace 3 issue!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
-        if console_print_func:
-            console_print_func(f"✅ Trace 3 sent to BLANK")
-        debug_print("Trace 3 set to BLANK.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"✅ Trace 3 set to BLANK. Cleared!")
+        debug_log("Trace 3 set to BLANK. Wiped clean!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         
         # Display scale is always LOGarithmic
         if not write_safe(inst, ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing LOGarithmic", console_print_func):
-            debug_print("Failed to set :DISPlay:WINDow:TRACe:Y:SCALe:SPACing LOGarithmic.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :DISPlay:WINDow:TRACe:Y:SCALe:SPACing LOGarithmic. Display scale problem!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
-        if console_print_func:
-            console_print_func("✅ Display scale set to LOGarithmic (always).")
-        debug_print("Display scale set to LOGarithmic.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("✅ Display scale set to LOGarithmic (always). Visuals optimized!")
+        debug_log("Display scale set to LOGarithmic. Perfect display!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         
         # Set VBW and Sweep Time to AUTO
         if not write_safe(inst, ":SENSe:BANDwidth:VIDeo:AUTO ON", console_print_func):
-            debug_print("Failed to set :SENSe:BANDwidth:VIDeo:AUTO ON.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :SENSe:BANDwidth:VIDeo:AUTO ON. VBW auto failed!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
         if not write_safe(inst, ":SENSe:SWEep:TIME:AUTO ON", console_print_func):
-            debug_print("Failed to set :SENSe:SWEep:TIME:AUTO ON.", file=current_file, function=current_function, console_print_func=console_print_func)
+            debug_log("Failed to set :SENSe:SWEep:TIME:AUTO ON. Sweep time auto failed!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return False
-        if console_print_func:
-            console_print_func("✅ VBW and Sweep time set to AUTO.")
-        debug_print("VBW and Sweep time set to AUTO.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("✅ VBW and Sweep time set to AUTO. Efficiency engaged!")
+        debug_log("VBW and Sweep time set to AUTO. Automated!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Set trace data format based on model
         if model_match == "N9342CN":
             if not write_safe(inst, ":TRACe:FORMat:DATA ASCii", console_print_func):
-                debug_print("Failed to set :TRACe:FORMat:DATA ASCii for N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log("Failed to set :TRACe:FORMat:DATA ASCii for N9342CN. Data format problem!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
-            if console_print_func:
-                console_print_func("✅ Set trace data format to ASCII for N9342CN.")
-            debug_print("Trace data format set to ASCII for N9342CN.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func("✅ Set trace data format to ASCII for N9342CN. Data ready!")
+            debug_log("Trace data format set to ASCII for N9342CN. Formatted!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         elif model_match == "N9340B":
             # Corrected command for N9340B
             if not write_safe(inst, ":TRACe:FORMat ASCii", console_print_func):
-                debug_print("Failed to set :TRACe:FORMat ASCii for N9340B.", file=current_file, function=current_function, console_print_func=console_print_func)
+                debug_log("Failed to set :TRACe:FORMat ASCii for N9340B. Data format problem!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
                 return False
-            if console_print_func:
-                console_print_func("✅ Set trace data format to ASCII for N9340B.")
-            debug_print("Trace data format set to ASCII for N9340B.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func("✅ Set trace data format to ASCII for N9340B. Data ready!")
+            debug_log("Trace data format set to ASCII for N9340B. Formatted!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            if console_print_func:
-                console_print_func(f"ℹ️ Trace data format command skipped for model {model_match}. No specific command defined.")
-            debug_print(f"Trace data format command skipped for model {model_match}. No specific command defined.", file=current_file, function=current_function, console_print_func=console_print_func)
+            console_print_func(f"ℹ️ Trace data format command skipped for model {model_match}. No specific command defined. Moving on!")
+            debug_log(f"Trace data format command skipped for model {model_match}. No specific command defined. Not applicable!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
        
-        if console_print_func:
-            console_print_func("🎉 Instrument initialized successfully with desired settings.")
-        debug_print("Instrument initialized successfully.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("🎉 Instrument initialized successfully with desired settings. All systems go!")
+        debug_log("Instrument initialized successfully. Ready for operation!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return True
     except pyvisa.errors.VisaIOError as e:
-        if console_print_func:
-            console_print_func(f"🛑 Failed to initialize instrument with desired settings: {e}")
-        debug_print(f"VISA Error during instrument initialization: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"🛑 Failed to initialize instrument with desired settings: {e}. This is a critical error!")
+        debug_log(f"VISA Error during instrument initialization: {e}. What a nightmare!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
     except Exception as e:
-        if console_print_func:
-            console_print_func(f"❌ An unexpected error occurred during instrument initialization: {e}")
-        debug_print(f"Unexpected error during instrument initialization: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"❌ An unexpected error occurred during instrument initialization: {e}. This is a disaster!")
+        debug_log(f"Unexpected error during instrument initialization: {e}. Fucking hell!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
 
 def query_current_instrument_settings(inst, MHZ_TO_HZ_CONVERSION, console_print_func=None):
     """
+    Function Description:
     Queries and returns the current Center Frequency, Span, and RBW from the instrument.
 
     Inputs:
         inst (pyvisa.resources.Resource): The connected VISA instrument object.
         MHZ_TO_HZ_CONVERSION (float): The conversion factor from MHz to Hz.
         console_print_func (function, optional): Function to print to the GUI console.
+                                               Defaults to console_log if None.
     Outputs:
         tuple: (center_freq_mhz, span_mhz, rbw_hz) or (None, None, None) on failure.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Querying current instrument settings...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Querying current instrument settings... Let's see what's happening!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if not inst:
-        debug_print("No instrument connected to query settings.", file=current_file, function=current_function, console_print_func=console_print_func)
-        if console_print_func:
-            console_print_func("⚠️ Warning: No instrument connected. Cannot query settings.")
+        debug_log("No instrument connected to query settings. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        console_print_func("⚠️ Warning: No instrument connected. Cannot query settings. Connect the damn thing first!")
         return None, None, None
 
     center_freq_hz = None
@@ -479,15 +657,19 @@ def query_current_instrument_settings(inst, MHZ_TO_HZ_CONVERSION, console_print_
         center_freq_mhz = center_freq_hz / MHZ_TO_HZ_CONVERSION if center_freq_hz is not None else None
         span_mhz = span_hz / MHZ_TO_HZ_CONVERSION if span_hz is not None else None
 
-        debug_print(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz", file=current_file, function=current_function, console_print_func=console_print_func)
-        if console_print_func:
-            
-            console_print_func(f"✅ Queried settings: C: {center_freq_mhz:.3f} MHz, SP: {span_mhz:.3f} MHz, RBW: {rbw_hz / 1000:.1f} kHz")
+        debug_log(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        
+        console_print_func(f"✅ Queried settings: C: {center_freq_mhz:.3f} MHz, SP: {span_mhz:.3f} MHz, RBW: {rbw_hz / 1000:.1f} kHz. Details acquired!")
         
         return center_freq_mhz, span_mhz, rbw_hz
 
     except Exception as e:
-        debug_print(f"❌ Error querying current instrument settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        if console_print_func:
-            console_print_func(f"❌ Error querying current instrument settings: {e}")
+        debug_log(f"❌ Error querying current instrument settings: {e}. What a mess!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        console_print_func(f"❌ Error querying current instrument settings: {e}. This is a disaster!")
         return None, None, None

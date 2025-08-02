@@ -48,7 +48,7 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
     Outputs:
         None. Applies visual styling to the application's GUI.
     """
-    debug_print(f"🚫🐛 [DEBUG] Applying ttk styles from src/style.py... Version: {current_version}",
+    debug_print(f" Applying ttk styles from src/style.py... Version: {current_version}",
                 file=f"src/style.py - {current_version}",
                 function=apply_styles.__name__)
 
@@ -399,7 +399,7 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
     style.map('LargeYAK.TButton',
               background=[('active', '#e07b00'), ('disabled', '#cc7000')])
 
-    debug_print(f"🚫🐛 [DEBUG] ttk styles applied from src/style.py. Version: {current_version}",
+    debug_print(f" ttk styles applied from src/style.py. Version: {current_version}",
                 file=f"src/style.py - {current_version}",
                 function=apply_styles.__name__)
 

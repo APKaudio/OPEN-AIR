@@ -15,11 +15,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1024.1 (Updated header and imports for new folder structure)
+# Version 20250801.2205.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1024.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2205.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2205 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,7 +32,10 @@ from src.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
     apply_settings_logic, query_current_instrument_settings_logic
 )
-from utils.utils_instrument_control import debug_print, set_debug_mode, log_visa_command, query_safe # Import debug control functions and query_safe
+# Updated imports for new logging functions
+from src.debug_logic import set_debug_mode, debug_log, log_visa_command # Import debug_log and log_visa_command
+from src.console_logic import console_log # Import console_log
+
 from ref.frequency_bands import MHZ_TO_HZ # Import for display conversion
 from src.config_manager import save_config # Import save_config
 
@@ -53,7 +58,7 @@ class InstrumentTab(ttk.Frame):
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
 
         # Use the shared variables from app_instance
         self.selected_resource = self.app_instance.selected_resource
@@ -88,19 +93,21 @@ class InstrumentTab(ttk.Frame):
     def _toggle_general_debug(self):
         """Toggles the global debug mode based on checkbox state."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Toggling general debug. Current state: {self.app_instance.general_debug_enabled_var.get()}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Toggling general debug. Current state: {self.app_instance.general_debug_enabled_var.get()}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         set_debug_mode(self.app_instance.general_debug_enabled_var.get())
         self.console_print_func(f"Debug Mode: {'Enabled' if self.app_instance.general_debug_enabled_var.get() else 'Disabled'}")
 
     def _toggle_visa_logging(self):
         """Toggles the global VISA command logging based on checkbox state."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Toggling VISA logging. Current state: {self.app_instance.log_visa_commands_enabled_var.get()}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
-        log_visa_command(self.app_instance.log_visa_commands_enabled_var.get())
+        debug_log(f"Toggling VISA logging. Current state: {self.app_instance.log_visa_commands_enabled_var.get()}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        log_visa_command("N/A", "N/A", self.app_instance.log_visa_commands_enabled_var.get()) # Pass a dummy command to toggle the global flag
         self.console_print_func(f"VISA Command Logging: {'Enabled' if self.app_instance.log_visa_commands_enabled_var.get() else 'Disabled'}")
 
     def _create_widgets(self):
@@ -133,11 +140,13 @@ class InstrumentTab(ttk.Frame):
         (2025-07-31 16:06) Change: Removed "Apply Settings" button.
         (2025-07-31 16:08) Change: Renamed "Query Instrument" to "STEP 4 - Test connection".
         (2025-07-31 16:10) Change: Moved "Disconnect" button below "Current Instrument Values" and made it full width.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Creating InstrumentTab widgets...",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Creating InstrumentTab widgets...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -234,18 +243,20 @@ class InstrumentTab(ttk.Frame):
         # Initial state update
         self._update_ui_elements_visibility(connected=False, resource_found=False)
 
-        debug_print("InstrumentTab widgets created.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("InstrumentTab widgets created.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     # --- NEW: Helper functions for dynamic visibility ---
     # (2025-07-31 16:04) Change: Added helper functions to manage widget grid/grid_forget.
     def _update_visa_resource_visibility(self, parent_frame):
         """Manages the visibility of the VISA resource label and dropdown."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Updating VISA resource visibility. State: {self.visa_resource_visible.get()}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Updating VISA resource visibility. State: {self.visa_resource_visible.get()}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if self.visa_resource_visible.get():
             self.visa_resource_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
             self.resource_dropdown.grid(row=1, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
@@ -256,9 +267,10 @@ class InstrumentTab(ttk.Frame):
     def _update_connect_button_visibility(self, parent_frame):
         """Manages the visibility of the Connect button."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Updating Connect button visibility. State: {self.connect_button_visible.get()}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Updating Connect button visibility. State: {self.connect_button_visible.get()}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if self.connect_button_visible.get():
             self.connect_button.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
         else:
@@ -283,11 +295,13 @@ class InstrumentTab(ttk.Frame):
 
         (2025-07-31 16:06) Change: Removed "Apply Settings" button from visibility management.
         (2025-07-31 16:10) Change: Updated Disconnect button grid position to be full width below debug options.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Updating Disconnect/Query buttons visibility. State: {self.disconnect_query_buttons_visible.get()}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Updating Disconnect/Query buttons visibility. State: {self.disconnect_query_buttons_visible.get()}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         if self.disconnect_query_buttons_visible.get():
             # Disconnect button is now in the main 'self' frame, below debug_frame
             self.disconnect_button.grid(row=3, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
@@ -316,11 +330,13 @@ class InstrumentTab(ttk.Frame):
         - Updates the visibility and state of various GUI elements.
 
         (2025-07-31 16:04) Change: Implemented central UI state management.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Updating UI elements visibility. Connected: {connected}, Resources Found: {resource_found}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Updating UI elements visibility. Connected: {connected}, Resources Found: {resource_found}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self.visa_resource_visible.set(resource_found)
         self.connect_button_visible.set(resource_found and not connected)
@@ -350,11 +366,13 @@ class InstrumentTab(ttk.Frame):
         - Updates the GUI to show the VISA resource selection.
 
         (2025-07-31 16:04) Change: New wrapper function to handle button click and subsequent UI reveal.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("STEP 1 button clicked. Populating resources and showing VISA selection.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("STEP 1 button clicked. Populating resources and showing VISA selection. Let's find those damn devices!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self._populate_resources()
         # After populating, ensure the resource dropdown and label are visible
         self._update_ui_elements_visibility(connected=self.app_instance.inst is not None, resource_found=True)
@@ -384,10 +402,12 @@ class InstrumentTab(ttk.Frame):
         #
         # (2025-07-31 16:04) Change: Ensured dropdown is cleared and populated dynamically.
         #                     Added logic for last_selected_resource from config. Updated debug.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Populating VISA resources...",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Populating VISA resources...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         populate_resources_logic(self.app_instance, self.console_print_func)
 
@@ -398,9 +418,10 @@ class InstrumentTab(ttk.Frame):
 
         # Get last selected resource from config
         last_selected_resource = self.app_instance.config.get('LAST_USED_SETTINGS', 'last_selected_visa_resource', fallback='N/A')
-        debug_print(f"Last selected VISA resource from config: {last_selected_resource}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Last selected VISA resource from config: {last_selected_resource}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Add resources to dropdown
         if resources:
@@ -410,23 +431,26 @@ class InstrumentTab(ttk.Frame):
             # Set the selected resource to the last used one if it's in the current list
             if last_selected_resource in resources:
                 self.selected_resource.set(last_selected_resource)
-                debug_print(f"Set selected resource to last used: {last_selected_resource}",
-                            file=f"src/tab_instrument_child_connection.py - {current_version}",
-                            function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Set selected resource to last used: {last_selected_resource}",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             elif resources: # If last_selected_resource is not found, set to the first available
                 self.selected_resource.set(resources[0])
-                debug_print(f"Last used resource not found, set to first available: {resources[0]}",
-                            file=f"src/tab_instrument_child_connection.py - {current_version}",
-                            function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Last used resource not found, set to first available: {resources[0]}",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             # --- NEW: Automatically show connect button if resources are found and not connected ---
             self._update_ui_elements_visibility(connected=self.app_instance.inst is not None, resource_found=True)
             # --- END NEW ---
         else:
             self.selected_resource.set("N/A") # Set to "N/A" if no resources found
             menu.add_command(label="N/A", command=tk._setit(self.selected_resource, "N/A")) # Ensure "N/A" is an option
-            debug_print("No VISA resources found, setting selected resource to 'N/A'. This is a pain in the ass!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("No VISA resources found, setting selected resource to 'N/A'. This is a pain in the ass!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             # --- NEW: Hide connect button if no resources found ---
             self._update_ui_elements_visibility(connected=False, resource_found=False)
             # --- END NEW ---
@@ -454,11 +478,13 @@ class InstrumentTab(ttk.Frame):
         - Saves configuration, updates GUI elements.
 
         (2025-07-31 16:04) Change: Added UI visibility update for connect button.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print(f"Selected resource changed to: {selected_value}. Saving to config.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Selected resource changed to: {selected_value}. Saving to config.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.app_instance.config['LAST_USED_SETTINGS']['last_selected_visa_resource'] = selected_value
         save_config(self.app_instance)
 
@@ -490,23 +516,27 @@ class InstrumentTab(ttk.Frame):
         # (2025-07-31 16:04) Change: Added `debug_print` and ensured `update_connection_status` is called.
         #                     Also updated UI visibility for disconnect/query buttons.
         # (2025-07-31 16:08) Change: Removed automatic call to _query_settings_display after connection.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Attempting to connect instrument...",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Attempting to connect instrument...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if connect_instrument_logic(self.app_instance, self.console_print_func):
-            debug_print("Instrument connected successfully. No automatic query, you gotta push the button for that, you lazy bastard.",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Instrument connected successfully. No automatic query, you gotta push the button for that, you lazy bastard.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             # Removed: self._query_settings_display() # No longer automatically query after connection
             # --- NEW: Show disconnect and query buttons, hide connect button ---
             self._update_ui_elements_visibility(connected=True, resource_found=True)
             # --- END NEW ---
         else:
-            debug_print("Instrument connection failed. This is a goddamn nightmare!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Instrument connection failed. This is a goddamn nightmare!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             # --- NEW: Ensure connect button remains if connection failed but resources are still there ---
             self._update_ui_elements_visibility(connected=False, resource_found=True)
             # --- END NEW ---
@@ -514,9 +544,10 @@ class InstrumentTab(ttk.Frame):
         # Trigger full GUI update via main app, regardless of success/failure
         # This is where the main app needs to properly update all relevant tabs
         self.app_instance.update_connection_status(self.app_instance.inst is not None)
-        debug_print(f"Connection status update triggered for GUI. Connected state: {self.app_instance.inst is not None}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Connection status update triggered for GUI. Connected state: {self.app_instance.inst is not None}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _disconnect_instrument(self):
@@ -538,18 +569,21 @@ class InstrumentTab(ttk.Frame):
         #
         # (2025-07-31 16:04) Change: Added `debug_print` and ensured `update_connection_status` is called.
         #                     Also updated UI visibility for disconnect/query buttons.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Attempting to disconnect instrument...",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Attempting to disconnect instrument...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         disconnect_instrument_logic(self.app_instance, self.console_print_func)
         self._clear_settings_display() # Clear display after disconnect
         # Trigger full GUI update via main app
         self.app_instance.update_connection_status(self.app_instance.inst is not None)
-        debug_print(f"Disconnection complete. Connection status update triggered for GUI. Connected state: {self.app_instance.inst is not None}",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Disconnection complete. Connection status update triggered for GUI. Connected state: {self.app_instance.inst is not None}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # --- NEW: Hide disconnect and query buttons, show visa resource and connect button ---
         self._update_ui_elements_visibility(connected=False, resource_found=True) # Assume resources are still there
@@ -573,22 +607,26 @@ class InstrumentTab(ttk.Frame):
         - None (function is effectively a placeholder now).
 
         (2025-07-31 16:06) Change: Deprecated this function as the "Apply Settings" button has been removed.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Attempting to apply settings to instrument... (This function is deprecated and should not be called directly!)",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Attempting to apply settings to instrument... (This function is deprecated and should not be called directly!)",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         # The logic below is kept for now, but this function is no longer linked to a GUI button.
         # If apply_settings_logic is still needed, it should be called from another part of the code.
         if apply_settings_logic(self.app_instance, self.console_print_func):
-            debug_print("Settings applied successfully. Querying display.",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Settings applied successfully. Querying display.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._query_settings_display() # Update display after applying settings
         else:
-            debug_print("Failed to apply settings. What the hell went wrong now?!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Failed to apply settings. What the hell went wrong now?!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _query_settings(self):
         # Function Description
@@ -605,10 +643,12 @@ class InstrumentTab(ttk.Frame):
         #   Updates GUI display elements.
         #
         # (2025-07-31 16:04) Change: Added `debug_print`.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("User requested to query instrument settings for display. Let's see what this thing is doing.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("User requested to query instrument settings for display. Let's see what this thing is doing.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self._query_settings_display()
 
     def _query_settings_display(self):
@@ -631,60 +671,65 @@ class InstrumentTab(ttk.Frame):
         - Returns True on success, False on failure.
 
         (2025-07-31 16:04) Change: Added `debug_print` and enhanced error handling messages.
+        (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Querying current instrument settings for display...",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Querying current instrument settings for display...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not self.app_instance.inst:
             self.console_print_func("⚠️ Warning: No instrument connected. Cannot query settings for display.")
-            debug_print("No instrument connected. Cannot query settings for display. Fucking useless!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("No instrument connected. Cannot query settings for display. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._clear_settings_display()
             return False
 
         try:
             # Query Center Frequency
-            center_freq_str = query_safe(self.app_instance.inst, ":SENSe:FREQuency:CENTer?", self.console_print_func)
+            center_freq_str = query_current_instrument_settings_logic(self.app_instance.inst, ":SENSe:FREQuency:CENTer?", self.console_print_func)
             self.current_center_freq_var.set(f"{float(center_freq_str) / MHZ_TO_HZ:.3f}" if center_freq_str else "N/A")
 
             # Query Span
-            span_str = query_safe(self.app_instance.inst, ":SENSe:FREQuency:SPAN?", self.console_print_func)
+            span_str = query_current_instrument_settings_logic(self.app_instance.inst, ":SENSe:FREQuency:SPAN?", self.console_print_func)
             self.current_span_var.set(f"{float(span_str) / MHZ_TO_HZ:.3f}" if span_str else "N/A")
 
             # Query RBW
-            rbw_str = query_safe(self.app_instance.inst, ":SENSe:BANDwidth:RESolution?", self.console_print_func)
+            rbw_str = query_current_instrument_settings_logic(self.app_instance.inst, ":SENSe:BANDwidth:RESolution?", self.console_print_func)
             self.current_rbw_var.set(f"{float(rbw_str):.0f}" if rbw_str else "N/A")
 
             # Query Reference Level
-            ref_level_str = query_safe(self.app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", self.console_print_func)
+            ref_level_str = query_current_instrument_settings_logic(self.app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", self.console_print_func)
             self.current_ref_level_var.set(f"{float(ref_level_str):.1f}" if ref_level_str else "N/A")
 
             # Query Frequency Shift
-            freq_shift_str = query_safe(self.app_instance.inst, ":FREQuency:OFFSet?", self.console_print_func)
+            freq_shift_str = query_current_instrument_settings_logic(self.app_instance.inst, ":FREQuency:OFFSet?", self.console_print_func)
             self.current_freq_shift_var.set(f"{float(freq_shift_str):.0f}" if freq_shift_str else "N/A")
 
             # Query Max Hold status
-            max_hold_mode_str = query_safe(self.app_instance.inst, ":TRACe2:MODE?", self.console_print_func)
+            max_hold_mode_str = query_current_instrument_settings_logic(self.app_instance.inst, ":TRACe2:MODE?", self.console_print_func)
             self.current_max_hold_var.set("ON" if max_hold_mode_str and "MAXH" in max_hold_mode_str.upper() else "OFF")
 
             # Query High Sensitivity (Preamplifier Gain)
-            high_sensitivity_str = query_safe(self.app_instance.inst, ":POWer:GAIN?", self.console_print_func)
+            high_sensitivity_str = query_current_instrument_settings_logic(self.app_instance.inst, ":POWer:GAIN?", self.console_print_func)
             self.current_high_sensitivity_var.set("ON" if high_sensitivity_str and float(high_sensitivity_str) > 0 else "OFF")
 
 
             self.console_print_func("✅ Current instrument settings displayed.")
-            debug_print("Current instrument settings displayed. Fucking finally!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Current instrument settings displayed. Fucking finally!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return True
         except Exception as e:
             self.console_print_func(f"❌ Error querying instrument settings for display: {e}")
-            debug_print(f"Error querying instrument settings for display: {e}. This bugger is being problematic! What the hell is its problem?!",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error querying instrument settings for display: {e}. This bugger is being problematic! What the hell is its problem?!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._clear_settings_display()
             return False
 
@@ -702,10 +747,12 @@ class InstrumentTab(ttk.Frame):
         #   Clears text fields in the GUI.
         #
         # (2025-07-31 16:04) Change: Added `debug_print`.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Clearing instrument settings display. Wiping the slate clean, just like my ex did to my bank account.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Clearing instrument settings display. Wiping the slate clean, just like my ex did to my bank account.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.current_center_freq_var.set("")
         self.current_span_var.set("")
         self.current_rbw_var.set("")
@@ -737,10 +784,12 @@ class InstrumentTab(ttk.Frame):
         # (2025-07-31 16:04) Change: Removed _populate_resources() from here. Added robust debug messaging.
         #                     Integrated _update_ui_elements_visibility for initial tab load.
         # (2025-07-31 16:08) Change: Removed automatic call to _query_settings_display.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_print("Instrument Tab selected. Initializing display state. Let's make sure this thing isn't broken.",
-                    file=f"src/tab_instrument_child_connection.py - {current_version}",
-                    function=current_function, console_print_func=self.console_print_func)
+        debug_log("Instrument Tab selected. Initializing display state. Let's make sure this thing isn't broken.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Ensure buttons are in the correct state when tab is selected
         is_connected = self.app_instance.inst is not None
@@ -748,14 +797,16 @@ class InstrumentTab(ttk.Frame):
 
         # Query and display current settings if connected
         if is_connected:
-            debug_print("Instrument is connected. Clearing settings display on tab selection (no automatic query, you gotta push the button for that, you lazy bastard).",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Instrument is connected. Clearing settings display on tab selection (no automatic query, you gotta push the button for that, you lazy bastard).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._clear_settings_display() # Just clear, don't query automatically
         else:
-            debug_print("Instrument is NOT connected. Clearing settings display on tab selection.",
-                        file=f"src/tab_instrument_child_connection.py - {current_version}",
-                        function=current_function, console_print_func=self.console_print_func)
+            debug_log("Instrument is NOT connected. Clearing settings display on tab selection.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             self._clear_settings_display()
 
         # Set initial state of debug checkboxes based on app_instance variables

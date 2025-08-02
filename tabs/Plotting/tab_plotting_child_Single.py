@@ -12,11 +12,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1048.1 (Updated header and imports for new folder structure)
+# Version 20250801.2230.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1048.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2230.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2230 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, scrolledtext, messagebox
@@ -30,7 +32,10 @@ import numpy as np # Added for PSD calculation in _plot_current_cycle_average
 # CORRECTED: Import plotting functions and _open_plot_in_browser directly from utils.utils_plotting
 from tabs.Plotting.utils_plotting import plot_single_scan_data, plot_multi_trace_data, _open_plot_in_browser
 
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
+
 # Removed: from process_math.averaging_utils import average_scan
 # Removed: from utils.plot_scans_over_time import plot_Scans_over_time
 
@@ -52,17 +57,22 @@ class PlottingTab(ttk.Frame):
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print # Use provided func or print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use provided func or console_log
         self.current_plot_file = None # To store the path of the last generated plot HTML
         # Removed: self.last_opened_folder = None # No longer needed here
         # Removed: self.last_applied_math_folder = None # No longer needed here
 
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         self._create_widgets()
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _create_widgets(self):
         """
@@ -86,8 +96,10 @@ class PlottingTab(ttk.Frame):
         (2025-07-31) Change: Removed "Plotting Averages from Folder" section.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # SCAN Plotting Options Frame (for single scan and current cycle average)
         plotting_options_frame = ttk.LabelFrame(self, text="SCAN Plotting Options", padding="10")
@@ -136,13 +148,16 @@ class PlottingTab(ttk.Frame):
         self.plot_average_button.config(state=tk.DISABLED) # Disable until data is available
 
         self.open_last_plot_button = ttk.Button(plotting_options_frame, text="Open Last Plot", command=self._open_last_plot)
-        self.open_last_plot_button.grid(row=3, column=0, padx=5, pady=5, sticky="ew") # Adjusted row
+        self.open_last_plot_button.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
 
         # Configure column weights for resizing
         self.grid_columnconfigure(0, weight=1)
         plotting_options_frame.grid_columnconfigure(0, weight=1)
 
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     # Removed: _on_avg_type_checkbox_changed - moved to tab_plotting_child_Average.py
 
@@ -157,17 +172,20 @@ class PlottingTab(ttk.Frame):
 
         Process of this function:
             1. Retrieves the boolean state of `self.app_instance.create_html_var`.
-            2. Logs the state to the debug console and the GUI console.
+            2. Logs the state to the debug log and the GUI console.
 
         Outputs of this function:
             None. Updates console output.
 
         (2025-07-31) Change: Maintained in tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
         state = "Enabled" if self.app_instance.create_html_var.get() else "Disabled"
-        debug_print(f"Create HTML checkbox changed. State: {state}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Create HTML checkbox changed. State: {state}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.console_print_func(f"Create HTML: {state}")
 
 
@@ -183,15 +201,15 @@ class PlottingTab(ttk.Frame):
         Process of this function:
             1. Retrieves the state of all `include_..._markers_var` Tkinter variables from `app_instance`.
             2. Builds a list of selected marker types.
-            3. Logs the selected types to the debug console and the GUI console.
+            3. Logs the selected types to the debug log and the GUI console.
 
         Outputs of this function:
             None. Updates console output.
 
         (2025-07-31) Change: Maintained in tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
         selected_markers = []
         if self.app_instance.include_tv_markers_var.get():
             selected_markers.append("TV Band Markers")
@@ -202,7 +220,10 @@ class PlottingTab(ttk.Frame):
         if self.app_instance.include_scan_intermod_markers_var.get(): # NEW variable
             selected_markers.append("Intermodulations")
 
-        debug_print(f"SCAN Plotting Options - Selected markers: {selected_markers}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"SCAN Plotting Options - Selected markers: {selected_markers}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.console_print_func(f"SCAN Plotting Options - Markers: {', '.join(selected_markers) if selected_markers else 'None'}")
 
     # Removed: _on_multi_file_marker_checkbox_changed - moved to tab_plotting_child_Average.py
@@ -228,10 +249,13 @@ class PlottingTab(ttk.Frame):
             None. Generates an HTML plot file and updates `self.current_plot_file`.
 
         (2025-07-31) Change: Maintained in tab_plotting_child_Single.py.
+        (2025-08-01) Change: Updated debug_print to debug_log.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         file_path = filedialog.askopenfilename(
             title="Select a CSV file to plot",
@@ -239,23 +263,35 @@ class PlottingTab(ttk.Frame):
         )
         if not file_path:
             self.console_print_func("File selection cancelled. No single scan plot generated. Damn it!")
-            debug_print("File selection cancelled for single plot.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("File selection cancelled for single plot.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
             df = pd.read_csv(file_path, header=None, names=['Frequency (Hz)', 'Power (dBm)']) # Ensure column names match plot_logic
             scan_name = os.path.splitext(os.path.basename(file_path))[0]
             self.console_print_func(f"Plotting single scan from: {scan_name}")
-            debug_print(f"Plotting single scan for: {scan_name}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Plotting single scan for: {scan_name}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
             # Use app_instance.output_folder_var for output directory
             output_dir = self.app_instance.output_folder_var.get()
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
-                debug_print(f"Created output directory: {output_dir}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Created output directory: {output_dir}",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
             html_filename = os.path.join(output_dir, f"{scan_name.replace(' ', '_')}_single_scan_plot.html")
-            debug_print(f"Output HTML filename: {html_filename}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Output HTML filename: {html_filename}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
             fig, plot_html_path_return = plot_single_scan_data(
                 df,
@@ -273,25 +309,46 @@ class PlottingTab(ttk.Frame):
                 self.current_plot_file = plot_html_path_return
                 if self.app_instance.create_html_var.get():
                     self.console_print_func(f"✅ Single scan plot saved to: {self.current_plot_file}")
-                    debug_print(f"Plot saved successfully to: {self.current_plot_file}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Plot saved successfully to: {self.current_plot_file}",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                 else:
                     self.console_print_func("✅ Single scan plot data processed (HTML not saved as per setting).")
-                    debug_print("Plot data processed, HTML not saved.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log("Plot data processed, HTML not saved.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
 
                 if self.app_instance.open_html_after_complete_var.get() and self.app_instance.create_html_var.get() and plot_html_path_return:
                     self.console_print_func(f"Opening plot in browser: {self.current_plot_file}")
                     webbrowser.open_new_tab(self.current_plot_file)
-                    debug_print(f"Plot opened in browser: {self.current_plot_file}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Plot opened in browser: {self.current_plot_file}",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
                 elif self.app_instance.open_html_after_complete_var.get() and not self.app_instance.create_html_var.get():
                     self.console_print_func("HTML plot not opened because 'Create HTML' is unchecked. What a waste of a click!")
-                    debug_print("HTML not opened as 'Create HTML' is unchecked.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log("HTML not opened as 'Create HTML' is unchecked.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
             else:
                 self.console_print_func("🚫 Plotly figure was not generated for single scan. Fucking useless!")
-                debug_print("Plotly figure not generated for single scan.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("Plotly figure not generated for single scan.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error plotting single scan: {e}. This is a goddamn disaster!")
-            debug_print(f"Error plotting single scan: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Error plotting single scan: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _plot_current_cycle_average(self):
@@ -322,20 +379,31 @@ class PlottingTab(ttk.Frame):
         (2025-07-31) Change: Maintained in tab_plotting_child_Single.py.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if not self.app_instance.collected_scans_dataframes:
             self.console_print_func("No collected scan dataframes to average. What the hell am I supposed to plot?!")
-            debug_print("No collected scan dataframes for current cycle average.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            debug_print(f"Exiting {current_function} (no data)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No collected scan dataframes for current cycle average.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            debug_log(f"Exiting {current_function} (no data)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Use app_instance.output_folder_var for output directory
         output_dir = self.app_instance.output_folder_var.get()
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-            debug_print(f"Created output directory: {output_dir}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Created output directory: {output_dir}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         # Get selected average types for current cycle plot from app_instance variables
         selected_avg_types = [
@@ -350,12 +418,18 @@ class PlottingTab(ttk.Frame):
 
         if not selected_avg_types:
             self.console_print_func("Warning: No average type selected for current cycle plot. Please select at least one type. Come on, pick something!")
-            debug_print(f"Exiting {current_function} (no selected_avg_types for current cycle)", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Exiting {current_function} (no selected_avg_types for current cycle)",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         self.console_print_func("Processing current cycle average plot. This may take a moment depending on the number of scans. Don't touch that dial!")
-        debug_print(f"Calling generate_current_cycle_average_csv_and_plot with {len(self.app_instance.collected_scans_dataframes)} dataframes and selected types: {selected_avg_types}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        
+        debug_log(f"Calling generate_current_cycle_average_csv_and_plot with {len(self.app_instance.collected_scans_dataframes)} dataframes and selected types: {selected_avg_types}.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
         # Aggregate the current cycle scans into a single DataFrame for plotting
         all_frequencies_current_cycle = pd.Series(dtype=float)
         power_levels_current_cycle_list = []
@@ -370,11 +444,17 @@ class PlottingTab(ttk.Frame):
                 rbw_values_current_cycle.append(rbw_value)
             else:
                 self.console_print_func("Warning: Collected scan missing 'Frequency (Hz)' or 'Power (dBm)'. Skipping for current cycle average. What a mess!")
-                debug_print("Collected scan missing freq/power columns.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log("Collected scan missing freq/power columns.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
         if not power_levels_current_cycle_list:
             self.console_print_func("No valid collected scans to average for current cycle. This is pointless!")
-            debug_print("No valid collected scans for current cycle average.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No valid collected scans for current cycle average.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Create a master reference frequency for current cycle
@@ -385,13 +465,13 @@ class PlottingTab(ttk.Frame):
         for series in power_levels_current_cycle_list:
             aligned_series = series.reindex(reference_freq_current_cycle).interpolate(method='linear', limit_direction='both')
             aligned_power_series_current_cycle.append(aligned_series)
-        
+
         power_levels_df_current_cycle = pd.concat(aligned_power_series_current_cycle, axis=1)
         power_levels_df_current_cycle.columns = [f"Scan_{i+1}" for i in range(len(aligned_power_series_current_cycle))]
 
         # Calculate selected average types for current cycle
         aggregated_df_current_cycle = pd.DataFrame({'Frequency (Hz)': reference_freq_current_cycle})
-        
+
         # Define calculation functions locally or import them if they are in averaging_utils
         # For simplicity, defining them here for now, but ideally they'd be shared.
         def _local_calculate_average(df): return df.mean(axis=1)
@@ -445,6 +525,7 @@ class PlottingTab(ttk.Frame):
             historical_dfs_with_names=None,
             individual_scan_dfs_with_names=[(df, f"Scan {i+1}") for i, df in enumerate(self.app_instance.collected_scans_dataframes)], # Pass individual scans
             output_html_path=html_filename_current_cycle if self.app_instance.create_html_var.get() else None, # Use app_instance var
+            y_range_min_override=None, # Let the plotting function determine min
             y_range_max_override=y_range_max_override_val, # Pass the dynamically set override
             console_print_func=self.console_print_func,
             scan_data_folder=output_dir # Pass the output directory as the scan_data_folder for markers
@@ -454,17 +535,29 @@ class PlottingTab(ttk.Frame):
             self.current_plot_file = plot_html_path_return
             if self.app_instance.create_html_var.get():
                 self.console_print_func(f"✅ Current cycle averaged plot saved to: {self.current_plot_file}")
-                debug_print(f"Current cycle averaged plot saved to: {self.current_plot_file}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Current cycle averaged plot saved to: {self.current_plot_file}",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             else:
                 self.console_print_func("✅ Current cycle averaged plot data processed (HTML not saved as per setting).")
-                debug_print("Plot data processed, HTML not saved.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-            
+                debug_log("Plot data processed, HTML not saved.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+
             if self.app_instance.open_html_after_complete_var.get() and self.app_instance.create_html_var.get() and plot_html_path_return:
                 _open_plot_in_browser(plot_html_path_return, self.console_print_func)
         else:
             self.console_print_func("🚫 Plotly figure was not generated for current cycle averaged data. Are you even trying?!")
-            debug_print("Plotly figure not generated for current cycle averaged data.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Plotly figure not generated for current cycle averaged data.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _open_last_plot(self):
@@ -486,17 +579,28 @@ class PlottingTab(ttk.Frame):
         (2025-07-31) Change: Maintained in tab_plotting_child_Single.py.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         if self.current_plot_file and os.path.exists(self.current_plot_file):
             self.console_print_func(f"Opening last plot: {self.current_plot_file}")
             _open_plot_in_browser(self.current_plot_file, self.console_print_func) # Pass console_print_func
-            debug_print(f"Opened last plot: {self.current_plot_file}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Opened last plot: {self.current_plot_file}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.console_print_func("Error: No plot available or file not found. Please generate a plot first. What's the point of this button then?!")
-            debug_print("No plot available or file not found.", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("No plot available or file not found.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     # Removed: _open_folder_for_averaging - moved to tab_plotting_child_Average.py
     # Removed: _find_and_group_csv_files - moved to tab_plotting_child_Average.py
@@ -529,22 +633,38 @@ class PlottingTab(ttk.Frame):
         (2025-07-31) Change: Updated to reflect removal of folder averaging functionality.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_plotting_child_Single.py - {current_version}"
-        debug_print(f"Entering {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Entering {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-        debug_print("Plotting Tab selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("Plotting Tab selected.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # The 'Plot Single Scan' button should always be enabled as it opens a file dialog.
         self.plot_button.config(state=tk.NORMAL)
-        debug_print("Plot Single Scan button enabled.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log("Plot Single Scan button enabled.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Enable/Disable 'Plot Current Cycle Average' button based on collected_scans_dataframes
         if self.app_instance.collected_scans_dataframes:
             self.plot_average_button.config(state=tk.NORMAL)
-            debug_print("Plot Current Cycle Average button enabled (data available).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Plot Current Cycle Average button enabled (data available).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.plot_average_button.config(state=tk.DISABLED)
-            debug_print("Plot Current Cycle Average button disabled (no data available).", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log("Plot Current Cycle Average button disabled (no data available).",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-        debug_print(f"Exiting {current_function}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-
+        debug_log(f"Exiting {current_function}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)

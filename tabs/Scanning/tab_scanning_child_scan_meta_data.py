@@ -12,11 +12,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1102.1 (Updated header and imports for new folder structure)
+# Version 20250801.2330.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1102.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2330.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2330 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -24,7 +26,10 @@ import inspect
 import os # For os.path.exists and os.makedirs
 import subprocess # For opening folders
 
-from utils.utils_instrument_control import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
+
 from src.config_manager import save_config
 
 # Import new modules for functionality - CORRECTED PATHS
@@ -39,7 +44,7 @@ class ScanMetaDataTab(ttk.Frame):
     This includes operator, venue, equipment, and general notes.
     """
     def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Initializes the ScanMetaDataTab, setting up the UI frame,
         # linking to the main application instance, and preparing
         # Tkinter variables for meta data fields.
@@ -64,9 +69,16 @@ class ScanMetaDataTab(ttk.Frame):
         #   None. Initializes the Tkinter frame and its internal state.
         #
         # (2025-07-30) Change: Initialized new StringVars for regrouped fields, including new amplifier description/use.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print
+        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing ScanMetaDataTab. Version: {current_version}. Setting up meta data fields!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Initialize new Tkinter variables for location and equipment
         # These variables are initialized in main_app.py and linked here via app_instance
@@ -86,8 +98,14 @@ class ScanMetaDataTab(ttk.Frame):
 
         self._create_widgets()
 
+        debug_log(f"ScanMetaDataTab initialized. Version: {current_version}. Meta data interface ready!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+
     def _create_widgets(self):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Creates and arranges the widgets for the Scan Meta Data tab,
         # grouping them into Personnel, Location, Equipment Used, and Notes sections.
         # It includes interactive elements like a postal code lookup button and
@@ -111,9 +129,12 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Made location fields editable; added amplifier description/use fields.
         # (2025-07-30) Change: Made antenna/amplifier description/use fields editable.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Creating ScanMetaDataTab widgets...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Creating ScanMetaDataTab widgets... Building the meta data input form! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Main grid configuration for the tab
         self.grid_columnconfigure(0, weight=1)
@@ -128,11 +149,11 @@ class ScanMetaDataTab(ttk.Frame):
         personnel_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         personnel_frame.grid_columnconfigure(1, weight=1) # Allow entry widgets to expand
 
-        ttk.Label(personnel_frame, text="Operator Name:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_name_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(personnel_frame, text="Operator Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_name_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(personnel_frame, text="Operator Contact:").grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_contact_var).grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(personnel_frame, text="Operator Contact:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_contact_var, style='TEntry').grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
 
         # --- Location Box ---
@@ -140,26 +161,26 @@ class ScanMetaDataTab(ttk.Frame):
         location_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
         location_frame.grid_columnconfigure(1, weight=1) # Allow entry widgets to expand
 
-        ttk.Label(location_frame, text="Venue Name:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(location_frame, textvariable=self.app_instance.venue_name_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(location_frame, text="Venue Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(location_frame, textvariable=self.app_instance.venue_name_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(location_frame, text="Venue Postal Code:").grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        postal_code_entry = ttk.Entry(location_frame, textvariable=self.app_instance.venue_postal_code_var)
+        ttk.Label(location_frame, text="Venue Postal Code:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        postal_code_entry = ttk.Entry(location_frame, textvariable=self.app_instance.venue_postal_code_var, style='TEntry')
         postal_code_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
         # Button for calling the postal code lookup function
         ttk.Button(location_frame, text="Lookup Location", command=self._lookup_postal_code, style='Blue.TButton').grid(row=1, column=2, padx=5, pady=2, sticky="e")
 
-        ttk.Label(location_frame, text="Address Field:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(location_frame, text="Address Field:", style='TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.address_field_var).grid(row=2, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        ttk.Entry(location_frame, textvariable=self.app_instance.address_field_var, style='TEntry').grid(row=2, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(location_frame, text="City:").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(location_frame, text="City:", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.city_var).grid(row=3, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        ttk.Entry(location_frame, textvariable=self.app_instance.city_var, style='TEntry').grid(row=3, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(location_frame, text="Province:").grid(row=4, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(location_frame, text="Province:", style='TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.province_var).grid(row=4, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        ttk.Entry(location_frame, textvariable=self.app_instance.province_var, style='TEntry').grid(row=4, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
 
         # --- Equipment Used Box ---
@@ -167,54 +188,56 @@ class ScanMetaDataTab(ttk.Frame):
         equipment_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
         equipment_frame.grid_columnconfigure(1, weight=1) # Allow entry/combobox to expand
 
-        ttk.Label(equipment_frame, text="Scanner Type:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(equipment_frame, textvariable=self.app_instance.scanner_type_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(equipment_frame, text="Scanner Type:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(equipment_frame, textvariable=self.app_instance.scanner_type_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(equipment_frame, text="Antenna Type:").grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Antenna Type:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.antenna_type_combobox = ttk.Combobox(
             equipment_frame,
             textvariable=self.app_instance.selected_antenna_type_var,
             values=[ant["Type"] for ant in antenna_types],
-            state="readonly" # This remains readonly as it's a selection from a predefined list
+            state="readonly", # This remains readonly as it's a selection from a predefined list
+            style='TCombobox'
         )
         self.antenna_type_combobox.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
         self.antenna_type_combobox.bind("<<ComboboxSelected>>", self._on_antenna_type_selected)
 
-        ttk.Label(equipment_frame, text="Antenna Description:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Antenna Description:", style='TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: state='readonly' to state='normal'
-        self.antenna_description_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_description_var, state='normal')
+        self.antenna_description_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_description_var, state='normal', style='TEntry')
         self.antenna_description_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(equipment_frame, text="Antenna Use:").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Antenna Use:", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: state='readonly' to state='normal'
-        self.antenna_use_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_use_var, state='normal')
+        self.antenna_use_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_use_var, state='normal', style='TEntry')
         self.antenna_use_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(equipment_frame, text="Antenna Mount:").grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_mount_var).grid(row=4, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(equipment_frame, text="Antenna Mount:", style='TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_mount_var, style='TEntry').grid(row=4, column=1, padx=5, pady=2, sticky="ew")
 
         # Spacer
         ttk.Separator(equipment_frame, orient='horizontal').grid(row=5, column=0, columnspan=2, pady=5, sticky="ew")
 
-        ttk.Label(equipment_frame, text="Antenna Amplifier Type:").grid(row=6, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Antenna Amplifier Type:", style='TLabel').grid(row=6, column=0, padx=5, pady=2, sticky="w")
         self.amplifier_type_combobox = ttk.Combobox(
             equipment_frame,
             textvariable=self.app_instance.selected_amplifier_type_var,
             values=[amp["Type"] for amp in antenna_amplifier_types],
-            state="readonly" # This remains readonly as it's a selection from a predefined list
+            state="readonly", # This remains readonly as it's a selection from a predefined list
+            style='TCombobox'
         )
         self.amplifier_type_combobox.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
         self.amplifier_type_combobox.bind("<<ComboboxSelected>>", self._on_amplifier_type_selected)
 
         # NEW: Amplifier Description and Use fields
-        ttk.Label(equipment_frame, text="Amplifier Description:").grid(row=7, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Amplifier Description:", style='TLabel').grid(row=7, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: state='readonly' to state='normal'
-        self.amplifier_description_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.amplifier_description_var, state='normal')
+        self.amplifier_description_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.amplifier_description_var, state='normal', style='TEntry')
         self.amplifier_description_entry.grid(row=7, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(equipment_frame, text="Amplifier Use:").grid(row=8, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(equipment_frame, text="Amplifier Use:", style='TLabel').grid(row=8, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: state='readonly' to state='normal'
-        self.amplifier_use_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.amplifier_use_var, state='normal')
+        self.amplifier_use_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.amplifier_use_var, state='normal', style='TEntry')
         self.amplifier_use_entry.grid(row=8, column=1, padx=5, pady=2, sticky="ew")
 
 
@@ -228,11 +251,14 @@ class ScanMetaDataTab(ttk.Frame):
         self.notes_text_widget.grid(row=0, column=0, padx=5, pady=2, sticky="nsew")
         self.notes_text_widget.bind("<KeyRelease>", self._on_notes_change)
 
-        debug_print("ScanMetaDataTab widgets created.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"ScanMetaDataTab widgets created. Meta data form is complete! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _on_notes_change(self, event=None):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Updates the Tkinter notes_var from the ScrolledText widget and saves config.
         #
         # Inputs to this function
@@ -248,17 +274,20 @@ class ScanMetaDataTab(ttk.Frame):
         #   None. Updates an internal Tkinter variable and saves application configuration.
         #
         # (2025-07-30) Change: No functional change, just updated header.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         """Updates the Tkinter notes_var from the ScrolledText widget and saves config."""
         self.app_instance.notes_var.set(self.notes_text_widget.get("1.0", tk.END).strip())
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"Notes updated: {self.app_instance.notes_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Notes updated: {self.app_instance.notes_var.get()}. Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         # Corrected call to save_config with all required arguments
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
     def _on_tab_selected(self, event):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Called when this tab is selected in the notebook.
         # This can be used to refresh data or update UI elements specific to this tab.
         #
@@ -279,13 +308,16 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Added logic to refresh comboboxes and associated fields on tab selection.
         # (2025-07-30) Change: Added explicit population of all text entry fields from app_instance variables.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         """
         Called when this tab is selected in the notebook.
         This can be used to refresh data or update UI elements specific to this tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Scan Meta Data Tab selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Scan Meta Data Tab selected. Refreshing all fields! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # When the tab is selected, ensure the notes widget reflects the app_instance's variable
         self.notes_text_widget.delete("1.0", tk.END)
@@ -319,9 +351,14 @@ class ScanMetaDataTab(ttk.Frame):
             self.app_instance.amplifier_description_var.set("")
             self.app_instance.amplifier_use_var.set("")
 
+        debug_log(f"Scan Meta Data Tab refreshed. All fields are up-to-date! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
 
     def _lookup_postal_code(self):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Initiates a lookup of the venue postal code using the Google Maps Geocoding API.
         # It retrieves the postal code from the associated Tkinter variable,
         # calls the `get_location_from_google_maps` function, and updates the
@@ -343,18 +380,25 @@ class ScanMetaDataTab(ttk.Frame):
         #   None. Updates Tkinter variables and saves configuration.
         #
         # (2025-07-30) Change: Updated to use `get_location_from_google_maps`.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Attempting postal code lookup using Google Maps API.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Attempting postal code lookup using Google Maps API. Let's find this location! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         postal_code = self.app_instance.venue_postal_code_var.get().strip()
         if not postal_code:
-            self.console_print_func("⚠️ Please enter a postal code to look up.")
+            self.console_print_func("⚠️ Please enter a postal code to look up. Don't leave it blank!")
             self.app_instance.address_field_var.set("")
             self.app_instance.city_var.set("")
             self.app_instance.province_var.set("")
             # Corrected call to save_config with all required arguments
             save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            debug_log(f"Postal code was empty. Lookup aborted. Version: {current_version}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
             return
 
         # CHANGED: Call get_location_from_google_maps instead of get_location_from_text
@@ -366,11 +410,15 @@ class ScanMetaDataTab(ttk.Frame):
         
         # Corrected call to save_config with all required arguments
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        debug_print("Postal code lookup complete and fields updated.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        self.console_print_func("✅ Postal code lookup complete and fields updated. Location found!")
+        debug_log(f"Postal code lookup complete and fields updated. Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _on_antenna_type_selected(self, event):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Event handler for when an antenna type is selected from the dropdown.
         # It updates the 'Antenna Description' and 'Antenna Use' text boxes
         # based on the selected antenna type's data from `antenna_types`.
@@ -391,14 +439,17 @@ class ScanMetaDataTab(ttk.Frame):
         #   None. Updates Tkinter variables and saves configuration.
         #
         # (2025-07-30) Change: No functional change, just updated header.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         """
         Event handler for when an antenna type is selected from the dropdown.
         It updates the 'Antenna Description' and 'Antenna Use' text boxes
         based on the selected antenna type's data from `antenna_types`.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Antenna type selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Antenna type selected. Updating description and use! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         selected_type = self.app_instance.selected_antenna_type_var.get()
         found_antenna = next((ant for ant in antenna_types if ant["Type"] == selected_type), None)
@@ -406,18 +457,28 @@ class ScanMetaDataTab(ttk.Frame):
         if found_antenna:
             self.app_instance.antenna_description_var.set(found_antenna["Description"])
             self.app_instance.antenna_use_var.set(found_antenna["Use"])
-            debug_print(f"Updated antenna description and use for: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Updated antenna description and use for: {selected_type}. Details loaded!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.app_instance.antenna_description_var.set("")
             self.app_instance.antenna_use_var.set("")
-            debug_print(f"No description/use found for selected antenna type: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"No description/use found for selected antenna type: {selected_type}. Fields cleared!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         
         # Corrected call to save_config with all required arguments
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        debug_log(f"Antenna type updated and config saved. Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
     def _on_amplifier_type_selected(self, event):
-        # This function descriotion tells me what this function does
+        # This function description tells me what this function does
         # Event handler for when an amplifier type is selected from the dropdown.
         # It updates the `app_instance.antenna_amplifier_var` to reflect the
         # selected amplifier type, and also populates the `Amplifier Description`
@@ -440,6 +501,7 @@ class ScanMetaDataTab(ttk.Frame):
         #   None. Updates Tkinter variables and saves configuration.
         #
         # (2025-07-30) Change: Populated amplifier description and use fields, and updated header.
+        # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
         """
         Event handler for when an amplifier type is selected from the dropdown.
         It updates the `app_instance.antenna_amplifier_var` to reflect the
@@ -447,8 +509,10 @@ class ScanMetaDataTab(ttk.Frame):
         and `Amplifier Use` text boxes based on the selected type's data.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print("Amplifier type selected.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Amplifier type selected. Getting details for this amplifier! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         selected_type = self.app_instance.selected_amplifier_type_var.get()
         # The original antenna_amplifier_var was an Entry, now it's effectively linked to the Combobox selection
@@ -460,12 +524,21 @@ class ScanMetaDataTab(ttk.Frame):
         if found_amplifier:
             self.app_instance.amplifier_description_var.set(found_amplifier["Description"])
             self.app_instance.amplifier_use_var.set(found_amplifier["Use"])
-            debug_print(f"Updated amplifier description and use for: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Updated amplifier description and use for: {selected_type}. Details loaded!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
             self.app_instance.amplifier_description_var.set("")
             self.app_instance.amplifier_use_var.set("")
-            debug_print(f"No description/use found for selected amplifier type: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"No description/use found for selected amplifier type: {selected_type}. Fields cleared!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
         # Corrected call to save_config with all required arguments
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        debug_print(f"Updated antenna amplifier to: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        debug_log(f"Updated antenna amplifier to: {selected_type}. Config saved! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)

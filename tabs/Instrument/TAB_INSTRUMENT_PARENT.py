@@ -13,14 +13,13 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
-# Feature Request can be emailed to i @ like . audio
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.1740.1 (Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
-#                      Instantiated VisaInterpreterTab and assigned it as an attribute.
-#                      Updated debug prints to new format.)
+# Version 20250801.2215.1 (Refactored debug_print to use debug_log and console_log.)
 
-current_version = "20250801.1740.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250801.2215.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2215 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,7 +29,9 @@ import inspect
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
 
-from utils.utils_instrument_control import debug_print # Import debug_print
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
 
 class TAB_INSTRUMENT_PARENT(ttk.Frame):
     """
@@ -69,17 +70,17 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # (2025-08-01) Change: Corrected import for InstrumentSettingsTab to use existing InstrumentTab.
         # (2025-08-01) Change: Removed import and instantiation of non-existent InstrumentDevicePresetsTab.
         # (2025-08-01) Change: Instantiated VisaInterpreterTab and assigned it as an attribute.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         super().__init__(parent_notebook)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func
+        self.console_print_func = console_print_func if console_print_func else console_log
 
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
 
-        debug_print(f"🚫🐛 [DEBUG] Initializing Instrument Parent Tab. Version: {current_version}",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self.console_print_func)
+        debug_log(f"Initializing Instrument Parent Tab.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Create a notebook for child tabs within the Instrument parent tab
         # The style is dynamically set by main_app's _on_parent_tab_change
@@ -103,10 +104,10 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
 
-        debug_print(f"🚫🐛 [DEBUG] Instrument Parent Tab initialized with child tabs. Version: {current_version}",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self.console_print_func)
+        debug_log(f"Instrument Parent Tab initialized with child tabs. Version: {current_version}. Let's get this show on the road!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     def _on_tab_selected(self, event):
         # Handles tab change events within the child notebook of the Instrument tab.
@@ -130,16 +131,16 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # (2025-07-31) Change: Initial creation.
         # (2025-07-31) Change: Updated header.
         # (2025-08-01) Change: Updated debug prints to new format.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         """
         Handles tab change events within the child notebook of the Instrument tab,
         propagating the selection event to the active child tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = __file__
-        debug_print(f"🚫🐛 [DEBUG] Instrument Child Tab changed. Version: {current_version}",
-                    file=f"{current_file} - {current_version}",
-                    function=current_function,
-                    console_print_func=self.console_print_func)
+        debug_log(f"Instrument Child Tab changed. Version: {current_version}. Time to update the display!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
         # Get the currently selected tab widget
         selected_child_tab_id = self.child_notebook.select()
@@ -148,13 +149,12 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # If the selected child tab has an _on_tab_selected method, call it
         if hasattr(selected_child_tab_widget, '_on_tab_selected'):
             selected_child_tab_widget._on_tab_selected(event)
-            debug_print(f"🚫🐛 [DEBUG] Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_name()}. Version: {current_version}",
-                        file=f"{current_file} - {current_version}",
-                        function=current_function,
-                        console_print_func=self.console_print_func)
+            debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_name()}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            debug_print(f"🚫🐛 [DEBUG] Active child tab {selected_child_tab_widget.winfo_name()} has no _on_tab_selected method. Version: {current_version}",
-                        file=f"{current_file} - {current_file}", # Fix: Changed to current_file in both places
-                        function=current_function,
-                        console_print_func=self.console_print_func)
-
+            debug_log(f"Active child tab {selected_child_tab_widget.winfo_name()} has no _on_tab_selected method. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)

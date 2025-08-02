@@ -16,8 +16,8 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.1930.1 (Ensured MARKERS.CSV operations use app_instance.MARKERS_FILE_PATH.)
-current_version = "20250801.1930.1" # this variable should always be defined below the header to make the debuggin better
+# Version 20250801.2200.2 (Refactored logging to use src/debug_logic and src/console_logic.)
+current_version = "20250801.2200.2" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -34,7 +34,10 @@ import re # NEW: Import regex for Ctrl+Enter logic
 # Import the new report converter utility functions
 from process_math.report_converter_utils import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
 from src.gui_elements import TextRedirector # Keep TextRedirector for console output
-from utils.utils_instrument_control import debug_print # Import debug_print
+# Import the new debug_logic and console_logic modules
+from src.debug_logic import debug_log # Changed from debug_print
+from src.console_logic import console_log # Changed from console_print_func
+
 
 class ReportConverterTab(ttk.Frame):
     """
@@ -43,7 +46,7 @@ class ReportConverterTab(ttk.Frame):
     It now also displays the converted data in an editable, sortable table
     and allows loading/saving of MARKERS.CSV files.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
+    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs): # console_print_func will be removed later
         """
         Initializes the ReportConverterTab.
 
@@ -55,12 +58,16 @@ class ReportConverterTab(ttk.Frame):
             **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Initializing ReportConverterTab...", file=current_file, function=current_function, console_print_func=console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Initializing ReportConverterTab...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else print # Use provided func or default print
+        # self.console_print_func is removed, using console_log directly
+
         self.output_csv_path = None # To store the path of the last generated/loaded CSV
 
         self.tree_headers = [] # Stores current headers of the Treeview
@@ -78,8 +85,11 @@ class ReportConverterTab(ttk.Frame):
         and Load/Save/Save As buttons for marker files.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Creating ReportConverterTab widgets.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Creating ReportConverterTab widgets.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Configure grid for responsiveness
         self.grid_columnconfigure(0, weight=1)
@@ -147,15 +157,18 @@ class ReportConverterTab(ttk.Frame):
         Configures columns and inserts rows.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Populating marker treeview.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Populating marker treeview.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Clear existing treeview content
         self.marker_tree.delete(*self.marker_tree.get_children())
 
         if not self.tree_headers:
+            console_log("ℹ️ No headers available to display in Marker Editor table.", function=current_function)
             self.marker_tree["columns"] = ()
-            self.console_print_func("ℹ️ No headers available to display in Marker Editor table.")
             return
 
         self.marker_tree["columns"] = self.tree_headers
@@ -168,7 +181,7 @@ class ReportConverterTab(ttk.Frame):
             values = [row_data.get(header, "") for header in self.tree_headers]
             self.marker_tree.insert("", "end", iid=str(i), values=values, tags=('editable',))
 
-        self.console_print_func(f"✅ Displayed {len(self.tree_data)} rows in Marker Editor table.")
+        console_log(f"✅ Displayed {len(self.tree_data)} rows in Marker Editor table.", function=current_function)
 
 
     def _on_tree_double_click(self, event):
@@ -176,8 +189,11 @@ class ReportConverterTab(ttk.Frame):
         Handles double-click events on the Treeview to enable cell editing.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Treeview double-clicked for editing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Treeview double-clicked for editing.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         if not self.marker_tree.identify_region(event.x, event.y) == "cell":
             return # Only allow editing on cells
@@ -191,7 +207,10 @@ class ReportConverterTab(ttk.Frame):
         # Get column index (e.g., #1, #2, ...)
         col_index = int(column_id[1:]) - 1
         if col_index < 0 or col_index >= len(self.tree_headers):
-            debug_print(f"Invalid column index {col_index} for editing.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Invalid column index {col_index} for editing.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Get current value
@@ -206,7 +225,7 @@ class ReportConverterTab(ttk.Frame):
         Binds navigation keys to the entry widget.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
 
         # Ensure no other editor is open
         for widget in self.marker_tree.winfo_children():
@@ -237,14 +256,20 @@ class ReportConverterTab(ttk.Frame):
             row_idx = int(item) # iid is the row index
             if row_idx < len(self.tree_data):
                 self.tree_data[row_idx][self.tree_headers[col_index]] = new_value
-                self.console_print_func(f"Updated cell: Row {row_idx+1}, Column '{self.tree_headers[col_index]}' to '{new_value}'")
-                debug_print(f"Updated tree_data[{row_idx}]['{self.tree_headers[col_index]}'] to '{new_value}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log(f"Updated cell: Row {row_idx+1}, Column '{self.tree_headers[col_index]}' to '{new_value}'", function=current_function)
+                debug_log(f"Updated tree_data[{row_idx}]['{self.tree_headers[col_index]}'] to '{new_value}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 
                 # Inform MarkersDisplayTab about the change and save
                 self._update_markers_display_tab_data()
                 self._save_markers_file_internally() # Changed to internal save
             else:
-                debug_print(f"Error: Row index {row_idx} out of bounds for self.tree_data.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Error: Row index {row_idx} out of bounds for self.tree_data.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
 
             # NEW: Handle navigation after edit
             if navigate_direction:
@@ -268,7 +293,7 @@ class ReportConverterTab(ttk.Frame):
         Navigates to the next/previous cell based on the direction and starts editing it.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
 
         items = self.marker_tree.get_children()
         num_rows = len(items)
@@ -281,7 +306,10 @@ class ReportConverterTab(ttk.Frame):
         initial_value_for_next_cell = "" # Initialize to empty string by default
 
         if current_row_idx == -1:
-            debug_print("Current item not found in tree for navigation.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Current item not found in tree for navigation.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
         if direction == "down":
@@ -321,7 +349,10 @@ class ReportConverterTab(ttk.Frame):
                 prev_cell_value = self.marker_tree.item(current_item, 'values')[current_col_index]
                 initial_value_for_next_cell = self._increment_string_with_trailing_digits(prev_cell_value)
             else:
-                debug_print("Cannot Ctrl+Enter: No row below.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Cannot Ctrl+Enter: No row below.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 return
 
         if next_item is not None and next_col_index != -1:
@@ -334,10 +365,16 @@ class ReportConverterTab(ttk.Frame):
                     if 0 <= next_col_index < len(next_item_values):
                         initial_value_for_next_cell = next_item_values[next_col_index]
                     else:
-                        debug_print(f"Next column index {next_col_index} out of bounds for next item values. Setting empty.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                        debug_log(f"Next column index {next_col_index} out of bounds for next item values. Setting empty.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=current_function)
                         initial_value_for_next_cell = "" # Fallback to empty string
                 except Exception as e:
-                    debug_print(f"Error getting initial value for next cell: {e}. Setting empty.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                    debug_log(f"Error getting initial value for next cell: {e}. Setting empty.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
                     initial_value_for_next_cell = "" # Fallback to empty string on error
 
             self.marker_tree.focus(next_item)
@@ -345,7 +382,10 @@ class ReportConverterTab(ttk.Frame):
             # Use app_instance.after to ensure the GUI update happens on the main thread
             self.app_instance.after(10, lambda: self._start_editing_cell(next_item, next_col_index, initial_value_for_next_cell))
         else:
-            debug_print(f"No cell to navigate to in direction: {direction}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"No cell to navigate to in direction: {direction}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
 
     def _increment_string_with_trailing_digits(self, text):
@@ -370,8 +410,11 @@ class ReportConverterTab(ttk.Frame):
         Handles clicks on Treeview headers to sort the data.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Treeview header clicked for sorting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Treeview header clicked for sorting.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         region = self.marker_tree.identify_region(event.x, event.y)
         if region == "heading":
@@ -379,7 +422,10 @@ class ReportConverterTab(ttk.Frame):
             # Convert column_id (e.g., #1) to column name
             col_index = int(column_id[1:]) - 1
             if col_index < 0 or col_index >= len(self.tree_headers):
-                debug_print(f"Invalid column index {col_index} for sorting.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                debug_log(f"Invalid column index {col_index} for sorting.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 return
 
             column_name = self.tree_headers[col_index]
@@ -399,8 +445,11 @@ class ReportConverterTab(ttk.Frame):
         Sorts the Treeview data by the specified column.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print(f"Sorting treeview by '{column_name}', ascending: {ascending}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Sorting treeview by '{column_name}', ascending: {ascending}.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Sort the underlying data (self.tree_data)
         def get_sort_key(item):
@@ -416,7 +465,7 @@ class ReportConverterTab(ttk.Frame):
 
         # Repopulate the treeview with sorted data
         self._populate_marker_tree()
-        self.console_print_func(f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
+        console_log(f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.", function=current_function)
 
 
     def _load_markers_file(self):
@@ -426,8 +475,11 @@ class ReportConverterTab(ttk.Frame):
         It now uses the MARKERS_FILE_PATH from app_instance as initial directory.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Loading MARKERS.CSV file (Load Marker Set button)...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Loading MARKERS.CSV file (Load Marker Set button)...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Use the directory of app_instance.MARKERS_FILE_PATH as initialdir
         initial_dir = os.path.dirname(self.app_instance.MARKERS_FILE_PATH) if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH') else os.getcwd()
@@ -438,7 +490,7 @@ class ReportConverterTab(ttk.Frame):
             initialdir=initial_dir
         )
         if not file_path:
-            self.console_print_func("ℹ️ Info: Load Marker Set cancelled.")
+            console_log("ℹ️ Info: Load Marker Set cancelled.", function=current_function)
             return
 
         self._disable_buttons() # Disable buttons during load
@@ -456,21 +508,30 @@ class ReportConverterTab(ttk.Frame):
                 self.tree_data = rows
                 self.app_instance.after(0, self._populate_marker_tree) # Update GUI on main thread
                 self.output_csv_path = file_path # Set this as the current working path
-                self.console_print_func(f"✅ Successfully loaded {len(rows)} markers from '{os.path.basename(file_path)}'.")
-                debug_print(f"Loaded {len(rows)} markers from '{file_path}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log(f"✅ Successfully loaded {len(rows)} markers from '{os.path.basename(file_path)}'.", function=current_function)
+                debug_log(f"Loaded {len(rows)} markers from '{file_path}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 # Inform MarkersDisplayTab about the new data
                 self._update_markers_display_tab_data()
                 # NEW: Save the loaded data to MARKERS.CSV in the designated internal location
                 self._save_markers_file_internally()
             else:
-                self.console_print_func("ℹ️ Info: Selected CSV file is empty or has no data.")
-                debug_print(f"Selected CSV file '{file_path}' is empty.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log("ℹ️ Info: Selected CSV file is empty or has no data.", function=current_function)
+                debug_log(f"Selected CSV file '{file_path}' is empty.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 self.tree_headers = []
                 self.tree_data = []
                 self.app_instance.after(0, self._populate_marker_tree) # Clear the treeview
         except Exception as e:
-            self.console_print_func(f"❌ Error loading CSV: {e}")
-            debug_print(f"Error loading CSV from '{file_path}': {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log(f"❌ Error loading CSV: {e}", function=current_function)
+            debug_log(f"Error loading CSV from '{file_path}': {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         finally:
             self.app_instance.after(0, self._enable_buttons) # Re-enable buttons
 
@@ -482,11 +543,17 @@ class ReportConverterTab(ttk.Frame):
         This is an internal helper function called after edits, loads, or conversions.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Saving current marker data to internal MARKERS.CSV...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Saving current marker data to internal MARKERS.CSV...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         if not self.tree_data:
-            debug_print("No data to save to internal MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"No data to save to internal MARKERS.CSV.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
         # Use the MARKERS_FILE_PATH from app_instance directly
@@ -494,8 +561,11 @@ class ReportConverterTab(ttk.Frame):
         output_dir = os.path.dirname(markers_file_path) # Get the directory part
 
         if not markers_file_path:
-            self.console_print_func("⚠️ Warning: Internal MARKERS.CSV path not configured. Cannot save automatically.")
-            debug_print("Internal MARKERS.CSV path not configured. Cannot save.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Internal MARKERS.CSV path not configured. Cannot save automatically.", function=current_function)
+            debug_log(f"Internal MARKERS.CSV path not configured. Cannot save.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return
 
         try:
@@ -505,11 +575,17 @@ class ReportConverterTab(ttk.Frame):
                 writer.writeheader()
                 writer.writerows(self.tree_data)
             self.output_csv_path = markers_file_path # Update the current working path
-            self.console_print_func(f"✅ Auto-saved MARKERS.CSV to '{os.path.basename(markers_file_path)}'.")
-            debug_print(f"Auto-saved MARKERS.CSV to '{markers_file_path}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log(f"✅ Auto-saved MARKERS.CSV to '{os.path.basename(markers_file_path)}'.", function=current_function)
+            debug_log(f"Auto-saved MARKERS.CSV to '{markers_file_path}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
-            self.console_print_func(f"❌ Error auto-saving internal MARKERS.CSV: {e}")
-            debug_print(f"Error auto-saving internal MARKERS.CSV to '{markers_file_path}': {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log(f"❌ Error auto-saving internal MARKERS.CSV: {e}", function=current_function)
+            debug_log(f"Error auto-saving internal MARKERS.CSV to '{markers_file_path}': {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
 
     def _save_open_air_csv(self):
@@ -519,11 +595,14 @@ class ReportConverterTab(ttk.Frame):
         The initial directory for the save dialog will be the directory of MARKERS_FILE_PATH.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print("Saving Markers as Open_Air_Markers.csv...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Saving Markers as Open_Air_Markers.csv...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         if not self.tree_data:
-            self.console_print_func("ℹ️ Info: No data to save.")
+            console_log("ℹ️ Info: No data to save.", function=current_function)
             return
 
         # Get scan name from app_instance if available, otherwise default
@@ -550,7 +629,7 @@ class ReportConverterTab(ttk.Frame):
             initialfile=default_filename
         )
         if not file_path:
-            self.console_print_func("ℹ️ Info: Save As cancelled.")
+            console_log("ℹ️ Info: Save As cancelled.", function=current_function)
             return
 
         self._disable_buttons() # Disable buttons during save
@@ -559,11 +638,17 @@ class ReportConverterTab(ttk.Frame):
                 writer = csv.DictWriter(csvfile, fieldnames=self.tree_headers)
                 writer.writeheader()
                 writer.writerows(self.tree_data)
-            self.console_print_func(f"✅ Successfully saved markers to '{os.path.basename(file_path)}'.")
-            debug_print(f"Saved markers to '{file_path}'.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log(f"✅ Successfully saved markers to '{os.path.basename(file_path)}'.", function=current_function)
+            debug_log(f"Saved markers to '{file_path}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         except Exception as e:
-            self.console_print_func(f"❌ Error saving markers: {e}")
-            debug_print(f"Error saving markers to '{file_path}': {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log(f"❌ Error saving markers: {e}", function=current_function)
+            debug_log(f"Error saving markers to '{file_path}': {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         finally:
             self.app_instance.after(0, self._enable_buttons) # Re-enable buttons
 
@@ -592,8 +677,11 @@ class ReportConverterTab(ttk.Frame):
         This handles "Load IAS HTML", "Load WWB.shw", and "Load SB PDF" buttons.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print(f"Initiating conversion for type: {file_type}.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Initiating conversion for type: {file_type}.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         file_types_map = {
             "HTML": [("HTML files", "*.html"), ("All files", "*.*")],
@@ -611,7 +699,7 @@ class ReportConverterTab(ttk.Frame):
             filetypes=file_types_map.get(file_type, [("All files", "*.*")])
         )
         if not file_path:
-            self.console_print_func(f"ℹ️ Info: {file_type} conversion cancelled.")
+            console_log(f"ℹ️ Info: {file_type} conversion cancelled.", function=current_function)
             return
 
         self._disable_buttons()
@@ -626,9 +714,12 @@ class ReportConverterTab(ttk.Frame):
         Updates the Treeview with the converted data.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        self.console_print_func(f"Processing '{os.path.basename(file_path)}'...")
-        debug_print(f"Performing conversion for {file_path} (type: {file_type}) in thread.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log(f"Processing '{os.path.basename(file_path)}'...", function=current_function)
+        debug_log(f"Performing conversion for {file_path} (type: {file_type}) in thread.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         headers = []
         rows = []
@@ -643,20 +734,23 @@ class ReportConverterTab(ttk.Frame):
             os.makedirs(markers_dir, exist_ok=True)
 
             if file_type == 'HTML':
-                self.console_print_func("Detected HTML file. Converting...")
+                console_log("Detected HTML file. Converting...", function=current_function)
                 with open(file_path, 'r', encoding='utf-8') as f:
                     html_content = f.read()
-                headers, rows = convert_html_report_to_csv(html_content, console_print_func=self.console_print_func)
+                headers, rows = convert_html_report_to_csv(html_content, console_print_func=console_log) # Passed console_log
             elif file_type == 'SHW':
-                self.console_print_func("Detected SHW file. Converting...")
-                headers, rows = generate_csv_from_shw(file_path, console_print_func=self.console_print_func)
+                console_log("Detected SHW file. Converting...", function=current_function)
+                headers, rows = generate_csv_from_shw(file_path, console_print_func=console_log) # Passed console_log
             elif file_type == 'PDF':
-                self.console_print_func("Detected PDF file. Converting...")
-                headers, rows = convert_pdf_report_to_csv(file_path, console_print_func=self.console_print_func)
+                console_log("Detected PDF file. Converting...", function=current_function)
+                headers, rows = convert_pdf_report_to_csv(file_path, console_print_func=console_log) # Passed console_log
             else:
                 error_message = f"Unsupported file type: {file_type}. This should not happen."
-                self.console_print_func(f"❌ {error_message}")
-                debug_print(f"Unsupported file type: {file_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log(f"❌ {error_message}", function=current_function)
+                debug_log(f"Unsupported file type: {file_type}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
 
             if not error_message and headers and rows:
                 # Update the Treeview with the new data
@@ -669,25 +763,28 @@ class ReportConverterTab(ttk.Frame):
                 # NEW: Save the converted data to MARKERS.CSV immediately
                 self._save_markers_file_internally() # Changed to internal save
 
-                self.console_print_func(f"\n✅ Successfully converted '{file_name}' and saved to MARKERS.CSV.")
+                console_log(f"\n✅ Successfully converted '{file_name}' and saved to MARKERS.CSV.", function=current_function)
             else:
                 error_message = f"No relevant data could be extracted from '{file_name}'. CSV file was not created."
-                self.console_print_func(f"🚫 {error_message}")
+                console_log(f"🚫 {error_message}", function=current_function)
 
         except FileNotFoundError as e:
             error_message = f"File not found: {e}"
-            self.console_print_func(f"❌ {error_message}")
+            console_log(f"❌ {error_message}", function=current_function)
         except ET.ParseError as e:
             error_message = f"Error parsing XML (SHW) file: {e}"
-            self.console_print_func(f"❌ {error_message}")
+            console_log(f"❌ {error_message}", function=current_function)
         except Exception as e:
             error_message = f"An unexpected error occurred during conversion: {e}"
-            self.console_print_func(f"❌ {error_message}")
+            console_log(f"❌ {error_message}", function=current_function)
         
         finally:
             if error_message:
-                debug_print(f"Conversion failed for {file_name}: {error_message}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-                self.app_instance.after(0, lambda: self.app_instance._print_to_gui_console(f"❌ Conversion failed for {file_name}. See Report Converter Log for details."))
+                debug_log(f"Conversion failed for {file_name}: {error_message}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
+                self.app_instance.after(0, lambda: console_log(f"❌ Conversion failed for {file_name}. See Report Converter Log for details.", function=current_function))
             # Removed the success message here as it's now handled after auto-save
             self.app_instance.after(0, self._enable_buttons)
 
@@ -715,9 +812,11 @@ class ReportConverterTab(ttk.Frame):
         (2025-08-01 00:30) Change: Implemented logic to push updated marker data to MarkersDisplayTab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        debug_print(f"🚫🐛 [{current_file}] Attempting to update Markers Display Tab data...",
-                    file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        debug_log(f"Attempting to update Markers Display Tab data...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         # Assuming app_instance holds a direct reference to the markers_display_tab
         # This is the most straightforward way if the main app manages these instances
@@ -725,15 +824,19 @@ class ReportConverterTab(ttk.Frame):
             try:
                 # Call the new update_marker_data method on the MarkersDisplayTab instance
                 self.app_instance.markers_display_tab.update_marker_data(self.tree_headers, self.tree_data)
-                self.console_print_func("✅ Markers Display Tab updated successfully.")
+                console_log("✅ Markers Display Tab updated successfully.", function=current_function)
             except Exception as e:
-                self.console_print_func(f"❌ Error updating Markers Display Tab: {e}")
-                debug_print(f"Error calling update_marker_data on MarkersDisplayTab: {e}. Fucking hell, what went wrong now?!",
-                            file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log(f"❌ Error updating Markers Display Tab: {e}", function=current_function)
+                debug_log(f"Error calling update_marker_data on MarkersDisplayTab: {e}. Fucking hell, what went wrong now?!",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
         else:
-            self.console_print_func("⚠️ Warning: Markers Display Tab instance not found or accessible in app_instance. Cannot update display.")
-            debug_print(f"MarkersDisplayTab instance not found in app_instance. Current app_instance attributes: {dir(self.app_instance)}. This is a goddamn mess!",
-                        file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: Markers Display Tab instance not found or accessible in app_instance. Cannot update display.", function=current_function)
+            debug_log(f"MarkersDisplayTab instance not found in app_instance. Current app_instance attributes: {dir(self.app_instance)}. This is a goddamn mess!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
     def _on_tab_selected(self, event):
         """
@@ -741,20 +844,32 @@ class ReportConverterTab(ttk.Frame):
         if MARKERS.CSV exists in the designated internal data folder.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = f"src/tab_markers_child_report_converter.py - {current_version}"
-        self.console_print_func("ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...")
-        debug_print("ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...", file=current_file, function=current_function, console_print_func=self.console_print_func)
+        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        console_log("ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...", function=current_function)
+        debug_log(f"ReportConverterTab selected. Checking for MARKERS.CSV in internal data folder...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
 
         markers_file_path = None
         if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
             markers_file_path = self.app_instance.MARKERS_FILE_PATH
-            debug_print(f"Attempting to load MARKERS.CSV from configured internal path: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"Attempting to load MARKERS.CSV from configured internal path: {markers_file_path}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
         else:
-            self.console_print_func("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.")
-            debug_print("App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            console_log("⚠️ Warning: App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.", function=current_function)
+            debug_log(f"App instance or MARKERS_FILE_PATH not available. Cannot check for MARKERS.CSV.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
         if markers_file_path and os.path.exists(markers_file_path):
-            debug_print(f"MARKERS.CSV found at: {markers_file_path}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+            debug_log(f"MARKERS.CSV found at: {markers_file_path}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             try:
                 headers = []
                 rows = []
@@ -769,20 +884,23 @@ class ReportConverterTab(ttk.Frame):
                     self.tree_data = rows
                     self._populate_marker_tree()
                     self.output_csv_path = markers_file_path # Set this as the current working path
-                    self.console_print_func(f"✅ Displayed {len(rows)} markers from MARKERS.CSV.")
+                    console_log(f"✅ Displayed {len(rows)} markers from MARKERS.CSV.", function=current_function)
                 else:
-                    self.console_print_func("ℹ️ Info: The MARKERS.CSV file was found but contains no data.")
+                    console_log("ℹ️ Info: The MARKERS.CSV file was found but contains no data.", function=current_function)
                     self.tree_headers = []
                     self.tree_data = []
                     self._populate_marker_tree() # Clear the treeview
             except Exception as e:
-                self.console_print_func(f"❌ Error loading MARKERS.CSV for display: {e}")
-                debug_print(f"Error loading MARKERS.CSV for display: {e}", file=current_file, function=current_function, console_print_func=self.console_print_func)
+                console_log(f"❌ Error loading MARKERS.CSV for display: {e}", function=current_function)
+                debug_log(f"Error loading MARKERS.CSV for display: {e}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
                 self.tree_headers = []
                 self.tree_data = []
                 self._populate_marker_tree() # Clear the treeview
         else:
-            self.console_print_func("ℹ️ Info: MARKERS.CSV not found in internal data folder. Table is empty.")
+            console_log("ℹ️ Info: MARKERS.CSV not found in internal data folder. Table is empty.", function=current_function)
             self.tree_headers = []
             self.tree_data = []
             self._populate_marker_tree() # Clear the treeview
