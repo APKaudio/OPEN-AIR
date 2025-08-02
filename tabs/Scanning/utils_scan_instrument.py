@@ -37,7 +37,7 @@ from src.console_logic import console_log
 
 # Import instrument control functions - CORRECTED PATHS
 # Note: These are now the *only* imports from utils_instrument_control
-from utils.utils_instrument_control import initialize_instrument # Only initialize_instrument is kept
+from tabs.Instrument.utils_instrument_control import initialize_instrument # Only initialize_instrument is kept
 from src.settings_and_config.config_manager import save_config # For saving scan progress
 
 

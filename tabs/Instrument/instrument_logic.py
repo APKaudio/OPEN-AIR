@@ -1,4 +1,4 @@
-# src/instrument_logic.py
+# tabs/Instrument/instrument_logic.py
 #
 # This file contains the core logic for interacting with the instrument,
 # including connection, disconnection, applying settings, and querying
@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0205.1 (Removed direct Tkinter variable manipulation from populate_resources_logic.)
+# Version 20250802.0205.2 (Fixed argument mismatch in connect_to_instrument call.)
 
-current_version = "20250802.0205.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 35 * 2 # Example hash, adjust as needed
+current_version = "20250802.0205.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 2 + 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -32,7 +32,7 @@ from src.debug_logic import debug_log
 from src.console_logic import console_log
 
 # Import necessary functions from utils.utils_instrument_control
-from utils.utils_instrument_control import (
+from tabs.Instrument.utils_instrument_control import ( # Corrected import path
     list_visa_resources, connect_to_instrument, disconnect_instrument,
     initialize_instrument, write_safe, query_safe
 )
@@ -61,11 +61,12 @@ def populate_resources_logic(rm_instance, console_print_func=None):
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Populating VISA resources. Let's find those devices!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
-    resources = list_visa_resources(rm_instance, console_print_func) # Pass rm_instance to list_visa_resources
+    # (2025-08-02 10:57) Change: Removed rm_instance from list_visa_resources call as it's not needed.
+    resources = list_visa_resources(console_print_func) # Removed rm_instance
     
     # This function should only return the resources. The UI update is handled by the caller.
     return resources
@@ -101,14 +102,14 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Attempting to connect to instrument. This is the moment of truth!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
     if not resource_name or resource_name == "N/A": # Check for "N/A" as well
         console_print_func("⚠️ Please select a valid VISA resource first. Can't connect to nothing!")
         debug_log("No valid resource selected. Connection aborted.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False # Return False to indicate connection failure
@@ -117,7 +118,9 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
     if app_instance.inst:
         disconnect_instrument_logic(app_instance, console_print_func)
 
-    inst = connect_to_instrument(app_instance.rm, resource_name, console_print_func) # Pass rm_instance
+    # (2025-08-02 10:57) Change: Corrected arguments passed to connect_to_instrument.
+    # It only needs resource_name and console_print_func.
+    inst = connect_to_instrument(resource_name, console_print_func) 
     app_instance.inst = inst # Store the instrument instance in app_instance
 
     if inst:
@@ -133,14 +136,14 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
                 app_instance.instrument_model = model_match # Use app_instance.instrument_model
                 console_print_func(f"✅ Connected to: {idn_response.strip()} (Model: {model_match}). Identified!")
                 debug_log(f"Instrument IDN: {idn_response.strip()}, Model: {model_match}. Device recognized!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
                 app_instance.instrument_model = "UNKNOWN"
                 console_print_func("❌ Could not query instrument IDN. Model unknown. This is problematic!")
                 debug_log("Could not query instrument IDN. Model unknown.",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
@@ -159,7 +162,7 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
             if not init_success:
                 console_print_func("❌ Failed to initialize instrument. Disconnecting. What a mess!")
                 debug_log("Instrument initialization failed. Disconnecting.",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 disconnect_instrument_logic(app_instance, console_print_func)
@@ -172,7 +175,7 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
             app_instance.config.set('LAST_USED_SETTINGS', 'last_selected_visa_resource', resource_name)
             save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
             debug_log(f"Saved last selected resource: {resource_name}.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return True # Indicate successful connection
@@ -180,7 +183,7 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
         except Exception as e:
             console_print_func(f"❌ Error during instrument setup after connection: {e}. This is a disaster!")
             debug_log(f"Error during instrument setup after connection: {e}. Fucking hell!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             disconnect_instrument_logic(app_instance, console_print_func)
@@ -188,7 +191,7 @@ def connect_instrument_logic(app_instance, resource_name, console_print_func=Non
     else:
         console_print_func("❌ Failed to connect to instrument. Check resource name and physical connection!")
         debug_log("Failed to connect to instrument. Connection failed!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False # Indicate connection failure
@@ -224,7 +227,7 @@ def disconnect_instrument_logic(app_instance, console_print_func=None):
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Attempting to disconnect instrument. Time to say goodbye!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
@@ -234,13 +237,13 @@ def disconnect_instrument_logic(app_instance, console_print_func=None):
         app_instance.instrument_model = None # Clear instrument model on disconnect
         console_print_func("✅ Instrument disconnected from application.")
         debug_log("Instrument instance cleared from app_instance.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
     else:
         console_print_func("ℹ️ No instrument is currently connected to disconnect.")
         debug_log("No instrument to disconnect. Already disconnected!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -249,12 +252,12 @@ def disconnect_instrument_logic(app_instance, console_print_func=None):
        hasattr(app_instance.instrument_parent_tab, 'instrument_connection_tab'):
         app_instance.instrument_parent_tab.instrument_connection_tab._clear_settings_display()
         debug_log("Cleared instrument settings display in GUI.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
     app_instance.update_connection_status(app_instance.inst is not None)
     debug_log("Instrument disconnection process complete. Status updated!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
     return True # Indicate successful disconnection
@@ -286,14 +289,14 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Querying current instrument settings. Getting the scoop!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
         console_print_func("❌ Not connected to an instrument. Cannot query settings.")
         debug_log("No instrument connected for querying. Aborting.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
@@ -304,13 +307,13 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
         if center_freq_str:
             app_instance.center_freq_hz_var.set(float(center_freq_str))
             debug_log(f"Queried Center Frequency: {center_freq_str.strip()} Hz.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
             app_instance.center_freq_hz_var.set(0.0)
             debug_log("🚫🐛 Could not determine Center Frequency. Setting to 0 Hz. This is a **fucking nightmare**!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -319,13 +322,13 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
         if span_str:
             app_instance.span_hz_var.set(float(span_str))
             debug_log(f"Queried Span: {span_str.strip()} Hz.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
             app_instance.span_hz_var.set(0.0)
             debug_log("🚫🐛 Could not determine Span. Setting to 0 Hz. This is a **fucking nightmare**!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -334,13 +337,13 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
         if rbw_str:
             app_instance.rbw_hz_var.set(float(rbw_str))
             debug_log(f"Queried RBW: {rbw_str.strip()} Hz.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
             app_instance.rbw_hz_var.set(0.0)
             debug_log("🚫🐛 Could not determine RBW. Setting to 0 Hz. This is a **fucking nightmare**!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -349,13 +352,13 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
         if vbw_str:
             app_instance.vbw_hz_var.set(float(vbw_str))
             debug_log(f"Queried VBW: {vbw_str.strip()} Hz.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
             app_instance.vbw_hz_var.set(0.0)
             debug_log("🚫🐛 Could not determine VBW. Setting to 0 Hz. This is a **fucking nightmare**!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -364,13 +367,13 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
         if ref_level_str:
             app_instance.reference_level_dbm_var.set(float(ref_level_str))
             debug_log(f"Queried Reference Level: {ref_level_str.strip()} dBm.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
             app_instance.reference_level_dbm_var.set(-40.0) # Default if cannot query
             debug_log("🚫🐛 Could not determine Reference Level. Setting to -40 dBm. This is a **fucking nightmare**!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -380,19 +383,19 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
             if preamp_str:
                 app_instance.preamp_on_var.set(preamp_str.strip().upper() == "ON")
                 debug_log(f"Queried Preamp State: {preamp_str.strip()}.",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
                 app_instance.preamp_on_var.set(False)
                 debug_log("🚫🐛 Could not determine Preamp state due to empty query response. Setting to OFF. This is a **fucking nightmare**!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
         else:
             app_instance.preamp_on_var.set(False) # Default for other models
             debug_log("Preamp query skipped for non-N9340B model.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -402,19 +405,19 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
             if high_sensitivity_str:
                 app_instance.high_sensitivity_var.set(high_sensitivity_str.strip().upper() == "ON")
                 debug_log(f"Queried High Sensitivity State: {high_sensitivity_str.strip()}.",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
                 app_instance.high_sensitivity_var.set(False)
                 debug_log("🚫🐛 Could not determine High Sensitivity state due to empty query response. Setting to OFF. This is a **fucking nightmare**!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
         else:
             app_instance.high_sensitivity_var.set(False) # Default for other models
             debug_log("High Sensitivity query skipped for non-N9342CN model.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -430,21 +433,21 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
 
         console_print_func("✅ Current instrument settings updated in GUI. All values retrieved!")
         debug_log("Current instrument settings updated in GUI. UI synced!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return True
     except pyvisa.errors.VisaIOError as e:
         console_print_func(f"❌ VISA error while querying settings: {e}. This is a critical error!")
         debug_log(f"VISA Error querying settings: {e}. What a mess!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while querying settings: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred while querying settings: {e}. Fucking hell!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
@@ -477,14 +480,14 @@ def apply_settings_logic(app_instance, console_print_func=None):
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Applying settings to instrument. Making it happen!",
-                file=__file__,
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
         console_print_func("❌ Not connected to an instrument. Cannot apply settings.")
         debug_log("No instrument connected for applying settings. Aborting.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
@@ -503,35 +506,35 @@ def apply_settings_logic(app_instance, console_print_func=None):
         # Apply Center Frequency
         write_safe(app_instance.inst, f":SENSe:FREQuency:CENTer {center_freq}", console_print_func)
         debug_log(f"Applied Center Frequency: {center_freq} Hz.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
         # Apply Span
         write_safe(app_instance.inst, f":SENSe:FREQuency:SPAN {span}", console_print_func)
         debug_log(f"Applied Span: {span} Hz.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
         # Apply RBW
         write_safe(app_instance.inst, f":SENSe:BANDwidth:RESolution {rbw}", console_print_func)
         debug_log(f"Applied RBW: {rbw} Hz.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
         # Apply VBW
         write_safe(app_instance.inst, f":SENSe:BANDwidth:VIDeo {vbw}", console_print_func)
         debug_log(f"Applied VBW: {vbw} Hz.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
         # Apply Reference Level
         write_safe(app_instance.inst, f":DISPlay:WINdow:TRACe:Y:RLEVel {ref_level}", console_print_func)
         debug_log(f"Applied Reference Level: {ref_level} dBm.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -539,7 +542,7 @@ def apply_settings_logic(app_instance, console_print_func=None):
         if freq_shift != 0: # Only apply if there's a shift
             write_safe(app_instance.inst, f":SENSe:FREQuency:RF:SHIFt {freq_shift}", console_print_func)
             debug_log(f"Applied Frequency Shift: {freq_shift} Hz.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -548,7 +551,7 @@ def apply_settings_logic(app_instance, console_print_func=None):
             preamp_state = "ON" if preamp_on else "OFF"
             write_safe(app_instance.inst, f":INPut:GAIN:STATe {preamp_state}", console_print_func)
             debug_log(f"Applied Preamp State: {preamp_state}.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -557,27 +560,27 @@ def apply_settings_logic(app_instance, console_print_func=None):
             high_sensitivity_state = "ON" if high_sensitivity else "OFF"
             write_safe(app_instance.inst, f":SENSe:POWer:RF:HSENse {high_sensitivity_state}", console_print_func)
             debug_log(f"Applied High Sensitivity State: {high_sensitivity_state}.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
         console_print_func("✅ All settings applied to instrument.")
         debug_log("Settings applied to instrument. Hardware configured!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return True
     except pyvisa.errors.VisaIOError as e:
         console_print_func(f"❌ VISA error while applying settings: {e}. This is a critical error!")
         debug_log(f"VISA Error applying settings: {e}. What a mess!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while applying settings: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred while applying settings: {e}. Fucking hell!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
