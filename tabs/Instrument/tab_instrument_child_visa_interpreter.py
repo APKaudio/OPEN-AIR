@@ -16,9 +16,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2210.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250802.0149.1 (Explicitly filtered style_obj from kwargs passed to super().__init__.)
 
-current_version = "20250801.2210.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0149.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250801 * 2210 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -39,10 +39,21 @@ class VisaInterpreterTab(ttk.Frame):
     It displays model names, command types, actions, and the commands themselves,
     allowing users to modify, add, or remove entries, and execute selected commands.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
-        super().__init__(master, **kwargs)
+    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs): # Added style_obj
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing VisaInterpreterTab...",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+        self.style_obj = style_obj # Store the style object
+
+        # Explicitly remove 'style_obj' from kwargs before passing them to the superclass
+        # This is a defensive measure to prevent TclError if it somehow ends up in kwargs.
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
+        super().__init__(master, **filtered_kwargs) # Pass filtered kwargs
 
         # Use the VISA_COMMANDS_FILE_PATH from the app_instance
         if self.app_instance and hasattr(self.app_instance, 'VISA_COMMANDS_FILE_PATH'):
@@ -154,18 +165,8 @@ class VisaInterpreterTab(ttk.Frame):
         yak_frame.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         yak_frame.grid_columnconfigure(0, weight=1) # Single column to center the button
 
-        # Define a new style for the large YAK button
-        style = ttk.Style(self)
-        ACCENT_ORANGE = "#ff8c00" # A vibrant orange color
-        style.configure('LargeYAK.TButton',
-                        font=('Helvetica', 100, 'bold'),
-                        background=ACCENT_ORANGE, # Set background to orange
-                        foreground="white", # Ensure text is white for contrast
-                        padding=[20, 10]) # Keep padding, adjust if needed for size
-        style.map('LargeYAK.TButton',
-                  background=[('active', '#e07b00'), ('disabled', '#cc7000')]) # Darker orange for active/disabled
-
         # YAK button to execute the selected VISA command (2x taller)
+        # The style 'LargeYAK.TButton' is defined in style.py and applied here.
         ttk.Button(yak_frame, text="YAK", command=self._yak_button_action, style='LargeYAK.TButton').grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         self.editor = None # To hold the Entry widget for editing
@@ -620,3 +621,4 @@ class VisaInterpreterTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         self._load_data() # Reload data to ensure it's up-to-date
+

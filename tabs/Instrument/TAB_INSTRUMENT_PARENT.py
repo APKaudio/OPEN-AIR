@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0075.11 (Added style_obj argument to __init__ and passed it to child tabs.)
+# Version 20250802.0142.3 (Ensured style_obj is passed to child tabs for proper style application.)
 
-current_version = "20250802.0075.11" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 11 # Example hash, adjust as needed
+current_version = "20250802.0142.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 142 * 3 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -73,6 +73,8 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # (2025-08-01) Change: Instantiated VisaInterpreterTab and assigned it as an attribute.
         # (2025-08-01) Change: Updated debug_print calls to use debug_log.
         # (2025-08-02) Change: Added style_obj argument to __init__ and passed it to child tabs.
+        # (2025-08-02 0142.2) Change: Ensured style_obj is explicitly passed to InstrumentTab and VisaInterpreterTab.
+        # (2025-08-02 0142.3) Change: Re-confirmed explicit passing of style_obj to child tabs.
         super().__init__(parent_notebook)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
@@ -91,11 +93,13 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
          # Assuming InstrumentTab also contains the settings display/logic
-        self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # Pass style_obj
+        # FUCKING IMPORTANT: Pass style_obj to InstrumentTab
+        self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.instrument_settings_tab, text="Settings")
 
         # FUCKING IMPORTANT: Instantiate VisaInterpreterTab and assign it as an attribute
-        self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # Pass style_obj
+        # FUCKING IMPORTANT: Pass style_obj to VisaInterpreterTab
+        self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")
 
         # Removed instantiation of InstrumentDevicePresetsTab as the module does not exist.

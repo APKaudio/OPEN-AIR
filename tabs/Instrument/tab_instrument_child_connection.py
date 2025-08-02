@@ -27,6 +27,7 @@ import tkinter as tk
 from tkinter import ttk
 import inspect
 import os
+import threading
 
 # Import instrument control logic functions - CORRECTED PATHS
 from src.instrument_logic import (

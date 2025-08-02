@@ -14,13 +14,13 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0075.7 (Added Dark.TLabel.Value style definition.)
+# Version 20250802.0148.1 (Explicitly copied TLabel layout for Dark.TLabel.Value to force registration.)
 
-current_version = "20250802.0075.7" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 7 # Example hash, adjust as needed
+current_version = "20250802.0148.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 148 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, TclError
 import inspect # For debug_log
 
 # Import the debug logic module to use debug_log
@@ -85,6 +85,11 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     (2025-08-02 0065.1) Change: Updated BigScanButton style to blue.
     (2025-08-02 0065.2) Change: Added specific styles for Start, Pause, Resume, Stop scan buttons. Removed BigScanButton.
     (2025-08-02 0075.7) Change: Added Dark.TLabel.Value style definition.
+    (2025-08-02 0142.1) Change: Added explicit style.layout for 'Dark.TLabel.Value' to resolve TclError.
+    (2025-08-02 0145.1) Change: Simplified Dark.TLabel.Value definition, relying on parent inheritance for layout.
+    (2025-08-02 0146.1) Change: Added explicit style.layout call for 'Dark.TLabel.Value' to force immediate registration.
+    (2025-08-02 0147.1) Change: Imported TclError from tkinter to resolve NameError.
+    (2025-08-02 0148.1) Change: Explicitly copied TLabel layout for Dark.TLabel.Value to ensure registration.
     """
     debug_log_func(f"Applying custom Tkinter styles. Version: {current_version}. Making things look pretty!",
                     file=__file__,
@@ -102,8 +107,26 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     style.configure('Dark.TLabelframe', background='#2b2b2b', foreground='white', font=('Helvetica', 10, 'bold')) # Specific dark labelframe style
 
     style.configure('TLabel', background='#2b2b2b', foreground='white', font=('Helvetica', 9))
-    # NEW: Style for Dark.TLabel.Value
+
+    # FUCKING IMPORTANT: Explicitly get TLabel layout and apply it to Dark.TLabel.Value
+    try:
+        tlabel_layout = style.layout('TLabel')
+        style.layout('Dark.TLabel.Value', tlabel_layout)
+        debug_log_func(f"Copied TLabel layout to Dark.TLabel.Value. This should finally register the damn thing! Version: {current_version}",
+                        file=__file__,
+                        version=current_app_version,
+                        function=inspect.currentframe().f_code.co_name,
+                        special=True)
+    except TclError as e:
+        debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout for Dark.TLabel.Value: {e}. This is some serious bullshit! Version: {current_version}",
+                        file=__file__,
+                        version=current_app_version,
+                        function=inspect.currentframe().f_code.co_name,
+                        special=True)
+
+    # NEW: Style for Dark.TLabel.Value - now that its layout is explicitly defined
     style.configure('Dark.TLabel.Value', background='#2b2b2b', foreground='#ADD8E6', font=('Helvetica', 9, 'bold')) # Light blue for values
+
 
     style.configure('Green.TLabel', background='#2b2b2b', foreground='#4CAF50', font=('Helvetica', 10, 'bold')) # Green text for connected
     style.configure('Red.TLabel', background='#2b2b2b', foreground='#F44336', font=('Helvetica', 10, 'bold'))   # Red text for disconnected
