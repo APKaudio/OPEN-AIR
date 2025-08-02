@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.9 (Added missing Tkinter variables for instrument settings.)
+# Version 20250802.0070.3 (Integrated ConsoleTab, added new logging vars, moved connection status label.)
 
-current_version = "20250802.0045.9" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 9 # Example hash, adjust as needed
+current_version = "20250802.0070.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 70 * 3 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -32,6 +32,7 @@ current_version_hash = 20250802 * 45 * 9 # Example hash, adjust as needed
 #       ├── scan_data/
 #       ├── src/
 #       ├── tabs/
+#       │   ├── Console/ # NEW
 #       │   ├── Experiments/
 #       │   ├── Instrument/
 #       │   ├── Markers/
@@ -58,8 +59,7 @@ from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, display_splash_screen # Removed print_art
 
 # Import the new debug_logic and console_logic modules
-from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode
-# FUCKING IMPORTANT: Corrected import for set_gui_console_redirector to come from console_logic
+from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode
 from src.console_logic import console_log, set_gui_console_redirector # Import console_log and its redirector setter
 
 
@@ -83,6 +83,7 @@ from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
 from tabs.Markers.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
 from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
 from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
+from tabs.Console.TAB_CONSOLE_PARENT import TAB_CONSOLE_PARENT # NEW: Import Console Parent Tab
 
 
 # Import preset logic functions from utils.preset_utils
@@ -108,8 +109,8 @@ class App(tk.Tk):
     PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV') # Moved to DATA folder
     MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV') # Moved to DATA folder
     VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'VISA_COMMANDS.CSV') # Moved to DATA folder
+    DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'Debug.log') # NEW: Debug Log File Path
 
-  
 
     DEFAULT_WINDOW_GEOMETRY = "1400x780+100+100" # This is now a fallback, actual default comes from config
 
@@ -157,6 +158,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -170,7 +172,7 @@ class App(tk.Tk):
         # This prevents AttributeError when Tkinter variable traces are triggered during setup.
         self.is_ready_to_save = False
 
-        # console_text will be initialized in _create_widgets
+        # console_text will be initialized in ConsoleTab and a reference stored here
         self.console_text = None
 
         check_and_install_dependencies(current_version) # Call the standalone function
@@ -207,6 +209,8 @@ class App(tk.Tk):
         ACCENT_PURPLE = "#6f42c1"
         PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
         PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
+        PARENT_CONSOLE_ACTIVE = "#8A2BE2" # NEW: Console Tab Color
+        PARENT_CONSOLE_INACTIVE = "#4B0082" # NEW: Console Tab Color
 
         # Store parent tab color mappings for dynamic updates
         # These colors are used for the *child notebook backgrounds*
@@ -218,6 +222,7 @@ class App(tk.Tk):
             "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
             "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
             "EXPERIMENTS": {"active": PARENT_EXPERIMENTS_ACTIVE, "inactive": PARENT_EXPERIMENTS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "CONSOLE": {"active": PARENT_CONSOLE_ACTIVE, "inactive": PARENT_CONSOLE_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"}, # NEW
         }
 
         # No need to pass console_print_func here, as console_log is directly imported
@@ -254,18 +259,22 @@ class App(tk.Tk):
         set_debug_mode(self.general_debug_enabled_var.get())
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
         set_debug_to_terminal_mode(self.debug_to_terminal_var.get()) # Set this early
+        # NEW: Set debug to file mode with the correct path
+        set_debug_to_file_mode(self.debug_to_file_var.get(), self.DEBUG_COMMANDS_FILE_PATH)
+        set_include_console_messages_to_debug_file_mode(self.include_console_messages_to_debug_file_var.get())
+
 
         # FUCKING IMPORTANT: Call _setup_styles BEFORE _create_widgets
         self._setup_styles() # This will now configure self.style
         self.update_idletasks() # NEW: Force Tkinter to process style updates immediately
 
-        self._create_widgets() # console_text is initialized here
+        self._create_widgets() # console_text is initialized here (within ConsoleTab)
 
-        # Now that console_text is created, set the redirectors
-        # FUCKING IMPORTANT: set_gui_console_redirector now takes only one argument
-        set_gui_console_redirector(TextRedirector(self.console_text, "stdout"))
-        # Removed redundant set_console_redirector call as set_gui_console_redirector handles both stdout/stderr for GUI console
-
+        # The console redirector is now set within the ConsoleTab's __init__
+        # via self.app_instance.console_text = self.console_text in ConsoleTab.
+        # This ensures the TextRedirector is set to the correct ScrolledText widget
+        # once it's actually created.
+        # Removed: set_gui_console_redirector(TextRedirector(self.console_text, "stdout"))
 
         # _redirect_stdout_to_console is now implicitly handled by set_debug_to_terminal_mode and console_log
         # We still call it here to ensure the initial state is correctly set up,
@@ -352,6 +361,7 @@ class App(tk.Tk):
     # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
     # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
     # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+    # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
     def _check_config_and_set_debug(self):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
@@ -419,6 +429,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
@@ -469,6 +480,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log("Setting up Tkinter variables...",
@@ -499,6 +511,14 @@ class App(tk.Tk):
         # NEW: Debug to Terminal variable
         self.debug_to_terminal_var = tk.BooleanVar(self, value=False)
         self.debug_to_terminal_var.trace_add("write", create_trace_callback("debug_to_terminal_var"))
+
+        # NEW: Debug to File variable
+        self.debug_to_file_var = tk.BooleanVar(self, value=False)
+        self.debug_to_file_var.trace_add("write", create_trace_callback("debug_to_file_var"))
+
+        # NEW: Include Console Messages to Debug File variable
+        self.include_console_messages_to_debug_file_var = tk.BooleanVar(self, value=False)
+        self.include_console_messages_to_debug_file_var.trace_add("write", create_trace_callback("include_console_messages_to_debug_file_var"))
 
         # NEW: PanedWindow sash position variable
         self.paned_window_sash_position_var = tk.IntVar(self, value=700) # Default to a reasonable split
@@ -697,8 +717,10 @@ class App(tk.Tk):
         self.setting_var_map = {
             'general_debug_enabled_var': ('last_GLOBAL__debug_enabled', 'default_GLOBAL__debug_enabled', self.general_debug_enabled_var),
             'log_visa_commands_enabled_var': ('last_GLOBAL__log_visa_commands_enabled', 'default_GLOBAL__log_visa_commands_enabled', self.log_visa_commands_enabled_var),
-            'debug_to_terminal_var': ('last_GLOBAL__debug_to_Terminal', 'default_GLOBAL__debug_to_Terminal', self.debug_to_terminal_var), # NEW
-            'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var), # NEW
+            'debug_to_terminal_var': ('last_GLOBAL__debug_to_Terminal', 'default_GLOBAL__debug_to_Terminal', self.debug_to_terminal_var),
+            'debug_to_file_var': ('last_GLOBAL__debug_to_File', 'default_GLOBAL__debug_to_File', self.debug_to_file_var), # NEW
+            'include_console_messages_to_debug_file_var': ('last_GLOBAL__include_console_messages_to_debug_file', 'default_GLOBAL__include_console_messages_to_debug_file', self.include_console_messages_to_debug_file_var), # NEW
+            'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var),
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
 
             # NEW: Instrument settings variables mapping
@@ -805,6 +827,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -857,6 +880,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
@@ -918,6 +942,12 @@ class App(tk.Tk):
         self.child_notebooks["EXPERIMENTS"] = self.experiments_parent_tab.child_notebook
         self.parent_tab_widgets["EXPERIMENTS"] = self.experiments_parent_tab # Store widget reference
 
+        # NEW: Console Parent Tab
+        self.console_parent_tab = TAB_CONSOLE_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.parent_notebook.add(self.console_parent_tab, text="CONSOLE")
+        self.child_notebooks["CONSOLE"] = self.console_parent_tab.child_notebook
+        self.parent_tab_widgets["CONSOLE"] = self.console_parent_tab # Store widget reference
+
 
         # Bind parent tab selection event
         self.parent_notebook.bind("<<NotebookTabChanged>>", self._on_parent_tab_change)
@@ -929,33 +959,36 @@ class App(tk.Tk):
         self.main_panedwindow.add(right_column_container, weight=1) # Add to paned window, give it weight to expand
         right_column_container.grid_columnconfigure(0, weight=1)
         right_column_container.grid_rowconfigure(0, weight=0) # Scan Control row
-        right_column_container.grid_rowconfigure(1, weight=1) # Console row
+        # Removed the console row here as it's now part of the ConsoleTab itself
+        # right_column_container.grid_rowconfigure(1, weight=1) # Console row
 
 
         # --- Scan Control Buttons Frame (Moved into right_column_container) ---
         scan_control_frame = ttk.Frame(right_column_container, style='Dark.TFrame')
         scan_control_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
         scan_control_frame.grid_columnconfigure(0, weight=1)
-        scan_control_frame.grid_columnconfigure(1, weight=0) # For connection status label
+        # Removed column 1 for connection status label, it's now inside ScanControlTab
+        # scan_control_frame.grid_columnconfigure(1, weight=0) # For connection status label
 
         self.scan_control_tab = ScanControlTab(scan_control_frame, app_instance=self)
         self.scan_control_tab.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
-        # NEW: Connection Status Label
-        self.connection_status_label = ttk.Label(scan_control_frame, text="Disconnected", style='Red.TLabel')
-        self.connection_status_label.grid(row=0, column=1, padx=5, pady=0, sticky="e")
+        # Removed: NEW: Connection Status Label - it's now handled within ScanControlTab
+        # self.connection_status_label = ttk.Label(scan_control_frame, text="Disconnected", style='Red.TLabel')
+        # self.connection_status_label.grid(row=0, column=1, padx=5, pady=0, sticky="e")
 
 
-        # --- Application Console Frame (Moved into right_column_container) ---
-        # Initialize self.console_text here where it's actually created
-        console_frame = ttk.LabelFrame(right_column_container, text="Application Console", style='Dark.TLabelframe')
-        console_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-        console_frame.grid_rowconfigure(0, weight=1)
-        console_frame.grid_columnconfigure(0, weight=1)
-
-        self.console_text = scrolledtext.ScrolledText(console_frame, wrap="word", bg="#2b2b2b", fg="#cccccc", insertbackground="white")
-        self.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        self.console_text.config(state=tk.DISABLED)
+        # --- Application Console Frame (Moved into ConsoleTab) ---
+        # The console_text widget is now created within the ConsoleTab itself.
+        # A reference to it will be set on self.console_text by ConsoleTab's init.
+        # Removed:
+        # console_frame = ttk.LabelFrame(right_column_container, text="Application Console", style='Dark.TLabelframe')
+        # console_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        # console_frame.grid_rowconfigure(0, weight=1)
+        # console_frame.grid_columnconfigure(0, weight=1)
+        # self.console_text = scrolledtext.ScrolledText(console_frame, wrap="word", bg="#2b2b2b", fg="#cccccc", insertbackground="white")
+        # self.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        # self.console_text.config(state=tk.DISABLED)
 
 
         # Apply the saved sash position after all widgets are added to the paned window
@@ -1001,6 +1034,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
@@ -1040,6 +1074,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget
         or keeps them in the terminal based on configuration.
@@ -1048,26 +1083,35 @@ class App(tk.Tk):
         current_file = os.path.basename(__file__)
 
         # The actual redirection of sys.stdout/stderr is now handled by set_debug_to_terminal_mode
-        # and set_gui_console_redirector in debug_logic.py.
+        # and set_gui_console_redirector in debug_logic.py and console_logic.py.
         # This function primarily serves to trigger that setup and log its state.
 
-        if not self.debug_to_terminal_var.get():
-            debug_log(f"Redirecting stdout/stderr to GUI console...",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            console_log(f"Application console initialized. Version: {current_version}", function=current_function)
-            debug_log(f"Console redirection complete.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
+        # The console_text reference is now set by ConsoleTab, so we need to ensure it's available
+        # before attempting to set the redirector.
+        if self.console_text:
+            if not self.debug_to_terminal_var.get():
+                debug_log(f"Redirecting stdout/stderr to GUI console...",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+                # The set_gui_console_redirector is now called by ConsoleTab's init
+                # console_log(f"Application console initialized. Version: {current_version}", function=current_function)
+                debug_log(f"Console redirection complete.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+            else:
+                debug_log(f"Console redirection bypassed. Debug output to terminal.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+                # Normal console messages will still attempt to go to GUI via console_log
+                console_log(f"Normal application messages will go to GUI console. Debug output will remain in terminal. Version: {current_version}", function=current_function)
         else:
-            debug_log(f"Console redirection bypassed. Debug output to terminal.",
+            debug_log(f"WARNING: console_text not yet available when _redirect_stdout_to_console was called. Redirection might be delayed.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
-            # Normal console messages will still attempt to go to GUI via console_log
-            console_log(f"Normal application messages will go to GUI console. Debug output will remain in terminal. Version: {current_version}", function=current_function)
 
 
     def _on_window_configure(self, event):
@@ -1090,6 +1134,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
 
@@ -1134,6 +1179,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Handles the application closing event, saving configuration and disconnecting.
         """
@@ -1199,6 +1245,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
@@ -1245,6 +1292,7 @@ class App(tk.Tk):
     # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
     # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
     # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+    # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
     def update_connection_status(self, is_connected):
         """
         Updates the state of various GUI elements based on connection and scan status.
@@ -1266,19 +1314,20 @@ class App(tk.Tk):
             console_print_func=console_log # Pass the console_log function with the correct parameter name
         )
 
-        # Update the connection status label
-        if is_connected:
-            self.connection_status_label.config(text="Connected", style='Green.TLabel')
-            debug_log(f"Connection status label set to 'Connected'.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-        else:
-            self.connection_status_label.config(text="Disconnected", style='Red.TLabel')
-            debug_log(f"Connection status label set to 'Disconnected'.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
+        # The connection status label is now managed by ScanControlTab
+        # Removed:
+        # if is_connected:
+        #     self.connection_status_label.config(text="Connected", style='Green.TLabel')
+        #     debug_log(f"Connection status label set to 'Connected'.",
+        #                 file=__file__,
+        #                 version=current_version,
+        #                 function=current_function)
+        # else:
+        #     self.connection_status_label.config(text="Disconnected", style='Red.TLabel')
+        #     debug_log(f"Connection status label set to 'Disconnected'.",
+        #                 file=__file__,
+        #                 version=current_version,
+        #                 function=current_function)
 
 
     def _on_parent_tab_change(self, event):
@@ -1314,6 +1363,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
+        # (2025-08-02 0070.3) Change: Integrated ConsoleTab, added new logging vars, moved connection status label.
         """
         Handles parent tab changes, updates styles, and propagates to active child tab.
         """

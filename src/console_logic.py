@@ -15,17 +15,17 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2242.1 (Renamed set_console_redirector to set_gui_console_redirector to fix ImportError.)
+# Version 20250802.0070.2 (Integrated console messages with debug file logging.)
 
-current_version = "20250801.2242.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2242 * 1 # Example hash, adjust as needed
+current_version = "20250802.0070.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 70 * 2 # Example hash, adjust as needed
 
 import sys
 from datetime import datetime
 import inspect # Import inspect for debug_log
 
-# Import debug_log (assuming it's in src.debug_logic)
-from src.debug_logic import debug_log
+# Import debug_log and new file logging functions/flags from src.debug_logic
+from src.debug_logic import debug_log, INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE, _write_to_debug_file
 
 
 # Reference to the GUI console TextRedirector or original stdout/stderr
@@ -70,6 +70,8 @@ def console_log(message, function=None):
     This function always attempts to print to the GUI console if it's available.
     If the GUI console redirector is not yet set, it falls back to printing to the
     original standard output (terminal).
+    Additionally, if INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE is enabled,
+    it writes the message to the debug log file.
 
     Inputs:
         message (str): The message to print.
@@ -81,9 +83,10 @@ def console_log(message, function=None):
         3. Formats the full message with an emoji and timestamp.
         4. If `_gui_console_stdout_redirector` is set, writes the message to it.
         5. Otherwise, prints the message to the original `sys.stdout` (terminal).
+        6. If `INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE` is True, writes the message to the debug file.
 
     Outputs of this function:
-        None. Prints a message to the console or terminal.
+        None. Prints a message to the console or terminal, and/or writes to a file.
     """
     timestamp = datetime.now().strftime("%H:%M:%S")
     
@@ -94,9 +97,15 @@ def console_log(message, function=None):
     prefix = f"[{' | '.join(prefix_parts)}] " if prefix_parts else ""
 
     full_message = f"💬 [{timestamp}] {prefix}{message}"
+    
+    # Output to GUI console
     if _gui_console_stdout_redirector:
         _gui_console_stdout_redirector.write(full_message + "\n")
     else:
         # Fallback to original stdout if GUI console not ready
         _original_stdout.write(full_message + "\n")
+
+    # NEW: Output to debug file if enabled
+    if INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE:
+        _write_to_debug_file(full_message)
 
