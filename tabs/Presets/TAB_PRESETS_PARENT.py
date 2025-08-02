@@ -17,9 +17,11 @@
 #
 #
 # Version 20250802.1701.12 (Updated imports for refactored preset utility files.)
+# Version 20250802.1800.2 (Updated to include new Local and Device preset tabs.)
+# Version 20250802.1800.6 (Updated to include new PresetEditorTab and adjust tab order.)
 
-current_version = "20250802.1701.12" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 12 # Example hash, adjust as needed
+current_version = "20250802.1800.6" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1800 * 6 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -27,8 +29,10 @@ import inspect
 import os # Added for os.path.basename(__file__)
 
 # Import child tabs for the Presets parent tab
-from tabs.Presets.tab_presets_child_preset import PresetFilesTab
-from tabs.Presets.tab_presets_child_initial_configuration import InitialConfigurationTab # Ensure this is imported
+from tabs.Presets.tab_presets_child_local import LocalPresetsTab # NEW: Local Presets tab (simplified)
+from tabs.Presets.tab_presets_child_device import DevicePresetsTab # Device Presets tab
+from tabs.Presets.tab_presets_child_preset_editor import PresetEditorTab # NEW: Preset Editor tab
+from tabs.Presets.tab_presets_child_initial_configuration import InitialConfigurationTab # Initial Config tab
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
@@ -37,7 +41,7 @@ from src.console_logic import console_log
 class TAB_PRESETS_PARENT(ttk.Frame):
     """
     A parent tab for Presets-related functionalities, containing child tabs
-    for managing device presets (load, save, delete).
+    for managing local presets, device presets, and initial configuration.
     """
     def __init__(self, parent_notebook, app_instance, console_print_func, style_obj=None):
         # Initializes the TAB_PRESETS_PARENT frame and its child notebook.
@@ -53,8 +57,8 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         #   1. Calls the superclass constructor (ttk.Frame).
         #   2. Stores references to `app_instance`, `console_print_func`, and `style_obj`.
         #   3. Creates `self.child_notebook` to hold the preset-specific sub-tabs.
-        #   4. Instantiates `PresetsTab` and `InitialConfigurationTab`.
-        #   5. Adds these child tabs to `self.child_notebook`.
+        #   4. Instantiates `LocalPresetsTab`, `DevicePresetsTab`, `PresetEditorTab`, and `InitialConfigurationTab`.
+        #   5. Adds these child tabs to `self.child_notebook` in the specified order.
         #   6. Binds the `<<NotebookTabChanged>>` event for the child notebook to `_on_tab_selected`.
         #   7. Assigns child tab instances as attributes of `self`
         #      so they can be accessed from `main_app.py`.
@@ -78,14 +82,17 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.child_notebook = ttk.Notebook(self, style='PresetsChild.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # Instantiate PresetFilesTab and InitialConfigurationTab
-        self.presets_tab = PresetFilesTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        # Instantiate the new preset tabs
+        self.local_presets_tab = LocalPresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.device_presets_tab = DevicePresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.preset_editor_tab = PresetEditorTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # New editor tab
         self.initial_config_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
 
-        # Add child tabs to the notebook
-        self.child_notebook.add(self.presets_tab, text="Presets Management")
+        # Add child tabs to the notebook in the desired order
+        self.child_notebook.add(self.local_presets_tab, text="Local Presets")
+        self.child_notebook.add(self.device_presets_tab, text="Device Presets")
+        self.child_notebook.add(self.preset_editor_tab, text="Preset Editor") # Add new editor tab
         self.child_notebook.add(self.initial_config_tab, text="Initial Configuration")
-
 
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
@@ -122,3 +129,4 @@ class TAB_PRESETS_PARENT(ttk.Frame):
                         file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)
+
