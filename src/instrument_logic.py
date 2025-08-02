@@ -13,607 +13,528 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 1.2 (Added query_basic_instrument_settings_logic for Center, Span, RBW only)
+# Version 20250802.0030.1 (Refactored debug_print to debug_log; updated imports and flair.)
+
+current_version = "20250802.0030.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 30 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
 import os
 import sys
 import inspect # Import inspect module
+
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log
+
+# Import necessary functions from utils.utils_instrument_control
 from utils.utils_instrument_control import (
-    set_debug_mode, list_visa_resources, connect_to_instrument,
-    disconnect_instrument as control_disconnect_instrument,
-    initialize_instrument, # This is the correct initialize_instrument from utils
-    debug_print, # Import debug_print
-    query_safe, # Import query_safe for individual queries
-    write_safe # Import write_safe for setting instrument parameters
+    list_visa_resources, connect_to_instrument, disconnect_instrument,
+    initialize_instrument, write_safe, query_safe
 )
 from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO # Import VBW_RBW_RATIO
 from src.config_manager import save_config # Import save_config
-import tkinter.ttk as ttk # Import ttk for themed widgets
-
-# Import the update_connection_status_logic function from scan_logic
-from src.scan_logic import update_connection_status_logic
 
 
-def _get_float_value(tk_var, default_value, setting_name, console_print_func):
-    # Function Description:
-    # Safely retrieves a float value from a Tkinter StringVar.
-    # If the string is empty or cannot be converted, returns a default value.
-    #
-    # Inputs to this function:
-    #   tk_var (tk.StringVar): The Tkinter StringVar to retrieve the value from.
-    #   default_value (float): The default value to return if conversion fails.
-    #   setting_name (str): A descriptive name for the setting, used in debug/error messages.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Attempts to get the string value from `tk_var`.
-    #   2. If the string is empty, logs a warning and returns `default_value`.
-    #   3. Attempts to convert the string to a float.
-    #   4. If `ValueError` occurs during conversion, logs an error and returns `default_value`.
-    #   5. Catches any other unexpected exceptions, logs an error, and returns `default_value`.
-    #
-    # Outputs of this function:
-    #   float: The converted float value or the `default_value`.
-    #
-    # (2025-07-30) Change: No functional change, just updated header.
+def populate_resources_logic(app_instance, console_print_func=None):
     """
-    Safely retrieves a float value from a Tkinter StringVar.
-    If the string is empty or cannot be converted, returns a default value.
+    Function Description:
+    Discovers available VISA resources and populates the GUI's resource dropdown.
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access
+                             `resource_names` Tkinter variable and `inst`.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Prints a debug message.
+    2. Calls `list_visa_resources` to get a list of available resources.
+    3. Updates `app_instance.resource_names` with the discovered resources.
+    4. If no resources are found, updates the GUI message accordingly.
+    5. If already connected to an instrument that is not in the new list,
+       disconnects from it.
+
+    Outputs of this function:
+    - None. Updates Tkinter variables and may disconnect the instrument.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    try:
-        val_str = tk_var.get()
-        if not val_str:
-            debug_print(f"Warning: Tkinter variable for '{setting_name}' is empty. Using default: {default_value}", file=current_file, function=current_function, console_print_func=console_print_func)
-            return default_value
-        return float(val_str)
-    except ValueError:
-        console_print_func(f"❌ Error: Invalid numeric value for {setting_name}: '{val_str}'. Using default: {default_value}")
-        debug_print(f"ValueError: Invalid numeric value for {setting_name}: '{val_str}'. Using default: {default_value}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return default_value
-    except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred while getting {setting_name}: {e}")
-        debug_print(f"Unexpected error getting {setting_name}: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return default_value
+    debug_log("Populating VISA resources. Let's find those devices!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-def populate_resources_logic(app_instance, console_print_func):
-    # Function Description:
-    # Populates the VISA resource dropdown with available instruments.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access shared variables and methods.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Lists available VISA resources using `list_visa_resources`.
-    #   2. Sanitizes the raw resource names.
-    #   3. Clears existing options in `app_instance.resource_names`.
-    #   4. If resources are found, sets them to `app_instance.resource_names`
-    #      and attempts to select the last used resource from config,
-    #      otherwise selects the first available resource.
-    #   5. If no resources are found, sets a "No Resources Found" message.
-    #
-    # Outputs of this function:
-    #   None. Updates Tkinter variables for resource selection.
-    #
-    # (2025-07-30) Change: No functional change, just updated header.
-    """
-    Populates the VISA resource dropdown with available instruments.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Populating VISA resources...", file=current_file, function=current_function, console_print_func=console_print_func)
-    
-    raw_resources = list_visa_resources(console_print_func)
-    debug_print(f"Raw resources found: {raw_resources}", file=current_file, function=current_function, console_print_func=console_print_func)
-    
-    # Sanitize each resource name before setting it to app_instance.resource_names
-    sanitized_resources = []
-    for resource in raw_resources:
-        # Apply the same sanitization logic as in connect_instrument_logic
-        sanitized_resource = resource.strip().replace("'", "").replace('"', "").rstrip(',').rstrip(')')
-        sanitized_resources.append(sanitized_resource)
-    debug_print(f"Sanitized resources: {sanitized_resources}", file=current_file, function=current_function, console_print_func=console_print_func)
+    resources = list_visa_resources(console_print_func)
+    app_instance.resource_names.set(" ".join(resources)) # Update the Tkinter variable
+    app_instance.resource_dropdown['values'] = resources # Update dropdown values
 
-    app_instance.resource_names.set("") # Clear existing options by setting to empty string
-    debug_print("Cleared existing resource names in app_instance.resource_names.", file=current_file, function=current_function, console_print_func=console_print_func)
-
-    if sanitized_resources:
-        # Join the list into a single space-separated string for the StringVar
-        app_instance.resource_names.set(" ".join(sanitized_resources))
-        debug_print(f"Set app_instance.resource_names to: '{app_instance.resource_names.get()}'", file=current_file, function=current_function, console_print_func=console_print_func)
-
-        # Attempt to set the last used resource if it's still available
-        last_used_resource = app_instance.config.get('LAST_USED_SETTINGS', 'last_gpib_device', fallback='')
-        debug_print(f"Last used resource from config: '{last_used_resource}'", file=current_file, function=current_function, console_print_func=console_print_func)
-
-        if last_used_resource and last_used_resource in sanitized_resources:
-            app_instance.selected_resource.set(last_used_resource)
-            console_print_func(f"✅ Last used resource '{last_used_resource}' found and selected.")
-            debug_print(f"Last used resource '{last_used_resource}' found and selected.", file=current_file, function=current_function, console_print_func=console_print_func)
-        else:
-            app_instance.selected_resource.set(sanitized_resources[0]) # Select the first resource by default
-            console_print_func(f"✅ Resources found. Selected: {sanitized_resources[0]}")
-            debug_print(f"Selected first resource by default: {sanitized_resources[0]}", file=current_file, function=current_function, console_print_func=console_print_func)
+    if not resources:
+        console_print_func("⚠️ No VISA instruments found. Is NI-VISA installed? Check connections!")
+        debug_log("No VISA resources found. This is problematic!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        app_instance.selected_resource.set("") # Clear selection if no resources
     else:
-        app_instance.selected_resource.set("No Resources Found")
-        console_print_func("❌ No VISA resources found. Ensure NI-VISA is installed and instrument is connected.")
-        debug_print("No VISA resources found.", file=current_file, function=current_function, console_print_func=console_print_func)
+        # If currently connected instrument is no longer in the list, disconnect
+        if app_instance.inst and app_instance.inst.resource_name not in resources:
+            console_print_func("⚠️ Connected instrument no longer found in resource list. Disconnecting...")
+            debug_log("Connected instrument not in new resource list. Forcing disconnect.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            disconnect_instrument_logic(app_instance, console_print_func)
+        
+        # If there's a previously selected resource, try to re-select it if it's still available
+        last_selected = app_instance.config.get('LAST_USED_SETTINGS', 'last_selected_resource', fallback='')
+        if last_selected in resources:
+            app_instance.selected_resource.set(last_selected)
+            console_print_func(f"✅ Re-selected last used resource: {last_selected}.")
+            debug_log(f"Re-selected last used resource: {last_selected}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        elif resources:
+            # Otherwise, select the first one found
+            app_instance.selected_resource.set(resources[0])
+            console_print_func(f"✅ Selected first available resource: {resources[0]}.")
+            debug_log(f"Selected first available resource: {resources[0]}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        else:
+            app_instance.selected_resource.set("") # No resources, clear selection
 
-def connect_instrument_logic(app_instance, console_print_func):
-    # Function Description:
-    # Connects to the selected VISA instrument and initializes it.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access shared variables and methods.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Retrieves the selected resource name and sanitizes it.
-    #   2. Checks for valid resource name; if not valid, logs a warning and returns False.
-    #   3. Attempts to connect to the instrument using `connect_to_instrument`.
-    #   4. If connection is successful:
-    #      a. Stores the instrument instance in `app_instance.inst`.
-    #      b. Queries the instrument's IDN to determine its model.
-    #      c. Retrieves initial settings from `app_instance` Tkinter variables.
-    #      d. Initializes instrument settings using `initialize_instrument`.
-    #      e. If initialization is successful, updates the instrument model,
-    #         queries and displays current settings in the InstrumentTab,
-    #         updates connection status, and saves the configuration.
-    #      f. If initialization fails, disconnects the instrument and updates status.
-    #   5. If connection fails, logs an error and updates status.
-    #   6. Handles `pyvisa.errors.VisaIOError` and other general exceptions.
-    #
-    # Outputs of this function:
-    #   bool: True if connection and initialization are successful, False otherwise.
-    #
-    # (2025-07-30) Change: No functional change, just updated header.
+    app_instance.update_connection_status(app_instance.inst is not None)
+    debug_log("VISA resource population complete. Dropdown updated!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
+
+def connect_instrument_logic(app_instance, console_print_func=None):
     """
-    Connects to the selected VISA instrument and initializes it.
+    Function Description:
+    Handles the connection process to the selected VISA instrument.
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access
+                             `selected_resource`, `inst`, `model_match`, and config.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Prints a debug message.
+    2. Retrieves the selected resource name.
+    3. If already connected, disconnects first.
+    4. Calls `connect_to_instrument` to establish the connection.
+    5. If connection is successful:
+       a. Queries instrument IDN to determine model.
+       b. Calls `initialize_instrument` to set up basic instrument parameters.
+       c. Queries current settings and updates GUI.
+       d. Saves the selected resource to config.
+    6. Updates GUI connection status.
+
+    Outputs of this function:
+    - None. Modifies `app_instance.inst` and `app_instance.model_match`, updates GUI.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
+    debug_log("Attempting to connect to instrument. This is the moment of truth!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
     resource_name = app_instance.selected_resource.get()
+    if not resource_name:
+        console_print_func("⚠️ Please select a VISA resource first. Can't connect to nothing!")
+        debug_log("No resource selected. Connection aborted.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return
 
-    # The resource_name should already be sanitized by populate_resources_logic,
-    # but a final strip is harmless.
-    sanitized_resource_name = resource_name.strip()
-    
-    console_print_func(f"\nAttempting to connect to {sanitized_resource_name}...")
-    debug_print(f"Attempting to connect to {sanitized_resource_name}...", file=current_file, function=current_function, console_print_func=console_print_func)
+    # Disconnect if already connected to prevent multiple connections
+    if app_instance.inst:
+        disconnect_instrument_logic(app_instance, console_print_func)
 
-    if sanitized_resource_name == "No Resources Found" or not sanitized_resource_name:
-        console_print_func("⚠️ Warning: No valid VISA resource selected or resource name is empty after sanitization.")
-        debug_print("No valid VISA resource selected for connection or empty after sanitization.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return False
+    inst = connect_to_instrument(resource_name, console_print_func)
+    app_instance.inst = inst # Store the instrument instance in app_instance
 
-    try:
-        inst = connect_to_instrument(sanitized_resource_name, console_print_func)
-        if inst:
-            app_instance.inst = inst
-            console_print_func(f"✅ Successfully connected to {sanitized_resource_name}")
-            debug_print(f"Successfully connected to {sanitized_resource_name}", file=current_file, function=current_function, console_print_func=console_print_func)
-            
-            # --- Determine Instrument Model ---
-            model_match = "UNKNOWN" # Default
-            try:
-                idn_response = query_safe(inst, "*IDN?", console_print_func) # Use query_safe
-                if idn_response:
-                    # Example IDN: Agilent Technologies,N9340B,MY48060001,A.01.00
-                    parts = idn_response.split(',')
-                    if len(parts) > 1:
-                        model_match = parts[1].strip()
-                        app_instance.instrument_model = model_match # Store model in app_instance
-                        console_print_func(f"✅ Detected instrument model: {model_match}")
-                        debug_print(f"Detected instrument model: {model_match}", file=current_file, function=current_function, console_print_func=console_print_func)
-            except Exception as idn_e:
-                console_print_func(f"⚠️ Warning: Could not query instrument IDN: {idn_e}. Assuming UNKNOWN model.")
-                debug_print(f"Error querying IDN: {idn_e}", file=current_file, function=current_function, console_print_func=console_print_func)
+    if inst:
+        try:
+            # Query instrument IDN to determine model
+            idn_response = query_safe(inst, "*IDN?", console_print_func)
+            if idn_response:
+                model_match = "UNKNOWN"
+                if "N9342CN" in idn_response:
+                    model_match = "N9342CN"
+                elif "N9340B" in idn_response:
+                    model_match = "N9340B"
+                app_instance.model_match = model_match
+                console_print_func(f"✅ Connected to: {idn_response.strip()} (Model: {model_match}). Identified!")
+                debug_log(f"Instrument IDN: {idn_response.strip()}, Model: {model_match}. Device recognized!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+            else:
+                app_instance.model_match = "UNKNOWN"
+                console_print_func("❌ Could not query instrument IDN. Model unknown. This is problematic!")
+                debug_log("Could not query instrument IDN. Model unknown.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
-            # --- Retrieve settings from app_instance Tkinter variables for initialization ---
-            # These are the user's desired initial settings, not necessarily the current instrument state.
-            # Corrected variable names
-            init_ref_level_dbm = _get_float_value(app_instance.reference_level_dbm_var, -40.0, "Reference Level", console_print_func)
-            init_high_sensitivity_on = app_instance.high_sensitivity_var.get()
-            init_preamp_on = app_instance.preamp_on_var.get()
-            init_rbw_config_val = _get_float_value(app_instance.scan_rbw_hz_var, 10000.0, "Scan RBW", console_print_func)
-            init_vbw_config_val = init_rbw_config_val * VBW_RBW_RATIO # Derived VBW
-
-            # --- Initialize instrument settings ---
-            # Handle potential non-tuple return from initialize_instrument
-            init_result = initialize_instrument(
-                app_instance.inst,
-                init_ref_level_dbm,
-                init_high_sensitivity_on,
-                init_preamp_on,
-                init_rbw_config_val,
-                init_vbw_config_val,
-                model_match, # Pass the detected model
+            # Initialize instrument with basic settings
+            init_success = initialize_instrument(
+                inst,
+                float(app_instance.reference_level_dbm_var.get()),
+                app_instance.high_sensitivity_var.get(),
+                app_instance.preamp_on_var.get(),
+                float(app_instance.rbw_hz_var.get()),
+                float(app_instance.vbw_hz_var.get()),
+                app_instance.model_match,
                 console_print_func
             )
 
-            if isinstance(init_result, tuple) and len(init_result) == 2:
-                success_init, returned_model = init_result
-            else:
-                # Fallback for unexpected return type (e.g., if it returns just a boolean)
-                success_init = bool(init_result)
-                returned_model = None
-                console_print_func("⚠️ Warning: initialize_instrument returned unexpected type. Assuming boolean success.")
-                debug_print(f"initialize_instrument returned non-tuple. Result: {init_result}", file=current_file, function=current_function, console_print_func=console_print_func)
+            if not init_success:
+                console_print_func("❌ Failed to initialize instrument. Disconnecting. What a mess!")
+                debug_log("Instrument initialization failed. Disconnecting.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+                disconnect_instrument_logic(app_instance, console_print_func)
+                return
 
-            if success_init:
-                # Update the app_instance.instrument_model with the model returned by initialize_instrument
-                if returned_model and returned_model != "UNKNOWN":
-                    app_instance.instrument_model = returned_model
+            # Query and display current settings after initialization
+            query_current_instrument_settings_logic(app_instance, console_print_func)
 
-                console_print_func("✅ Instrument initialized with default settings.")
-                debug_print("Instrument initialized with default settings.", file=current_file, function=current_function, console_print_func=console_print_func)
-                
-                # Query and display current instrument settings in InstrumentTab
-                # This will update the InstrumentTab's local Tkinter variables
-                if hasattr(app_instance, 'instrument_tab'):
-                    app_instance.instrument_tab._query_settings_display()
-                
-                # Call the update_connection_status_logic function
-                update_connection_status_logic(app_instance, True, console_print_func)
-                save_config(app_instance) # Save the successfully connected resource
-                return True
-            else:
-                console_print_func("❌ Failed to initialize instrument.")
-                debug_print("Failed to initialize instrument.", file=current_file, function=current_function, console_print_func=console_print_func)
-                control_disconnect_instrument(app_instance.inst, console_print_func) # Disconnect if initialization fails
-                app_instance.inst = None
-                update_connection_status_logic(app_instance, False, console_print_func)
-                return False
-        else:
-            console_print_func(f"❌ Failed to connect to {sanitized_resource_name}.")
-            debug_print(f"Failed to connect to {sanitized_resource_name}.", file=current_file, function=current_function, console_print_func=console_print_func)
-            update_connection_status_logic(app_instance, False, console_print_func)
-            return False
-    except Exception as e:
-        console_print_func(f"❌ An error occurred during connection: {e}")
-        debug_print(f"Error during connection to {sanitized_resource_name}: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        update_connection_status_logic(app_instance, False, console_print_func)
-        return False
+            # Save the successfully connected resource to config
+            app_instance.config.set('LAST_USED_SETTINGS', 'last_selected_resource', resource_name)
+            save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
+            debug_log(f"Saved last selected resource: {resource_name}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-def disconnect_instrument_logic(app_instance, console_print_func):
-    # Function Description:
-    # Disconnects from the currently connected VISA instrument.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access shared variables and methods.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Prints debug messages.
-    #   2. If an instrument is connected (`app_instance.inst` is not None):
-    #      a. Calls `control_disconnect_instrument` to disconnect.
-    #      b. Sets `app_instance.inst` to None.
-    #      c. Logs success or error messages.
-    #   3. If no instrument is connected, logs an info message.
-    #   4. Updates connection status via `update_connection_status_logic`.
-    #
-    # Outputs of this function:
-    #   None. Modifies `app_instance.inst` and updates GUI status.
-    #
-    # (2025-07-30) Change: No functional change, just updated header.
+        except Exception as e:
+            console_print_func(f"❌ Error during instrument setup after connection: {e}. This is a disaster!")
+            debug_log(f"Error during instrument setup after connection: {e}. Fucking hell!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            disconnect_instrument_logic(app_instance, console_print_func)
+    else:
+        console_print_func("❌ Failed to connect to instrument. Check resource name and physical connection!")
+        debug_log("Failed to connect to instrument. Connection failed!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+    app_instance.update_connection_status(app_instance.inst is not None)
+    debug_log("Instrument connection process complete. Status updated!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
+
+def disconnect_instrument_logic(app_instance, console_print_func=None):
     """
-    Disconnects from the currently connected VISA instrument.
+    Function Description:
+    Handles the disconnection process from the instrument.
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access
+                             `inst` and `model_match`.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Prints a debug message.
+    2. Calls `disconnect_instrument` to close the connection.
+    3. Clears `app_instance.inst` and `app_instance.model_match`.
+    4. Clears instrument settings displayed in the GUI.
+    5. Updates GUI connection status.
+
+    Outputs of this function:
+    - None. Clears `app_instance` attributes and updates GUI.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    console_print_func("\nAttempting to disconnect instrument...")
-    debug_print("Attempting to disconnect instrument...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Attempting to disconnect instrument. Time to say goodbye!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
     if app_instance.inst:
-        try:
-            control_disconnect_instrument(app_instance.inst, console_print_func)
-            app_instance.inst = None
-            console_print_func("✅ Instrument disconnected.")
-            debug_print("Instrument disconnected.", file=current_file, function=current_function, console_print_func=console_print_func)
-        except Exception as e:
-            console_print_func(f"❌ An error occurred during disconnection: {e}")
-            debug_print(f"Error during disconnection: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        disconnect_instrument(app_instance.inst, console_print_func)
+        app_instance.inst = None
+        app_instance.model_match = None
+        console_print_func("✅ Instrument disconnected from application.")
+        debug_log("Instrument instance cleared from app_instance.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
     else:
-        console_print_func("ℹ️ Info: No instrument to disconnect.")
-        debug_print("No instrument to disconnect.", file=current_file, function=current_function, console_print_func=console_print_func)
-    update_connection_status_logic(app_instance, False, console_print_func) # Update GUI status
+        console_print_func("ℹ️ No instrument is currently connected to disconnect.")
+        debug_log("No instrument to disconnect. Already disconnected!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-def apply_settings_logic(app_instance, console_print_func):
-    # Function Description:
-    # Applies the current settings from the GUI's main application variables to the connected instrument.
-    # This includes Reference Level, Frequency Shift, Max Hold, High Sensitivity, Preamp, and Scan RBW/VBW.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access shared variables and methods.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Checks if an instrument is connected; if not, logs a warning and returns False.
-    #   2. Retrieves desired settings from `app_instance` Tkinter variables.
-    #   3. Queries current instrument states for High Sensitivity, RBW, and VBW to avoid redundant commands.
-    #   4. Applies settings if they differ from the current instrument state,
-    #      logging success or failure for each.
-    #   5. If all applicable settings are applied successfully, saves the configuration
-    #      and resets setting colors in the GUI.
-    #   6. Handles `pyvisa.errors.VisaIOError` and other general exceptions.
-    #
-    # Outputs of this function:
-    #   bool: True if all applicable settings are applied successfully, False otherwise.
-    #
-    # (2025-07-30) Change: No functional change, just updated header.
+    # Clear displayed settings in GUI
+    if hasattr(app_instance, 'instrument_parent_tab') and \
+       hasattr(app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+        app_instance.instrument_parent_tab.instrument_connection_tab._clear_settings_display()
+        debug_log("Cleared instrument settings display in GUI.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+    app_instance.update_connection_status(app_instance.inst is not None)
+    debug_log("Instrument disconnection process complete. Status updated!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
+
+def apply_settings_logic(app_instance, console_print_func=None):
     """
-    Applies the current settings from the GUI's main application variables to the connected instrument.
-    This includes Reference Level, Frequency Shift, Max Hold, High Sensitivity, Preamp, and Scan RBW/VBW.
+    Function Description:
+    Applies the current settings from the GUI's Tkinter variables to the connected instrument.
+    This includes Center Frequency, Span, RBW, Reference Level, Frequency Shift,
+    High Sensitivity, and Preamplifier.
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access
+                             `inst` and various Tkinter variables.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Prints a debug message.
+    2. Checks if an instrument is connected.
+    3. Retrieves current settings from Tkinter variables.
+    4. Sends SCPI commands using `write_safe` to apply each setting.
+    5. Handles potential errors during application.
+    6. Queries and updates the displayed settings after application.
+
+    Outputs of this function:
+    - bool: True if all settings were applied successfully, False otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    console_print_func("\nAttempting to apply settings to instrument...")
-    debug_print("Attempting to apply settings to instrument...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Attempting to apply settings to instrument. Making changes!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: No instrument connected. Cannot apply settings.")
-        debug_print("No instrument connected. Cannot apply settings.", file=current_file, function=current_function, console_print_func=console_print_func)
+    inst = app_instance.inst
+    if not inst:
+        console_print_func("⚠️ Warning: Instrument not connected. Cannot apply settings. Connect the damn thing first!")
+        debug_log("Instrument not connected for apply_settings_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
+    success = True
     try:
-        # Get values from Tkinter variables directly from app_instance
-        # Corrected variable names
-        ref_level_dbm = _get_float_value(app_instance.reference_level_dbm_var, -40.0, "Reference Level", console_print_func)
-        freq_shift_hz = _get_float_value(app_instance.freq_shift_hz_var, 0.0, "Frequency Shift", console_print_func)
-        max_hold_enabled = app_instance.maxhold_enabled_var.get() # Corrected variable name
-        high_sensitivity = app_instance.high_sensitivity_var.get()
+        center_freq_hz = float(app_instance.center_freq_hz_var.get())
+        span_hz = float(app_instance.span_hz_var.get())
+        rbw_hz = float(app_instance.rbw_hz_var.get())
+        ref_level_dbm = float(app_instance.reference_level_dbm_var.get())
+        freq_shift_hz = float(app_instance.freq_shift_hz_var.get())
+        high_sensitivity_on = app_instance.high_sensitivity_var.get()
         preamp_on = app_instance.preamp_on_var.get()
-        
-        # Get the desired RBW from the scan config variable
-        rbw_hz_to_apply = _get_float_value(app_instance.scan_rbw_hz_var, 10000.0, "Scan RBW", console_print_func)
-        vbw_hz_to_apply = rbw_hz_to_apply * VBW_RBW_RATIO # Derived VBW
 
-        success = True
+        # Apply Center Frequency
+        if not write_safe(inst, f":SENSe:FREQuency:CENTer {center_freq_hz}", console_print_func): success = False
+        time.sleep(0.05)
 
-              
-        # --- Apply High Sensitivity / Preamp ---
-        # High sensitivity typically means Attenuation OFF and Preamplifier ON
-        debug_print(f"Querying current Attenuation Auto state for High Sensitivity comparison...", file=current_file, function=current_function, console_print_func=console_print_func)
-        current_atten_auto_str = query_safe(app_instance.inst, ":INPut:ATTenuation:AUTO?", console_print_func) # Query actual state
-        debug_print(f"Querying current Preamplifier state for High Sensitivity comparison...", file=current_file, function=current_function, console_print_func=console_print_func)
-        current_preamp_state_str = query_safe(app_instance.inst, ":INPut:GAIN:STATe?", console_print_func) # Query actual state
+        # Apply Span
+        span_cmd = f":SENSe:FREQuency:SPAN {span_hz}"
+        if span_hz == 0.0: # Special case for "Full Span"
+            span_cmd = ":SENSe:FREQuency:SPAN MAX"
+        if not write_safe(inst, span_cmd, console_print_func): success = False
+        time.sleep(0.05)
 
-        current_high_sensitivity_state = (current_atten_auto_str and "OFF" in current_atten_auto_str.upper()) and \
-                                         (current_preamp_state_str and "ON" in current_preamp_state_str.upper())
+        # Apply RBW
+        if not write_safe(inst, f":SENSe:BANDwidth:RESolution {rbw_hz}", console_print_func): success = False
+        time.sleep(0.05)
 
-        if high_sensitivity == current_high_sensitivity_state:
-            debug_print(f"High Sensitivity already set to {'Enabled' if high_sensitivity else 'Disabled'}. Skipping commands.", file=current_file, function=current_function, console_print_func=console_print_func)
-            console_print_func(f"ℹ️ Info: High Sensitivity already {'Enabled' if high_sensitivity else 'Disabled'}.")
-        else:
-            debug_print(f"Setting High Sensitivity to {'Enabled' if high_sensitivity else 'Disabled'}...", file=current_file, function=current_function, console_print_func=console_print_func)
-            if high_sensitivity:
-                if not write_safe(app_instance.inst, ":INPut:ATTenuation:AUTO OFF", console_print_func): success = False
-                if not write_safe(app_instance.inst, ":INPut:ATTenuation 0", console_print_func): success = False # Set attenuation to 0 dB
-                if not write_safe(app_instance.inst, ":INPut:GAIN:STATe ON", console_print_func): success = False # Turn on preamplifier
-            else:
-                if not write_safe(app_instance.inst, ":INPut:ATTenuation:AUTO ON", console_print_func): success = False
-                if not write_safe(app_instance.inst, ":INPut:GAIN:STATe OFF", console_print_func): success = False
-            
-            if success:
-                console_print_func(f"✅ High Sensitivity set to {'Enabled' if high_sensitivity else 'Disabled'}.")
-            else:
-                console_print_func(f"❌ Failed to set High Sensitivity to {'Enabled' if high_sensitivity else 'Disabled'}.")
-                debug_print(f"Failed to set High Sensitivity.", file=current_file, function=current_function, console_print_func=console_print_func)
+        # Apply Reference Level
+        if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {ref_level_dbm}DBM", console_print_func): success = False
+        time.sleep(0.05)
 
+        # Apply Frequency Shift
+        if not write_safe(inst, f":SENSe:FREQuency:RFShift {freq_shift_hz}", console_print_func): success = False
+        time.sleep(0.05)
 
-        # --- Apply RBW (from scan config) ---
-        debug_print(f"Querying current RBW for comparison...", file=current_file, function=current_function, console_print_func=console_print_func)
-        current_rbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
-        current_rbw_hz = float(current_rbw_str) if current_rbw_str else None
+        # Apply High Sensitivity
+        # This command is specific to N9342CN, so check model_match
+        if app_instance.model_match == "N9342CN":
+            high_sensitivity_cmd = ":SENSe:POWer:RF:HSENs ON" if high_sensitivity_on else ":SENSe:POWer:RF:HSENs OFF"
+            if not write_safe(inst, high_sensitivity_cmd, console_print_func): success = False
+            time.sleep(0.05)
+        elif high_sensitivity_on:
+            console_print_func(f"ℹ️ High Sensitivity (HSENsitive) command skipped for model {app_instance.model_match}. It's specific to N9342CN. Not applicable!")
+            debug_log(f"High Sensitivity (HSENsitive) command skipped for model {app_instance.model_match}. Not supported!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-        if current_rbw_hz is not None and abs(current_rbw_hz - rbw_hz_to_apply) < 1:
-            debug_print(f"RBW already at {rbw_hz_to_apply} Hz. Skipping command.", file=current_file, function=current_function, console_print_func=console_print_func)
-            console_print_func(f"ℹ️ Info: RBW already at {rbw_hz_to_apply:.0f} Hz.")
-        else:
-            debug_print(f"Setting RBW to {rbw_hz_to_apply} Hz...", file=current_file, function=current_function, console_print_func=console_print_func)
-            if not write_safe(app_instance.inst, f":SENSe:BANDwidth:RESolution {rbw_hz_to_apply}", console_print_func):
-                success = False
-                console_print_func(f"❌ Failed to set RBW to {rbw_hz_to_apply:.0f} Hz.")
-                debug_print(f"Failed to set RBW.", file=current_file, function=current_function, console_print_func=console_print_func)
-            else:
-                console_print_func(f"✅ RBW set to {rbw_hz_to_apply:.0f} Hz.")
+        # Apply Preamplifier
+        preamp_cmd = ":SENSe:POWer:RF:GAIN ON" if preamp_on else ":SENSe:POWer:RF:GAIN OFF"
+        if not write_safe(inst, preamp_cmd, console_print_func): success = False
+        time.sleep(0.05)
 
-        # --- Apply VBW (derived from RBW) ---
-        debug_print(f"Querying current VBW for comparison...", file=current_file, function=current_function, console_print_func=console_print_func)
-        current_vbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:VIDeo?", console_print_func)
-        current_vbw_hz = float(current_vbw_str) if current_vbw_str else None
-
-        if current_vbw_hz is not None and abs(current_vbw_hz - vbw_hz_to_apply) < 1:
-            debug_print(f"VBW already at {vbw_hz_to_apply} Hz. Skipping command.", file=current_file, function=current_function, console_print_func=console_print_func)
-            console_print_func(f"ℹ️ Info: VBW already at {vbw_hz_to_apply:.0f} Hz.")
-        else:
-            debug_print(f"Setting VBW to {vbw_hz_to_apply} Hz...", file=current_file, function=current_function, console_print_func=console_print_func)
-            if not write_safe(app_instance.inst, f":SENSe:BANDwidth:VIDeo {vbw_hz_to_apply}", console_print_func):
-                success = False
-                console_print_func(f"❌ Failed to set VBW to {vbw_hz_to_apply:.0f} Hz.")
-                debug_print(f"Failed to set VBW.", file=current_file, function=current_function, console_print_func=console_print_func)
-            else:
-                console_print_func(f"✅ VBW set to {vbw_hz_to_apply:.0f} Hz.")
-        
         if success:
-            console_print_func("✅ All applicable settings applied successfully.")
-            debug_print("All applicable settings applied successfully.", file=current_file, function=current_function, console_print_func=console_print_func)
-            save_config(app_instance) # Save current settings as last used
-            app_instance.reset_setting_colors_logic() # Reset colors after successful apply
-            return True
+            console_print_func("✅ All settings applied to instrument. Looking good!")
+            debug_log("All settings applied successfully.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         else:
-            console_print_func("❌ Failed to apply all settings. Check connection and instrument status.")
-            debug_print("Failed to apply all settings.", file=current_file, function=current_function, console_print_func=console_print_func)
-            return False
+            console_print_func("❌ Failed to apply all settings to instrument. This is a disaster!")
+            debug_log("Failed to apply all settings to instrument. What a mess!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
-    except pyvisa.errors.VisaIOError as e:
-        console_print_func(f"❌ VISA error while applying settings: {e}")
-        debug_print(f"VISA Error applying settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return False
+        # Refresh the displayed settings in the GUI after applying
+        query_current_instrument_settings_logic(app_instance, console_print_func)
+        return success
+
     except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred while applying settings: {e}")
-        debug_print(f"An unexpected error occurred while applying settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"❌ An error occurred while applying settings: {e}. This is a critical bug!")
+        debug_log(f"Error applying settings: {e}. Fucking hell!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
-def query_basic_instrument_settings_logic(app_instance, console_print_func):
-    # Function Description:
-    # Queries the essential settings (Center Frequency, Span, RBW) from the instrument.
-    # This function is designed to be a lightweight query for specific parameters
-    # needed by features like preset loading, without querying all instrument states.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access the instrument instance (`app_instance.inst`).
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Prints debug messages.
-    #   2. Checks if an instrument is connected; if not, logs a warning and returns default values.
-    #   3. Queries Center Frequency, Span, and RBW from the instrument using `query_safe`.
-    #   4. Converts the queried string values to floats.
-    #   5. Returns the three queried values (in Hz).
-    #   6. Handles `pyvisa.errors.VisaIOError` and other general exceptions,
-    #      returning default values in case of an error.
-    #
-    # Outputs of this function:
-    #   tuple: (center_freq_hz, span_hz, rbw_hz) if successful, otherwise (0.0, 0.0, 0.0).
-    #
-    # (2025-07-30) Change: New function for basic instrument settings query.
+
+def query_current_instrument_settings_logic(app_instance, console_print_func=None):
     """
-    Queries the essential settings (Center Frequency, Span, RBW) from the instrument.
-    Returns these values in Hz.
+    Function Description:
+    Queries the current instrument settings (Center Freq, Span, RBW, Ref Level,
+    Freq Shift, High Sensitivity, Preamp) and updates the corresponding Tkinter
+    variables in the GUI.
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access
+                             `inst` and various Tkinter variables.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Process of this function:
+    1. Prints a debug message.
+    2. Checks if an instrument is connected.
+    3. Queries each setting using `query_safe`.
+    4. Updates the respective Tkinter variables.
+    5. Special logic for High Sensitivity, which depends on Attenuation and Gain states.
+    6. Logs success or failure.
+
+    Outputs of this function:
+    - bool: True if settings were queried and updated successfully, False otherwise.
     """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    console_print_func("\nQuerying basic instrument settings (Center, Span, RBW)...")
-    debug_print("Querying basic instrument settings...", file=current_file, function=current_function, console_print_func=console_print_func)
+    debug_log("Querying current instrument settings. Getting the latest info!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
 
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: No instrument connected. Cannot query basic settings.")
-        debug_print("No instrument connected. Cannot query basic settings.", file=current_file, function=current_function, console_print_func=console_print_func)
-        return 0.0, 0.0, 0.0 # Return default values if no instrument
-
-    try:
-        center_freq_str = query_safe(app_instance.inst, ":SENSe:FREQuency:CENTer?", console_print_func)
-        span_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SPAN?", console_print_func)
-        rbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
-        
-        center_freq_hz = float(center_freq_str) if center_freq_str else 0.0
-        span_hz = float(span_str) if span_str else 0.0
-        rbw_hz = float(rbw_str) if rbw_str else 0.0
-
-        console_print_func(f"✅ Queried basic settings: C: {center_freq_hz / MHZ_TO_HZ:.3f} MHz, SP: {span_hz / MHZ_TO_HZ:.3f} MHz, RBW: {rbw_hz:.0f} Hz")
-        debug_print(f"Queried basic settings: C: {center_freq_hz} Hz, SP: {span_hz} Hz, RBW: {rbw_hz} Hz", file=current_file, function=current_function, console_print_func=console_print_func)
-        
-        return center_freq_hz, span_hz, rbw_hz
-
-    except pyvisa.errors.VisaIOError as e:
-        console_print_func(f"❌ VISA error while querying basic settings: {e}")
-        debug_print(f"VISA Error querying basic settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return 0.0, 0.0, 0.0
-    except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred while querying basic settings: {e}")
-        debug_print(f"An unexpected error occurred while querying basic settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
-        return 0.0, 0.0, 0.0
-
-def query_current_instrument_settings_logic(app_instance, console_print_func):
-    # Function Description:
-    # Queries the current settings from the instrument and updates the GUI.
-    # This is a comprehensive query for all relevant instrument settings.
-    #
-    # Inputs to this function:
-    #   app_instance (object): Reference to the main application instance
-    #                          to access shared variables and methods.
-    #   console_print_func (function): A function to print messages to the console.
-    #
-    # Process of this function:
-    #   1. Checks if an instrument is connected; if not, logs a warning and returns False.
-    #   2. Queries various instrument settings (Center Freq, Span, RBW, Ref Level, Freq Shift,
-    #      Attenuation Auto, Gain State) using `query_safe`.
-    #   3. Converts queried string values to appropriate numeric types.
-    #   4. Updates corresponding Tkinter variables in `app_instance.instrument_tab`
-    #      with the retrieved values.
-    #   5. Calculates and sets the 'High Sensitivity' status based on attenuation and gain states.
-    #   6. Logs success or error messages.
-    #
-    # Outputs of this function:
-    #   bool: True if settings are successfully queried and updated, False otherwise.
-    #
-    # (2025-07-30) Change: Uncommented and fixed `atten_auto_query` and `gain_state_query`
-    #                     to properly query instrument and handle string conversion for `.upper()`.
-    # (2025-07-30) Change: Updated header for clarity.
-    """
-    Queries the current settings from the instrument and updates the GUI.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    console_print_func("\nQuerying current instrument settings...")
-    debug_print("Querying current instrument settings...", file=current_file, function=current_function, console_print_func=console_print_func)
-
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: No instrument connected. Cannot query settings.")
-        debug_print("No instrument connected. Cannot query settings.", file=current_file, function=current_function, console_print_func=console_print_func)
+    inst = app_instance.inst
+    if not inst:
+        console_print_func("⚠️ Warning: Instrument not connected. Cannot query settings. Connect the damn thing first!")
+        debug_log("Instrument not connected for query_current_instrument_settings_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
 
     try:
-        # Use query_safe for all individual instrument queries
-        center_freq_str = query_safe(app_instance.inst, ":SENSe:FREQuency:CENTer?", console_print_func)
-        span_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SPAN?", console_print_func)
-        rbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
-        ref_level_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", console_print_func)
-        # Assuming this is the correct SCPI for frequency shift, if not, it will be 0.0
-        freq_shift_str = query_safe(app_instance.inst, ":FREQuency:OFFSet?", console_print_func)
-        
-        center_freq_hz = float(center_freq_str) if center_freq_str else 0.0
-        span_hz = float(span_str) if span_str else 0.0
-        rbw_hz = float(rbw_str) if rbw_str else 0.0
-        ref_level_dbm = float(ref_level_str) if ref_level_str else 0.0
-        freq_shift_hz = float(freq_shift_str) if freq_shift_str else 0.0
+        # Query Center Frequency
+        center_freq_str = query_safe(inst, ":SENSe:FREQuency:CENTer?", console_print_func)
+        if center_freq_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_center_freq_var.set(f"{float(center_freq_str) / MHZ_TO_HZ:.3f}")
 
-        # Query attenuation and gain states for high sensitivity display
-        # FUCKING FIX: Ensure these are queried as strings and handled safely
-        atten_auto_query = query_safe(app_instance.inst, ":INPut:ATTenuation:AUTO?", console_print_func)
-        gain_state_query = query_safe(app_instance.inst, ":INPut:GAIN:STATe?", console_print_func)
+        # Query Span
+        span_str = query_safe(inst, ":SENSe:FREQuency:SPAN?", console_print_func)
+        if span_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_span_var.set(f"{float(span_str) / MHZ_TO_HZ:.3f}")
 
-        # Update Tkinter variables in the InstrumentTab
-        if hasattr(app_instance, 'instrument_tab'):
-            app_instance.instrument_tab.current_center_freq_var.set(f"{center_freq_hz / MHZ_TO_HZ:.3f}")
-            app_instance.instrument_tab.current_span_var.set(f"{span_hz / MHZ_TO_HZ:.3f}")
-            app_instance.instrument_tab.current_rbw_var.set(f"{rbw_hz:.0f}") # RBW in Hz, displayed as integer
-            app_instance.instrument_tab.current_ref_level_var.set(f"{ref_level_dbm:.1f}")
-            app_instance.instrument_tab.current_freq_shift_var.set(f"{freq_shift_hz:.0f}")
-            
-            # Ensure atten_auto_query and gain_state_query are strings before calling .upper()
-            atten_auto_str_safe = str(atten_auto_query).strip() if atten_auto_query is not None else ""
-            gain_state_str_safe = str(gain_state_query).strip() if gain_state_query is not None else ""
+        # Query RBW
+        rbw_str = query_safe(inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
+        if rbw_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_rbw_var.set(f"{float(rbw_str):.0f}")
+
+        # Query Reference Level
+        ref_level_str = query_safe(inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", console_print_func)
+        if ref_level_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_ref_level_var.set(f"{float(ref_level_str):.1f}")
+
+        # Query Frequency Shift
+        freq_shift_str = query_safe(inst, ":SENSe:FREQuency:RFShift?", console_print_func)
+        if freq_shift_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_freq_shift_var.set(f"{float(freq_shift_str):.0f}")
+
+        # Query Preamplifier State
+        preamp_state_str = query_safe(inst, ":POWer:GAIN?", console_print_func)
+        if preamp_state_str:
+            app_instance.instrument_parent_tab.instrument_connection_tab.current_preamp_var.set("ON" if "1" in preamp_state_str else "OFF")
+
+        # Query High Sensitivity State (N9342CN specific)
+        if app_instance.model_match == "N9342CN":
+            high_sensitivity_state_str = query_safe(inst, ":SENSe:POWer:RF:HSENs?", console_print_func)
+            if high_sensitivity_state_str:
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_high_sensitivity_var.set("Enabled" if "1" in high_sensitivity_state_str else "Disabled")
+            else:
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_high_sensitivity_var.set("Disabled")
+                debug_log("Could not query High Sensitivity state from N9342CN. Setting to Disabled.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+        else:
+            # For other models, high sensitivity is typically attenuation off and preamp on
+            atten_auto_str_safe = query_safe(inst, ":POWer:ATTenuation:AUTO?", console_print_func)
+            gain_state_str_safe = query_safe(inst, ":POWer:GAIN?", console_print_func)
 
             if atten_auto_str_safe and gain_state_str_safe:
                 # High sensitivity is typically attenuation off and preamp on
-                app_instance.instrument_tab.current_high_sensitivity_var.set("Enabled" if ("OFF" in atten_auto_str_safe.upper() and "ON" in gain_state_str_safe.upper()) else "Disabled")
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_high_sensitivity_var.set("Enabled" if ("OFF" in atten_auto_str_safe.upper() and "ON" in gain_state_str_safe.upper()) else "Disabled")
             else:
                 # If queries failed or returned empty, set to Disabled or a default
-                app_instance.instrument_tab.current_high_sensitivity_var.set("Disabled")
-                debug_print("🚫🐛 Could not determine High Sensitivity state due to empty query responses. Setting to Disabled.", file=current_file, function=current_function, console_print_func=console_print_func)
+                app_instance.instrument_parent_tab.instrument_connection_tab.current_high_sensitivity_var.set("Disabled")
+                debug_log("🚫🐛 Could not determine High Sensitivity state due to empty query responses. Setting to Disabled. This is a **fucking nightmare**!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
 
 
-        console_print_func("✅ Current instrument settings updated in GUI.")
-        debug_print("Current instrument settings updated in GUI.", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func("✅ Current instrument settings updated in GUI. All values retrieved!")
+        debug_log("Current instrument settings updated in GUI. UI synced!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return True
     except pyvisa.errors.VisaIOError as e:
-        console_print_func(f"❌ VISA error while querying settings: {e}")
-        debug_print(f"VISA Error querying settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"❌ VISA error while querying settings: {e}. This is a critical error!")
+        debug_log(f"VISA Error querying settings: {e}. What a mess!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False
     except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred while querying settings: {e}")
-        debug_print(f"An unexpected error occurred while querying settings: {e}", file=current_file, function=current_function, console_print_func=console_print_func)
+        console_print_func(f"❌ An unexpected error occurred while querying settings: {e}. This is a disaster!")
+        debug_log(f"An unexpected error occurred while querying settings: {e}. Fucking hell!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         return False

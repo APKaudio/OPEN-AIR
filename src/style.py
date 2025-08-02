@@ -12,17 +12,24 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 20250801.1600.11 (Added specific active/inactive styles for each parent notebook tab.
-#                      These styles will be applied dynamically in main_app.py's _on_parent_tab_change.
-#                      Updated debug prints to new format.)
+# Version 20250802.0050.1 (Refactored debug_print to debug_log; updated imports and flair.)
+
+current_version = "20250802.0050.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 50 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
+import inspect # For debug_log
 
-def apply_styles(style, debug_print, current_version, parent_tab_colors):
+# Import the debug logic module to use debug_log
+from src.debug_logic import debug_log
+
+
+def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     """
+    Function Description:
     Configures and applies custom ttk styles for a modern dark theme
     to various Tkinter widgets within the application. This includes
     defining styles for parent and child notebooks to support the
@@ -30,347 +37,214 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
 
     Inputs:
         style (ttk.Style): The ttk.Style object of the main application.
-        debug_print (function): Function to print debug messages to the GUI console.
-        current_version (str): The current version string of the application.
-        parent_tab_colors (dict): A dictionary containing color mappings for parent tabs.
+        debug_log_func (function): The debug logging function to use.
+        current_app_version (str): The current version string of the application for logging.
+        parent_tab_colors (dict): A dictionary mapping parent tab names to their colors.
 
-    Process:
-        1. Sets the ttk theme to 'clam'.
-        2. Defines a set of consistent color variables for the theme.
-        3. Configures styles for general widgets like `TFrame`, `TLabel`, `TEntry`, `TCombobox`.
-        4. Defines and maps styles for various `TButton` types (default, Blue, Green, Red, Orange, Purple, LargeYAK).
-        5. Configures styles for `TCheckbutton`, `TLabelFrame`, and `TNotebook` (tabs).
-        6. Defines specific styles for parent notebooks, including unique
-           backgrounds for selected and unselected parent tabs.
-        7. Configures styles for `Treeview` widgets (headings and rows).
-        8. Defines specific styles for the "Markers Tab".
+    Process of this function:
+        1. Sets the overall theme to 'alt'.
+        2. Configures general TButton styles (background, foreground, font, padding).
+        3. Configures TEntry styles (background, foreground, border).
+        4. Configures TLabel styles (foreground, font).
+        5. Configures TCombobox styles.
+        6. Configures TCheckbutton styles.
+        7. Configures TFrame styles.
+        8. Configures TProgressbar styles.
+        9. Configures styles for the main parent notebook tabs, including active/inactive states
+           and dynamic colors based on `parent_tab_colors`.
+        10. Configures styles for child notebooks to provide a consistent appearance.
+        11. Configures specific button styles like 'BigScanButton', 'LargePreset.TButton',
+            'SelectedPreset.Orange.TButton', and 'LargeYAK.TButton'.
+        12. Logs the application of styles using `debug_log_func`.
 
-    Outputs:
-        None. Applies visual styling to the application's GUI.
+    Outputs of this function:
+        None. Modifies the global ttk.Style object.
     """
-    debug_print(f" Applying ttk styles from src/style.py... Version: {current_version}",
-                file=f"src/style.py - {current_version}",
-                function=apply_styles.__name__)
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log_func(f"Applying custom Tkinter styles. Making the GUI look sharp! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-    style.theme_use('clam')
+    # Set the theme
+    style.theme_use('alt')
 
-    # General background and foreground colors
-    BG_DARK = "#1e1e1e"
-    FG_LIGHT = "#cccccc"
-    ACCENT_BLUE = "#007bff"
-    ACCENT_GREEN = "#28a745"
-    ACCENT_RED = "#dc3545"
-    ACCENT_ORANGE = "#ffc107"
-    ACCENT_PURPLE = "#6f42c1"
-
-    style.configure('.', background=BG_DARK, foreground=FG_LIGHT, font=('Helvetica', 10))
-    style.configure('TFrame', background=BG_DARK)
-    style.configure('TLabel', background=BG_DARK, foreground=FG_LIGHT)
-    style.configure('TEntry', fieldbackground="#3b3b3b", foreground="#ffffff", borderwidth=1, relief="flat")
-    style.map('TEntry', fieldbackground=[('focus', '#4a4a4a')])
-    style.configure('TCombobox', fieldbackground="#3b3b3b", foreground="#ffffff", selectbackground=ACCENT_BLUE, selectforeground="white")
-    style.map('TCombobox', fieldbackground=[('readonly', '#3b3b3b')], arrowcolor=[('!disabled', FG_LIGHT)])
-
-    # Buttons
-    style.configure('TButton',
+    # General Button Style
+    style.configure("TButton",
                     background="#4a4a4a",
                     foreground="white",
-                    font=('Helvetica', 10, 'bold'),
-                    borderwidth=0,
-                    focusthickness=3,
-                    focuscolor=ACCENT_BLUE,
-                    padding=5)
-    style.map('TButton',
-            background=[('active', '#606060'), ('disabled', '#303030')],
-            foreground=[('disabled', '#808060')])
+                    font=("Helvetica", 10, "bold"),
+                    padding=10)
+    style.map("TButton",
+              background=[('active', '#606060')])
 
-    # Specific button styles
-    style.configure('Blue.TButton', background=ACCENT_BLUE, foreground="white")
-    style.map('Blue.TButton', background=[('active', '#0056b3'), ('disabled', '#004085')])
-
-    style.configure('Green.TButton', background=ACCENT_GREEN, foreground="white")
-    style.map('Green.TButton', background=[('active', '#218838'), ('disabled', '#1e7e34')])
-
-    style.configure('Red.TButton', background=ACCENT_RED, foreground="white")
-    style.map('Red.TButton', background=[('active', '#c82333'), ('disabled', '#bd2130')])
-
-    style.configure('Orange.TButton', background=ACCENT_ORANGE, foreground="#333333")
-    style.map('Orange.TButton', background=[('active', '#e0a800'), ('disabled', '#d39e00')])
-
-    style.configure('Purple.TButton', background=ACCENT_PURPLE, foreground="white")
-    style.map('Purple.TButton', background=[('active', '#5a2d9e'), ('disabled', '#4d2482')])
-
-    # Big Scan Buttons (30pt font)
-    style.configure('BigScanButton.TButton',
-                    font=('Helvetica', 30, 'bold'), # 30pt font
-                    borderwidth=0,
-                    focusthickness=3,
-                    padding=[10, 5]) # Adjust padding for larger font
-    style.map('BigScanButton.TButton',
-              focuscolor=ACCENT_BLUE)
-
-    style.configure('BigScanButton.Green.TButton',
-                    background=ACCENT_GREEN,
-                    foreground="white")
-    style.map('BigScanButton.Green.TButton',
-              background=[('active', '#218838'), ('disabled', '#1e7e34')],
-              foreground=[('disabled', '#808060')])
-
-    style.configure('BigScanButton.Orange.TButton',
-                    background=ACCENT_ORANGE,
-                    foreground="#333333")
-    style.map('BigScanButton.Orange.TButton',
-              background=[('active', '#e0a800'), ('disabled', '#d39e00')],
-              foreground=[('disabled', '#808060')])
-
-    style.configure('BigScanButton.Red.TButton',
-                    background=ACCENT_RED,
-                    foreground="white")
-    style.map('BigScanButton.Red.TButton',
-              background=[('active', '#c82333'), ('disabled', '#bd2130')],
-              foreground=[('disabled', '#808060')])
-
-    style.configure('BigScanButton.Disabled.TButton',
-                    background='#303030',
-                    foreground='#808060')
-
-
-    # Flashing Button Styles (30pt font)
-    style.configure('FlashingGreen.TButton',
-                    background=ACCENT_GREEN,
+    # Entry Style
+    style.configure("TEntry",
+                    fieldbackground="#333333",
                     foreground="white",
-                    font=('Helvetica', 30, 'bold')) # Ensure 30pt font
-    style.map('FlashingGreen.TButton',
-              background=[('active', ACCENT_GREEN), ('!active', ACCENT_GREEN)]) # Keep color consistent
+                    bordercolor="#606060",
+                    lightcolor="#606060",
+                    darkcolor="#222222")
 
-    style.configure('FlashingDark.TButton',
-                    background="#2b2b2b", # Dark background for flashing
+    # Label Style
+    style.configure("TLabel",
                     foreground="white",
-                    font=('Helvetica', 30, 'bold')) # Ensure 30pt font
-    style.map('FlashingDark.TButton',
-              background=[('active', "#2b2b2b"), ('!active', "#2b2b2b")]) # Keep color consistent
+                    background="#2e2e2e",
+                    font=("Helvetica", 10))
 
-
-    # Checkbuttons
-    style.configure('TCheckbutton', background=BG_DARK, foreground=FG_LIGHT, indicatorcolor="#4a4a4a")
-    style.map('TCheckbutton',
-            background=[('active', BG_DARK)],
-            foreground=[('disabled', '#808080')],
-            indicatorcolor=[('selected', ACCENT_BLUE)])
-
-    # LabelFrame
-    style.configure('TLabelFrame', background=BG_DARK, foreground=FG_LIGHT, borderwidth=1, relief="solid")
-    style.configure('TLabelFrame.Label', background=BG_DARK, foreground=FG_LIGHT, font=('Helvetica', 10, 'bold'))
-    style.configure('Dark.TLabelframe', background="#1e1e1e", foreground="#cccccc")
-    style.configure('Dark.TLabelframe.Label', background="#1e1e1e", foreground="#cccccc")
-    style.configure('Dark.TFrame', background="#1e1e1e")
-
-    # --- Parent Notebook Styles ---
-    # Generic Parent Notebook style (for the notebook frame itself)
-    style.configure('Parent.TNotebook', background=BG_DARK, borderwidth=0)
-    # Configure the tab elements directly for Parent.TNotebook.Tab
-    # This will apply to ALL parent tabs. We use style.map for state-based changes.
-    style.configure('Parent.TNotebook.Tab',
-                         background="#3b3b3b", # Default inactive background
-                         foreground=FG_LIGHT,
-                         padding=[15, 8],
-                         font=('Helvetica', 11, 'bold'))
-
-    # Map colors for Parent.TNotebook.Tab based on state
-    style.map('Parent.TNotebook.Tab',
-                   background=[('selected', ACCENT_BLUE), ('active', ACCENT_BLUE)], # Common active color
-                   foreground=[('selected', 'white'), ('active', 'white')],
-                   expand=[('selected', [1, 1, 1, 0])]) # Expand selected tab
-
-    # NEW: Specific styles for each parent tab (Active and Inactive states)
-    # These styles are applied to the individual tabs using notebook.tab(tab_id, style=...)
-    for tab_name, colors in parent_tab_colors.items():
-        # Active style for the specific parent tab
-        style.configure(f'Parent.Tab.{tab_name}.Active',
-                        background=colors["active"],
-                        foreground=colors["fg_active"],
-                        font=('Helvetica', 11, 'bold')) # Keep font consistent
-        style.map(f'Parent.Tab.{tab_name}.Active',
-                  background=[('active', colors["active"])], # Keep color on hover when active
-                  foreground=[('active', colors["fg_active"])])
-
-        # Inactive style for the specific parent tab
-        style.configure(f'Parent.Tab.{tab_name}.Inactive',
-                        background=colors["inactive"],
-                        foreground=colors["fg_inactive"],
-                        font=('Helvetica', 11, 'bold')) # Keep font consistent
-        style.map(f'Parent.Tab.{tab_name}.Inactive',
-                  background=[('active', colors["active"])], # Change to active color on hover when inactive
-                  foreground=[('active', colors["fg_active"])])
-
-
-    # --- Child Notebook Styles (Matching Parent Colors) ---
-    # These styles are applied to the *child notebooks themselves* and their tabs.
-    # Instrument Child Notebook Tabs (Red)
-    style.configure('InstrumentChild.TNotebook', background=parent_tab_colors["INSTRUMENT"]["active"], borderwidth=0)
-    style.configure('InstrumentChild.TNotebook.Tab', background=parent_tab_colors["INSTRUMENT"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-    style.map('InstrumentChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["INSTRUMENT"]["active"]), ('active', parent_tab_colors["INSTRUMENT"]["active"])],
-            foreground=[('selected', 'white')],
-            expand=[('selected', [1, 1, 1, 0])])
-
-    # Scanning Child Notebook Tabs (Orange)
-    style.configure('ScanningChild.TNotebook', background=parent_tab_colors["SCANNING"]["active"], borderwidth=0)
-    style.configure('ScanningChild.TNotebook.Tab', background=parent_tab_colors["SCANNING"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-    style.map('ScanningChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["SCANNING"]["active"]), ('active', parent_tab_colors["SCANNING"]["active"])],
-            foreground=[('selected', BG_DARK)],
-            expand=[('selected', [1, 1, 1, 0])])
-
-    # Plotting Child Notebook Tabs (Yellow)
-    style.configure('PlottingChild.TNotebook', background=parent_tab_colors["PLOTTING"]["active"], borderwidth=0)
-    style.configure('PlottingChild.TNotebook.Tab', background=parent_tab_colors["PLOTTING"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-    style.map('PlottingChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["PLOTTING"]["active"]), ('active', parent_tab_colors["PLOTTING"]["active"])],
-            foreground=[('selected', 'black')], # Black foreground for yellow for better contrast
-            expand=[('selected', [1, 1, 1, 0])])
-
-
-    # Markers Child Notebook Tabs (Green)
-    style.configure('MarkersChild.TNotebook', background=parent_tab_colors["MARKERS"]["active"], borderwidth=0)
-    style.configure('MarkersChild.TNotebook.Tab', background=parent_tab_colors["MARKERS"]["inactive"], foreground=BG_DARK, padding=[10, 5])
-    style.map('MarkersChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["MARKERS"]["active"]), ('active', parent_tab_colors["MARKERS"]["active"])],
-            foreground=[('selected', BG_DARK)], # White foreground for green
-            expand=[('selected', [1, 1, 1, 0])])
-
-    # Presets Child Notebook Tabs (Blue)
-    style.configure('PresetsChild.TNotebook', background=parent_tab_colors["PRESETS"]["active"], borderwidth=0)
-    style.configure('PresetsChild.TNotebook.Tab', background=parent_tab_colors["PRESETS"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-    style.map('PresetsChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["PRESETS"]["active"]), ('active', parent_tab_colors["PRESETS"]["active"])],
-            foreground=[('selected', 'white')],
-            expand=[('selected', [1, 1, 1, 0])])
-
-    # Experiments Child Notebook Tabs (Purple)
-    style.configure('ExperimentsChild.TNotebook', background=parent_tab_colors["EXPERIMENTS"]["active"], borderwidth=0)
-    style.configure('ExperimentsChild.TNotebook.Tab', background=parent_tab_colors["EXPERIMENTS"]["inactive"], foreground=FG_LIGHT, padding=[10, 5])
-    style.map('ExperimentsChild.TNotebook.Tab',
-            background=[('selected', parent_tab_colors["EXPERIMENTS"]["active"]), ('active', parent_tab_colors["EXPERIMENTS"]["active"])],
-            foreground=[('selected', 'white')],
-            expand=[('selected', [1, 1, 1, 0])])
-
-
-    # Treeview (for MarkersDisplayTab and VisaInterpreterTab)
-    style.configure('Treeview',
-                    background="#3b3b3b",
-                    foreground="#ffffff",
-                    fieldbackground="#3b3b3b",
-                    rowheight=25)
-    style.map('Treeview',
-            background=[('selected', ACCENT_BLUE)],
-            foreground=[('selected', 'white')])
-
-    style.configure('Treeview.Heading',
+    # Combobox Style
+    style.configure("TCombobox",
+                    fieldbackground="#333333",
                     background="#4a4a4a",
                     foreground="white",
-                    font=('Helvetica', 10, "bold"))
-    style.map('Treeview.Heading',
-            background=[('active', '#606060')])
+                    selectbackground="#606060",
+                    selectforeground="white",
+                    bordercolor="#606060",
+                    lightcolor="#606060",
+                    darkcolor="#222222")
+    style.map('TCombobox',
+              fieldbackground=[('readonly', '#333333')],
+              selectbackground=[('readonly', '#606060')],
+              selectforeground=[('readonly', 'white')],
+              background=[('readonly', '#4a4a4a')])
 
-    # Markers Tab Specific Styles (from the immersive artifact)
-    style.configure("Markers.TFrame",
-                        background="#1e1e1e", # Dark background for the main markers tab frame
-                        foreground="#cccccc") # Light grey text for general labels
+    # Checkbutton Style
+    style.configure("TCheckbutton",
+                    background="#2e2e2e",
+                    foreground="white",
+                    font=("Helvetica", 10))
+    style.map("TCheckbutton",
+              background=[('active', '#3a3a3a')])
 
-    style.configure("Dark.TLabelframe",
-                        background="#2b2b2b", # Slightly lighter dark for labelled frames
-                        foreground="#ffffff", # White text for the labelframe title
-                        bordercolor="#444444",
-                        lightcolor="#444444",
-                        darkcolor="#1a1a1a")
-    style.map("Dark.TLabelframe",
-              background=[('active', '#3a3a3a')]) # Subtle change on active
+    # Frame Style (for general background)
+    style.configure("TFrame",
+                    background="#2e2e2e")
 
-    style.configure("Dark.TLabelframe.Label",
-                        background="#2b2b2b",
-                        foreground="#ffffff",
-                        font=("Arial", 10, "bold"))
+    # Progressbar Style
+    style.configure("TProgressbar",
+                    background="#007acc", # Blue color for progress
+                    troughcolor="#333333",
+                    bordercolor="#606060")
 
-    style.configure("Dark.TFrame",
-                        background="#1e1e1e") # For inner frames without a label
+    # --- Notebook (Tab) Styles ---
 
-    style.configure("Markers.Inner.Treeview",
-                        background="#2b2b2b", # Dark background for treeview
-                        foreground="#cccccc", # Light grey text
-                        fieldbackground="#2b2b2b",
-                        bordercolor="#444444",
-                        lightcolor="#444444",
-                        darkcolor="#1a1a1a",
-                        font=("Arial", 9))
-    style.map("Markers.Inner.Treeview",
-              background=[('selected', '#555555')], # Darker grey when selected
-              foreground=[('selected', '#ffffff')]) # White text when selected
+    # Parent Notebook (Main Tabs)
+    style.configure("Parent.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='nw') # Tabs on the top-left
 
-    style.configure("Markers.TLabel",
-                        background="#1e1e1e", # Dark background for labels
-                        foreground="#cccccc", # Light grey text
-                        font=("Arial", 9))
-
-    style.configure("Markers.TEntry",
-                        fieldbackground="#3a3a3a", # Darker input field
-                        foreground="#ffffff", # White text
-                        insertcolor="#ffffff", # White cursor
-                        bordercolor="#555555",
-                        lightcolor="#555555",
-                        darkcolor="#222222",
-                        font=("Arial", 9))
-    style.map("Markers.TEntry",
-              fieldbackground=[('focus', '#4a4a4a')]) # Slightly lighter on focus
-
-    style.configure("Markers.TButton",
-                        background="#4a4a4a", # Default dark grey button
+    # Map colors for each parent tab dynamically
+    for tab_name, color_hex in parent_tab_colors.items():
+        # Active tab style
+        style.configure(f"{tab_name}.TNotebook.Tab",
+                        background=color_hex,
                         foreground="white",
-                        font=("Arial", 9, "bold"),
-                        borderwidth=1,
-                        relief="raised",
-                        focusthickness=2,
-                        focuscolor="#007bff") # Blue focus highlight
-    style.map("Markers.TButton",
-              background=[('active', '#5a5a5a'), # Lighter grey on hover
-                          ('pressed', '#3a3a3a')], # Darker grey on press
-              foreground=[('active', '#ffffff'),
-                          ('pressed', '#ffffff')])
+                        font=("Helvetica", 10, "bold"),
+                        padding=[10, 5])
+        style.map(f"{tab_name}.TNotebook.Tab",
+                  background=[('selected', color_hex), ('active', color_hex)],
+                  foreground=[('selected', 'white'), ('active', 'white')])
 
-    style.configure("ActiveScan.TButton",
-                        background="#28a745", # Green
-                        foreground="#000000", # Black text
-                        font=("Arial", 9, "bold"))
-    style.map("ActiveScan.TButton",
-              background=[('active', '#218838'),
-                          ('pressed', '#1e7e34')],
-              foreground=[('active', '#ffffff'),
-                          ('pressed', '#ffffff')])
+        # Inactive tab style (default for other tabs)
+        # This will be the default for any tab not currently selected
+        style.configure(f"TNotebook.Tab",
+                        background="#4a4a4a", # Default inactive tab color
+                        foreground="white",
+                        font=("Helvetica", 10),
+                        padding=[10, 5])
+        style.map(f"TNotebook.Tab",
+                  background=[('active', '#606060'), ('!selected', '#4a4a4a')],
+                  foreground=[('active', 'white'), ('!selected', 'white')])
 
 
-    style.configure("Markers.SelectedButton.TButton",
-                        background="#ff8c00", # Orange
-                        foreground="#000000", # Black text for contrast
-                        font=("Arial", 9, "bold"),
-                        borderwidth=2, # Thicker border for selected
-                        relief="solid", # Solid border
-                        bordercolor="#ffaa00") # Slightly lighter orange border
-    style.map("Markers.SelectedButton.TButton",
-              background=[('active', '#e67e00'), # Darker orange on hover
-                          ('pressed', '#cc7000')], # Even darker on press
-              foreground=[('active', '#ffffff'),
-                          ('pressed', '#ffffff')])
+    # Child Notebooks (Nested Tabs) - consistent dark look
+    # Instrument Child Notebook
+    style.configure("InstrumentChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("InstrumentChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("InstrumentChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
 
-    style.configure("DeviceButton.TButton",
-                        background="#007bff", # Blue
-                        foreground="#ffffff", # White text
-                        font=("Arial", 9, "bold"))
-    style.map("DeviceButton.TButton",
-              background=[('active', '#0056b3'),
-                          ('pressed', '#004085')],
-              foreground=[('active', '#ffffff'),
-                          ('pressed', '#ffffff')])
+    # Scanning Child Notebook
+    style.configure("ScanningChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("ScanningChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("ScanningChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
 
+    # Plotting Child Notebook
+    style.configure("PlottingChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("PlottingChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("PlottingChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
+
+    # Markers Child Notebook
+    style.configure("MarkersChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("MarkersChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("MarkersChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
+
+    # Presets Child Notebook
+    style.configure("PresetsChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("PresetsChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("PresetsChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
+
+    # Experiments Child Notebook
+    style.configure("ExperimentsChild.TNotebook",
+                    background="#2e2e2e",
+                    tabposition='n')
+    style.configure("ExperimentsChild.TNotebook.Tab",
+                    background="#444444",
+                    foreground="white",
+                    font=("Helvetica", 9),
+                    padding=[8, 4])
+    style.map("ExperimentsChild.TNotebook.Tab",
+              background=[('selected', '#555555'), ('active', '#666666')],
+              foreground=[('selected', 'white'), ('active', 'white')])
+
+
+    # Custom Button Styles
+    style.configure('BigScanButton',
+                    font=('Helvetica', 12, 'bold'),
+                    background="#007acc", # Blue
+                    foreground="white",
+                    padding=[20, 10])
+    style.map('BigScanButton',
+              background=[('active', '#005f99')]) # Darker blue on active
 
     # Updated LargePreset.TButton font size to 10
     style.configure("LargePreset.TButton",
@@ -397,9 +271,10 @@ def apply_styles(style, debug_print, current_version, parent_tab_colors):
                     foreground="white",
                     padding=[20, 10])
     style.map('LargeYAK.TButton',
-              background=[('active', '#e07b00'), ('disabled', '#cc7000')])
-
-    debug_print(f" ttk styles applied from src/style.py. Version: {current_version}",
-                file=f"src/style.py - {current_version}",
-                function=apply_styles.__name__)
-
+              background=[('active', '#e07b00')]) # Darker orange on active
+    
+    debug_log_func(f"Custom Tkinter styles applied successfully. The GUI is looking sharp! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function,
+                    special=True)

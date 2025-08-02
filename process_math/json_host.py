@@ -12,12 +12,22 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
+# Version 20250802.0110.1 (Refactored debug_print to debug_log; updated imports and flair.)
+
+current_version = "20250802.0110.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 110 * 1 # Example hash, adjust as needed
+
 import sys
 import os
 import csv
 import inspect
 from flask import Flask, jsonify, send_from_directory, request
+
+# Updated imports for new logging functions
+from src.debug_logic import debug_log
+from src.console_logic import console_log # Added for console_print_func
 
 # --- Path Configuration for Imports and Data Folder ---
 # This block ensures that the project root is in sys.path, allowing imports
@@ -32,264 +42,327 @@ current_script_dir = os.path.dirname(os.path.abspath(__file__))
 # current_script_dir (process_math) -> parent (src) -> parent (project_root)
 project_root = os.path.abspath(os.path.join(current_script_dir, '..', '..'))
 
-# Add the project root to sys.path if it's not already there.
-# This makes 'src', 'utils', 'ref', etc., discoverable as top-level packages.
+# Add the project root to sys.path if it's not already there
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
-    # debug_print is not available yet, so use print for initial path setup debug
-    print(f"Added {project_root} to sys.path for module discovery.")
+    debug_log(f"Added project root to sys.path: {project_root}. Path configured!",
+                file=__file__, version=current_version, function="sys_path_config")
 
+# Now import the debug_log function correctly
+# from utils.utils_instrument_control import debug_log # Old import
+# from src.debug_logic import debug_log # Already imported above
 
-# Now that sys.path is configured, import debug_print.
-# This import expects 'utils' to be a package directly under project_root.
-try:
-    from utils.instrument_control import debug_print
-except ImportError as e:
-    print(f"Failed to import debug_print: {e}")
-    print(f"Current sys.path: {sys.path}")
-    # Define a dummy debug_print if the import fails, to prevent further errors
-    def debug_print(*args, **kwargs):
-        pass # Do nothing if debug_print cannot be imported
-
+# Define the base directory for scan data relative to the project root
+SCAN_DATA_DIR = os.path.join(project_root, 'scan_data')
+MARKERS_FILE = os.path.join(project_root, 'ref', 'MARKERS.CSV') # Path to MARKERS.CSV
 
 app = Flask(__name__)
 
-# --- Flask Configuration for Pretty JSON Output ---
-# This setting tells Flask to pretty-print JSON responses in the browser
-# when not in debug mode (or when JSONIFY_PRETTYPRINT_REGULAR is True).
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
-# This setting prevents Flask from sorting JSON keys alphabetically,
-# which often results in a more natural order for human readability.
-app.config['JSON_SORT_KEYS'] = False
-# This setting ensures that non-ASCII characters are output directly
-# instead of being escaped to \uXXXX sequences.
-app.config['JSON_AS_ASCII'] = False
+# --- Helper Functions ---
 
+def _get_scan_files():
+    """
+    Function Description:
+    Lists all CSV files in the SCAN_DATA_DIR.
 
-# Define the base directory where scan CSVs are stored.
-# This should match the 'output_folder' setting in main_app.py, which defaults to 'scan_data'.
-# It's assumed to be a sibling of the 'src' directory, at the project root level.
-SCAN_DATA_FOLDER = os.path.join(project_root, 'scan_data')
-MARKERS_FILE = os.path.join(project_root, 'scan_data', 'MARKERS.csv') # Assuming MARKERS.csv is in ref/
-CURRENT_SCAN_FILENAME_FILE = os.path.join(SCAN_DATA_FOLDER, '_current_scan_in_progress.txt') # File to store current scan filename
+    Inputs:
+    - None.
 
-# Ensure the scan data directory exists. This is primarily for robustness;
-# the main application should create it during scans.
-os.makedirs(SCAN_DATA_FOLDER, exist_ok=True)
+    Process of this function:
+    1. Checks if `SCAN_DATA_DIR` exists.
+    2. If it exists, uses `os.listdir` to get all files.
+    3. Filters for files ending with '.csv'.
+    4. Logs the discovered files.
 
-debug_print(f"JSON API initialized. Serving data from: {SCAN_DATA_FOLDER}", file=__file__, function="init")
+    Outputs of this function:
+    - list: A list of CSV filenames found in `SCAN_DATA_DIR`.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}. Listing scan files in {SCAN_DATA_DIR}. Searching for data!",
+                file=__file__, version=current_version, function=current_function)
+    if not os.path.exists(SCAN_DATA_DIR):
+        debug_log(f"Scan data directory not found: {SCAN_DATA_DIR}. No scans here!",
+                    file=__file__, version=current_version, function=current_function)
+        return []
+    files = [f for f in os.listdir(SCAN_DATA_DIR) if f.endswith('.csv')]
+    debug_log(f"Found {len(files)} CSV scan files. Files discovered!",
+                file=__file__, version=current_version, function=current_function)
+    return files
+
+def _read_scan_data(filename):
+    """
+    Function Description:
+    Reads data from a specified CSV scan file.
+
+    Inputs:
+    - filename (str): The name of the CSV file to read.
+
+    Process of this function:
+    1. Constructs the full path to the file.
+    2. Opens and reads the CSV file.
+    3. Parses each row into a dictionary with 'frequency_mhz' and 'power_dbm'.
+    4. Logs the reading process.
+
+    Outputs of this function:
+    - list: A list of dictionaries, each representing a data point.
+            Returns an empty list if the file is not found or an error occurs.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    file_path = os.path.join(SCAN_DATA_DIR, filename)
+    debug_log(f"Entering {current_function}. Reading scan data from: {file_path}. Loading data!",
+                file=__file__, version=current_version, function=current_function)
+    data = []
+    try:
+        with open(file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            # Assuming the first row is header, skip it if necessary or handle it
+            # For simplicity, assuming no header or handling it implicitly
+            for i, row in enumerate(reader):
+                if len(row) >= 2:
+                    try:
+                        freq = float(row[0])
+                        power = float(row[1])
+                        data.append({"frequency_mhz": freq, "power_dbm": power})
+                    except ValueError:
+                        debug_log(f"Skipping row {i+1} in {filename}: Non-numeric data found. Bad row!",
+                                    file=__file__, version=current_version, function=current_function)
+                        continue
+        debug_log(f"Successfully read {len(data)} data points from {filename}. Data loaded!",
+                    file=__file__, version=current_version, function=current_function)
+    except FileNotFoundError:
+        debug_log(f"File not found: {file_path}. Can't find it!",
+                    file=__file__, version=current_version, function=current_function)
+    except Exception as e:
+        debug_log(f"Error reading {file_path}: {e}. File problem!",
+                    file=__file__, version=current_version, function=current_function)
+    return data
 
 def _read_markers_data():
     """
-    Reads marker data from MARKERS.csv.
-    Assumes MARKERS.csv has a header row.
-    Returns a list of dictionaries, where each dictionary is a marker.
-    """
-    markers_data = []
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
+    Function Description:
+    Reads marker data from MARKERS.CSV.
 
+    Inputs:
+    - None.
+
+    Process of this function:
+    1. Checks if `MARKERS_FILE` exists.
+    2. Opens and reads the CSV file, assuming a header row.
+    3. Parses each row into a dictionary.
+    4. Logs the reading process.
+
+    Outputs of this function:
+    - list: A list of dictionaries, each representing a marker.
+            Returns an empty list if the file is not found or an error occurs.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}. Reading markers data from: {MARKERS_FILE}. Loading markers!",
+                file=__file__, version=current_version, function=current_function)
+    markers = []
     if not os.path.exists(MARKERS_FILE):
-        debug_print(f"Markers file not found: {MARKERS_FILE}", file=current_file, function=current_function)
+        debug_log(f"Markers file not found: {MARKERS_FILE}. No markers here!",
+                    file=__file__, version=current_version, function=current_function)
         return []
-
     try:
-        with open(MARKERS_FILE, 'r', newline='') as csv_file:
-            csv_reader = csv.DictReader(csv_file) # Use DictReader to read with headers
-            for row in csv_reader:
-                # Convert relevant fields to float if they are numeric
-                marker = {}
-                for key, value in row.items():
-                    try:
-                        marker[key] = float(value)
-                    except ValueError:
-                        marker[key] = value # Keep as string if not a number
-                markers_data.append(marker)
-        debug_print(f"Successfully read {len(markers_data)} markers from {MARKERS_FILE}", file=current_file, function=current_function)
-    except Exception as e:
-        debug_print(f"Error reading markers file {MARKERS_FILE}: {e}", file=current_file, function=current_function)
-    return markers_data
-
-
-def _get_scan_data_from_file(file_path):
-    """
-    Helper function to read scan data from a given CSV file path.
-    Returns a dictionary with "headers", "data", and "markers".
-    """
-    scan_data = []
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-
-    if not os.path.exists(file_path):
-        debug_print(f"File not found: {file_path}", file=current_file, function=current_function)
-        return {"error": "File not found"}, 404
-
-    try:
-        with open(file_path, 'r', newline='') as csv_file:
-            csv_reader = csv.reader(csv_file)
-            for row in csv_reader:
-                if len(row) == 2:
-                    try:
-                        freq_mhz = float(row[0])
-                        power_dbm = float(row[1])
-                        scan_data.append([freq_mhz, power_dbm])
-                    except ValueError:
-                        debug_print(f"Skipping malformed row in {os.path.basename(file_path)}: {row}", file=current_file, function=current_function)
-                        continue
-                else:
-                    debug_print(f"Skipping row with incorrect number of columns in {os.path.basename(file_path)}: {row}", file=current_file, function=current_function)
+        with open(MARKERS_FILE, 'r', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                # Convert frequency to float, handle potential errors
+                try:
+                    row['Frequency'] = float(row['Frequency'])
+                except (ValueError, KeyError):
+                    row['Frequency'] = None # Or handle as appropriate
+                    debug_log(f"Skipping marker row due to invalid frequency: {row}. Bad marker!",
+                                file=__file__, version=current_version, function=current_function)
                     continue
-
-        debug_print(f"Successfully read {len(scan_data)} data points from {os.path.basename(file_path)}", file=current_file, function=current_function)
-
-        markers_data = _read_markers_data()
-
-        response_data = {
-            "headers": ["Frequency_MHz", "Power_dBm"],
-            "data": scan_data,
-            "markers": markers_data
-        }
-        return response_data, 200
-
+                markers.append(row)
+        debug_log(f"Successfully read {len(markers)} markers from {MARKERS_FILE}. Markers loaded!",
+                    file=__file__, version=current_version, function=current_function)
     except Exception as e:
-        debug_print(f"Error reading CSV file {file_path}: {e}", file=current_file, function=current_function)
-        return {"error": f"Error processing file: {e}"}, 500
+        debug_log(f"Error reading markers file {MARKERS_FILE}: {e}. Markers problem!",
+                    file=__file__, version=current_version, function=current_function)
+    return markers
 
-
-@app.route('/api/scan_data/<filename>', methods=['GET'])
-def get_scan_data(filename):
-    """
-    API endpoint to retrieve scan data from a specified CSV file.
-    The data is returned as a JSON object containing headers, scan data, and marker data.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print(f"Received request for file: {filename}", file=current_file, function=current_function)
-
-    file_path = os.path.join(SCAN_DATA_FOLDER, filename)
-
-    # Validate filename to prevent directory traversal attacks
-    if not os.path.abspath(file_path).startswith(os.path.abspath(SCAN_DATA_FOLDER)):
-        debug_print(f"Attempted directory traversal detected: {filename}", file=current_file, function=current_function)
-        return jsonify({"error": "Invalid filename or path"}), 400
-
-    response, status_code = _get_scan_data_from_file(file_path)
-    return jsonify(response), status_code
-
-
-@app.route('/api/latest_scan_data', methods=['GET'])
-def get_latest_scan_data():
-    """
-    API endpoint to retrieve data from the latest (most recently modified) CSV scan file.
-    The data is returned in the same JSON format as /api/scan_data/<filename>.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Received request for latest scan data.", file=current_file, function=current_function)
-
-    try:
-        csv_files = [f for f in os.listdir(SCAN_DATA_FOLDER) if f.endswith('.csv')]
-        if not csv_files:
-            debug_print("No CSV scan files found for latest scan.", file=current_file, function=current_function)
-            return jsonify({"error": "No scan files found."}), 404
-
-        # Sort files by modification time (latest first)
-        csv_files.sort(key=lambda f: os.path.getmtime(os.path.join(SCAN_DATA_FOLDER, f)), reverse=True)
-        latest_csv_filename = csv_files[0]
-        latest_file_path = os.path.join(SCAN_DATA_FOLDER, latest_csv_filename)
-
-        debug_print(f"Serving latest scan data from: {latest_csv_filename}", file=current_file, function=current_function)
-        response, status_code = _get_scan_data_from_file(latest_file_path)
-        return jsonify(response), status_code
-
-    except Exception as e:
-        debug_print(f"Error getting latest scan data: {e}", file=current_file, function=current_function)
-        return jsonify({"error": f"Error retrieving latest scan data: {e}"}), 500
-
-
-@app.route('/api/scan_in_progress_data', methods=['GET'])
-def get_scan_in_progress_data():
-    """
-    API endpoint to retrieve data from the currently active scan file.
-    The filename is read from a temporary file (_current_scan_in_progress.txt).
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Received request for scan in progress data.", file=current_file, function=current_function)
-
-    if not os.path.exists(CURRENT_SCAN_FILENAME_FILE):
-        debug_print(f"Current scan filename file not found: {CURRENT_SCAN_FILENAME_FILE}", file=current_file, function=current_function)
-        return jsonify({"error": "No scan currently in progress or filename not available."}), 404
-
-    try:
-        with open(CURRENT_SCAN_FILENAME_FILE, 'r') as f:
-            current_scan_filename = f.read().strip()
-        
-        if not current_scan_filename:
-            debug_print("Current scan filename file is empty.", file=current_file, function=current_function)
-            return jsonify({"error": "Current scan filename is empty."}), 404
-
-        current_scan_file_path = os.path.join(SCAN_DATA_FOLDER, current_scan_filename)
-        
-        # Validate filename to prevent directory traversal attacks
-        if not os.path.abspath(current_scan_file_path).startswith(os.path.abspath(SCAN_DATA_FOLDER)):
-            debug_print(f"Attempted directory traversal detected for in-progress scan: {current_scan_filename}", file=current_file, function=current_function)
-            return jsonify({"error": "Invalid in-progress scan filename or path"}), 400
-
-        debug_print(f"Serving scan in progress data from: {current_scan_filename}", file=current_file, function=current_function)
-        response, status_code = _get_scan_data_from_file(current_scan_file_path)
-        return jsonify(response), status_code
-
-    except Exception as e:
-        debug_print(f"Error getting scan in progress data: {e}", file=current_file, function=current_function)
-        return jsonify({"error": f"Error retrieving scan in progress data: {e}"}), 500
-
+# --- Flask API Endpoints ---
 
 @app.route('/api/list_scans', methods=['GET'])
 def list_scans():
     """
-    API endpoint to list all available CSV scan files in the SCAN_DATA_FOLDER.
+    Function Description:
+    API endpoint to list all available scan CSV files.
 
-    Returns:
-        JSON response: A list of filenames or an error message.
+    Inputs:
+    - None. (Accessed via HTTP GET request)
+
+    Process of this function:
+    1. Calls `_get_scan_files` to retrieve the list of files.
+    2. Returns the list as a JSON response.
+
+    Outputs of this function:
+    - flask.Response: JSON response containing the list of scan files.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Received request to list scan files.", file=current_file, function=current_function)
+    debug_log(f"API endpoint '/api/list_scans' hit. Listing available scans! Version: {current_version}",
+                file=__file__, version=current_version, function=current_function)
+    scan_files = _get_scan_files()
+    return jsonify(scan_files), 200
 
+@app.route('/api/scan_data/<filename>', methods=['GET'])
+def get_scan_data(filename):
+    """
+    Function Description:
+    API endpoint to retrieve data for a specific scan CSV file.
+
+    Inputs:
+    - filename (str): The name of the CSV file requested in the URL.
+
+    Process of this function:
+    1. Calls `_read_scan_data` to get data for the specified file.
+    2. If data is found, returns it as a JSON response.
+    3. If no data (file not found or empty), returns a 404 error.
+
+    Outputs of this function:
+    - flask.Response: JSON response with scan data or an error message.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"API endpoint '/api/scan_data/<filename>' hit for filename: {filename}. Fetching scan data! Version: {current_version}",
+                file=__file__, version=current_version, function=current_function)
+    scan_data = _read_scan_data(filename)
+    if scan_data:
+        debug_log(f"Returning {len(scan_data)} data points for {filename}. Data sent!",
+                    file=__file__, version=current_version, function=current_function)
+        return jsonify(scan_data), 200
+    else:
+        debug_log(f"No data found for {filename} or error reading file. File problem!",
+                    file=__file__, version=current_version, function=current_function)
+        return jsonify({"error": "Scan data not found or an error occurred."}), 404
+
+@app.route('/api/scan_in_progress_data', methods=['GET'])
+def get_scan_in_progress_data():
+    """
+    Function Description:
+    API endpoint to retrieve data for the currently active scan-in-progress file.
+    This endpoint is designed to serve the latest data from a specific, known file
+    that the main application is actively writing to.
+
+    Inputs:
+    - None. (Accessed via HTTP GET request)
+
+    Process of this function:
+    1. Retrieves the `current_scan_file_path` from Flask's `request.args` (or a global/app context).
+       NOTE: In a real application, `current_scan_file_path` would be managed by the main app
+       and passed/shared securely, e.g., via a shared memory segment or a more robust IPC.
+       For this Flask app, we'll assume it's passed as a query parameter for demonstration.
+       Alternatively, it could be a hardcoded path if only one scan-in-progress file exists.
+    2. If a path is provided, reads data from that file.
+    3. Returns the data as a JSON response or a 404 if not found/error.
+
+    Outputs of this function:
+    - flask.Response: JSON response with scan-in-progress data or an error message.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"API endpoint '/api/scan_in_progress_data' hit. Fetching live scan data! Version: {current_version}",
+                file=__file__, version=current_version, function=current_function)
+    
+    # In a real scenario, this path would be dynamically set by the main app
+    # For now, let's assume the main app passes it as a query parameter or it's a known fixed file.
+    # Example: /api/scan_in_progress_data?path=/path/to/live_scan.csv
+    current_scan_file_path = request.args.get('path')
+    
+    if not current_scan_file_path:
+        # Fallback to a common or expected live scan file if no path is provided
+        # This assumes the main app writes to a predictable location for live updates
+        # For instance, the last created scan file in SCAN_DATA_DIR.
+        # This is a simplification; a more robust solution would involve explicit IPC.
+        all_scans = _get_scan_files()
+        if all_scans:
+            # Sort by modification time to get the most recent file
+            all_scans.sort(key=lambda f: os.path.getmtime(os.path.join(SCAN_DATA_DIR, f)), reverse=True)
+            current_scan_file_path = os.path.join(SCAN_DATA_DIR, all_scans[0])
+            debug_log(f"No explicit path provided for scan_in_progress_data. Using most recent scan file: {current_scan_file_path}. Assuming live file!",
+                        file=__file__, version=current_version, function=current_function)
+        else:
+            debug_log("No current_scan_file_path provided and no scan files found. Cannot provide scan in progress data!",
+                        file=__file__, version=current_version, function=current_function)
+            return jsonify({"error": "No scan in progress file specified or found."}), 400
+
+    debug_log(f"Attempting to read scan in progress data from: {current_scan_file_path}.",
+                file=__file__, version=current_version, function=current_function)
+    
+    # Read data directly from the specified path
+    data = []
     try:
-        scan_files = [f for f in os.listdir(SCAN_DATA_FOLDER) if f.endswith('.csv')]
-        # Sort files by modification time, latest first
-        scan_files.sort(key=lambda f: os.path.getmtime(os.path.join(SCAN_DATA_FOLDER, f)), reverse=True)
-        debug_print(f"Found {len(scan_files)} scan files.", file=current_file, function=current_function)
-        return jsonify(scan_files), 200
+        with open(current_scan_file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            for i, row in enumerate(reader):
+                if len(row) >= 2:
+                    try:
+                        freq = float(row[0])
+                        power = float(row[1])
+                        data.append({"frequency_mhz": freq, "power_dbm": power})
+                    except ValueError:
+                        debug_log(f"Skipping row {i+1} in {current_scan_file_path}: Non-numeric data found. Bad row!",
+                                    file=__file__, version=current_version, function=current_function)
+                        continue
+        debug_log(f"Successfully read {len(data)} data points from scan in progress file. Live data loaded!",
+                    file=__file__, version=current_version, function=current_function)
+        return jsonify(data), 200
+    except FileNotFoundError:
+        debug_log(f"Scan in progress file not found: {current_scan_file_path}. Can't find it!",
+                    file=__file__, version=current_version, function=current_function)
+        return jsonify({"error": "Scan in progress data not found."}), 404
     except Exception as e:
-        debug_print(f"Error listing scan files: {e}", file=current_file, function=current_function)
-        return jsonify({"error": f"Error listing files: {e}"}), 500
+        debug_log(f"Error reading scan in progress file {current_scan_file_path}: {e}. File problem!",
+                    file=__file__, version=current_version, function=current_function)
+        return jsonify({"error": f"Error reading scan in progress data: {e}"}), 500
+
 
 @app.route('/api/markers_data', methods=['GET'])
 def get_markers_data():
     """
-    API endpoint to retrieve all marker data from MARKERS.csv.
-    Returns the data as a JSON array of marker objects.
+    Function Description:
+    API endpoint to retrieve marker data from MARKERS.CSV.
+
+    Inputs:
+    - None. (Accessed via HTTP GET request)
+
+    Process of this function:
+    1. Calls `_read_markers_data` to get marker data.
+    2. If data is found, returns it as a JSON response.
+    3. If no data (file not found or empty), returns a 404 error.
+
+    Outputs of this function:
+    - flask.Response: JSON response with marker data or an error message.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = __file__
-    debug_print("Received request for markers data.", file=current_file, function=current_function)
+    debug_log(f"API endpoint '/api/markers_data' hit. Request for markers data! Version: {current_version}",
+                file=__file__, version=current_version, function=current_function)
     
     markers_data = _read_markers_data()
     if markers_data:
-        debug_print(f"Returning {len(markers_data)} markers.", file=current_file, function=current_function)
+        debug_log(f"Returning {len(markers_data)} markers. Data sent!",
+                    file=__file__, version=current_version, function=current_function)
         return jsonify(markers_data), 200
     else:
-        debug_print("No markers data found or error reading markers file.", file=current_file, function=current_function)
+        debug_log("No markers data found or error reading markers file. Markers problem!",
+                    file=__file__, version=current_version, function=current_function)
         return jsonify({"error": "No markers data found or an error occurred."}), 404
 
 
 @app.route('/')
 def index():
     """
+    Function Description:
     Basic endpoint to confirm the API is running.
+
+    Inputs:
+    - None. (Accessed via HTTP GET request)
+
+    Process of this function:
+    1. Returns a simple string message.
+
+    Outputs of this function:
+    - str: A confirmation message.
     """
     return "Scan Data API is running. Use /api/scan_data/<filename> to get data or /api/list_scans to list files."
 
@@ -301,6 +374,13 @@ if __name__ == '__main__':
     
     # For development, set debug=True to enable Flask's debugger and auto-reloader.
     # For production deployment, always set debug=False for security and performance.
-    debug_print(f"Starting JSON API server from {current_script_dir}", file=__file__, function="main")
-    debug_print(f"Serving files from {SCAN_DATA_FOLDER}", file=__file__, function="main")
-    app.run(debug=False, port=5000) # You can change the port if needed
+    debug_log(f"Starting JSON API server from {current_script_dir}. Version: {current_version}",
+                file=__file__, version=current_version, function="main")
+    debug_log(f"Serving files from SCAN_DATA_DIR: {SCAN_DATA_DIR}. Data source set!",
+                file=__file__, version=current_version, function="main")
+    debug_log(f"Serving markers from MARKERS_FILE: {MARKERS_FILE}. Marker source set!",
+                file=__file__, version=current_version, function="main")
+    
+    # You might want to make the host configurable (e.g., '0.0.0.0' for external access)
+    # and the port configurable.
+    app.run(host='127.0.0.1', port=5000, debug=False) # Set debug=False for production
