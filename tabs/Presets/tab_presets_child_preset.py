@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1701.4 (Removed incorrect import from instrument_logic and ensured correct calls to refresh instrument settings.)
+# Version 20250802.1701.19 (Removed style_obj from kwargs passed to super().__init__.)
 
-current_version = "20250802.1701.4" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 4 # Example hash, adjust as needed
+current_version = "20250802.1701.19" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 19 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -31,14 +31,9 @@ from datetime import datetime # For timestamping user presets
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-from tabs.Instrument.utils_instrument_control import ( # Corrected import path
-    load_user_presets_from_csv, save_user_preset_to_csv,
-    query_device_presets_logic, load_selected_preset_logic
-)
-
-# NOTE: Removed the import below as it was causing a circular dependency and was not needed here.
-# from tabs.Instrument.instrument_logic import query_current_instrument_settings_logic
-# The relevant query function is called via app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+# Import functions from the newly refactored preset utility modules
+from tabs.Presets.utils_preset_query_and_load import query_device_presets_logic, load_selected_preset_logic
+from tabs.Presets.utils_preset_process import load_user_presets_from_csv, save_user_preset_to_csv
 
 # Define constants (if any, from frequency_bands or elsewhere, ensure they are imported or defined)
 # from ref.frequency_bands import MHZ_TO_HZ # Assuming MHZ_TO_HZ is in app_instance now or needs to be imported
@@ -50,7 +45,7 @@ class PresetFilesTab(ttk.Frame):
     connected instrument, loading selected presets, and saving/loading
     user presets to/from a CSV file.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
+    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
         """
         Initializes the PresetFilesTab.
 
@@ -60,11 +55,15 @@ class PresetFilesTab(ttk.Frame):
                                 shared state like instrument connection, Tkinter variables,
                                 and console print function.
             console_print_func (function): Function to print messages to the GUI console.
+            style_obj (ttk.Style): The ttk.Style object for applying custom styles.
             **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         """
-        super().__init__(master, **kwargs)
+        # Filter out style_obj from kwargs before passing to super()
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
+        super().__init__(master, **filtered_kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+        self.style_obj = style_obj # Store the style object
 
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing PresetFilesTab. Version: {current_version}. Let's get these presets organized!",
@@ -195,7 +194,9 @@ class PresetFilesTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        query_device_presets_logic(self.app_instance, self.console_print_func)
+        # Call the function from the new module
+        self.instrument_presets = query_device_presets_logic(self.app_instance, self.console_print_func)
+        self.populate_instrument_preset_buttons(self.instrument_presets)
 
 
     def _on_instrument_preset_selected(self, event):
@@ -288,11 +289,11 @@ class PresetFilesTab(ttk.Frame):
                     # Note: This is a simplified example. A real implementation would map preset data fields
                     # to the correct Tkinter variables and handle type conversions.
                     if 'Center' in selected_preset_data:
-                        self.app_instance.current_center_freq_var.set(f"{float(selected_preset_data['Center']) / self.app_instance.MHZ_TO_HZ:.3f}")
+                        self.app_instance.center_freq_hz_var.set(float(selected_preset_data['Center'])) # Corrected to center_freq_hz_var
                     if 'Span' in selected_preset_data:
-                        self.app_instance.current_span_var.set(f"{float(selected_preset_data['Span']) / self.app_instance.MHZ_TO_HZ:.3f}")
+                        self.app_instance.span_hz_var.set(float(selected_preset_data['Span'])) # Corrected to span_hz_var
                     if 'RBW' in selected_preset_data:
-                        self.app_instance.current_rbw_var.set(f"{float(selected_preset_data['RBW']):.0f}")
+                        self.app_instance.rbw_hz_var.set(float(selected_preset_data['RBW'])) # Corrected to rbw_hz_var
 
                     # Ensure the Instrument tab's display updates
                     # Correctly call the _query_current_settings method from the connection tab
@@ -315,11 +316,11 @@ class PresetFilesTab(ttk.Frame):
                             function=current_function)
                 # If no instrument, just update GUI based on saved preset values
                 if 'Center' in selected_preset_data:
-                    self.app_instance.current_center_freq_var.set(f"{float(selected_preset_data['Center']) / self.app_instance.MHZ_TO_HZ:.3f}")
+                    self.app_instance.center_freq_hz_var.set(float(selected_preset_data['Center'])) # Corrected to center_freq_hz_var
                 if 'Span' in selected_preset_data:
-                    self.app_instance.current_span_var.set(f"{float(selected_preset_data['Span']) / self.app_instance.MHZ_TO_HZ:.3f}")
+                    self.app_instance.span_hz_var.set(float(selected_preset_data['Span'])) # Corrected to span_hz_var
                 if 'RBW' in selected_preset_data:
-                    self.app_instance.current_rbw_var.set(f"{float(selected_preset_data['RBW']):.0f}")
+                    self.app_instance.rbw_hz_var.set(float(selected_preset_data['RBW'])) # Corrected to rbw_hz_var
 
                 # Ensure the Instrument tab's display updates
                 if hasattr(self.app_instance, 'instrument_parent_tab') and \
@@ -355,9 +356,13 @@ class PresetFilesTab(ttk.Frame):
         if hasattr(self.app_instance, 'instrument_parent_tab') and \
            hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
            hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
-
-            center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity, preamp_on = \
+            # Call the _query_current_settings method which now returns the queried values
+            center_freq_mhz, span_mhz, rbw_hz, ref_level_dbm, preamp_on, high_sensitivity = \
                 self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+
+            # Convert MHz back to Hz for saving if necessary, or ensure query returns Hz
+            center_freq_hz = center_freq_mhz * self.app_instance.MHZ_TO_HZ
+            span_hz = span_mhz * self.app_instance.MHZ_TO_HZ
 
             if center_freq_hz is None: # If query failed
                 self.console_print_func("❌ Failed to query current instrument settings. Cannot save preset. This is a disaster!")

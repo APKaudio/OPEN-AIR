@@ -16,18 +16,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1700.0 (Initial creation of correct TAB_PRESETS_PARENT class.)
+# Version 20250802.1701.12 (Updated imports for refactored preset utility files.)
 
-current_version = "20250802.1700.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1700 * 0 # Example hash, adjust as needed
+current_version = "20250802.1701.12" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 12 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import os # Added for os.path.basename(__file__)
 
 # Import child tabs for the Presets parent tab
-# Assuming there will be a tab_presets_child_presets.py for the actual presets UI
-from tabs.Presets.tab_presets_child_preset import PresetFilesTab # Placeholder for now
+from tabs.Presets.tab_presets_child_preset import PresetFilesTab
+from tabs.Presets.tab_presets_child_initial_configuration import InitialConfigurationTab # Ensure this is imported
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
@@ -52,8 +53,8 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         #   1. Calls the superclass constructor (ttk.Frame).
         #   2. Stores references to `app_instance`, `console_print_func`, and `style_obj`.
         #   3. Creates `self.child_notebook` to hold the preset-specific sub-tabs.
-        #   4. Instantiates `PresetsTab`.
-        #   5. Adds this child tab to `self.child_notebook`.
+        #   4. Instantiates `PresetsTab` and `InitialConfigurationTab`.
+        #   5. Adds these child tabs to `self.child_notebook`.
         #   6. Binds the `<<NotebookTabChanged>>` event for the child notebook to `_on_tab_selected`.
         #   7. Assigns child tab instances as attributes of `self`
         #      so they can be accessed from `main_app.py`.
@@ -69,7 +70,7 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
 
         debug_log(f"Initializing Presets Parent Tab.",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function)
 
@@ -77,15 +78,20 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.child_notebook = ttk.Notebook(self, style='PresetsChild.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # Instantiate PresetsTab and assign it as an attribute
+        # Instantiate PresetFilesTab and InitialConfigurationTab
         self.presets_tab = PresetFilesTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.initial_config_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+
+        # Add child tabs to the notebook
         self.child_notebook.add(self.presets_tab, text="Presets Management")
+        self.child_notebook.add(self.initial_config_tab, text="Initial Configuration")
+
 
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
 
         debug_log(f"Presets Parent Tab initialized with child tabs. Version: {current_version}. Ready to manage some presets!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function)
 
@@ -96,7 +102,7 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Presets Child Tab changed. Version: {current_version}. Time to update the display!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function)
 
@@ -108,12 +114,11 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         if hasattr(selected_child_tab_widget, '_on_tab_selected'):
             selected_child_tab_widget._on_tab_selected(event)
             debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_name()}.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)
         else:
             debug_log(f"Active child tab {selected_child_tab_widget.winfo_name()} has no _on_tab_selected method. Skipping update.",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)
-

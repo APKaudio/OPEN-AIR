@@ -1,10 +1,9 @@
-# tabs/Instrument/utils_instrument_control.py
+# tabs/Instrument/utils_instrument_initialize.py
 #
-# This module provides low-level functions for communicating with the spectrum analyzer
-# via PyVISA. It includes functions for safely writing commands, querying data,
-# connecting/disconnecting, initializing instrument settings, and managing device presets.
-# This module is designed to abstract the direct VISA communication details from the
-# higher-level application logic.
+# This module provides a low-level function for initializing a spectrum analyzer
+# with basic settings. It handles resetting the instrument, configuring reference
+# level, preamplifier, high sensitivity mode, trace modes, display scale,
+# sweep time, and data format.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -16,300 +15,22 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1052.1 (Added debug to list_visa_resources to show passed arguments.)
+# Version 20250802.1701.7 (Refactored from utils_instrument_control.py to handle instrument initialization logic.)
 
-current_version = "20250802.1052.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1052 * 1 # Example hash, adjust as needed
+current_version = "20250802.1701.7" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 7 # Example hash, adjust as needed
 
 import pyvisa
 import time
 import inspect # Import inspect module
 import os # Import os module to fix NameError
-from datetime import datetime # Import datetime for timestamp
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log, log_visa_command # Ensure log_visa_command is imported
+from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-# Global variable for debug mode, controlled by GUI checkbox (These are now managed by src.debug_logic directly)
-# DEBUG_MODE = False
-# LOG_VISA_COMMANDS = False # New global variable for VISA command logging
-
-def list_visa_resources(console_print_func=None, *args, **kwargs):
-    """
-    Function Description:
-    Lists available VISA resources (instruments).
-
-    Inputs to this function:
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-    - *args: Catches any unexpected positional arguments.
-    - **kwargs: Catches any unexpected keyword arguments.
-
-    Process of this function:
-    1. Initializes PyVISA ResourceManager.
-    2. Logs any unexpected arguments received.
-    3. Lists available resources.
-    4. Logs the discovered resources or any errors.
-
-    Outputs of this function:
-    - list: A list of strings, where each string is a VISA resource name.
-            Returns an empty list if no resources are found or an error occurs.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log("Listing VISA resources... Let's find some devices!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
-                function=current_function)
-
-    # (2025-08-02 10:52) Change: Added debug to show unexpected arguments.
-    if args or kwargs:
-        debug_log(f"WARNING: list_visa_resources received unexpected arguments! Args: {args}, Kwargs: {kwargs}. What the hell are these?!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        console_print_func(f"⚠️ Warning: list_visa_resources received unexpected arguments! This might be the source of the problem. Check the call!")
-
-    try:
-        rm = pyvisa.ResourceManager()
-        resources = rm.list_resources()
-        debug_log(f"Found VISA resources: {resources}. Success!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return list(resources)
-    except Exception as e:
-        error_msg = f"❌ Error listing VISA resources: {e}. This is a disaster!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return []
-
-
-def connect_to_instrument(resource_name, console_print_func=None):
-    """
-    Function Description:
-    Establishes a connection to a VISA instrument.
-
-    Inputs to this function:
-    - resource_name (str): The VISA resource string (e.g., "GPIB0::1::INSTR").
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Initializes PyVISA ResourceManager.
-    2. Opens the specified resource.
-    3. Sets instrument timeout, read/write termination characters, and query delay.
-    4. Logs connection status.
-
-    Outputs of this function:
-    - pyvisa.resources.Resource or None: The connected PyVISA instrument object if successful,
-                                         None otherwise.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Connecting to instrument: {resource_name}. Fingers crossed!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
-                function=current_function)
-    try:
-        rm = pyvisa.ResourceManager()
-        inst = rm.open_resource(resource_name)
-        inst.timeout = 10000 # Set a timeout (milliseconds) - Increased for robustness
-        inst.read_termination = '\n' # Set read termination character
-        inst.write_termination = '\n' # Set write termination character
-        inst.query_delay = 0.1 # Small delay between write and read for query
-        console_print_func(f"✅ Successfully connected to {resource_name}. It's alive!")
-        debug_log(f"Connection successful to {resource_name}. We're in!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return inst
-    except pyvisa.errors.VisaIOError as e:
-        error_msg = f"❌ VISA error connecting to {resource_name}: {e}. This is a nightmare!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return None
-    except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while connecting to {resource_name}: {e}. What a mess!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return None
-
-
-def disconnect_instrument(inst, console_print_func=None):
-    """
-    Function Description:
-    Closes the connection to a VISA instrument.
-
-    Inputs to this function:
-    - inst (pyvisa.resources.Resource): The PyVISA instrument object to disconnect.
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Checks if the instrument object is valid.
-    2. Attempts to close the instrument connection.
-    3. Logs disconnection status.
-
-    Outputs of this function:
-    - bool: True if disconnection is successful, False otherwise.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log("Disconnecting instrument... Saying goodbye!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
-                function=current_function)
-    if inst:
-        try:
-            inst.close()
-            console_print_func("✅ Instrument disconnected. See ya!")
-            debug_log("Instrument connection closed. All done!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return True
-        except pyvisa.errors.VisaIOError as e:
-            error_msg = f"❌ VISA error disconnecting instrument: {e}. This thing is stuck!"
-            console_print_func(error_msg)
-            debug_log(error_msg,
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return False
-        except Exception as e:
-            error_msg = f"❌ An unexpected error occurred while disconnecting instrument: {e}. What a pain!"
-            console_print_func(error_msg)
-            debug_log(error_msg,
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return False
-    debug_log("No instrument to disconnect. Already gone!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
-                function=current_function)
-    return False
-
-
-def write_safe(inst, command, console_print_func=None):
-    """
-    Function Description:
-    Safely writes a command to the instrument.
-
-    Inputs to this function:
-    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
-    - command (str): The SCPI command string to write.
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Checks if the instrument is connected.
-    2. Logs the command using `log_visa_command`.
-    3. Attempts to write the command to the instrument.
-    4. Handles and logs any VISA or general exceptions.
-
-    Outputs of this function:
-    - bool: True if the command was written successfully, False otherwise.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    if not inst:
-        debug_log(f"Not connected to instrument, cannot write command: {command}. Fucking useless!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        console_print_func(f"⚠️ Warning: Not connected. Failed to write: {command}. Connect the damn thing first!")
-        return False
-    try:
-        log_visa_command(command, "SENT") # Use the imported log_visa_command
-        inst.write(command)
-        return True
-    except pyvisa.errors.VisaIOError as e:
-        error_msg = f"🛑 VISA error sending command '{command.strip()}': {e}. This is a nightmare!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return False
-    except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while sending command '{command.strip()}': {e}. What a mess!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return False
-
-
-def query_safe(inst, command, console_print_func=None):
-    """
-    Function Description:
-    Safely queries the instrument and returns the response.
-    Returns an empty string if an error occurs or no response, to prevent NoneType errors.
-
-    Inputs to this function:
-    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
-    - command (str): The SCPI query command string.
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Checks if the instrument is connected.
-    2. Logs the command using `log_visa_command`.
-    3. Attempts to query the instrument and retrieve the response.
-    4. Logs the response using `log_visa_command`.
-    5. Handles and logs any VISA or general exceptions.
-
-    Outputs of this function:
-    - str: The instrument's response (stripped of whitespace) if successful,
-           an empty string otherwise.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    if not inst:
-        debug_log(f"Not connected to instrument, cannot query command: {command}. Fucking useless!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        console_print_func(f"⚠️ Warning: Not connected. Failed to query: {command}. Connect the damn thing first!")
-        return "" # Return empty string on error if not connected
-    try:
-        log_visa_command(command, "SENT") # Use the imported log_visa_command
-        response = inst.query(command).strip()
-        log_visa_command(response, "RECEIVED") # Use the imported log_visa_command
-        debug_log(f"Query '{command.strip()}' response: {response}. Got it!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return response
-    except pyvisa.errors.VisaIOError as e:
-        error_msg = f"🛑 VISA error querying '{command.strip()}': {e}. This goddamn thing is broken!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return "" # Return empty string on error
-    except Exception as e:
-        error_msg = f"❌ An unexpected error occurred while querying '{command.strip()}': {e}. What a pain!"
-        console_print_func(error_msg)
-        debug_log(error_msg,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        return "" # Return empty string on error
+# Import read/write safe functions from the new dedicated module
+from tabs.Instrument.utils_instrument_read_and_write import write_safe, query_safe
 
 
 def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, rbw_config_val, vbw_config_val, model_match, console_print_func=None):
@@ -372,7 +93,7 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
             return False # Wait for operation to complete
         time.sleep(1) # Give it a moment after reset and OPC
 
-        
+
         # Set preamplifier
         if preamp_on:
             if not write_safe(inst, ":POWer:ATTenuation:AUTO ON", console_print_func):
@@ -490,7 +211,7 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-        
+
         # Configure Trace Modes (These are now handled by set_span_logic when called from GUI)
         # The initial setup of trace modes here should reflect a default state,
         # which is usually Live (WRITe).
@@ -530,7 +251,7 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        
+
         # Display scale is always LOGarithmic
         if not write_safe(inst, ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing LOGarithmic", console_print_func):
             debug_log("Failed to set :DISPlay:WINDow:TRACe:Y:SCALe:SPACing LOGarithmic. Display scale problem!",
@@ -543,7 +264,7 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        
+
         # Set VBW and Sweep Time to AUTO
         if not write_safe(inst, ":SENSe:BANDwidth:VIDeo:AUTO ON", console_print_func):
             debug_log("Failed to set :SENSe:BANDwidth:VIDeo:AUTO ON. VBW auto failed!",
@@ -591,11 +312,11 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
                         function=current_function)
         else:
             console_print_func(f"ℹ️ Trace data format command skipped for model {model_match}. No specific command defined. Moving on!")
-            debug_log(f"Trace data format command skipped for model {model_match}. No specific command defined. Not applicable!",
+            debug_log(f"Trace data format command skipped for model {model_match}. It's specific to N9342CN. Not applicable!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-       
+
         console_print_func("🎉 Instrument initialized successfully with desired settings. All systems go!")
         debug_log("Instrument initialized successfully. Ready for operation!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -616,72 +337,3 @@ def initialize_instrument(inst, ref_level_dbm, high_sensitivity_on, preamp_on, r
                     version=current_version,
                     function=current_function)
         return False
-
-
-def query_current_instrument_settings(inst, MHZ_TO_HZ_CONVERSION, console_print_func=None):
-    """
-    Function Description:
-    Queries and returns the current Center Frequency, Span, and RBW from the instrument.
-
-    Inputs:
-        inst (pyvisa.resources.Resource): The connected VISA instrument object.
-        MHZ_TO_HZ_CONVERSION (float): The conversion factor from MHz to Hz.
-        console_print_func (function, optional): Function to print to the GUI console.
-                                               Defaults to console_log if None.
-    Outputs:
-        tuple: (center_freq_mhz, span_mhz, rbw_hz) or (None, None, None) on failure.
-    """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log("Querying current instrument settings... Let's see what's happening!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
-                function=current_function)
-
-    if not inst:
-        debug_log("No instrument connected to query settings. Fucking useless!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        console_print_func("⚠️ Warning: No instrument connected. Cannot query settings. Connect the damn thing first!")
-        return None, None, None
-
-    center_freq_hz = None
-    span_hz = None
-    rbw_hz = None
-
-    try:
-        # Query Center Frequency
-        center_freq_str = query_safe(inst, ":SENSe:FREQuency:CENTer?", console_print_func)
-        if center_freq_str:
-            center_freq_hz = float(center_freq_str)
-
-        # Query Span
-        span_str = query_safe(inst, ":SENSe:FREQuency:SPAN?", console_print_func)
-        if span_str:
-            span_hz = float(span_str)
-
-        # Query RBW
-        rbw_str = query_safe(inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
-        if rbw_str:
-            rbw_hz = float(rbw_str)
-
-        center_freq_mhz = center_freq_hz / MHZ_TO_HZ_CONVERSION if center_freq_hz is not None else None
-        span_mhz = span_hz / MHZ_TO_HZ_CONVERSION if span_hz is not None else None
-
-        debug_log(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        
-        console_print_func(f"✅ Queried settings: C: {center_freq_mhz:.3f} MHz, SP: {span_mhz:.3f} MHz, RBW: {rbw_hz / 1000:.1f} kHz. Details acquired!")
-        
-        return center_freq_mhz, span_mhz, rbw_hz
-
-    except Exception as e:
-        debug_log(f"❌ Error querying current instrument settings: {e}. What a mess!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        console_print_func(f"❌ Error querying current instrument settings: {e}. This is a disaster!")
-        return None, None, None

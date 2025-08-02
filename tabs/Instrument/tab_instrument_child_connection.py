@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1555.1 (Fixed resource list not populating and streamlined UI updates.)
+# Version 20250802.1701.18 (Fixed ImportError by updating function names from instrument_logic.)
 
-current_version = "20250802.1555.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 13 # Example hash, adjust as needed
+current_version = "20250802.1701.18" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 18 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -32,7 +32,7 @@ import threading
 # Import instrument control logic functions
 from tabs.Instrument.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
-    apply_instrument_settings_logic, query_current_instrument_settings_logic
+    apply_settings_logic, query_current_settings_logic # Corrected function names
 )
 from src.connection_status_logic import update_connection_status_logic
 from src.settings_and_config.config_manager import save_config # Import save_config
@@ -431,7 +431,7 @@ class InstrumentTab(ttk.Frame):
             1. Prints a console message.
             2. Prints a debug message.
             3. Disables the Connect button and enables the Disconnect button temporarily.
-            4. Starts a new thread to call `connect_instrument_logic`.
+            4. Starts a new thread that calls `connect_instrument_logic`.
             5. `connect_instrument_logic` will update `self.app_instance.inst`
                 and other instrument info variables upon completion, and importantly,
                 it calls `app_instance.update_connection_status` which will handle
@@ -526,7 +526,7 @@ class InstrumentTab(ttk.Frame):
             2. Prints a console message.
             3. Prints a debug message.
             4. Disables the "Apply Settings" and "Query Settings" buttons to prevent re-entry.
-            5. Starts a new thread to call `apply_instrument_settings_logic`.
+            5. Starts a new thread to call `apply_settings_logic`.
             6. Re-enables buttons upon completion via `self.app_instance.after`.
 
         Outputs:
@@ -551,8 +551,8 @@ class InstrumentTab(ttk.Frame):
         self.apply_settings_button.config(state=tk.DISABLED)
         self.query_settings_button.config(state=tk.DISABLED)
 
-        # The apply_instrument_settings_logic will handle re-enabling buttons
-        threading.Thread(target=apply_instrument_settings_logic,
+        # The apply_settings_logic will handle re-enabling buttons
+        threading.Thread(target=apply_settings_logic, # Corrected function name
                          args=(self.app_instance, self.console_print_func)).start()
 
     def _query_settings_from_instrument(self):
@@ -569,7 +569,7 @@ class InstrumentTab(ttk.Frame):
             2. Prints a console message.
             3. Prints a debug message.
             4. Disables the "Apply Settings" and "HQuery Settings" buttons to prevent re-entry.
-            5. Starts a new thread to call `query_current_instrument_settings_logic`.
+            5. Starts a new thread to call `query_current_settings_logic`.
             6. Updates the display labels with the queried values upon completion via `self.app_instance.after`.
             7. Re-enables buttons upon completion.
 
@@ -595,8 +595,8 @@ class InstrumentTab(ttk.Frame):
         self.apply_settings_button.config(state=tk.DISABLED)
         self.query_settings_button.config(state=tk.DISABLED)
 
-        # The query_current_instrument_settings_logic will handle re-enabling buttons
-        threading.Thread(target=query_current_instrument_settings_logic,
+        # The query_current_settings_logic will handle re-enabling buttons
+        threading.Thread(target=query_current_settings_logic, # Corrected function name
                          args=(self.app_instance, self.console_print_func)).start()
 
     def _clear_settings_display(self):
@@ -790,4 +790,3 @@ class InstrumentTab(ttk.Frame):
 
         # Update UI visibility based on connection status when tab is selected
         self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
-

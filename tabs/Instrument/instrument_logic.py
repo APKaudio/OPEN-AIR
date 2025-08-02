@@ -15,11 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 20250802.1701.3 (Removed incorrect self-import of query_current_instrument_settings and non-existent preset functions.)
+# Version 20250802.1701.9 (Updated imports to use new refactored utility files.)
 
-current_version = "20250802.1701.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 3 # Example hash, adjust as needed
+current_version = "20250802.1701.9" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 9 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -32,15 +31,21 @@ import inspect # Import inspect module
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-# Import necessary functions from utils.utils_instrument_control
-from tabs.Instrument.utils_instrument_control import (
+# Import necessary functions from the new, specialized utility modules
+from tabs.Instrument.utils_instrument_connection import (
     list_visa_resources,
     connect_to_instrument,
-    disconnect_instrument,
+    disconnect_instrument
+)
+from tabs.Instrument.utils_instrument_read_and_write import (
     write_safe,
-    query_safe,
-    initialize_instrument,
-    query_current_instrument_settings # This function is now correctly imported from utils_instrument_control
+    query_safe
+)
+from tabs.Instrument.utils_instrument_initialize import (
+    initialize_instrument
+)
+from tabs.Instrument.utils_instrument_query_settings import (
+    query_current_instrument_settings
 )
 
 # Constants for frequency conversion
@@ -68,6 +73,7 @@ def populate_resources_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Added `is_scanning=False` to `app_instance.update_connection_status` call.
     # (2025-08-02) Change: Modified to return resources for direct combobox update.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
+    # (2025-08-02) Change: Updated import for `list_visa_resources` from `utils_instrument_connection`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Populating VISA resources. Let's find those devices! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -115,6 +121,7 @@ def connect_instrument_logic(app_instance, console_print_func):
     #
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
+    # (2025-08-02) Change: Updated imports for `connect_to_instrument`, `disconnect_instrument`, `write_safe`, `query_safe`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to connect to instrument. Let's make this happen! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -228,6 +235,7 @@ def disconnect_instrument_logic(app_instance, console_print_func):
     #
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
+    # (2025-08-02) Change: Updated import for `disconnect_instrument` from `utils_instrument_connection`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to disconnect instrument. Let's pull the plug! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -284,6 +292,7 @@ def apply_settings_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
     # (2025-08-02) Change: Corrected call to `initialize_instrument` with correct arguments.
+    # (2025-08-02) Change: Updated import for `initialize_instrument` from `utils_instrument_initialize`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Applying settings to instrument. Let's dial this in! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -314,7 +323,7 @@ def apply_settings_logic(app_instance, console_print_func):
         # Get the model match from app_instance.instrument_model
         model_match = app_instance.instrument_model.get()
 
-        if initialize_instrument( # Corrected function name
+        if initialize_instrument(
             app_instance.inst,
             ref_level_dbm,
             high_sensitivity_enabled,
@@ -373,6 +382,8 @@ def query_current_settings_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
     # (2025-08-02) Change: Corrected call to `query_current_instrument_settings` with correct arguments.
+    # (2025-08-02) Change: Updated import for `query_current_instrument_settings` from `utils_instrument_query_settings`.
+    # (2025-08-02) Change: Updated import for `query_safe` from `utils_instrument_read_and_write`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Querying current settings from instrument. Let's see what's going on! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -390,7 +401,7 @@ def query_current_settings_logic(app_instance, console_print_func):
     try:
         # Pass MHZ_TO_HZ_CONVERSION to query_current_instrument_settings
         center_freq_mhz, span_mhz, rbw_hz = \
-            query_current_instrument_settings(app_instance.inst, MHZ_TO_HZ_CONVERSION, console_print_func) # Corrected function name and arguments
+            query_current_instrument_settings(app_instance.inst, MHZ_TO_HZ_CONVERSION, console_print_func)
 
         # Update Tkinter variables
         if center_freq_mhz is not None:
@@ -500,4 +511,3 @@ def query_current_settings_logic(app_instance, console_print_func):
                     version=current_version,
                     function=current_function)
         return False
-
