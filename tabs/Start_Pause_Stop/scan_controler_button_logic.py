@@ -1,4 +1,4 @@
-# src/scan_controler_button_logic.py
+# tabs/Start_Pause_Stop/scan_controler_button_logic.py
 #
 # This file contains the Tkinter Frame for controlling spectrum scans,
 # including starting, pausing, and stopping scans.

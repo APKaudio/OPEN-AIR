@@ -70,7 +70,7 @@ from tabs.Instrument.instrument_logic import (
 )
 from src.connection_status_logic import update_connection_status_logic
 from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.scan_controler_button_logic import ScanControlTab
+from tabs.Start_Pause_Stop.scan_controler_button_logic import ScanControlTab
 from src.style import apply_styles
 from src.check_Dependancies import check_and_install_dependencies
 

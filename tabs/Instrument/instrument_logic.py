@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0205.2 (Fixed argument mismatch in connect_to_instrument call.)
+# Version 20250802.0205.3 (Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'instrument_connection_tab'.)
 
-current_version = "20250802.0205.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 35 * 2 + 1 # Example hash, adjust as needed
+current_version = "20250802.0205.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 2 + 2 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -248,9 +248,10 @@ def disconnect_instrument_logic(app_instance, console_print_func=None):
                     function=current_function)
 
     # Clear displayed settings in GUI
+    # (2025-08-02 11:08) Change: Corrected attribute access from instrument_connection_tab to instrument_settings_tab.
     if hasattr(app_instance, 'instrument_parent_tab') and \
-       hasattr(app_instance.instrument_parent_tab, 'instrument_connection_tab'):
-        app_instance.instrument_parent_tab.instrument_connection_tab._clear_settings_display()
+       hasattr(app_instance.instrument_parent_tab, 'instrument_settings_tab'):
+        app_instance.instrument_parent_tab.instrument_settings_tab._clear_settings_display()
         debug_log("Cleared instrument settings display in GUI.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -357,7 +358,7 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
                         function=current_function)
         else:
             app_instance.vbw_hz_var.set(0.0)
-            debug_log("🚫🐛 Could not determine VBW. Setting to 0 Hz. This is a **fucking nightmare**!",
+            debug_log("�🐛 Could not determine VBW. Setting to 0 Hz. This is a **fucking nightmare**!",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -423,13 +424,14 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
 
         # Ensure the Tkinter variables are updated on the main thread
         # This is crucial for the UI to reflect the changes immediately
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_center_freq_var.set(f"{app_instance.center_freq_hz_var.get() / 1e9:.3f} GHz"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_span_var.set(f"{app_instance.span_hz_var.get() / 1e6:.3f} MHz"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_rbw_var.set(f"{app_instance.rbw_hz_var.get() / 1e3:.3f} kHz"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_vbw_var.set(f"{app_instance.vbw_hz_var.get() / 1e3:.3f} kHz"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_ref_level_var.set(f"{app_instance.reference_level_dbm_var.get()} dBm"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_preamp_var.set("ON" if app_instance.preamp_on_var.get() else "OFF"))
-        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_connection_tab.current_high_sensitivity_var.set("ON" if app_instance.high_sensitivity_var.get() else "OFF"))
+        # (2025-08-02 11:08) Change: Corrected attribute access from instrument_connection_tab to instrument_settings_tab.
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_center_freq_var.set(f"{app_instance.center_freq_hz_var.get() / 1e9:.3f} GHz"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_span_var.set(f"{app_instance.span_hz_var.get() / 1e6:.3f} MHz"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_rbw_var.set(f"{app_instance.rbw_hz_var.get() / 1e3:.3f} kHz"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_vbw_var.set(f"{app_instance.vbw_hz_var.get() / 1e3:.3f} kHz"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_ref_level_var.set(f"{app_instance.reference_level_dbm_var.get()} dBm"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_preamp_var.set("ON" if app_instance.preamp_on_var.get() else "OFF"))
+        app_instance.after(0, lambda: app_instance.instrument_parent_tab.instrument_settings_tab.current_high_sensitivity_var.set("ON" if app_instance.high_sensitivity_var.get() else "OFF"))
 
         console_print_func("✅ Current instrument settings updated in GUI. All values retrieved!")
         debug_log("Current instrument settings updated in GUI. UI synced!",
