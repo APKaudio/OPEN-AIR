@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0040.3 (Corrected tab references in update_connection_status_logic to match main_app.py and parent tab attributes.)
+# Version 20250802.0040.4 (Added hasattr checks for resource_dropdown in InstrumentTab.)
 
-current_version = "20250802.0040.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 40 * 3 # Example hash, adjust as needed
+current_version = "20250802.0040.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 40 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
 import inspect
@@ -76,27 +76,27 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
 
     # Safely get tab references
     if hasattr(app_instance, 'instrument_parent_tab') and \
-       hasattr(app_instance.instrument_parent_tab, 'instrument_settings_tab'): # Corrected: 'instrument_connection_tab' -> 'instrument_settings_tab'
-        instrument_connection_tab = app_instance.instrument_parent_tab.instrument_settings_tab
+       hasattr(app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+        instrument_connection_tab = app_instance.instrument_parent_tab.instrument_connection_tab
     else:
-        debug_log("Instrument Connection Tab (instrument_settings_tab) not found on instrument_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Instrument Connection Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'scan_control_tab'): # Corrected: Directly on app_instance, not scanning_parent_tab
-        scan_control_tab = app_instance.scan_control_tab
+    if hasattr(app_instance, 'start_pause_stop_tab'):
+        scan_control_tab = app_instance.start_pause_stop_tab
     else:
-        debug_log("Scan Control Tab (scan_control_tab) not found directly on app_instance. This is a critical bug, fix this shit!",
+        debug_log("Scan Control Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
     if hasattr(app_instance, 'scanning_parent_tab') and \
-       hasattr(app_instance.scanning_parent_tab, 'scan_tab'): # Corrected: 'scan_tab'
-        scan_config_tab = app_instance.scanning_parent_tab.scan_tab
+       hasattr(app_instance.scanning_parent_tab, 'scan_configuration_tab'):
+        scan_config_tab = app_instance.scanning_parent_tab.scan_configuration_tab
     else:
-        debug_log("Scan Configuration Tab (scan_tab) not found on scanning_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Scan Configuration Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -105,25 +105,23 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
        hasattr(app_instance.scanning_parent_tab, 'scan_meta_data_tab'):
         scan_meta_data_tab = app_instance.scanning_parent_tab.scan_meta_data_tab
     else:
-        debug_log("Scan Meta Data Tab (scan_meta_data_tab) not found on scanning_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Scan Meta Data Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'plotting_parent_tab') and \
-       hasattr(app_instance.plotting_parent_tab, 'plotting_tab'):
-        plotting_tab = app_instance.plotting_parent_tab.plotting_tab
+    if hasattr(app_instance, 'plotting_tab'):
+        plotting_tab = app_instance.plotting_tab
     else:
-        debug_log("PlottingTab not found on plotting_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Plotting Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'markers_parent_tab') and \
-       hasattr(app_instance.markers_parent_tab, 'markers_display_tab'):
-        markers_display_tab = app_instance.markers_parent_tab.markers_display_tab
+    if hasattr(app_instance, 'markers_display_tab'):
+        markers_display_tab = app_instance.markers_display_tab
     else:
-        debug_log("MarkersDisplayTab not found on markers_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Markers Display Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -132,224 +130,275 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
        hasattr(app_instance.presets_parent_tab, 'preset_files_tab'):
         presets_tab = app_instance.presets_parent_tab.preset_files_tab
     else:
-        debug_log("Presets Tab (preset_files_tab) not found on presets_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("Presets Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_function,
+                    version=current_version,
                     function=current_function)
 
-    if hasattr(app_instance, 'experiments_parent_tab') and \
-       hasattr(app_instance.experiments_parent_tab, 'json_api_tab'):
-        json_api_tab = app_instance.experiments_parent_tab.json_api_tab
+    if hasattr(app_instance, 'json_api_tab'):
+        json_api_tab = app_instance.json_api_tab
     else:
-        debug_log("JSON API Tab (json_api_tab) not found on experiments_parent_tab. This is a critical bug, fix this shit!",
+        debug_log("JSON API Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
+    # Determine the state for buttons
+    state = tk.NORMAL if is_connected and not is_scanning else tk.DISABLED
+    scan_active_state = tk.NORMAL if is_scanning else tk.DISABLED # For buttons active during scan
 
-    # --- Instrument Connection Tab buttons ---
+    # --- Instrument Connection Tab ---
     if instrument_connection_tab:
-        debug_log(f"Configuring Instrument Connection Tab. Connected: {is_connected}, Scanning: {is_scanning}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        instrument_connection_tab.connect_button.config(state=tk.DISABLED if is_connected else tk.NORMAL)
-        instrument_connection_tab.disconnect_button.config(state=tk.NORMAL if is_connected else tk.DISABLED)
-        instrument_connection_tab.apply_settings_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        instrument_connection_tab.query_settings_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        
-        # Resource dropdown and refresh button should be disabled during scan
-        instrument_connection_tab.resource_dropdown.config(state=tk.DISABLED if is_scanning else tk.NORMAL)
-        instrument_connection_tab.refresh_button.config(state=tk.DISABLED if is_scanning else tk.NORMAL)
+        # Check if resource_dropdown exists before trying to configure it
+        if hasattr(instrument_connection_tab, 'resource_dropdown'):
+            instrument_connection_tab.resource_dropdown.config(state=tk.DISABLED if is_scanning else tk.NORMAL)
+            debug_log(f"Instrument Connection Tab: resource_dropdown state set to {instrument_connection_tab.resource_dropdown.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log("Instrument Connection Tab: 'resource_dropdown' attribute not found. Skipping configuration.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
+        if hasattr(instrument_connection_tab, 'connect_button'):
+            instrument_connection_tab.connect_button.config(state=tk.DISABLED if is_connected or is_scanning else tk.NORMAL)
+            debug_log(f"Instrument Connection Tab: connect_button state set to {instrument_connection_tab.connect_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(instrument_connection_tab, 'disconnect_button'):
+            instrument_connection_tab.disconnect_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+            debug_log(f"Instrument Connection Tab: disconnect_button state set to {instrument_connection_tab.disconnect_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(instrument_connection_tab, 'refresh_button'):
+            instrument_connection_tab.refresh_button.config(state=tk.DISABLED if is_connected or is_scanning else tk.NORMAL)
+            debug_log(f"Instrument Connection Tab: refresh_button state set to {instrument_connection_tab.refresh_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(instrument_connection_tab, 'query_settings_button'):
+            instrument_connection_tab.query_settings_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+            debug_log(f"Instrument Connection Tab: query_settings_button state set to {instrument_connection_tab.query_settings_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(instrument_connection_tab, 'apply_settings_button'):
+            instrument_connection_tab.apply_settings_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+            debug_log(f"Instrument Connection Tab: apply_settings_button state set to {instrument_connection_tab.apply_settings_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
         debug_log("Instrument Connection Tab buttons updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
+    else:
+        debug_log("Instrument Connection Tab not found when updating connection status. This is a critical bug, fix this shit!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
 
-    # --- Scan Control Tab buttons ---
+    # --- Scan Control Tab ---
     if scan_control_tab:
-        debug_log(f"Configuring Scan Control Tab. Connected: {is_connected}, Scanning: {is_scanning}",
+        if hasattr(scan_control_tab, 'start_button'):
+            scan_control_tab.start_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+            debug_log(f"Scan Control Tab: start_button state set to {scan_control_tab.start_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(scan_control_tab, 'pause_button'):
+            scan_control_tab.pause_button.config(state=tk.NORMAL if is_scanning else tk.DISABLED)
+            debug_log(f"Scan Control Tab: pause_button state set to {scan_control_tab.pause_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(scan_control_tab, 'resume_button'):
+            scan_control_tab.resume_button.config(state=tk.NORMAL if is_connected and scan_control_tab.is_paused else tk.DISABLED)
+            debug_log(f"Scan Control Tab: resume_button state set to {scan_control_tab.resume_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        if hasattr(scan_control_tab, 'stop_button'):
+            scan_control_tab.stop_button.config(state=tk.NORMAL if is_scanning else tk.DISABLED)
+            debug_log(f"Scan Control Tab: stop_button state set to {scan_control_tab.stop_button.cget('state')}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        debug_log("Scan Control Tab buttons updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        scan_control_tab._update_button_states() # Let the tab manage its own buttons
-        debug_log("Scan Control Tab buttons updated via its internal method.",
+    else:
+        debug_log("Scan Control Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
 
 
-    # --- Scan Configuration Tab buttons/widgets ---
+    # --- Scan Configuration Tab ---
     if scan_config_tab:
-        debug_log(f"Configuring Scan Configuration Tab. Connected: {is_connected}, Scanning: {is_scanning}",
+        # Enable/disable all input widgets in scan_config_tab
+        # Assuming scan_config_tab has a method or a list of widgets to control
+        # For now, let's assume direct access to some key widgets
+        for widget in [scan_config_tab.scan_name_entry,
+                       scan_config_tab.output_folder_entry,
+                       scan_config_tab.output_folder_button,
+                       scan_config_tab.scan_mode_dropdown,
+                       scan_config_tab.reference_level_dbm_dropdown,
+                       scan_config_tab.attenuation_dropdown,
+                       scan_config_tab.freq_shift_dropdown,
+                       scan_config_tab.scan_rbw_segmentation_entry,
+                       scan_config_tab.desired_default_focus_width_entry]:
+            if hasattr(widget, 'config'): # Check if it's a configurable Tkinter widget
+                widget.config(state=state)
+        
+        # Handle checkboxes separately as their state is managed differently
+        for band_item in scan_config_tab.app_instance.band_vars:
+            band_item["var_widget"].config(state=state) # Assuming var_widget is the Checkbutton widget
+
+        debug_log("Scan Configuration Tab buttons and inputs updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        # Enable/disable dropdowns and checkboxes based on scan status
-        state = tk.DISABLED if is_scanning else tk.NORMAL
-        
-        # Widgets on Scan Configuration tab
-        scan_config_tab.scan_name_entry.config(state=state)
-        scan_config_tab.output_folder_entry.config(state=state)
-        scan_config_tab.output_folder_button.config(state=state)
-        scan_config_tab.open_output_folder_button.config(state=tk.NORMAL) # This button should always be available
-
-        # Dropdowns
-        scan_config_tab.graph_quality_combobox.config(state=state)
-        scan_config_tab.dwell_time_combobox.config(state=state)
-        scan_config_tab.max_hold_time_combobox.config(state=state)
-        scan_config_tab.scan_rbw_combobox.config(state=state)
-        scan_config_tab.reference_level_combobox.config(state=state)
-        scan_config_tab.frequency_shift_combobox.config(state=state)
-        scan_config_tab.high_sensitivity_combobox.config(state=state)
-        scan_config_tab.preamp_on_combobox.config(state=state)
-        scan_config_tab.num_scan_cycles_combobox.config(state=state)
-
-        # Entries (if they exist and are not comboboxes)
-        if hasattr(scan_config_tab, 'scan_rbw_segmentation_entry'):
-            scan_config_tab.scan_rbw_segmentation_entry.config(state=state)
-        if hasattr(scan_config_tab, 'desired_default_focus_width_entry'):
-            scan_config_tab.desired_default_focus_width_entry.config(state=state)
-        
-        # Band selection buttons
-        if hasattr(scan_config_tab, 'select_all_bands_button'):
-            scan_config_tab.select_all_bands_button.config(state=state)
-        if hasattr(scan_config_tab, 'deselect_all_bands_button'):
-            scan_config_tab.deselect_all_bands_button.config(state=state)
-
-        # Band checkboxes should be disabled during a scan
-        for band_item in app_instance.band_vars:
-            if "checkbox" in band_item: # Check if the checkbox attribute exists
-                band_item["checkbox"].config(state=state)
-
-        debug_log("Scan Configuration Tab widgets updated.",
+    else:
+        debug_log("Scan Configuration Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
 
 
-    # --- Scan Meta Data Tab widgets ---
+    # --- Scan Meta Data Tab ---
     if scan_meta_data_tab:
-        debug_log(f"Configuring Scan Meta Data Tab. Connected: {is_connected}, Scanning: {is_scanning}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        # All meta data entry fields should be disabled during a scan
-        state = tk.DISABLED if is_scanning else tk.NORMAL
-        scan_meta_data_tab.operator_name_entry.config(state=state)
-        scan_meta_data_tab.operator_contact_entry.config(state=state) # Added operator_contact_entry
-        scan_meta_data_tab.venue_name_entry.config(state=state)
-        scan_meta_data_tab.postal_code_entry.config(state=state)
-        scan_meta_data_tab.lookup_location_button.config(state=state)
-        scan_meta_data_tab.address_field_entry.config(state=state) # Added address_field_entry
-        scan_meta_data_tab.city_entry.config(state=state) # Added city_entry
-        scan_meta_data_tab.province_entry.config(state=state) # Added province_entry
-        scan_meta_data_tab.equipment_used_entry.config(state=state)
-        scan_meta_data_tab.antenna_type_dropdown.config(state=state)
-        scan_meta_data_tab.antenna_description_entry.config(state=state) # Added antenna_description_entry
-        scan_meta_data_tab.antenna_use_entry.config(state=state) # Added antenna_use_entry
-        scan_meta_data_tab.antenna_mount_entry.config(state=state) # Added antenna_mount_entry
-        scan_meta_data_tab.antenna_amplifier_dropdown.config(state=state)
-        scan_meta_data_tab.amplifier_description_entry.config(state=state) # Added amplifier_description_entry
-        scan_meta_data_tab.amplifier_use_entry.config(state=state) # Added amplifier_use_entry
-        scan_meta_data_tab.notes_text.config(state=state)
+        for widget in [scan_meta_data_tab.operator_name_entry,
+                       scan_meta_data_tab.operator_contact_entry,
+                       scan_meta_data_tab.venue_name_entry,
+                       scan_meta_data_tab.postal_code_entry,
+                       scan_meta_data_tab.lookup_location_button,
+                       scan_meta_data_tab.address_field_entry,
+                       scan_meta_data_tab.city_entry,
+                       scan_meta_data_tab.province_entry,
+                       scan_meta_data_tab.equipment_used_entry,
+                       scan_meta_data_tab.antenna_type_dropdown,
+                       scan_meta_data_tab.antenna_description_entry,
+                       scan_meta_data_tab.antenna_use_entry,
+                       scan_meta_data_tab.antenna_mount_entry,
+                       scan_meta_data_tab.antenna_amplifier_dropdown,
+                       scan_meta_data_tab.amplifier_description_entry,
+                       scan_meta_data_tab.amplifier_use_entry]:
+            if hasattr(widget, 'config'):
+                widget.config(state=state)
         
-        # REMOVED: These belong to scan_config_tab
-        # scan_meta_data_tab.scan_name_entry.config(state=state)
-        # scan_meta_data_tab.output_folder_button.config(state=state)
-        # scan_meta_data_tab.open_output_folder_button.config(state=tk.NORMAL) # Always enabled
+        if hasattr(scan_meta_data_tab, 'notes_text'):
+            # ScrolledText widget's state is set differently
+            notes_state = tk.NORMAL if is_connected and not is_scanning else tk.DISABLED
+            scan_meta_data_tab.notes_text.config(state=notes_state)
 
-        debug_log("Scan Meta Data Tab widgets updated.",
+        debug_log("Scan Meta Data Tab buttons and inputs updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
+    else:
+        debug_log("Scan Meta Data Tab not found when updating connection status. This is a critical bug, fix this shit!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
 
-    # --- Plotting Tab buttons ---
+    # --- Plotting Tab ---
     if plotting_tab:
-        debug_log(f"Configuring Plotting Tab. Connected: {is_connected}, Scanning: {is_scanning}",
+        # Plotting buttons should be enabled if connected AND not scanning
+        # or if disconnected but there's data to plot (e.g., from a previous scan)
+        plot_button_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.raw_scan_data_for_current_sweep) else tk.DISABLED
+        
+        if hasattr(plotting_tab, 'plot_current_scan_button'):
+            plotting_tab.plot_current_scan_button.config(state=plot_button_state)
+        if hasattr(plotting_tab, 'plot_stitched_scan_button'):
+            plotting_tab.plot_stitched_scan_button.config(state=plot_button_state)
+        if hasattr(plotting_tab, 'plot_historical_scan_button'):
+            plotting_tab.plot_historical_scan_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow historical plotting if not scanning
+        if hasattr(plotting_tab, 'open_scan_folder_button'):
+            plotting_tab.open_scan_folder_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow opening folder if not scanning
+
+        debug_log("Plotting Tab buttons updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        # Plotting buttons should be disabled during a scan
-        if hasattr(plotting_tab, 'plot_button'):
-            plotting_tab.plot_button.config(state=tk.DISABLED if is_scanning else tk.NORMAL)
-        if hasattr(plotting_tab, 'plot_average_button'):
-            # This button also depends on collected_scans_dataframes being not empty
-            plot_average_state = tk.DISABLED
-            if not is_scanning and app_instance.collected_scans_dataframes:
-                plot_average_state = tk.NORMAL
-            plotting_tab.plot_average_button.config(state=plot_average_state)
-        debug_log("PlottingTab: Disconnected or Scanning - Plot buttons disabled.",
+    else:
+        debug_log("Plotting Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
 
 
-    # --- Markers Display Tab buttons (if any) ---
+    # --- Markers Display Tab ---
     if markers_display_tab:
-        debug_log(f"Configuring MarkersDisplayTab. Connected: {is_connected}, Scanning: {is_scanning}",
+        # All marker display buttons should be enabled if connected and not scanning
+        # or if not connected but there is data to process (e.g. from a loaded report)
+        marker_display_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and app_instance.markers_data_from_scan) else tk.DISABLED
+
+        if hasattr(markers_display_tab, 'load_report_button'):
+            markers_display_tab.load_report_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow loading reports if not scanning
+        if hasattr(markers_display_tab, 'calculate_intermod_button'):
+            markers_display_tab.calculate_intermod_button.config(state=marker_display_state)
+        if hasattr(markers_display_tab, 'plot_intermod_button'):
+            markers_display_tab.plot_intermod_button.config(state=marker_display_state)
+        if hasattr(markers_display_tab, 'export_intermod_csv_button'):
+            markers_display_tab.export_intermod_csv_button.config(state=marker_display_state)
+        if hasattr(markers_display_tab, 'clear_markers_button'):
+            markers_display_tab.clear_markers_button.config(state=marker_display_state)
+        if hasattr(markers_display_tab, 'open_reports_folder_button'):
+            markers_display_tab.open_reports_folder_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow opening reports folder if not scanning
+
+        debug_log("Markers Display Tab buttons updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        # Assuming MarkersDisplayTab might have buttons that depend on connection/scan status
-        # For example, if you have a button to "Query Markers from Instrument"
-        if hasattr(markers_display_tab, 'set_marker_button'): # Example button
-            markers_display_tab.set_marker_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        if hasattr(markers_display_tab, 'query_marker_y_button'): # Example button
-            markers_display_tab.query_marker_y_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        # Add other marker-related buttons/widgets here as needed
-        pass
-        debug_log("MarkersDisplayTab buttons updated.",
+    else:
+        debug_log("Markers Display Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
 
 
-    # --- Presets Tab buttons ---
+    # --- Presets Tab ---
     if presets_tab:
-        debug_log(f"Configuring Presets Tab. Connected: {is_connected}, Scanning: {is_scanning}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        # Buttons that interact with the instrument should be disabled during a scan
+        # Presets tab buttons should be enabled if connected and not scanning
+        # or if not connected but there are user presets to load/save
+        preset_state = tk.NORMAL if (is_connected and not is_scanning) or (not is_connected and not is_scanning and os.path.exists(os.path.join(os.path.dirname(app_instance.CONFIG_FILE_PATH), 'user_presets.csv'))) else tk.DISABLED
+
         if hasattr(presets_tab, 'query_device_presets_button'):
             presets_tab.query_device_presets_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        if hasattr(presets_tab, 'load_selected_preset_button'):
-            presets_tab.load_selected_preset_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        if hasattr(presets_tab, 'save_current_settings_button'):
-            presets_tab.save_current_settings_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
-        
-        # User preset buttons (load/delete) should be enabled unless scanning, as they don't touch instrument
-        if hasattr(presets_tab, 'user_preset_buttons_frame'): # Assuming a frame holds these
-            for child_widget in presets_tab.user_preset_buttons_frame.winfo_children():
-                if isinstance(child_widget, ttk.Button):
-                    child_widget.config(state=tk.NORMAL if not is_scanning else tk.DISABLED)
+        if hasattr(presets_tab, 'load_device_preset_button'):
+            presets_tab.load_device_preset_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+        if hasattr(presets_tab, 'save_user_preset_button'):
+            presets_tab.save_user_preset_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
+        if hasattr(presets_tab, 'load_user_preset_button'):
+            presets_tab.load_user_preset_button.config(state=preset_state)
+        if hasattr(presets_tab, 'delete_user_preset_button'):
+            presets_tab.delete_user_preset_button.config(state=preset_state)
+        if hasattr(presets_tab, 'open_preset_folder_button'):
+            presets_tab.open_preset_folder_button.config(state=tk.NORMAL if not is_scanning else tk.DISABLED) # Always allow opening folder if not scanning
 
         debug_log("Presets Tab buttons updated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-    # The else branch is now handled by the specific debug_log calls above for clarity
-
-
-    # --- JSON API Tab buttons ---
-    if json_api_tab:
-        debug_log(f"Configuring JSON API Tab. Connected: {is_connected}, Scanning: {is_scanning}",
+    else:
+        debug_log("Presets Tab not found when updating connection status. This is a critical bug, fix this shit!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        # API control buttons should be disabled during a scan if they affect instrument state
-        # Or if the API itself is tied to active scanning
-        state = tk.NORMAL if not is_scanning else tk.DISABLED
+
+
+    # --- JSON API Tab ---
+    if json_api_tab:
+        # JSON API buttons should be enabled if not scanning
+        # The 'Open Scan In Progress API' button has special logic
         if hasattr(json_api_tab, 'start_api_button'):
             json_api_tab.start_api_button.config(state=state)
         if hasattr(json_api_tab, 'stop_api_button'):

@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250731.1 (Added rbw_presets placeholder)
+# Version 20250802.0700.1 (Moved scan_modes into this file from its own module.)
 
-current_version = "20250731.1" # this variable should always be defined below the header to make the debuggin better
+current_version = "20250802.0700.1" # this variable should always be defined below the header to make the debugging better
 
 graph_quality_drop_down = [
     {
@@ -32,236 +32,45 @@ graph_quality_drop_down = [
     {
         "label": "Medium",
         "resolution_hz": 50_000,
-        "description": "Standard definition TV of frequency."
-    },
-    {
-        "label": "Medium Well",
-        "resolution_hz": 25_000,
-        "description": "Almost gourmet, but still quick-cook."
+        "description": "A decent balance of speed and detail."
     },
     {
         "label": "High",
         "resolution_hz": 10_000,
-        "description": "RF with Wi-Fi smoothness."
+        "description": "Crisp and clear, like a freshly pressed suit."
     },
     {
         "label": "Ultra High",
-        "resolution_hz": 5_000,
-        "description": "Retina display for radio."
-    },
-    {
-        "label": "Ludacris",
         "resolution_hz": 1_000,
-        "description": "So fine, even Ludacris said “Damn.”"
-    },
-    {
-        "label": "Ridonkulous",
-        "resolution_hz": 500,
-        "description": "“I can see the atoms in your waveform.”"
-    },
-    {
-        "label": "Quantum Foam",
-        "resolution_hz": 100,
-        "description": "Where reality and noise floor blur."
-    },
-    {
-        "label": "This is Fine",
-        "resolution_hz": 10,
-        "description": "The scanner cries, but it's worth it. 🔥"
+        "description": "Every pixel counts. For the detail-obsessed."
     }
 ]
 
-
-
-
-dwell_time_drop_down = [
+num_scan_cycles_drop_down = [
     {
-        "label": "Crazy Fast",
-        "time_sec": 0.5,
-        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail."
-    },
-    {
-        "label": "Very Fast",
-        "time_sec": 1.0,
-        "description": "Great for active scanning with basic detection."
-    },
-    {
-        "label": "Standard",
-        "time_sec": 2.0,
-        "description": "Balanced scan — enough time for most signals to show."
-    },
-    {
-        "label": "Long",
-        "time_sec": 3.0,
-        "description": "Allows time to catch short bursts or weak signals."
-    },
-    {
-        "label": "Very Long",
-        "time_sec": 5.0,
-        "description": "Camped out. Good for quiet bands or deep listening."
-    },
-    {
-        "label": "Glacier Mode",
-        "time_sec": 10.0,
-        "description": "For scientists, spies, and patient people. 🧊"
-    }
-]
-
-
-cycle_wait_time_presets = [
-    {
-        "label": "Hold Your Horses",
-        "time_sec": 15,
-        "description": "Just a moment — enough time to sneeze twice."
-    },
-    {
-        "label": "Wait-a-Second",
-        "time_sec": 30,
-        "description": "Half a minute of suspense. Elevator music optional."
-    },
-    {
-        "label": "Microwave Dinner",
-        "time_sec": 60,
-        "description": "One full minute — perfect for impatient people."
-    },
-    {
-        "label": "Coffee Break",
-        "time_sec": 300,
-        "description": "Five minutes — time to stretch or grab caffeine."
-    },
-    {
-        "label": "Quarter of Shame",
-        "time_sec": 900,
-        "description": "15 minutes of contemplation. Or buffering."
-    },
-    {
-        "label": "Netflix Warmup",
-        "time_sec": 1800,
-        "description": "30 minutes — just long enough to not commit to a show."
-    },
-    {
-        "label": "Full Commitment",
-        "time_sec": 3600,
-        "description": "1 hour — a true test of patience and faith in the process."
-    },
-    {
-        "label": "Eternal Watcher",
-        "time_sec": 10800,
-        "description": "3 hours — were you expecting a callback?"
-    }
-]
-
-
-
-reference_level_drop_down = [
-    {
-        "label": "Very Low",
-        "level_dbm": -110,
-        "description": "Deep noise floor — ideal for weak signal hunting."
-    },
-    {
-        "label": "Low",
-        "level_dbm": -90,
-        "description": "Below typical ambient RF noise — for sensitive receivers."
-    },
-    {
-        "label": "Medium Low",
-        "level_dbm": -70,
-        "description": "Quiet environment, low-level signals clearly visible."
-    },
-    {
-        "label": "Medium",
-        "level_dbm": -50,
-        "description": "Good general-purpose reference level."
-    },
-    {
-        "label": "Medium High",
-        "level_dbm": -30,
-        "description": "Stronger signals, moderate local RF traffic."
-    },
-    {
-        "label": "High",
-        "level_dbm": -10,
-        "description": "For strong broadcast transmitters or test signals."
-    },
-    {
-        "label": "Very High",
-        "level_dbm": 0,
-        "description": "Max headroom — use with caution to avoid clipping."
-    }
-]
-
-
-
-frequency_shift_presets = [
-    {
-        "label": "No Shift",
-        "shift_hz": 0,
-        "description": "don't touch that dial — stay put."
-    },
-    {
-        "label": "A Wee Bit",
-        "shift_hz": 1_000,
-        "description": "Just a nudge — like adjusting your hat slightly."
-    },
-    {
-        "label": "A Nudge",
-        "shift_hz": 5_000,
-        "description": "A gentle push up or down the dial."
-    },
-    {
-        "label": "A Whap",
-        "shift_hz": 10_000,
-        "description": "Noticeable thump — not subtle, not wild."
-    },
-    {
-        "label": "A Scooch",
-        "shift_hz": 25_000,
-        "description": "Just enough to dodge interference or hop channels."
-    },
-    {
-        "label": "A Chunk",
-        "shift_hz": 50_000,
-        "description": "A meaty move — shift the neighborhood."
-    },
-    {
-        "label": "A Jump",
-        "shift_hz": 100_000,
-        "description": "You're not walking anymore — you're airborne."
-    },
-    {
-        "label": "A Leap",
-        "shift_hz": 250_000,
-        "description": "Covering ground like a gazelle on caffeine."
-    },
-    {
-        "label": "A Yeet",
-        "shift_hz": 500_000,
-        "description": "Full send across the spectrum — no regrets."
-    },
-    {
-        "label": "A Warp",
-        "shift_hz": 1_000_000,
-        "description": "Fold space and reappear in another RF galaxy."
-    }
-]
-
-
-number_of_scans_presets = [
-    {
-        "label": "Just a Test",
+        "label": "Single Shot",
         "scans": 1,
-        "description": "See how she goes — one and done."
+        "description": "One and done — quick and dirty."
     },
     {
-        "label": "A Whiff",
-        "scans": 2,
-        "description": "A quick sniff around the spectrum."
+        "label": "A Few",
+        "scans": 5,
+        "description": "Just enough to get a feel for it."
     },
     {
-        "label": "A Bunch",
+        "label": "A Handful",
         "scans": 10,
-        "description": "Enough to get a good feel."
+        "description": "Getting serious now."
+    },
+    {
+        "label": "A Dozen",
+        "scans": 12,
+        "description": "A baker's dozen of data."
+    },
+    {
+        "label": "A Score",
+        "scans": 20,
+        "description": "A good solid number."
     },
     {
         "label": "A Bushel",
@@ -305,16 +114,70 @@ rbw_presets = [
     {
         "label": "10 kHz",
         "rbw_hz": 10_000,
-        "description": "Standard resolution for general-purpose scanning."
+        "description": "Standard resolution for general purpose measurements."
     },
     {
         "label": "30 kHz",
         "rbw_hz": 30_000,
-        "description": "Faster scan, suitable for wider signals or quicker sweeps."
+        "description": "Faster scan, good for wider signals or quicker sweeps."
     },
     {
         "label": "100 kHz",
         "rbw_hz": 100_000,
-        "description": "Fastest resolution, good for wideband signals or quick spectrum overviews."
+        "description": "Even faster, useful for broad signals or spectrum overview."
+    },
+    {
+        "label": "FAST",
+        "rbw_hz": 300_000,
+        "description": "Quickest scan, for capturing transient signals or very wide-band analysis."
     }
+]
+
+# NEW: Scan Modes (moved from ref/scan_modes.py)
+scan_modes = [
+    {"Mode": "Swept", "Description": "Standard swept measurement, good for general purpose spectrum analysis."},
+    {"Mode": "FFT", "Description": "Fast Fourier Transform for real-time analysis, ideal for capturing intermittent signals."},
+    {"Mode": "Zero Span", "Description": "Time domain analysis at a fixed frequency, useful for observing signal stability over time."},
+]
+
+# Reference Levels (moved from ref/reference_levels.py)
+reference_levels = [
+    {"Level": 0, "Description": "0 dBm"},
+    {"Level": -10, "Description": "-10 dBm"},
+    {"Level": -20, "Description": "-20 dBm"},
+    {"Level": -30, "Description": "-30 dBm"},
+    {"Level": -40, "Description": "-40 dBm"},
+    {"Level": -50, "Description": "-50 dBm"},
+    {"Level": -60, "Description": "-60 dBm"},
+    {"Level": -70, "Description": "-70 dBm"},
+    {"Level": -80, "Description": "-80 dBm"},
+    {"Level": -90, "Description": "-90 dBm"},
+    {"Level": -100, "Description": "-100 dBm"},
+]
+
+# Attenuation Levels (moved from ref/attenuation_levels.py)
+attenuation_levels = [
+    {"Value": 0, "Description": "0 dB - No attenuation"},
+    {"Value": 5, "Description": "5 dB attenuation"},
+    {"Value": 10, "Description": "10 dB attenuation"},
+    {"Value": 15, "Description": "15 dB attenuation"},
+    {"Value": 20, "Description": "20 dB attenuation"},
+    {"Value": 25, "Description": "25 dB attenuation"},
+    {"Value": 30, "Description": "30 dB attenuation"},
+    {"Value": 35, "Description": "35 dB attenuation"},
+    {"Value": 40, "Description": "40 dB attenuation"},
+    {"Value": 45, "Description": "45 dB attenuation"},
+    {"Value": 50, "Description": "50 dB attenuation"},
+]
+
+# Frequency Shifts (moved from ref/frequency_shifts.py)
+frequency_shifts = [
+    {"Shift": 0, "Description": "0 MHz - No frequency shift"},
+    {"Shift": 0.5, "Description": "0.5 MHz shift"},
+    {"Shift": 1, "Description": "1 MHz shift"},
+    {"Shift": 5, "Description": "5 MHz shift"},
+    {"Shift": 10, "Description": "10 MHz shift"},
+    {"Shift": 20, "Description": "20 MHz shift"},
+    {"Shift": 50, "Description": "50 MHz shift"},
+    {"Shift": 100, "Description": "100 MHz shift"},
 ]

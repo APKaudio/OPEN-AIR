@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0011.1 (Added missing widget attributes to allow external configuration.)
+# Version 20250802.0011.3 (Fixed TclError: unknown option "-style_obj" by explicitly filtering it from kwargs.)
 
-current_version = "20250802.0011.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 11 * 1 # Example hash, adjust as needed
+current_version = "20250802.0011.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 11 * 3 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -43,7 +43,7 @@ class ScanMetaDataTab(ttk.Frame):
     A Tkinter Frame that contains the Scan Meta Data settings.
     This includes operator, venue, equipment, and general notes.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
+    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
         # This function description tells me what this function does
         # Initializes the ScanMetaDataTab, setting up the UI frame,
         # linking to the main application instance, and preparing
@@ -55,11 +55,12 @@ class ScanMetaDataTab(ttk.Frame):
         #                          to access shared variables and methods.
         #   console_print_func (function): A function to print messages to the
         #                                  application's console output.
+        #   style_obj (ttk.Style): The ttk.Style object for applying styles.
         #   **kwargs: Arbitrary keyword arguments passed to the ttk.Frame constructor.
         #
         # Process of this function
         #   1. Calls the superclass constructor (ttk.Frame).
-        #   2. Stores references to app_instance and console_print_func.
+        #   2. Stores references to app_instance, console_print_func, and style_obj.
         #   3. Initializes new Tkinter StringVars for postal code, address, province,
         #      selected antenna type, antenna description, antenna use, antenna mount,
         #      and selected amplifier type, amplifier description, and amplifier use.
@@ -70,32 +71,23 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Initialized new StringVars for regrouped fields, including new amplifier description/use.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
-        # (20250802.0011.1) Change: Added missing widget attributes for external access.
-        super().__init__(master, **kwargs)
+        # (20250802.0011.1) Change: Added missing widget attributes to allow external configuration.
+        # (20250802.0011.2) Change: Fixed TclError by correctly handling style_obj in __init__.
+        # (20250802.0011.3) Change: Fixed TclError by explicitly filtering style_obj from kwargs.
+        
+        # Filter out 'style_obj' from kwargs before passing to super().__init__
+        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
+        super().__init__(master, style='Dark.TFrame', **filtered_kwargs) # Pass style string, and filtered kwargs
+
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+        self.style_obj = style_obj # Store the style object
 
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing ScanMetaDataTab. Version: {current_version}. Setting up meta data fields!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-
-        # Initialize new Tkinter variables for location and equipment
-        # These variables are initialized in main_app.py and linked here via app_instance
-        # self.app_instance.venue_postal_code_var = tk.StringVar(value="") # Initialized in main_app.py
-        # self.app_instance.address_field_var = tk.StringVar(value="")     # Initialized in main_app.py
-        # self.app_instance.province_var = tk.StringVar(value="")          # Initialized in main_app.py
-
-        # self.app_instance.selected_antenna_type_var = tk.StringVar(value="") # Initialized in main_app.py
-        # self.app_instance.antenna_description_var = tk.StringVar(value="")   # Initialized in main_app.py
-        # self.app_instance.antenna_use_var = tk.StringVar(value="")           # Initialized in main_app.py
-        # self.app_instance.antenna_mount_var = tk.StringVar(value="")         # Initialized in main_app.py
-
-        # self.app_instance.selected_amplifier_type_var = tk.StringVar(value="") # Initialized in main_app.py
-        # self.app_instance.amplifier_description_var = tk.StringVar(value="")   # Initialized in main_app.py
-        # self.app_instance.amplifier_use_var = tk.StringVar(value="")           # Initialized in main_app.py
-
 
         self._create_widgets()
 
@@ -562,4 +554,3 @@ class ScanMetaDataTab(ttk.Frame):
                     file=__file__,
                     version=current_version,
                     function=current_function)
-
