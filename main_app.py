@@ -55,11 +55,12 @@ from datetime import datetime # For timestamp in debug_log
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
-from src.gui_elements import TextRedirector, print_art
+from src.gui_elements import TextRedirector, display_splash_screen
 
 # Import the new debug_logic and console_logic modules
 from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_gui_console_redirector
 from src.console_logic import console_log, set_console_redirector # Import console_log and its redirector setter
+
 
 
 from src.instrument_logic import (

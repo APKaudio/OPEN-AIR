@@ -21,6 +21,7 @@ current_version_hash = 20250802 * 25 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import sys
+import time
 from tkinter import scrolledtext, TclError
 import inspect # Added for debug_log
 

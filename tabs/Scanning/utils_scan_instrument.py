@@ -40,6 +40,7 @@ from src.console_logic import console_log
 from utils.utils_instrument_control import initialize_instrument # Only initialize_instrument is kept
 from src.config_manager import save_config # For saving scan progress
 
+
 # Import constants from frequency_bands.py - CORRECTED PATH
 from ref.frequency_bands import MHZ_TO_HZ, GHZ_TO_HZ
 

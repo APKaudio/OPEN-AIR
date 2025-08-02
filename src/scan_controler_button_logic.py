@@ -35,7 +35,7 @@ from src.debug_logic import debug_log
 from src.console_logic import console_log
 
 # Import scan utility functions - CORRECTED PATH
-from utils.utils_scan_instrument import scan_bands
+from tabs.Scanning.utils_scan_instrument import scan_bands
 from process_math.scan_stitch import stitch_and_save_scan_data
 
 class ScanControlTab(ttk.Frame):

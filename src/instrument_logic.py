@@ -23,6 +23,7 @@ current_version_hash = 20250802 * 30 * 1 # Example hash, adjust as needed
 import tkinter as tk
 import pyvisa
 import os
+import time
 import sys
 import inspect # Import inspect module
 
