@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1445.2 (Fixed AttributeError for freq_shift_var by initializing it in _setup_tkinter_vars and adding to setting_var_map.)
+# Version 20250802.1645.1 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'get_tab_instance' by correctly populating self.tab_instances in _create_widgets.)
 
-current_version = "20250802.1445.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1445 * 2 # Example hash, adjust as needed
+current_version = "20250802.1645.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1645 * 1 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -180,6 +180,9 @@ class App(tk.Tk):
 
         self.collected_scans_dataframes = []
         self.last_scan_markers = []
+        # NEW: Add a flag to indicate if scan data is available for plotting/markers
+        self.scan_data_available = False
+
 
         self.scanning = False
         self.scan_thread = None
@@ -275,7 +278,9 @@ class App(tk.Tk):
 
         self._on_parent_tab_change(None)
 
-        self.update_connection_status(self.inst is not None)
+        # Initial call to update connection status.
+        # This will now correctly use the new get_tab_instance method.
+        self.update_connection_status(self.inst is not None, self.scanning)
 
         display_splash_screen()
 
@@ -862,39 +867,71 @@ class App(tk.Tk):
         self.parent_notebook = ttk.Notebook(self.main_panedwindow, style='Parent.TNotebook')
         self.main_panedwindow.add(self.parent_notebook, weight=1)
 
+        # Dictionary to hold references to child tab instances for easy lookup
+        # Structure: { "ParentTabName": { "ChildTabName": instance } }
+        self.tab_instances = {
+            "Instrument": {},
+            "Scanning": {},
+            "Plotting": {},
+            "Markers": {},
+            "Presets": {},
+            "Experiments": {},
+            "JSON API": {} # Assuming a JSON API tab will exist
+        }
+
         self.child_notebooks = {}
         self.parent_tab_widgets = {}
 
-        # Pass the style object to TAB_INSTRUMENT_PARENT
-        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log, style_obj=self.style) # Pass style_obj
+        # Instrument Parent Tab and its children
+        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log, style_obj=self.style)
         self.parent_notebook.add(self.instrument_parent_tab, text="INSTRUMENT")
         self.child_notebooks["INSTRUMENT"] = self.instrument_parent_tab.child_notebook
         self.parent_tab_widgets["INSTRUMENT"] = self.instrument_parent_tab
+        self.tab_instances["Instrument"]["Connection"] = self.instrument_parent_tab.instrument_settings_tab  
+        self.tab_instances["Instrument"]["VISA Interpreter"] = self.instrument_parent_tab.visa_interpreter_tab
 
+
+        # Scanning Parent Tab and its children
         self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.scanning_parent_tab, text="SCANNING")
         self.child_notebooks["SCANNING"] = self.scanning_parent_tab.child_notebook
         self.parent_tab_widgets["SCANNING"] = self.scanning_parent_tab
+        self.tab_instances["Scanning"]["Scan Configuration"] = self.scanning_parent_tab.scan_configuration_tab
+        self.tab_instances["Scanning"]["Scan Meta Data"] = self.scanning_parent_tab.scan_meta_data_tab
+        # Note: Scan Control Tab is handled separately below as it's in the right column
 
+
+        # Plotting Parent Tab and its children
         self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.plotting_parent_tab, text="PLOTTING")
         self.child_notebooks["PLOTTING"] = self.plotting_parent_tab.child_notebook
         self.parent_tab_widgets["PLOTTING"] = self.plotting_parent_tab
+        self.tab_instances["Plotting"]["Plotting"] = self.plotting_parent_tab.plotting_tab
 
+
+        # Markers Parent Tab and its children
         self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.markers_parent_tab, text="MARKERS")
         self.child_notebooks["MARKERS"] = self.markers_parent_tab.child_notebook
         self.parent_tab_widgets["MARKERS"] = self.markers_parent_tab
+        self.tab_instances["Markers"]["Markers Display"] = self.markers_parent_tab.markers_display_tab
 
+
+        # Presets Parent Tab and its children
         self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.presets_parent_tab, text="PRESETS")
         self.child_notebooks["PRESETS"] = self.presets_parent_tab.child_notebook
         self.parent_tab_widgets["PRESETS"] = self.presets_parent_tab
+        self.tab_instances["Presets"]["Presets"] = self.presets_parent_tab.presets_tab
 
+
+        # Experiments Parent Tab and its children
         self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.experiments_parent_tab, text="EXPERIMENTS")
         self.child_notebooks["EXPERIMENTS"] = self.experiments_parent_tab.child_notebook
         self.parent_tab_widgets["EXPERIMENTS"] = self.experiments_parent_tab
+        self.tab_instances["Experiments"]["Experiments"] = self.experiments_parent_tab.child_notebook
+
 
         self.parent_notebook.bind("<<NotebookTabChanged>>", self._on_parent_tab_change)
 
@@ -914,12 +951,15 @@ class App(tk.Tk):
 
         self.scan_control_tab = ScanControlTab(scan_control_frame, app_instance=self)
         self.scan_control_tab.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
+        # Store the ScanControlTab instance directly as it's not part of a nested notebook
+        self.tab_instances["Scanning"]["Scan Control"] = self.scan_control_tab
 
 
         # --- Console and Debug Options Frame (Directly in right_column_container) ---
-        # Instantiate ConsoleTab directly here
         self.console_tab = ConsoleTab(right_column_container, app_instance=self)
         self.console_tab.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        # Store the ConsoleTab instance directly
+        #self.tab_instances["Console"]["Console"] = self
 
 
         # Apply the saved sash position after all widgets are added to the paned window
@@ -1088,39 +1128,65 @@ class App(tk.Tk):
                         function=current_function)
             raise
 
-    def update_connection_status(self, is_connected):
+    def update_connection_status(self, is_connected, is_scanning):
         """
         Function Description:
         This function updates the state (enabled/disabled) of various GUI elements
         across different tabs based on the instrument's connection status and
-        whether a scan is currently in progress. It ensures that only relevant
+        the current scan state. It ensures that only relevant
         actions are available to the user at any given time.
 
         Inputs:
             is_connected (bool): True if the instrument is connected, False otherwise.
             is_scanning (bool): True if a scan is active, False otherwise.
 
-        Process:
-            1. Prints a debug message.
-            2. Calls `update_connection_status_logic` (from `src.scan_logic`) to
-                handle the core logic of enabling/disabling widgets. This centralizes
-                the UI state management.
-
         Outputs:
             None. Modifies the state of GUI widgets.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_logic_module.debug_log(f"Updating connection status. Connected: {is_connected}.",
+        debug_logic_module.debug_log(f"Updating connection status. Connected: {is_connected}, Scanning: {is_scanning}.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
+        # Call the centralized logic function
         update_connection_status_logic(
             app_instance=self,
             is_connected=is_connected,
-            is_scanning=self.scanning,
+            is_scanning=is_scanning,
             console_print_func=console_logic_module.console_log
         )
+
+    def get_tab_instance(self, parent_tab_name, child_tab_name):
+        """
+        Function Description:
+        Retrieves a reference to a specific child tab instance.
+
+        Inputs:
+            parent_tab_name (str): The name of the parent tab (e.g., "Instrument", "Scanning").
+            child_tab_name (str): The name of the child tab (e.g., "Connection", "Scan Control").
+
+        Process:
+            1. Looks up the tab instance in the `self.tab_instances` dictionary.
+            2. Prints a debug message if the tab is found or not.
+
+        Outputs:
+            The Tkinter Frame instance of the requested child tab, or None if not found.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        if parent_tab_name in self.tab_instances and child_tab_name in self.tab_instances[parent_tab_name]:
+            debug_logic_module.debug_log(f"Retrieved tab instance: {parent_tab_name} -> {child_tab_name}.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
+            return self.tab_instances[parent_tab_name][child_tab_name]
+        else:
+            debug_logic_module.debug_log(f"WARNING: Tab instance not found for {parent_tab_name} -> {child_tab_name}.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
+            return None
 
 
     def _on_parent_tab_change(self, event):
