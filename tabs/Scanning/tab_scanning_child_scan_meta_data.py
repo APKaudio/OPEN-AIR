@@ -253,7 +253,8 @@ class ScanMetaDataTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = __file__
         debug_print(f"Notes updated: {self.app_instance.notes_var.get()}", file=current_file, function=current_function, console_print_func=self.console_print_func)
-        save_config(self.app_instance) # Save config immediately on notes change
+        # Corrected call to save_config with all required arguments
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
     def _on_tab_selected(self, event):
@@ -352,7 +353,8 @@ class ScanMetaDataTab(ttk.Frame):
             self.app_instance.address_field_var.set("")
             self.app_instance.city_var.set("")
             self.app_instance.province_var.set("")
-            save_config(self.app_instance)
+            # Corrected call to save_config with all required arguments
+            save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
             return
 
         # CHANGED: Call get_location_from_google_maps instead of get_location_from_text
@@ -362,7 +364,8 @@ class ScanMetaDataTab(ttk.Frame):
         self.app_instance.city_var.set(city if city else "") # Changed N/A to empty string
         self.app_instance.province_var.set(province if province else "") # Changed N/A to empty string
         
-        save_config(self.app_instance) # Save config after updating location data
+        # Corrected call to save_config with all required arguments
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         debug_print("Postal code lookup complete and fields updated.", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
 
@@ -409,7 +412,8 @@ class ScanMetaDataTab(ttk.Frame):
             self.app_instance.antenna_use_var.set("")
             debug_print(f"No description/use found for selected antenna type: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
         
-        save_config(self.app_instance) # Save config immediately on selection
+        # Corrected call to save_config with all required arguments
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
     def _on_amplifier_type_selected(self, event):
@@ -462,5 +466,6 @@ class ScanMetaDataTab(ttk.Frame):
             self.app_instance.amplifier_use_var.set("")
             debug_print(f"No description/use found for selected amplifier type: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)
 
-        save_config(self.app_instance) # Save config immediately on selection
+        # Corrected call to save_config with all required arguments
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         debug_print(f"Updated antenna amplifier to: {selected_type}", file=current_file, function=current_function, console_print_func=self.console_print_func)

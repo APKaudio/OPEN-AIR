@@ -438,6 +438,8 @@ class App(tk.Tk):
                                 file=f"{current_file} - {current_version}", # Corrected file path
                                 function=inspect.currentframe().f_code.co_name,
                                 console_print_func=self._print_to_gui_console) # Added console_print_func
+                    # FUCKING IMPORTANT: Call save_config here!
+                    save_config(self.config, self.CONFIG_FILE_PATH, self._print_to_gui_console, self)
             return callback
 
         # GLOBAL variables
