@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0035.1 (Added query_basic_instrument_settings_logic function.)
+# Version 20250802.0035.2 (Removed direct access to resource_dropdown from app_instance.)
 
-current_version = "20250802.0035.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 35 * 1 # Example hash, adjust as needed
+current_version = "20250802.0035.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -43,7 +43,8 @@ from src.config_manager import save_config # Import save_config
 def populate_resources_logic(app_instance, console_print_func=None):
     """
     Function Description:
-    Discovers available VISA resources and populates the GUI's resource dropdown.
+    Discovers available VISA resources and updates the GUI's resource_names Tkinter variable.
+    The actual dropdown update is handled by the InstrumentTab's _populate_resources method.
 
     Inputs:
     - app_instance (object): The main application instance, used to access
@@ -58,6 +59,7 @@ def populate_resources_logic(app_instance, console_print_func=None):
     4. If no resources are found, updates the GUI message accordingly.
     5. If already connected to an instrument that is not in the new list,
        disconnects from it.
+    6. Attempts to re-select the last-used resource or the first available.
 
     Outputs of this function:
     - None. Updates Tkinter variables and may disconnect the instrument.
@@ -71,7 +73,7 @@ def populate_resources_logic(app_instance, console_print_func=None):
 
     resources = list_visa_resources(console_print_func)
     app_instance.resource_names.set(" ".join(resources)) # Update the Tkinter variable
-    app_instance.resource_dropdown['values'] = resources # Update dropdown values
+    # REMOVED: app_instance.resource_dropdown['values'] = resources # This caused the AttributeError
 
     if not resources:
         console_print_func("⚠️ No VISA instruments found. Is NI-VISA installed? Check connections!")
@@ -79,7 +81,7 @@ def populate_resources_logic(app_instance, console_print_func=None):
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        app_instance.selected_resource.set("") # Clear selection if no resources
+        app_instance.selected_resource.set("N/A") # Clear selection if no resources
     else:
         # If currently connected instrument is no longer in the list, disconnect
         if app_instance.inst and app_instance.inst.resource_name not in resources:
@@ -91,7 +93,7 @@ def populate_resources_logic(app_instance, console_print_func=None):
             disconnect_instrument_logic(app_instance, console_print_func)
         
         # If there's a previously selected resource, try to re-select it if it's still available
-        last_selected = app_instance.config.get('LAST_USED_SETTINGS', 'last_selected_resource', fallback='')
+        last_selected = app_instance.config.get('LAST_USED_SETTINGS', 'last_selected_visa_resource', fallback='N/A')
         if last_selected in resources:
             app_instance.selected_resource.set(last_selected)
             console_print_func(f"✅ Re-selected last used resource: {last_selected}.")
@@ -108,10 +110,13 @@ def populate_resources_logic(app_instance, console_print_func=None):
                         version=current_version,
                         function=current_function)
         else:
-            app_instance.selected_resource.set("") # No resources, clear selection
+            app_instance.selected_resource.set("N/A") # No resources, clear selection
 
+    # The update_connection_status will trigger the InstrumentTab's _update_ui_elements_visibility
+    # which in turn will show/hide the resource dropdown and connect button as appropriate.
+    # The InstrumentTab's _populate_resources method is responsible for updating the dropdown's 'values'.
     app_instance.update_connection_status(app_instance.inst is not None)
-    debug_log("VISA resource population complete. Dropdown updated!",
+    debug_log("VISA resource population complete. Dropdown update delegated!",
                 file=__file__,
                 version=current_version,
                 function=current_function)
@@ -151,13 +156,13 @@ def connect_instrument_logic(app_instance, console_print_func=None):
                 function=current_function)
 
     resource_name = app_instance.selected_resource.get()
-    if not resource_name:
-        console_print_func("⚠️ Please select a VISA resource first. Can't connect to nothing!")
-        debug_log("No resource selected. Connection aborted.",
+    if not resource_name or resource_name == "N/A": # Check for "N/A" as well
+        console_print_func("⚠️ Please select a valid VISA resource first. Can't connect to nothing!")
+        debug_log("No valid resource selected. Connection aborted.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        return
+        return False # Return False to indicate connection failure
 
     # Disconnect if already connected to prevent multiple connections
     if app_instance.inst:
@@ -209,18 +214,19 @@ def connect_instrument_logic(app_instance, console_print_func=None):
                             version=current_version,
                             function=current_function)
                 disconnect_instrument_logic(app_instance, console_print_func)
-                return
+                return False # Indicate connection failure
 
             # Query and display current settings after initialization
             query_current_instrument_settings_logic(app_instance, console_print_func)
 
             # Save the successfully connected resource to config
-            app_instance.config.set('LAST_USED_SETTINGS', 'last_selected_resource', resource_name)
+            app_instance.config.set('LAST_USED_SETTINGS', 'last_selected_visa_resource', resource_name)
             save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
             debug_log(f"Saved last selected resource: {resource_name}.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            return True # Indicate successful connection
 
         except Exception as e:
             console_print_func(f"❌ Error during instrument setup after connection: {e}. This is a disaster!")
@@ -229,18 +235,21 @@ def connect_instrument_logic(app_instance, console_print_func=None):
                         version=current_version,
                         function=current_function)
             disconnect_instrument_logic(app_instance, console_print_func)
+            return False # Indicate connection failure
     else:
         console_print_func("❌ Failed to connect to instrument. Check resource name and physical connection!")
         debug_log("Failed to connect to instrument. Connection failed!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        return False # Indicate connection failure
 
-    app_instance.update_connection_status(app_instance.inst is not None)
-    debug_log("Instrument connection process complete. Status updated!",
-                file=__file__,
-                version=current_version,
-                function=current_function)
+    # This line is unreachable if the above returns are hit, but good for completeness
+    # app_instance.update_connection_status(app_instance.inst is not None)
+    # debug_log("Instrument connection process complete. Status updated!",
+    #             file=__file__,
+    #             version=current_version,
+    #             function=current_function)
 
 
 def disconnect_instrument_logic(app_instance, console_print_func=None):
@@ -614,4 +623,3 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
                     version=current_version,
                     function=current_function)
         return False
-
