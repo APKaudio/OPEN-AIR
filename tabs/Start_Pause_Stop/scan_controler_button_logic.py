@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0035.2 (Updated button styles to use specific scan styles and added blinking for Resume.)
+# Version 20250802.0035.4 (Updated scan_bands() call to match reverted 17-argument signature.)
 
-current_version = "20250802.0035.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 35 * 2 # Example hash, adjust as needed
+current_version = "20250802.0035.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -28,21 +28,30 @@ from datetime import datetime
 import pandas as pd # Keep pandas for DataFrame operations on stitched data
 import inspect
 import subprocess # For opening folders (kept for now, but likely to be removed if no folder operations remain)
-import sys # For platform detection for opening folders (kept for now)
+import sys # For platform detection for opening
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-# Import scan utility functions - CORRECTED PATH
-from tabs.Scanning.utils_scan_instrument import scan_bands
-from process_math.scan_stitch import stitch_and_save_scan_data
+# Import instrument control functions - CORRECTED PATHS
+
+from tabs.Instrument.instrument_logic import query_current_instrument_settings_logic 
+
+from tabs.Scanning.utils_scan_instrument import scan_bands # Import scan_bands
+
+from process_math.scan_stitch import stitch_and_save_scan_data # Import the stitching logic
+
+from src.settings_and_config.config_manager import save_config # Import save_config
+
+# Import connection status logic
+from src.connection_status_logic import update_connection_status_logic
+
 
 class ScanControlTab(ttk.Frame):
     """
-    Function Description:
     A Tkinter Frame that provides controls for starting, pausing, and stopping spectrum scans.
-    It manages the scan process in a separate thread to keep the GUI responsive.
+    It manages the threading for the scan operation to keep the GUI responsive.
     """
     def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
         """
@@ -51,93 +60,67 @@ class ScanControlTab(ttk.Frame):
         Inputs:
             master (tk.Widget): The parent widget.
             app_instance (App): The main application instance, used for accessing
-                                 shared state and methods.
-            console_print_func (function, optional): Function to print messages to the GUI console.
-                                                     Defaults to console_log if None.
+                                 shared state like Tkinter variables and console print function.
+            console_print_func (function): Function to print messages to the GUI console.
             **kwargs: Arbitrary keyword arguments for Tkinter Frame.
-
-        Process of this function:
-            1. Calls the superclass constructor.
-            2. Stores app_instance and console_print_func.
-            3. Initializes scan state variables (is_scanning, is_paused, stop_event, pause_event).
-            4. Creates and places GUI elements:
-               - Scan control buttons (Start, Pause/Resume, Stop).
-               - A progress bar.
-               - A label to display current scan status.
-            5. Configures button styles.
-
-        Outputs of this function:
-            None. Initializes the scan control tab frame and its components.
-
-        (2025-07-30) Change: Initial implementation of ScanControlTab.
-        (2025-07-31) Change: Added progress bar and status label.
-        (2025-08-01 5) Change: Renamed buttons to START, PAUSE/RESUME, STOP.
-                               Ensured all scan control buttons consistently use 'BigScanButton'
-                               styles for larger appearance. Adjusted _toggle_pause_resume
-                               to correctly set 'PAUSE' and 'RESUME' text.
-        (2025-08-02 0035.1) Change: Refactored debug_print to debug_log; updated imports and flair.
-        (2025-08-02 0035.2) Change: Updated button styles to use specific scan styles (StartScan, PauseScan, ResumeScan, StopScan).
-                                    Implemented blinking logic for Resume button.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
-        
+
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing ScanControlTab. Setting up scan controls! Version: {current_version}",
+        debug_log(f"Initializing ScanControlTab. Version: {current_version}. Setting up scan controls!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
-        self.is_scanning = False
-        self.is_paused = False
         self.scan_thread = None
         self.stop_event = threading.Event()
-        self.pause_event = threading.Event() # Event to signal pausing
-        self.blink_id = None # To store the ID of the blinking after job
+        self.pause_event = threading.Event()
+        self.is_paused_by_user = False # Track if pause was user-initiated
 
-        # Configure grid for this frame
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure(2, weight=1)
-        self.grid_rowconfigure(0, weight=0) # Buttons row
-        self.grid_rowconfigure(1, weight=1) # Status/Progress row
+        self._create_widgets()
+        self._update_button_states() # Initial state update
 
-        # --- Scan Control Buttons ---
-        button_frame = ttk.Frame(self)
-        button_frame.grid(row=0, column=0, columnspan=3, pady=10)
-        button_frame.grid_columnconfigure(0, weight=1)
-        button_frame.grid_columnconfigure(1, weight=1)
-        button_frame.grid_columnconfigure(2, weight=1)
+        debug_log(f"ScanControlTab initialized. Version: {current_version}. Scan controls ready!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-        # Updated button styles
-        self.start_button = ttk.Button(button_frame, text="START SCAN", command=self._start_scan, style='StartScan.TButton')
-        self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        self.pause_resume_button = ttk.Button(button_frame, text="PAUSE", command=self._toggle_pause_resume, style='PauseScan.TButton', state=tk.DISABLED)
-        self.pause_resume_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+    def _create_widgets(self):
+        """
+        Creates and arranges the buttons for scan control (Start, Pause, Stop).
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating ScanControlTab widgets... Building the scan control buttons! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
-        self.stop_button = ttk.Button(button_frame, text="STOP", command=self._stop_scan, style='StopScan.TButton', state=tk.DISABLED)
-        self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        self.grid_columnconfigure(0, weight=1) # Center buttons horizontally
 
-        # --- Progress Bar and Status Label ---
-        status_frame = ttk.Frame(self)
-        status_frame.grid(row=1, column=0, columnspan=3, sticky="nsew", padx=10, pady=10)
-        status_frame.grid_rowconfigure(0, weight=1)
-        status_frame.grid_rowconfigure(1, weight=1)
-        status_frame.grid_columnconfigure(0, weight=1)
+        # Start Scan Button
+        self.start_button = ttk.Button(self, text="Start Scan", command=self._start_scan, style='Green.TButton')
+        self.start_button.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
 
-        self.progress_label_var = tk.StringVar(value="Ready to scan.")
-        self.progress_label = ttk.Label(status_frame, textvariable=self.progress_label_var, font=('Helvetica', 10, 'bold'))
-        self.progress_label.grid(row=0, column=0, pady=5, sticky="w")
+        # Pause/Resume Button
+        self.pause_resume_button = ttk.Button(self, text="Pause Scan", command=self._toggle_pause_resume, style='Orange.TButton')
+        self.pause_resume_button.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
 
-        self.progress_bar = ttk.Progressbar(status_frame, orient="horizontal", length=300, mode="determinate")
-        self.progress_bar.grid(row=1, column=0, sticky="ew", pady=5)
+        # Stop Scan Button
+        self.stop_button = ttk.Button(self, text="Stop Scan", command=self._stop_scan, style='Red.TButton')
+        self.stop_button.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
 
-        # Initialize button states based on initial connection status
-        self._update_button_states()
+        # Progress Bar
+        self.progress_bar = ttk.Progressbar(self, orient="horizontal", length=200, mode="determinate")
+        self.progress_bar.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
 
-        debug_log(f"ScanControlTab initialized. Buttons are ready! Version: {current_version}",
+        # Progress Label
+        self.progress_label = ttk.Label(self, text="Scan Progress: 0%", style='TLabel')
+        self.progress_label.grid(row=4, column=0, padx=10, pady=2, sticky="ew")
+
+        debug_log(f"ScanControlTab widgets created. Buttons are in place! Version: {current_version}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -145,501 +128,318 @@ class ScanControlTab(ttk.Frame):
 
     def _update_button_states(self):
         """
-        Function Description:
-        Updates the state (enabled/disabled) and style of the scan control buttons
-        based on the current scan status and instrument connection.
-        Also manages the blinking effect for the "RESUME" button.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Checks `self.is_scanning` and `self.is_paused`.
-        2. Checks if an instrument is connected via `self.app_instance.inst`.
-        3. Sets the state and style of `start_button`, `pause_resume_button`, and `stop_button` accordingly.
-        4. Manages the blinking effect for the "RESUME" button by scheduling/cancelling `_blink_resume_button`.
-
-        Outputs of this function:
-        - None. Modifies Tkinter widget states and styles.
+        Updates the state of the scan control buttons based on connection and scan status.
+        This function is called by connection_status_logic.py
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Updating scan button states. Scanning: {self.is_scanning}, Paused: {self.is_paused}, Connected: {self.app_instance.inst is not None}. Adjusting controls!",
+        debug_log(f"Updating scan button states. Connected: {self.app_instance.inst is not None}, Scanning: {self.scan_thread and self.scan_thread.is_alive()}. Version: {current_version}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
         is_connected = self.app_instance.inst is not None
+        is_scanning = self.scan_thread and self.scan_thread.is_alive()
 
-        # Stop any existing blinking before reconfiguring
-        if self.blink_id:
-            self.app_instance.after_cancel(self.blink_id)
-            self.blink_id = None
-            # Ensure button is reset to its non-blinking style
-            self.pause_resume_button.config(style='PauseScan.TButton')
+        # Start button: Enabled if connected and not scanning
+        self.start_button.config(state=tk.NORMAL if is_connected and not is_scanning else tk.DISABLED)
 
-
-        if self.is_scanning:
-            self.start_button.config(state=tk.DISABLED, style='StartScan.TButton')
-            self.pause_resume_button.config(state=tk.NORMAL)
-            self.stop_button.config(state=tk.NORMAL, style='StopScan.TButton')
-            if self.is_paused:
-                self.pause_resume_button.config(text="RESUME", style='ResumeScan.TButton')
-                self.progress_label_var.set("Scan paused.")
-                # Start blinking the RESUME button
-                self._blink_resume_button()
-            else:
-                self.pause_resume_button.config(text="PAUSE", style='PauseScan.TButton')
-                # Progress label updated by scan_update_progress during active scan
+        # Pause/Resume button: Enabled if scanning
+        self.pause_resume_button.config(state=tk.NORMAL if is_scanning else tk.DISABLED)
+        if is_scanning:
+            if self.pause_event.is_set(): # If paused
+                self.pause_resume_button.config(text="Resume Scan", style='OrangeBlink.TButton')
+            else: # If running
+                self.pause_resume_button.config(text="Pause Scan", style='Orange.TButton')
         else:
-            self.start_button.config(state=tk.NORMAL if is_connected else tk.DISABLED, style='StartScan.TButton')
-            self.pause_resume_button.config(state=tk.DISABLED, text="PAUSE", style='PauseScan.TButton') # Reset text and style
-            self.stop_button.config(state=tk.DISABLED, style='StopScan.TButton')
-            self.progress_bar['value'] = 0
-            if not is_connected:
-                self.progress_label_var.set("Instrument not connected. Please connect to start scan.")
-            elif not self.is_paused: # Only reset label if not paused and finished
-                self.progress_label_var.set("Ready to scan.")
+            self.pause_resume_button.config(text="Pause Scan", style='Orange.TButton')
 
-        debug_log("Scan button states updated. Controls are responsive!",
+
+        # Stop button: Enabled if scanning
+        self.stop_button.config(state=tk.NORMAL if is_scanning else tk.DISABLED)
+
+        # Progress bar and label visibility
+        if is_scanning:
+            self.progress_bar.grid()
+            self.progress_label.grid()
+        else:
+            self.progress_bar.grid_remove()
+            self.progress_label.grid_remove()
+            self.progress_bar["value"] = 0
+            self.progress_label.config(text="Scan Progress: 0%")
+
+        debug_log("Scan button states updated. UI responsive!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-
-
-    def _blink_resume_button(self):
-        """
-        Function Description:
-        Toggles the visibility/appearance of the RESUME button to create a blinking effect.
-        This function is called repeatedly using `app_instance.after`.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Checks if the button's current style is 'ResumeScan.TButton'.
-        2. Toggles the style between 'ResumeScan.TButton' and a transparent/hidden state
-           (by setting a temporary style that makes it look "off").
-        3. Schedules itself to run again after a short delay (e.g., 500ms).
-
-        Outputs of this function:
-        - None. Modifies Tkinter widget style.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        # Only blink if the button is visible and the scan is paused
-        if self.is_paused and self.is_scanning:
-            current_style = self.pause_resume_button.cget("style")
-            if current_style == 'ResumeScan.TButton':
-                # Temporarily switch to a "dimmed" or "off" state style
-                self.pause_resume_button.config(style='PauseScan.TButton') # Re-use Pause style for "off" state
-            else:
-                self.pause_resume_button.config(style='ResumeScan.TButton') # Switch back to "on" state
-            
-            # Schedule the next blink
-            self.blink_id = self.app_instance.after(500, self._blink_resume_button)
-        else:
-            # If not paused or scanning, ensure button is in its normal (non-blinking) state
-            self.pause_resume_button.config(style='PauseScan.TButton')
-            if self.blink_id:
-                self.app_instance.after_cancel(self.blink_id)
-                self.blink_id = None
-            debug_log("Resume button blinking stopped.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
 
 
     def _start_scan(self):
         """
-        Function Description:
-        Initiates the scan process in a separate thread.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Prints a debug message.
-        2. Checks if an instrument is connected.
-        3. If already scanning, logs a warning and returns.
-        4. Resets stop and pause events.
-        5. Sets `is_scanning` to True.
-        6. Creates and starts a new `threading.Thread` that runs `self._scan_thread_target`.
-        7. Updates button states.
-
-        Outputs of this function:
-        - None. Starts a new thread for scanning.
+        Initiates the spectrum scan in a separate thread to keep the GUI responsive.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Attempting to start scan. Kicking off the process!",
+        self.console_print_func("--- Initiating Spectrum Scan ---")
+        debug_log(f"Starting scan. Version: {current_version}. Let's get this show on the road!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
-        if not self.app_instance.inst:
-            self.console_print_func("❌ Cannot start scan: No instrument connected. Connect the damn thing first!")
-            debug_log("Scan start failed: No instrument connected. Fucking useless!",
+        if self.scan_thread and self.scan_thread.is_alive():
+            self.console_print_func("⚠️ Scan already in progress. Please wait or stop the current scan. Patience, you bastard!")
+            debug_log("Scan already in progress. Aborting new scan request.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
             return
 
-        if self.is_scanning:
-            self.console_print_func("⚠️ Scan already in progress. Please wait or stop the current scan.")
-            debug_log("Scan already in progress. Aborting start request.",
+        if not self.app_instance.inst:
+            self.console_print_func("❌ Instrument not connected. Cannot start scan. Connect the damn thing first!")
+            debug_log("Instrument not connected. Scan aborted.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            return
+
+        # Get selected bands
+        selected_bands = [
+            band_item for band_item in self.app_instance.band_vars
+            if band_item["var"].get()
+        ]
+
+        if not selected_bands:
+            self.console_print_func("⚠️ No bands selected for scan. Please select at least one band!")
+            debug_log("No bands selected. Scan aborted.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            self.console_print_func("--- Scan process finished. Thank the lord! ---") # Indicate scan finished
             return
 
         # Reset events for a new scan
         self.stop_event.clear()
         self.pause_event.clear()
-        self.is_scanning = True
-        self.is_paused = False
-        self._update_button_states()
-        self.progress_label_var.set("Scan started...")
-        self.progress_bar['value'] = 0
-        self.console_print_func("--- Initiating Spectrum Scan ---")
+        self.is_paused_by_user = False
 
-        # Start the scan in a separate thread to keep GUI responsive
-        self.scan_thread = threading.Thread(target=self._scan_thread_target, daemon=True)
+        # Start the scan in a new thread
+        self.scan_thread = threading.Thread(
+            target=self._scan_thread_target,
+            args=(selected_bands,)
+        )
+        self.scan_thread.daemon = True # Allow the program to exit even if thread is running
         self.scan_thread.start()
-        debug_log("Scan thread started. The data acquisition has begun!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
+        self._update_button_states() # Update UI immediately after starting thread
+        update_connection_status_logic(self.app_instance, True, True, self.console_print_func) # Update main app status
 
 
     def _toggle_pause_resume(self):
         """
-        Function Description:
         Toggles the pause/resume state of the scan.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Prints a debug message.
-        2. Toggles `self.is_paused`.
-        3. If resuming, clears the `pause_event`.
-        4. If pausing, sets the `pause_event`.
-        5. Updates button states and status label.
-
-        Outputs of this function:
-        - None. Modifies scan state and GUI.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Toggling pause/resume for scan. Controlling the flow!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if self.is_scanning:
-            self.is_paused = not self.is_paused
-            if self.is_paused:
-                self.pause_event.set() # Signal the scan thread to pause
-                self.console_print_func("⏸️ Scan paused.")
-                debug_log("Scan paused. Taking a breather!",
+        if self.scan_thread and self.scan_thread.is_alive():
+            if self.pause_event.is_set():
+                self.pause_event.clear() # Resume
+                self.is_paused_by_user = False
+                self.console_print_func("▶️ Scan resumed. Let's get back to it!")
+                debug_log("Scan resumed by user.",
                             file=__file__,
                             version=current_version,
                             function=current_function)
             else:
-                self.pause_event.clear() # Signal the scan thread to resume
-                self.console_print_func("▶️ Scan resumed.")
-                debug_log("Scan resumed. Back to work!",
+                self.pause_event.set() # Pause
+                self.is_paused_by_user = True
+                self.console_print_func("⏸️ Scan paused. Taking a breather!")
+                debug_log("Scan paused by user.",
                             file=__file__,
                             version=current_version,
                             function=current_function)
-            self._update_button_states() # This will now handle blinking
-        else:
-            self.console_print_func("⚠️ No scan in progress to pause/resume. What are you trying to do?!")
-            debug_log("No scan in progress to pause/resume. Invalid action.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
+            self._update_button_states() # Update UI immediately
 
 
     def _stop_scan(self):
         """
-        Function Description:
-        Stops the ongoing scan process.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Prints a debug message.
-        2. Sets the `stop_event` to signal the scan thread to terminate.
-        3. Clears the `pause_event` to ensure thread can exit pause state.
-        4. Joins the scan thread to wait for its completion (with a timeout).
-        5. Resets scan state variables.
-        6. Updates button states and status label.
-
-        Outputs of this function:
-        - None. Terminates the scan thread.
+        Stops the currently running scan.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Attempting to stop scan. Bringing it to a halt!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        if self.is_scanning:
-            self.console_print_func("🛑 Stopping scan. Please wait...")
-            self.stop_event.set() # Signal the scan thread to stop
-            self.pause_event.clear() # Ensure it's not stuck in pause if stopping from paused state
-
-            # Stop blinking if it's active
-            if self.blink_id:
-                self.app_instance.after_cancel(self.blink_id)
-                self.blink_id = None
-            self.pause_resume_button.config(style='PauseScan.TButton') # Reset to non-blinking style
-
-            if self.scan_thread and self.scan_thread.is_alive():
-                # Give the thread a moment to respond to the stop event
-                self.scan_thread.join(timeout=5) # Wait for thread to finish, with a timeout
-                if self.scan_thread.is_alive():
-                    self.console_print_func("❌ Scan thread did not terminate gracefully. Forcing stop. This is problematic!")
-                    debug_log("Scan thread did not terminate gracefully. Forcing stop.",
-                                file=__file__,
-                                version=current_version,
-                                function=current_function)
-            
-            self.is_scanning = False
-            self.is_paused = False
-            self._update_button_states()
-            self.progress_label_var.set("Scan stopped by user.")
-            self.console_print_func("--- Scan stopped ---")
-            debug_log("Scan stopped by user. Mission aborted!",
+        if self.scan_thread and self.scan_thread.is_alive():
+            self.stop_event.set() # Signal the thread to stop
+            self.pause_event.clear() # Clear pause just in case it was paused
+            self.is_paused_by_user = False
+            self.console_print_func("⏹️ Stopping scan... This might take a moment.")
+            debug_log("Stop event set for scan thread.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            # No need to join here, the thread will exit gracefully.
+            # The UI will be updated by _scan_thread_target's finally block.
         else:
-            self.console_print_func("ℹ️ No scan in progress to stop. Nothing to do here!")
-            debug_log("No scan in progress to stop. Invalid action.",
+            self.console_print_func("ℹ️ No active scan to stop. Nothing to do here!")
+            debug_log("No active scan to stop.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
+        self._update_button_states() # Update UI immediately after stopping
 
 
-    def scan_update_progress(self, progress_percent):
+    def _scan_thread_target(self, selected_bands):
         """
-        Function Description:
-        Updates the GUI's progress bar and label with the current scan progress.
-        This method is called from the scan thread and uses `app_instance.after`
-        to safely update Tkinter widgets from a non-GUI thread.
-
-        Inputs:
-        - progress_percent (float): The current scan progress as a percentage (0-100).
-
-        Process of this function:
-        1. Uses `app_instance.after` to schedule a function on the main Tkinter thread.
-        2. The scheduled function updates the `progress_bar` value and `progress_label_var`.
-
-        Outputs of this function:
-        - None. Updates GUI elements.
+        The main function executed in the scanning thread.
+        Orchestrates the instrument control, data collection, and progress updates.
         """
         current_function = inspect.currentframe().f_code.co_name
-        # This function is called frequently, so keep debug_log minimal or conditional
-        # debug_log(f"Updating progress to {progress_percent:.2f}%.", file=__file__, function=current_function)
-        
-        self.app_instance.after(0, lambda: self.progress_bar.config(value=progress_percent))
-        self.app_instance.after(0, lambda: self.progress_label_var.set(f"Scanning... {progress_percent:.1f}% complete."))
-
-
-    def _scan_thread_target(self):
-        """
-        Function Description:
-        The target function for the scan thread. This is where the actual instrument
-        scanning logic is executed. It calls `scan_bands` and handles data processing
-        and saving after the scan is complete or interrupted.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. Prints debug messages.
-        2. Retrieves selected bands and scan parameters from `app_instance`.
-        3. Calls `scan_bands` to perform the instrument sweep, passing `stop_event`
-           and `pause_event` for control.
-        4. Handles exceptions during the scan.
-        5. If the scan completes successfully:
-           a. Stitches and saves the collected raw data.
-           b. Updates the GUI about completion.
-           c. Opens the output folder.
-        6. Ensures button states are updated in the `finally` block.
-
-        Outputs of this function:
-        - None. Executes scan, processes data, and updates GUI.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Scan thread target initiated. Starting the heavy lifting!",
+        debug_log(f"Scan thread started. Version: {current_version}. Let the data flow!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        
+        last_successful_band_index = -1
+        raw_scan_data = [] # To accumulate data across all bands and segments
+        markers_data = [] # To accumulate marker data
 
         try:
-            selected_bands = [
-                band_item for band_item in self.app_instance.band_vars if band_item["var"].get()
-            ]
-            
-            if not selected_bands:
-                self.app_instance.after(0, lambda: self.console_print_func("⚠️ No bands selected for scan. Please select at least one band!"))
-                debug_log("No bands selected for scan. Aborting thread.",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                return
-
-            self.app_instance.after(0, lambda: self.progress_label_var.set("Configuring instrument..."))
-            debug_log("Calling scan_bands function...",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-            # Pass app_instance.inst directly to scan_bands
-            last_successful_band_index, raw_scan_data_for_current_sweep, markers_data = scan_bands(
-                self.app_instance, # Pass the full app_instance
-                selected_bands,
-                self.scan_update_progress,
-                self.stop_event,
-                self.pause_event, # Pass pause_event
-                self.console_print_func
+            # (2025-08-02 12:30) Change: Updated call to scan_bands to match its 17-argument signature.
+            last_successful_band_index, raw_scan_data, markers_data = scan_bands(
+                app_instance_ref=self.app_instance,
+                inst=self.app_instance.inst,
+                selected_bands=selected_bands,
+                rbw_hz=float(self.app_instance.scan_rbw_hz_var.get()),
+                ref_level_dbm=float(self.app_instance.reference_level_dbm_var.get()),
+                freq_shift_hz=float(self.app_instance.freq_shift_hz_var.get()),
+                maxhold_enabled=bool(self.app_instance.maxhold_time_seconds_var.get()), # Max hold enabled if time > 0
+                high_sensitivity=self.app_instance.high_sensitivity_var.get(),
+                preamp_on=self.app_instance.preamp_on_var.get(),
+                rbw_step_size_hz=float(self.app_instance.rbw_step_size_hz_var.get()), # This is 'Graph Quality'
+                max_hold_time_seconds=float(self.app_instance.maxhold_time_seconds_var.get()), # This is 'Dwell / Settle Time'
+                scan_name=self.app_instance.scan_name_var.get(),
+                output_folder=self.app_instance.output_folder_var.get(),
+                stop_event=self.stop_event,
+                pause_event=self.pause_event,
+                log_visa_commands_enabled=self.app_instance.log_visa_commands_var.get(),
+                general_debug_enabled=self.app_instance.general_debug_var.get(),
+                app_console_update_func=self.console_print_func
             )
-            debug_log("scan_bands function returned.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
 
-            if self.stop_event.is_set():
-                self.app_instance.after(0, lambda: self.console_print_func("Scan process stopped by user. Data might be incomplete."))
-                debug_log("Scan thread detected stop event. Exiting gracefully.",
+            if not self.stop_event.is_set(): # Only process if not stopped by user
+                # Stitch and save data after scan is complete
+                self.console_print_func("\n--- Stitching and saving scan data ---")
+                debug_log("Stitching and saving scan data. Almost done!",
                             file=__file__,
                             version=current_version,
                             function=current_function)
-                return
+                
+                output_folder = self.app_instance.output_folder_var.get()
+                scan_name = self.app_instance.scan_name_var.get()
+                
+                # Retrieve all metadata variables from app_instance
+                meta_data = {
+                    "Operator Name": self.app_instance.operator_name_var.get(),
+                    "Operator Contact": self.app_instance.operator_contact_var.get(),
+                    "Venue Name": self.app_instance.venue_name_var.get(),
+                    "Venue Postal Code": self.app_instance.venue_postal_code_var.get(),
+                    "Address Field": self.app_instance.address_field_var.get(),
+                    "City": self.app_instance.city_var.get(),
+                    "Province": self.app_instance.province_var.get(),
+                    "Scanner Type": self.app_instance.scanner_type_var.get(),
+                    "Antenna Type": self.app_instance.selected_antenna_type_var.get(),
+                    "Antenna Description": self.app_instance.antenna_description_var.get(),
+                    "Antenna Use": self.app_instance.antenna_use_var.get(),
+                    "Antenna Mount": self.app_instance.antenna_mount_var.get(),
+                    "Antenna Amplifier Type": self.app_instance.selected_amplifier_type_var.get(),
+                    "Amplifier Description": self.app_instance.amplifier_description_var.get(),
+                    "Amplifier Use": self.app_instance.amplifier_use_var.get(),
+                    "Notes": self.app_instance.notes_var.get(),
+                    "Scan Cycles": self.app_instance.num_scan_cycles_var.get(),
+                    "RBW Step Size (Hz)": self.app_instance.rbw_step_size_hz_var.get(),
+                    "Cycle Wait Time (s)": self.app_instance.cycle_wait_time_seconds_var.get(),
+                    "Max Hold Time (s)": self.app_instance.maxhold_time_seconds_var.get(),
+                    "Scan RBW (Hz)": self.app_instance.scan_rbw_hz_var.get(),
+                    "Reference Level (dBm)": self.app_instance.reference_level_dbm_var.get(),
+                    "Frequency Shift (Hz)": self.app_instance.freq_shift_hz_var.get(),
+                    "High Sensitivity": self.app_instance.high_sensitivity_var.get(),
+                    "Preamplifier ON": self.app_instance.preamp_on_var.get(),
+                    "Scan RBW Segmentation (Hz)": self.app_instance.scan_rbw_segmentation_var.get(),
+                    "Desired Default Focus Width (Hz)": self.app_instance.desired_default_focus_width_var.get(),
+                }
 
-            if raw_scan_data_for_current_sweep:
-                self.app_instance.after(0, lambda: self.progress_label_var.set("Stitching and saving data..."))
-                self.app_instance.after(0, lambda: self.console_print_func("--- Stitching and Saving Scan Data ---"))
-                debug_log(f"Stitching and saving {len(raw_scan_data_for_current_sweep)} raw scan segments.",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
+                # Pass all relevant flags for marker inclusion
+                marker_flags = {
+                    "include_gov_markers": self.app_instance.include_gov_markers_var.get(),
+                    "include_tv_markers": self.app_instance.include_tv_markers_var.get(),
+                    "include_markers": self.app_instance.include_markers_var.get(),
+                    "include_scan_intermod_markers": self.app_instance.include_scan_intermod_markers_var.get(),
+                    "avg_include_gov_markers": self.app_instance.avg_include_gov_markers_var.get(),
+                    "avg_include_tv_markers": self.app_instance.avg_include_tv_markers_var.get(),
+                    "avg_include_markers": self.app_instance.avg_include_markers_var.get(),
+                    "avg_include_intermod_markers": self.app_instance.avg_include_intermod_markers_var.get(),
+                }
 
-                # Call the new stitch and save function
-                stitched_df, output_file_path = stitch_and_save_scan_data(
-                    raw_scan_data_for_current_sweep,
-                    self.app_instance.output_folder_var.get(),
-                    self.app_instance.scan_name_var.get(),
-                    self.app_instance.operator_name_var.get(),
-                    self.app_instance.venue_name_var.get(),
-                    self.app_instance.equipment_used_var.get(), # This variable is not defined in App, needs to be added
-                    self.app_instance.notes_var.get(),
-                    self.app_instance.venue_postal_code_var.get(), # Corrected from postal_code_var
-                    self.app_instance.latitude_var.get(), # This variable is not defined in App, needs to be added
-                    self.app_instance.longitude_var.get(), # This variable is not defined in App, needs to be added
-                    self.app_instance.selected_antenna_type_var.get(), # Corrected from antenna_type_var
-                    self.app_instance.selected_amplifier_type_var.get(), # Corrected from antenna_amplifier_var
-                    self.console_print_func
+                # Pass all relevant math flags
+                math_flags = {
+                    "math_average": self.app_instance.math_average_var.get(),
+                    "math_median": self.app_instance.math_median_var.get(),
+                    "math_range": self.app_instance.math_range_var.get(),
+                    "math_standard_deviation": self.app_instance.math_standard_deviation_var.get(),
+                    "math_variance": self.app_instance.math_variance_var.get(),
+                    "math_psd": self.app_instance.math_psd_var.get(),
+                }
+
+                stitch_and_save_scan_data(
+                    raw_scan_data,
+                    markers_data,
+                    output_folder,
+                    scan_name,
+                    meta_data,
+                    marker_flags,
+                    math_flags,
+                    self.console_print_func,
+                    self.app_instance.create_html_var.get(), # Pass create_html_var
+                    self.app_instance.open_html_after_complete_var.get() # Pass open_html_after_complete_var
                 )
-
-                if stitched_df is not None:
-                    self.app_instance.collected_scans_dataframes.append(stitched_df) # Store for plotting
-                    self.app_instance.after(0, lambda: self.console_print_func(f"✅ Scan data saved to: {output_file_path}. All done!"))
-                    debug_log(f"Stitched and saved scan data to: {output_file_path}.",
-                                file=__file__,
-                                version=current_version,
-                                function=current_function)
-                    
-                    # Open the output folder
-                    if os.path.exists(self.app_instance.output_folder_var.get()):
-                        try:
-                            if sys.platform == "win32":
-                                subprocess.Popen(['explorer', self.app_instance.output_folder_var.get()])
-                            elif sys.platform == "darwin":
-                                subprocess.Popen(["open", self.app_instance.output_folder_var.get()])
-                            else:
-                                subprocess.Popen(["xdg-open", self.app_instance.output_folder_var.get()])
-                            self.app_instance.after(0, lambda: self.console_print_func(f"📂 Opened output folder: {self.app_instance.output_folder_var.get()}"))
-                            debug_log(f"Opened output folder: {self.app_instance.output_folder_var.get()}.",
-                                        file=__file__,
-                                        version=current_version,
-                                        function=current_function)
-                        except Exception as e:
-                            self.app_instance.after(0, lambda: self.console_print_func(f"❌ Error opening output folder: {e}. You'll have to find it yourself!"))
-                            debug_log(f"Error opening output folder: {e}.",
-                                        file=__file__,
-                                        version=current_version,
-                                        function=current_function)
-                else:
-                    self.app_instance.after(0, lambda: self.console_print_func("❌ Failed to stitch or save scan data. This is a disaster!"))
-                    debug_log("Failed to stitch or save scan data.",
-                                file=__file__,
-                                version=current_version,
-                                function=current_function)
+                self.console_print_func("--- Scan process finished. Thank the lord! ---")
+                debug_log("Scan process finished successfully.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             else:
-                self.app_instance.after(0, lambda: self.console_print_func("⚠️ No scan data collected. Was the instrument connected and configured?"))
-                debug_log("No raw scan data collected. Nothing to stitch.",
+                self.console_print_func("--- Scan process stopped by user. Thank the lord! ---")
+                debug_log("Scan process stopped by user.",
                             file=__file__,
                             version=current_version,
                             function=current_function)
 
-            self.app_instance.after(0, lambda: self.progress_label_var.set("Scan complete!"))
-            self.app_instance.after(0, lambda: self.console_print_func("--- 🎉 Scan Process Finished! ---"))
-            debug_log("Scan process finished successfully.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-        except AttributeError as e:
-            # Catch specific Tkinter-related errors if a variable isn't found
-            self.is_scanning = False
-            self.is_paused = False
-            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An AttributeError occurred during scan: {e}. This might indicate a missing Tkinter variable or incorrect object reference. This is a **fucking nightmare**!"))
-            debug_log(f"AttributeError during scan: {e}",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
         except Exception as e:
-            self.is_scanning = False
-            self.is_paused = False
-            self.app_instance.after(0, lambda: self.console_print_func(f"❌ An error occurred during scan: {e}. This is some serious **bullshit**!"))
-            debug_log(f"Error during scan: {e}",
+            self.console_print_func(f"❌ An error occurred during scan: {e}. This is some serious **bullshit**!")
+            debug_log(f"Error during scan thread: {e}. Fucking hell!",
                         file=__file__,
                         version=current_version,
                         function=current_function)
-            self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None)
-        finally:
-            self.is_scanning = False
-            self.is_paused = False
             self.app_instance.after(0, lambda: self.console_print_func("--- Scan process finished. Thank the lord! ---"))
-            debug_log("Scan process finished in finally block. Cleanup complete!",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            self.app_instance.after(0, self._update_button_states) # Ensure buttons are reset
-            self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None) # Update main app status
-            # Check if main_notebook exists before trying to access it
-            if hasattr(self.app_instance, 'main_notebook') and self.app_instance.main_notebook.winfo_exists():
-                selected_tab_id = self.app_instance.main_notebook.select()
-                if selected_tab_id:
-                    selected_tab_widget = self.app_instance.main_notebook.nametowidget(selected_tab_id)
-                    if hasattr(selected_tab_widget, '_on_tab_selected'):
-                        self.app_instance.after(0, selected_tab_widget._on_tab_selected, None) # Refresh current tab
-                    else:
-                        debug_log("Selected main tab has no _on_tab_selected method. Skipping refresh.",
-                                    file=__file__,
-                                    version=current_version,
-                                    function=current_function)
-                else:
-                    debug_log("No main tab selected. Cannot refresh tab.",
-                                file=__file__,
-                                version=current_version,
-                                function=current_function)
-            else:
-                debug_log("Main notebook not found or does not exist. Cannot refresh tab.",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
+        finally:
+            self.app_instance.after(0, self._update_button_states) # Update UI on main thread
+            self.app_instance.after(0, lambda: update_connection_status_logic(self.app_instance, self.app_instance.inst is not None, False, self.console_print_func)) # Update main app status
 
+
+    def _update_progress(self, value):
+        """
+        Updates the progress bar and label on the GUI.
+        This method is called from the scanning thread, so it uses after() to update the GUI.
+        """
+        # Ensure GUI updates are done on the main thread
+        self.app_instance.after(0, lambda: self.progress_bar.config(value=value))
+        self.app_instance.after(0, lambda: self.progress_label.config(text=f"Scan Progress: {value:.1f}%"))
+
+    def _on_tab_selected(self, event):
+        """
+        Called when this tab is selected in the notebook.
+        Ensures button states are refreshed.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Scan Control Tab selected. Refreshing button states! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        self._update_button_states()
+        # Also ensure the main app's connection status logic is run to update other tabs
+        is_connected = self.app_instance.inst is not None
+        is_scanning = self.scan_thread and self.scan_thread.is_alive()
+        update_connection_status_logic(self.app_instance, is_connected, is_scanning, self.console_print_func)
