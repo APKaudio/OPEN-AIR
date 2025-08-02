@@ -16,8 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.0152.1 (Refined debug_log and console_log interaction, clarified DEBUG_MODE logic.)
+# Version 20250802.1935.0 (Added DEBUG_TO_GUI_CONSOLE flag and logic to control debug output to GUI console.)
+# Version 20250802.1940.0 (Ensured debug_log respects DEBUG_TO_GUI_CONSOLE flag for output to GUI.)
 
-current_version = "20250802.0152.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.1940.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 1 # Example hash, adjust as needed
 
 import sys
@@ -33,6 +35,7 @@ LOG_VISA_COMMANDS = False # Controls if VISA commands are logged (only if DEBUG_
 DEBUG_TO_TERMINAL = False # Controls where debug_log output goes (True: terminal, False: GUI console)
 DEBUG_TO_FILE = False # Controls if debug_log output goes to a file
 INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE = False # Controls if console_log messages also go to debug file
+DEBUG_TO_GUI_CONSOLE = False # NEW: Controls if debug_log messages go to the GUI console
 DEBUG_FILE_PATH = None # Path to the debug log file
 
 # Reference to the GUI console TextRedirector or original stdout/stderr
@@ -218,6 +221,34 @@ def set_include_console_messages_to_debug_file_mode(mode: bool):
                 function=current_function)
 
 
+def set_debug_to_gui_console_mode(mode: bool):
+    """
+    Function Description:
+    Sets the global DEBUG_TO_GUI_CONSOLE flag.
+
+    Inputs:
+    - mode (bool): True to enable debug_log messages to the GUI console, False to disable.
+
+    Process of this function:
+    1. Updates the global `DEBUG_TO_GUI_CONSOLE` variable.
+    2. Prints a debug message indicating the new state.
+
+    Outputs of this function:
+    - None. Modifies a global variable.
+    """
+    global DEBUG_TO_GUI_CONSOLE
+    DEBUG_TO_GUI_CONSOLE = mode
+    current_function = inspect.currentframe().f_code.co_name
+    if _console_log_func_ref:
+        _console_log_func_ref(f"Debug to GUI Console: {'Enabled' if DEBUG_TO_GUI_CONSOLE else 'Disabled'}", function=current_function)
+    else:
+        print(f"DEBUG_TO_GUI_CONSOLE set to: {DEBUG_TO_GUI_CONSOLE}. (console_log not yet registered)", file=_original_stdout)
+    debug_log(f"Debug logging to GUI console set to: {DEBUG_TO_GUI_CONSOLE}.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
+
 def set_debug_redirectors(stdout_redirector, stderr_redirector):
     """
     Function Description:
@@ -373,10 +404,10 @@ def debug_log(message, file=None, version=None, function=None, special=False):
     # Output to terminal
     if DEBUG_TO_TERMINAL:
         print(full_message, file=_original_stdout)
-    # Output to GUI console (only if not debugging to terminal)
-    elif _gui_console_stdout_redirector:
+    # Output to GUI console (only if not debugging to terminal AND DEBUG_TO_GUI_CONSOLE is True)
+    elif _gui_console_stdout_redirector and DEBUG_TO_GUI_CONSOLE: # Added DEBUG_TO_GUI_CONSOLE check
         _gui_console_stdout_redirector.write(full_message + "\n")
-    # Fallback to original stdout if GUI console not ready and not debugging to terminal
+    # Fallback to original stdout if GUI console not ready/enabled and not debugging to terminal
     else:
         print(full_message, file=_original_stdout)
 
@@ -416,14 +447,13 @@ def log_visa_command(command, direction="SENT"):
     # Output to terminal
     if DEBUG_TO_TERMINAL:
         print(log_message, file=_original_stdout)
-    # Output to GUI console (only if not debugging to terminal)
-    elif _gui_console_stdout_redirector:
+    # Output to GUI console (only if not debugging to terminal AND DEBUG_TO_GUI_CONSOLE is True)
+    elif _gui_console_stdout_redirector and DEBUG_TO_GUI_CONSOLE: # Added DEBUG_TO_GUI_CONSOLE check
         _gui_console_stdout_redirector.write(log_message + "\n")
-    # Fallback to original stdout if GUI console not ready and not debugging to terminal
+    # Fallback to original stdout if GUI console not ready/enabled and not debugging to terminal
     else:
         print(log_message, file=_original_stdout)
 
     # Output to debug file
     if DEBUG_TO_FILE:
         _write_to_debug_file(log_message)
-

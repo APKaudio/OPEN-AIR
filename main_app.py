@@ -18,10 +18,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250802.1701.15 (Updated imports and tab instantiation for refactored modules.)
+# Version 20250802.1815.0 (Fixed KeyError: 'Shift' by using 'shift_hz' for frequency_shifts initialization.)
 # Version 20250802.1910.1 (Fixed KeyError: 'Mode' by using 'Value' for scan_modes initialization.)
+# Version 20250802.1945.0 (Initialized debug_to_gui_console_var and applied it in _check_config_and_set_debug.)
+# Version 20250802.1950.0 (Corrected `main_app.py` to ensure it's complete and not truncated.)
 
-current_version = "20250802.1910.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1910 * 1 # Example hash, adjust as needed
+current_version = "20250802.1950.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1950 * 0 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -171,7 +175,7 @@ class App(tk.Tk):
         # console_text will be initialized in _create_widgets (by ConsoleTab) and a reference stored here
         self.console_text = None
 
-        check_and_install_dependencies(current_version)
+        check_and_install_dependencies(console_logic_module.console_log) # Pass console_log
 
         self.rm = None
         self.inst = None
@@ -262,6 +266,7 @@ class App(tk.Tk):
         debug_logic_module.set_debug_to_terminal_mode(self.debug_to_terminal_var.get())
         debug_logic_module.set_debug_to_file_mode(self.debug_to_file_var.get(), self.DEBUG_COMMANDS_FILE_PATH)
         debug_logic_module.set_include_console_messages_to_debug_file_mode(self.include_console_messages_to_debug_file_var.get())
+        debug_logic_module.set_debug_to_gui_console_mode(self.debug_to_gui_console_var.get()) # NEW: Set new debug mode
 
 
         self._setup_styles()
@@ -383,6 +388,21 @@ class App(tk.Tk):
                         file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)
+        
+        # NEW: Display Debug to GUI Console Mode status
+        if self.debug_to_gui_console_var.get():
+            console_logic_module.console_log(f"🐞 Current Debug to GUI Console Mode: ENABLED", function=current_function)
+            debug_logic_module.debug_log(f"Current Debug to GUI Console Mode: ENABLED",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+        else:
+            console_logic_module.console_log(f"🐞 Current Debug to GUI Console Mode: DISABLED", function=current_function)
+            debug_logic_module.debug_log(f"Current Debug to GUI Console Mode: DISABLED",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+        
         console_logic_module.console_log(f"--------------------------------------------------", function=current_function)
 
         return config_file_found
@@ -481,6 +501,9 @@ class App(tk.Tk):
 
         self.include_console_messages_to_debug_file_var = tk.BooleanVar(self, value=False)
         self.include_console_messages_to_debug_file_var.trace_add("write", create_trace_callback("include_console_messages_to_debug_file_var"))
+
+        self.debug_to_gui_console_var = tk.BooleanVar(self, value=False) # NEW: Initialized here
+        self.debug_to_gui_console_var.trace_add("write", create_trace_callback("debug_to_gui_console_var"))
 
         self.paned_window_sash_position_var = tk.IntVar(self, value=700)
         self.paned_window_sash_position_var.trace_add("write", create_trace_callback("paned_window_sash_position_var"))
@@ -705,6 +728,7 @@ class App(tk.Tk):
             'debug_to_terminal_var': ('last_GLOBAL__debug_to_Terminal', 'default_GLOBAL__debug_to_Terminal', self.debug_to_terminal_var),
             'debug_to_file_var': ('last_GLOBAL__debug_to_File', 'default_GLOBAL__debug_to_File', self.debug_to_file_var),
             'include_console_messages_to_debug_file_var': ('last_GLOBAL__include_console_messages_to_debug_file', 'default_GLOBAL__include_console_messages_to_debug_file', self.include_console_messages_to_debug_file_var),
+            'debug_to_gui_console_var': ('last_GLOBAL__debug_to_GUI_Console', 'default_GLOBAL__debug_to_GUI_Console', self.debug_to_gui_console_var), # NEW MAPPING
             'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var),
             'last_config_save_time_var': ('last_GLOBAL__last_config_save_time', 'default_GLOBAL__last_config_save_time', self.last_config_save_time_var), # NEW MAPPING
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
