@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2325.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250802.0014.1 (Assigned scan_name_entry and output_folder_entry as attributes for external access.)
 
-current_version = "20250801.2325.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2325 * 1 # Example hash, adjust as needed
+current_version = "20250802.0014.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 14 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -117,15 +117,21 @@ class ScanTab(ttk.Frame):
         output_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(output_frame, text="Scan Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(output_frame, textvariable=self.app_instance.scan_name_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        # Assigned to self.scan_name_entry
+        self.scan_name_entry = ttk.Entry(output_frame, textvariable=self.app_instance.scan_name_var, style='TEntry')
+        self.scan_name_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
         ttk.Label(output_frame, text="Output Folder:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        output_folder_entry = ttk.Entry(output_frame, textvariable=self.app_instance.output_folder_var, style='TEntry')
-        output_folder_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Button(output_frame, text="Browse", command=self._browse_output_folder, style='TButton').grid(row=1, column=2, padx=2, pady=2)
+        # Assigned to self.output_folder_entry
+        self.output_folder_entry = ttk.Entry(output_frame, textvariable=self.app_instance.output_folder_var, style='TEntry')
+        self.output_folder_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        # Assigned to self.output_folder_button
+        self.output_folder_button = ttk.Button(output_frame, text="Browse", command=self._browse_output_folder, style='TButton')
+        self.output_folder_button.grid(row=1, column=2, padx=2, pady=2)
 
         # NEW: Open Output Folder Button
-        ttk.Button(output_frame, text="Open Output Folder", command=self._open_output_folder, style='TButton').grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+        self.open_output_folder_button = ttk.Button(output_frame, text="Open Output Folder", command=self._open_output_folder, style='TButton')
+        self.open_output_folder_button.grid(row=2, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 
 
         # Main frame for Scan Settings
@@ -268,16 +274,18 @@ class ScanTab(ttk.Frame):
 
 ####Putting on ice for now, not sure if needed
       #  Scan RBW Segmentation (remains as entry as it's not in a dropdown list)
+        self.scan_rbw_segmentation_entry = ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var, style='TEntry')
         ttk.Label(scan_settings_frame, text="Scan RBW Segmentation (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var, style='TEntry').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        self.scan_rbw_segmentation_entry.grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
         row_idx += 1
 
 
 
 ############# NOT SURE WHAT THIS WAS FOR, REMOVED FOR NOW #############
        # Desired Default Focus Width (remains as entry)
+        self.desired_default_focus_width_entry = ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var, style='TEntry')
         ttk.Label(scan_settings_frame, text="Default Focus Width (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(scan_settings_frame, textvariable=self.app_instance.desired_default_focus_width_var, style='TEntry').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
+        self.desired_default_focus_width_entry.grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=2) # Span across combobox and description columns
         row_idx += 1
 
         # Number of Scan Cycles
@@ -308,8 +316,10 @@ class ScanTab(ttk.Frame):
         band_button_frame.grid_columnconfigure(0, weight=1)
         band_button_frame.grid_columnconfigure(1, weight=1)
 
-        ttk.Button(band_button_frame, text="Select All", command=self._select_all_bands, style='TButton').grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Button(band_button_frame, text="Deselect All", command=self._deselect_all_bands, style='TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.select_all_bands_button = ttk.Button(band_button_frame, text="Select All", command=self._select_all_bands, style='TButton')
+        self.select_all_bands_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.deselect_all_bands_button = ttk.Button(band_button_frame, text="Deselect All", command=self._deselect_all_bands, style='TButton')
+        self.deselect_all_bands_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 
         # Create a canvas and scrollbar for the bands
@@ -389,7 +399,9 @@ class ScanTab(ttk.Frame):
 
             # Display frequencies in MHz for readability
             checkbox_text = f"{band_name} ({start_freq:.3f} - {stop_freq:.3f} MHz)"
-            ttk.Checkbutton(self.bands_inner_frame, text=checkbox_text, variable=var, style='TCheckbutton').grid(row=i, column=0, padx=5, pady=2, sticky="w")
+            # Assign checkbox to a self attribute if needed for external access, e.g., for state changes
+            band_item["checkbox"] = ttk.Checkbutton(self.bands_inner_frame, text=checkbox_text, variable=var, style='TCheckbutton')
+            band_item["checkbox"].grid(row=i, column=0, padx=5, pady=2, sticky="w")
             debug_log(f"Added checkbox for: {band_name}. Version: {current_version}",
                         file=__file__,
                         version=current_version,
@@ -968,7 +980,6 @@ class ScanTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-
         # High Sensitivity (high_sensitivity_var)
         current_value = self.app_instance.high_sensitivity_var.get()
         label = "Yes" if current_value else "No"
@@ -1027,3 +1038,4 @@ class ScanTab(ttk.Frame):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+

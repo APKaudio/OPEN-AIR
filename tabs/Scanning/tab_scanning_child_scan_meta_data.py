@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2330.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250802.0011.1 (Added missing widget attributes to allow external configuration.)
 
-current_version = "20250801.2330.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2330 * 1 # Example hash, adjust as needed
+current_version = "20250802.0011.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 11 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -70,6 +70,7 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Initialized new StringVars for regrouped fields, including new amplifier description/use.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: Added missing widget attributes for external access.
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
@@ -130,6 +131,7 @@ class ScanMetaDataTab(ttk.Frame):
         # (2025-07-30) Change: Made location fields editable; added amplifier description/use fields.
         # (2025-07-30) Change: Made antenna/amplifier description/use fields editable.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: Assigned widgets to self attributes for external access.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating ScanMetaDataTab widgets... Building the meta data input form! Version: {current_version}",
                     file=__file__,
@@ -150,10 +152,12 @@ class ScanMetaDataTab(ttk.Frame):
         personnel_frame.grid_columnconfigure(1, weight=1) # Allow entry widgets to expand
 
         ttk.Label(personnel_frame, text="Operator Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_name_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.operator_name_entry = ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_name_var, style='TEntry')
+        self.operator_name_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
         ttk.Label(personnel_frame, text="Operator Contact:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_contact_var, style='TEntry').grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.operator_contact_entry = ttk.Entry(personnel_frame, textvariable=self.app_instance.operator_contact_var, style='TEntry')
+        self.operator_contact_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
 
         # --- Location Box ---
@@ -162,25 +166,30 @@ class ScanMetaDataTab(ttk.Frame):
         location_frame.grid_columnconfigure(1, weight=1) # Allow entry widgets to expand
 
         ttk.Label(location_frame, text="Venue Name:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(location_frame, textvariable=self.app_instance.venue_name_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.venue_name_entry = ttk.Entry(location_frame, textvariable=self.app_instance.venue_name_var, style='TEntry')
+        self.venue_name_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
         ttk.Label(location_frame, text="Venue Postal Code:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        postal_code_entry = ttk.Entry(location_frame, textvariable=self.app_instance.venue_postal_code_var, style='TEntry')
-        postal_code_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.postal_code_entry = ttk.Entry(location_frame, textvariable=self.app_instance.venue_postal_code_var, style='TEntry')
+        self.postal_code_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
         # Button for calling the postal code lookup function
-        ttk.Button(location_frame, text="Lookup Location", command=self._lookup_postal_code, style='Blue.TButton').grid(row=1, column=2, padx=5, pady=2, sticky="e")
+        self.lookup_location_button = ttk.Button(location_frame, text="Lookup Location", command=self._lookup_postal_code, style='Blue.TButton')
+        self.lookup_location_button.grid(row=1, column=2, padx=5, pady=2, sticky="e")
 
         ttk.Label(location_frame, text="Address Field:", style='TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.address_field_var, style='TEntry').grid(row=2, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        self.address_field_entry = ttk.Entry(location_frame, textvariable=self.app_instance.address_field_var, style='TEntry')
+        self.address_field_entry.grid(row=2, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
         ttk.Label(location_frame, text="City:", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.city_var, style='TEntry').grid(row=3, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        self.city_entry = ttk.Entry(location_frame, textvariable=self.app_instance.city_var, style='TEntry')
+        self.city_entry.grid(row=3, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
         ttk.Label(location_frame, text="Province:", style='TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: Removed state='readonly'
-        ttk.Entry(location_frame, textvariable=self.app_instance.province_var, style='TEntry').grid(row=4, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
+        self.province_entry = ttk.Entry(location_frame, textvariable=self.app_instance.province_var, style='TEntry')
+        self.province_entry.grid(row=4, column=1, columnspan=2, padx=5, pady=2, sticky="ew")
 
 
         # --- Equipment Used Box ---
@@ -189,18 +198,21 @@ class ScanMetaDataTab(ttk.Frame):
         equipment_frame.grid_columnconfigure(1, weight=1) # Allow entry/combobox to expand
 
         ttk.Label(equipment_frame, text="Scanner Type:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(equipment_frame, textvariable=self.app_instance.scanner_type_var, style='TEntry').grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        # Renamed to equipment_used_entry to match scan_logic.py's expectation
+        self.equipment_used_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.scanner_type_var, style='TEntry')
+        self.equipment_used_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
         ttk.Label(equipment_frame, text="Antenna Type:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.antenna_type_combobox = ttk.Combobox(
+        # Renamed to antenna_type_dropdown to match scan_logic.py's expectation
+        self.antenna_type_dropdown = ttk.Combobox(
             equipment_frame,
             textvariable=self.app_instance.selected_antenna_type_var,
             values=[ant["Type"] for ant in antenna_types],
             state="readonly", # This remains readonly as it's a selection from a predefined list
             style='TCombobox'
         )
-        self.antenna_type_combobox.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        self.antenna_type_combobox.bind("<<ComboboxSelected>>", self._on_antenna_type_selected)
+        self.antenna_type_dropdown.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.antenna_type_dropdown.bind("<<ComboboxSelected>>", self._on_antenna_type_selected)
 
         ttk.Label(equipment_frame, text="Antenna Description:", style='TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         # CHANGED: state='readonly' to state='normal'
@@ -213,21 +225,23 @@ class ScanMetaDataTab(ttk.Frame):
         self.antenna_use_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
         ttk.Label(equipment_frame, text="Antenna Mount:", style='TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_mount_var, style='TEntry').grid(row=4, column=1, padx=5, pady=2, sticky="ew")
+        self.antenna_mount_entry = ttk.Entry(equipment_frame, textvariable=self.app_instance.antenna_mount_var, style='TEntry')
+        self.antenna_mount_entry.grid(row=4, column=1, padx=5, pady=2, sticky="ew")
 
         # Spacer
         ttk.Separator(equipment_frame, orient='horizontal').grid(row=5, column=0, columnspan=2, pady=5, sticky="ew")
 
         ttk.Label(equipment_frame, text="Antenna Amplifier Type:", style='TLabel').grid(row=6, column=0, padx=5, pady=2, sticky="w")
-        self.amplifier_type_combobox = ttk.Combobox(
+        # Renamed to antenna_amplifier_dropdown to match scan_logic.py's expectation
+        self.antenna_amplifier_dropdown = ttk.Combobox(
             equipment_frame,
             textvariable=self.app_instance.selected_amplifier_type_var,
             values=[amp["Type"] for amp in antenna_amplifier_types],
             state="readonly", # This remains readonly as it's a selection from a predefined list
             style='TCombobox'
         )
-        self.amplifier_type_combobox.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
-        self.amplifier_type_combobox.bind("<<ComboboxSelected>>", self._on_amplifier_type_selected)
+        self.antenna_amplifier_dropdown.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
+        self.antenna_amplifier_dropdown.bind("<<ComboboxSelected>>", self._on_amplifier_type_selected)
 
         # NEW: Amplifier Description and Use fields
         ttk.Label(equipment_frame, text="Amplifier Description:", style='TLabel').grid(row=7, column=0, padx=5, pady=2, sticky="w")
@@ -247,9 +261,10 @@ class ScanMetaDataTab(ttk.Frame):
         notes_frame.grid_columnconfigure(0, weight=1) # Allow notes widget to expand
         notes_frame.grid_rowconfigure(0, weight=1) # Allow notes widget to expand
 
-        self.notes_text_widget = scrolledtext.ScrolledText(notes_frame, wrap=tk.WORD, width=40, height=5)
-        self.notes_text_widget.grid(row=0, column=0, padx=5, pady=2, sticky="nsew")
-        self.notes_text_widget.bind("<KeyRelease>", self._on_notes_change)
+        # Renamed to notes_text to match scan_logic.py's expectation
+        self.notes_text = scrolledtext.ScrolledText(notes_frame, wrap=tk.WORD, width=40, height=5)
+        self.notes_text.grid(row=0, column=0, padx=5, pady=2, sticky="nsew")
+        self.notes_text.bind("<KeyRelease>", self._on_notes_change)
 
         debug_log(f"ScanMetaDataTab widgets created. Meta data form is complete! Version: {current_version}",
                     file=__file__,
@@ -275,8 +290,9 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: No functional change, just updated header.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: Updated to use self.notes_text.
         """Updates the Tkinter notes_var from the ScrolledText widget and saves config."""
-        self.app_instance.notes_var.set(self.notes_text_widget.get("1.0", tk.END).strip())
+        self.app_instance.notes_var.set(self.notes_text.get("1.0", tk.END).strip())
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Notes updated: {self.app_instance.notes_var.get()}. Version: {current_version}",
                     file=__file__,
@@ -297,7 +313,7 @@ class ScanMetaDataTab(ttk.Frame):
         # Process of this function
         #   1. Prints a debug message indicating the tab selection.
         #   2. Ensures the notes widget reflects the current value of `app_instance.notes_var`.
-        #   3. Populates the `antenna_type_combobox` and `amplifier_type_combobox`
+        #   3. Populates the `antenna_type_dropdown` and `antenna_amplifier_dropdown`
         #      with their respective values from `app_instance` if they are set.
         #   4. Triggers the update of antenna description and use based on the current selection.
         #   5. Explicitly populates all other text entry fields from their `app_instance` variables
@@ -309,6 +325,7 @@ class ScanMetaDataTab(ttk.Frame):
         # (2025-07-30) Change: Added logic to refresh comboboxes and associated fields on tab selection.
         # (2025-07-30) Change: Added explicit population of all text entry fields from app_instance variables.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: Updated to use new widget attribute names.
         """
         Called when this tab is selected in the notebook.
         This can be used to refresh data or update UI elements specific to this tab.
@@ -320,32 +337,32 @@ class ScanMetaDataTab(ttk.Frame):
                     function=current_function)
 
         # When the tab is selected, ensure the notes widget reflects the app_instance's variable
-        self.notes_text_widget.delete("1.0", tk.END)
-        self.notes_text_widget.insert("1.0", self.app_instance.notes_var.get())
+        self.notes_text.delete("1.0", tk.END)
+        self.notes_text.insert("1.0", self.app_instance.notes_var.get())
 
         # Explicitly set the values for all Entry widgets from their associated StringVars
         # This is a robust way to ensure the UI is in sync with the model (app_instance variables)
-        self.app_instance.operator_name_var.set(self.app_instance.operator_name_var.get())
-        self.app_instance.operator_contact_var.set(self.app_instance.operator_contact_var.get())
-        self.app_instance.venue_name_var.set(self.app_instance.venue_name_var.get())
-        self.app_instance.venue_postal_code_var.set(self.app_instance.venue_postal_code_var.get())
-        self.app_instance.address_field_var.set(self.app_instance.address_field_var.get())
-        self.app_instance.city_var.set(self.app_instance.city_var.get())
-        self.app_instance.province_var.set(self.app_instance.province_var.get())
-        self.app_instance.scanner_type_var.set(self.app_instance.scanner_type_var.get())
-        self.app_instance.antenna_mount_var.set(self.app_instance.antenna_mount_var.get())
+        self.operator_name_entry.config(textvariable=self.app_instance.operator_name_var)
+        self.operator_contact_entry.config(textvariable=self.app_instance.operator_contact_var)
+        self.venue_name_entry.config(textvariable=self.app_instance.venue_name_var)
+        self.postal_code_entry.config(textvariable=self.app_instance.venue_postal_code_var)
+        self.address_field_entry.config(textvariable=self.app_instance.address_field_var)
+        self.city_entry.config(textvariable=self.app_instance.city_var)
+        self.province_entry.config(textvariable=self.app_instance.province_var)
+        self.equipment_used_entry.config(textvariable=self.app_instance.scanner_type_var) # Corrected
+        self.antenna_mount_entry.config(textvariable=self.app_instance.antenna_mount_var)
         
         # For comboboxes, set their value and then trigger their selection handler
         # This will ensure their associated description/use fields are also updated
         if self.app_instance.selected_antenna_type_var.get():
-            self.antenna_type_combobox.set(self.app_instance.selected_antenna_type_var.get())
+            self.antenna_type_dropdown.set(self.app_instance.selected_antenna_type_var.get())
             self._on_antenna_type_selected(None) # Trigger update of description/use
         else: # If no antenna type is selected, clear the description/use fields
             self.app_instance.antenna_description_var.set("")
             self.app_instance.antenna_use_var.set("")
 
         if self.app_instance.selected_amplifier_type_var.get():
-            self.amplifier_type_combobox.set(self.app_instance.selected_amplifier_type_var.get())
+            self.antenna_amplifier_dropdown.set(self.app_instance.selected_amplifier_type_var.get())
             self._on_amplifier_type_selected(None) # Trigger update of amplifier description/use
         else: # If no amplifier type is selected, clear the description/use fields
             self.app_instance.amplifier_description_var.set("")
@@ -381,6 +398,7 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Updated to use `get_location_from_google_maps`.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: No functional changes.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Attempting postal code lookup using Google Maps API. Let's find this location! Version: {current_version}",
                     file=__file__,
@@ -440,6 +458,7 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: No functional change, just updated header.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: No functional changes.
         """
         Event handler for when an antenna type is selected from the dropdown.
         It updates the 'Antenna Description' and 'Antenna Use' text boxes
@@ -502,6 +521,7 @@ class ScanMetaDataTab(ttk.Frame):
         #
         # (2025-07-30) Change: Populated amplifier description and use fields, and updated header.
         # (20250801.2330.1) Change: Refactored debug_print to use debug_log and console_log.
+        # (20250802.0011.1) Change: No functional changes.
         """
         Event handler for when an amplifier type is selected from the dropdown.
         It updates the `app_instance.antenna_amplifier_var` to reflect the
@@ -542,3 +562,4 @@ class ScanMetaDataTab(ttk.Frame):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+

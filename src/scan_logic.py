@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0040.1 (Refactored debug_print to debug_log; updated imports and flair.)
+# Version 20250802.0040.2 (Corrected scan_name_entry and output_folder_button access to Scan Configuration Tab.)
 
-current_version = "20250802.0040.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 40 * 1 # Example hash, adjust as needed
+current_version = "20250802.0040.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 40 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 import inspect
@@ -150,17 +150,40 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
                     function=current_function)
         # Enable/disable dropdowns and checkboxes based on scan status
         state = tk.DISABLED if is_scanning else tk.NORMAL
-        scan_config_tab.scan_rbw_segmentation_dropdown.config(state=state)
-        scan_config_tab.scan_rbw_hz_dropdown.config(state=state)
-        scan_config_tab.reference_level_dbm_dropdown.config(state=state)
-        scan_config_tab.freq_shift_hz_dropdown.config(state=state)
-        scan_config_tab.high_sensitivity_checkbox.config(state=state)
-        scan_config_tab.preamp_on_checkbox.config(state=state)
-        scan_config_tab.open_scan_data_folder_button.config(state=state) # This button should always be available
         
+        # Widgets on Scan Configuration tab
+        scan_config_tab.scan_name_entry.config(state=state)
+        scan_config_tab.output_folder_entry.config(state=state)
+        scan_config_tab.output_folder_button.config(state=state)
+        scan_config_tab.open_output_folder_button.config(state=tk.NORMAL) # This button should always be available
+
+        # Dropdowns
+        scan_config_tab.graph_quality_combobox.config(state=state)
+        scan_config_tab.dwell_time_combobox.config(state=state)
+        scan_config_tab.max_hold_time_combobox.config(state=state)
+        scan_config_tab.scan_rbw_combobox.config(state=state)
+        scan_config_tab.reference_level_combobox.config(state=state)
+        scan_config_tab.frequency_shift_combobox.config(state=state)
+        scan_config_tab.high_sensitivity_combobox.config(state=state)
+        scan_config_tab.preamp_on_combobox.config(state=state)
+        scan_config_tab.num_scan_cycles_combobox.config(state=state)
+
+        # Entries (if they exist and are not comboboxes)
+        if hasattr(scan_config_tab, 'scan_rbw_segmentation_entry'):
+            scan_config_tab.scan_rbw_segmentation_entry.config(state=state)
+        if hasattr(scan_config_tab, 'desired_default_focus_width_entry'):
+            scan_config_tab.desired_default_focus_width_entry.config(state=state)
+        
+        # Band selection buttons
+        if hasattr(scan_config_tab, 'select_all_bands_button'):
+            scan_config_tab.select_all_bands_button.config(state=state)
+        if hasattr(scan_config_tab, 'deselect_all_bands_button'):
+            scan_config_tab.deselect_all_bands_button.config(state=state)
+
         # Band checkboxes should be disabled during a scan
         for band_item in app_instance.band_vars:
-            band_item["checkbox"].config(state=state)
+            if "checkbox" in band_item: # Check if the checkbox attribute exists
+                band_item["checkbox"].config(state=state)
 
         debug_log("Scan Configuration Tab widgets updated.",
                     file=__file__,
@@ -181,16 +204,27 @@ def update_connection_status_logic(app_instance, is_connected, is_scanning, cons
         # All meta data entry fields should be disabled during a scan
         state = tk.DISABLED if is_scanning else tk.NORMAL
         scan_meta_data_tab.operator_name_entry.config(state=state)
+        scan_meta_data_tab.operator_contact_entry.config(state=state) # Added operator_contact_entry
         scan_meta_data_tab.venue_name_entry.config(state=state)
-        scan_meta_data_tab.equipment_used_entry.config(state=state)
-        scan_meta_data_tab.notes_text.config(state=state)
         scan_meta_data_tab.postal_code_entry.config(state=state)
         scan_meta_data_tab.lookup_location_button.config(state=state)
+        scan_meta_data_tab.address_field_entry.config(state=state) # Added address_field_entry
+        scan_meta_data_tab.city_entry.config(state=state) # Added city_entry
+        scan_meta_data_tab.province_entry.config(state=state) # Added province_entry
+        scan_meta_data_tab.equipment_used_entry.config(state=state)
         scan_meta_data_tab.antenna_type_dropdown.config(state=state)
+        scan_meta_data_tab.antenna_description_entry.config(state=state) # Added antenna_description_entry
+        scan_meta_data_tab.antenna_use_entry.config(state=state) # Added antenna_use_entry
+        scan_meta_data_tab.antenna_mount_entry.config(state=state) # Added antenna_mount_entry
         scan_meta_data_tab.antenna_amplifier_dropdown.config(state=state)
-        scan_meta_data_tab.scan_name_entry.config(state=state)
-        scan_meta_data_tab.output_folder_button.config(state=state)
-        scan_meta_data_tab.open_output_folder_button.config(state=tk.NORMAL) # Always enabled
+        scan_meta_data_tab.amplifier_description_entry.config(state=state) # Added amplifier_description_entry
+        scan_meta_data_tab.amplifier_use_entry.config(state=state) # Added amplifier_use_entry
+        scan_meta_data_tab.notes_text.config(state=state)
+        
+        # REMOVED: These belong to scan_config_tab
+        # scan_meta_data_tab.scan_name_entry.config(state=state)
+        # scan_meta_data_tab.output_folder_button.config(state=state)
+        # scan_meta_data_tab.open_output_folder_button.config(state=tk.NORMAL) # Always enabled
 
         debug_log("Scan Meta Data Tab widgets updated.",
                     file=__file__,

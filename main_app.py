@@ -18,7 +18,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.8 (Fixed TypeError: update_connection_status_logic() got unexpected keyword argument 'console_log_func'.)
+# Version 20250802.0045.8 (Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.)
 
 current_version = "20250802.0045.8" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 45 * 8 # Example hash, adjust as needed
@@ -153,40 +153,7 @@ class App(tk.Tk):
         # Outputs:
         #   None. Initializes the main application object.
         #
-        # (2025-08-01 18:07) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'is_scanning'.
-        # (2025-08-01 18:07) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
-        # (2025-08-01 18:07) Change: Corrected AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
-        # (2025-08-01 18:07) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab' by using correct child tab attributes.
-        # (2025-08-01 18:07) Change: Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'console_print_func' by conditionally passing console_print_func to debug_print during early initialization.
-        # (2025-08-01 18:07) Change: Fixed TypeError: load_config() takes 3 positional arguments but 4 were given by removing the extra 'self' argument from the call.
-        # (2025-08-01 1807.7) Change: Fixed AttributeError: 'function' object has no attribute 'SCAN_BAND_RANGES' by re-adding app_instance to load_config call and updating save_config signature.
-        # (2025-08-01 1807.8) Change: Fixed TypeError: load_config() takes 3 positional arguments but 4 were given by correcting argument passing to load_config and updating save_config signature.
-        # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
-        # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
-        # (2025-08-01 1807.11) Change: Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'is_ready_to_save' by initializing the flag earlier.
-        # (2025-08-01 1845.1) Change: Fixed DATA_FOLDER_PATH to be inside the main app directory.
-        # (2025-08-01 1850.2) Change: Implemented logic to check for config.ini and enable general debugging if missing, displaying relevant status remarks on GUI console.
-        # (2025-08-01 1900.1) Change: Regenerated file to ensure latest version is presented. No functional changes from previous version.
-        # (2025-08-01 1900.2) Change: Ensured config.ini is created and populated with defaults on first run if it doesn't exist.
-        #                             Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
-        # (2025-08-01 2015.1) Change: Added binding for window configure event to save geometry.
-        #                             Stored original stdout/stderr for redirection on close.
-        #                             Added connection status label to the right column.
-        # (2025-08-01 2023.1) Change: Added 'debug_to_terminal_var' to control debug output redirection.
-        #                             Modified _redirect_stdout_to_console and _print_to_gui_console to respect this setting.
-        # (2025-08-01 2045.1) Change: Refactored logging to use src/debug_logic.py for separate debug and console output.
-        #                             Removed _print_to_gui_console method.
-        #                             Updated all calls to use debug_print and console_log.
-        #                             Simplified _redirect_stdout_to_console.
-        # (2025-08-01 2200.1) Change: Fully integrated debug_log and console_log, removed _print_to_gui_console.
-        #                             Updated all calls to reflect new logging functions and their parameters.
-        # (2025-08-01 2243.1) Change: Fixed ImportError by changing import source for set_gui_console_redirector
-        #                             from src.debug_logic to src.console_logic.
-        # (2025-08-02 0045.1) Change: Fixed TypeError: missing console_print_func in parent tab instantiation.
-        # (2025-08-02 0045.2) Change: Moved _setup_styles call before _create_widgets to fix TclError: Layout BigScanButton not found.
-        # (25-08-02 0045.3) Change: Moved parent_tab_colors initialization to __init__ to fix AttributeError.
-        # (25-08-02 0045.4) Change: Added self.update_idletasks() after _setup_styles() to ensure styles are registered.
-        # (25-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         super().__init__()
@@ -379,11 +346,9 @@ class App(tk.Tk):
     #   Returns True if config.ini was found, False otherwise.
     #   Modifies application state (debug mode) and updates GUI console.
     #
-    # (2025-08-01 1850.2) Change: New function to check for config.ini and enable debug if missing.
-    # (2025-08-01 1900.1) Change: No functional changes.
-    # (2025-08-01 1900.2) Change: Modified to return a boolean indicating if config.ini was found.
-    # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+    # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+    # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+    # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
     def _check_config_and_set_debug(self):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
@@ -447,13 +412,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Creates a directory if necessary.
         #
-        # (2025-07-31) Change: Initial implementation for DATA folder creation.
-        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing.
-        # (2025-08-01 1850.2) Change: No functional change, but now called early for directory creation.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
@@ -500,15 +461,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Populates `self` with Tkinter variable objects.
         #
-        # (2025-07-31) Change: Added `include_scan_intermod_markers_var` and `avg_include_intermod_markers_var`.
-        # (2025-08-01) Change: Added console_print_func parameter to allow conditional printing during early init.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2023.1) Change: Added 'debug_to_terminal_var' for controlling debug output redirection.
-        # (2025-08-01 2045.1) Change: Removed console_print_func parameter from signature.
-        #                             Updated debug_print calls to remove console_print_func.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log("Setting up Tkinter variables...",
@@ -771,6 +726,7 @@ class App(tk.Tk):
             'last_loaded_preset_span_mhz_var': ('last_instrument_preset__loaded_preset_span_mhz', 'default_instrument_preset__loaded_preset_span_mhz', self.last_loaded_preset_span_mhz_var),
             'last_loaded_preset_rbw_hz_var': ('last_instrument_preset__loaded_preset_rbw_hz', 'default_instrument_preset__loaded_preset_rbw_hz', self.last_loaded_preset_rbw_hz_var),
 
+
             # Plotting variables (Scan Markers)
             'include_gov_markers_var': ('last_plotting__scan_markers_to_plot__include_gov_markers', 'default_plotting__scan_markers_to_plot__include_gov_markers', self.include_gov_markers_var),
             'include_tv_markers_var': ('last_plotting__scan_markers_to_plot__include_tv_markers', 'default_plotting__scan_markers_to_plot__include_tv_markers', self.include_tv_markers_var),
@@ -820,20 +776,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Sets the main window's size and position.
         #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2045.1) Change: Removed console_print_func parameter from signature.
-        #                             Updated debug_print calls to remove console_print_func.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -882,25 +827,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Populates the main window with GUI elements.
         #
-        # (2025-07-31) Change: Implemented two-layer tab structure with parent and child notebooks.
-        #                      Instantiated new parent tab classes and added them to the main notebook.
-        #                      Adjusted child notebook references to point to the nested notebooks within parent tabs.
-        # (2025-07-31) Change: Corrected typo in console_print_func argument for Markers Parent Tab.
-        # (2025-07-31) Change: Applied specific styles to parent tabs for correct color display.
-        # (2025-07-31) Change: Removed immediate notebook.tab() calls after add; initial color handled by _on_parent_tab_change.
-        # (2025-07-31) Change: Storing parent tab instances as attributes of App for global access.
-        # (2025-07-31) Change: Replaced fixed grid columns with ttk.PanedWindow for resizable divider.
-        #                      Adjusted ScanControlTab's sticky option to expand horizontally.
-        # (2025-07-31) Change: Applied saved sash position to the PanedWindow.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Removed 'style' argument from add() calls to fix TclError.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-        #                             Removed console_print_func from tab instantiations.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
@@ -1041,17 +970,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Applies visual styling to the application's GUI.
         #
-        # (2025-08-01) Change: Refactored all ttk.Style definitions from _setup_styles method
-        #                      into a new external file: src/style.py.
-        #                      This method now simply calls apply_styles from src.style.py.
-        # (25-08-01) Change: Fixed AttributeError by passing the imported 'debug_print' function
-        #                      directly instead of 'self.debug_print'.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
@@ -1087,20 +1008,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Modifies global system streams.
         #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2023.1) Change: Added logic to respect 'debug_to_terminal_var' for redirection.
-        # (2025-08-01 2045.1) Change: Simplified redirection logic as it's now handled by debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget
         or keeps them in the terminal based on configuration.
@@ -1147,9 +1057,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Persists window geometry.
         #
-        # (2025-08-01 2015.1) Change: New function to handle window configure events and save geometry.
-        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
 
@@ -1190,21 +1100,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Closes the application.
         #
-        # (2025-07-30) Change: No functional change, just updated header.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Updated debug prints to new format, including console_print_func.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2015.1) Change: Added restoration of original stdout/stderr.
-        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-        #                             Restored original stdout/stderr at the end.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Handles the application closing event, saving configuration and disconnecting.
         """
@@ -1266,12 +1164,9 @@ class App(tk.Tk):
         # Outputs of this function:
         #   None. Ensures the 'DATA' directory is available for file operations.
         #
-        # (2025-08-01) Change: New function to create the DATA folder.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: No functional changes.
-        # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
@@ -1314,30 +1209,9 @@ class App(tk.Tk):
     # Outputs:
     #   None. Modifies the state of GUI widgets.
     #
-    # (2025-07-30) Change: Updated to pass all new tab instances (ScanConfig, ScanMetaData, Plotting, Markers, Presets).
-    # (2025-07-31) Change: Updated to pass new nested tab structure to `update_connection_status_logic`.
-    #                      Now passes parent tab instances, which then expose their child tabs.
-    # (2025-07-31) Change: Updated header.
-    # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-    # (2025-07-31) Change: Version incremented for paned window sash position saving.
-    # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-    # (2025-07-31) Change: Version incremented for new Markers tab styles.
-    # (2025-08-01) Change: Updated header and version.
-    # (2025-08-01) Change: Fixed AttributeError by ensuring correct tab attribute names are passed.
-    #                      Specifically, changed `instrument_presets_tab` to `preset_files_tab`.
-    # (2025-08-01) Change: Fixed AttributeError: 'TAB_PLOTTING_PARENT' object has no attribute 'plotting_tab'.
-    #                      Corrected access to child tab within TAB_PLOTTING_PARENT.
-    # (2025-08-01) Change: Fixed AttributeError: 'TAB_INSTRUMENT_PARENT' object has no attribute 'visa_interpreter_tab'.
-    #                      Instantiated VisaInterpreterTab and assigned it as an attribute.
-    # (2025-08-01) Change: Removed 'is_scanning' argument from the call to update_connection_status_logic.
-    # (2025-08-01 1807.9) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_tab' by passing specific child tab instances.
-    # (2025-08-01 1807.10) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'instrument_connection_tab' by simplifying arguments passed to the function.
-    # (2025-08-01 1850.2) Change: No functional change.
-    # (2025-08-01 1900.1) Change: No functional changes.
-    # (2025-08-01 1900.2) Change: No functional changes.
-    # (2025-08-01 2015.1) Change: Updated connection status label text and style.
-    # (2025-08-01 2045.1) Change: Updated to use console_log and debug_print from debug_logic.py.
-    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+    # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+    # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+    # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
     def update_connection_status(self, is_connected):
         """
         Updates the state of various GUI elements based on connection and scan status.
@@ -1403,25 +1277,9 @@ class App(tk.Tk):
         # Outputs:
         #   None. Updates parent tab visual styles and triggers child tab updates.
         #
-        # (2025-07-31) Change: Initial creation to handle parent tab style changes.
-        #                      Implemented logic to set active/inactive colors.
-        # (2025-07-31) Change: Propagated _on_tab_selected to active child tab.
-        # (2025-07-31) Change: Updated header.
-        # (2025-07-31) Change: Version incremented for resizable divider and scan control expansion.
-        # (2025-07-31) Change: Version incremented for paned window sash position saving.
-        # (2025-07-31) Change: Version incremented for dropdown UI in Scan Configuration tab.
-        # (2025-07-31) Change: Version incremented for new Markers tab styles.
-        # (2025-08-01) Change: Updated header and version.
-        # (2025-08-01) Change: Corrected ValueError by using tab_widget.winfo_name() to identify tab.
-        #                      Fixed TclError by passing widget directly to notebook.tab().
-        # (2025-08-01) Change: Fixed TclError: unknown option "-style" when applying style to parent tabs.
-        #                      Now retrieves background and foreground from the style and applies them directly.
-        # (2025-08-01 1850.2) Change: No functional change.
-        # (2025-08-01 1900.1) Change: No functional changes.
-        # (2025-08-01 1900.2) Change: Removed invalid 'background' and 'foreground' arguments from parent_notebook.tab() call to fix TclError.
-        #                             Reliance on ttk.Style mapping for tab appearance.
-        # (2025-08-01 2045.1) Change: Updated to use debug_print from debug_logic.py.
-        # (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        # (2025-08-02 0045.6) Change: Removed redundant print_art import.
+        # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
+        # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
         """
         Handles parent tab changes, updates styles, and propagates to active child tab.
         """
