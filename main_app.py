@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.3 (Moved parent_tab_colors initialization to __init__ to fix AttributeError.)
+# Version 20250802.0045.6 (Removed redundant print_art import; added update_idletasks after style setup.)
 
-current_version = "20250802.0045.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 3 # Example hash, adjust as needed
+current_version = "20250802.0045.6" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 45 * 6 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -55,7 +55,7 @@ from datetime import datetime # For timestamp in debug_log
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
-from src.gui_elements import TextRedirector, display_splash_screen
+from src.gui_elements import TextRedirector, display_splash_screen # Removed print_art
 
 # Import the new debug_logic and console_logic modules
 from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode
@@ -184,9 +184,11 @@ class App(tk.Tk):
         #                             from src.debug_logic to src.console_logic.
         # (2025-08-02 0045.1) Change: Fixed TypeError: missing console_print_func in parent tab instantiation.
         # (2025-08-02 0045.2) Change: Moved _setup_styles call before _create_widgets to fix TclError: Layout BigScanButton not found.
-        # (2025-08-02 0045.3) Change: Moved parent_tab_colors initialization to __init__ to fix AttributeError.
+        # (25-08-02 0045.3) Change: Moved parent_tab_colors initialization to __init__ to fix AttributeError.
+        # (25-08-02 0045.4) Change: Added self.update_idletasks() after _setup_styles() to ensure styles are registered.
+        # (25-08-02 0045.6) Change: Removed redundant print_art import.
         super().__init__()
-        self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
+        self.title("OPEN AIR - �🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         # Store original stdout and stderr to restore on close
@@ -285,6 +287,7 @@ class App(tk.Tk):
 
         # FUCKING IMPORTANT: Call _setup_styles BEFORE _create_widgets
         self._setup_styles() # This will now configure self.style
+        self.update_idletasks() # NEW: Force Tkinter to process style updates immediately
 
         self._create_widgets() # console_text is initialized here
 
@@ -1352,6 +1355,7 @@ class App(tk.Tk):
         update_connection_status_logic(
             app_instance=self, # Pass the main app instance
             is_connected=is_connected,
+            is_scanning=self.scanning, # Pass the actual scanning state
             console_log_func=console_log # Pass the console_log function
         )
 

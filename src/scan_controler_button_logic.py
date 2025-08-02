@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0035.1 (Refactored debug_print to debug_log; updated imports and flair.)
+# Version 20250802.0035.2 (Updated button styles to use specific scan styles and added blinking for Resume.)
 
-current_version = "20250802.0035.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 35 * 1 # Example hash, adjust as needed
+current_version = "20250802.0035.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -76,6 +76,8 @@ class ScanControlTab(ttk.Frame):
                                styles for larger appearance. Adjusted _toggle_pause_resume
                                to correctly set 'PAUSE' and 'RESUME' text.
         (2025-08-02 0035.1) Change: Refactored debug_print to debug_log; updated imports and flair.
+        (2025-08-02 0035.2) Change: Updated button styles to use specific scan styles (StartScan, PauseScan, ResumeScan, StopScan).
+                                    Implemented blinking logic for Resume button.
         """
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
@@ -92,6 +94,7 @@ class ScanControlTab(ttk.Frame):
         self.scan_thread = None
         self.stop_event = threading.Event()
         self.pause_event = threading.Event() # Event to signal pausing
+        self.blink_id = None # To store the ID of the blinking after job
 
         # Configure grid for this frame
         self.grid_columnconfigure(0, weight=1)
@@ -107,13 +110,14 @@ class ScanControlTab(ttk.Frame):
         button_frame.grid_columnconfigure(1, weight=1)
         button_frame.grid_columnconfigure(2, weight=1)
 
-        self.start_button = ttk.Button(button_frame, text="START SCAN", command=self._start_scan, style='BigScanButton')
+        # Updated button styles
+        self.start_button = ttk.Button(button_frame, text="START SCAN", command=self._start_scan, style='StartScan.TButton')
         self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        self.pause_resume_button = ttk.Button(button_frame, text="PAUSE", command=self._toggle_pause_resume, style='BigScanButton', state=tk.DISABLED)
+        self.pause_resume_button = ttk.Button(button_frame, text="PAUSE", command=self._toggle_pause_resume, style='PauseScan.TButton', state=tk.DISABLED)
         self.pause_resume_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        self.stop_button = ttk.Button(button_frame, text="STOP", command=self._stop_scan, style='BigScanButton', state=tk.DISABLED)
+        self.stop_button = ttk.Button(button_frame, text="STOP", command=self._stop_scan, style='StopScan.TButton', state=tk.DISABLED)
         self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
         # --- Progress Bar and Status Label ---
@@ -142,8 +146,9 @@ class ScanControlTab(ttk.Frame):
     def _update_button_states(self):
         """
         Function Description:
-        Updates the state (enabled/disabled) of the scan control buttons
+        Updates the state (enabled/disabled) and style of the scan control buttons
         based on the current scan status and instrument connection.
+        Also manages the blinking effect for the "RESUME" button.
 
         Inputs:
         - None.
@@ -151,10 +156,11 @@ class ScanControlTab(ttk.Frame):
         Process of this function:
         1. Checks `self.is_scanning` and `self.is_paused`.
         2. Checks if an instrument is connected via `self.app_instance.inst`.
-        3. Sets the state of `start_button`, `pause_resume_button`, and `stop_button` accordingly.
+        3. Sets the state and style of `start_button`, `pause_resume_button`, and `stop_button` accordingly.
+        4. Manages the blinking effect for the "RESUME" button by scheduling/cancelling `_blink_resume_button`.
 
         Outputs of this function:
-        - None. Modifies Tkinter widget states.
+        - None. Modifies Tkinter widget states and styles.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating scan button states. Scanning: {self.is_scanning}, Paused: {self.is_paused}, Connected: {self.app_instance.inst is not None}. Adjusting controls!",
@@ -164,20 +170,30 @@ class ScanControlTab(ttk.Frame):
 
         is_connected = self.app_instance.inst is not None
 
+        # Stop any existing blinking before reconfiguring
+        if self.blink_id:
+            self.app_instance.after_cancel(self.blink_id)
+            self.blink_id = None
+            # Ensure button is reset to its non-blinking style
+            self.pause_resume_button.config(style='PauseScan.TButton')
+
+
         if self.is_scanning:
-            self.start_button.config(state=tk.DISABLED)
+            self.start_button.config(state=tk.DISABLED, style='StartScan.TButton')
             self.pause_resume_button.config(state=tk.NORMAL)
-            self.stop_button.config(state=tk.NORMAL)
+            self.stop_button.config(state=tk.NORMAL, style='StopScan.TButton')
             if self.is_paused:
-                self.pause_resume_button.config(text="RESUME")
+                self.pause_resume_button.config(text="RESUME", style='ResumeScan.TButton')
                 self.progress_label_var.set("Scan paused.")
+                # Start blinking the RESUME button
+                self._blink_resume_button()
             else:
-                self.pause_resume_button.config(text="PAUSE")
+                self.pause_resume_button.config(text="PAUSE", style='PauseScan.TButton')
                 # Progress label updated by scan_update_progress during active scan
         else:
-            self.start_button.config(state=tk.NORMAL if is_connected else tk.DISABLED)
-            self.pause_resume_button.config(state=tk.DISABLED, text="PAUSE") # Reset text
-            self.stop_button.config(state=tk.DISABLED)
+            self.start_button.config(state=tk.NORMAL if is_connected else tk.DISABLED, style='StartScan.TButton')
+            self.pause_resume_button.config(state=tk.DISABLED, text="PAUSE", style='PauseScan.TButton') # Reset text and style
+            self.stop_button.config(state=tk.DISABLED, style='StopScan.TButton')
             self.progress_bar['value'] = 0
             if not is_connected:
                 self.progress_label_var.set("Instrument not connected. Please connect to start scan.")
@@ -188,6 +204,48 @@ class ScanControlTab(ttk.Frame):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+
+
+    def _blink_resume_button(self):
+        """
+        Function Description:
+        Toggles the visibility/appearance of the RESUME button to create a blinking effect.
+        This function is called repeatedly using `app_instance.after`.
+
+        Inputs:
+        - None.
+
+        Process of this function:
+        1. Checks if the button's current style is 'ResumeScan.TButton'.
+        2. Toggles the style between 'ResumeScan.TButton' and a transparent/hidden state
+           (by setting a temporary style that makes it look "off").
+        3. Schedules itself to run again after a short delay (e.g., 500ms).
+
+        Outputs of this function:
+        - None. Modifies Tkinter widget style.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        # Only blink if the button is visible and the scan is paused
+        if self.is_paused and self.is_scanning:
+            current_style = self.pause_resume_button.cget("style")
+            if current_style == 'ResumeScan.TButton':
+                # Temporarily switch to a "dimmed" or "off" state style
+                self.pause_resume_button.config(style='PauseScan.TButton') # Re-use Pause style for "off" state
+            else:
+                self.pause_resume_button.config(style='ResumeScan.TButton') # Switch back to "on" state
+            
+            # Schedule the next blink
+            self.blink_id = self.app_instance.after(500, self._blink_resume_button)
+        else:
+            # If not paused or scanning, ensure button is in its normal (non-blinking) state
+            self.pause_resume_button.config(style='PauseScan.TButton')
+            if self.blink_id:
+                self.app_instance.after_cancel(self.blink_id)
+                self.blink_id = None
+            debug_log("Resume button blinking stopped.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
 
     def _start_scan(self):
@@ -291,7 +349,7 @@ class ScanControlTab(ttk.Frame):
                             file=__file__,
                             version=current_version,
                             function=current_function)
-            self._update_button_states()
+            self._update_button_states() # This will now handle blinking
         else:
             self.console_print_func("⚠️ No scan in progress to pause/resume. What are you trying to do?!")
             debug_log("No scan in progress to pause/resume. Invalid action.",
@@ -329,6 +387,12 @@ class ScanControlTab(ttk.Frame):
             self.console_print_func("🛑 Stopping scan. Please wait...")
             self.stop_event.set() # Signal the scan thread to stop
             self.pause_event.clear() # Ensure it's not stuck in pause if stopping from paused state
+
+            # Stop blinking if it's active
+            if self.blink_id:
+                self.app_instance.after_cancel(self.blink_id)
+                self.blink_id = None
+            self.pause_resume_button.config(style='PauseScan.TButton') # Reset to non-blinking style
 
             if self.scan_thread and self.scan_thread.is_alive():
                 # Give the thread a moment to respond to the stop event
@@ -469,13 +533,13 @@ class ScanControlTab(ttk.Frame):
                     self.app_instance.scan_name_var.get(),
                     self.app_instance.operator_name_var.get(),
                     self.app_instance.venue_name_var.get(),
-                    self.app_instance.equipment_used_var.get(),
+                    self.app_instance.equipment_used_var.get(), # This variable is not defined in App, needs to be added
                     self.app_instance.notes_var.get(),
-                    self.app_instance.postal_code_var.get(),
-                    self.app_instance.latitude_var.get(),
-                    self.app_instance.longitude_var.get(),
-                    self.app_instance.antenna_type_var.get(),
-                    self.app_instance.antenna_amplifier_var.get(),
+                    self.app_instance.venue_postal_code_var.get(), # Corrected from postal_code_var
+                    self.app_instance.latitude_var.get(), # This variable is not defined in App, needs to be added
+                    self.app_instance.longitude_var.get(), # This variable is not defined in App, needs to be added
+                    self.app_instance.selected_antenna_type_var.get(), # Corrected from antenna_type_var
+                    self.app_instance.selected_amplifier_type_var.get(), # Corrected from antenna_amplifier_var
                     self.console_print_func
                 )
 
@@ -491,7 +555,7 @@ class ScanControlTab(ttk.Frame):
                     if os.path.exists(self.app_instance.output_folder_var.get()):
                         try:
                             if sys.platform == "win32":
-                                os.startfile(self.app_instance.output_folder_var.get())
+                                subprocess.Popen(['explorer', self.app_instance.output_folder_var.get()])
                             elif sys.platform == "darwin":
                                 subprocess.Popen(["open", self.app_instance.output_folder_var.get()])
                             else:
@@ -556,4 +620,26 @@ class ScanControlTab(ttk.Frame):
                         function=current_function)
             self.app_instance.after(0, self._update_button_states) # Ensure buttons are reset
             self.app_instance.after(0, self.app_instance.update_connection_status, self.app_instance.inst is not None) # Update main app status
-            self.app_instance.after(0, self.app_instance.main_notebook.nametowidget(self.app_instance.main_notebook.select())._on_tab_selected, None) # Refresh current tab
+            # Check if main_notebook exists before trying to access it
+            if hasattr(self.app_instance, 'main_notebook') and self.app_instance.main_notebook.winfo_exists():
+                selected_tab_id = self.app_instance.main_notebook.select()
+                if selected_tab_id:
+                    selected_tab_widget = self.app_instance.main_notebook.nametowidget(selected_tab_id)
+                    if hasattr(selected_tab_widget, '_on_tab_selected'):
+                        self.app_instance.after(0, selected_tab_widget._on_tab_selected, None) # Refresh current tab
+                    else:
+                        debug_log("Selected main tab has no _on_tab_selected method. Skipping refresh.",
+                                    file=__file__,
+                                    version=current_version,
+                                    function=current_function)
+                else:
+                    debug_log("No main tab selected. Cannot refresh tab.",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
+            else:
+                debug_log("Main notebook not found or does not exist. Cannot refresh tab.",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
+

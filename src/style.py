@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0065.1 (Added BigScanButton style definition.)
+# Version 20250802.0065.2 (Added specific styles for scan control buttons and removed BigScanButton.)
 
-current_version = "20250802.0065.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 65 * 1 # Example hash, adjust as needed
+current_version = "20250802.0065.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 65 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -49,7 +49,10 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
            - 'Red.TButton' (for disconnect/stop actions)
            - 'Orange.TButton' (for save/warning actions)
            - 'Blue.TButton' (for general actions)
-           - 'BigScanButton' (new, larger style for scan controls)
+           - 'StartScan.TButton' (new, green for start)
+           - 'PauseScan.TButton' (new, orange for pause)
+           - 'ResumeScan.TButton' (new, orange for resume, blinking handled in logic)
+           - 'StopScan.TButton' (new, red for stop)
            - 'LargePreset.TButton' (for preset buttons)
            - 'SelectedPreset.Orange.TButton' (for selected preset buttons)
            - 'LargeYAK.TButton' (for YAK button)
@@ -80,6 +83,7 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     (2025-08-01) Change: Added styles for connection status labels (Green.TLabel, Red.TLabel).
     (2025-08-02 0060.1) Change: Added BigScanButton style definition.
     (2025-08-02 0065.1) Change: Updated BigScanButton style to blue.
+    (2025-08-02 0065.2) Change: Added specific styles for Start, Pause, Resume, Stop scan buttons. Removed BigScanButton.
     """
     debug_log_func(f"Applying custom Tkinter styles. Version: {current_version}. Making things look pretty!",
                     file=__file__,
@@ -154,18 +158,55 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     style.map('Blue.TButton',
               background=[('active', '#64B5F6'), ('disabled', '#1565C0')])
 
-    # NEW: Big Scan Button Style - Changed to blue
-    style.configure('BigScanButton',
-                    background='#007acc', # Blue
+    # NEW: Specific Scan Button Styles
+    style.configure('StartScan.TButton',
+                    background='#4CAF50', # Green
                     foreground='white',
                     font=('Helvetica', 12, 'bold'), # Larger font
                     padding=[20, 10], # More padding
                     relief="raised", # Raised effect
                     borderwidth=2,
                     focusthickness=0)
-    style.map('BigScanButton',
-              background=[('active', '#005f99'), ('disabled', '#3a3a3a')], # Darker blue on active
+    style.map('StartScan.TButton',
+              background=[('active', '#66BB6A'), ('disabled', '#2E7D32')],
               foreground=[('disabled', '#808080')])
+
+    style.configure('PauseScan.TButton',
+                    background='#FF9800', # Orange
+                    foreground='white',
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[20, 10],
+                    relief="raised",
+                    borderwidth=2,
+                    focusthickness=0)
+    style.map('PauseScan.TButton',
+              background=[('active', '#FFB74D'), ('disabled', '#E65100')],
+              foreground=[('disabled', '#808080')])
+
+    style.configure('ResumeScan.TButton',
+                    background='#FF9800', # Orange (base for blinking)
+                    foreground='white',
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[20, 10],
+                    relief="raised",
+                    borderwidth=2,
+                    focusthickness=0)
+    style.map('ResumeScan.TButton',
+              background=[('active', '#FFB74D'), ('disabled', '#E65100')],
+              foreground=[('disabled', '#808080')])
+
+    style.configure('StopScan.TButton',
+                    background='#F44336', # Red
+                    foreground='white',
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[20, 10],
+                    relief="raised",
+                    borderwidth=2,
+                    focusthickness=0)
+    style.map('StopScan.TButton',
+              background=[('active', '#EF5350'), ('disabled', '#C62828')],
+              foreground=[('disabled', '#808080')])
+
 
     # Preset Buttons
     style.configure("LargePreset.TButton",
@@ -277,7 +318,7 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
 
     style.configure("Markers.Inner.Treeview.Heading",
                     font=("Helvetica", 9, "bold"),
-                    background="#4a4a4a",
+                    background="#4a4a3a",
                     foreground="white",
                     relief="flat")
     style.map("Markers.Inner.Treeview.Heading",
@@ -349,6 +390,6 @@ def apply_styles(style, debug_log_func, current_app_version, parent_tab_colors):
     debug_log_func(f"Custom Tkinter styles applied successfully. The GUI is looking sharp! Version: {current_version}",
                     file=__file__,
                     version=current_version,
-                    function="The styles defition",
+                    function="The styles definition",
                     special=True)
 
