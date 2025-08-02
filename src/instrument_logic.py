@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0030.1 (Refactored debug_print to debug_log; updated imports and flair.)
+# Version 20250802.0035.1 (Added query_basic_instrument_settings_logic function.)
 
-current_version = "20250802.0030.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 30 * 1 # Example hash, adjust as needed
+current_version = "20250802.0035.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 35 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -420,6 +420,81 @@ def apply_settings_logic(app_instance, console_print_func=None):
         return False
 
 
+def query_basic_instrument_settings_logic(app_instance, console_print_func=None):
+    """
+    Function Description:
+    Queries the current instrument settings for Center Frequency, Span, and RBW.
+    This is a focused query function, intended for situations where only these
+    basic parameters are needed (e.g., after loading a preset).
+
+    Inputs:
+    - app_instance (object): The main application instance, used to access `inst`.
+    - console_print_func (function, optional): Function to print messages to the GUI console.
+                                               Defaults to console_log if None.
+
+    Returns:
+    - tuple: (center_freq_hz, span_hz, rbw_hz)
+             Returns 0.0 for each on failure or if instrument is not connected.
+    """
+    console_print_func = console_print_func if console_print_func else console_log
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log("Querying basic instrument settings (Center, Span, RBW). Getting the essentials!",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+
+    inst = app_instance.inst
+    if not inst:
+        console_print_func("⚠️ Warning: Instrument not connected. Cannot query basic settings. Connect the damn thing first!")
+        debug_log("Instrument not connected for query_basic_instrument_settings_logic. Fucking useless!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return 0.0, 0.0, 0.0
+
+    center_freq_hz = 0.0
+    span_hz = 0.0
+    rbw_hz = 0.0
+
+    try:
+        # Query Center Frequency
+        center_freq_str = query_safe(inst, ":SENSe:FREQuency:CENTer?", console_print_func)
+        if center_freq_str:
+            center_freq_hz = float(center_freq_str)
+
+        # Query Span
+        span_str = query_safe(inst, ":SENSe:FREQuency:SPAN?", console_print_func)
+        if span_str:
+            span_hz = float(span_str)
+
+        # Query RBW
+        rbw_str = query_safe(inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
+        if rbw_str:
+            rbw_hz = float(rbw_str)
+
+        console_print_func("✅ Basic instrument settings queried successfully.")
+        debug_log("Basic instrument settings queried. Data retrieved!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return center_freq_hz, span_hz, rbw_hz
+
+    except pyvisa.errors.VisaIOError as e:
+        console_print_func(f"❌ VISA error while querying basic settings: {e}. This is a critical error!")
+        debug_log(f"VISA Error querying basic settings: {e}. What a mess!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return 0.0, 0.0, 0.0
+    except Exception as e:
+        console_print_func(f"❌ An unexpected error occurred while querying basic settings: {e}. This is a disaster!")
+        debug_log(f"An unexpected error occurred while querying basic settings: {e}. Fucking hell!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return 0.0, 0.0, 0.0
+
+
 def query_current_instrument_settings_logic(app_instance, console_print_func=None):
     """
     Function Description:
@@ -539,3 +614,4 @@ def query_current_instrument_settings_logic(app_instance, console_print_func=Non
                     version=current_version,
                     function=current_function)
         return False
+

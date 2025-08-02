@@ -16,9 +16,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.2200.1 (Refactored logging to use src/debug_logic and src/console_logic.)
+# Version 20250802.0050.1 (Fixed TclError: unknown option "-console_print_func" by removing from kwargs.)
 
-current_version = "20250801.2200.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0050.1" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -44,7 +44,7 @@ class MarkersDisplayTab(ttk.Frame):
     A Tkinter Frame that displays extracted frequency markers in a hierarchical treeview
     and as clickable buttons.
     """
-    def __init__(self, master=None, headers=None, rows=None, app_instance=None, **kwargs): # Removed console_print_func
+    def __init__(self, master=None, headers=None, rows=None, app_instance=None, **kwargs):
         """
         Initializes the MarkersDisplayTab.
 
@@ -742,7 +742,7 @@ class MarkersDisplayTab(ttk.Frame):
         Process of this function:
         1. Updates the stored internal `self.current_span_hz`.
         2. Toggles the visual style of the span buttons.
-        3. If the instrument is connected:
+        3. If instrument is connected:
             a. Stores current trace mode states (Live, Max Hold, Min Hold).
             b. Blanks Max Hold and Min Hold traces if they were active.
             c. Sets the instrument's span using `set_span_logic`.

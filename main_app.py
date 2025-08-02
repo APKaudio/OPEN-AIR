@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2243.1 (Fixed ImportError by changing import source for set_gui_console_redirector.)
+# Version 20250802.0045.1 (Fixed TypeError: missing console_print_func in parent tab instantiation.)
 
-current_version = "20250801.2243.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2243 * 1 # Example hash, adjust as needed
+current_version = "20250802.0045.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 45 * 1 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -55,7 +55,7 @@ from datetime import datetime # For timestamp in debug_log
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
-from src.gui_elements import TextRedirector, display_splash_screen
+from src.gui_elements import TextRedirector, display_splash_screen  # Added print_art
 
 # Import the new debug_logic and console_logic modules
 from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode
@@ -182,6 +182,7 @@ class App(tk.Tk):
         #                             Updated all calls to reflect new logging functions and their parameters.
         # (2025-08-01 2243.1) Change: Fixed ImportError by changing import source for set_gui_console_redirector
         #                             from src.debug_logic to src.console_logic.
+        # (2025-08-02 0045.1) Change: Fixed TypeError: missing console_print_func in parent tab instantiation.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -922,32 +923,32 @@ class App(tk.Tk):
         # Instantiate and add parent tabs, storing widget references as App attributes
         # Removed 'style' argument from add() calls as it's not supported directly for tab labels.
         # Initial styling will be handled by _on_parent_tab_change.
-        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self)
+        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.instrument_parent_tab, text="INSTRUMENT")
         self.child_notebooks["INSTRUMENT"] = self.instrument_parent_tab.child_notebook
         self.parent_tab_widgets["INSTRUMENT"] = self.instrument_parent_tab # Store widget reference
 
-        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self)
+        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.scanning_parent_tab, text="SCANNING")
         self.child_notebooks["SCANNING"] = self.scanning_parent_tab.child_notebook
         self.parent_tab_widgets["SCANNING"] = self.scanning_parent_tab # Store widget reference
 
-        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self)
+        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.plotting_parent_tab, text="PLOTTING")
         self.child_notebooks["PLOTTING"] = self.plotting_parent_tab.child_notebook
         self.parent_tab_widgets["PLOTTING"] = self.plotting_parent_tab # Store widget reference
 
-        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self)
+        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.markers_parent_tab, text="MARKERS")
         self.child_notebooks["MARKERS"] = self.markers_parent_tab.child_notebook
         self.parent_tab_widgets["MARKERS"] = self.markers_parent_tab # Store widget reference
 
-        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self)
+        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.presets_parent_tab, text="PRESETS")
         self.child_notebooks["PRESETS"] = self.presets_parent_tab.child_notebook
         self.parent_tab_widgets["PRESETS"] = self.presets_parent_tab # Store widget reference
 
-        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self)
+        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
         self.parent_notebook.add(self.experiments_parent_tab, text="EXPERIMENTS")
         self.child_notebooks["EXPERIMENTS"] = self.experiments_parent_tab.child_notebook
         self.parent_tab_widgets["EXPERIMENTS"] = self.experiments_parent_tab # Store widget reference
@@ -1500,4 +1501,3 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
