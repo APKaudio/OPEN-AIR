@@ -34,9 +34,9 @@ from src.console_logic import console_log
 
 # Import read/write safe functions from the new dedicated module
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
-from tabs.Instrument.utils_instrument_initialize import initialize_instrument_settings
+from tabs.Instrument.utils_instrument_initialize import initialize_instrument
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
-from tabs.Instrument.utils_instrument_connection import connect_instrument, disconnect_instrument, list_visa_resources
+from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
 
 def query_device_presets_logic(app_instance, console_print_func):
