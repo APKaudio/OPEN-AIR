@@ -16,8 +16,8 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250801.2200.2 (Refactored logging to use src/debug_logic and src/console_logic.)
-current_version = "20250801.2200.2" # this variable should always be defined below the header to make the debuggin better
+# Version 20250802.0055.1 (Fixed TclError: expected integer but got "" for Treeview rowheight.)
+current_version = "20250802.0055.1" # this variable should always be defined below the header to make the debuggin better
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -172,9 +172,20 @@ class ReportConverterTab(ttk.Frame):
             return
 
         self.marker_tree["columns"] = self.tree_headers
+        
+        # Safely get rowheight, defaulting to 25 if lookup fails or returns non-integer
+        try:
+            # ttk.Style().lookup returns a string, convert to int
+            row_height_str = ttk.Style().lookup("Treeview", "rowheight")
+            # Ensure it's not empty and can be converted to int
+            row_height = int(row_height_str) if row_height_str else 25 
+        except (TclError, ValueError):
+            row_height = 25 # Fallback default if lookup fails or value is invalid
+
         for col_name in self.tree_headers:
             self.marker_tree.heading(col_name, text=col_name, anchor="w")
-            self.marker_tree.column(col_name, width=ttk.Style().lookup("Treeview", "rowheight") * 5, stretch=tk.YES) # Default width
+            # Use the safely determined row_height for width calculation
+            self.marker_tree.column(col_name, width=row_height * 5, stretch=tk.YES) # Default width
 
         for i, row_data in enumerate(self.tree_data):
             # Convert dictionary values to a list in the order of headers
@@ -820,10 +831,12 @@ class ReportConverterTab(ttk.Frame):
 
         # Assuming app_instance holds a direct reference to the markers_display_tab
         # This is the most straightforward way if the main app manages these instances
-        if self.app_instance and hasattr(self.app_instance, 'markers_display_tab') and self.app_instance.markers_display_tab is not None:
+        if self.app_instance and hasattr(self.app_instance, 'markers_parent_tab') and \
+           hasattr(self.app_instance.markers_parent_tab, 'markers_display_tab') and \
+           self.app_instance.markers_parent_tab.markers_display_tab is not None:
             try:
                 # Call the new update_marker_data method on the MarkersDisplayTab instance
-                self.app_instance.markers_display_tab.update_marker_data(self.tree_headers, self.tree_data)
+                self.app_instance.markers_parent_tab.markers_display_tab.update_marker_data(self.tree_headers, self.tree_data)
                 console_log("✅ Markers Display Tab updated successfully.", function=current_function)
             except Exception as e:
                 console_log(f"❌ Error updating Markers Display Tab: {e}", function=current_function)
@@ -904,3 +917,4 @@ class ReportConverterTab(ttk.Frame):
             self.tree_headers = []
             self.tree_data = []
             self._populate_marker_tree() # Clear the treeview
+

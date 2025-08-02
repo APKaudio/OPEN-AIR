@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.8 (Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.)
+# Version 20250802.0045.9 (Added missing Tkinter variables for instrument settings.)
 
-current_version = "20250802.0045.8" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 8 # Example hash, adjust as needed
+current_version = "20250802.0045.9" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 45 * 9 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -156,6 +156,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -297,15 +298,16 @@ class App(tk.Tk):
 
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_meta_data_tab'):
             # Ensure the notes_text_widget exists before trying to access it
-            if hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
-                self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
-                self.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", self.notes_var.get())
-                debug_log(f"Updated notes_text_widget on Scan Meta Data Tab during startup.",
+            # Corrected to notes_text as per tab_scanning_child_scan_meta_data.py
+            if hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text'):
+                self.scanning_parent_tab.scan_meta_data_tab.notes_text.delete("1.0", tk.END)
+                self.scanning_parent_tab.scan_meta_data_tab.notes_text.insert("1.0", self.notes_var.get())
+                debug_log(f"Updated notes_text on Scan Meta Data Tab during startup.",
                             file=__file__,
                             version=current_version,
                             function=inspect.currentframe().f_code.co_name)
             else:
-                debug_log(f"ScanMetaDataTab notes_text_widget not found for initial notes update.",
+                debug_log(f"ScanMetaDataTab notes_text not found for initial notes update.",
                             file=__file__,
                             version=current_version,
                             function=inspect.currentframe().f_code.co_name)
@@ -349,6 +351,7 @@ class App(tk.Tk):
     # (2025-08-02 0045.6) Change: Removed redundant print_art import.
     # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
     # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+    # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
     def _check_config_and_set_debug(self):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
@@ -415,6 +418,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
@@ -464,6 +468,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log("Setting up Tkinter variables...",
@@ -506,6 +511,20 @@ class App(tk.Tk):
 
         self.resource_names = tk.StringVar(self) # Holds the list of available VISA resources
         # resource_names does not need a trace as it's populated internally, not user-edited
+
+        # NEW: Instrument settings variables (used by instrument_logic.py)
+        self.center_freq_hz_var = tk.DoubleVar(self, value=2400000000.0) # Default 2.4 GHz
+        self.center_freq_hz_var.trace_add("write", create_trace_callback("center_freq_hz_var"))
+
+        self.span_hz_var = tk.DoubleVar(self, value=100000000.0) # Default 100 MHz
+        self.span_hz_var.trace_add("write", create_trace_callback("span_hz_var"))
+
+        self.rbw_hz_var = tk.DoubleVar(self, value=10000.0) # Default 10 kHz
+        self.rbw_hz_var.trace_add("write", create_trace_callback("rbw_hz_var"))
+
+        self.vbw_hz_var = tk.DoubleVar(self, value=3000.0) # Default 3 kHz (RBW/VBW ratio of 3)
+        self.vbw_hz_var.trace_add("write", create_trace_callback("vbw_hz_var"))
+
 
         # Scan Configuration variables
         self.scan_name_var = tk.StringVar(self, value="ThisIsMyScan")
@@ -682,6 +701,12 @@ class App(tk.Tk):
             'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var), # NEW
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
 
+            # NEW: Instrument settings variables mapping
+            'center_freq_hz_var': ('last_instrument_settings__center_freq_hz', 'default_instrument_settings__center_freq_hz', self.center_freq_hz_var),
+            'span_hz_var': ('last_instrument_settings__span_hz', 'default_instrument_settings__span_hz', self.span_hz_var),
+            'rbw_hz_var': ('last_instrument_settings__rbw_hz', 'default_instrument_settings__rbw_hz', self.rbw_hz_var),
+            'vbw_hz_var': ('last_instrument_settings__vbw_hz', 'default_instrument_settings__vbw_hz', self.vbw_hz_var),
+
             'scan_name_var': ('last_scan_configuration__scan_name', 'default_scan_configuration__scan_name', self.scan_name_var),
             'output_folder_var': ('last_scan_configuration__scan_directory', 'default_scan_configuration__scan_directory', self.output_folder_var),
             'num_scan_cycles_var': ('last_scan_configuration__num_scan_cycles', 'default_scan_configuration__num_scan_cycles', self.num_scan_cycles_var),
@@ -779,6 +804,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Applies the window geometry saved in config.ini, or uses a default.
         """
@@ -830,6 +856,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Creates and arranges all GUI widgets in the main application window,
         implementing a two-layer tab structure using parent tabs.
@@ -973,6 +1000,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Configures and applies custom ttk styles for a modern dark theme,
         including styles for nested tabs.
@@ -1011,6 +1039,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Redirects standard output and error streams to the GUI's scrolled text widget
         or keeps them in the terminal based on configuration.
@@ -1060,6 +1089,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
 
@@ -1103,6 +1133,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Handles the application closing event, saving configuration and disconnecting.
         """
@@ -1167,6 +1198,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
@@ -1212,6 +1244,7 @@ class App(tk.Tk):
     # (2025-08-02 0045.6) Change: Removed redundant print_art import.
     # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
     # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+    # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
     def update_connection_status(self, is_connected):
         """
         Updates the state of various GUI elements based on connection and scan status.
@@ -1280,6 +1313,7 @@ class App(tk.Tk):
         # (2025-08-02 0045.6) Change: Removed redundant print_art import.
         # (2025-08-02 0045.7) Change: Fixed TypeError: update_connection_status_logic() got an unexpected keyword argument 'console_log_func'.
         # (2025-08-02 0045.8) Change: Fixed TypeError: update_connection_status_logic() by changing 'console_log_func' to 'console_print_func'.
+        # (2025-08-02 0045.9) Change: Added missing Tkinter variables for instrument settings.
         """
         Handles parent tab changes, updates styles, and propagates to active child tab.
         """
@@ -1306,7 +1340,7 @@ class App(tk.Tk):
             
             # NOTE: ttk.Notebook.tab() does NOT support 'background' or 'foreground'
             # as direct options for the tab label. These are controlled by the ttk.Style
-            # configuration for the 'TNotebook.Tab' element.
+            # configuration for the 'TNotebook.Tab' elements.
             # The style.lookup() calls here are correct for retrieving the colors,
             # but applying them directly via parent_notebook.tab() is incorrect
             # and causes the TclError.
@@ -1368,3 +1402,4 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
