@@ -31,8 +31,9 @@ import sys # Import the sys module to fix NameError
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic # Import the new logic function
-from src.config_manager import save_config
+from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic # Import the new logic function
+from src.settings_and_config.config_manager import save_config
+
 from ref.frequency_bands import MHZ_TO_HZ # Import for display formatting
 from ref.ref_scanner_setting_lists import ( # NEW: Import all necessary dropdown lists
     graph_quality_drop_down,

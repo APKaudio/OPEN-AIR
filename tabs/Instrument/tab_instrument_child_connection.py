@@ -18,9 +18,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0230.1 (Refined _do_refresh_resources for robust combobox population and selection.)
+# Version 20250802.0235.1 (Added .strip() to last_selected_from_config and enhanced debug logging for resource population.)
 
-current_version = "20250802.0230.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0235.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 12 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -220,25 +220,43 @@ class InstrumentTab(ttk.Frame):
             
             # This function will be called on the main thread
             def update_combobox_and_selection():
+                debug_log(f"Resources found by populate_resources_logic: {resources}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
+
                 # Step 1: Set the values for the dropdown
                 self.resource_dropdown.config(values=resources) 
                 
                 # Step 2: Attempt to restore last selected resource or pick the first one
                 if resources:
-                    last_selected = self.app_instance.selected_resource.get()
-                    if last_selected and last_selected in resources:
-                        self.app_instance.selected_resource.set(last_selected)
-                        console_log(f"Restored last selected resource: {last_selected}", function=current_function)
-                    else:
-                        self.app_instance.selected_resource.set(resources[0]) # Select the first one by default
-                        console_log(f"Selected first available resource: {resources[0]}", function=current_function)
-                    
-                    # Step 3: Save the selected resource to config.ini
-                    self.app_instance.config.set('LAST_USED_SETTINGS', 'last_instrument_connection__visa_resource', self.app_instance.selected_resource.get())
-                    # The trace on selected_resource will call save_config, so no explicit call here.
-                    console_log(f"Saved selected resource to config: {self.app_instance.selected_resource.get()}", function=current_function)
+                    last_selected_from_config = self.app_instance.selected_resource.get().strip() # Strip whitespace
+                    debug_log(f"Last selected resource from config (stripped): '{last_selected_from_config}'",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
 
-                    debug_log(f"Found resources: {resources}. Selected: {self.app_instance.selected_resource.get()}",
+                    if last_selected_from_config and last_selected_from_config in resources:
+                        self.app_instance.selected_resource.set(last_selected_from_config)
+                        console_log(f"Restored last selected resource: {last_selected_from_config}", function=current_function)
+                        debug_log(f"Restored last selected resource: '{last_selected_from_config}'.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=current_function)
+                    else:
+                        # If last_selected_from_config is not found or empty, select the first available
+                        self.app_instance.selected_resource.set(resources[0]) 
+                        console_log(f"Selected first available resource: {resources[0]}", function=current_function)
+                        debug_log(f"Selected first available resource: '{resources[0]}'.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=current_function)
+                    
+                    # Step 3: Save the selected resource to config.ini (this happens via trace)
+                    # The trace on selected_resource will call save_config, so no explicit call here.
+                    console_log(f"Selected resource set. It will be saved to config.ini automatically.", function=current_function)
+
+                    debug_log(f"Combobox values set to: {resources}. Current selected_resource Tkinter var: '{self.app_instance.selected_resource.get()}'",
                                 file=current_file,
                                 version=current_version,
                                 function=current_function)
@@ -301,8 +319,7 @@ class InstrumentTab(ttk.Frame):
 
         console_log(f"Connecting to {selected_resource}...", function=current_function)
         debug_log(f"Initiating connection to {selected_resource}.",
-                    file=current_file,
-                    version=current_version,
+                    file=current_version,
                     function=current_function)
 
         self._disable_buttons_during_operation()
@@ -583,4 +600,3 @@ class InstrumentTab(ttk.Frame):
         # If already connected, the state will reflect that.
         self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
         # --- END NEW ---
-

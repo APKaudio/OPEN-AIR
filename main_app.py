@@ -55,7 +55,7 @@ from datetime import datetime # For timestamp in debug_log
 
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
-from src.config_manager import load_config, save_config
+from src.settings_and_config.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, display_splash_screen
 
 # Import the new debug_logic and console_logic modules as modules to avoid circular import issues
@@ -68,8 +68,8 @@ from src.instrument_logic import (
     apply_settings_logic,
     query_current_instrument_settings_logic
 )
-from src.scan_logic import update_connection_status_logic
-from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
+from src.connection_status_logic import update_connection_status_logic
+from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
 from src.scan_controler_button_logic import ScanControlTab
 from src.style import apply_styles
 from src.check_Dependancies import check_and_install_dependencies

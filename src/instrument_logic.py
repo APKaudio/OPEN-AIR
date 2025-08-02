@@ -37,7 +37,7 @@ from utils.utils_instrument_control import (
     initialize_instrument, write_safe, query_safe
 )
 from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO # Import VBW_RBW_RATIO
-from src.config_manager import save_config # Import save_config
+from src.settings_and_config.config_manager import save_config # Import save_config
 
 
 def populate_resources_logic(rm_instance, console_print_func=None):

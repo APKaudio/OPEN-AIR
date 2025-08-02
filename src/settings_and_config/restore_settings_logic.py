@@ -28,7 +28,7 @@ from src.debug_logic import debug_log
 from src.console_logic import console_log
 
 # Import config management functions
-from src.config_manager import load_config, save_config # Import save_config
+from src.settings_and_config.config_manager import load_config, save_config # Import save_config
 
 
 def restore_default_settings_logic(app_instance, console_print_func=None):

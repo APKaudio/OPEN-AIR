@@ -31,8 +31,8 @@ import configparser
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-from src.settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.config_manager import save_config_as_new_file # Will be added in config_manager.py
+from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
+from src.settings_and_config.config_manager import save_config_as_new_file # Will be added in config_manager.py
 
 class InitialConfigurationTab(ttk.Frame):
     """

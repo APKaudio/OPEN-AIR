@@ -30,7 +30,7 @@ import subprocess # For opening folders
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-from src.config_manager import save_config
+from src.settings_and_config.config_manager import save_config
 
 # Import new modules for functionality - CORRECTED PATHS
 from process_math.google_maps_lookup import get_location_from_google_maps
