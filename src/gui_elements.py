@@ -1,117 +1,142 @@
 # src/gui_elements.py
+#
+# This module defines common GUI elements and utilities, such as a TextRedirector
+# for routing stdout/stderr to a Tkinter scrolled text widget, and the application's
+# splash screen.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no change to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+# Version 20250802.0025.1 (Refactored debug_print to debug_log; added flair.)
+
+current_version = "20250802.0025.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 25 * 1 # Example hash, adjust as needed
+
 import tkinter as tk
 import sys
 from tkinter import scrolledtext, TclError
-import inspect # Added for debug_print
+import inspect # Added for debug_log
 
-# Assuming debug_print is available globally or passed in some way.
-# For this file, we'll make a local version or assume it's imported.
-# In a real application, you'd ensure debug_print is properly imported or passed.
-# For now, let's define a dummy if it's not explicitly imported to prevent errors.
-#Import the debug logic module to use debug_print
-from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_print
-
+# Import the debug logic module to use debug_log
+from src.debug_logic import debug_log # Changed from debug_print
 
 
 class TextRedirector(object):
     """
+    Function Description:
     A class to redirect standard output (stdout) and standard error (stderr)
     to a Tkinter scrolled text widget. This allows all print statements and
     error messages from the application's backend to be displayed directly
     within the GUI's console area, providing real-time feedback to the user.
+
+    Inputs to this function:
+    - widget (tk.scrolledtext.ScrolledText): The Tkinter scrolled text widget
+                                              where output will be displayed.
+    - tag (str, optional): A tag for text formatting within the widget. Defaults to "stdout".
+
+    Process of this function:
+    1. Stores the provided `widget` and `tag`.
+    2. Initializes a `_buffer` to temporarily hold text before updating the widget.
+    3. Sets a `_last_flush_time` to control the frequency of widget updates.
+
+    Outputs of this function:
+    - None. Initializes the TextRedirector object.
     """
     def __init__(self, widget, tag="stdout"):
-        """
-        Initializes the TextRedirector.
-
-        Inputs:
-            widget (tk.scrolledtext.ScrolledText): The Tkinter scrolled text widget
-                                                  where output will be displayed.
-            tag (str, optional): A tag for text formatting within the widget. Defaults to "stdout".
-        Process:
-            1. Stores the provided `widget` and `tag`.
-            2. Initializes `last_char_was_cr` to False, used for handling carriage returns for line overwriting.
-            3. Configures a tag to control line spacing.
-        Outputs: None
-        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing TextRedirector for tag '{tag}'. Setting up console redirection! Version: {current_version}",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
         self.widget = widget
         self.tag = tag
-        self.last_char_was_cr = False
+        self._buffer = ""
+        self._last_flush_time = 0
 
-        # Configure a tag to control line spacing
-        # spacing1: extra space above a line
-        # spacing3: extra space below a line
-        # We set them to 0 to try and minimize perceived double-spacing.
-        # This explicitly tells the Text widget to not add extra space between lines.
-        self.widget.tag_configure(self.tag, spacing1=0, spacing3=0)
-
-
-    def write(self, str_val):
+    def write(self, text):
         """
-        Writes the given string value to the Tkinter scrolled text widget.
-        It handles carriage returns for overwriting and inserts the string
-        as-is, relying on the source (e.g., print function) to provide newlines.
-        Crucially, it now enables the widget before writing and disables it after.
+        Function Description:
+        Writes text to the redirected widget. Text is buffered and flushed periodically
+        to improve performance and prevent GUI freezing.
 
         Inputs:
-            str_val (str): The string to write to the console.
-        Process:
-            1. Temporarily enables the widget.
-            2. If the string contains a carriage return ('\r'), it's treated as an overwrite.
-            3. Otherwise, the string is inserted directly.
-            4. Scrolls to the end of the text widget to show the latest output.
-            5. Updates Tkinter's idle tasks to ensure immediate display.
-            6. Disables the widget again.
-        Outputs: None
+        - text (str): The text string to write.
+
+        Process of this function:
+        1. Appends the input `text` to an internal buffer.
+        2. Checks if enough time has passed since the last flush (0.1 seconds)
+           or if the buffer size exceeds a threshold (1000 characters).
+        3. If a flush is needed, inserts the buffered text into the widget,
+           applies the specified tag, scrolls to the end, and clears the buffer.
+        4. Handles `TclError` in case the widget is destroyed.
+
+        Outputs of this function:
+        - None. Modifies the Tkinter widget.
         """
-        try:
-            self.widget.config(state=tk.NORMAL) # Enable the widget for writing
-            if '\r' in str_val:
-                # Handle carriage return for overwriting the current line
-                # This is typically for progress updates on the same line
-                self.widget.delete("end - 1 lines", "end")
-                self.widget.insert(tk.END, str_val.replace('\r', ''), self.tag)
-                self.last_char_was_cr = True
-            else:
-                # Insert the string as-is. Python's print() adds a newline by default.
-                # We rely on that or explicit newlines in the string.
-                self.widget.insert(tk.END, str_val, self.tag)
-                self.last_char_was_cr = False # Reset if not a carriage return line
-
-            self.widget.see(tk.END) # Always scroll to the end
-            self.widget.update_idletasks() # Ensure the display updates immediately
-        except TclError as e:
-            # This can happen if the widget is destroyed while still being referenced
-            # during application shutdown, or if there's a deeper Tkinter issue.
-            # Fallback to standard print in such cases.
-            print(f"Error writing to GUI console: {e} - Message: {str_val}")
-        finally:
-            # Always attempt to disable the widget, even if an error occurred
-            try:
-                self.widget.config(state=tk.DISABLED)
-            except TclError:
-                pass # Widget might already be destroyed
-
+        self._buffer += text
+        # Flush every 0.1 seconds or if buffer is too large
+        current_time = time.time() # Assuming time module is imported or available
+        if current_time - self._last_flush_time > 0.1 or len(self._buffer) > 1000:
+            self.flush()
 
     def flush(self):
         """
-        Required for file-like objects. Ensures that output is processed.
+        Function Description:
+        Flushes the buffered text to the Tkinter widget.
+
+        Inputs:
+        - None.
+
+        Process of this function:
+        1. If the buffer is not empty, attempts to insert its content into the widget.
+        2. Applies the configured text tag.
+        3. Scrolls the widget to the end to show the latest messages.
+        4. Clears the buffer and updates the `_last_flush_time`.
+        5. Handles `TclError` if the widget has been destroyed, preventing crashes.
+
+        Outputs of this function:
+        - None. Modifies the Tkinter widget.
         """
-        pass # Tkinter widget updates are handled by .see(tk.END) and .update_idletasks()
+        if self._buffer:
+            try:
+                self.widget.insert(tk.END, self._buffer, (self.tag,))
+                self.widget.see(tk.END)
+                self._buffer = ""
+                self._last_flush_time = time.time() # Assuming time module is imported or available
+            except TclError:
+                # Widget has been destroyed, stop writing
+                pass
 
-def print_art():
+def display_splash_screen():
     """
-    Prints an ASCII art logo to the console output. This function is called
-    during application startup to provide a visual brand element.
+    Function Description:
+    Prints a stylized ASCII art splash screen to the terminal.
+    This function is intended for initial application startup feedback
+    before the full GUI is loaded.
 
-    Inputs: None
-    Process:
-        1. Uses a series of `print()` statements to output the multi-line ASCII art.
-        2. Each `print()` call will now add its own newline by default,
-           which `TextRedirector` will then insert directly.
-    Outputs: None (prints to console)
+    Inputs:
+    - None.
+
+    Process of this function:
+    1. Prints several lines of ASCII art and application information.
+    2. Includes author and blog details.
+
+    Outputs of this function:
+    - None. Prints directly to standard output.
     """
-
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Displaying splash screen. Welcome to the Spectrum Scanner! Version: {current_version}",
+                file=__file__,
+                version=current_version,
+                function=current_function,
+                special=True) # Adding special flag for splash screen
 
     ###https://patorjk.com/software/taag/#p=display&h=3&v=2&f=BlurVision%20ASCII&t=OPEN%20AIR%0A
     # Reverting to default print() behavior, letting it add newlines.
@@ -119,40 +144,40 @@ def print_art():
     print("") # First blank line
     print("") # Second blank line
     print("") # Third blank line
-    print(" ░▒▓██████▓▒░░▒▓███████▓▒░░▒▓████████▓▒░▒▓███████▓▒░        ░▒▓██████▓▒░░▒▓█▓▒░▒▓███████▓▒░  ")
-    print("░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░░▒▓██████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓████████▓▒░▒▓█▓▒░▒▓███████▓▒░  ")
-    print("░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░      ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ ")
-    print(" ░▒▓██████▓▒░░▒▓█▓▒░      ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ ")
+    print(" ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒ ░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓█▓▒░ ▒▓███████▓▒░  ")
+    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
+    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
+    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓████████▓▒ ░▒▓█▓▒░ ▒▓███████▓▒░  ")
+    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
+    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
+    print(" ░▒▓██████▓▒░ ░▒▓█▓▒░       ░▒▓████████▓▒ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
                                                                                              
 
     print("") # First blank line
     print("") # Second blank line
     print("") # Third blank line
 
-    print("                                               $              $$$$$                     $$ $$$$")
-    print("                                               $$$            $$   $$$$$$               $$  $$ ")
-    print("                                               $$$$           $$         $$$$$          $$ $$  ")
-    print("                                  $$           $$ $$          $$             $$$$$      $$$$   ")
-    print("                       $$$$$$$$$$$$            $$  $$$        $                  $$$    $$$$   ")
-    print("             $$$$$$$$$        $$$              $$   $$$      $$                    $$   $$$    ")
-    print("   $$$$$$$$$               $$$                 $$     $$     $$                $$$$     $$     ")
-    print("                         $$$                   $$$$$$$$$$$   $$          $$$$$$         $$     ")
-    print("                       $$$                     $$       $$$  $  $$$$$$$$                $      ")
-    print("                     $$$                       $$         $$$$$                                ")
-    print("                   $$$                         $$           $$                        $ $$     ")
-    print("                 $$$                $$$$$$$                 $$                        $$$      ")
-    print("              $$$$            $$$$$$                        $$                  $$$$$$$$$$     ")
-    print("            $$$        $$$$$$$                                   $$$$$$$$$$$$$$                ")
-    print("          $$$   $$$$$$$                             $$$$$$$$$$$                                ")
-    print("        $$$$$$$$                  $$$$$$$$             $$$$                                    ")
-    print("      $$$              $$$$$$$$$$  $$$$              $$$$$$$$                                  ")
-    print("           $$$$$$$$$$$          $$$         $$$$$$$$                                           ")
-    print(" $$$$$$$$$$                  $$$    $$$$$$$$                                                   ")
-    print("                         $$$$$$$$$$                                                            ")
-    print("                      $$$$$                        ")
+    print("                                               #              #####                     ## ####")
+    print("                                               ###            ##   ######               ##  ## ")
+    print("                                               ####           ##         #####          ## ##  ")
+    print("                                  ##           ## ##          ##             #####      ####   ")
+    print("                       ############            ##  ###        #                  ###    ####   ")
+    print("             #########        ###              ##   ###      ##                    ##   ###    ")
+    print("   #########               ###                 ##     ##     ##                ####     ##     ")
+    print("                         ###                   ###########   ##          ######         ##     ")
+    print("                       ###                     ##       ###  #  ########                #      ")
+    print("                     ###                       ##         #####                                ")
+    print("                   ###                         ##           ##                        # ##     ")
+    print("                 ###                #######                 ##                        ###      ")
+    print("              ####            ######                        ##                  ##########     ")
+    print("            ###        #######                                   ##############                ")
+    print("          ###   #######                             ###########                                ")
+    print("        ########                  ########             ####                                    ")
+    print("      ###              ##########  ####              ########                                  ")
+    print("           ###########          ###         ########                                           ")
+    print(" ##########                  ###    ########                                                   ")
+    print("                         ##########                                                            ")
+    print("                      #####                        ")
     print("") # Blank line
     print("") # Blank line
     print("") # Blank line
