@@ -14,10 +14,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0015.1 (Refactored debug_print to use debug_log; added flair.)
+#
+# Version 20250801.2242.1 (Renamed set_console_redirector to set_gui_console_redirector to fix ImportError.)
 
-current_version = "20250802.0015.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 15 * 1 # Example hash, adjust as needed
+current_version = "20250801.2242.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2242 * 1 # Example hash, adjust as needed
 
 import sys
 from datetime import datetime
@@ -33,7 +34,7 @@ _gui_console_stdout_redirector = None
 _original_stdout = sys.stdout # Keep a reference to original stdout for fallback
 
 
-def set_console_redirector(stdout_redirector):
+def set_gui_console_redirector(stdout_redirector):
     """
     Function Description:
     Sets the TextRedirector instance for the GUI console for general application messages.
@@ -49,6 +50,9 @@ def set_console_redirector(stdout_redirector):
 
     Outputs of this function:
     - None. Modifies a global variable.
+
+    (2025-08-01 / 22:42) Change: Renamed function from `set_console_redirector` to `set_gui_console_redirector`
+                                 to align with expected import name in `main_app.py`.
     """
     global _gui_console_stdout_redirector
     _gui_console_stdout_redirector = stdout_redirector
@@ -95,3 +99,4 @@ def console_log(message, function=None):
     else:
         # Fallback to original stdout if GUI console not ready
         _original_stdout.write(full_message + "\n")
+

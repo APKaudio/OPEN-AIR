@@ -42,7 +42,7 @@ from src.config_manager import save_config # For saving scan progress
 
 
 # Import constants from frequency_bands.py - CORRECTED PATH
-from ref.frequency_bands import MHZ_TO_HZ, GHZ_TO_HZ
+from ref.frequency_bands import MHZ_TO_HZ
 
 # Import the new scan stitching logic
 from process_math.scan_stitch import stitch_and_save_scan_data

@@ -1,7 +1,7 @@
 # process_math/report_converter_utils.py
 #
 # This module provides utility functions for converting wireless microphone
-# frequency coordination reports from various formats (HTML, PDF) into a
+# frequency coordination reports from various formats (HTML, PDF, SHW) into a
 # standardized CSV format. It extracts relevant frequency, zone, and device
 # information, making it suitable for further analysis and intermodulation calculations.
 #
@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0120.1 (Refactored debug_print to debug_log; updated imports and flair.)
+# Version 20250802.0125.1 (Added generate_csv_from_shw function.)
 
-current_version = "20250802.0120.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 120 * 1 # Example hash, adjust as needed
+current_version = "20250802.0125.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 125 * 1 # Example hash, adjust as needed
 
 import csv
 import subprocess
@@ -295,6 +295,122 @@ def convert_pdf_report_to_csv(pdf_file_path, console_print_func=None):
         raise
     except Exception as e:
         error_msg = f"❌ Error during PDF conversion data extraction: {e}. This is a disaster!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=current_file, version=current_version, function=current_function)
+        raise # Re-raise to allow higher-level error handling
+
+
+def generate_csv_from_shw(xml_file_path, console_print_func=None):
+    """
+    Parses an SHW (XML) file and extracts frequency data, converting it
+    into a standardized CSV format. This version is based on the SHOW to CSV.py
+    prototype for accurate extraction of ZONE and GROUP.
+    All frequencies are converted to MHz for consistency.
+
+    Inputs:
+        xml_file_path (str): The full path to the SHW (XML) file.
+        console_print_func (function, optional): A function to use for printing messages
+                                                 to the console. If None, uses console_log.
+    Outputs:
+        tuple: A tuple containing:
+                - headers (list): A list of strings representing the CSV header row.
+                - csv_data (list): A list of dictionaries, where each dictionary
+                                   represents a row of data with keys matching the headers.
+    Raises:
+        FileNotFoundError: If the specified XML file does not exist.
+        xml.etree.ElementTree.ParseError: If the XML file is malformed.
+        Exception: For other parsing or data extraction errors.
+    """
+    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = __file__
+    debug_log(f"Entering {current_function}. Starting SHW report conversion for '{os.path.basename(xml_file_path)}'. Parsing XML!",
+                file=current_file, version=current_version, function=current_function)
+
+    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ"]
+    csv_data = []
+
+    try:
+        with open(xml_file_path, 'r', encoding='utf-8') as f:
+            tree = ET.parse(f)
+        root = tree.getroot()
+        console_print_func("XML file parsed successfully.")
+        debug_log("XML file parsed successfully. Ready for data extraction!",
+                    file=current_file, version=current_version, function=current_function)
+
+        # Iterate through 'freq_entry' elements
+        for i, freq_entry in enumerate(root.findall('.//freq_entry')):
+            if i % 100 == 0: # Print progress every 100 entries
+                console_print_func(f"  Processing SHW entry {i}...")
+                debug_log(f"  Processing SHW entry {i}.",
+                            file=current_file, version=current_version, function=current_function)
+
+            # Reverting ZONE and GROUP extraction to match SHOW to CSV.py prototype
+            zone_element = freq_entry.find('compat_key/zone')
+            zone = zone_element.text if zone_element is not None else "N/A"
+
+            group = freq_entry.get('tag', "N/A") # Extract GROUP from the 'tag' attribute of freq_entry
+            
+            # Extract DEVICE (manufacturer, model, band)
+            manufacturer = freq_entry.find('manufacturer').text if freq_entry.find('manufacturer') is not None else "N/A"
+            model = freq_entry.find('model').text if freq_entry.find('model') is not None else "N/A"
+            band_element = freq_entry.find('compat_key/band') 
+            band = band_element.text if band_element is not None else "N/A"
+            device = f"{manufacturer} - {model} - {band}"
+
+            # Extract NAME
+            name_element = freq_entry.find('source_name')
+            name = name_element.text if name_element is not None else "N/A"
+
+            # Extract FREQ from value. User states SHW files contain markers in KHZ.
+            freq_element = freq_entry.find('value')
+            freq_mhz = "N/A"
+            if freq_element is not None and freq_element.text is not None:
+                freq_str = freq_element.text 
+                
+                debug_log(f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",
+                            file=current_file, version=current_version, function=current_function)
+
+                try:
+                    # Convert kHz to MHz as per user's clarification
+                    freq_mhz = float(freq_str) / 1000.0 
+                    debug_log(f"  SHW Freq conversion: '{freq_str}' kHz -> {freq_mhz} MHz",
+                                file=current_file, version=current_version, function=current_function)
+                except ValueError:
+                    console_print_func(f"WARNING (SHW): Could not convert SHW frequency value '{freq_str}' to float. Setting to 'Invalid Frequency'.")
+                    debug_log(f"  SHW Freq conversion error: '{freq_str}'. Bad number!",
+                                file=current_file, version=current_version, function=current_function)
+                    freq_mhz = "Invalid Frequency"
+
+            csv_data.append({
+                "ZONE": zone,
+                "GROUP": group,
+                "DEVICE": device,
+                "NAME": name,
+                "FREQ": freq_mhz # Store in MHz
+            })
+            debug_log(f"  Added SHW row: Zone={zone}, Device={device}, Freq={freq_mhz} MHz. Row processed!",
+                        file=current_file, version=current_version, function=current_function)
+        console_print_func(f"Finished SHW report conversion. Extracted {len(csv_data)} rows. All done!")
+        debug_log(f"Exiting {current_function}. SHW conversion complete! Extracted {len(csv_data)} rows. Version: {current_version}",
+                    file=current_file, version=current_version, function=current_function)
+        return headers, csv_data
+
+    except FileNotFoundError:
+        error_msg = f"❌ Error: The file '{xml_file_path}' was not found. Check the path!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=current_file, version=current_version, function=current_function)
+        raise FileNotFoundError(f"The file '{xml_file_path}' was not found.")
+    except ET.ParseError as e:
+        error_msg = f"❌ Error: Malformed XML (SHW) file '{xml_file_path}': {e}. XML parse error!"
+        console_print_func(error_msg)
+        debug_log(error_msg,
+                    file=current_file, version=current_version, function=current_function)
+        raise ET.ParseError(f"Error parsing XML (SHW) file '{xml_file_path}': {e}")
+    except Exception as e:
+        error_msg = f"❌ Error during SHW conversion data extraction: {e}. This is a disaster!"
         console_print_func(error_msg)
         debug_log(error_msg,
                     file=current_file, version=current_version, function=current_function)

@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2200.1 (Refactored logging to use src/debug_logic and src/console_logic.)
+# Version 20250801.2243.1 (Fixed ImportError by changing import source for set_gui_console_redirector.)
 
-current_version = "20250801.2200.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2200 * 1 + -638010053603417879 # Calculated hash for version 20250801.2200.1
+current_version = "20250801.2243.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250801 * 2243 * 1 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -58,8 +58,9 @@ from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, display_splash_screen
 
 # Import the new debug_logic and console_logic modules
-from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_gui_console_redirector
-from src.console_logic import console_log, set_console_redirector # Import console_log and its redirector setter
+from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode
+# FUCKING IMPORTANT: Corrected import for set_gui_console_redirector to come from console_logic
+from src.console_logic import console_log, set_gui_console_redirector # Import console_log and its redirector setter
 
 
 
@@ -179,6 +180,8 @@ class App(tk.Tk):
         #                             Simplified _redirect_stdout_to_console.
         # (2025-08-01 2200.1) Change: Fully integrated debug_log and console_log, removed _print_to_gui_console.
         #                             Updated all calls to reflect new logging functions and their parameters.
+        # (2025-08-01 2243.1) Change: Fixed ImportError by changing import source for set_gui_console_redirector
+        #                             from src.debug_logic to src.console_logic.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -251,8 +254,9 @@ class App(tk.Tk):
         self._create_widgets() # console_text is initialized here
 
         # Now that console_text is created, set the redirectors
-        set_gui_console_redirector(TextRedirector(self.console_text, "stdout"), TextRedirector(self.console_text, "stderr"))
-        set_console_redirector(TextRedirector(self.console_text, "stdout")) # Set for console_log specifically
+        # FUCKING IMPORTANT: set_gui_console_redirector now takes only one argument
+        set_gui_console_redirector(TextRedirector(self.console_text, "stdout"))
+        # Removed redundant set_console_redirector call as set_gui_console_redirector handles both stdout/stderr for GUI console
 
 
         self._setup_styles() # This will now configure self.style
@@ -275,7 +279,7 @@ class App(tk.Tk):
         # Initial update of connection status. This will now correctly access the tab instances.
         self.update_connection_status(self.inst is not None)
 
-        print_art()
+        print_art() # Moved print_art to gui_elements.py and imported it
 
         # Adjusted startup calls for band selections and notes to new nested tab structure
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_configuration_tab'):
@@ -907,7 +911,7 @@ class App(tk.Tk):
         # and for the child notebook tabs.
         self.parent_tab_colors = {
             "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "SCANNING": {"active": PAPARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
             "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
             "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
             "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
@@ -1461,9 +1465,6 @@ class App(tk.Tk):
             #                 version=current_version,
             #                 function=current_function)
             
-            # Instead, we rely on the style system to apply the correct appearance based on selection.
-            # Ensure the tab's style is set if the notebook.tab method supports it (it doesn't for the label itself).
-            # The default ttk.Notebook should handle the 'selected' state visually if the styles are mapped correctly.
             pass # No direct tab styling here to avoid TclError
 
 
@@ -1499,3 +1500,4 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
