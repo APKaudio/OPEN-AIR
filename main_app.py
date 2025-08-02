@@ -18,9 +18,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0075.10 (Passed ttk.Style object to InstrumentTab in main_app.py.)
+# Version 20250802.0155.1 (Added last config save time display and removed frequent console save message.)
 
-current_version = "20250802.0075.10" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0155.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 10 # Example hash, adjust as needed
 
 
@@ -58,9 +58,9 @@ from datetime import datetime # For timestamp in debug_log
 from src.config_manager import load_config, save_config
 from src.gui_elements import TextRedirector, display_splash_screen
 
-# Import the new debug_logic and console_logic modules
-from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, clear_debug_log_file
-from src.console_logic import console_log, set_gui_console_redirector
+# Import the new debug_logic and console_logic modules as modules to avoid circular import issues
+import src.debug_logic as debug_logic_module
+import src.console_logic as console_logic_module
 
 
 from src.instrument_logic import (
@@ -217,27 +217,41 @@ class App(tk.Tk):
         config_file_exists_on_startup = os.path.exists(self.CONFIG_FILE_PATH)
 
         self.config = configparser.ConfigParser()
-        load_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+        # Pass console_log from here to load_config
+        load_config(self.config, self.CONFIG_FILE_PATH, console_logic_module.console_log, self)
         
         if not config_file_exists_on_startup:
-            debug_log(f"config.ini was not found on startup. Saving defaults to new file.",
+            debug_logic_module.debug_log(f"config.ini was not found on startup. Saving defaults to new file.",
                         file=__file__,
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
-            save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+            # Pass console_log from here to save_config
+            save_config(self.config, self.CONFIG_FILE_PATH, console_logic_module.console_log, self)
 
 
         self._apply_saved_geometry()
 
         self.style = ttk.Style(self)
 
+        # Initialize logging setup early, AFTER config is loaded but BEFORE _create_widgets()
+        # This is CRUCIAL for breaking the circular dependency and ensuring logging works from the start.
+
+        # Register console_log function with debug_logic
+        debug_logic_module.set_console_log_func(console_logic_module.console_log)
+
+        # Register debug file hooks from debug_logic with console_logic
+        # Pass callables (lambdas) to get the current state of the flag and the write function
+        console_logic_module.set_debug_file_hooks(
+            lambda: debug_logic_module.INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE,
+            debug_logic_module._write_to_debug_file
+        )
+
         # Set debug modes based on loaded config. These are called here to ensure logging is configured early.
-        # The actual commands for these are now handled by ConsoleTab's internal methods.
-        set_debug_mode(self.general_debug_enabled_var.get())
-        set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
-        set_debug_to_terminal_mode(self.debug_to_terminal_var.get())
-        set_debug_to_file_mode(self.debug_to_file_var.get(), self.DEBUG_COMMANDS_FILE_PATH)
-        set_include_console_messages_to_debug_file_mode(self.include_console_messages_to_debug_file_var.get())
+        debug_logic_module.set_debug_mode(self.general_debug_enabled_var.get())
+        debug_logic_module.set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
+        debug_logic_module.set_debug_to_terminal_mode(self.debug_to_terminal_var.get())
+        debug_logic_module.set_debug_to_file_mode(self.debug_to_file_var.get(), self.DEBUG_COMMANDS_FILE_PATH)
+        debug_logic_module.set_include_console_messages_to_debug_file_mode(self.include_console_messages_to_debug_file_var.get())
 
 
         self._setup_styles()
@@ -262,7 +276,7 @@ class App(tk.Tk):
 
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_configuration_tab'):
             self.scanning_parent_tab.scan_configuration_tab._load_band_selections_from_config()
-            debug_log(f"Called _load_band_selections_from_config on Scan Configuration Tab during startup.",
+            debug_logic_module.debug_log(f"Called _load_band_selections_from_config on Scan Configuration Tab during startup.",
                         file=__file__,
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
@@ -271,24 +285,24 @@ class App(tk.Tk):
             if hasattr(self.scanning_parent_tab.scan_meta_data_tab, 'notes_text'):
                 self.scanning_parent_tab.scan_meta_data_tab.notes_text.delete("1.0", tk.END)
                 self.scanning_parent_tab.scan_meta_data_tab.notes_text.insert("1.0", self.notes_var.get())
-                debug_log(f"Updated notes_text on Scan Meta Data Tab during startup.",
+                debug_logic_module.debug_log(f"Updated notes_text on Scan Meta Data Tab during startup.",
                             file=__file__,
                             version=current_version,
                             function=inspect.currentframe().f_code.co_name)
             else:
-                debug_log(f"ScanMetaDataTab notes_text not found for initial notes update.",
+                debug_logic_module.debug_log(f"ScanMetaDataTab notes_text not found for initial notes update.",
                             file=__file__,
                             version=current_version,
                             function=inspect.currentframe().f_code.co_name)
         else:
-            debug_log(f"ScanMetaDataTab not found for initial notes update.",
+            debug_logic_module.debug_log(f"ScanMetaDataTab not found for initial notes update.",
                         file=__file__,
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
 
 
         self.is_ready_to_save = True
-        debug_log(f"Application fully initialized and ready to save configuration.",
+        debug_logic_module.debug_log(f"Application fully initialized and ready to save configuration.",
                     file=__file__,
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
@@ -320,8 +334,8 @@ class App(tk.Tk):
         """
         current_function = inspect.currentframe().f_code.co_name
 
-        console_log(f"--- Configuration & Debug Status ({current_version}) ---", function=current_function)
-        debug_log(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
+        console_logic_module.console_log(f"--- Configuration & Debug Status ({current_version}) ---", function=current_function)
+        debug_logic_module.debug_log(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -329,35 +343,35 @@ class App(tk.Tk):
         config_file_found = os.path.exists(self.CONFIG_FILE_PATH)
 
         if not config_file_found:
-            console_log(f"❌ config.ini not found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
-            console_log(f"⚠️ General debugging enabled automatically. Let's see what the fuck is going on!", function=current_function)
+            console_logic_module.console_log(f"❌ config.ini not found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
+            console_logic_module.console_log(f"⚠️ General debugging enabled automatically. Let's see what the fuck is going on!", function=current_function)
             self.general_debug_enabled_var.set(True)
-            set_debug_mode(True) # Ensure the actual debug mode is set
-            debug_log(f"config.ini not found. General debugging enabled.",
+            debug_logic_module.set_debug_mode(True) # Ensure the actual debug mode is set
+            debug_logic_module.debug_log(f"config.ini not found. General debugging enabled.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         else:
-            console_log(f"✅ config.ini found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
-            debug_log(f"config.ini found.",
+            console_logic_module.console_log(f"✅ config.ini found at '{self.CONFIG_FILE_PATH}'.", function=current_function)
+            debug_logic_module.debug_log(f"config.ini found.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
 
         # Display current debug status (regardless of config.ini presence)
         if self.general_debug_enabled_var.get():
-            console_log(f"🐞 Current General Debug Mode: ENABLED", function=current_function)
-            debug_log(f"Current General Debug Mode: ENABLED",
+            console_logic_module.console_log(f"🐞 Current General Debug Mode: ENABLED", function=current_function)
+            debug_logic_module.debug_log(f"Current General Debug Mode: ENABLED",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         else:
-            console_log(f"🐞 Current General Debug Mode: DISABLED", function=current_function)
-            debug_log(f"Current General Debug Mode: DISABLED",
+            console_logic_module.console_log(f"🐞 Current General Debug Mode: DISABLED", function=current_function)
+            debug_logic_module.debug_log(f"Current General Debug Mode: DISABLED",
                         file=__file__,
                         version=current_version,
                         function=current_function)
-        console_log(f"--------------------------------------------------", function=current_function)
+        console_logic_module.console_log(f"--------------------------------------------------", function=current_function)
         
         return config_file_found
 
@@ -381,26 +395,20 @@ class App(tk.Tk):
             None. Creates a directory if necessary.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}",
+        debug_logic_module.debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
         try:
-            os.makedirs(self.DATA_FOLDER_PATH)
-            console_log(f"✅ Created DATA directory: {self.DATA_FOLDER_PATH}", function=current_function)
-            debug_log(f"DATA directory created.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-        except FileExistsError:
-            console_log(f"ℹ️ DATA directory already exists: {self.DATA_FOLDER_PATH}", function=current_function)
-            debug_log(f"DATA directory already exists.",
+            os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
+            console_logic_module.console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
+            debug_logic_module.debug_log(f"DATA directory created or already exists.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         except Exception as e:
-            console_log(f"❌ Error creating DATA directory {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!", function=current_function)
-            debug_log(f"Error creating DATA directory: {e}",
+            console_logic_module.console_log(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!", function=current_function)
+            debug_logic_module.debug_log(f"ERROR: Error creating DATA directory: {e}",
                         file=__file__,
                         version=current_version,
                         function=current_function)
@@ -427,7 +435,7 @@ class App(tk.Tk):
             None. Populates `self` with Tkinter variable objects.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Setting up Tkinter variables...",
+        debug_logic_module.debug_log("Setting up Tkinter variables...",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -436,11 +444,12 @@ class App(tk.Tk):
         def create_trace_callback(var_name):
             def callback(*args):
                 if self.is_ready_to_save:
-                    debug_log(f"Tkinter variable '{var_name}' changed. Saving config.",
+                    debug_logic_module.debug_log(f"Tkinter variable '{var_name}' changed. Saving config.",
                                 file=__file__,
                                 version=current_version,
                                 function=inspect.currentframe().f_code.co_name)
-                    save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+                    # Pass console_log from here to save_config
+                    save_config(self.config, self.CONFIG_FILE_PATH, console_logic_module.console_log, self)
             return callback
 
         # GLOBAL variables
@@ -461,6 +470,10 @@ class App(tk.Tk):
 
         self.paned_window_sash_position_var = tk.IntVar(self, value=700)
         self.paned_window_sash_position_var.trace_add("write", create_trace_callback("paned_window_sash_position_var"))
+
+        # NEW: Variable to hold the last config save time
+        self.last_config_save_time_var = tk.StringVar(self, value="Last Saved: Never")
+        # No trace needed for this variable as it's updated programmatically
 
 
         # Instrument Connection variables
@@ -649,6 +662,7 @@ class App(tk.Tk):
             'debug_to_file_var': ('last_GLOBAL__debug_to_File', 'default_GLOBAL__debug_to_File', self.debug_to_file_var),
             'include_console_messages_to_debug_file_var': ('last_GLOBAL__include_console_messages_to_debug_file', 'default_GLOBAL__include_console_messages_to_debug_file', self.include_console_messages_to_debug_file_var),
             'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var),
+            'last_config_save_time_var': ('last_GLOBAL__last_config_save_time', 'default_GLOBAL__last_config_save_time', self.last_config_save_time_var), # NEW MAPPING
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
 
             'center_freq_hz_var': ('last_instrument_settings__center_freq_hz', 'default_instrument_settings__center_freq_hz', self.center_freq_hz_var),
@@ -748,12 +762,12 @@ class App(tk.Tk):
         saved_geometry = self.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback=self.DEFAULT_WINDOW_GEOMETRY)
         try:
             self.geometry(saved_geometry)
-            debug_log(f"Applied saved geometry: {saved_geometry}.",
+            debug_logic_module.debug_log(f"Applied saved geometry: {saved_geometry}.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         except TclError as e:
-            debug_log(f"ERROR: Invalid saved geometry '{saved_geometry}': {e}. Using default.",
+            debug_logic_module.debug_log(f"ERROR: Invalid saved geometry '{saved_geometry}': {e}. Using default.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
@@ -787,7 +801,7 @@ class App(tk.Tk):
             None. Populates the main window with GUI elements.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Creating main application widgets with nested tabs...",
+        debug_logic_module.debug_log(f"Creating main application widgets with nested tabs...",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -805,33 +819,32 @@ class App(tk.Tk):
         self.parent_tab_widgets = {}
 
         # Pass the style object to TAB_INSTRUMENT_PARENT
-        # self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
-        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log, style_obj=self.style) # Pass style_obj
+        self.instrument_parent_tab = TAB_INSTRUMENT_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log, style_obj=self.style) # Pass style_obj
         self.parent_notebook.add(self.instrument_parent_tab, text="INSTRUMENT")
         self.child_notebooks["INSTRUMENT"] = self.instrument_parent_tab.child_notebook
         self.parent_tab_widgets["INSTRUMENT"] = self.instrument_parent_tab
 
-        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.scanning_parent_tab = TAB_SCANNING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.scanning_parent_tab, text="SCANNING")
         self.child_notebooks["SCANNING"] = self.scanning_parent_tab.child_notebook
         self.parent_tab_widgets["SCANNING"] = self.scanning_parent_tab
 
-        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.plotting_parent_tab = TAB_PLOTTING_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.plotting_parent_tab, text="PLOTTING")
         self.child_notebooks["PLOTTING"] = self.plotting_parent_tab.child_notebook
         self.parent_tab_widgets["PLOTTING"] = self.plotting_parent_tab
 
-        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.markers_parent_tab = TAB_MARKERS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.markers_parent_tab, text="MARKERS")
         self.child_notebooks["MARKERS"] = self.markers_parent_tab.child_notebook
         self.parent_tab_widgets["MARKERS"] = self.markers_parent_tab
 
-        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.presets_parent_tab = TAB_PRESETS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.presets_parent_tab, text="PRESETS")
         self.child_notebooks["PRESETS"] = self.presets_parent_tab.child_notebook
         self.parent_tab_widgets["PRESETS"] = self.presets_parent_tab
 
-        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_log)
+        self.experiments_parent_tab = TAB_EXPERIMENTS_PARENT(self.parent_notebook, app_instance=self, console_print_func=console_logic_module.console_log)
         self.parent_notebook.add(self.experiments_parent_tab, text="EXPERIMENTS")
         self.child_notebooks["EXPERIMENTS"] = self.experiments_parent_tab.child_notebook
         self.parent_tab_widgets["EXPERIMENTS"] = self.experiments_parent_tab
@@ -866,18 +879,18 @@ class App(tk.Tk):
         sash_pos = self.paned_window_sash_position_var.get()
         if sash_pos > 0:
             self.main_panedwindow.sashpos(0, sash_pos)
-            debug_log(f"Applied saved PanedWindow sash position: {sash_pos}.",
+            debug_logic_module.debug_log(f"Applied saved PanedWindow sash position: {sash_pos}.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         else:
-            debug_log(f"WARNING: Invalid saved PanedWindow sash position: {sash_pos}. Using default.",
+            debug_logic_module.debug_log(f"WARNING: Invalid saved PanedWindow sash position: {sash_pos}. Using default.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
 
 
-        debug_log(f"Main application widgets created.",
+        debug_logic_module.debug_log(f"Main application widgets created.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -902,11 +915,11 @@ class App(tk.Tk):
             None. Applies visual styling to the application's GUI.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Setting up ttk styles...",
+        debug_logic_module.debug_log(f"Setting up ttk styles...",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        apply_styles(self.style, debug_log, current_version, self.parent_tab_colors)
+        apply_styles(self.style, debug_logic_module.debug_log, current_version, self.parent_tab_colors)
 
 
     def _on_window_configure(self, event):
@@ -934,8 +947,9 @@ class App(tk.Tk):
             
             if current_geometry != previous_geometry:
                 self.config.set('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', current_geometry)
-                save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
-                debug_log(f"Window geometry changed and saved: {current_geometry}.",
+                # Pass console_log from here to save_config
+                save_config(self.config, self.CONFIG_FILE_PATH, console_logic_module.console_log, self)
+                debug_logic_module.debug_log(f"Window geometry changed and saved: {current_geometry}.",
                             file=__file__,
                             version=current_version,
                             function=current_function)
@@ -964,7 +978,7 @@ class App(tk.Tk):
             None. Closes the application.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Application is shutting down. Saving configuration...",
+        debug_logic_module.debug_log(f"Application is shutting down. Saving configuration...",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -972,20 +986,21 @@ class App(tk.Tk):
         if hasattr(self, 'main_panedwindow') and self.main_panedwindow.winfo_exists():
             sash_pos = self.main_panedwindow.sashpos(0)
             self.paned_window_sash_position_var.set(sash_pos)
-            debug_log(f"Saved final sash position: {sash_pos}.",
+            debug_logic_module.debug_log(f"Saved final sash position: {sash_pos}.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
 
 
-        save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+        # Pass console_log from here to save_config
+        save_config(self.config, self.CONFIG_FILE_PATH, console_logic_module.console_log, self)
 
         if self.inst:
-            debug_log(f"Disconnecting instrument before exit.",
+            debug_logic_module.debug_log(f"Disconnecting instrument before exit.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
-            disconnect_instrument_logic(self, console_log)
+            disconnect_instrument_logic(self, console_logic_module.console_log)
 
         sys.stdout = self._original_stdout
         sys.stderr = self._original_stderr
@@ -1015,21 +1030,21 @@ class App(tk.Tk):
             None. Ensures the 'DATA' directory is available for file operations.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
+        debug_logic_module.debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
         try:
             os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
-            console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
-            debug_log(f"DATA directory created or already exists.",
+            console_logic_module.console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
+            debug_logic_module.debug_log(f"DATA directory created or already exists.",
                         file=__file__,
                         version=current_version,
                         function=current_function)
         except Exception as e:
-            console_log(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}", function=current_function)
-            debug_log(f"ERROR: Error creating DATA directory: {e}",
+            console_logic_module.console_log(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!", function=current_function)
+            debug_logic_module.debug_log(f"ERROR: Error creating DATA directory: {e}",
                         file=__file__,
                         version=current_version,
                         function=current_function)
@@ -1057,7 +1072,7 @@ class App(tk.Tk):
             None. Modifies the state of GUI widgets.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Updating connection status. Connected: {is_connected}.",
+        debug_logic_module.debug_log(f"Updating connection status. Connected: {is_connected}.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -1066,7 +1081,7 @@ class App(tk.Tk):
             app_instance=self,
             is_connected=is_connected,
             is_scanning=self.scanning,
-            console_print_func=console_log
+            console_print_func=console_logic_module.console_log
         )
 
 
@@ -1098,7 +1113,7 @@ class App(tk.Tk):
             None. Updates parent tab visual styles and triggers child tab updates.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Parent tab changed.",
+        debug_logic_module.debug_log(f"Parent tab changed.",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -1123,22 +1138,22 @@ class App(tk.Tk):
                 selected_child_tab_widget = active_child_notebook.nametowidget(selected_child_tab_id)
                 if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                     selected_child_tab_widget._on_tab_selected(event)
-                    debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
+                    debug_logic_module.debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
                                 file=__file__,
                                 version=current_version,
                                 function=current_function)
                 else:
-                    debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}' has no _on_tab_selected method.",
+                    debug_logic_module.debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}' has no _on_tab_selected method.",
                                 file=__file__,
                                 version=current_version,
                                 function=current_function)
             else:
-                debug_log(f"No child tab selected in parent '{selected_tab_text}'.",
+                debug_logic_module.debug_log(f"No child tab selected in parent '{selected_tab_text}'.",
                             file=__file__,
                             version=current_version,
                             function=current_function)
         else:
-            debug_log(f"No child notebook found for parent tab '{selected_tab_text}'.",
+            debug_logic_module.debug_log(f"No child notebook found for parent tab '{selected_tab_text}'.",
                         file=__file__,
                         version=current_version,
                         function=current_function)

@@ -14,15 +14,16 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0015.1 (Updated load_config to accept app_instance, and added save_config_as_new_file.)
+# Version 20250802.0152.7 (Modified save_config to update a Tkinter variable instead of printing success message.)
 
-current_version = "20250802.0015.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0152.7" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 15 * 1 # Example hash, adjust as needed
 
 import configparser
 import os
 import tkinter as tk # Import tkinter for update_idletasks (still needed for Tkinter variable updates)
 import inspect # Import inspect module for debug_log
+from datetime import datetime # Import datetime for timestamp
 
 # Updated imports for new logging functions
 from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_log
@@ -82,6 +83,7 @@ def load_config(config_obj, file_path, console_print_func, app_instance):
         'default_GLOBAL__debug_to_Terminal': 'False', # NEW
         'default_GLOBAL__paned_window_sash_position': '700', # NEW
         'default_GLOBAL__window_geometry': '1400x780+100+100', # Default window size and position
+        'default_GLOBAL__last_config_save_time': 'Never', # NEW: Default for last save time
 
         'default_instrument_connection__visa_resource': '',
 
@@ -141,6 +143,7 @@ def load_config(config_obj, file_path, console_print_func, app_instance):
         'default_plotting__average_markers_to_plot__math_standard_deviation': 'True',
         'default_plotting__average_markers_to_plot__math_variance': 'True',
         'default_plotting__average_markers_to_plot__math_psd': 'True',
+        'default_GLOBAL__include_console_messages_to_debug_file': 'False', # NEW
     }
 
     # Ensure LAST_USED_SETTINGS section exists or create it
@@ -254,8 +257,9 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
            b. Convert it to a string.
            c. Store it in the 'LAST_USED_SETTINGS' section of `config_obj`.
         4. Special handling for band selection checkboxes, saving their state as a JSON string.
-        5. Writes the `config_obj` to the specified file.
-        6. Prints success or error messages.
+        5. Updates the `last_config_save_time_var` in the app_instance with the current timestamp.
+        6. Writes the `config_obj` to the specified file.
+        7. Prints success or error messages (but NOT the frequent "Configuration saved" message).
 
     Outputs of this function:
         None. Modifies `config_obj` and writes to the configuration file.
@@ -269,6 +273,7 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
     (2025-08-01 1900.2) Change: No functional changes.
     (2025-08-01 2045.1) Change: Updated to use debug_log consistently.
     (2025-08-02 0015.1) Change: Updated version number.
+    (2025-08-02 0152.7) Change: Modified to update app_instance.last_config_save_time_var instead of printing to console.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Saving configuration to {file_path}. Persisting changes!",
@@ -311,12 +316,15 @@ def save_config(config_obj, file_path, console_print_func, app_instance):
                     version=current_version,
                     function=current_function)
 
-
     try:
         os.makedirs(os.path.dirname(file_path), exist_ok=True) # Ensure directory exists
         with open(file_path, 'w') as configfile:
             config_obj.write(configfile)
-        console_print_func(f"✅ Configuration successfully saved to {file_path}. Done!")
+        
+        # NEW: Update the Tkinter variable for last save time instead of printing to console
+        current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        app_instance.last_config_save_time_var.set(f"Last Saved: {current_time_str}")
+        
         debug_log(f"Configuration successfully saved to {file_path}. Mission accomplished!",
                     file=__file__,
                     version=current_version,

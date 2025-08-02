@@ -17,9 +17,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0075.6 (Fixed ImportError for console_log by importing from src.console_logic.)
+# Version 20250802.0157.1 (Added last config save time display field.)
 
-current_version = "20250802.0075.6" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0157.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 6 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -99,7 +99,7 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
 
         self.grid_rowconfigure(0, weight=1) # Console text area
         self.grid_rowconfigure(1, weight=0) # Debug checkboxes
-        self.grid_rowconfigure(2, weight=0) # Clear log button
+        self.grid_rowconfigure(2, weight=0) # Last Save Time / Clear log button
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
@@ -107,7 +107,7 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
         # Set the app_instance's console_text reference to this widget
         self.app_instance.console_text = scrolledtext.ScrolledText(self, wrap="word", bg="#2b2b2b", fg="#cccccc", insertbackground="white")
         self.app_instance.console_text.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-        self.app_instance.console_text.config(state=tk.DISABLED) # Start as disabled
+        # The state will be managed by console_log itself when writing.
 
 
         # Debug Checkboxes Frame
@@ -149,7 +149,14 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
                                                                  variable=self.app_instance.include_console_messages_to_debug_file_var,
                                                                  command=self._toggle_include_console_messages_to_debug_file_mode,
                                                                  style='TCheckbutton')
-        self.include_console_messages_checkbox.grid(row=2, column=0, columnspan=2, padx=5, pady=2, sticky="w")
+        self.include_console_messages_checkbox.grid(row=2, column=0, padx=5, pady=2, sticky="w")
+
+        # NEW: Last Config Save Time Label
+        self.last_save_time_label = ttk.Label(debug_checkbox_frame,
+                                              textvariable=self.app_instance.last_config_save_time_var,
+                                              style='Dark.TLabel.Value') # Using the new style for value labels
+        self.last_save_time_label.grid(row=2, column=1, padx=5, pady=2, sticky="e") # Placed beside the checkbox
+
 
         # Clear Debug Log File Button
         self.clear_debug_log_button = ttk.Button(self, text="Clear Debug Log File",
@@ -166,52 +173,53 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
     def _toggle_general_debug_mode(self):
         """Toggles the global debug mode based on checkbox state."""
         current_function = inspect.currentframe().f_code.co_name
+        # The console_log inside set_debug_mode will handle printing to GUI
+        set_debug_mode(self.app_instance.general_debug_enabled_var.get())
         debug_log(f"Toggling general debug. Current state: {self.app_instance.general_debug_enabled_var.get()}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        set_debug_mode(self.app_instance.general_debug_enabled_var.get())
-        console_log(f"Debug Mode: {'Enabled' if self.app_instance.general_debug_enabled_var.get() else 'Disabled'}", function=current_function)
+
 
     def _toggle_visa_logging_mode(self):
         """Toggles the global VISA command logging based on checkbox state."""
         current_function = inspect.currentframe().f_code.co_name
+        set_log_visa_commands_mode(self.app_instance.log_visa_commands_enabled_var.get())
         debug_log(f"Toggling VISA logging. Current state: {self.app_instance.log_visa_commands_enabled_var.get()}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        set_log_visa_commands_mode(self.app_instance.log_visa_commands_enabled_var.get())
-        console_log(f"VISA Command Logging: {'Enabled' if self.app_instance.log_visa_commands_enabled_var.get() else 'Disabled'}", function=current_function)
+
 
     def _toggle_debug_to_terminal_mode(self):
         """Toggles whether debug messages go to terminal or GUI console."""
         current_function = inspect.currentframe().f_code.co_name
+        set_debug_to_terminal_mode(self.app_instance.debug_to_terminal_var.get())
         debug_log(f"Toggling debug output to terminal. Current state: {self.app_instance.debug_to_terminal_var.get()}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        set_debug_to_terminal_mode(self.app_instance.debug_to_terminal_var.get())
-        console_log(f"Debug to Terminal: {'Enabled' if self.app_instance.debug_to_terminal_var.get() else 'Disabled'}", function=current_function)
+
 
     def _toggle_debug_to_file_mode(self):
         """Toggles whether debug messages are written to a file."""
         current_function = inspect.currentframe().f_code.co_name
+        set_debug_to_file_mode(self.app_instance.debug_to_file_var.get(), self.app_instance.DEBUG_COMMANDS_FILE_PATH)
         debug_log(f"Toggling debug output to file. Current state: {self.app_instance.debug_to_file_var.get()}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        set_debug_to_file_mode(self.app_instance.debug_to_file_var.get(), self.app_instance.DEBUG_COMMANDS_FILE_PATH)
-        console_log(f"Debug to File: {'Enabled' if self.app_instance.debug_to_file_var.get() else 'Disabled'}", function=current_function)
+
 
     def _toggle_include_console_messages_to_debug_file_mode(self):
         """Toggles whether console messages are included in the debug file."""
         current_function = inspect.currentframe().f_code.co_name
+        set_include_console_messages_to_debug_file_mode(self.app_instance.include_console_messages_to_debug_file_var.get())
         debug_log(f"Toggling inclusion of console messages to debug file. Current state: {self.app_instance.include_console_messages_to_debug_file_var.get()}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        set_include_console_messages_to_debug_file_mode(self.app_instance.include_console_messages_to_debug_file_var.get())
-        console_log(f"Include Console Messages to Debug File: {'Enabled' if self.app_instance.include_console_messages_to_debug_file_var.get() else 'Disabled'}", function=current_function)
+
 
     def _clear_debug_log_file_action(self):
         """Action to clear the debug log file."""
