@@ -64,7 +64,7 @@ import src.console_logic as console_logic_module
 
 
 from tabs.Instrument.instrument_logic import (
-    populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
+    populate_resources_logic, connect_instrument_logic, 
     apply_instrument_settings_logic, # Corrected function name
     query_current_instrument_settings_logic
 )

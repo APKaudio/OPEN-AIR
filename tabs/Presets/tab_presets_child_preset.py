@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250801.2255.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250802.1701.4 (Removed incorrect import from instrument_logic and ensured correct calls to refresh instrument settings.)
 
-current_version = "20250801.2255.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2255 * 1 # Example hash, adjust as needed
+current_version = "20250802.1701.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -31,10 +31,17 @@ from datetime import datetime # For timestamping user presets
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-from tabs.Presets.utils_preset import (
+from tabs.Instrument.utils_instrument_control import ( # Corrected import path
     load_user_presets_from_csv, save_user_preset_to_csv,
     query_device_presets_logic, load_selected_preset_logic
 )
+
+# NOTE: Removed the import below as it was causing a circular dependency and was not needed here.
+# from tabs.Instrument.instrument_logic import query_current_instrument_settings_logic
+# The relevant query function is called via app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+
+# Define constants (if any, from frequency_bands or elsewhere, ensure they are imported or defined)
+# from ref.frequency_bands import MHZ_TO_HZ # Assuming MHZ_TO_HZ is in app_instance now or needs to be imported
 
 class PresetFilesTab(ttk.Frame):
     """
@@ -61,7 +68,7 @@ class PresetFilesTab(ttk.Frame):
 
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing PresetFilesTab. Version: {current_version}. Let's get these presets organized!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -73,7 +80,7 @@ class PresetFilesTab(ttk.Frame):
         self.populate_user_preset_buttons()
 
         debug_log(f"PresetFilesTab initialized. Version: {current_version}. Ready to rock and roll!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -84,7 +91,7 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Creating PresetFilesTab widgets...",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -135,7 +142,7 @@ class PresetFilesTab(ttk.Frame):
         self.user_preset_listbox.config(yscrollcommand=user_preset_scrollbar.set)
 
         debug_log("PresetFilesTab widgets created. Looking sharp!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -146,7 +153,7 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Populating instrument preset buttons with {len(presets)} presets. Get ready for some data!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         self.instrument_preset_listbox.delete(0, tk.END)
@@ -154,7 +161,7 @@ class PresetFilesTab(ttk.Frame):
         for preset_name in presets:
             self.instrument_preset_listbox.insert(tk.END, preset_name)
         debug_log("Instrument preset buttons populated. Mission accomplished!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -165,7 +172,7 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Populating user preset buttons... Let's see what we've got!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         self.user_preset_listbox.delete(0, tk.END)
@@ -174,7 +181,7 @@ class PresetFilesTab(ttk.Frame):
             display_name = preset.get('NickName', preset.get('Filename', 'Unnamed Preset'))
             self.user_preset_listbox.insert(tk.END, display_name)
         debug_log(f"Populated {len(self.user_presets)} user preset buttons. User presets loaded!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -185,7 +192,7 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Calling query_device_presets_logic... Time to talk to the instrument!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         query_device_presets_logic(self.app_instance, self.console_print_func)
@@ -203,7 +210,7 @@ class PresetFilesTab(ttk.Frame):
             selected_preset_name = self.instrument_preset_listbox.get(index)
             self.console_print_func(f"Selected instrument preset: {selected_preset_name}")
             debug_log(f"Instrument preset selected: {selected_preset_name}. Let's load this bad boy!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -215,22 +222,25 @@ class PresetFilesTab(ttk.Frame):
             if success:
                 self.console_print_func(f"✅ Instrument preset '{selected_preset_name}' loaded. Success!")
                 debug_log(f"Instrument preset '{selected_preset_name}' loaded successfully. BOOM!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-                
+
                 # Update the app_instance's loaded preset details
                 self.app_instance.last_loaded_preset_center_freq_mhz_var.set(f"{center_freq / self.app_instance.MHZ_TO_HZ:.3f}")
                 self.app_instance.last_loaded_preset_span_mhz_var.set(f"{span / self.app_instance.MHZ_TO_HZ:.3f}")
                 self.app_instance.last_loaded_preset_rbw_hz_var.set(f"{rbw:.0f}")
 
                 # Ensure the Instrument tab's display updates
-                if hasattr(self.app_instance, 'instrument_parent_tab') and hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+                # Correctly call the _query_current_settings method from the connection tab
+                if hasattr(self.app_instance, 'instrument_parent_tab') and \
+                   hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
+                   hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
                     self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
             else:
                 self.console_print_func(f"❌ Failed to load instrument preset '{selected_preset_name}'. This is a nightmare!")
                 debug_log(f"Failed to load instrument preset '{selected_preset_name}'. What the hell happened?!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
@@ -250,7 +260,7 @@ class PresetFilesTab(ttk.Frame):
 
             self.console_print_func(f"Selected user preset: {display_name}")
             debug_log(f"User preset selected: {display_name} (Filename: {preset_filename}). Let's get this done!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
@@ -264,7 +274,7 @@ class PresetFilesTab(ttk.Frame):
                 if success:
                     self.console_print_func(f"✅ User preset '{display_name}' loaded to instrument. Fantastic!")
                     debug_log(f"User preset '{display_name}' loaded to instrument successfully. Nailed it!",
-                                file=__file__,
+                                file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
 
@@ -283,21 +293,24 @@ class PresetFilesTab(ttk.Frame):
                         self.app_instance.current_span_var.set(f"{float(selected_preset_data['Span']) / self.app_instance.MHZ_TO_HZ:.3f}")
                     if 'RBW' in selected_preset_data:
                         self.app_instance.current_rbw_var.set(f"{float(selected_preset_data['RBW']):.0f}")
-                    
+
                     # Ensure the Instrument tab's display updates
-                    if hasattr(self.app_instance, 'instrument_parent_tab') and hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+                    # Correctly call the _query_current_settings method from the connection tab
+                    if hasattr(self.app_instance, 'instrument_parent_tab') and \
+                       hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
+                       hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
                         self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
 
                 else:
                     self.console_print_func(f"❌ Failed to load user preset '{display_name}' to instrument. This is frustrating!")
                     debug_log(f"Failed to load user preset '{display_name}' to instrument. What a pain!",
-                                file=__file__,
+                                file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
             else:
                 self.console_print_func("⚠️ No instrument connected. Cannot load user preset to device. Updating GUI only. What a waste of a click!")
                 debug_log("No instrument connected. Loading user preset to GUI only. Fucking useless!",
-                            file=__file__,
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 # If no instrument, just update GUI based on saved preset values
@@ -307,9 +320,11 @@ class PresetFilesTab(ttk.Frame):
                     self.app_instance.current_span_var.set(f"{float(selected_preset_data['Span']) / self.app_instance.MHZ_TO_HZ:.3f}")
                 if 'RBW' in selected_preset_data:
                     self.app_instance.current_rbw_var.set(f"{float(selected_preset_data['RBW']):.0f}")
-                
+
                 # Ensure the Instrument tab's display updates
-                if hasattr(self.app_instance, 'instrument_parent_tab') and hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab'):
+                if hasattr(self.app_instance, 'instrument_parent_tab') and \
+                   hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
+                   hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
                     # Call query_current_settings to refresh the display, but it won't query hardware
                     self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
 
@@ -321,7 +336,7 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Attempting to save current settings as user preset... Let's make this happen!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -329,23 +344,36 @@ class PresetFilesTab(ttk.Frame):
         if not self.app_instance.inst:
             self.console_print_func("⚠️ No instrument connected. Cannot save current settings as preset. Connect the damn thing first!")
             debug_log("No instrument connected, cannot save current settings as preset. Fucking useless!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return
 
-        # Use query_current_instrument_settings_logic to get all settings from the instrument
-        # This will also update the app_instance's Tkinter variables for current display
-        center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity, preamp_on = \
-            self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+        # Use the _query_current_settings method from the Instrument Connection tab
+        # This method is expected to query the instrument and update the app_instance's Tkinter variables
+        # and also return the queried values.
+        if hasattr(self.app_instance, 'instrument_parent_tab') and \
+           hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
+           hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
 
-        if center_freq_hz is None: # If query failed
-            self.console_print_func("❌ Failed to query current instrument settings. Cannot save preset. This is a disaster!")
-            debug_log("Failed to query current instrument settings for saving preset. What a mess!",
-                        file=__file__,
+            center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity, preamp_on = \
+                self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+
+            if center_freq_hz is None: # If query failed
+                self.console_print_func("❌ Failed to query current instrument settings. Cannot save preset. This is a disaster!")
+                debug_log("Failed to query current instrument settings for saving preset. What a mess!",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return
+        else:
+            self.console_print_func("❌ Instrument connection tab or _query_current_settings method not found. Cannot save preset. This is a critical error!")
+            debug_log("Instrument connection tab or _query_current_settings method not found. Fucking hell!",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return
+
 
         # Prompt for a nickname for the preset
         nickname = simpledialog.askstring("Save User Preset", "Enter a nickname for this preset:",
@@ -353,7 +381,7 @@ class PresetFilesTab(ttk.Frame):
         if nickname is None: # User cancelled
             self.console_print_func("ℹ️ Preset save cancelled. Fine, be that way!")
             debug_log("Preset save cancelled by user. What a waste!",
-                        file=__file__,
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return
@@ -375,7 +403,7 @@ class PresetFilesTab(ttk.Frame):
         self.populate_user_preset_buttons() # Refresh the user presets list
         self.console_print_func(f"✅ Current settings saved as user preset: '{nickname}'. Success!")
         debug_log(f"Current settings saved as user preset: '{nickname}'. BOOM!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -387,8 +415,9 @@ class PresetFilesTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("PresetFilesTab selected. Refreshing data... Let's get this updated!",
-                    file=__file__,
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         self.populate_user_preset_buttons() # Always refresh user presets
         self._query_device_presets() # Query device presets when tab is selected
+
