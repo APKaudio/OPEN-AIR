@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0155.1 (Added last config save time display and removed frequent console save message.)
+# Version 20250802.0155.4 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'instrument_serial'.)
 
-current_version = "20250802.0155.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 10 # Example hash, adjust as needed
+current_version = "20250802.0155.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 75 * 12 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -65,7 +65,7 @@ import src.console_logic as console_logic_module
 
 from tabs.Instrument.instrument_logic import (
     populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
-    apply_settings_logic,
+    apply_instrument_settings_logic, # Corrected function name
     query_current_instrument_settings_logic
 )
 from src.connection_status_logic import update_connection_status_logic
@@ -171,7 +171,10 @@ class App(tk.Tk):
 
         self.rm = None
         self.inst = None
-        self.instrument_model = None
+        # self.instrument_model is initialized in _setup_tkinter_vars now
+        # self.instrument_serial is initialized in _setup_tkinter_vars now
+        # self.instrument_firmware is initialized in _setup_tkinter_vars now
+        # self.instrument_options is initialized in _setup_tkinter_vars now
 
         self.collected_scans_dataframes = []
         self.last_scan_markers = []
@@ -480,7 +483,24 @@ class App(tk.Tk):
         self.selected_resource = tk.StringVar(self)
         self.selected_resource.trace_add("write", create_trace_callback("selected_resource"))
 
-        self.resource_names = tk.StringVar(self)
+        self.available_resources = tk.StringVar(self) # Added initialization for available_resources
+        self.available_resources.trace_add("write", create_trace_callback("available_resources")) # Add trace if needed
+
+        self.resource_names = tk.StringVar(self) # This was already here, keep it.
+
+        # (2025-08-02 13:59) Change: Initialize instrument info variables
+        self.instrument_model = tk.StringVar(self, value="N/A")
+        self.instrument_model.trace_add("write", create_trace_callback("instrument_model"))
+
+        self.instrument_serial = tk.StringVar(self, value="N/A")
+        self.instrument_serial.trace_add("write", create_trace_callback("instrument_serial"))
+
+        self.instrument_firmware = tk.StringVar(self, value="N/A")
+        self.instrument_firmware.trace_add("write", create_trace_callback("instrument_firmware"))
+
+        self.instrument_options = tk.StringVar(self, value="N/A")
+        self.instrument_options.trace_add("write", create_trace_callback("instrument_options"))
+
 
         # Instrument settings variables (used by instrument_logic.py)
         self.center_freq_hz_var = tk.DoubleVar(self, value=2400000000.0)
@@ -664,6 +684,13 @@ class App(tk.Tk):
             'paned_window_sash_position_var': ('last_GLOBAL__paned_window_sash_position', 'default_GLOBAL__paned_window_sash_position', self.paned_window_sash_position_var),
             'last_config_save_time_var': ('last_GLOBAL__last_config_save_time', 'default_GLOBAL__last_config_save_time', self.last_config_save_time_var), # NEW MAPPING
             'selected_resource': ('last_instrument_connection__visa_resource', 'default_instrument_connection__visa_resource', self.selected_resource),
+            'available_resources': ('last_instrument_connection__available_resources', 'default_instrument_connection__available_resources', self.available_resources), # NEW MAPPING
+
+            'instrument_model': ('last_instrument_info__model', 'default_instrument_info__model', self.instrument_model), # NEW MAPPING
+            'instrument_serial': ('last_instrument_info__serial', 'default_instrument_info__serial', self.instrument_serial), # NEW MAPPING
+            'instrument_firmware': ('last_instrument_info__firmware', 'default_instrument_info__firmware', self.instrument_firmware), # NEW MAPPING
+            'instrument_options': ('last_instrument_info__options', 'default_instrument_info__options', self.instrument_options), # NEW MAPPING
+
 
             'center_freq_hz_var': ('last_instrument_settings__center_freq_hz', 'default_instrument_settings__center_freq_hz', self.center_freq_hz_var),
             'span_hz_var': ('last_instrument_settings__span_hz', 'default_instrument_settings__span_hz', self.span_hz_var),
@@ -1034,7 +1061,6 @@ class App(tk.Tk):
                     file=__file__,
                     version=current_version,
                     function=current_function)
-
         try:
             os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
             console_logic_module.console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
