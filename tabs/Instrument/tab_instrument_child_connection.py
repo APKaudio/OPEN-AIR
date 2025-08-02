@@ -18,9 +18,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0075.12 (Explicitly filtered style_obj from kwargs passed to super().__init__.)
+# Version 20250802.0200.1 (Fixed Combobox population by ensuring values are set before textvariable.)
 
-current_version = "20250802.0075.12" # this variable should always be defined below the header to make the debugging better
+current_version = "20250802.0200.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 12 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -105,6 +105,7 @@ class InstrumentTab(ttk.Frame):
 
         # VISA Resource Dropdown
         ttk.Label(connection_frame, text="VISA Resource:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        # Link textvariable to app_instance.selected_resource
         self.resource_dropdown = ttk.Combobox(connection_frame, textvariable=self.app_instance.selected_resource, state="readonly", style='Dark.TCombobox')
         self.resource_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         self.resource_dropdown.bind("<<ComboboxSelected>>", self._on_resource_selected)
@@ -216,33 +217,38 @@ class InstrumentTab(ttk.Frame):
         current_file = os.path.basename(__file__)
         try:
             resources = populate_resources_logic(self.app_instance.rm, console_log)
-            # Update the Tkinter StringVar associated with the dropdown
-            self.app_instance.resource_names.set(",".join(resources)) # Store as comma-separated string
-            self.app_instance.after(0, lambda: self.resource_dropdown.config(values=resources)) # Update dropdown on main thread
             
-            if resources:
-                # If there's a previously selected resource from config, try to set it
-                last_selected = self.app_instance.selected_resource.get()
-                if last_selected and last_selected in resources:
-                    self.app_instance.selected_resource.set(last_selected)
-                    console_log(f"Restored last selected resource: {last_selected}", function=current_function)
-                else:
-                    self.app_instance.selected_resource.set(resources[0]) # Select the first one by default
-                    console_log(f"Selected first available resource: {resources[0]}", function=current_function)
+            # This function will be called on the main thread
+            def update_combobox_and_selection():
+                self.resource_dropdown.config(values=resources) # Set values first
                 
-                debug_log(f"Found resources: {resources}. Selected: {self.app_instance.selected_resource.get()}",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function)
-                self.app_instance.after(0, lambda: self._update_ui_elements_visibility(connected=False, resource_found=True))
-            else:
-                self.app_instance.selected_resource.set("") # Clear selection
-                console_log("🚫 No VISA instruments found.", function=current_function)
-                debug_log(f"No VISA instruments found.",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function)
-                self.app_instance.after(0, lambda: self._update_ui_elements_visibility(connected=False, resource_found=False))
+                if resources:
+                    last_selected = self.app_instance.selected_resource.get()
+                    if last_selected and last_selected in resources:
+                        self.app_instance.selected_resource.set(last_selected)
+                        console_log(f"Restored last selected resource: {last_selected}", function=current_function)
+                    else:
+                        self.app_instance.selected_resource.set(resources[0]) # Select the first one by default
+                        console_log(f"Selected first available resource: {resources[0]}", function=current_function)
+                    
+                    debug_log(f"Found resources: {resources}. Selected: {self.app_instance.selected_resource.get()}",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+                    self._update_ui_elements_visibility(connected=False, resource_found=True)
+                else:
+                    self.app_instance.selected_resource.set("") # Clear selection
+                    console_log("🚫 No VISA instruments found.", function=current_function)
+                    debug_log(f"No VISA instruments found.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+                    self._update_ui_elements_visibility(connected=False, resource_found=False)
+                
+                self._enable_buttons_after_operation() # Always re-enable buttons after update
+
+            self.app_instance.after(0, update_combobox_and_selection)
+
         except Exception as e:
             console_log(f"❌ Error refreshing resources: {e}", function=current_function)
             debug_log(f"Error refreshing resources: {e}",
@@ -250,8 +256,7 @@ class InstrumentTab(ttk.Frame):
                         version=current_version,
                         function=current_function)
             self.app_instance.after(0, lambda: self._update_ui_elements_visibility(connected=False, resource_found=False))
-        finally:
-            self.app_instance.after(0, self._enable_buttons_after_operation)
+            self.app_instance.after(0, self._enable_buttons_after_operation) # Ensure buttons are re-enabled even on error
 
 
     def _on_resource_selected(self, event):
@@ -569,3 +574,4 @@ class InstrumentTab(ttk.Frame):
         # If already connected, the state will reflect that.
         self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
         # --- END NEW ---
+
