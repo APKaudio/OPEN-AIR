@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0155.4 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'instrument_serial'.)
+# Version 20250802.1445.2 (Fixed AttributeError for freq_shift_var by initializing it in _setup_tkinter_vars and adding to setting_var_map.)
 
-current_version = "20250802.0155.4" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 12 # Example hash, adjust as needed
+current_version = "20250802.1445.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1445 * 2 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -91,6 +91,8 @@ from tabs.Presets.utils_preset import load_selected_preset_logic, query_device_p
 
 # Import constants from frequency_bands.py
 from ref.frequency_bands import SCAN_BAND_RANGES, MHZ_TO_HZ, VBW_RBW_RATIO
+# NEW: Import scan_modes, attenuation_levels, and frequency_shifts for initializing Tkinter variables
+from ref.ref_scanner_setting_lists import scan_modes, attenuation_levels, frequency_shifts
 
 
 class App(tk.Tk):
@@ -382,20 +384,22 @@ class App(tk.Tk):
     def _ensure_data_directory_exists(self):
         """
         Function Description:
-        Ensures that the DATA directory exists. If it doesn't, it creates it.
-        This function is called early in initialization, potentially before
-        the GUI console is fully set up, hence the conditional console_print_func.
+        Ensures that the 'DATA' directory exists at the specified `self.DATA_FOLDER_PATH`.
+        If the directory does not exist, it attempts to create it. This is crucial
+        for storing configuration files, scan data, and other application-related files.
 
-        Inputs:
-            None.
+        Inputs to this function:
+            None (operates on self.DATA_FOLDER_PATH).
 
-        Process:
-            1. Checks if `self.DATA_FOLDER_PATH` exists.
-            2. If not, attempts to create it using `os.makedirs`.
-            3. Logs success or failure to the console.
+        Process of this function:
+            1. Prints a debug message indicating the attempt to create the directory.
+            2. Uses `os.makedirs` with `exist_ok=True` to create the directory.
+                `exist_ok=True` prevents an error if the directory already exists (e.g., due to a race condition).
+            3. Prints informative messages to the console about the directory status.
+            4. Includes error handling for potential issues during directory creation.
 
-        Outputs:
-            None. Creates a directory if necessary.
+        Outputs of this function:
+            None. Ensures the 'DATA' directory is available for file operations.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_logic_module.debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
@@ -503,6 +507,7 @@ class App(tk.Tk):
 
 
         # Instrument settings variables (used by instrument_logic.py)
+        # (2025-08-02 14:38) Change: Moved initialization of instrument settings variables BEFORE setting_var_map
         self.center_freq_hz_var = tk.DoubleVar(self, value=2400000000.0)
         self.center_freq_hz_var.trace_add("write", create_trace_callback("center_freq_hz_var"))
 
@@ -514,6 +519,9 @@ class App(tk.Tk):
 
         self.vbw_hz_var = tk.DoubleVar(self, value=3000.0)
         self.vbw_hz_var.trace_add("write", create_trace_callback("vbw_hz_var"))
+
+        self.sweep_time_s_var = tk.DoubleVar(self, value=0.01) # Added missing sweep_time_s_var
+        self.sweep_time_s_var.trace_add("write", create_trace_callback("sweep_time_s_var"))
 
 
         # Scan Configuration variables
@@ -541,8 +549,11 @@ class App(tk.Tk):
         self.reference_level_dbm_var = tk.StringVar(self, value="-40")
         self.reference_level_dbm_var.trace_add("write", create_trace_callback("reference_level_dbm_var"))
 
-        self.freq_shift_hz_var = tk.StringVar(self, value="0")
-        self.freq_shift_hz_var.trace_add("write", create_trace_callback("freq_shift_hz_var"))
+        self.attenuation_var = tk.StringVar(self, value=str(attenuation_levels[0]["Value"])) # NEW: Initialize attenuation_var
+        self.attenuation_var.trace_add("write", create_trace_callback("attenuation_var"))
+
+        self.freq_shift_var = tk.StringVar(self, value=str(frequency_shifts[0]["Shift"])) # NEW: Initialize freq_shift_var
+        self.freq_shift_var.trace_add("write", create_trace_callback("freq_shift_var"))
 
         self.maxhold_enabled_var = tk.BooleanVar(self, value=True)
         self.maxhold_enabled_var.trace_add("write", create_trace_callback("maxhold_enabled_var"))
@@ -556,8 +567,13 @@ class App(tk.Tk):
         self.scan_rbw_segmentation_var = tk.StringVar(self, value="1000000.0")
         self.scan_rbw_segmentation_var.trace_add("write", create_trace_callback("scan_rbw_segmentation_var"))
 
-        self.desired_default_focus_width_var = tk.StringVar(self, value="10000.0")
+        self.desired_default_focus_width_var = tk.StringVar(self, value="10000000") # Corrected default value to string
         self.desired_default_focus_width_var.trace_add("write", create_trace_callback("desired_default_focus_width_var"))
+
+        # NEW: Initialize scan_mode_var
+        self.scan_mode_var = tk.StringVar(self, value=scan_modes[0]["Mode"]) # Initialize with first mode
+        self.scan_mode_var.trace_add("write", create_trace_callback("scan_mode_var"))
+
 
         # Scan Meta Data variables
         self.operator_name_var = tk.StringVar(self, value="Anthony Peter Kuzub")
@@ -696,6 +712,7 @@ class App(tk.Tk):
             'span_hz_var': ('last_instrument_settings__span_hz', 'default_instrument_settings__span_hz', self.span_hz_var),
             'rbw_hz_var': ('last_instrument_settings__rbw_hz', 'default_instrument_settings__rbw_hz', self.rbw_hz_var),
             'vbw_hz_var': ('last_instrument_settings__vbw_hz', 'default_instrument_settings__vbw_hz', self.vbw_hz_var),
+            'sweep_time_s_var': ('last_instrument_settings__sweep_time_s', 'default_instrument_settings__sweep_time_s', self.sweep_time_s_var), # Added missing sweep_time_s_var
 
             'scan_name_var': ('last_scan_configuration__scan_name', 'default_scan_configuration__scan_name', self.scan_name_var),
             'output_folder_var': ('last_scan_configuration__scan_directory', 'default_scan_configuration__scan_directory', self.output_folder_var),
@@ -705,12 +722,15 @@ class App(tk.Tk):
             'maxhold_time_seconds_var': ('last_scan_configuration__maxhold_time_seconds', 'default_scan_configuration__maxhold_time_seconds', self.maxhold_time_seconds_var),
             'scan_rbw_hz_var': ('last_scan_configuration__scan_rbw_hz', 'default_scan_configuration__scan_rbw_hz', self.scan_rbw_hz_var),
             'reference_level_dbm_var': ('last_scan_configuration__reference_level_dbm', 'default_scan_configuration__reference_level_dbm', self.reference_level_dbm_var),
-            'freq_shift_hz_var': ('last_scan_configuration__freq_shift_hz', 'default_scan_configuration__freq_shift_hz', self.freq_shift_hz_var),
+            'attenuation_var': ('last_scan_configuration__attenuation', 'default_scan_configuration__attenuation', self.attenuation_var), # NEW MAPPING
+            'freq_shift_var': ('last_scan_configuration__freq_shift_hz', 'default_scan_configuration__freq_shift_hz', self.freq_shift_var), # NEW MAPPING
             'maxhold_enabled_var': ('last_scan_configuration__maxhold_enabled', 'default_scan_configuration__maxhold_enabled', self.maxhold_enabled_var),
             'high_sensitivity_var': ('last_scan_configuration__sensitivity', 'default_scan_configuration__sensitivity', self.high_sensitivity_var),
             'preamp_on_var': ('last_scan_configuration__preamp_on', 'default_scan_configuration__preamp_on', self.preamp_on_var),
             'scan_rbw_segmentation_var': ('last_scan_configuration__scan_rbw_segmentation', 'default_scan_configuration__scan_rbw_segmentation', self.scan_rbw_segmentation_var),
             'desired_default_focus_width_var': ('last_scan_configuration__default_focus_width', 'default_scan_configuration__default_focus_width', self.desired_default_focus_width_var),
+            'scan_mode_var': ('last_scan_configuration__scan_mode', 'default_scan_configuration__scan_mode', self.scan_mode_var), # NEW MAPPING
+
 
             'operator_name_var': ('last_scan_meta_data__operator_name', 'default_scan_meta_data__operator_name', self.operator_name_var),
             'operator_contact_var': ('last_scan_meta_data__contact', 'default_scan_meta_data__contact', self.operator_contact_var),
@@ -991,18 +1011,10 @@ class App(tk.Tk):
         It also restores stdout/stderr to their original values.
 
         Inputs:
-            None (operates on self).
-
-        Process:
-            1. Prints a debug message indicating application shutdown.
-            2. Attempts to save the current configuration to `config.ini`.
-            3. Calls `disconnect_instrument_logic` to ensure the instrument is properly
-                released, if connected.
-            4. Restores `sys.stdout` and `sys.stderr` to their original values.
-            5. Destroys the main Tkinter window.
+            None.
 
         Outputs:
-            None. Closes the application.
+            None. Performs cleanup and exits.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_logic_module.debug_log(f"Application is shutting down. Saving configuration...",
