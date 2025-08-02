@@ -15,10 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0070.2 (Added debug to file logic and new global flags.)
+# Version 20250802.0075.1 (Exposed set_debug_redirectors for external use and added clear debug log function.)
 
-current_version = "20250802.0070.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 70 * 2 # Example hash, adjust as needed
+current_version = "20250802.0075.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 75 * 1 # Example hash, adjust as needed
 
 import sys
 import os
@@ -223,6 +223,46 @@ def _write_to_debug_file(message: str):
         except Exception as e:
             # If writing to file fails, print to original stdout as a last resort
             print(f"ERROR: Failed to write to debug log file {DEBUG_FILE_PATH}: {e}", file=_original_stderr)
+
+def clear_debug_log_file(file_path: str):
+    """
+    Function Description:
+    Clears the content of the debug log file.
+
+    Inputs:
+    - file_path (str): The full path to the debug log file.
+
+    Process of this function:
+    1. Checks if the file exists.
+    2. If it exists, opens the file in 'w' mode (write, truncating to zero length)
+       and writes a header indicating the log was cleared.
+    3. Prints a message to the console and debug log.
+
+    Outputs of this function:
+    - None. Clears the content of the specified file.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(f"--- Debug Log Cleared: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---\n")
+            console_log(f"✅ Debug log file cleared: {file_path}", function=current_function)
+            debug_log(f"Debug log file cleared.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        except Exception as e:
+            console_log(f"❌ Error clearing debug log file {file_path}: {e}", function=current_function)
+            debug_log(f"ERROR: Failed to clear debug log file: {e}",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+    else:
+        console_log(f"ℹ️ Debug log file does not exist: {file_path}. Nothing to clear.", function=current_function)
+        debug_log(f"Debug log file does not exist. Cannot clear.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
 
 def debug_log(message, file=None, version=None, function=None, special=False):

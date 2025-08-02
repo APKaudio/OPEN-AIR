@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2215.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250802.0075.11 (Added style_obj argument to __init__ and passed it to child tabs.)
 
-current_version = "20250801.2215.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2215 * 1 # Example hash, adjust as needed
+current_version = "20250802.0075.11" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 75 * 11 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -38,7 +38,7 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
     A parent tab for Instrument-related functionalities, containing child tabs
     for connection settings, general settings, and device presets.
     """
-    def __init__(self, parent_notebook, app_instance, console_print_func):
+    def __init__(self, parent_notebook, app_instance, console_print_func, style_obj=None): # Added style_obj
         # Initializes the TAB_INSTRUMENT_PARENT frame and its child notebook.
         # It sets up the UI for instrument control and configuration,
         # including connection management and device settings.
@@ -47,10 +47,11 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         #   parent_notebook (ttk.Notebook): The top-level notebook widget this tab belongs to.
         #   app_instance (App): The main application instance, providing access to shared data and methods.
         #   console_print_func (function): Function to print messages to the GUI console.
+        #   style_obj (ttk.Style, optional): The ttk.Style object from the main app.
         #
         # Process:
         #   1. Calls the superclass constructor (ttk.Frame).
-        #   2. Stores references to `app_instance` and `console_print_func`.
+        #   2. Stores references to `app_instance`, `console_print_func`, and `style_obj`.
         #   3. Creates `self.child_notebook` to hold the instrument-specific sub-tabs.
         #   4. Instantiates `InstrumentConnectionTab`, `VisaInterpreterTab`.
         #   5. Adds these child tabs to `self.child_notebook`.
@@ -71,9 +72,11 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # (2025-08-01) Change: Removed import and instantiation of non-existent InstrumentDevicePresetsTab.
         # (2025-08-01) Change: Instantiated VisaInterpreterTab and assigned it as an attribute.
         # (2025-08-01) Change: Updated debug_print calls to use debug_log.
+        # (2025-08-02) Change: Added style_obj argument to __init__ and passed it to child tabs.
         super().__init__(parent_notebook)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
+        self.style_obj = style_obj # Store the style object
 
         current_function = inspect.currentframe().f_code.co_name
 
@@ -88,11 +91,11 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
          # Assuming InstrumentTab also contains the settings display/logic
-        self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # Pass style_obj
         self.child_notebook.add(self.instrument_settings_tab, text="Settings")
 
         # FUCKING IMPORTANT: Instantiate VisaInterpreterTab and assign it as an attribute
-        self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # Pass style_obj
         self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")
 
         # Removed instantiation of InstrumentDevicePresetsTab as the module does not exist.
@@ -158,3 +161,4 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
                         file=__file__,
                         version=current_version,
                         function=current_function)
+
