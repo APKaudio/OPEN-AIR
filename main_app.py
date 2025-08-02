@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0045.1 (Fixed TypeError: missing console_print_func in parent tab instantiation.)
+# Version 20250802.0045.3 (Moved parent_tab_colors initialization to __init__ to fix AttributeError.)
 
-current_version = "20250802.0045.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 1 # Example hash, adjust as needed
+current_version = "20250802.0045.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 45 * 3 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -55,7 +55,7 @@ from datetime import datetime # For timestamp in debug_log
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.config_manager import load_config, save_config
-from src.gui_elements import TextRedirector, display_splash_screen  # Added print_art
+from src.gui_elements import TextRedirector, display_splash_screen
 
 # Import the new debug_logic and console_logic modules
 from src.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode
@@ -140,8 +140,8 @@ class App(tk.Tk):
         #   12. Initializes `ttk.Style`.
         #   13. Sets debug modes based on loaded config.
         #   14. Calls `_ensure_data_directory_exists` to create the DATA folder.
-        #   15. Calls `_create_widgets` to build the GUI.
-        #   16. Calls `_setup_styles` to apply custom themes.
+        #   15. Calls `_setup_styles` to apply custom themes.
+        #   16. Calls `_create_widgets` to build the GUI.
         #   17. Redirects stdout to the GUI console.
         #   18. **NEW: Checks for config.ini and sets debug mode if not found, displaying status.**
         #   19. Updates connection status.
@@ -183,6 +183,8 @@ class App(tk.Tk):
         # (2025-08-01 2243.1) Change: Fixed ImportError by changing import source for set_gui_console_redirector
         #                             from src.debug_logic to src.console_logic.
         # (2025-08-02 0045.1) Change: Fixed TypeError: missing console_print_func in parent tab instantiation.
+        # (2025-08-02 0045.2) Change: Moved _setup_styles call before _create_widgets to fix TclError: Layout BigScanButton not found.
+        # (2025-08-02 0045.3) Change: Moved parent_tab_colors initialization to __init__ to fix AttributeError.
         super().__init__()
         self.title("OPEN AIR - 🌐🗺️ - Zone Awareness Processor") # Changed window title
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
@@ -216,6 +218,35 @@ class App(tk.Tk):
         self.SCAN_BAND_RANGES = SCAN_BAND_RANGES
         self.MHZ_TO_HZ = MHZ_TO_HZ
         self.VBW_RBW_RATIO = VBW_RBW_RATIO
+
+        # Parent Tab Colors (as requested)
+        # These constants are now primarily used for the *child* notebook backgrounds
+        # and for the common active/inactive colors of the parent tabs.
+        PARENT_INSTRUMENT_ACTIVE = "#FF0000"
+        PARENT_INSTRUMENT_INACTIVE = "#660C0C"
+        PARENT_SCANNING_ACTIVE = "#FF6600"
+        PARENT_SCANNING_INACTIVE = "#926002"
+        PARENT_PLOTTING_ACTIVE = "#D1D10E"
+        PARENT_PLOTTING_INACTIVE = "#72720A"
+        PARENT_MARKERS_ACTIVE = "#319131"
+        PARENT_MARKERS_INACTIVE = "#1B4B1B"
+        PARENT_PRESETS_ACTIVE = "#0303C9"
+        PARENT_PRESETS_INACTIVE = "#00008B"
+        ACCENT_PURPLE = "#6f42c1"
+        PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
+        PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
+
+        # Store parent tab color mappings for dynamic updates
+        # These colors are used for the *child notebook backgrounds*
+        # and for the child notebook tabs.
+        self.parent_tab_colors = {
+            "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
+            "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
+            "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+            "EXPERIMENTS": {"active": PARENT_EXPERIMENTS_ACTIVE, "inactive": PARENT_EXPERIMENTS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+        }
 
         # No need to pass console_print_func here, as console_log is directly imported
         self._setup_tkinter_vars() # Initialize Tkinter variables BEFORE loading config
@@ -252,6 +283,9 @@ class App(tk.Tk):
         set_log_visa_commands_mode(self.log_visa_commands_enabled_var.get())
         set_debug_to_terminal_mode(self.debug_to_terminal_var.get()) # Set this early
 
+        # FUCKING IMPORTANT: Call _setup_styles BEFORE _create_widgets
+        self._setup_styles() # This will now configure self.style
+
         self._create_widgets() # console_text is initialized here
 
         # Now that console_text is created, set the redirectors
@@ -260,7 +294,6 @@ class App(tk.Tk):
         # Removed redundant set_console_redirector call as set_gui_console_redirector handles both stdout/stderr for GUI console
 
 
-        self._setup_styles() # This will now configure self.style
         # _redirect_stdout_to_console is now implicitly handled by set_debug_to_terminal_mode and console_log
         # We still call it here to ensure the initial state is correctly set up,
         # but its internal logic is simplified.
@@ -280,7 +313,7 @@ class App(tk.Tk):
         # Initial update of connection status. This will now correctly access the tab instances.
         self.update_connection_status(self.inst is not None)
 
-        print_art() # Moved print_art to gui_elements.py and imported it
+        display_splash_screen() # Moved print_art to gui_elements.py and imported it
 
         # Adjusted startup calls for band selections and notes to new nested tab structure
         if hasattr(self, 'scanning_parent_tab') and hasattr(self.scanning_parent_tab, 'scan_configuration_tab'):
@@ -441,6 +474,7 @@ class App(tk.Tk):
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            raise # Re-raise the exception after logging
 
     def _setup_tkinter_vars(self):
         # Function Description:
@@ -890,36 +924,6 @@ class App(tk.Tk):
         # Dictionary to hold parent tab widget instances for robust color setting
         self.parent_tab_widgets = {}
 
-        # Parent Tab Colors (as requested)
-        # These constants are now primarily used for the *child* notebook backgrounds
-        # and for the common active/inactive colors of the parent tabs.
-        PARENT_INSTRUMENT_ACTIVE = "#FF0000"
-        PARENT_INSTRUMENT_INACTIVE = "#660C0C"
-        PARENT_SCANNING_ACTIVE = "#FF6600"
-        PARENT_SCANNING_INACTIVE = "#926002"
-        PARENT_PLOTTING_ACTIVE = "#D1D10E"
-        PARENT_PLOTTING_INACTIVE = "#72720A"
-        PARENT_MARKERS_ACTIVE = "#319131"
-        PARENT_MARKERS_INACTIVE = "#1B4B1B"
-        PARENT_PRESETS_ACTIVE = "#0303C9"
-        PARENT_PRESETS_INACTIVE = "#00008B"
-        ACCENT_PURPLE = "#6f42c1"
-        PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
-        PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
-
-        # Store parent tab color mappings for dynamic updates
-        # These colors are used for the *child notebook backgrounds*
-        # and for the child notebook tabs.
-        self.parent_tab_colors = {
-            "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
-            "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
-            "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "EXPERIMENTS": {"active": PARENT_EXPERIMENTS_ACTIVE, "inactive": PARENT_EXPERIMENTS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-        }
-
-
         # Instantiate and add parent tabs, storing widget references as App attributes
         # Removed 'style' argument from add() calls as it's not supported directly for tab labels.
         # Initial styling will be handled by _on_parent_tab_change.
@@ -1283,6 +1287,7 @@ class App(tk.Tk):
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            raise
 
 
     def update_connection_status(self, is_connected):
