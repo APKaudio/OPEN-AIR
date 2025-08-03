@@ -101,7 +101,7 @@ from tabs.Presets.utils_preset_process import (
 from tabs.Presets.utils_preset_query_and_load import query_current_instrument_settings_for_preset
 from tabs.Instrument.utils_instrument_read_and_write import query_safe # For additional queries
 
-from src.style import COLOR_PALETTE # For styling
+from src.program_style import COLOR_PALETTE # For styling
 
 class PresetEditorTab(ttk.Frame):
     """

@@ -33,7 +33,7 @@ from datetime import datetime # For timestamping user presets
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 # Import the COLOR_PALETTE from style.py
-from src.style import COLOR_PALETTE
+from src.program_style import COLOR_PALETTE
 
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_query_and_load import load_selected_preset_logic, query_device_presets_logic

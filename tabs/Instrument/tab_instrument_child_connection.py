@@ -20,9 +20,11 @@
 #
 # Version 20250803.1115.5 (Fixed ImportError: cannot import name 'query_instrument_settings' by correcting import to 'query_current_instrument_settings'.)
 # Version 20250803.1132.0 (Fixed ImportError: cannot import name 'restore_default_settings_logic' by removing its import from instrument_logic and calling the logic directly from src.settings_and_config.restore_settings_logic.)
+# Version 20250803.1400.0 (Corrected passing of app_instance to connect_instrument_logic and disconnect_instrument_logic.)
+# Version 20250803.1405.0 (Corrected variable name from selected_resource_var to selected_resource.)
 
-current_version = "20250803.1132.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1132 * 0 # Example hash, adjust as needed
+current_version = "20250803.1405.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1405 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -171,25 +173,25 @@ class InstrumentTab(ttk.Frame):
 
         # Row 0: Instrument Info
         ttk.Label(settings_display_frame, text="Model:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_model, style='Dark.TLabel').grid(row=0, column=1, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_model_var, style='Dark.TLabel').grid(row=0, column=1, padx=5, pady=2, sticky="w")
 
         ttk.Label(settings_display_frame, text="Serial:", style='Dark.TLabel').grid(row=0, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_serial, style='Dark.TLabel').grid(row=0, column=3, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_serial_var, style='Dark.TLabel').grid(row=0, column=3, padx=5, pady=2, sticky="w")
 
         # Row 1: Firmware & Options
         ttk.Label(settings_display_frame, text="Firmware:", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_firmware, style='Dark.TLabel').grid(row=1, column=1, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_firmware_var, style='Dark.TLabel').grid(row=1, column=1, padx=5, pady=2, sticky="w")
 
         ttk.Label(settings_display_frame, text="Options:", style='Dark.TLabel').grid(row=1, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_options, style='Dark.TLabel').grid(row=1, column=3, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_options_var, style='Dark.TLabel').grid(row=1, column=3, padx=5, pady=2, sticky="w")
 
 
         # Row 2: Center Freq & Span
         ttk.Label(settings_display_frame, text="Center Freq (Hz):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.center_freq_hz_var, style='Dark.TLabel').grid(row=2, column=1, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.center_freq_mhz_var, style='Dark.TLabel').grid(row=2, column=1, padx=5, pady=2, sticky="w")
 
         ttk.Label(settings_display_frame, text="Span (Hz):", style='Dark.TLabel').grid(row=2, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(settings_display_frame, textvariable=self.app_instance.span_hz_var, style='Dark.TLabel').grid(row=2, column=3, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.span_mhz_var, style='Dark.TLabel').grid(row=2, column=3, padx=5, pady=2, sticky="w")
 
         # Row 3: RBW & VBW
         ttk.Label(settings_display_frame, text="RBW (Hz):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
@@ -280,7 +282,7 @@ class InstrumentTab(ttk.Frame):
         resource_names = [r for r in resources] # Convert to list of strings
 
         # Update Tkinter variables on the main thread
-        self.app_instance.after(0, lambda: self.app_instance.available_resources.set(",".join(resource_names)))
+        self.app_instance.after(0, lambda: self.app_instance.available_resources.set(resource_names))
         self.app_instance.after(0, lambda: self.resource_combobox.config(values=resource_names))
 
         if resource_names:
@@ -396,22 +398,23 @@ class InstrumentTab(ttk.Frame):
                         file=f"{self.current_file} - {self.current_version}",
                         version=self.current_version,
                         function=current_function)
-            success = disconnect_instrument_logic(self.app_instance.current_instrument, self.console_print_func)
+            # Pass the app_instance to disconnect_instrument_logic
+            success = disconnect_instrument_logic(self.app_instance, self.console_print_func)
             if success:
-                self.app_instance.current_instrument = None
+                self.app_instance.inst = None # Clear the instrument instance in main_app
                 self.app_instance.is_connected.set(False)
                 # Clear instrument info
-                self.app_instance.after(0, lambda: self.app_instance.instrument_model.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.instrument_serial.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.instrument_firmware.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.instrument_options.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.center_freq_hz_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.span_hz_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.rbw_hz_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.vbw_hz_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.sweep_time_s_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.preamp_on_var.set(""))
-                self.app_instance.after(0, lambda: self.app_instance.high_sensitivity_var.set(""))
+                self.app_instance.after(0, lambda: self.app_instance.instrument_model_var.set("N/A"))
+                self.app_instance.after(0, lambda: self.app_instance.instrument_serial_var.set("N/A"))
+                self.app_instance.after(0, lambda: self.app_instance.instrument_firmware_var.set("N/A"))
+                self.app_instance.after(0, lambda: self.app_instance.instrument_options_var.set("N/A"))
+                self.app_instance.after(0, lambda: self.app_instance.center_freq_mhz_var.set(0.0))
+                self.app_instance.after(0, lambda: self.app_instance.span_mhz_var.set(0.0))
+                self.app_instance.after(0, lambda: self.app_instance.rbw_hz_var.set("0 Hz"))
+                self.app_instance.after(0, lambda: self.app_instance.vbw_hz_var.set("0 Hz"))
+                self.app_instance.after(0, lambda: self.app_instance.sweep_time_s_var.set("0 s"))
+                self.app_instance.after(0, lambda: self.app_instance.preamp_on_var.set(False))
+                self.app_instance.after(0, lambda: self.app_instance.high_sensitivity_var.set(False))
                 debug_log(f"Instrument disconnected successfully. Version: {self.current_version}. Mission accomplished!",
                             file=f"{self.current_file} - {self.current_version}",
                             version=self.current_version,
@@ -437,9 +440,9 @@ class InstrumentTab(ttk.Frame):
                         file=f"{self.current_file} - {self.current_version}",
                         version=current_version,
                         function=current_function)
-            inst = connect_instrument_logic(resource_name, self.console_print_func)
-            if inst:
-                self.app_instance.current_instrument = inst
+            # Pass the app_instance to connect_instrument_logic
+            success = connect_instrument_logic(self.app_instance, self.console_print_func)
+            if success:
                 self.app_instance.is_connected.set(True)
                 # Query and display initial settings and instrument info
                 self.app_instance.after(0, lambda: self._query_settings_and_info())
@@ -498,6 +501,7 @@ class InstrumentTab(ttk.Frame):
                     for sub_child in child.winfo_children():
                         sub_child.config(state=tk.NORMAL)
         else:
+            self.connection_status_label.config(text="Status: Disconnected 💀", foreground="red") # Ensure status is red when disconnected
             self.connect_button.config(text="Connect", style="FlashingGray.TButton")
             self.resource_combobox.config(state="readonly" if resource_found else tk.DISABLED)
             self.refresh_button.config(state=tk.NORMAL)
@@ -511,9 +515,9 @@ class InstrumentTab(ttk.Frame):
                         sub_child.config(state=tk.DISABLED)
 
         # Ensure the connect button is enabled if a resource is found, even if not connected
-        if resource_found:
+        if resource_found and not is_connected: # Only enable if resource found AND not already connected
             self.connect_button.config(state=tk.NORMAL)
-        else:
+        elif not resource_found: # If no resource found, disable it
             self.connect_button.config(state=tk.DISABLED)
 
 
@@ -557,22 +561,8 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        success = query_current_settings_logic(
-            self.app_instance.current_instrument,
-            self.console_print_func,
-            self.app_instance.instrument_model,
-            self.app_instance.instrument_serial,
-            self.app_instance.instrument_firmware,
-            self.app_instance.instrument_options,
-            self.app_instance.center_freq_hz_var,
-            self.app_instance.span_hz_var,
-            self.app_instance.rbw_hz_var,
-            self.app_instance.vbw_hz_var,
-            self.app_instance.sweep_time_s_var,
-            self.app_instance.preamp_on_var,
-            self.app_instance.high_sensitivity_var,
-            self.app_instance # Pass app_instance to allow scheduling on main thread
-        )
+        # The query_current_settings_logic now takes the app_instance directly
+        success = query_current_settings_logic(self.app_instance, self.console_print_func)
 
         if success:
             debug_log(f"Instrument settings and info queried successfully. Version: {self.current_version}. All good!",
@@ -623,17 +613,8 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        success = apply_settings_logic(
-            self.app_instance.current_instrument,
-            self.console_print_func,
-            self.app_instance.center_freq_hz_var.get(),
-            self.app_instance.span_hz_var.get(),
-            self.app_instance.rbw_hz_var.get(),
-            self.app_instance.vbw_hz_var.get(),
-            self.app_instance.sweep_time_s_var.get(),
-            self.app_instance.preamp_on_var.get(),
-            self.app_instance.high_sensitivity_var.get()
-        )
+        # The apply_settings_logic now takes the app_instance directly
+        success = apply_settings_logic(self.app_instance, self.console_print_func)
         if success:
             self.app_instance.after(0, lambda: self._query_settings_and_info()) # Re-query to confirm settings
             debug_log(f"Settings applied successfully. Version: {self.current_version}. Confirmed!",
@@ -684,7 +665,7 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        if not self.app_instance.current_instrument:
+        if not self.app_instance.inst:
             self.console_print_func("⚠️ No instrument connected to initialize. Connect first!")
             debug_log(f"No instrument connected for initialization. Version: {self.current_version}. Connect the damn thing!",
                         file=f"{self.current_file} - {self.current_version}",
@@ -693,7 +674,18 @@ class InstrumentTab(ttk.Frame):
             self.app_instance.after(0, lambda: self._set_action_buttons_state(tk.NORMAL))
             return
 
-        success = initialize_instrument(self.app_instance.current_instrument, self.console_print_func)
+        # The initialize_instrument function now takes app_instance, console_print_func
+        # and other parameters directly from app_instance
+        success = initialize_instrument(
+            self.app_instance.inst,
+            self.app_instance.ref_level_dbm_var.get(),
+            self.app_instance.high_sensitivity_var.get(),
+            self.app_instance.preamp_on_var.get(),
+            float(self.app_instance.rbw_hz_var.get()), # Pass RBW as float
+            float(self.app_instance.vbw_hz_var.get()), # Pass VBW as float
+            self.app_instance.instrument_model_var.get(),
+            self.console_print_func
+        )
         if success:
             self.app_instance.after(0, lambda: self._query_settings_and_info()) # Re-query to confirm settings
             debug_log(f"Instrument initialized successfully. Version: {self.current_version}. Ready to go!",
@@ -744,7 +736,7 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        if not self.app_instance.current_instrument:
+        if not self.app_instance.inst:
             self.console_print_func("⚠️ No instrument connected to restore defaults. Connect first!")
             debug_log(f"No instrument connected for default settings restore. Version: {self.current_version}. Connect the damn thing!",
                         file=f"{self.current_file} - {self.current_version}",
@@ -753,7 +745,7 @@ class InstrumentTab(ttk.Frame):
             self.app_instance.after(0, lambda: self._set_action_buttons_state(tk.NORMAL))
             return
 
-        success = restore_default_settings_logic(self.app_instance.current_instrument, self.console_print_func)
+        success = restore_default_settings_logic(self.app_instance.inst, self.console_print_func)
         if success:
             self.app_instance.after(0, lambda: self._query_settings_and_info()) # Re-query to confirm settings
             debug_log(f"Default settings restored successfully. Version: {self.current_version}. Fresh start!",
@@ -804,7 +796,7 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        if not self.app_instance.current_instrument:
+        if not self.app_instance.inst:
             self.console_print_func("⚠️ No instrument connected to restore last used settings. Connect first!")
             debug_log(f"No instrument connected for last used settings restore. Version: {self.current_version}. Connect the damn thing!",
                         file=f"{self.current_file} - {self.current_version}",
@@ -813,7 +805,7 @@ class InstrumentTab(ttk.Frame):
             self.app_instance.after(0, lambda: self._set_action_buttons_state(tk.NORMAL))
             return
 
-        success = restore_last_used_settings_logic(self.app_instance.current_instrument, self.console_print_func)
+        success = restore_last_used_settings_logic(self.app_instance.inst, self.console_print_func)
         if success:
             self.app_instance.after(0, lambda: self._query_settings_and_info()) # Re-query to confirm settings
             debug_log(f"Last used settings restored successfully. Version: {self.current_version}. History lesson learned!",
@@ -868,8 +860,11 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        selected_tab = self.app_instance.parent_notebook.nametowidget(self.app_instance.parent_notebook.select())
-        if selected_tab == self.master:  # Check if the direct parent of this tab is selected
+        # Check if the currently selected tab in the PARENT notebook is the Instrument tab itself
+        # This is crucial to prevent _on_tab_selected from firing when other top-level tabs are selected
+        # and only run its logic when the Instrument tab is the active one.
+        selected_parent_tab = self.app_instance.notebook.nametowidget(self.app_instance.notebook.select())
+        if selected_parent_tab == self.master.master: # self.master is the child_notebook, self.master.master is the main_app.notebook
             self.app_instance.after(0, self._update_connection_status_ui)
             if self.app_instance.is_connected.get():
                 self.app_instance.after(0, self._query_settings_and_info)

@@ -29,7 +29,7 @@ import inspect
 import os
 
 # Import the COLOR_PALETTE from style.py
-from src.style import COLOR_PALETTE
+from src.program_style import COLOR_PALETTE
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 

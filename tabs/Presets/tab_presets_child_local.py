@@ -34,7 +34,7 @@ from src.console_logic import console_log
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv
 # Reverted Import push_preset_logic to original correct path
 from tabs.Presets.utils_push_preset import push_preset_logic # REVERTED TO ORIGINAL CORRECT IMPORT PATH
-from src.style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
+from src.program_style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
 
 class LocalPresetsTab(ttk.Frame):
     """
