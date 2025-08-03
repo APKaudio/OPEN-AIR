@@ -32,7 +32,7 @@ import datetime # NEW: Import datetime for timestamp
 import re # NEW: Import regex for Ctrl+Enter logic
 
 # Import the new report converter utility functions
-from process_math.report_converter_utils import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
+from tabs.Markers.utils_report_converter import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
 from src.gui_elements import TextRedirector # Keep TextRedirector for console output
 # Import the new debug_logic and console_logic modules
 from src.debug_logic import debug_log # Changed from debug_print

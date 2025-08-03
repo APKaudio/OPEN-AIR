@@ -39,7 +39,7 @@
 # Version 20250803.0215.0 (CRITICAL FIX: Removed all simpledialog prompts for save/delete confirmations.
 #                         Auto-saves after import and delete. Console messages provide feedback.)
 # Version 20250803.0230.0 (FIXED: _end_edit to ensure Treeview update.
-#                         UPDATED: _add_current_settings to use query_current_instrument_settings and populate all columns.
+#                         UPDATED: _add_current_settings to use query_current_instrument_settings_for_preset and populate all columns.
 #                         UPDATED: Nickname and Filename format for 'Add Current Settings'.
 #                         CLARIFIED: Save button message.)
 # Version 20250803.0245.0 (IMPLEMENTED: Instant save on cell edit.
@@ -47,9 +47,26 @@
 #                         REMOVED: Redundant 'Save Changes' button.
 #                         MOVED: 'Delete Selected' button to top right.
 #                         FIXED: AttributeError in _add_current_settings by safely accessing instrument model.)
+# Version 20250803.0940.0 (FIXED: Data not saving on cell edit due to race condition with window/tab focus.
+#                         Ensured _end_edit completes and saves before table repopulation on focus/tab change.
+#                         Refined focus/tab change logic to prevent unnecessary saves.)
+# Version 20250803.0945.0 (FIXED: Double-clicking cell causes table to go blank due to Treeview item_id invalidation.
+#                         Modified _start_edit to store filename for robust data update.
+#                         Modified _end_edit to update internal data first, then Treeview if item_id still valid.)
+# Version 20250803.0948.0 (FIXED: CSV being cleared on double click due to save logic.
+#                         Changed _end_edit to NOT trigger immediate save.
+#                         Modified _on_tab_selected and _on_window_focus_in to only save if has_unsaved_changes is True.)
+# Version 20250803.1000.0 (REBUILD: Cell editing logic.
+#                         _end_edit now triggers immediate save to CSV.
+#                         _on_edit_return, _on_edit_tab, _on_edit_shift_tab, _on_edit_escape all call _end_edit or destroy entry.
+#                         Removed automatic cell navigation on Enter/Tab. Only Enter saves and exits.)
+# Version 20250803.1005.0 (FIXED: "Kicking out" of edit mode due to _on_window_focus_in.
+#                         Introduced self.is_editing_cell flag to suppress focus-in events during active edit.
+#                         Added more debug logging for focus and edit states.)
+# Version 20250803.1006.0 (FIXED: TclError: unknown option "-xyscrollcommand" by changing to xscrollcommand.)
 
-current_version = "20250803.0245.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 245 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1006.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1006 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -114,14 +131,15 @@ class PresetEditorTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        self.current_edit_cell = None # (item_id, col_index) of the cell being edited
+        self.current_edit_cell = None # (item_id, col_index, filename) of the cell being edited
         self.has_unsaved_changes = False # Flag to track if data has been modified
+        self.is_editing_cell = False # NEW: Flag to indicate if a cell is currently being edited
 
         self._create_widgets()
         self.populate_presets_table() # Initial population of Treeview from loaded data
 
         # Bind to the main application window's FocusIn event
-        # This ensures that if the window loses and regains focus, presets are reloaded
+        # This ensures that if the window loses and gains focus, presets are reloaded
         self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
 
 
@@ -201,6 +219,7 @@ class PresetEditorTab(ttk.Frame):
 
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.presets_tree.xview)
         hsb.grid(row=2, column=0, sticky='ew') # Moved to row 2
+        # FIX: Changed xyscrollcommand to xscrollcommand
         self.presets_tree.configure(xscrollcommand=hsb.set)
 
         # Bind double-click event for editing
@@ -408,7 +427,10 @@ class PresetEditorTab(ttk.Frame):
                     function=current_function)
 
         # self.presets_data is the source of truth for saving, as _end_edit updates it.
-        if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, self.presets_data, self.console_print_func):
+        # Pass the column headers explicitly to overwrite_user_presets_csv to ensure consistency
+        fieldnames_for_save = [col.split(' ')[0] for col in self.columns]
+
+        if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, self.presets_data, self.console_print_func, fieldnames=fieldnames_for_save):
             self.console_print_func("✅ Presets saved successfully to PRESETS.CSV.")
             debug_log(f"Presets saved to CSV successfully. Total entries: {len(self.presets_data)}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
@@ -713,9 +735,11 @@ class PresetEditorTab(ttk.Frame):
     def _start_edit(self, item_id, col_index):
         """
         Creates an Entry widget to allow inline editing of a Treeview cell.
+        Stores the item_id, column index, and the filename of the row being edited
+        for robust saving. Sets self.is_editing_cell to True.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Starting edit for item_id: {item_id}, col_index: {col_index}.",
+        debug_log(f"Starting edit for item_id: {item_id}, col_index: {col_index}. Setting is_editing_cell=True.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -728,7 +752,11 @@ class PresetEditorTab(ttk.Frame):
         x, y, width, height = self.presets_tree.bbox(item_id, f"#{col_index + 1}")
 
         # Get the current value of the cell
-        current_value = self.presets_tree.item(item_id, "values")[col_index]
+        current_values_in_tree = self.presets_tree.item(item_id, "values")
+        current_value = current_values_in_tree[col_index]
+        
+        # CRITICAL CHANGE: Store the filename for robust lookup in presets_data
+        filename_of_edited_row = current_values_in_tree[0] # Filename is always the first column
 
         # Create an Entry widget for editing
         self.edit_entry = ttk.Entry(self.presets_tree, style='TEntry')
@@ -736,119 +764,56 @@ class PresetEditorTab(ttk.Frame):
         self.edit_entry.insert(0, current_value)
         self.edit_entry.focus_set()
 
-        self.current_edit_cell = (item_id, col_index)
+        self.current_edit_cell = (item_id, col_index, filename_of_edited_row) # Store filename here
+        self.is_editing_cell = True # Set the flag to indicate active editing
 
-        # Re-bind events to the new entry widget
+        # Bind events to the new entry widget
         self.edit_entry.bind("<FocusOut>", self._end_edit)
         self.edit_entry.bind("<Return>", self._on_edit_return)
-        self.edit_entry.bind("<Tab>", self._on_edit_tab)
-        self.edit_entry.bind("<Shift-Tab>", self._on_edit_shift_tab)
         self.edit_entry.bind("<Escape>", self._on_edit_escape)
+
 
     def _on_edit_return(self, event):
         """
-        Handles Enter key press during editing. Saves the current edit and moves
-        to the first editable cell in the row below.
+        Handles Enter key press during editing. Saves the current edit and exits the cell.
+        No automatic navigation to the next cell/row.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Enter key pressed during edit. Ending edit and moving to next row.",
+        debug_log("Enter key pressed during edit. Ending edit.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         
-        item_id, _ = self.current_edit_cell # Get current item_id before _end_edit clears it
         self._end_edit() # This will save and destroy the current entry
-
-        # Find the next row
-        next_item_id = self.presets_tree.next(item_id)
-        if next_item_id:
-            # Find the first editable column in the next row (skip 'Filename')
-            first_editable_col_index = 0
-            while first_editable_col_index < len(self.columns) and self.columns[first_editable_col_index] == 'Filename':
-                first_editable_col_index += 1
-            if first_editable_col_index < len(self.columns): # Ensure an editable column exists
-                self._start_edit(next_item_id, first_editable_col_index)
-            else:
-                self.console_print_func("ℹ️ Reached end of table. No more editable cells to go down.")
-                debug_log("Reached end of table via Enter key (no editable columns in next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-        else:
-            self.console_print_func("ℹ️ Reached end of table. No more rows to go down.")
-            debug_log("Reached end of table via Enter key (no next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-        return "break"
+        return "break" # Prevent default Tkinter behavior (like inserting newline or moving focus)
 
     def _on_edit_tab(self, event):
         """
-        Handles Tab key press during editing. Saves the current edit and moves
-        to the next editable cell to the right, or to the next row.
+        Handles Tab key press during editing. Saves the current edit and exits the cell.
+        No automatic navigation to the next cell.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Tab key pressed during edit. Moving to next cell.",
+        debug_log("Tab key pressed during edit. Ending edit.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         
-        item_id, col_index = self.current_edit_cell # Get current item_id and col_index before _end_edit clears it
-        self._end_edit() # Save and destroy
-
-        next_col_index = col_index + 1
-        while next_col_index < len(self.columns) and self.columns[next_col_index] == 'Filename':
-            next_col_index += 1
-
-        if next_col_index < len(self.columns):
-            self._start_edit(item_id, next_col_index)
-        else:
-            # Move to the next row, first editable column
-            next_item_id = self.presets_tree.next(item_id)
-            if next_item_id:
-                first_editable_col_index = 0
-                while first_editable_col_index < len(self.columns) and self.columns[first_editable_col_index] == 'Filename':
-                    first_editable_col_index += 1
-                if first_editable_col_index < len(self.columns):
-                    self._start_edit(next_item_id, first_editable_col_index)
-                else:
-                    self.console_print_func("ℹ️ Reached end of table. No more editable cells to tab to.")
-                    debug_log("Reached end of table via Tab key (no editable columns in next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            else:
-                self.console_print_func("ℹ️ Reached end of table. No more cells to tab to.")
-                debug_log("Reached end of table via Tab key (no next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-        return "break"
+        self._end_edit() # This will save and destroy the current entry
+        return "break" # Prevent default Tkinter behavior (like moving focus)
 
     def _on_edit_shift_tab(self, event):
         """
-        Handles Shift-Tab key press during editing. Saves the current edit and moves
-        to the previous editable cell to the left, or to the previous row.
+        Handles Shift-Tab key press during editing. Saves the current edit and exits the cell.
+        No automatic navigation to the previous cell.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Shift-Tab key pressed during edit. Moving to previous cell.",
+        debug_log("Shift-Tab key pressed during edit. Ending edit.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         
-        item_id, col_index = self.current_edit_cell # Get current item_id and col_index before _end_edit clears it
-        self._end_edit() # Save and destroy
-
-        prev_col_index = col_index - 1
-        while prev_col_index >= 0 and self.columns[prev_col_index] == 'Filename':
-            prev_col_index -= 1
-
-        if prev_col_index >= 0:
-            self._start_edit(item_id, prev_col_index)
-        else:
-            # Move to the previous row, last editable column
-            prev_item_id = self.presets_tree.prev(item_id)
-            if prev_item_id:
-                last_editable_col_index = len(self.columns) - 1
-                while last_editable_col_index >= 0 and self.columns[last_editable_col_index] == 'Filename':
-                    last_editable_col_index -= 1
-                if last_editable_col_index >= 0:
-                    self._start_edit(prev_item_id, last_editable_col_index)
-                else:
-                    self.console_print_func("ℹ️ Reached beginning of table. No more editable cells to shift-tab to.")
-                    debug_log("Reached beginning of table via Shift-Tab key (no editable columns in previous row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            else:
-                self.console_print_func("ℹ️ Reached beginning of table. No more cells to shift-tab to.")
-                debug_log("Reached beginning of table via Shift-Tab key (no previous row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-        return "break"
+        self._end_edit() # This will save and destroy the current entry
+        return "break" # Prevent default Tkinter behavior (like moving focus)
 
     def _on_edit_escape(self, event):
         """Handles Escape key press during editing to cancel the edit."""
@@ -861,14 +826,15 @@ class PresetEditorTab(ttk.Frame):
         if hasattr(self, 'edit_entry') and self.edit_entry.winfo_exists():
             self.edit_entry.destroy()
             self.current_edit_cell = None
+            self.is_editing_cell = False # Reset flag even on escape
         return "break" # Prevent default Tkinter behavior
 
 
     def _end_edit(self, event=None):
         """
-        Commits the changes from the Entry widget back to the Treeview and
-        the internal presets_data list, then destroys the Entry widget.
-        Also triggers an immediate save to CSV.
+        Commits the changes from the Entry widget back to the internal presets_data list,
+        then updates the Treeview (if the item_id is still valid) and destroys the Entry widget.
+        Triggers an immediate save to CSV. Resets self.is_editing_cell to False.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Ending edit...",
@@ -881,60 +847,82 @@ class PresetEditorTab(ttk.Frame):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+            self.is_editing_cell = False # Ensure flag is reset if no entry exists
             return
 
         if self.current_edit_cell:
-            item_id, col_index = self.current_edit_cell
-
-            # CRITICAL FIX: Check if item_id still exists in the Treeview
-            if not self.presets_tree.exists(item_id):
-                debug_log(f"Attempted to end edit on non-existent item_id: {item_id}. Destroying editor.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-                self.edit_entry.destroy()
-                self.current_edit_cell = None
-                return # Exit early as the item is gone
-
+            item_id_from_edit, col_index, filename_of_edited_row = self.current_edit_cell
             new_value = self.edit_entry.get()
 
-            # Get current values of the row
-            current_values = list(self.presets_tree.item(item_id, "values"))
-            
-            # Update the specific column's value
-            current_values[col_index] = new_value
-            
-            # Update the Treeview item with the new list of values
-            self.presets_tree.item(item_id, values=current_values)
-            debug_log(f"Treeview item {item_id} updated with new values: {current_values}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-
-
-            # Update the internal presets_data list
-            # Find the corresponding preset dictionary using Filename (first column)
-            filename = current_values[0] # Filename is always the first column
-            
-            # Get the original column name (without units) for the dictionary key
-            original_col_name = self.columns[col_index].split(' ')[0]
-
+            # Update the internal presets_data list first (most important)
+            edited_preset = None
             for preset in self.presets_data:
-                if preset.get('Filename') == filename:
-                    preset[original_col_name] = new_value
-                    self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename)}' to '{new_value}'. Automatically saving changes!")
-                    debug_log(f"Internal data updated for {filename}: {original_col_name} = {new_value}. Unsaved changes: True. Triggering auto-save.",
+                if preset.get('Filename') == filename_of_edited_row:
+                    edited_preset = preset
+                    # Get the original column name (without units) for the dictionary key
+                    original_col_name = self.columns[col_index].split(' ')[0]
+                    
+                    # Only update if the value has actually changed
+                    if str(preset.get(original_col_name, '')) != new_value:
+                        preset[original_col_name] = new_value
+                        self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename_of_edited_row)}' to '{new_value}'. Automatically saving changes!")
+                        debug_log(f"Internal data updated for {filename_of_edited_row}: {original_col_name} = {new_value}. Unsaved changes: True. Triggering auto-save.",
+                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    version=current_version,
+                                    function=current_function)
+                        self.has_unsaved_changes = True # Mark as unsaved
+                        # CRITICAL CHANGE: Re-introducing immediate save here as per user's request
+                        self._save_presets_to_csv()
+                    else:
+                        debug_log("Value unchanged. No update to internal data or unsaved changes flag.",
+                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    version=current_version,
+                                    function=current_function)
+                    break
+            
+            # Now, update the Treeview item, but only if it still exists
+            if self.presets_tree.exists(item_id_from_edit):
+                # Get current values from the *updated* presets_data, not the Treeview directly
+                # This ensures consistency if the Treeview was not updated by the edit_entry directly
+                updated_values_for_treeview = []
+                if edited_preset: # Use the updated dictionary if found
+                    for col_key in self.columns:
+                        clean_col_key = col_key.split(' ')[0]
+                        value = edited_preset.get(clean_col_key, '')
+                        if isinstance(value, float) and np.isnan(value):
+                            value = ''
+                        updated_values_for_treeview.append(value)
+                else: # Fallback: if edited_preset wasn't found (shouldn't happen if filename is unique),
+                      # try to get from Treeview and apply new value directly
+                    try:
+                        updated_values_for_treeview = list(self.presets_tree.item(item_id_from_edit, "values"))
+                        updated_values_for_treeview[col_index] = new_value # Apply new value directly
+                    except tk.TclError:
+                        debug_log(f"Could not retrieve values from Treeview for item {item_id_from_edit}. Skipping Treeview update.",
+                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    version=current_version,
+                                    function=current_function)
+                        updated_values_for_treeview = None # Indicate failure to get values
+
+                if updated_values_for_treeview is not None:
+                    self.presets_tree.item(item_id_from_edit, values=updated_values_for_treeview)
+                    debug_log(f"Treeview item {item_id_from_edit} updated with new values: {updated_values_for_treeview}.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
-                    self.has_unsaved_changes = True # Mark as unsaved
-                    self._save_presets_to_csv() # Trigger instant save
-                    break
-            
+            else:
+                debug_log(f"Treeview item {item_id_from_edit} no longer exists. Skipping Treeview visual update.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                # The data is already saved to self.presets_data and CSV by this point.
+                # The next populate_presets_table() will refresh the view correctly.
+
             self.current_edit_cell = None # Clear the editing state
 
         self.edit_entry.destroy()
-        debug_log("Edit ended. Entry widget destroyed.",
+        self.is_editing_cell = False # Reset the flag after destroying the entry
+        debug_log("Edit ended. Entry widget destroyed. is_editing_cell set to False.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -951,6 +939,14 @@ class PresetEditorTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+
+        # First, ensure any active edit is committed (without saving to CSV yet)
+        if hasattr(self, 'edit_entry') and self.edit_entry.winfo_exists():
+            debug_log("Active edit detected on tab selection. Ending edit before reload.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            self._end_edit() # This will update internal data and set has_unsaved_changes if needed
 
         if self.has_unsaved_changes:
             self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
@@ -983,11 +979,28 @@ class PresetEditorTab(ttk.Frame):
         
         # Check if this tab is currently the selected tab in the notebook
         if hasattr(self.master, 'select') and self.master.select() == str(self):
+            # NEW: Only proceed if not currently in an active cell edit
+            if self.is_editing_cell:
+                debug_log("Window focused, but a cell is currently being edited. Skipping table refresh to avoid interruption.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return # Skip the refresh if an edit is active
+
             self.console_print_func("💬 Window focused and Preset Editor tab active. Checking for unsaved changes.")
             debug_log("Window focused and Preset Editor tab active. Checking for unsaved changes.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+
+            # First, ensure any active edit is committed (this should ideally be handled by _end_edit's FocusOut)
+            # This block might be redundant with the new is_editing_cell check, but kept for robustness.
+            if hasattr(self, 'edit_entry') and self.edit_entry.winfo_exists():
+                debug_log("Active edit detected on window focus. Ending edit before reload.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                self._end_edit() # This will update internal data and set has_unsaved_changes if needed
 
             if self.has_unsaved_changes:
                 self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
@@ -1009,3 +1022,4 @@ class PresetEditorTab(ttk.Frame):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+

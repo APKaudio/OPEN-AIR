@@ -101,11 +101,12 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.local_presets_tab = LocalPresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.local_presets_tab, text="Local Presets")
 
-        self.device_presets_tab = DevicePresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
-        self.child_notebook.add(self.device_presets_tab, text="Device Presets")
-
         self.preset_editor_tab = PresetEditorTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.preset_editor_tab, text="Preset Editor")
+
+        self.device_presets_tab = DevicePresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.child_notebook.add(self.device_presets_tab, text="Presets In Device")
+
 
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
