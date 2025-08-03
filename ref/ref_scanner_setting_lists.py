@@ -14,248 +14,326 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250802.2015.1 (Standardized data structures to use 'label', 'value', and 'description'.)
-# Version 20250803.1820.0 (ADDED: Missing dropdown lists for instrument settings.)
-# Version 20250803.1830.0 (ADDED: Display functions for each dropdown list and placeholder lists.)
+# Version 20250731.1 (Added rbw_presets placeholder)
 
-current_version = "20250802.2015.1" # this variable should always be defined below the header to make the debugging better
-
+current_version = "20250731.1" # this variable should always be defined below the header to make the debuggin better
 
 graph_quality_drop_down = [
     {
         "label": "Ultra Low",
-        "value": 1_000_000,
+        "resolution_hz": 1_000_000,
         "description": "Blocky enough to be Minecraft."
     },
     {
         "label": "Low",
-        "value": 100_000,
+        "resolution_hz": 100_000,
         "description": "VHS quality RF — nostalgic but fuzzy."
     },
     {
         "label": "Medium",
-        "value": 10_000,
-        "description": "Standard definition, good balance of detail and speed."
+        "resolution_hz": 50_000,
+        "description": "Standard definition TV of frequency."
+    },
+    {
+        "label": "Medium Well",
+        "resolution_hz": 25_000,
+        "description": "Almost gourmet, but still quick-cook."
     },
     {
         "label": "High",
-        "value": 1_000,
-        "description": "High definition RF — crisp and clear."
+        "resolution_hz": 10_000,
+        "description": "RF with Wi-Fi smoothness."
     },
     {
         "label": "Ultra High",
-        "value": 100,
-        "description": "4K RF — every detail, but takes time."
+        "resolution_hz": 5_000,
+        "description": "Retina display for radio."
+    },
+    {
+        "label": "Ludacris",
+        "resolution_hz": 1_000,
+        "description": "So fine, even Ludacris said “Damn.”"
+    },
+    {
+        "label": "Ridonkulous",
+        "resolution_hz": 500,
+        "description": "“I can see the atoms in your waveform.”"
+    },
+    {
+        "label": "Quantum Foam",
+        "resolution_hz": 100,
+        "description": "Where reality and noise floor blur."
+    },
+    {
+        "label": "This is Fine",
+        "resolution_hz": 10,
+        "description": "The scanner cries, but it's worth it. 🔥"
     }
 ]
 
-attenuation_levels = [
-    {"label": "0 dB", "value": 0, "description": "No attenuation"},
-    {"label": "5 dB", "value": 5, "description": "5 dB attenuation"},
-    {"label": "10 dB", "value": 10, "description": "10 dB attenuation"},
-    {"label": "15 dB", "value": 15, "description": "15 dB attenuation"},
-    {"label": "20 dB", "value": 20, "description": "20 dB attenuation"},
-    {"label": "25 dB", "value": 25, "description": "25 dB attenuation"},
-    {"label": "30 dB", "value": 30, "description": "30 dB attenuation"},
-    {"label": "35 dB", "value": 35, "description": "35 dB attenuation"},
-    {"label": "40 dB", "value": 40, "description": "40 dB attenuation"},
-    {"label": "45 dB", "value": 45, "description": "45 dB attenuation"},
-    {"label": "50 dB", "value": 50, "description": "50 dB attenuation"},
-]
 
-frequency_shifts = [
-    {"label": "0 Hz", "value": 0, "description": "No shift"},
-    {"label": "100 kHz", "value": 100000, "description": "100 kHz frequency shift"},
-    {"label": "200 kHz", "value": 200000, "description": "200 kHz frequency shift"},
-    {"label": "500 kHz", "value": 500000, "description": "500 kHz frequency shift"},
-    {"label": "1 MHz", "value": 1000000, "description": "1 MHz frequency shift"},
-    {"label": "5 MHz", "value": 5000000, "description": "5 MHz frequency shift"},
-    {"label": "10 MHz", "value": 10000000, "description": "10 MHz frequency shift"},
-]
 
-# --- NEW DROPDOWN LISTS FOR INSTRUMENT SETTINGS ---
 
-ref_level_drop_down = [
-    {"label": "-10 dBm", "value": -10.0, "description": "Reference level at -10 dBm."},
-    {"label": "-20 dBm", "value": -20.0, "description": "Reference level at -20 dBm."},
-    {"label": "-30 dBm", "value": -30.0, "description": "Reference level at -30 dBm."},
-    {"label": "-40 dBm", "value": -40.0, "description": "Reference level at -40 dBm."},
-    {"label": "-50 dBm", "value": -50.0, "description": "Reference level at -50 dBm."},
-    {"label": "0 dBm", "value": 0.0, "description": "Reference level at 0 dBm."},
-    {"label": "10 dBm", "value": 10.0, "description": "Reference level at 10 dBm."},
-]
-
-rbw_drop_down = [
-    {"label": "10 Hz", "value": 10.0, "description": "Resolution Bandwidth: 10 Hz."},
-    {"label": "100 Hz", "value": 100.0, "description": "Resolution Bandwidth: 100 Hz."},
-    {"label": "1 kHz", "value": 1000.0, "description": "Resolution Bandwidth: 1 kHz."},
-    {"label": "10 kHz", "value": 10000.0, "description": "Resolution Bandwidth: 10 kHz."},
-    {"label": "100 kHz", "value": 100000.0, "description": "Resolution Bandwidth: 100 kHz."},
-    {"label": "1 MHz", "value": 1000000.0, "description": "Resolution Bandwidth: 1 MHz."},
-]
-
-span_drop_down = [
-    {"label": "10 kHz", "value": 0.01, "description": "Span: 10 kHz."},
-    {"label": "100 kHz", "value": 0.1, "description": "Span: 100 kHz."},
-    {"label": "1 MHz", "value": 1.0, "description": "Span: 1 MHz."},
-    {"label": "10 MHz", "value": 10.0, "description": "Span: 10 MHz."},
-    {"label": "100 MHz", "value": 100.0, "description": "Span: 100 MHz."},
-    {"label": "1 GHz", "value": 1000.0, "description": "Span: 1 GHz."},
-]
-
-center_freq_drop_down = [
-    {"label": "100 MHz", "value": 100.0, "description": "Center Frequency: 100 MHz."},
-    {"label": "500 MHz", "value": 500.0, "description": "Center Frequency: 500 MHz."},
-    {"label": "1 GHz", "value": 1000.0, "description": "Center Frequency: 1 GHz."},
-    {"label": "2.4 GHz", "value": 2400.0, "description": "Center Frequency: 2.4 GHz."},
-    {"label": "5.8 GHz", "value": 5800.0, "description": "Center Frequency: 5.8 GHz."},
-]
-
-preamp_drop_down = [
-    {"label": "On", "value": True, "description": "Preamplifier is enabled."},
-    {"label": "Off", "value": False, "description": "Preamplifier is disabled."},
-]
-
-high_sensitivity_drop_down = [
-    {"label": "On", "value": True, "description": "High sensitivity mode is enabled."},
-    {"label": "Off", "value": False, "description": "High sensitivity mode is disabled."},
-]
-
-trace_mode_drop_down = [
-    {"label": "Clear Write", "value": "WRIT", "description": "Trace mode: Clear Write."},
-    {"label": "Max Hold", "value": "MAXH", "description": "Trace mode: Max Hold."},
-    {"label": "Min Hold", "value": "MINH", "description": "Trace mode: Min Hold."},
-    {"label": "Average", "value": "AVER", "description": "Trace mode: Average."},
-    {"label": "View", "value": "VIEW", "description": "Trace mode: View."},
-]
-
-display_scale_drop_down = [
-    {"label": "10 dB/div", "value": 10.0, "description": "Display scale: 10 dB per division."},
-    {"label": "5 dB/div", "value": 5.0, "description": "Display scale: 5 dB per division."},
-    {"label": "2 dB/div", "value": 2.0, "description": "Display scale: 2 dB per division."},
-    {"label": "1 dB/div", "value": 1.0, "description": "Display scale: 1 dB per division."},
-]
-
-sweep_time_drop_down = [
-    {"label": "Auto", "value": "AUTO", "description": "Sweep time: Automatic."},
-    {"label": "10 ms", "value": 0.01, "description": "Sweep time: 10 milliseconds."},
-    {"label": "100 ms", "value": 0.1, "description": "Sweep time: 100 milliseconds."},
-    {"label": "1 s", "value": 1.0, "description": "Sweep time: 1 second."},
-    {"label": "10 s", "value": 10.0, "description": "Sweep time: 10 seconds."},
-]
-
-data_format_drop_down = [
-    {"label": "ASCII", "value": "ASC", "description": "Data format: ASCII."},
-    {"label": "Binary", "value": "REAL", "description": "Data format: Binary (Real)."},
-]
-
-# --- Placeholder lists for functions requested by user ---
 dwell_time_drop_down = [
-    {"label": "10 ms", "value": 0.01, "description": "Dwell time: 10 milliseconds."},
-    {"label": "100 ms", "value": 0.1, "description": "Dwell time: 100 milliseconds."},
-    {"label": "1 s", "value": 1.0, "description": "Dwell time: 1 second."},
-    {"label": "Auto", "value": "AUTO", "description": "Dwell time: Automatic."},
+    {
+        "label": "Crazy Fast",
+        "time_sec": 0.5,
+        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail."
+    },
+    {
+        "label": "Very Fast",
+        "time_sec": 1.0,
+        "description": "Great for active scanning with basic detection."
+    },
+    {
+        "label": "Standard",
+        "time_sec": 2.0,
+        "description": "Balanced scan — enough time for most signals to show."
+    },
+    {
+        "label": "Long",
+        "time_sec": 3.0,
+        "description": "Allows time to catch short bursts or weak signals."
+    },
+    {
+        "label": "Very Long",
+        "time_sec": 5.0,
+        "description": "Camped out. Good for quiet bands or deep listening."
+    },
+    {
+        "label": "Glacier Mode",
+        "time_sec": 10.0,
+        "description": "For scientists, spies, and patient people. 🧊"
+    }
 ]
-  
+
+
 cycle_wait_time_presets = [
-    {"label": "0.1 s", "value": 0.1, "description": "Wait 0.1 seconds between cycles."},
-    {"label": "0.5 s", "value": 0.5, "description": "Wait 0.5 seconds between cycles."},
-    {"label": "1 s", "value": 1.0, "description": "Wait 1 second between cycles."},
-    {"label": "5 s", "value": 5.0, "description": "Wait 5 seconds between cycles."},
+    {
+        "label": "Hold Your Horses",
+        "time_sec": 15,
+        "description": "Just a moment — enough time to sneeze twice."
+    },
+    {
+        "label": "Wait-a-Second",
+        "time_sec": 30,
+        "description": "Half a minute of suspense. Elevator music optional."
+    },
+    {
+        "label": "Microwave Dinner",
+        "time_sec": 60,
+        "description": "One full minute — perfect for impatient people."
+    },
+    {
+        "label": "Coffee Break",
+        "time_sec": 300,
+        "description": "Five minutes — time to stretch or grab caffeine."
+    },
+    {
+        "label": "Quarter of Shame",
+        "time_sec": 900,
+        "description": "15 minutes of contemplation. Or buffering."
+    },
+    {
+        "label": "Netflix Warmup",
+        "time_sec": 1800,
+        "description": "30 minutes — just long enough to not commit to a show."
+    },
+    {
+        "label": "Full Commitment",
+        "time_sec": 3600,
+        "description": "1 hour — a true test of patience and faith in the process."
+    },
+    {
+        "label": "Eternal Watcher",
+        "time_sec": 10800,
+        "description": "3 hours — were you expecting a callback?"
+    }
 ]
+
+
+
+reference_level_drop_down = [
+    {
+        "label": "Very Low",
+        "level_dbm": -110,
+        "description": "Deep noise floor — ideal for weak signal hunting."
+    },
+    {
+        "label": "Low",
+        "level_dbm": -90,
+        "description": "Below typical ambient RF noise — for sensitive receivers."
+    },
+    {
+        "label": "Medium Low",
+        "level_dbm": -70,
+        "description": "Quiet environment, low-level signals clearly visible."
+    },
+    {
+        "label": "Medium",
+        "level_dbm": -50,
+        "description": "Good general-purpose reference level."
+    },
+    {
+        "label": "Medium High",
+        "level_dbm": -30,
+        "description": "Stronger signals, moderate local RF traffic."
+    },
+    {
+        "label": "High",
+        "level_dbm": -10,
+        "description": "For strong broadcast transmitters or test signals."
+    },
+    {
+        "label": "Very High",
+        "level_dbm": 0,
+        "description": "Max headroom — use with caution to avoid clipping."
+    }
+]
+
+
+
+frequency_shift_presets = [
+    {
+        "label": "No Shift",
+        "shift_hz": 0,
+        "description": "don't touch that dial — stay put."
+    },
+    {
+        "label": "A Wee Bit",
+        "shift_hz": 1_000,
+        "description": "Just a nudge — like adjusting your hat slightly."
+    },
+    {
+        "label": "A Nudge",
+        "shift_hz": 5_000,
+        "description": "A gentle push up or down the dial."
+    },
+    {
+        "label": "A Whap",
+        "shift_hz": 10_000,
+        "description": "Noticeable thump — not subtle, not wild."
+    },
+    {
+        "label": "A Scooch",
+        "shift_hz": 25_000,
+        "description": "Just enough to dodge interference or hop channels."
+    },
+    {
+        "label": "A Chunk",
+        "shift_hz": 50_000,
+        "description": "A meaty move — shift the neighborhood."
+    },
+    {
+        "label": "A Jump",
+        "shift_hz": 100_000,
+        "description": "You're not walking anymore — you're airborne."
+    },
+    {
+        "label": "A Leap",
+        "shift_hz": 250_000,
+        "description": "Covering ground like a gazelle on caffeine."
+    },
+    {
+        "label": "A Yeet",
+        "shift_hz": 500_000,
+        "description": "Full send across the spectrum — no regrets."
+    },
+    {
+        "label": "A Warp",
+        "shift_hz": 1_000_000,
+        "description": "Fold space and reappear in another RF galaxy."
+    }
+]
+
 
 number_of_scans_presets = [
-    {"label": "1 Cycle", "value": 1, "description": "Perform 1 scan cycle."},
-    {"label": "5 Cycles", "value": 5, "description": "Perform 5 scan cycles."},
-    {"label": "10 Cycles", "value": 10, "description": "Perform 10 scan cycles."},
-    {"label": "Continuous", "value": 0, "description": "Perform scans continuously."},
+    {
+        "label": "Just a Test",
+        "scans": 1,
+        "description": "See how she goes — one and done."
+    },
+    {
+        "label": "A Whiff",
+        "scans": 2,
+        "description": "A quick sniff around the spectrum."
+    },
+    {
+        "label": "A Bunch",
+        "scans": 10,
+        "description": "Enough to get a good feel."
+    },
+    {
+        "label": "A Bushel",
+        "scans": 50,
+        "description": "A good harvest of data."
+    },
+    {
+        "label": "A Shwack",
+        "scans": 75,
+        "description": "A hefty pile — things are serious now."
+    },
+    {
+        "label": "A Ton",
+        "scans": 100,
+        "description": "A solid chunk of scanning."
+    },
+    {
+        "label": "A Tone",
+        "scans": 1_000,
+        "description": "A big, noisy tone of scans."
+    },
+    {
+        "label": "Never-Ending Story",
+        "scans": 99_999_999,
+        "description": "Until you say stop or the program crashes spectacularly."
+    }
 ]
 
-scan_modes = [
-    {"label": "Sweep", "value": "SWEEP", "description": "Perform a standard frequency sweep."},
-    {"label": "Zero Span", "value": "ZSP", "description": "Perform a zero span measurement."},
-    {"label": "Power Meter", "value": "PMET", "description": "Operate as a power meter."},
+# NEW: Placeholder for rbw_presets
+rbw_presets = [
+    {
+        "label": "SLOW",
+        "rbw_hz": 1_000,
+        "description": "Very fine resolution, for distinguishing closely spaced signals. Slowest scan."
+    },
+    {
+        "label": "3 kHz",
+        "rbw_hz": 3_000,
+        "description": "Good for narrow-band signals like voice communications."
+    },
+    {
+        "label": "10 kHz",
+        "rbw_hz": 10_000,
+        "description": "Standard resolution for general-purpose scanning."
+    },
+    {
+        "label": "30 kHz",
+        "rbw_hz": 30_000,
+        "description": "Faster scan, suitable for wider signals or quicker sweeps."
+    },
+    {
+        "label": "100 kHz",
+        "rbw_hz": 100_000,
+        "description": "Fastest resolution, good for wideband signals or quick spectrum overviews."
+    }
 ]
 
 
-# --- Functions to display content of dropdown lists ---
+# NEW: Placeholder for maxhold_enabled_options
+maxhold_enabled_options = [
+    {"label": "True", "value": True, "description": "Maxhold function is enabled, showing peak values over time."},
+    {"label": "False", "value": False, "description": "Maxhold function is disabled, showing current trace only."},
+]
 
-def display_graph_quality_drop_down():
-    """
-    Prints the content of graph_quality_drop_down in a readable format.
-    """
-    print("\n--- GRAPH QUALITY OPTIONS ---")
-    for item in graph_quality_drop_down:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+# NEW: Placeholder for sensitivity_options (High Sensitivity)
+sensitivity_options = [
+    {"label": "True", "value": True, "description": "High sensitivity mode enabled, for detecting very weak signals."},
+    {"label": "False", "value": False, "description": "Normal sensitivity mode."},
+]
 
-def display_dwell_time_drop_down():
-    """
-    Prints the content of dwell_time_drop_down in a readable format.
-    """
-    print("\n--- DWELL TIME OPTIONS ---")
-    for item in dwell_time_drop_down:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_cycle_wait_time_presets():
-    """
-    Prints the content of cycle_wait_time_presets in a readable format.
-    """
-    print("\n--- CYCLE WAIT TIME PRESETS ---")
-    for item in cycle_wait_time_presets:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_reference_level_drop_down():
-    """
-    Prints the content of ref_level_drop_down (renamed from reference_level_drop_down) in a readable format.
-    """
-    print("\n--- REFERENCE LEVEL OPTIONS ---")
-    for item in ref_level_drop_down:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_frequency_shift_presets():
-    """
-    Prints the content of frequency_shifts (renamed from frequency_shift_presets) in a readable format.
-    """
-    print("\n--- FREQUENCY SHIFT PRESETS ---")
-    for item in frequency_shifts:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_number_of_scans_presets():
-    """
-    Prints the content of number_of_scans_presets in a readable format.
-    """
-    print("\n--- NUMBER OF SCANS PRESETS ---")
-    for item in number_of_scans_presets:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_rbw_presets():
-    """
-    Prints the content of rbw_drop_down (renamed from rbw_presets) in a readable format.
-    """
-    print("\n--- RBW PRESETS ---")
-    for item in rbw_drop_down:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_attenuation_levels():
-    """
-    Prints the content of attenuation_levels in a readable format.
-    """
-    print("\n--- ATTENUATION LEVELS ---")
-    for item in attenuation_levels:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_frequency_shifts():
-    """
-    Prints the content of frequency_shifts in a readable format.
-    """
-    print("\n--- FREQUENCY SHIFTS ---")
-    for item in frequency_shifts:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
-
-def display_scan_modes():
-    """
-    Prints the content of scan_modes in a readable format.
-    """
-    print("\n--- SCAN MODES ---")
-    for item in scan_modes:
-        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+# NEW: Placeholder for preamp_options (Preamplifier ON)
+preamp_options = [
+    {"label": "On", "value": True, "description": "Preamplifier is enabled, increasing sensitivity but potentially adding noise."},
+    {"label": "Off", "value": False, "description": "Preamplifier is disabled, reducing sensitivity but potentially cleaner signal."},
+]

@@ -58,16 +58,15 @@ from tabs.Instrument.utils_instrument_initialize import initialize_instrument_lo
 
 # Import ref data
 from ref.ref_scanner_setting_lists import (
-    ref_level_drop_down,
-    rbw_drop_down,
-    span_drop_down,
-    center_freq_drop_down,
-    preamp_drop_down,
+    graph_quality_drop_down,
+    dwell_time_drop_down,
+    cycle_wait_time_presets,
+    reference_level_drop_down,
+    frequency_shift_presets,
     high_sensitivity_drop_down,
-    trace_mode_drop_down,
-    display_scale_drop_down,
-    sweep_time_drop_down,
-    data_format_drop_down
+    number_of_scans_presets,
+    rbw_presets,
+    preamp_options
 )
 
 class InstrumentTab(ttk.Frame):
@@ -211,29 +210,12 @@ class InstrumentTab(ttk.Frame):
         settings_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
         settings_frame.columnconfigure(1, weight=1) # Allow entry/combobox to expand
 
-        # Center Frequency
-        ttk.Label(settings_frame, text="Center Freq (MHz):", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        self.center_freq_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.center_freq_mhz_var, style='TEntry')
-        self.center_freq_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-        self.center_freq_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in center_freq_drop_down], style='TCombobox')
-        self.center_freq_combobox.grid(row=0, column=2, padx=5, pady=2)
-        self.center_freq_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.center_freq_mhz_var: self._set_combobox_value(event, var))
-
-
-        # Span
-        ttk.Label(settings_frame, text="Span (MHz):", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.span_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.span_mhz_var, style='TEntry')
-        self.span_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        self.span_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in span_drop_down], style='TCombobox')
-        self.span_combobox.grid(row=1, column=2, padx=5, pady=2)
-        self.span_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.span_mhz_var: self._set_combobox_value(event, var))
-
-
+  
         # RBW
         ttk.Label(settings_frame, text="RBW (Hz):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         self.rbw_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.rbw_hz_var, style='TEntry')
         self.rbw_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
-        self.rbw_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in rbw_drop_down], style='TCombobox')
+        self.rbw_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in rbw_presets], style='TCombobox')
         self.rbw_combobox.grid(row=2, column=2, padx=5, pady=2)
         self.rbw_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.rbw_hz_var: self._set_combobox_value(event, var))
 
@@ -242,16 +224,16 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(settings_frame, text="Ref Level (dBm):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         self.ref_level_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.ref_level_dbm_var, style='TEntry')
         self.ref_level_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
-        self.ref_level_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in ref_level_drop_down], style='TCombobox')
+        self.ref_level_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in reference_level_drop_down], style='TCombobox')
         self.ref_level_combobox.grid(row=3, column=2, padx=5, pady=2)
         self.ref_level_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.ref_level_dbm_var: self._set_combobox_value(event, var))
 
 
         # Preamp
         ttk.Label(settings_frame, text="Preamp:", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in preamp_drop_down], state="readonly", style='TCombobox')
+        self.preamp_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in preamp_options], state="readonly", style='TCombobox')
         self.preamp_combobox.grid(row=4, column=1, padx=5, pady=2, sticky="ew", columnspan=2)
-        self.preamp_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.preamp_on_var, preamp_drop_down))
+        self.preamp_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.preamp_on_var, preamp_options))
 
 
         # High Sensitivity Mode
