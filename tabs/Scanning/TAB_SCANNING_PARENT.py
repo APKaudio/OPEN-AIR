@@ -16,9 +16,10 @@
 #
 #
 # Version 20250801.2335.3 (Fixed TclError: unknown option "-style_obj" by removing it from kwargs for child tabs.)
+# Version 20250803.0132.1 (Added _on_parent_tab_selected to display ASCII art for Scanning tab.)
 
-current_version = "20250801.2335.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2335 * 3 # Example hash, adjust as needed
+current_version = "20250803.0132.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 132 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,161 +32,104 @@ from tabs.Scanning.tab_scanning_child_scan_meta_data import ScanMetaDataTab
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
-
+from src.gui_elements import _print_scan_ascii # Import the ASCII art function
 
 class TAB_SCANNING_PARENT(ttk.Frame):
     """
-    A Tkinter Frame that serves as the parent tab for all Scanning-related functionalities.
-    It contains a nested Notebook to organize child tabs like Scan Configuration and Scan Meta Data.
+    A parent tab for Scanning-related functionalities, containing child tabs
+    for scan configuration and scan metadata.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
-        """
-        Initializes the TAB_SCANNING_PARENT.
-
-        Inputs:
-            master (tk.Widget): The parent widget (the ttk.Notebook).
-            app_instance (App): The main application instance, used for accessing
-                                shared state like Tkinter variables and console print function.
-            console_print_func (function): Function to print messages to the GUI console.
-            **kwargs: Arbitrary keyword arguments for Tkinter Frame.
-
-        Process of this function:
-            1. Calls the superclass constructor.
-            2. Stores app_instance and console_print_func.
-            3. Creates a ttk.Notebook to hold child tabs.
-            4. Instantiates ScanTab and ScanMetaDataTab.
-            5. Adds these child tabs to the nested notebook.
-            6. Binds the '<<NotebookTabChanged>>' event to _on_tab_change for the child notebook.
-
-        Outputs of this function:
-            None. Initializes the parent tab frame and its nested components.
-
-        (2025-07-31) Change: Initial creation of TAB_SCANNING_PARENT.
-        (2025-08-01) Change: Updated child_notebook style to 'ScanningChild.TNotebook'.
-        (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        (20250801.2335.2) Change: Passed style_obj to child tabs.
-        (20250801.2335.3) Change: Fixed TclError by removing style_obj from kwargs passed to super().__init__ of child tabs.
-        """
-        super().__init__(master, **kwargs)
+    def __init__(self, parent_notebook, app_instance, console_print_func, style_obj=None):
+        # Initializes the TAB_SCANNING_PARENT frame and its child notebook.
+        # It sets up the UI for scan configuration and metadata management.
+        #
+        # Inputs:
+        #   parent_notebook (ttk.Notebook): The top-level notebook widget this tab belongs to.
+        #   app_instance (App): The main application instance, providing access to shared data and methods.
+        #   console_print_func (function): Function to print messages to the GUI console.
+        #   style_obj (ttk.Style, optional): The ttk.Style object from the main app.
+        #
+        # Process:
+        #   1. Calls the superclass constructor (ttk.Frame).
+        #   2. Stores references to `app_instance`, `console_print_func`, and `style_obj`.
+        #   3. Creates `self.child_notebook` to hold the scan-specific sub-tabs.
+        #   4. Instantiates `ScanTab` and `ScanMetaDataTab`.
+        #   5. Adds these child tabs to `self.child_notebook`.
+        #   6. Binds the `<<NotebookTabChanged>>` event for the child notebook to `_on_tab_selected`.
+        #
+        # Outputs:
+        #   None. Initializes the Scanning parent tab UI.
+        #
+        # (2025-07-31) Change: Initial creation, refactored from main_app.py.
+        #                      Implemented child notebook and added scan configuration and metadata tabs.
+        # (2025-07-31) Change: Updated header.
+        # (2025-08-01) Change: Updated debug prints to new format.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
+        # (2025-08-01) Change: Fixed TclError: unknown option "-style_obj" by removing it from kwargs for child tabs.
+        # (2025-08-03) Change: Added _on_parent_tab_selected to display ASCII art for Scanning tab.
+        super().__init__(parent_notebook)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
+        self.console_print_func = console_print_func if console_print_func else console_log
+        self.style_obj = style_obj # Store the style object
 
         current_function = inspect.currentframe().f_code.co_name
 
-        debug_log(f"Initializing TAB_SCANNING_PARENT. Version: {current_version}. Getting ready to scan!",
-                    file=__file__,
+        debug_log(f"Initializing Scanning Parent Tab.",
+                    file=f"{__file__} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-        # Configure grid to make the notebook expand
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
+        # Create a notebook for child tabs within the Scanning parent tab
+        self.child_notebook = ttk.Notebook(self, style='ScanningChild.TNotebook')
+        self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # Create the nested notebook for child tabs
-        # The style is set in main_app._setup_styles to match the parent tab color
-        self.child_notebook = ttk.Notebook(self, style='ScanningChild.TNotebook') # Updated style
-        self.child_notebook.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        # Instantiate child tabs and add them to the notebook
+        self.scan_config_tab = ScanTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.child_notebook.add(self.scan_config_tab, text="Scan Configuration")
 
-        # Instantiate and add child tabs
-        # Pass the style_obj from app_instance to the child tabs
-        # The style argument for the ttk.Frame is handled by the child class's __init__
-        self.scan_configuration_tab = ScanTab(
-            self.child_notebook,
-            app_instance=self.app_instance,
-            console_print_func=self.console_print_func,
-            style_obj=self.app_instance.style # Pass style_obj here
-        )
-        self.child_notebook.add(self.scan_configuration_tab, text="Scan Configuration")
-
-        self.scan_meta_data_tab = ScanMetaDataTab(
-            self.child_notebook,
-            app_instance=self.app_instance,
-            console_print_func=self.console_print_func,
-            style_obj=self.app_instance.style # Pass style_obj here
-        )
+        self.scan_meta_data_tab = ScanMetaDataTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.scan_meta_data_tab, text="Scan Meta Data")
 
         # Bind the tab change event for the child notebook
-        self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_change)
+        self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
 
-        debug_log(f"TAB_SCANNING_PARENT initialized with child tabs. Version: {current_version}. Scan setup complete!",
-                    file=__file__,
+        debug_log(f"Scanning Parent Tab initialized with child tabs. Version: {current_version}. Ready to scan!",
+                    file=f"{__file__} - {current_version}",
                     version=current_version,
                     function=current_function)
-
-
-    def _on_tab_change(self, event):
-        """
-        Function Description:
-        Handles tab change events within this parent's child Notebook.
-        It calls the `_on_tab_selected` method on the newly selected child tab's
-        widget if that method exists, allowing individual child tabs to refresh
-        their content or state when they become active.
-
-        Inputs to this function:
-            event (tkinter.Event): The event object that triggered the tab change.
-
-        Process of this function:
-            1. Determines the currently selected tab within the child notebook.
-            2. Retrieves the widget instance of the selected tab.
-            3. Checks if the selected tab widget has an `_on_tab_selected` method.
-            4. If the method exists, calls it.
-            5. If the method does not exist, logs that it was not found.
-
-        Outputs of this function:
-            None. Triggers UI updates in the selected child tab.
-
-        (2025-07-31) Change: Added to handle child tab changes.
-        (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Child tab changed to {self.child_notebook.tab(self.child_notebook.select(), 'text')}. Version: {current_version}. Time to update!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-        selected_tab_id = self.child_notebook.select()
-        selected_tab_widget = self.child_notebook.nametowidget(selected_tab_id)
-
-        if hasattr(selected_tab_widget, '_on_tab_selected'):
-            selected_tab_widget._on_tab_selected(event)
-            debug_log(f"Propagated _on_tab_selected to active child tab: {selected_tab_widget.winfo_class()}. Version: {current_version}. Looking good!",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-        else:
-            debug_log(f"Active child tab {selected_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?! Version: {current_version}.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
 
     def _on_tab_selected(self, event):
+        # Handles tab change events within the child notebook of the Scanning tab.
+        # It propagates the selection event to the active child tab.
+        #
+        # Inputs:
+        #   event (tkinter.Event): The event object that triggered the tab change.
+        #
+        # Process:
+        #   1. Prints a debug message.
+        #   2. Determines the currently selected child tab.
+        #   3. Retrieves the widget instance of the selected child tab.
+        #   4. If the selected child tab has an `_on_tab_selected` method, calls it.
+        #      This allows individual child tabs to refresh their content or state
+        #      when they become active.
+        #
+        # Outputs:
+        #   None. Triggers content refreshes in child tabs.
+        #
+        # (2025-07-31) Change: Initial creation.
+        # (2025-07-31) Change: Updated header.
+        # (2025-08-01) Change: Updated debug prints to new format.
+        # (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
         """
-        Function Description:
-        Callback for when this TAB_SCANNING_PARENT tab is selected in the main parent notebook.
-        This ensures that when the parent tab is clicked, the currently visible child tab
-        within this parent also gets its `_on_tab_selected` method called, allowing it to refresh.
-
-        Inputs to this function:
-            event (tkinter.Event): The event object that triggered the tab selection.
-
-        Process of this function:
-            1. Prints a debug message.
-            2. Determines the currently selected child tab within its nested notebook.
-            3. Calls the `_on_tab_selected` method on that child tab if it exists.
-
-        Outputs of this function:
-            None. Ensures child tab content is refreshed when the parent tab is activated.
-
-        (2025-07-31) Change: Added to handle parent tab selection and propagate to active child.
-        (20250801.2335.1) Change: Refactored debug_print to use debug_log and console_log.
+        Handles tab change events within the child notebook of the Scanning tab,
+        propagating the selection event to the active child tab.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"TAB_SCANNING_PARENT selected. Version: {current_version}. Let's get these scan settings refreshed!",
-                    file=__file__,
+                    file=f"{__file__} - {current_version}",
                     version=current_version,
                     function=current_function,
-                    special=True) # Adding special flag as per your style
+                    special=True)
 
         # Ensure the currently visible child tab also gets its _on_tab_selected called
         selected_child_tab_id = self.child_notebook.select()
@@ -193,12 +137,51 @@ class TAB_SCANNING_PARENT(ttk.Frame):
             selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
             if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                 selected_child_tab_widget._on_tab_selected(event)
-                debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}. Looking good!",
-                            file=__file__,
+                debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}.",
+                            file=f"{__file__} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
                 debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?! Version: {current_version}.",
-                            file=__file__,
+                            file=f"{__file__} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+    def _on_parent_tab_selected(self, event):
+        # Function Description: Handles the event when the Scanning parent tab is selected in the main notebook.
+        #
+        # Inputs to this function:
+        #   event (tkinter.Event): The event object that triggered the tab selection.
+        #
+        # Process of this function:
+        #   1. Logs a debug message indicating the Scanning parent tab has been selected.
+        #   2. Calls the `_print_scan_ascii` function to display the Scanning-specific ASCII art in the console.
+        #   3. Ensures that if there's an active child tab, its `_on_tab_selected` method is also called to refresh its state.
+        #
+        # Outputs of this function:
+        #   None. Displays ASCII art and potentially refreshes the active child tab.
+        #
+        # (2025-08-03) Change: Initial creation to display ASCII art when the parent tab is selected.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Scanning Parent Tab selected. Version: {current_version}. Time to get those scans rolling! 📈",
+                    file=f"{__file__} - {current_version}",
+                    version=current_version,
+                    function=current_function,
+                    special=True)
+        _print_scan_ascii(self.console_print_func)
+
+        # Also ensure the currently visible child tab gets its _on_tab_selected called
+        selected_child_tab_id = self.child_notebook.select()
+        if selected_child_tab_id:
+            selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
+            if hasattr(selected_child_tab_widget, '_on_tab_selected'):
+                selected_child_tab_widget._on_tab_selected(event)
+                debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}.",
+                            file=f"{__file__} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            else:
+                debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?!",
+                            file=f"{__file__} - {current_version}",
                             version=current_version,
                             function=current_function)

@@ -17,8 +17,9 @@
 #
 #
 # Version 20250802.0050.1 (Fixed TclError: unknown option "-console_print_func" by removing from kwargs.)
+# Version 20250803.0340.0 (Updated button styles to use the new, more specific names from style.py.)
 
-current_version = "20250802.0050.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0340.0" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -196,7 +197,7 @@ class MarkersDisplayTab(ttk.Frame):
             display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
             button_text = f"{text_key}\n{display_value}"
 
-            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.TButton", # Default style for unselected
+            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton", # Default style for unselected
                              command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t)) # Pass span_hz, button_widget, and text_key
 
             # Store button reference before gridding to ensure it's in the dict for the lambda
@@ -253,7 +254,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.manual_freq_entry = ttk.Entry(manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
         self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        self.poke_button = ttk.Button(manual_freq_frame, text="POKE", style="Markers.TButton", command=self._on_poke_button_click)
+        self.poke_button = ttk.Button(manual_freq_frame, text="POKE", style="Markers.Config.Default.TButton", command=self._on_poke_button_click)
         self.poke_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
 
@@ -268,11 +269,11 @@ class MarkersDisplayTab(ttk.Frame):
 
         # Create Trace Mode buttons
         # The command will toggle the associated BooleanVar and then call the update logic
-        btn_live = ttk.Button(trace_mode_control_frame, text="Live", style="Markers.TButton",
+        btn_live = ttk.Button(trace_mode_control_frame, text="Live", style="Markers.Config.Default.TButton",
                               command=lambda: self._on_trace_mode_button_click("Live"))
-        btn_max_hold = ttk.Button(trace_mode_control_frame, text="Max Hold", style="Markers.TButton",
+        btn_max_hold = ttk.Button(trace_mode_control_frame, text="Max Hold", style="Markers.Config.Default.TButton",
                                   command=lambda: self._on_trace_mode_button_click("Max Hold"))
-        btn_min_hold = ttk.Button(trace_mode_control_frame, text="Min Hold", style="Markers.TButton",
+        btn_min_hold = ttk.Button(trace_mode_control_frame, text="Min Hold", style="Markers.Config.Default.TButton",
                                   command=lambda: self._on_trace_mode_button_click("Min Hold"))
 
         self.trace_mode_buttons["Live"] = {"button": btn_live, "var": self.live_mode_var}
@@ -298,7 +299,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.rbw_buttons = {}
         col = 0
         for text_key, rbw_hz_value in RBW_OPTIONS.items():
-            btn = ttk.Button(rbw_control_frame, text=text_key, style="Markers.TButton",
+            btn = ttk.Button(rbw_control_frame, text=text_key, style="Markers.Config.Default.TButton",
                              command=lambda r=rbw_hz_value, t=text_key: self._on_rbw_button_click(r, self.rbw_buttons[t], t))
             self.rbw_buttons[text_key] = btn
             btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")

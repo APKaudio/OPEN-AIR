@@ -116,7 +116,10 @@ def console_log(message, function=None):
 
     prefix = f"[{' | '.join(prefix_parts)}] " if prefix_parts else ""
 
-    full_message = f"💬 [{timestamp}] {prefix}{message}"
+
+    #full_message = f"💬 [{timestamp}] {prefix}{message}"
+
+    full_message = f"{message}"
     
     # Use the shared _gui_console_stdout_redirector
     if _gui_console_stdout_redirector:

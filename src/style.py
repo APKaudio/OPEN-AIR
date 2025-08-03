@@ -19,9 +19,15 @@
 # Version 20250803.0005.0 (Adjusted LargePreset.TButton and SelectedPreset.Orange.TButton font sizes to 30pt.)
 # Version 20250803.0010.0 (FIXED: SyntaxError: leading zeros in decimal integer literals by correcting current_version_hash.)
 # Version 20250803.0020.0 (Adjusted LargePreset.TButton and SelectedPreset.Orange.TButton font sizes to 25pt.)
+# Version 20250803.0310.0 (Adjusted button styles for Markers tab, increased font size, and consistent active/inactive colors.)
+# Version 20250803.0315.0 (Removed redundant Markers.TButton style; ensured Markers.General.TButton is default inactive.)
+# Version 20250803.0320.0 (FIXED: Markers.General.TButton active state to use orange_btn_active for consistent hover feedback.)
+# Version 20250803.0325.0 (Grouped all Markers tab specific styles together for better organization.)
+# Version 20250803.0330.0 (Added extensive comments describing each style, its usage, and states.)
+# Version 20250803.0335.0 (Refined Markers tab button styles into 4 distinct states: Device Selected/Scanning, Device Selected/Not Scanning, Config Active, Config Inactive.)
 
-current_version = "20250803.0020.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 20 * 0 # Example hash, adjust as needed.
+current_version = "20250803.0335.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 335 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -40,7 +46,7 @@ COLOR_PALETTE = {
     'input_fg': 'white',
     'select_bg': '#007acc', # Blue for selected items
     'select_fg': 'white',
-    'active_bg': '#606060', # General active/hover background
+    'active_bg': '#606060', # General active/hover background (grey)
     'disabled_bg': '#3a3a3a', # Dark grey for disabled elements
     'disabled_fg': '#808080',
 
@@ -106,16 +112,22 @@ def apply_styles(style, debug_log_func, current_app_version):
     # Set the theme
     style.theme_use('clam')
 
-    # --- General Styles ---
-    style.configure('TFrame', background=COLOR_PALETTE['background'])
-    style.configure('Dark.TFrame', background=COLOR_PALETTE['background']) # Specific dark frame style
+    # --- General Application-Wide Styles ---
+    # These styles apply to common Tkinter widgets across the entire application.
 
+    # Style for basic Tkinter Frames
+    style.configure('TFrame', background=COLOR_PALETTE['background'])
+    style.configure('Dark.TFrame', background=COLOR_PALETTE['background']) # Specific dark frame style for explicit use
+
+    # Style for Tkinter LabelFrames (frames with a title)
     style.configure('TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
     style.configure('Dark.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold')) # Specific dark labelframe style
 
+    # Style for basic Tkinter Labels
     style.configure('TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
 
-    # FUCKING IMPORTANT: Explicitly get TLabel layout and apply it to Dark.TLabel.Value
+    # CRITICAL: This block ensures that 'Dark.TLabel.Value' style is properly registered
+    # by copying the layout from a standard TLabel. Without this, custom styles might not apply.
     try:
         tlabel_layout = style.layout('TLabel')
         style.layout('Dark.TLabel.Value', tlabel_layout)
@@ -131,20 +143,39 @@ def apply_styles(style, debug_log_func, current_app_version):
                         function=inspect.currentframe().f_code.co_name,
                         special=True)
 
-    # NEW: Style for Dark.TLabel.Value - now that its layout is explicitly defined
-    style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 9, 'bold')) # Light blue for values
+    # Style for labels displaying important values (e.g., frequency, span)
+    # Uses a light blue foreground for better visibility.
+    style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 9, 'bold'))
 
+    # Styles for status labels (e.g., instrument connection status)
+    style.configure('Green.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['green_btn'], font=('Helvetica', 10, 'bold')) # Green text for "Connected"
+    style.configure('Red.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))   # Red text for "Disconnected"
 
-    style.configure('Green.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['green_btn'], font=('Helvetica', 10, 'bold')) # Green text for connected
-    style.configure('Red.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))   # Red text for disconnected
-
+    # Style for Tkinter Entry widgets (text input fields)
+    # - `fieldbackground`: Background color of the input area.
+    # - `foreground`: Text color.
+    # - `focus`: When the entry has focus, its `fieldbackground` changes to `active_bg`.
     style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['input_fg'], borderwidth=1, relief="solid")
     style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
 
+    # Style for Tkinter Combobox widgets (dropdown menus)
+    # - `fieldbackground`: Background color of the input area.
+    # - `foreground`: Text color.
+    # - `selectbackground`: Background color of selected item in dropdown list.
+    # - `selectforeground`: Text color of selected item in dropdown list.
+    # - `readonly`: When combobox is readonly, its `fieldbackground` is `input_bg`.
     style.configure('TCombobox', fieldbackground=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['input_fg'], selectbackground=COLOR_PALETTE['input_bg'], selectforeground=COLOR_PALETTE['input_fg'])
     style.map('TCombobox', fieldbackground=[('readonly', COLOR_PALETTE['input_bg'])])
 
-    # --- Button Styles ---
+    # --- General Button Styles ---
+    # These styles define the default appearance and behavior for various buttons.
+
+    # Default TButton style
+    # - `background`: Default background color when not active/hovered.
+    # - `foreground`: Text color.
+    # - `font`, `padding`, `relief`, `focusthickness`: Visual properties.
+    # - `active`: When hovered or pressed, background changes to `active_bg`.
+    # - `disabled`: When disabled, background changes to `disabled_bg` and text to `disabled_fg`.
     style.configure('TButton',
                     background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
@@ -156,8 +187,9 @@ def apply_styles(style, debug_log_func, current_app_version):
               background=[('active', COLOR_PALETTE['active_bg']), ('disabled', COLOR_PALETTE['disabled_bg'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # Green themed button
     style.configure('Green.TButton',
-                    background=COLOR_PALETTE['green_btn'], # Green
+                    background=COLOR_PALETTE['green_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 9, 'bold'),
                     padding=5,
@@ -165,8 +197,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Green.TButton',
               background=[('active', COLOR_PALETTE['green_btn_active']), ('disabled', COLOR_PALETTE['green_btn_disabled'])])
 
+    # Red themed button
     style.configure('Red.TButton',
-                    background=COLOR_PALETTE['red_btn'], # Red
+                    background=COLOR_PALETTE['red_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 9, 'bold'),
                     padding=5,
@@ -174,8 +207,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Red.TButton',
               background=[('active', COLOR_PALETTE['red_btn_active']), ('disabled', COLOR_PALETTE['red_btn_disabled'])])
 
+    # Orange themed button
     style.configure('Orange.TButton',
-                    background=COLOR_PALETTE['orange_btn'], # Orange
+                    background=COLOR_PALETTE['orange_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 9, 'bold'),
                     padding=5,
@@ -183,8 +217,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Orange.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['orange_btn_disabled'])])
 
+    # Blue themed button
     style.configure('Blue.TButton',
-                    background=COLOR_PALETTE['blue_btn'], # Blue
+                    background=COLOR_PALETTE['blue_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 9, 'bold'),
                     padding=5,
@@ -192,21 +227,31 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Blue.TButton',
               background=[('active', COLOR_PALETTE['blue_btn_active']), ('disabled', COLOR_PALETTE['blue_btn_disabled'])])
 
-    # NEW: Specific Scan Button Styles
+    # --- Scan Tab Specific Button Styles ---
+    # These styles are designed for the buttons within the 'Scan' tab.
+
+    # Style for the 'Start Scan' button
+    # - `background`: Green when not active.
+    # - `active`: Lighter green when hovered/pressed.
+    # - `disabled`: Darker green when disabled.
     style.configure('StartScan.TButton',
-                    background=COLOR_PALETTE['green_btn'], # Green
+                    background=COLOR_PALETTE['green_btn'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 12, 'bold'), # Larger font
-                    padding=[20, 10], # More padding
-                    relief="raised", # Raised effect
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[20, 10],
+                    relief="raised",
                     borderwidth=2,
                     focusthickness=0)
     style.map('StartScan.TButton',
               background=[('active', COLOR_PALETTE['green_btn_active']), ('disabled', COLOR_PALETTE['green_btn_disabled'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # Style for the 'Pause Scan' button
+    # - `background`: Orange when not active.
+    # - `active`: Lighter orange when hovered/pressed.
+    # - `disabled`: Darker orange when disabled.
     style.configure('PauseScan.TButton',
-                    background=COLOR_PALETTE['orange_btn'], # Orange
+                    background=COLOR_PALETTE['orange_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 12, 'bold'),
                     padding=[20, 10],
@@ -216,8 +261,12 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('PauseScan.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['orange_btn_disabled'])])
 
+    # Style for the 'Resume Scan' button (similar to Pause, but might blink)
+    # - `background`: Orange when not active.
+    # - `active`: Lighter orange when hovered/pressed.
+    # - `disabled`: Darker orange when disabled.
     style.configure('ResumeScan.TButton',
-                    background=COLOR_PALETTE['orange_btn'], # Orange (base for blinking)
+                    background=COLOR_PALETTE['orange_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 12, 'bold'),
                     padding=[20, 10],
@@ -228,8 +277,12 @@ def apply_styles(style, debug_log_func, current_app_version):
               background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['orange_btn_disabled'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # Style for the 'Stop Scan' button
+    # - `background`: Red when not active.
+    # - `active`: Lighter red when hovered/pressed.
+    # - `disabled`: Darker red when disabled.
     style.configure('StopScan.TButton',
-                    background=COLOR_PALETTE['red_btn'], # Red
+                    background=COLOR_PALETTE['red_btn'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=('Helvetica', 12, 'bold'),
                     padding=[20, 10],
@@ -241,96 +294,156 @@ def apply_styles(style, debug_log_func, current_app_version):
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
 
-    # Preset Buttons
+    # --- Presets Tab Specific Button Styles ---
+    # These styles are used for the preset management buttons in the 'Presets' tab.
+
+    # Style for large, general preset buttons (e.g., in the Local Presets grid)
+    # - `background`: Grey when not active.
+    # - `active`: Remains grey when hovered/pressed (as per previous request).
     style.configure("LargePreset.TButton",
                     background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 20, "bold"), # Changed font size from 30 to 25
+                    font=("Helvetica", 25, "bold"), # Increased font size
                     padding=[30, 15, 30, 15])
     style.map("LargePreset.TButton",
             background=[('active', COLOR_PALETTE['active_bg'])])
-
-    # Updated SelectedPreset.TButton to be orange and font size to 25
-    style.configure("SelectedPreset.Orange.TButton", # Renamed style to be explicit
-                    background=COLOR_PALETTE['orange_btn'], # Orange color
+    
+    # Style for the currently selected preset button (explicitly orange)
+    # - `background`: Orange when not active (i.e., when it is the selected preset).
+    # - `active`: Lighter orange when hovered/pressed.
+    style.configure("SelectedPreset.Orange.TButton",
+                    background=COLOR_PALETTE['orange_btn'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 25, "bold"), # Changed font size from 30 to 25
-                    padding=[30, 15, 30, 15])
+                    font=("Helvetica", 25, "bold"), # Increased font size
+                    padding=[30, 15, 20, 15])
     style.map("SelectedPreset.Orange.TButton",
-            background=[('active', COLOR_PALETTE['orange_btn_active'])]) # Darker orange on active/hover
+            background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
-    YAK_ORANGE = COLOR_PALETTE['orange_btn'] # Use from palette
+    # Style for a very large "YAK" button (specific to one part of the app)
+    # - `background`: Orange when not active.
+    # - `active`: Lighter orange when hovered/pressed.
+    YAK_ORANGE = COLOR_PALETTE['orange_btn']
     style.configure('LargeYAK.TButton',
                     font=('Helvetica', 100, 'bold'),
                     background=YAK_ORANGE,
                     foreground=COLOR_PALETTE['foreground'],
                     padding=[20, 10])
     style.map('LargeYAK.TButton',
-              background=[('active', COLOR_PALETTE['orange_btn_active'])]) # Darker orange on active
+              background=[('active', COLOR_PALETTE['orange_btn_active'])])
     
-    # Device Buttons (for MarkersDisplayTab)
-    style.configure('DeviceButton.TButton',
-                    background=COLOR_PALETTE['blue_btn'], # Blue
-                    foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 8, 'bold'),
-                    padding=[5, 5, 5, 5], # Smaller padding for more buttons
-                    relief="flat",
-                    focusthickness=0)
-    style.map('DeviceButton.TButton',
-              background=[('active', COLOR_PALETTE['blue_btn_active']), ('disabled', COLOR_PALETTE['blue_btn_disabled'])])
+    # --- Markers Tab Specific Styles ---
+    # These styles are used for various elements within the 'Markers' tab.
 
-    # Active Scan Button (for MarkersDisplayTab - when a device is actively being scanned)
-    style.configure('ActiveScan.TButton',
-                    background=COLOR_PALETTE['green_btn'], # Green
-                    foreground='black', # Black font for contrast on green
-                    font=('Helvetica', 8, 'bold'),
-                    padding=[5, 5, 5, 5],
-                    relief="flat",
-                    focusthickness=0)
-    style.map('ActiveScan.TButton',
-              background=[('active', COLOR_PALETTE['green_btn_active']), ('disabled', COLOR_PALETTE['green_btn_disabled'])])
-
-
-    # Markers Tab Specific Styles
+    # General frame, label, and entry styles for the Markers tab
     style.configure('Markers.TFrame', background=COLOR_PALETTE['background'])
     style.configure('Markers.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
     style.configure('Markers.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
     style.configure('Markers.TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], borderwidth=1, relief="solid")
     style.map('Markers.TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
 
-    # Markers Tab Buttons (general) - default blue
-    style.configure('Markers.TButton',
-                    background=COLOR_PALETTE['blue_btn'], # Blue
-                    foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 9, 'bold'),
-                    padding=5,
-                    relief="flat",
-                    focusthickness=0)
-    style.map('Markers.TButton',
-              background=[('active', COLOR_PALETTE['blue_btn_active']), ('disabled', COLOR_PALETTE['blue_btn_disabled'])])
 
-    # Markers Tab Selected Button (orange)
-    style.configure('Markers.SelectedButton.TButton',
-                    background=COLOR_PALETTE['orange_btn'], # Orange
+    # --- Markers Tab Device Button States ---
+
+    # 1. Device Button: Not Selected, Not Scanning
+    # This is the default state for device buttons in the Markers tab.
+    # - `background`: Grey (`active_bg`) when not hovered or pressed.
+    # - `active`: Remains grey (`active_bg`) when hovered or pressed.
+    # - `disabled`: Dark grey (`disabled_bg`) when disabled.
+    style.configure('Markers.Device.Default.TButton',
+                    background=COLOR_PALETTE['active_bg'], # Grey for inactive
                     foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 9, 'bold'),
+                    font=('Helvetica', 13, 'bold'),
+                    padding=[5, 5, 5, 5],
+                    relief="flat",
+                    focusthickness=0)
+    style.map('Markers.Device.Default.TButton',
+              background=[('active', COLOR_PALETTE['active_bg']), ('disabled', COLOR_PALETTE['disabled_bg'])])
+
+    # 2. Device Button: Selected, Not Scanning
+    # This state applies when a device button is clicked and selected, but the instrument
+    # is not actively scanning on its frequency.
+    # - `background`: Orange (`orange_btn`) when not hovered or pressed.
+    # - `active`: Lighter orange (`orange_btn_active`) when hovered or pressed.
+    # - `disabled`: Darker orange (`orange_btn_disabled`) when disabled.
+    style.configure('Markers.Device.Selected.TButton',
+                    background=COLOR_PALETTE['orange_btn'], # Orange for selected
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 13, 'bold'),
+                    padding=[5, 5, 5, 5],
+                    relief="flat",
+                    focusthickness=0)
+    style.map('Markers.Device.Selected.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['orange_btn_disabled'])])
+
+    # 3. Device Button: Selected AND Being Scanned
+    # This state applies when a device button is clicked and selected, AND the instrument
+    # is actively scanning on its frequency. This is the primary "active" visual cue.
+    # - `background`: Green (`green_btn`) when not hovered or pressed.
+    # - `active`: Lighter green (`green_btn_active`) when hovered or pressed.
+    # - `disabled`: Darker green (`green_btn_disabled`) when disabled.
+    style.configure('Markers.Device.Scanning.TButton',
+                    background=COLOR_PALETTE['green_btn'], # Green for active scan
+                    foreground='black', # Black font for contrast on green
+                    font=('Helvetica', 13, 'bold'),
+                    padding=[5, 5, 5, 5],
+                    relief="flat",
+                    focusthickness=0)
+    style.map('Markers.Device.Scanning.TButton',
+              background=[('active', COLOR_PALETTE['green_btn_active']), ('disabled', COLOR_PALETTE['green_btn_disabled'])])
+
+
+    # --- Markers Tab Configuration Button States (Span, RBW, POKE, Trace Modes) ---
+
+    # 1. Configuration Button: Inactive (Not Selected)
+    # This is the default state for configuration buttons in the Markers tab when they are not active.
+    # - `background`: Grey (`active_bg`) when not hovered or pressed.
+    # - `active`: Lighter orange (`orange_btn_active`) when hovered or pressed (provides feedback).
+    # - `disabled`: Dark grey (`disabled_bg`) when disabled.
+    style.configure('Markers.Config.Default.TButton',
+                    background=COLOR_PALETTE['active_bg'], # Grey for inactive
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 14, 'bold'),
                     padding=5,
                     relief="flat",
                     focusthickness=0)
-    style.map('Markers.SelectedButton.TButton',
+    style.map('Markers.Config.Default.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['disabled_bg'])])
+
+    # 2. Configuration Button: Active (Selected)
+    # This state applies when a configuration button (like a specific Span or RBW) is currently active.
+    # - `background`: Orange (`orange_btn`) when not hovered or pressed.
+    # - `active`: Lighter orange (`orange_btn_active`) when hovered or pressed.
+    # - `disabled`: Darker orange (`orange_btn_disabled`) when disabled.
+    style.configure('Markers.Config.Selected.TButton',
+                    background=COLOR_PALETTE['orange_btn'], # Orange for selected
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 14, 'bold'),
+                    padding=5,
+                    relief="flat",
+                    focusthickness=0)
+    style.map('Markers.Config.Selected.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active']), ('disabled', COLOR_PALETTE['orange_btn_disabled'])])
 
 
-    # Treeview Style for Marker Editor
+    # --- Treeview Styles ---
+    # These styles apply to Tkinter Treeview widgets used for displaying hierarchical data.
+
+    # Treeview Style for the Marker Editor (e.g., in PresetEditorTab)
+    # - `background`: Dark grey for the treeview background.
+    # - `foreground`: White text.
+    # - `selected`: Blue background and white text when an item is selected.
     style.configure("Treeview",
                     background=COLOR_PALETTE['input_bg'],
                     foreground=COLOR_PALETTE['foreground'],
                     fieldbackground=COLOR_PALETTE['input_bg'],
                     font=("Helvetica", 9))
     style.map("Treeview",
-              background=[('selected', COLOR_PALETTE['select_bg'])], # Blue selection
+              background=[('selected', COLOR_PALETTE['select_bg'])],
               foreground=[('selected', COLOR_PALETTE['select_fg'])])
 
+    # Treeview Heading style for the Marker Editor
+    # - `background`: General active grey for headings.
+    # - `active`: Remains active grey when hovered.
     style.configure("Treeview.Heading",
                     font=("Helvetica", 9, "bold"),
                     background=COLOR_PALETTE['active_bg'],
@@ -339,16 +452,18 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map("Treeview.Heading",
               background=[('active', COLOR_PALETTE['active_bg'])])
 
-    # Treeview Style for Zones & Groups (MarkersDisplayTab)
+    # Treeview Style for Zones & Groups within the Markers Display Tab
+    # Similar to general Treeview but with a specific name for clarity.
     style.configure("Markers.Inner.Treeview",
                     background=COLOR_PALETTE['input_bg'],
                     foreground=COLOR_PALETTE['foreground'],
                     fieldbackground=COLOR_PALETTE['input_bg'],
                     font=("Helvetica", 9))
     style.map("Markers.Inner.Treeview",
-              background=[('selected', COLOR_PALETTE['select_bg'])], # Blue selection
+              background=[('selected', COLOR_PALETTE['select_bg'])],
               foreground=[('selected', COLOR_PALETTE['select_fg'])])
 
+    # Treeview Heading style for Zones & Groups in Markers Display Tab
     style.configure("Markers.Inner.Treeview.Heading",
                     font=("Helvetica", 9, "bold"),
                     background=COLOR_PALETTE['active_bg'],
@@ -359,37 +474,50 @@ def apply_styles(style, debug_log_func, current_app_version):
 
 
     # --- Notebook (Tab) Styles for Parent Tabs ---
+    # These styles control the appearance of the main top-level tabs.
+
+    # Overall Notebook style for parent tabs
     style.configure("Parent.TNotebook",
                     background=COLOR_PALETTE['background'],
-                    tabposition='nw',
-                    borderwidth=0) # Remove border around the notebook itself
+                    tabposition='nw', # Tabs positioned at North-West
+                    borderwidth=0) # No border around the entire notebook
 
-    # Configure the actual tab elements for parent tabs
+    # Style for individual parent tab elements
+    # - `background`: Default inactive tab color (grey).
+    # - `foreground`: Text color.
+    # - `font`, `padding`, `relief`, `borderwidth`: Visual properties.
     style.configure("Parent.TNotebook.Tab",
-                    background=COLOR_PALETTE['active_bg'], # Default inactive tab color
+                    background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=("Helvetica", 10, "bold"),
                     padding=[10, 5],
                     relief="flat",
-                    borderwidth=0) # Remove border around individual tabs
+                    borderwidth=0)
 
-    # Map colors for each parent tab dynamically based on selection state
+    # Dynamic mapping for parent tab colors based on selection and hover states.
+    # Iterates through `COLOR_PALETTE['parent_tabs']` to apply specific colors per tab.
     for tab_name, colors in COLOR_PALETTE['parent_tabs'].items():
-        # Active state for selected tab
+        # Active state for a selected tab (when the tab is currently open)
+        # - `selected`: Background is the tab's specific active color.
+        # - `active`: When hovered over, background is also the tab's specific active color.
+        # - `bordercolor`, `lightcolor`, `darkcolor`: Borders match the active color.
         style.map("Parent.TNotebook.Tab",
                   background=[('selected', colors['active']), ('active', colors['active'])],
                   foreground=[('selected', colors['fg_active']), ('active', colors['fg_active'])],
-                  bordercolor=[('selected', colors['active'])], # Border color matches tab color when selected
+                  bordercolor=[('selected', colors['active'])],
                   lightcolor=[('selected', colors['active'])],
                   darkcolor=[('selected', colors['active'])],
                   expand=[('selected', [0,0,0,0])], # No expansion when selected
                   sticky=[('selected', 'nsew')],
                   )
-        # Inactive state for unselected tabs
+        # Inactive state for unselected tabs (when the tab is not currently open)
+        # - `!selected`: Background is the tab's specific inactive color.
+        # - `!selected`: When hovered over, background is also the tab's specific inactive color.
+        # - `bordercolor`, `lightcolor`, `darkcolor`: Borders match the notebook background.
         style.map("Parent.TNotebook.Tab",
                   background=[('!selected', colors['inactive']), ('!selected', colors['inactive'])],
                   foreground=[('!selected', colors['fg_inactive']), ('!selected', colors['fg_inactive'])],
-                  bordercolor=[('!selected', COLOR_PALETTE['background'])], # Border color matches notebook background when inactive
+                  bordercolor=[('!selected', COLOR_PALETTE['background'])],
                   lightcolor=[('!selected', COLOR_PALETTE['background'])],
                   darkcolor=[('!selected', COLOR_PALETTE['background'])],
                   expand=[('!selected', [0,0,0,0])], # No expansion when unselected
@@ -397,19 +525,31 @@ def apply_styles(style, debug_log_func, current_app_version):
                   )
 
     # --- Notebook (Tab) Styles for Child Tabs ---
+    # These styles control the appearance of the nested tabs within parent tabs.
+
+    # Overall Notebook style for child tabs
     style.configure("Child.TNotebook",
                     background=COLOR_PALETTE['background'],
-                    tabposition='n',
+                    tabposition='n', # Tabs positioned at North
                     borderwidth=0)
 
+    # Style for individual child tab elements
+    # - `background`: Default background for child tabs (grey).
+    # - `foreground`: Text color.
+    # - `font`, `padding`, `relief`, `borderwidth`: Visual properties.
     style.configure("Child.TNotebook.Tab",
-                    background=COLOR_PALETTE['active_bg'], # Default background for child tabs
+                    background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
                     font=("Helvetica", 9),
                     padding=[8, 4],
                     relief="flat",
                     borderwidth=0)
 
+    # Mapping for child tab colors based on selection and hover states.
+    # Child tabs generally have a more uniform appearance compared to parent tabs.
+    # - `selected`: Background is `active_bg` (grey).
+    # - `active`: When hovered, background is also `active_bg` (grey).
+    # - `bordercolor`, `lightcolor`, `darkcolor`: Borders match `active_bg`.
     style.map("Child.TNotebook.Tab",
               background=[('selected', COLOR_PALETTE['active_bg']), ('active', COLOR_PALETTE['active_bg'])],
               foreground=[('selected', COLOR_PALETTE['foreground']), ('active', COLOR_PALETTE['foreground'])],

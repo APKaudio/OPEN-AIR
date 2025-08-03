@@ -72,7 +72,7 @@ from tabs.Presets.utils_preset_process import (
     overwrite_user_presets_csv # NEW: For saving changes back to CSV
 )
 # Specific import for querying instrument settings
-from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
+from tabs.Presets.utils_preset_query_and_load import query_current_instrument_settings_for_preset
 from tabs.Instrument.utils_instrument_read_and_write import query_safe # For additional queries
 
 from src.style import COLOR_PALETTE # For styling
@@ -311,7 +311,7 @@ class PresetEditorTab(ttk.Frame):
          trace1_mode, trace2_mode, trace3_mode, trace4_mode,
          marker1_calc_max, marker2_calc_max, marker3_calc_max,
          marker4_calc_max, marker5_calc_max, marker6_calc_max) = \
-            query_current_instrument_settings(self.app_instance.inst, self.console_print_func, instrument_model)
+            query_current_instrument_settings_for_preset(self.app_instance.inst, self.console_print_func, instrument_model)
 
         # Check if all critical values were successfully retrieved
         if all(x is not None for x in [center_freq_mhz, span_mhz, rbw_hz_val, vbw_hz_val,
