@@ -25,8 +25,11 @@
 # Version 20250803.0905.0 (Refactored main interaction modes to only POKE or Device Selection.)
 # Version 20250803.0910.0 (FIXED: NameError: name 'freq_mhz' not defined in _on_device_button_click.)
 # Version 20250803.0915.0 (Implemented new tabbed layout for controls and updated POKE button style.)
+# Version 20250803.0920.0 (FIXED: Device buttons not populating on tab re-entry. Implemented new layout for Manual Marker tab.)
+# Version 20250803.0925.0 (Adjusted Manual Marker tab to horizontal layout and removed LabelFrames from control tabs.)
+# Version 20250803.0930.0 (Enabled device buttons during POKE mode, added tab focus on device select, ensured button height fills container.)
 
-current_version = "20250803.0915.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0930.0" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -174,12 +177,13 @@ class MarkersDisplayTab(ttk.Frame):
         self.control_notebook.add(self.span_tab_frame, text="Span Control")
         self.span_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
 
-        # Relocate Span Control Buttons into this tab
-        span_control_frame = ttk.LabelFrame(self.span_tab_frame, text="Span Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        span_control_frame.pack(fill="both", expand=True, padx=5, pady=5) # Use pack within tab frame
+        # Relocate Span Control Buttons into this tab (Removed LabelFrame)
+        span_control_container = ttk.Frame(self.span_tab_frame, padding=(1,1,1,1), style="Dark.TFrame")
+        span_control_container.pack(fill="both", expand=True, padx=5, pady=5) # Use pack within tab frame
+        span_control_container.grid_rowconfigure(0, weight=1) # Allow buttons to expand vertically
 
         for i in range(len(SPAN_OPTIONS)):
-            span_control_frame.grid_columnconfigure(i, weight=1)
+            span_control_container.grid_columnconfigure(i, weight=1)
 
         self.span_buttons = {}
         col = 0
@@ -187,7 +191,7 @@ class MarkersDisplayTab(ttk.Frame):
             display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
             button_text = f"{text_key}\n{display_value}"
 
-            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton",
+            btn = ttk.Button(span_control_container, text=button_text, style="Markers.Config.Default.TButton",
                              command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t))
 
             self.span_buttons[text_key] = btn
@@ -202,53 +206,62 @@ class MarkersDisplayTab(ttk.Frame):
         # 2. Manual Marker Tab (combines Manual Freq and Current Settings)
         self.manual_marker_tab_frame = ttk.Frame(self.control_notebook, style="Markers.TFrame")
         self.control_notebook.add(self.manual_marker_tab_frame, text="Manual Marker")
-        self.manual_marker_tab_frame.grid_columnconfigure(0, weight=1) # Left side (settings)
-        self.manual_marker_tab_frame.grid_columnconfigure(1, weight=1) # Right side (manual freq)
-        self.manual_marker_tab_frame.grid_rowconfigure(0, weight=1) # Allow content to expand
+        # Configure for horizontal layout (3 columns)
+        self.manual_marker_tab_frame.grid_columnconfigure(0, weight=1)
+        self.manual_marker_tab_frame.grid_columnconfigure(1, weight=1)
+        self.manual_marker_tab_frame.grid_columnconfigure(2, weight=1)
+        self.manual_marker_tab_frame.grid_rowconfigure(0, weight=1) # Only one row for content
 
-        # Relocate Current Instrument Settings Frame into this tab
-        self.current_settings_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
-        self.current_settings_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        self.current_settings_frame.grid_columnconfigure(0, weight=1)
-        self.current_settings_frame.grid_columnconfigure(1, weight=1)
-
-        ttk.Label(self.current_settings_frame, text="Span:", style="Markers.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
-        self.current_span_label = ttk.Label(self.current_settings_frame, textvariable=self.current_span_var, style="Markers.TLabel")
-        self.current_span_label.grid(row=0, column=1, sticky="w", padx=5, pady=2)
-
-        ttk.Label(self.current_settings_frame, text="Trace Modes:", style="Markers.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
-        self.current_trace_modes_label = ttk.Label(self.current_settings_frame, textvariable=self.current_trace_modes_var, style="Markers.TLabel")
-        self.current_trace_modes_label.grid(row=1, column=1, sticky="w", padx=5, pady=2)
-
-        ttk.Label(self.current_settings_frame, text="RBW:", style="Markers.TLabel").grid(row=2, column=0, sticky="w", padx=5, pady=2)
-        self.current_rbw_label = ttk.Label(self.current_settings_frame, textvariable=self.current_rbw_var, style="Markers.TLabel")
-        self.current_rbw_label.grid(row=2, column=1, sticky="w", padx=5, pady=2)
-
-        ttk.Label(self.current_settings_frame, text="Selected Name:", style="Markers.TLabel").grid(row=3, column=0, sticky="w", padx=5, pady=2)
-        self.current_name_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_device_name_var, style="Markers.TLabel")
-        self.current_name_label.grid(row=3, column=1, sticky="w", padx=5, pady=2)
-
-        ttk.Label(self.current_settings_frame, text="Selected Device:", style="Markers.TLabel").grid(row=4, column=0, sticky="w", padx=5, pady=2)
-        self.current_device_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_device_type_var, style="Markers.TLabel")
-        self.current_device_label.grid(row=4, column=1, sticky="w", padx=5, pady=2)
-
-        ttk.Label(self.current_settings_frame, text="Selected Freq (MHz):", style="Markers.TLabel").grid(row=5, column=0, sticky="w", padx=5, pady=2)
-        self.current_freq_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_center_freq_var, style="Markers.TLabel")
-        self.current_freq_label.grid(row=5, column=1, sticky="w", padx=5, pady=2)
-
-        # Relocate Manual Frequency Control Frame into this tab
+        # 2.1 Manual Frequency Control Frame (Left section of Manual Marker tab)
         self.manual_freq_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Manual Frequency Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        self.manual_freq_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
-        self.manual_freq_frame.grid_columnconfigure(0, weight=1)
-        self.manual_freq_frame.grid_columnconfigure(1, weight=0) # For the POKE button
+        self.manual_freq_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.manual_freq_frame.grid_columnconfigure(0, weight=1) # For the entry and button
+        self.manual_freq_frame.grid_rowconfigure(0, weight=0) # For entry
+        self.manual_freq_frame.grid_rowconfigure(1, weight=0) # For button
 
         self.manual_freq_entry = ttk.Entry(self.manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
         self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # POKE Button - Moved into manual_freq_frame and style changed
         self.poke_button = ttk.Button(self.manual_freq_frame, text="POKE", style="LargePreset.TButton", # Changed to LargePreset.TButton
                                       command=self._on_poke_button_toggle)
-        self.poke_button.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        self.poke_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew") # POKE button below entry
+
+        # 2.2 "Selected" Box (Middle section of Manual Marker tab)
+        self.selected_info_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Selected Device Info", padding=(1,1,1,1), style="Dark.TLabelframe")
+        self.selected_info_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.selected_info_frame.grid_columnconfigure(0, weight=1)
+        self.selected_info_frame.grid_columnconfigure(1, weight=1)
+
+        ttk.Label(self.selected_info_frame, text="Name:", style="Markers.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+        self.current_name_label = ttk.Label(self.selected_info_frame, textvariable=self.current_displayed_device_name_var, style="Markers.TLabel")
+        self.current_name_label.grid(row=0, column=1, sticky="w", padx=5, pady=2)
+
+        ttk.Label(self.selected_info_frame, text="Type:", style="Markers.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        self.current_device_label = ttk.Label(self.selected_info_frame, textvariable=self.current_displayed_device_type_var, style="Markers.TLabel")
+        self.current_device_label.grid(row=1, column=1, sticky="w", padx=5, pady=2)
+
+
+        # 2.3 Another box for Selected Freq, Span, Trace Mode, RBW (Right section of Manual Marker tab)
+        self.current_settings_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
+        self.current_settings_frame.grid(row=0, column=2, sticky="nsew", padx=5, pady=5)
+        self.current_settings_frame.grid_columnconfigure(0, weight=1)
+        self.current_settings_frame.grid_columnconfigure(1, weight=1)
+
+        ttk.Label(self.current_settings_frame, text="Frequency (MHz):", style="Markers.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+        self.current_freq_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_center_freq_var, style="Markers.TLabel")
+        self.current_freq_label.grid(row=0, column=1, sticky="w", padx=5, pady=2)
+
+        ttk.Label(self.current_settings_frame, text="Span:", style="Markers.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        self.current_span_label = ttk.Label(self.current_settings_frame, textvariable=self.current_span_var, style="Markers.TLabel")
+        self.current_span_label.grid(row=1, column=1, sticky="w", padx=5, pady=2)
+
+        ttk.Label(self.current_settings_frame, text="Trace Modes:", style="Markers.TLabel").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+        self.current_trace_modes_label = ttk.Label(self.current_settings_frame, textvariable=self.current_trace_modes_var, style="Markers.TLabel")
+        self.current_trace_modes_label.grid(row=2, column=1, sticky="w", padx=5, pady=2)
+
+        ttk.Label(self.current_settings_frame, text="RBW:", style="Markers.TLabel").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+        self.current_rbw_label = ttk.Label(self.current_settings_frame, textvariable=self.current_rbw_var, style="Markers.TLabel")
+        self.current_rbw_label.grid(row=3, column=1, sticky="w", padx=5, pady=2)
 
 
         # 3. Trace Mode Control Tab
@@ -256,19 +269,20 @@ class MarkersDisplayTab(ttk.Frame):
         self.control_notebook.add(self.trace_mode_tab_frame, text="Trace Mode Control")
         self.trace_mode_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
 
-        # Relocate Trace Mode Control Buttons into this tab
-        trace_mode_control_frame = ttk.LabelFrame(self.trace_mode_tab_frame, text="Trace Mode Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        trace_mode_control_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        # Relocate Trace Mode Control Buttons into this tab (Removed LabelFrame)
+        trace_mode_control_container = ttk.Frame(self.trace_mode_tab_frame, padding=(1,1,1,1), style="Dark.TFrame")
+        trace_mode_control_container.pack(fill="both", expand=True, padx=5, pady=5)
+        trace_mode_control_container.grid_rowconfigure(0, weight=1) # Allow buttons to expand vertically
 
-        trace_mode_control_frame.grid_columnconfigure(0, weight=1)
-        trace_mode_control_frame.grid_columnconfigure(1, weight=1)
-        trace_mode_control_frame.grid_columnconfigure(2, weight=1)
+        trace_mode_control_container.grid_columnconfigure(0, weight=1)
+        trace_mode_control_container.grid_columnconfigure(1, weight=1)
+        trace_mode_control_container.grid_columnconfigure(2, weight=1)
 
-        btn_live = ttk.Button(trace_mode_control_frame, text="Live", style="Markers.Config.Default.TButton",
+        btn_live = ttk.Button(trace_mode_control_container, text="Live", style="Markers.Config.Default.TButton",
                               command=lambda: self._on_trace_mode_button_click("Live"))
-        btn_max_hold = ttk.Button(trace_mode_control_frame, text="Max Hold", style="Markers.Config.Default.TButton",
+        btn_max_hold = ttk.Button(trace_mode_control_container, text="Max Hold", style="Markers.Config.Default.TButton",
                                   command=lambda: self._on_trace_mode_button_click("Max Hold"))
-        btn_min_hold = ttk.Button(trace_mode_control_frame, text="Min Hold", style="Markers.Config.Default.TButton",
+        btn_min_hold = ttk.Button(trace_mode_control_container, text="Min Hold", style="Markers.Config.Default.TButton",
                                   command=lambda: self._on_trace_mode_button_click("Min Hold"))
 
         self.trace_mode_buttons["Live"] = {"button": btn_live, "var": self.live_mode_var}
@@ -287,17 +301,18 @@ class MarkersDisplayTab(ttk.Frame):
         self.control_notebook.add(self.rbw_tab_frame, text="Resolution Bandwidth")
         self.rbw_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
 
-        # Relocate Resolution Bandwidth (RBW) Control Buttons into this tab
-        rbw_control_frame = ttk.LabelFrame(self.rbw_tab_frame, text="Resolution Bandwidth (RBW)", padding=(1,1,1,1), style="Dark.TLabelframe")
-        rbw_control_frame.pack(fill="both", expand=True, padx=5, pady=5)
+        # Relocate Resolution Bandwidth (RBW) Control Buttons into this tab (Removed LabelFrame)
+        rbw_control_container = ttk.Frame(self.rbw_tab_frame, padding=(1,1,1,1), style="Dark.TFrame")
+        rbw_control_container.pack(fill="both", expand=True, padx=5, pady=5)
+        rbw_control_container.grid_rowconfigure(0, weight=1) # Allow buttons to expand vertically
 
         for i in range(len(RBW_OPTIONS)):
-            rbw_control_frame.grid_columnconfigure(i, weight=1)
+            rbw_control_container.grid_columnconfigure(i, weight=1)
 
         self.rbw_buttons = {}
         col = 0
         for text_key, rbw_hz_value in RBW_OPTIONS.items():
-            btn = ttk.Button(rbw_control_frame, text=text_key, style="Markers.Config.Default.TButton",
+            btn = ttk.Button(rbw_control_container, text=text_key, style="Markers.Config.Default.TButton",
                              command=lambda r=rbw_hz_value, t=text_key: self._on_rbw_button_click(r, self.rbw_buttons[t], t))
             self.rbw_buttons[text_key] = btn
             btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
@@ -316,7 +331,7 @@ class MarkersDisplayTab(ttk.Frame):
 
 
     def _set_mode_poke(self):
-        """Sets the UI to POKE mode: enables manual freq, disables device buttons."""
+        """Sets the UI to POKE mode: enables manual freq, does NOT disable device buttons."""
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Setting mode to POKE.", file=current_file, version=current_version, function=current_function)
@@ -324,9 +339,8 @@ class MarkersDisplayTab(ttk.Frame):
         self.poke_mode_active.set(True)
         self.poke_button.config(style="SelectedPreset.Orange.TButton") # POKE button is orange when active
 
-        self._set_widget_state(self.buttons_frame, "disabled") # Disable Devices frame
+        # Removed: self._set_widget_state(self.buttons_frame, "disabled") # Device buttons remain enabled
         self._set_widget_state(self.manual_freq_entry, "normal") # Enable Manual Freq entry
-        # Note: The manual_freq_frame itself doesn't need state, only its children.
 
         # Clear any previously selected device
         self.current_selected_device_button = None
@@ -345,7 +359,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.poke_mode_active.set(False)
         self.poke_button.config(style="LargePreset.TButton") # POKE button is LargePreset style when inactive
 
-        self._set_widget_state(self.buttons_frame, "normal") # Enable Devices frame
+        # Removed: self._set_widget_state(self.buttons_frame, "normal") # Device buttons already enabled
         self._set_widget_state(self.manual_freq_entry, "disabled") # Disable Manual Freq entry
 
         # If a device was previously selected, re-highlight it
@@ -863,6 +877,12 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_displayed_center_freq_var.set(display_freq_mhz)
         # --- END NEW ---
 
+        # --- NEW: Bring Span Control tab to focus ---
+        self.control_notebook.select(self.span_tab_frame)
+        debug_log(f"Switched to Span Control tab after device selection.",
+                    file=current_file, version=current_version, function=current_function)
+        # --- END NEW ---
+
         if self.app_instance and self.app_instance.inst:
             inst = self.app_instance.inst
 
@@ -871,7 +891,6 @@ class MarkersDisplayTab(ttk.Frame):
             original_max_hold_mode = self.max_hold_mode_var.get()
             original_min_hold_mode = self.min_hold_mode_var.get()
 
-            # Blank Max Hold and Min Hold traces if they were active
             if original_max_hold_mode or original_min_hold_mode:
                 blank_hold_traces_logic(inst, console_log) # Passed console_log
 
@@ -1306,28 +1325,24 @@ class MarkersDisplayTab(ttk.Frame):
         self.headers = new_headers
         self.rows = new_rows
         self._populate_zone_group_tree() # This will clear and rebuild the tree
-        # After populating the tree, the _on_tree_select event will handle populating the device buttons
-        # if a zone/group is selected. If no selection is made, device buttons will remain empty, which is correct.
-        # We need to re-evaluate if the previously selected device is still present after data update.
-        if self.selected_device_unique_id:
-            is_prev_selected_device_still_present = False
-            for device_data in new_rows: # Check against the new_rows directly
-                unique_device_id_candidate = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{device_data.get('FREQ', '')}"
-                if unique_device_id_candidate == self.selected_device_unique_id:
-                    is_prev_selected_device_still_present = True
-                    break
-            if not is_prev_selected_device_still_present:
-                debug_log(f"Previously selected device (ID: {self.selected_device_unique_id}) is no longer in the updated marker data. Clearing selection.",
-                            file=current_file, version=current_version, function=current_function)
-                self.current_selected_device_button = None
-                self.selected_device_unique_id = None
-                self.current_selected_device_data = None
+
+        # --- NEW: Automatically select the first item in the tree if available ---
+        # This ensures that device buttons are populated when the tab is re-selected
+        # and new data is loaded, as it triggers _on_tree_select.
+        first_item = self.zone_group_tree.get_children()
+        if first_item:
+            self.zone_group_tree.selection_set(first_item[0])
+            self.zone_group_tree.focus(first_item[0])
+            self._on_tree_select(None) # Manually trigger the selection event
         else:
+            # If no items in tree, explicitly clear device buttons and settings display
+            self._populate_device_buttons([])
             self.current_selected_device_button = None
             self.selected_device_unique_id = None
             self.current_selected_device_data = None
+            self._update_current_settings_display()
+        # --- END NEW ---
 
-        self._populate_device_buttons([]) # Explicitly clear device buttons until a new selection is made by tree or click
         console_log(f"✅ Markers Display Tab updated with {len(new_rows)} markers.", function=current_function)
 
 
