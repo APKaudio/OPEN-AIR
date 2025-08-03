@@ -19,8 +19,9 @@
 # Version 20250803.0255.0 (Refactored ASCII art blocks into individual functions.)
 # Version 20250803.0300.0 (Replaced print() statements with console_log() for GUI output.)
 # Version 20250803.0305.0 (CRITICAL FIX: Ensured each line of ASCII art is sent via console_log.)
+# Version 20250803.0147.1 (Added call to clear_console before each ASCII art display.)
 
-current_version = "20250803.0305.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0147.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250803 * 305 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -31,7 +32,8 @@ import inspect # Added for debug_log
 
 # Import the debug logic module to use debug_log
 from src.debug_logic import debug_log # Changed from debug_print
-from src.console_logic import console_log # Import console_log
+from src.console_logic import console_log, clear_console # Import console_log and the new clear_console
+
 
 class TextRedirector(object):
     """
@@ -121,6 +123,7 @@ class TextRedirector(object):
 
 def _print_open_air_ascii(console_print_func):
     """Prints the 'OPEN AIR' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         " ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒ ░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓█▓▒░ ▒▓███████▓▒░  ",
         "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
@@ -135,6 +138,7 @@ def _print_open_air_ascii(console_print_func):
 
 def _print_collaboration_ascii(console_print_func):
     """Prints the collaboration ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "                                               #              #####                     ## ####",
         "                                               ###            ##   ######               ##  ## ",
@@ -163,6 +167,7 @@ def _print_collaboration_ascii(console_print_func):
 
 def _print_inst_ascii(console_print_func):
     """Prints the 'INST' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "INST",
         "░▒▓█▓▒░▒▓███████▓▒░ ░▒▓███████▓▒░▒▓████████▓▒░ ",
@@ -178,6 +183,7 @@ def _print_inst_ascii(console_print_func):
 
 def _print_scan_ascii(console_print_func):
     """Prints the 'SCAN' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "SCAN",
         " ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░  ",
@@ -193,6 +199,7 @@ def _print_scan_ascii(console_print_func):
 
 def _print_plot_ascii(console_print_func):
     """Prints the 'PLOT' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "PLOT:                                                   ",
         "░▒▓███████▓▒░ ░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░ ",
@@ -208,6 +215,7 @@ def _print_plot_ascii(console_print_func):
 
 def _print_marks_ascii(console_print_func):
     """Prints the 'MARKS' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "MARKS:                                                                                                                ",
         "░▒▓██████████████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ",
@@ -223,6 +231,7 @@ def _print_marks_ascii(console_print_func):
 
 def _print_presets_ascii(console_print_func):
     """Prints the 'PRESETS.CSV' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "PRESETS.CSV is a file that contains user-defined presets for the application.",
         "                                                                ",
@@ -239,6 +248,7 @@ def _print_presets_ascii(console_print_func):
 
 def _print_xxx_ascii(console_print_func):
     """Prints the 'XXX' ASCII art to the console."""
+    clear_console() # Clear console before displaying ASCII art
     lines = [
         "XXX",
         "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",

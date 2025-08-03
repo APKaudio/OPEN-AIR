@@ -16,8 +16,9 @@
 #
 #
 # Version 20250802.0152.6 (FINAL FIX: Added missing set_debug_file_hooks and refined global variable handling.)
+# Version 20250803.0146.1 (Added clear_console function and mechanism to register the actual clear function.)
 
-current_version = "20250802.0152.6" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0146.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 152 * 6 # Example hash, adjust as needed
 
 import sys
@@ -32,6 +33,7 @@ _original_stdout = sys.stdout # Keep a reference to original stdout for fallback
 
 _debug_file_include_flag_ref = None # Will hold the callable for INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE
 _debug_file_write_func_ref = None    # Will hold the reference to _write_to_debug_file
+_clear_console_func_ref = None       # Will hold the reference to the actual clear console function
 
 def set_gui_console_redirector(stdout_redirector, stderr_redirector):
     """
@@ -79,6 +81,52 @@ def set_debug_file_hooks(include_flag_callable, write_func):
     # Avoid logging here to prevent potential recursion if console_log is called during setup
     # console_log(f"Debug file hooks registered with console_logic. Breaking the circular import!",
     #             function=current_function)
+
+def set_clear_console_func(clear_func):
+    """
+    Function Description:
+    Registers the actual function that clears the GUI console.
+    This is called by ConsoleTab to provide the console clearing capability.
+
+    Inputs to this function:
+    - clear_func (callable): A callable function (e.g., ConsoleTab's _clear_applications_console_action)
+                             that will clear the content of the GUI console.
+
+    Process of this function:
+    1. Sets the global `_clear_console_func_ref` to the provided `clear_func`.
+
+    Outputs of this function:
+    - None. Modifies a global variable.
+    """
+    global _clear_console_func_ref
+    _clear_console_func_ref = clear_func
+    current_function = inspect.currentframe().f_code.co_name
+    console_log(f"Clear console function registered. Version: {current_version}", function=current_function)
+
+
+def clear_console():
+    """
+    Function Description:
+    Calls the registered function to clear the GUI console.
+    This serves as the public interface for clearing the console from other modules.
+
+    Inputs to this function:
+    - None.
+
+    Process of this function:
+    1. Checks if `_clear_console_func_ref` is set.
+    2. If set, calls the registered function to clear the console.
+    3. If not set, logs a debug message indicating that the clear function is unavailable.
+
+    Outputs of this function:
+    - None. Triggers the console clear action.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    if _clear_console_func_ref:
+        _clear_console_func_ref()
+    else:
+        # Fallback to original stdout if GUI console is not set up yet
+        _original_stdout.write(f"DEBUG: [{current_function}] Cannot clear console, function not registered yet. Fucking useless!\n")
 
 
 def console_log(message, function=None):
@@ -138,4 +186,3 @@ def console_log(message, function=None):
     # Use the registered callable for the flag and the registered write function
     if _debug_file_include_flag_ref and _debug_file_include_flag_ref() and _debug_file_write_func_ref:
         _debug_file_write_func_ref(full_message)
-

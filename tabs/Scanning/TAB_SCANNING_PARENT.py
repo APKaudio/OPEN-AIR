@@ -168,7 +168,7 @@ class TAB_SCANNING_PARENT(ttk.Frame):
                     version=current_version,
                     function=current_function,
                     special=True)
-        _print_scan_ascii(self.console_print_func)
+
 
         # Also ensure the currently visible child tab gets its _on_tab_selected called
         selected_child_tab_id = self.child_notebook.select()

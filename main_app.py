@@ -29,9 +29,10 @@
 # Version 20250802.2105.0 (FIXED: TclError: Invalid slave specification in _on_parent_tab_change by correcting tab iteration logic.)
 # Version 20250802.2110.0 (FIXED: TclError: unknown option "-style" by removing incorrect style application in _on_parent_tab_change.)
 # Version 20250802.2246.0 (Fixed TypeError: apply_styles() takes 3 positional arguments but 4 were given by removing parent_tab_colors argument.)
+# Version 20250803.0144.1 (Added ASCII art display to _on_parent_tab_change for each parent tab selection.)
 
-current_version = "20250802.2246.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 2246 * 0 # Example hash, adjust as needed
+current_version = "20250803.0144.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 144 * 1 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -66,7 +67,7 @@ from datetime import datetime # For timestamp in debug_log
 # Import local modules - Paths are relative to OPEN-AIR as main_app.py is in OPEN-AIR
 # and src, tabs, utils, ref are direct subdirectories.
 from src.settings_and_config.config_manager import load_config, save_config
-from src.gui_elements import TextRedirector, display_splash_screen
+from src.gui_elements import TextRedirector, display_splash_screen, _print_inst_ascii, _print_scan_ascii, _print_plot_ascii, _print_marks_ascii, _print_presets_ascii, _print_xxx_ascii # Import all ASCII art functions
 
 # Import the new debug_logic and console_logic modules as modules to avoid circular import issues
 import src.debug_logic as debug_logic_module
@@ -360,7 +361,7 @@ class App(tk.Tk):
         current_function = inspect.currentframe().f_code.co_name
 
         console_logic_module.console_log(f"--- Configuration & Debug Status ({current_version}) ---", function=current_function)
-        debug_logic_module.debug_log(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}",
+        debug_logic_module.debug_log(f"Checking for config.ini at: {self.CONFIG_FILE_PATH}.",
                     file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function)
@@ -1027,8 +1028,7 @@ class App(tk.Tk):
 
         debug_logic_module.debug_log(f"Main application widgets created.",
                     file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
+                    version=current_function)
 
 
     def _setup_styles(self):
@@ -1142,26 +1142,25 @@ class App(tk.Tk):
         Handles the event when the parent tab selection changes.
         It updates the styling of the parent tabs to reflect the active tab
         and propagates the `_on_tab_selected` event to the newly selected
-        parent tab and its currently visible child tab.
+        parent tab and its currently visible child tab. It also calls the
+        appropriate ASCII art function for the selected parent tab.
 
         Inputs:
             event (tkinter.Event): The event object, or None if called manually.
 
         Process:
             1. Retrieves the currently selected parent tab's ID and text.
-            2. **Removed: Iteration and direct style application for individual tabs.**
-               The styling based on 'selected' state is handled by `apply_styles`
-               and the `ttk.Style` engine.
+            2. Calls the appropriate ASCII art function based on the selected tab's text.
             3. Calls `_on_tab_selected` on the newly selected parent tab if the method exists.
             4. If the selected parent tab has a child notebook, it then
                propagates the `_on_tab_selected` event to the active child tab within it.
             5. Logs debug messages throughout the process.
 
         Outputs:
-            None. Updates GUI appearance and triggers tab-specific logic.
+            None. Updates GUI appearance, triggers tab-specific logic, and displays ASCII art.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_logic_module.debug_log(f"Parent tab changed event triggered. Version: {current_version}. Time to update styles!",
+        debug_logic_module.debug_log(f"Parent tab changed event triggered. Version: {current_version}. Time to update styles and ASCII art!",
                     file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function,
@@ -1170,24 +1169,36 @@ class App(tk.Tk):
         selected_tab_id = self.parent_notebook.select()
         selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
 
-        # Removed the loop that was causing the "unknown option -style" error.
-        # The dynamic styling based on 'selected' state should be handled by
-        # the apply_styles function in src/style.py, which sets up the style.map
-        # for Parent.TNotebook.Tab. Tkinter's ttk engine will automatically apply
-        # these mapped styles when a tab becomes selected or unselected.
-        # The style.map calls and direct style application on tabs within this loop
-        # were redundant and incorrect.
+        # Call the appropriate ASCII art function based on the selected tab
+        if selected_tab_text == "INSTRUMENT":
+            _print_inst_ascii(console_logic_module.console_log)
+        elif selected_tab_text == "SCANNING":
+            _print_scan_ascii(console_logic_module.console_log)
+        elif selected_tab_text == "PLOTTING":
+            _print_plot_ascii(console_logic_module.console_log)
+        elif selected_tab_text == "MARKERS":
+            _print_marks_ascii(console_logic_module.console_log)
+        elif selected_tab_text == "PRESETS":
+            _print_presets_ascii(console_logic_module.console_log)
+        elif selected_tab_text == "EXPERIMENTS":
+            _print_xxx_ascii(console_logic_module.console_log)
+        else:
+            debug_logic_module.debug_log(f"No specific ASCII art function found for tab: {selected_tab_text}. What the hell?!",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+
 
         # Propagate _on_tab_selected to the selected parent tab
         selected_parent_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
-        if hasattr(selected_parent_tab_widget, '_on_tab_selected'):
-            selected_parent_tab_widget._on_tab_selected(event)
-            debug_logic_module.debug_log(f"Propagated _on_tab_selected to active parent tab: {selected_parent_tab_widget.winfo_class()}. Version: {current_version}. Looking good!",
+        if hasattr(selected_parent_tab_widget, '_on_parent_tab_selected'): # Changed to _on_parent_tab_selected
+            selected_parent_tab_widget._on_parent_tab_selected(event) # Call the new parent-specific method
+            debug_logic_module.debug_log(f"Propagated _on_parent_tab_selected to active parent tab: {selected_parent_tab_widget.winfo_class()}. Version: {current_version}. Looking good!",
                         file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)
         else:
-            debug_logic_module.debug_log(f"Active parent tab {selected_parent_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?! Version: {current_version}.",
+            debug_logic_module.debug_log(f"Active parent tab {selected_parent_tab_widget.winfo_class()} has no _on_parent_tab_selected method. What the hell?! Version: {current_version}.",
                         file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                         version=current_version,
                         function=current_function)

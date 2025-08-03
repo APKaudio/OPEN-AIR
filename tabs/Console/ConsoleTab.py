@@ -18,8 +18,10 @@
 #
 #
 # Version 20250802.0157.1 (Added last config save time display field.)
+# Version 20250803.0145.1 (Added clear applications console function and button.)
+# Version 20250803.0148.1 (Registered _clear_applications_console_action with console_logic.set_clear_console_func.)
 
-current_version = "20250802.0157.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0148.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 75 * 6 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -35,8 +37,8 @@ from src.debug_logic import (
     set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode,
     clear_debug_log_file # Import the new clear log function
 )
-# CORRECTED: Import console_log from src.console_logic
-from src.console_logic import console_log, set_gui_console_redirector
+# CORRECTED: Import console_log and set_gui_console_redirector, set_clear_console_func from src.console_logic
+from src.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
 from src.gui_elements import TextRedirector # Import TextRedirector
 
 
@@ -84,6 +86,9 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
                         version=current_version,
                         function=current_function)
 
+        # NEW: Register the clear console action with console_logic
+        set_clear_console_func(self._clear_applications_console_action)
+
 
     def _create_widgets(self):
         """
@@ -99,7 +104,8 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
 
         self.grid_rowconfigure(0, weight=1) # Console text area
         self.grid_rowconfigure(1, weight=0) # Debug checkboxes
-        self.grid_rowconfigure(2, weight=0) # Last Save Time / Clear log button
+        self.grid_rowconfigure(2, weight=0) # Clear Applications Console button
+        self.grid_rowconfigure(3, weight=0) # Clear Debug Log button
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
 
@@ -158,11 +164,18 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
         self.last_save_time_label.grid(row=2, column=1, padx=5, pady=2, sticky="e") # Placed beside the checkbox
 
 
-        # Clear Debug Log File Button
+        # NEW: Clear Applications Console Button
+        self.clear_applications_console_button = ttk.Button(self, text="Clear Applications Console",
+                                                            command=self._clear_applications_console_action,
+                                                            style='Red.TButton')
+        self.clear_applications_console_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+
+        # Clear Debug Log File Button (moved to row 3)
         self.clear_debug_log_button = ttk.Button(self, text="Clear Debug Log File",
                                                  command=self._clear_debug_log_file_action,
                                                  style='Red.TButton')
-        self.clear_debug_log_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.clear_debug_log_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         debug_log(f"ConsoleTab widgets created.",
                     file=current_file,
@@ -230,6 +243,25 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
                     function=current_function)
         # Pass the file path from app_instance
         clear_debug_log_file(self.app_instance.DEBUG_COMMANDS_FILE_PATH)
+        console_log(f"Debug log file cleared.", function=current_function) # Added console message
+
+
+    def _clear_applications_console_action(self):
+        """Action to clear the applications console (ScrolledText widget)."""
+        current_function = inspect.currentframe().f_code.co_name
+        if self.app_instance.console_text:
+            self.app_instance.console_text.delete("1.0", tk.END)
+            console_log(f"Applications console cleared.", function=current_function)
+            debug_log(f"Applications console (ScrolledText widget) cleared.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log(f"ERROR: Cannot clear applications console, console_text widget not found. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+
 
     def _on_tab_selected(self, event):
         """
@@ -242,4 +274,3 @@ class ConsoleTab(ttk.LabelFrame): # Changed to LabelFrame for title
                     file=__file__,
                     version=current_version,
                     function=current_function)
-

@@ -178,7 +178,7 @@ class TAB_MARKERS_PARENT(ttk.Frame):
                     version=current_version,
                     function=current_function,
                     special=True)
-        _print_marks_ascii(self.console_print_func)
+        
 
         # Get the list of all child tab IDs
         child_tab_ids = self.child_notebook.tabs()
