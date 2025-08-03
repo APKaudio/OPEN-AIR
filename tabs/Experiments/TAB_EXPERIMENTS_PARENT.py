@@ -29,6 +29,8 @@ import inspect
 from tabs.Experiments.tab_experiments_child_intermod import InterModTab
 from tabs.Experiments.tab_experiments_child_JSON_api import JsonApiTab
 from tabs.Experiments.tab_experiments_colouring import  ColouringTab # Importing the ColouringTab, if needed
+from tabs.Experiments.tab_experiments_child_initial_configuration import InitialConfigurationTab # Importing InitialConfigurationTab if needed
+
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
@@ -84,14 +86,18 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
         # Instantiate child tabs and add them to the notebook
-        self.intermod_tab = InterModTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
-        self.child_notebook.add(self.intermod_tab, text="Intermod")
+        
+        self.json_api_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.child_notebook.add(self.json_api_tab, text="Configuration.ini")
 
         self.json_api_tab = JsonApiTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.json_api_tab, text="JSON API")
 
         self.json_api_tab = ColouringTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.json_api_tab, text="Colours")
+
+        self.intermod_tab = InterModTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
+        self.child_notebook.add(self.intermod_tab, text="Intermod")
 
         # Bind the tab change event for the child notebook
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)

@@ -34,7 +34,7 @@ import os # Import os for basename
 from tabs.Presets.tab_presets_child_local import LocalPresetsTab
 from tabs.Presets.tab_presets_child_device import DevicePresetsTab
 from tabs.Presets.tab_presets_child_preset_editor import PresetEditorTab
-from tabs.Presets.tab_presets_child_initial_configuration import InitialConfigurationTab # NEW: Import InitialConfigurationTab
+
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
@@ -96,8 +96,7 @@ class TAB_PRESETS_PARENT(ttk.Frame):
 
         # Instantiate child tabs and add them to the notebook
         # Order: Initial Configuration, Local, Device, Editor
-        self.initial_config_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj) # NEW: Instantiate InitialConfigurationTab
-        self.child_notebook.add(self.initial_config_tab, text="Initial Configuration") # NEW: Add InitialConfigurationTab
+
 
         self.local_presets_tab = LocalPresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.style_obj)
         self.child_notebook.add(self.local_presets_tab, text="Local Presets")

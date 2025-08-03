@@ -20,8 +20,10 @@
 # Version 20250803.0340.0 (Updated button styles to use the new, more specific names from style.py.)
 # Version 20250803.0755.0 (Added debug logs for device button styling and ensured style application.)
 # Version 20250803.0800.0 (Fixed device button highlighting persistence across tree selections.)
+# Version 20250803.0850.0 (Implemented radio-style buttons for DISPLAY, POKE, CLEAR with specific styles.)
+# Version 20250803.0855.0 (FIXED: AttributeError by reordering widget creation to ensure frames exist before _on_main_mode_button_click is called.)
 
-current_version = "20250803.0800.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0855.0" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -89,11 +91,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.selected_device_unique_id = None
         self.current_selected_device_data = None # NEW: Store the full data of the selected device
 
-        self.last_selected_poke_button = None # NEW: To track the state of the POKE button
-
         # --- NEW: Tkinter StringVars for displaying selected device info and RBW ---
-        # (2025-07-31 17:00) Change: Added StringVars for displaying selected device details.
-        # (2025-07-31 17:15) Change: Added StringVars for RBW display and manual frequency input.
         self.current_displayed_device_name_var = tk.StringVar(self, value="N/A")
         self.current_displayed_device_type_var = tk.StringVar(self, value="N/A")
         self.current_displayed_center_freq_var = tk.StringVar(self, value="N/A")
@@ -102,6 +100,11 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_rbw_var = tk.StringVar(self, value="N/A") # For displaying current RBW
         self.last_selected_rbw_button = None # To keep track of the last selected RBW button widget
         self.manual_freq_entry_var = tk.StringVar(self, value="") # For manual frequency input
+        # --- END NEW ---
+
+        # --- NEW: Main Interaction Mode Variables and Buttons ---
+        self.main_mode_var = tk.StringVar(self, value="DISPLAY") # Default mode
+        self.main_mode_buttons = {} # Stores references to DISPLAY, POKE, CLEAR buttons
         # --- END NEW ---
 
         self._create_widgets()
@@ -125,25 +128,49 @@ class MarkersDisplayTab(ttk.Frame):
         self.grid_rowconfigure(0, weight=1) # Allow main_split_frame to expand
         self.grid_columnconfigure(0, weight=1)
 
-        # --- MODIFIED: Set fixed width for column 0 (Zones & Groups, Current Instrument Settings) ---
+        # Configure columns for main_split_frame
         main_split_frame.grid_columnconfigure(0, weight=0, minsize=300) # Left half (treeview and settings) fixed 300px
         main_split_frame.grid_columnconfigure(1, weight=1) # Right half (device buttons, manual freq) expands
-        # --- END MODIFIED ---
 
-        main_split_frame.grid_rowconfigure(0, weight=1) # Top row for treeview and device buttons
-
-        # NEW: Updated grid_rowconfigure for the new layout
-        main_split_frame.grid_rowconfigure(1, weight=0) # Row for Span control (fixed height)
+        # Configure rows for the new layout
+        main_split_frame.grid_rowconfigure(0, weight=0) # Row for Interaction Mode buttons (fixed height)
+        main_split_frame.grid_rowconfigure(1, weight=1) # Row for Treeview and Device Buttons
         main_split_frame.grid_rowconfigure(2, weight=0) # Row for Current settings (left) and Manual freq (right)
-        main_split_frame.grid_rowconfigure(3, weight=0) # Row for Trace mode controls (fixed height)
-        main_split_frame.grid_rowconfigure(4, weight=0) # Row for RBW control (full width)
+        main_split_frame.grid_rowconfigure(3, weight=0) # Row for Span control (fixed height)
+        main_split_frame.grid_rowconfigure(4, weight=0) # Row for Trace mode controls (fixed height)
+        main_split_frame.grid_rowconfigure(5, weight=0) # Row for RBW control (full width)
 
 
-        # Left Half: Treeview for Zones and Groups
+        # --- NEW: Interaction Mode Buttons Frame (Top row, full width) ---
+        interaction_mode_frame = ttk.LabelFrame(main_split_frame, text="Interaction Mode", padding=(1,1,1,1), style="Dark.TLabelframe")
+        interaction_mode_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
+        interaction_mode_frame.grid_columnconfigure(0, weight=1)
+        interaction_mode_frame.grid_columnconfigure(1, weight=1)
+        interaction_mode_frame.grid_columnconfigure(2, weight=1)
+
+        # DISPLAY Button
+        self.display_button = ttk.Button(interaction_mode_frame, text="DISPLAY", style="LargePreset.TButton",
+                                         command=lambda: self._on_main_mode_button_click("DISPLAY"))
+        self.display_button.grid(row=0, column=0, padx=2, pady=2, sticky="nsew")
+        self.main_mode_buttons["DISPLAY"] = self.display_button
+
+        # POKE Button
+        self.poke_button = ttk.Button(interaction_mode_frame, text="POKE", style="LargeYAK.TButton", # Use LargeYAK.TButton
+                                      command=lambda: self._on_main_mode_button_click("POKE"))
+        self.poke_button.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")
+        self.main_mode_buttons["POKE"] = self.poke_button
+
+        # CLEAR Button
+        self.clear_button = ttk.Button(interaction_mode_frame, text="CLEAR", style="LargePreset.TButton",
+                                       command=lambda: self._on_main_mode_button_click("CLEAR"))
+        self.clear_button.grid(row=0, column=2, padx=2, pady=2, sticky="nsew")
+        self.main_mode_buttons["CLEAR"] = self.clear_button
+
+        # --- END NEW ---
+
+        # Left Half: Treeview for Zones and Groups (Shifted to row 1)
         tree_frame = ttk.LabelFrame(main_split_frame, text="Zones & Groups", padding=(1,1,1,1), style='Dark.TLabelframe')
-        # --- MODIFIED: Ensure tree_frame uses fixed width by being in column 0 with minsize ---
-        tree_frame.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
-        # --- END MODIFIED ---
+        tree_frame.grid(row=1, column=0, sticky=tk.NSEW, padx=5, pady=5) # Shifted row
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
@@ -157,83 +184,56 @@ class MarkersDisplayTab(ttk.Frame):
         # Bind selection event to update device buttons
         self.zone_group_tree.bind("<<TreeviewSelect>>", self._on_tree_select)
 
-        # Right Half: Buttons for Devices
-        buttons_frame = ttk.LabelFrame(main_split_frame, text="Devices", padding=(1,1,1,1), style='Dark.TLabelframe')
-        buttons_frame.grid(row=0, column=1, sticky=tk.NSEW, padx=5, pady=5)
+        # Right Half: Buttons for Devices (Shifted to row 1)
+        # Moved initialization before _on_main_mode_button_click call
+        self.buttons_frame = ttk.LabelFrame(main_split_frame, text="Devices", padding=(1,1,1,1), style='Dark.TLabelframe')
+        self.buttons_frame.grid(row=1, column=1, sticky=tk.NSEW, padx=5, pady=5) # Shifted row
 
-        # Removed: self.buttons_canvas = tk.Canvas(...)
-        # Removed: buttons_scrollbar = ttk.Scrollbar(...)
-        # Removed: self.buttons_canvas.configure(yscrollcommand=...)
-        # Removed: self.buttons_canvas.bind('<Configure>', ...)
+        self.inner_buttons_frame = ttk.Frame(self.buttons_frame, style='Dark.TFrame')
+        self.inner_buttons_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Direct placement of inner_buttons_frame within buttons_frame
-        self.inner_buttons_frame = ttk.Frame(buttons_frame, style='Dark.TFrame') # Parent changed from self.buttons_canvas to buttons_frame
-        self.inner_buttons_frame.pack(fill=tk.BOTH, expand=True) # Use pack instead of create_window
-
-        # Configure columns for the grid layout within inner_buttons_frame
-        # Changed to 2 columns for buttons to make them wider
         self.inner_buttons_frame.grid_columnconfigure(0, weight=1)
         self.inner_buttons_frame.grid_columnconfigure(1, weight=1)
 
-        # Now call _populate_zone_group_tree after inner_buttons_frame is initialized
-        self._populate_zone_group_tree()
 
-        # Initially populate with an empty list to clear any previous buttons
+        # Manual Frequency Control Frame (Shifted to row 2)
+        # Moved initialization before _on_main_mode_button_click call
+        self.manual_freq_frame = ttk.LabelFrame(main_split_frame, text="Manual Frequency Control", padding=(1,1,1,1), style="Dark.TLabelframe")
+        self.manual_freq_frame.grid(row=2, column=1, sticky="nsew", padx=5, pady=5) # Shifted row
+        self.manual_freq_frame.grid_columnconfigure(0, weight=1)
+
+        self.manual_freq_entry = ttk.Entry(self.manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
+        self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        # Grid the poke button within its frame
+        self.poke_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+
+
+        # Set initial mode to DISPLAY AFTER all buttons and frames are created
+        self._on_main_mode_button_click("DISPLAY")
+
+
+        self._populate_zone_group_tree()
         self._populate_device_buttons([])
 
 
-        # --- Span Control Buttons Frame (NEW: Now at row 1, full width, with title) ---
-        span_control_frame = ttk.LabelFrame(main_split_frame, text="Span Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        span_control_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
-
-        # Configure columns for the buttons within span_control_frame
-        for i in range(len(SPAN_OPTIONS)):
-            span_control_frame.grid_columnconfigure(i, weight=1)
-
-        # Create buttons
-        self.span_buttons = {}
-        col = 0
-        # Iterate through SPAN_OPTIONS to create buttons
-        for text_key, span_hz_value in SPAN_OPTIONS.items():
-            # Format the second line of the button text
-            display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
-            button_text = f"{text_key}\n{display_value}"
-
-            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton", # Default style for unselected
-                             command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t)) # Pass span_hz, button_widget, and text_key
-
-            # Store button reference before gridding to ensure it's in the dict for the lambda
-            self.span_buttons[text_key] = btn
-            btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
-            col += 1
-
-        # Set "Normal" as the initially selected button and span
-        # Find the "Normal" button and its span value
-        normal_span_hz = SPAN_OPTIONS["Normal"]
-        normal_button_widget = self.span_buttons["Normal"]
-        self._on_span_button_click(normal_span_hz, normal_button_widget, "Normal")
-
-
-        # --- NEW: Current Instrument Settings & Manual Frequency Control Frames (Now at row 2, with titles) ---
+        # --- Current Instrument Settings Frame (Shifted to row 2) ---
         self.current_settings_frame = ttk.LabelFrame(main_split_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
-        # --- MODIFIED: Ensure current_settings_frame uses fixed width by being in column 0 with minsize ---
-        self.current_settings_frame.grid(row=2, column=0, sticky="nsew", padx=5, pady=5) # Left half of row 2
-        # --- END MODIFIED ---
-        self.current_settings_frame.grid_columnconfigure(0, weight=1) # Allow label to expand
-        self.current_settings_frame.grid_columnconfigure(1, weight=1) # For values
+        self.current_settings_frame.grid(row=2, column=0, sticky="nsew", padx=5, pady=5) # Shifted row
+        self.current_settings_frame.grid_columnconfigure(0, weight=1)
+        self.current_settings_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(self.current_settings_frame, text="Span:", style="Markers.TLabel").grid(row=0, column=0, sticky="w", padx=5, pady=2)
-        self.current_span_label = ttk.Label(self.current_settings_frame, textvariable=self.current_span_var, style="Markers.TLabel") # Use textvariable
+        self.current_span_label = ttk.Label(self.current_settings_frame, textvariable=self.current_span_var, style="Markers.TLabel")
         self.current_span_label.grid(row=0, column=1, sticky="w", padx=5, pady=2)
 
         ttk.Label(self.current_settings_frame, text="Trace Modes:", style="Markers.TLabel").grid(row=1, column=0, sticky="w", padx=5, pady=2)
-        self.current_trace_modes_label = ttk.Label(self.current_settings_frame, textvariable=self.current_trace_modes_var, style="Markers.TLabel") # Use textvariable
+        self.current_trace_modes_label = ttk.Label(self.current_settings_frame, textvariable=self.current_trace_modes_var, style="Markers.TLabel")
         self.current_trace_modes_label.grid(row=1, column=1, sticky="w", padx=5, pady=2)
 
         ttk.Label(self.current_settings_frame, text="RBW:", style="Markers.TLabel").grid(row=2, column=0, sticky="w", padx=5, pady=2)
         self.current_rbw_label = ttk.Label(self.current_settings_frame, textvariable=self.current_rbw_var, style="Markers.TLabel")
         self.current_rbw_label.grid(row=2, column=1, sticky="w", padx=5, pady=2)
-
 
         ttk.Label(self.current_settings_frame, text="Selected Name:", style="Markers.TLabel").grid(row=3, column=0, sticky="w", padx=5, pady=2)
         self.current_name_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_device_name_var, style="Markers.TLabel")
@@ -248,29 +248,39 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_freq_label.grid(row=5, column=1, sticky="w", padx=5, pady=2)
 
 
-        # Manual Frequency Control Frame (Right half of row 2, with title)
-        manual_freq_frame = ttk.LabelFrame(main_split_frame, text="Manual Frequency Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        manual_freq_frame.grid(row=2, column=1, sticky="nsew", padx=5, pady=5) # Right half of row 2
-        manual_freq_frame.grid_columnconfigure(0, weight=1) # Allow entry to expand
+        # --- Span Control Buttons Frame (Shifted to row 3) ---
+        span_control_frame = ttk.LabelFrame(main_split_frame, text="Span Control", padding=(1,1,1,1), style="Dark.TLabelframe")
+        span_control_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
 
-        self.manual_freq_entry = ttk.Entry(manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
-        self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        for i in range(len(SPAN_OPTIONS)):
+            span_control_frame.grid_columnconfigure(i, weight=1)
 
-        self.poke_button = ttk.Button(manual_freq_frame, text="POKE", style="Markers.Config.Default.TButton", command=self._on_poke_button_click)
-        self.poke_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
+        self.span_buttons = {}
+        col = 0
+        for text_key, span_hz_value in SPAN_OPTIONS.items():
+            display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
+            button_text = f"{text_key}\n{display_value}"
+
+            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton",
+                             command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t))
+
+            self.span_buttons[text_key] = btn
+            btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
+            col += 1
+
+        normal_span_hz = SPAN_OPTIONS["Normal"]
+        normal_button_widget = self.span_buttons["Normal"]
+        self._on_span_button_click(normal_span_hz, normal_button_widget, "Normal")
 
 
-        # --- Trace Mode Control Buttons Frame (NEW: Now at row 3, full width, with title) ---
+        # --- Trace Mode Control Buttons Frame (Shifted to row 4) ---
         trace_mode_control_frame = ttk.LabelFrame(main_split_frame, text="Trace Mode Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        trace_mode_control_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
+        trace_mode_control_frame.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
 
-        # Configure columns for the buttons within trace_mode_control_frame
         trace_mode_control_frame.grid_columnconfigure(0, weight=1)
         trace_mode_control_frame.grid_columnconfigure(1, weight=1)
         trace_mode_control_frame.grid_columnconfigure(2, weight=1)
 
-        # Create Trace Mode buttons
-        # The command will toggle the associated BooleanVar and then call the update logic
         btn_live = ttk.Button(trace_mode_control_frame, text="Live", style="Markers.Config.Default.TButton",
                               command=lambda: self._on_trace_mode_button_click("Live"))
         btn_max_hold = ttk.Button(trace_mode_control_frame, text="Max Hold", style="Markers.Config.Default.TButton",
@@ -286,15 +296,13 @@ class MarkersDisplayTab(ttk.Frame):
         btn_max_hold.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")
         btn_min_hold.grid(row=0, column=2, padx=2, pady=2, sticky="nsew")
 
-        # Initialize button colors based on default states (Live is True, others False)
-        self._update_trace_mode_button_styles() # Call this to set initial colors
+        self._update_trace_mode_button_styles()
 
 
-        # --- Resolution Bandwidth (RBW) Control Frame (NEW: Now at row 4, full width, with title) ---
+        # --- Resolution Bandwidth (RBW) Control Frame (Shifted to row 5) ---
         rbw_control_frame = ttk.LabelFrame(main_split_frame, text="Resolution Bandwidth (RBW)", padding=(1,1,1,1), style="Dark.TLabelframe")
-        rbw_control_frame.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Full width of row 4
+        rbw_control_frame.grid(row=5, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
 
-        # Configure columns for the RBW buttons
         for i in range(len(RBW_OPTIONS)):
             rbw_control_frame.grid_columnconfigure(i, weight=1)
 
@@ -307,10 +315,103 @@ class MarkersDisplayTab(ttk.Frame):
             btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
             col += 1
 
-        # Set a default RBW selection (e.g., "1 MHz")
         default_rbw_key = "1 MHz"
         if default_rbw_key in self.rbw_buttons:
             self._on_rbw_button_click(RBW_OPTIONS[default_rbw_key], self.rbw_buttons[default_rbw_key], default_rbw_key)
+
+
+    def _on_main_mode_button_click(self, mode_name):
+        """
+        Handles the click event for the main interaction mode buttons (DISPLAY, POKE, CLEAR).
+        Updates button styles and enables/disables relevant UI sections.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"Main mode button clicked: {mode_name}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+
+        self.main_mode_var.set(mode_name)
+
+        for name, button in self.main_mode_buttons.items():
+            if name == mode_name:
+                if name == "POKE":
+                    button.config(style="LargeYAK.TButton") # POKE always uses YAK style
+                else:
+                    button.config(style="SelectedPreset.Orange.TButton")
+                debug_log(f"Setting '{name}' button style to selected.",
+                            file=current_file, version=current_version, function=current_function)
+            else:
+                if name == "POKE":
+                    button.config(style="LargeYAK.TButton") # POKE always uses YAK style even when not active
+                else:
+                    button.config(style="LargePreset.TButton")
+                debug_log(f"Setting '{name}' button style to default.",
+                            file=current_file, version=current_version, function=current_function)
+
+        # Enable/Disable UI sections based on mode
+        if mode_name == "DISPLAY":
+            # self.buttons_frame.config(state="normal") # Removed: LabelFrame does not have 'state' option
+            for child in self.buttons_frame.winfo_children():
+                self._set_widget_state(child, "normal")
+            # self.manual_freq_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
+            for child in self.manual_freq_frame.winfo_children():
+                self._set_widget_state(child, "disabled")
+            # If in DISPLAY mode, and a device was previously selected, re-highlight it
+            if self.selected_device_unique_id and self.current_selected_device_data:
+                # Re-populate buttons to ensure correct highlighting based on selected_device_unique_id
+                self._populate_device_buttons(self._current_displayed_devices if hasattr(self, '_current_displayed_devices') else [])
+            else:
+                # Clear device button highlighting if no device was selected
+                self._reset_device_button_styles(exclude_button=None)
+            self._update_current_settings_display() # Refresh display
+        elif mode_name == "POKE":
+            # self.buttons_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
+            for child in self.buttons_frame.winfo_children():
+                self._set_widget_state(child, "disabled")
+            # self.manual_freq_frame.config(state="normal") # Removed: LabelFrame does not have 'state' option
+            for child in self.manual_freq_frame.winfo_children():
+                self._set_widget_state(child, "normal")
+            # Clear any device button highlighting when in POKE mode
+            self._reset_device_button_styles(exclude_button=None)
+            self._update_current_settings_display() # Refresh display
+        elif mode_name == "CLEAR":
+            # self.buttons_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
+            for child in self.buttons_frame.winfo_children():
+                self._set_widget_state(child, "disabled")
+            # self.manual_freq_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
+            for child in self.manual_freq_frame.winfo_children():
+                self._set_widget_state(child, "disabled")
+            # Clear all current settings display
+            self.current_displayed_device_name_var.set("N/A")
+            self.current_displayed_device_type_var.set("N/A")
+            self.current_displayed_center_freq_var.set("N/A")
+            self.current_span_var.set("N/A")
+            self.current_trace_modes_var.set("N/A")
+            self.current_rbw_var.set("N/A")
+            # Clear device button highlighting
+            self._reset_device_button_styles(exclude_button=None)
+            # Potentially send instrument command to clear marker/traces
+            if self.app_instance and self.app_instance.inst:
+                inst = self.app_instance.inst
+                set_marker_logic(inst, 0, "OFF", console_log) # Turn marker off
+                blank_hold_traces_logic(inst, console_log) # Blank traces
+                set_trace_modes_logic(inst, False, False, False, console_log) # Set all traces to blank/off
+                set_span_logic(inst, 0, console_log) # Set span to full (0 Hz)
+                set_rbw_logic(inst, 0, console_log) # Set RBW to auto/min (0 Hz)
+                set_frequency_logic(inst, 0, console_log) # Set center freq to 0 or default
+            console_log("Instrument settings cleared.", function=current_function)
+            debug_log("Instrument settings cleared.", file=current_file, version=current_version, function=current_function)
+
+    def _set_widget_state(self, widget, state):
+        """Recursively sets the state of a widget and its children."""
+        try:
+            widget.config(state=state)
+        except tk.TclError: # Some widgets like Frames don't have a 'state' option
+            pass
+        for child in widget.winfo_children():
+            self._set_widget_state(child, state)
 
 
     def _populate_zone_group_tree(self):
@@ -416,15 +517,6 @@ class MarkersDisplayTab(ttk.Frame):
                 self.current_selected_device_button.config(style="DeviceButton.TButton")
                 self.current_selected_device_button = None
             self.current_selected_device_data = None # Ensure data is clear if no unique ID
-
-        # Also reset Poke button style if it was selected, as tree selection implies
-        # looking at specific devices, not a manual poke.
-        if self.last_selected_poke_button:
-            self.last_selected_poke_button.config(style="Markers.TButton")
-            debug_log(f"Resetting POKE button style to Markers.TButton (Default Blue) due to tree selection change.",
-                        file=current_file, version=current_version, function=current_function)
-            self.last_selected_poke_button = None
-
 
         self._populate_device_buttons(selected_rows_data)
 
@@ -605,7 +697,7 @@ class MarkersDisplayTab(ttk.Frame):
                     function=current_function)
         for btn in self.span_buttons.values():
             if btn != exclude_button:
-                btn.config(style="Markers.TButton")
+                btn.config(style="Markers.Config.Default.TButton") # Ensure default style is correct
         self.last_selected_span_button = exclude_button
 
     def _reset_rbw_button_styles(self, exclude_button=None):
@@ -618,7 +710,7 @@ class MarkersDisplayTab(ttk.Frame):
                     function=current_function)
         for btn in self.rbw_buttons.values():
             if btn != exclude_button:
-                btn.config(style="Markers.TButton")
+                btn.config(style="Markers.Config.Default.TButton") # Ensure default style is correct
         self.last_selected_rbw_button = exclude_button
 
     def _reset_device_button_styles(self, exclude_button=None):
@@ -686,10 +778,17 @@ class MarkersDisplayTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
 
+        # Ensure we are in DISPLAY mode to process device button clicks
+        if self.main_mode_var.get() != "DISPLAY":
+            console_log("ℹ️ Info: Device buttons are only active in 'DISPLAY' mode.", function=current_function)
+            debug_log("Device button clicked while not in DISPLAY mode. Ignoring.",
+                        file=current_file, version=current_version, function=current_function)
+            return
+
         freq_hz = float(device_data.get('FREQ')) * MHZ_TO_HZ
         name = device_data.get('NAME', '').strip() # Ensure name is stripped for display
         device_type = device_data.get('DEVICE', '').strip() # Get device type
-        unique_device_id = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{device_data.get('FREQ', '')}"
+        unique_device_id = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{freq_mhz}"
 
         # Format frequency for display without decimal if it's a whole number
         display_freq_mhz = int(freq_hz / MHZ_TO_HZ) if (freq_hz / MHZ_TO_HZ) == int(freq_hz / MHZ_TO_HZ) else f"{freq_hz / MHZ_TO_HZ:.3f}"
@@ -699,13 +798,8 @@ class MarkersDisplayTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        # Clear only previous device selection and poke button
+        # Clear only previous device selection
         self._reset_device_button_styles(exclude_button=clicked_button_widget)
-        if self.last_selected_poke_button: # Reset poke button if it was active
-            self.last_selected_poke_button.config(style="Markers.TButton")
-            debug_log(f"POKE button style reset to Markers.TButton (Default Blue).",
-                        file=current_file, version=current_version, function=current_function)
-            self.last_selected_poke_button = None
 
         # Set new device selection
         clicked_button_widget.config(style="Markers.SelectedButton.TButton") # Select new button (orange)
@@ -806,7 +900,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_span_hz = span_hz
 
         # Toggle button styles for visual feedback (orange/blue accordingly)
-        button_widget.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
+        button_widget.config(style="Markers.Config.Selected.TButton") # Use the new unified selected style
         self.last_selected_span_button = button_widget
 
 
@@ -894,7 +988,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_rbw_var.set(button_text_key)
 
         # Toggle button styles for visual feedback (orange/blue accordingly)
-        button_widget.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
+        button_widget.config(style="Markers.Config.Selected.TButton") # Use the new unified selected style
         self.last_selected_rbw_button = button_widget # Store reference to the newly selected button
 
         # If the instrument is connected, send the commands
@@ -938,9 +1032,17 @@ class MarkersDisplayTab(ttk.Frame):
         """
         Callback for the POKE button. Sets the instrument's center frequency
         based on the manual input, treating it like a 'wild device'.
+        This method is now only callable when in 'POKE' main mode.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+
+        if self.main_mode_var.get() != "POKE":
+            console_log("ℹ️ Info: POKE button is only active in 'POKE' mode.", function=current_function)
+            debug_log("POKE button clicked while not in POKE mode. Ignoring.",
+                        file=current_file, version=current_version, function=current_function)
+            return
+
         manual_freq_str = self.manual_freq_entry_var.get().strip()
 
         if not manual_freq_str:
@@ -968,22 +1070,8 @@ class MarkersDisplayTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        # Clear existing device selection and reset its style
-        self._reset_device_button_styles(exclude_button=None) # Ensure no device button is selected
-
-        # Reset previously selected POKE button if it was different
-        if self.last_selected_poke_button and self.last_selected_poke_button != self.poke_button:
-            self.last_selected_poke_button.config(style="Markers.TButton")
-            debug_log(f"Previous POKE button style reset to Markers.TButton (Default Blue).",
-                        file=current_file, version=current_version, function=current_function)
-
-
-        # Highlight the POKE button
-        self.poke_button.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
-        debug_log(f"POKE button style set to Markers.SelectedButton.TButton (Orange).",
-                    file=current_file, version=current_version, function=current_function)
-        self.last_selected_poke_button = self.poke_button
-
+        # No need to change POKE button style here, it's handled by _on_main_mode_button_click.
+        # No need to clear device button styles here, as it's handled by _on_main_mode_button_click.
 
         if self.app_instance and self.app_instance.inst:
             inst = self.app_instance.inst
@@ -1101,12 +1189,12 @@ class MarkersDisplayTab(ttk.Frame):
             button = data["button"]
             var = data["var"]
             if var.get():
-                button.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
-                debug_log(f"Trace mode button '{mode_name}' style set to Markers.SelectedButton.TButton (Orange).",
+                button.config(style="Markers.Config.Selected.TButton") # Use the new unified selected style
+                debug_log(f"Trace mode button '{mode_name}' style set to Markers.Config.Selected.TButton (Orange).",
                             file=current_file, version=current_version, function=current_function)
             else:
-                button.config(style="Markers.TButton") # Use default blue for unselected
-                debug_log(f"Trace mode button '{mode_name}' style set to Markers.TButton (Default Blue).",
+                button.config(style="Markers.Config.Default.TButton") # Use default blue for unselected
+                debug_log(f"Trace mode button '{mode_name}' style set to Markers.Config.Default.TButton (Default Blue).",
                             file=current_file, version=current_version, function=current_function)
 
     def _update_current_settings_display(self):
@@ -1187,12 +1275,12 @@ class MarkersDisplayTab(ttk.Frame):
                     function=current_function)
 
 
-        # Update Selected Device Info Display
-        # Prioritize POK if it's the last selected control
-        if self.last_selected_poke_button and self.last_selected_poke_button.cget("style") == "Markers.SelectedButton.TButton":
+        # Update Selected Device Info Display based on active mode
+        current_mode = self.main_mode_var.get()
+        if current_mode == "POKE":
             try:
                 manual_freq_mhz = float(self.manual_freq_entry_var.get())
-                self.current_displayed_device_name_var.set(f"POKE: {manual_freq_mhz:.3f}") # Corrected POKE display
+                self.current_displayed_device_name_var.set(f"POKE: {manual_freq_mhz:.3f}")
                 self.current_displayed_center_freq_var.set(f"{manual_freq_mhz:.3f}")
             except ValueError:
                 self.current_displayed_device_name_var.set("POKE: Invalid Freq")
@@ -1200,7 +1288,7 @@ class MarkersDisplayTab(ttk.Frame):
             self.current_displayed_device_type_var.set("N/A")
             debug_log(f"Displaying Selected Device Info (POKE): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
                         file=current_file, version=current_version, function=current_function)
-        elif self.current_selected_device_data:
+        elif current_mode == "DISPLAY" and self.current_selected_device_data:
             name = self.current_selected_device_data.get('NAME', '').strip()
             device_type = self.current_selected_device_data.get('DEVICE', '').strip()
             freq_mhz = self.current_selected_device_data.get('FREQ')
@@ -1219,12 +1307,11 @@ class MarkersDisplayTab(ttk.Frame):
             self.current_displayed_center_freq_var.set(display_freq)
             debug_log(f"Displaying Selected Device Info (Device Button): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
                         file=current_file, version=current_version, function=current_function)
-        else:
-            # If no device is selected and POKE is not active, clear display
+        else: # Default for CLEAR mode or no selection in DISPLAY mode
             self.current_displayed_device_name_var.set("N/A")
             self.current_displayed_device_type_var.set("N/A")
             self.current_displayed_center_freq_var.set("N/A")
-            debug_log(f"Displaying Selected Device Info: N/A (No device button clicked or POKE active).",
+            debug_log(f"Displaying Selected Device Info: N/A (Mode: {current_mode}, No device button clicked or POKE active).",
                         file=current_file, version=current_version, function=current_function)
 
 
