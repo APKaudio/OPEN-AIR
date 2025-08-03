@@ -24,9 +24,11 @@
 # Version 20250803.0015.0 (FIXED: SyntaxError: leading zeros in decimal integer literals by correcting current_version_hash.)
 # Version 20250803.0025.0 (Adjusted display units and labels for Center, Span (MHz) and RBW, VBW (Hz).)
 # Version 20250803.0035.0 (Removed 'Nickname: ' prefix from preset buttons.)
+# Version 20250803.1026.0 (IMPROVED: _update_gui_from_preset_data with granular error handling for data conversion
+#                         and better display of invalid values in the details box.)
 
-current_version = "20250803.0035.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 35 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1026.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1026 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk
@@ -181,6 +183,13 @@ class LocalPresetsTab(ttk.Frame):
         
         # Reset last clicked button reference when repopulating
         self.last_clicked_button = None
+        # Clear selected preset details when repopulating
+        self.selected_preset_nickname_var.set("N/A")
+        self.selected_preset_center_var.set("N/A")
+        self.selected_preset_span_var.set("N/A")
+        self.selected_preset_rbw_var.set("N/A")
+        self.selected_preset_vbw_var.set("N/A")
+
 
         self.user_presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
 
@@ -200,12 +209,23 @@ class LocalPresetsTab(ttk.Frame):
         for preset in self.user_presets_data:
             nickname = preset.get('NickName', preset.get('Filename', 'Unnamed Preset'))
             
-            # Display values as read from CSV (which are in MHz for Center/Span)
-            center_freq_mhz_display = float(preset.get('Center', 0.0)) if preset.get('Center', '').strip() else "N/A"
-            span_mhz_display = float(preset.get('Span', 0.0)) if preset.get('Span', '').strip() else "N/A"
+            # Safely get and format Center and Span for button display
+            center_freq_mhz_display = "N/A"
+            span_mhz_display = "N/A"
+            try:
+                if preset.get('Center', '').strip():
+                    center_freq_mhz_display = f"{float(preset.get('Center')):.3f}"
+                if preset.get('Span', '').strip():
+                    span_mhz_display = f"{float(preset.get('Span')):.3f}"
+            except ValueError:
+                debug_log(f"Warning: Could not convert Center/Span for button text for preset '{nickname}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                # Keep "N/A" or previous value if conversion fails
 
             # Removed "Nickname: " from the button text
-            button_text = f"{nickname}\nC: {center_freq_mhz_display:.3f} MHz\nSP: {span_mhz_display:.3f} MHz"
+            button_text = f"{nickname}\nC: {center_freq_mhz_display} MHz\nSP: {span_mhz_display} MHz"
 
             # Use lambda to capture the current preset_data for each button
             preset_button = ttk.Button(self.scrollable_frame,
@@ -237,7 +257,7 @@ class LocalPresetsTab(ttk.Frame):
     def _on_preset_button_click(self, preset_data, clicked_button):
         """
         Handles the click event for a preset button.
-        Updates GUI variables, pushes the preset settings to the instrument,
+        Updates GUI variables, pushes the preset settings to the connected instrument,
         and updates the button's visual style.
         """
         current_function = inspect.currentframe().f_code.co_name
@@ -310,86 +330,135 @@ class LocalPresetsTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        try:
-            # Helper to safely get and convert value, defaulting to current Tkinter var value if empty
-            def get_and_set_var(key, tk_var, conversion_func=str):
-                value = preset_data.get(key, '').strip()
-                if value:
-                    try:
-                        tk_var.set(conversion_func(value))
-                    except ValueError:
-                        debug_log(f"Warning: Could not convert preset '{key}' value '{value}' to {conversion_func.__name__}. Skipping.",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
-                                    version=current_version,
-                                    function=current_function)
-                # If value is empty, the Tkinter variable retains its current value.
+        # Update the new display variables for selected preset details box first
+        self.selected_preset_nickname_var.set(preset_data.get('NickName', 'N/A'))
 
-            # Convert Center and Span from MHz (CSV) to Hz (Tkinter var)
-            get_and_set_var('Center', self.app_instance.center_freq_hz_var, lambda x: float(x) * self.app_instance.MHZ_TO_HZ)
-            get_and_set_var('Span', self.app_instance.span_hz_var, lambda x: float(x) * self.app_instance.MHZ_TO_HZ)
+        # Helper to safely get and convert value for display variables
+        def set_display_var(tk_var, key, format_str="{}", conversion_func=str, default_val="N/A"):
+            value_str = preset_data.get(key, '').strip()
+            if not value_str:
+                tk_var.set(default_val)
+                debug_log(f"Preset '{key}' is empty. Setting display to '{default_val}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return
 
-            # RBW and VBW are already in Hz in the CSV, so direct conversion
-            get_and_set_var('RBW', self.app_instance.rbw_hz_var, float)
-            get_and_set_var('VBW', self.app_instance.vbw_hz_var, float) # VBW is also in Hz
+            try:
+                converted_value = conversion_func(value_str)
+                tk_var.set(format_str.format(converted_value))
+                debug_log(f"Preset '{key}' value '{value_str}' converted to '{converted_value}' and displayed as '{tk_var.get()}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            except ValueError as e:
+                tk_var.set("Invalid Value")
+                debug_log(f"Error converting preset '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Displaying 'Invalid Value'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            except Exception as e:
+                tk_var.set("Error")
+                debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
 
-            get_and_set_var('RefLevel', self.app_instance.reference_level_dbm_var, float)
-            get_and_set_var('Attenuation', self.app_instance.attenuation_var, int)
-            get_and_set_var('MaxHold', self.app_instance.maxhold_enabled_var, lambda x: x.upper() == 'ON')
-            get_and_set_var('HighSens', self.app_instance.high_sensitivity_var, lambda x: x.upper() == 'ON')
-            get_and_set_var('PreAmp', self.app_instance.preamp_on_var, lambda x: x.upper() == 'ON')
+        set_display_var(self.selected_preset_center_var, 'Center', "{:.3f}", float)
+        set_display_var(self.selected_preset_span_var, 'Span', "{:.3f}", float)
+        set_display_var(self.selected_preset_rbw_var, 'RBW', "{:.0f}", float)
+        set_display_var(self.selected_preset_vbw_var, 'VBW', "{:.0f}", float)
 
-            # Trace Modes (StringVars)
-            get_and_set_var('Trace1Mode', self.app_instance.trace1_mode_var)
-            get_and_set_var('Trace2Mode', self.app_instance.trace2_mode_var)
-            get_and_set_var('Trace3Mode', self.app_instance.trace3_mode_var)
-            get_and_set_var('Trace4Mode', self.app_instance.trace4_mode_var)
+        # Now, update the main application's instrument control variables
+        # This part remains mostly the same, but uses the same robust `get_and_set_var` logic
+        # or similar explicit error handling if not using the helper.
+        # Ensure these also handle empty/invalid strings gracefully.
+        
+        # Helper to safely get and convert value for app_instance variables
+        def get_and_set_app_var(key, app_tk_var, conversion_func=str, scale_factor=1.0):
+            value_str = preset_data.get(key, '').strip()
+            if not value_str:
+                # If value is empty, do not change the app_tk_var, or set to a default if desired
+                debug_log(f"App var '{key}' is empty in preset. Skipping update for app_tk_var.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return
 
-            # Marker Max (BooleanVars, assuming 'WRITE' means True)
-            get_and_set_var('Marker1Max', self.app_instance.marker1_calculate_max_var, lambda x: x.upper() == 'WRITE')
-            get_and_set_var('Marker2Max', self.app_instance.marker2_calculate_max_var, lambda x: x.upper() == 'WRITE')
-            get_and_set_var('Marker3Max', self.app_instance.marker3_calculate_max_var, lambda x: x.upper() == 'WRITE')
-            get_and_set_var('Marker4Max', self.app_instance.marker4_calculate_max_var, lambda x: x.upper() == 'WRITE')
-            get_and_set_var('Marker5Max', self.app_instance.marker5_calculate_max_var, lambda x: x.upper() == 'WRITE')
-            get_and_set_var('Marker6Max', self.app_instance.marker6_calculate_max_var, lambda x: x.upper() == 'WRITE')
-
-
-            # Update the app_instance's last selected preset name and loaded values (these are already for display in MHz)
-            self.app_instance.last_selected_preset_name_var.set(preset_data.get('NickName', preset_data.get('Filename', '')))
-            # No division needed here, as preset_data.get('Center') is already in MHz
-            self.app_instance.last_loaded_preset_center_freq_mhz_var.set(f"{float(preset_data.get('Center', 0.0)):.3f}")
-            self.app_instance.last_loaded_preset_span_mhz_var.set(f"{float(preset_data.get('Span', 0.0)):.3f}")
-            self.app_instance.last_loaded_preset_rbw_hz_var.set(f"{float(preset_data.get('RBW', 0.0)):.0f}")
-
-
-            # Update the new display variables for selected preset details box
-            self.selected_preset_nickname_var.set(preset_data.get('NickName', 'N/A'))
-            self.selected_preset_center_var.set(f"{float(preset_data.get('Center', 0.0)):.3f}")
-            self.selected_preset_span_var.set(f"{float(preset_data.get('Span', 0.0)):.3f}")
-            self.selected_preset_rbw_var.set(f"{float(preset_data.get('RBW', 0.0)):.0f}")
-            self.selected_preset_vbw_var.set(f"{float(preset_data.get('VBW', 0.0)):.0f}") # NEW: Set VBW display
-
-
-            self.console_print_func(f"✅ GUI settings updated from local preset '{preset_data.get('NickName', 'Unnamed')}'.")
-            debug_log("GUI settings updated from local preset.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-        except Exception as e:
-            self.console_print_func(f"❌ An unexpected error occurred updating GUI from preset: {e}.")
-            debug_log(f"Unexpected error updating GUI from preset: {e}. What a mess!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
+            try:
+                converted_value = conversion_func(value_str) * scale_factor
+                app_tk_var.set(converted_value)
+                debug_log(f"App var '{key}' updated to '{converted_value}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            except ValueError as e:
+                debug_log(f"Error converting app var '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Skipping app_tk_var update.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            except Exception as e:
+                debug_log(f"Unexpected error processing app var '{key}' value '{value_str}': {e}. Skipping app_tk_var update.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
 
 
-    def _on_tab_selected(self, event):
-        """
-        Called when this tab is selected in the notebook.
-        Refreshes the local presets list.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Local Presets Tab selected. Refreshing list... Let's get this updated!",
+        # Convert Center and Span from MHz (CSV) to Hz (Tkinter var) for app_instance
+        get_and_set_app_var('Center', self.app_instance.center_freq_hz_var, float, self.app_instance.MHZ_TO_HZ)
+        get_and_set_app_var('Span', self.app_instance.span_hz_var, float, self.app_instance.MHZ_TO_HZ)
+
+        # RBW and VBW are already in Hz in the CSV, so direct conversion
+        get_and_set_app_var('RBW', self.app_instance.rbw_hz_var, float)
+        get_and_set_app_var('VBW', self.app_instance.vbw_hz_var, float)
+
+        get_and_set_app_var('RefLevel', self.app_instance.reference_level_dbm_var, float)
+        get_and_set_app_var('Attenuation', self.app_instance.attenuation_var, int)
+        
+        # For boolean values, ensure they are correctly interpreted
+        def get_and_set_bool_app_var(key, app_tk_var):
+            value_str = preset_data.get(key, '').strip().upper()
+            if value_str in ['ON', 'TRUE', 'WRITE']:
+                app_tk_var.set(True)
+            elif value_str in ['OFF', 'FALSE', '']:
+                app_tk_var.set(False)
+            else:
+                debug_log(f"Warning: Unexpected boolean value for '{key}': '{value_str}'. Not updating app_tk_var.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+        get_and_set_bool_app_var('MaxHold', self.app_instance.maxhold_enabled_var)
+        get_and_set_bool_app_var('HighSens', self.app_instance.high_sensitivity_var)
+        get_and_set_bool_app_var('PreAmp', self.app_instance.preamp_on_var)
+
+        # Trace Modes (StringVars)
+        get_and_set_app_var('Trace1Mode', self.app_instance.trace1_mode_var)
+        get_and_set_app_var('Trace2Mode', self.app_instance.trace2_mode_var)
+        get_and_set_app_var('Trace3Mode', self.app_instance.trace3_mode_var)
+        get_and_set_app_var('Trace4Mode', self.app_instance.trace4_mode_var)
+
+        # Marker Max (BooleanVars, assuming 'WRITE' means True)
+        get_and_set_bool_app_var('Marker1Max', self.app_instance.marker1_calculate_max_var)
+        get_and_set_bool_app_var('Marker2Max', self.app_instance.marker2_calculate_max_var)
+        get_and_set_bool_app_var('Marker3Max', self.app_instance.marker3_calculate_max_var)
+        get_and_set_bool_app_var('Marker4Max', self.app_instance.marker4_calculate_max_var)
+        get_and_set_bool_app_var('Marker5Max', self.app_instance.marker5_calculate_max_var)
+        get_and_set_bool_app_var('Marker6Max', self.app_instance.marker6_calculate_max_var)
+
+
+        # Update the app_instance's last selected preset name and loaded values (these are already for display in MHz)
+        self.app_instance.last_selected_preset_name_var.set(preset_data.get('NickName', preset_data.get('Filename', '')))
+        
+        # These are also display variables, so use similar robust setting
+        set_display_var(self.app_instance.last_loaded_preset_center_freq_mhz_var, 'Center', "{:.3f}", float)
+        set_display_var(self.app_instance.last_loaded_preset_span_mhz_var, 'Span', "{:.3f}", float)
+        set_display_var(self.app_instance.last_loaded_preset_rbw_hz_var, 'RBW', "{:.0f}", float)
+
+
+        self.console_print_func(f"✅ GUI settings updated from local preset '{preset_data.get('NickName', 'Unnamed')}'.")
+        debug_log("GUI settings updated from local preset.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        self.populate_local_presets_list()
+

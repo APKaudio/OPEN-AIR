@@ -70,9 +70,12 @@
 # Version 20250803.1020.0 (REFINED: _on_window_focus_in to be less disruptive.
 #                         ADDED: _on_tree_select method and bind to <<TreeviewSelect>> for selection debugging.
 #                         ADDED: Explicit console message for save path in _save_presets_to_csv.)
+# Version 20250803.1028.0 (ADDED: Keyboard shortcuts (Ctrl+Up/Down) to move selected presets in the Treeview.)
+# Version 20250803.1032.0 (IMPROVED: _move_preset_up and _move_preset_down to maintain selection on moved items.
+#                         UPDATED: Move button text to include keyboard shortcuts.)
 
-current_version = "20250803.1020.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1020 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1032.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1032 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -199,12 +202,12 @@ class PresetEditorTab(ttk.Frame):
         move_button_frame.grid_columnconfigure(0, weight=1)
         move_button_frame.grid_columnconfigure(1, weight=1)
 
-        # Move Preset UP Button
-        move_up_button = ttk.Button(move_button_frame, text="Move Preset UP", command=self._move_preset_up, style='Orange.TButton')
+        # Move Preset UP Button (Updated text)
+        move_up_button = ttk.Button(move_button_frame, text="Move Preset UP (CTRL+UP)", command=self._move_preset_up, style='Orange.TButton')
         move_up_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Move Preset DOWN Button
-        move_down_button = ttk.Button(move_button_frame, text="Move Preset DOWN", command=self._move_preset_down, style='Orange.TButton')
+        # Move Preset DOWN Button (Updated text)
+        move_down_button = ttk.Button(move_button_frame, text="Move Preset DOWN (CTRL+DOWN)", command=self._move_preset_down, style='Orange.TButton')
         move_down_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 
@@ -246,6 +249,9 @@ class PresetEditorTab(ttk.Frame):
         self.presets_tree.bind("<Double-1>", self._on_double_click)
         # NEW: Bind to TreeviewSelect event for debugging selection
         self.presets_tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+        # NEW: Bind Ctrl+Up and Ctrl+Down for moving presets
+        self.presets_tree.bind("<Control-Up>", lambda event: self._move_preset_up())
+        self.presets_tree.bind("<Control-Down>", lambda event: self._move_preset_down())
 
 
         # --- Button Frame for File Operations (excluding Save) ---
