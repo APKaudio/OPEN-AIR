@@ -15,9 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.0025.1 (Refactored debug_print to debug_log; added flair.)
+# Version 20250803.0250.0 (Updated ASCII art for splash screen with new designs.)
+# Version 20250803.0255.0 (Refactored ASCII art blocks into individual functions.)
+# Version 20250803.0300.0 (Replaced print() statements with console_log() for GUI output.)
+# Version 20250803.0305.0 (CRITICAL FIX: Ensured each line of ASCII art is sent via console_log.)
 
-current_version = "20250802.0025.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 25 * 1 # Example hash, adjust as needed
+current_version = "20250803.0305.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 305 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 import sys
@@ -27,7 +31,7 @@ import inspect # Added for debug_log
 
 # Import the debug logic module to use debug_log
 from src.debug_logic import debug_log # Changed from debug_print
-
+from src.console_logic import console_log # Import console_log
 
 class TextRedirector(object):
     """
@@ -115,6 +119,139 @@ class TextRedirector(object):
                 # Widget has been destroyed, stop writing
                 pass
 
+def _print_open_air_ascii(console_print_func):
+    """Prints the 'OPEN AIR' ASCII art to the console."""
+    lines = [
+        " ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒ ░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓█▓▒░ ▒▓███████▓▒░  ",
+        "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒ ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓████████▓▒ ░▒▓█▓▒░ ▒▓███████▓▒░  ",
+        "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
+        " ░▒▓██████▓▒░ ░▒▓█▓▒░       ░▒▓████████▓▒ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_collaboration_ascii(console_print_func):
+    """Prints the collaboration ASCII art to the console."""
+    lines = [
+        "                                               #              #####                     ## ####",
+        "                                               ###            ##   ######               ##  ## ",
+        "                                               ####           ##         #####          ## ##  ",
+        "                                  ##           ## ##          ##             #####      ####   ",
+        "                       ############            ##  ###        #                  ###    ####   ",
+        "             #########        ###              ##   ###      ##                    ##   ###    ",
+        "   #########               ###                 ##     ##     ##                ####     ##     ",
+        "                         ###                   ###########   ##          ######         ##     ",
+        "                       ###                     ##       ###  #  ########                #      ",
+        "                     ###                       ##         #####                                ",
+        "                   ###                         ##           ##                        # ##     ",
+        "                 ###                #######                 ##                        ###      ",
+        "              ####            ######                        ##                  ##########     ",
+        "            ###        #######                                   ##############                ",
+        "          ###   #######                             ###########                                ",
+        "        ########                  ########             ####                                    ",
+        "      ###              ##########  ####              ########                                  ",
+        "           ###########          ###         ########                                           ",
+        " ##########                  ###    ########                                                   ",
+        "                         ##########                                                            ",
+        "                      #####                        "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_inst_ascii(console_print_func):
+    """Prints the 'INST' ASCII art to the console."""
+    lines = [
+        "INST",
+        "░▒▓█▓▒░▒▓███████▓▒░ ░▒▓███████▓▒░▒▓████████▓▒░ ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░         ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░   ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓███████▓▒░   ░▒▓█▓▒░     "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_scan_ascii(console_print_func):
+    """Prints the 'SCAN' ASCII art to the console."""
+    lines = [
+        "SCAN",
+        " ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░  ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        " ░▒▓██████▓▒░ ░▒▓█▓▒░       ░▒▓████████▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "       ░▒▓█▓▒░░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓███████▓▒░  ░▒▓██████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_plot_ascii(console_print_func):
+    """Prints the 'PLOT' ASCII art to the console."""
+    lines = [
+        "PLOT:                                                   ",
+        "░▒▓███████▓▒░ ░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓███████▓▒░ ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓████████▓▒░░▒▓██████▓▒░   ░▒▓█▓▒░     "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_marks_ascii(console_print_func):
+    """Prints the 'MARKS' ASCII art to the console."""
+    lines = [
+        "MARKS:                                                                                                                ",
+        "░▒▓██████████████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓████████▓▒░░▒▓███████▓▒░ ░▒▓███████▓▒░  ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░ "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_presets_ascii(console_print_func):
+    """Prints the 'PRESETS.CSV' ASCII art to the console."""
+    lines = [
+        "PRESETS.CSV is a file that contains user-defined presets for the application.",
+        "                                                                ",
+        "░▒▓███████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒░ ░▒▓███████▓▒░░▒▓████████▓▒░░▒▓████████▓▒░ ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░          ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░          ░▒▓█▓▒░     ",
+        "░▒▓███████▓▒░ ░▒▓███████▓▒░ ░▒▓██████▓▒░   ░▒▓██████▓▒░ ░▒▓██████▓▒░     ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░              ░▒▓█▓▒░░▒▓█▓▒░          ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓█▓▒░              ░▒▓█▓▒░░▒▓█▓▒░          ░▒▓█▓▒░     ",
+        "░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░░▒▓████████▓▒░░▒▓███████▓▒░ ░▒▓████████▓▒░   ░▒▓█▓▒░     "
+    ]
+    for line in lines:
+        console_print_func(line)
+
+def _print_xxx_ascii(console_print_func):
+    """Prints the 'XXX' ASCII art to the console."""
+    lines = [
+        "XXX",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
+        " ░▒▓██████▓▒░        ░▒▓██████▓▒░        ░▒▓██████▓▒░       ",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
+        "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      "
+    ]
+    for line in lines:
+        console_print_func(line)
+
 def display_splash_screen():
     """
     Function Description:
@@ -139,56 +276,27 @@ def display_splash_screen():
                 function=current_function,
                 special=True) # Adding special flag for splash screen
 
-    ###https://patorjk.com/software/taag/#p=display&h=3&v=2&f=BlurVision%20ASCII&t=OPEN%20AIR%0A
-    # Reverting to default print() behavior, letting it add newlines.
-    # TextRedirector will now insert these newlines directly.
-    print("") # First blank line
-    print("") # Second blank line
-    print("") # Third blank line
-    print(" ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒ ░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓█▓▒░ ▒▓███████▓▒░  ")
-    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓████████▓▒ ░▒▓█▓▒░ ▒▓███████▓▒░  ")
-    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
-    print("░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
-    print(" ░▒▓██████▓▒░ ░▒▓█▓▒░       ░▒▓████████▓▒ ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ")
+    # Use console_log for all output to ensure it goes to the GUI console
+    console_log("") # Blank line
+    console_log("") # Blank line
+    console_log("") # Blank line
+    _print_open_air_ascii(console_log)
                                                                                              
+    console_log("") # Blank line
+    console_log("") # Blank line
+    console_log("") # Blank line
 
-    print("") # First blank line
-    print("") # Second blank line
-    print("") # Third blank line
+    _print_collaboration_ascii(console_log)
+    console_log("") # Blank line
+    console_log("") # Blank line
+    console_log("") # Blank line
+    console_log("A Colaboration betweeen Ike Zimbel and Anthony P. Kuzub")
+    console_log("") # Blank line
+    console_log("https://zimbelaudio.com/ike-zimbel/    ")
+    console_log("https://www.like.audio/")
+    console_log("") # Blank line
 
-    print("                                               #              #####                     ## ####")
-    print("                                               ###            ##   ######               ##  ## ")
-    print("                                               ####           ##         #####          ## ##  ")
-    print("                                  ##           ## ##          ##             #####      ####   ")
-    print("                       ############            ##  ###        #                  ###    ####   ")
-    print("             #########        ###              ##   ###      ##                    ##   ###    ")
-    print("   #########               ###                 ##     ##     ##                ####     ##     ")
-    print("                         ###                   ###########   ##          ######         ##     ")
-    print("                       ###                     ##       ###  #  ########                #      ")
-    print("                     ###                       ##         #####                                ")
-    print("                   ###                         ##           ##                        # ##     ")
-    print("                 ###                #######                 ##                        ###      ")
-    print("              ####            ######                        ##                  ##########     ")
-    print("            ###        #######                                   ##############                ")
-    print("          ###   #######                             ###########                                ")
-    print("        ########                  ########             ####                                    ")
-    print("      ###              ##########  ####              ########                                  ")
-    print("           ###########          ###         ########                                           ")
-    print(" ##########                  ###    ########                                                   ")
-    print("                         ##########                                                            ")
-    print("                      #####                        ")
-    print("") # Blank line
-    print("") # Blank line
-    print("") # Blank line
-    print("A Colaboration betweeen Ike Zimbel and Anthony P. Kuzub")
-    print("") # Blank line
-    print("https://zimbelaudio.com/ike-zimbel/    ")
-    print("https://www.like.audio/")
-    print("") # Blank line
-
-    print("") # Blank line
-
-
-
+    console_log("") # Blank line
+    
+    console_log("") # Blank line
+    console_log("EXPERIMENTAL: This splash screen is designed to be displayed in the console.")
