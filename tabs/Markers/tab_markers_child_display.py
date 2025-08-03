@@ -22,8 +22,11 @@
 # Version 20250803.0800.0 (Fixed device button highlighting persistence across tree selections.)
 # Version 20250803.0850.0 (Implemented radio-style buttons for DISPLAY, POKE, CLEAR with specific styles.)
 # Version 20250803.0855.0 (FIXED: AttributeError by reordering widget creation to ensure frames exist before _on_main_mode_button_click is called.)
+# Version 20250803.0905.0 (Refactored main interaction modes to only POKE or Device Selection.)
+# Version 20250803.0910.0 (FIXED: NameError: name 'freq_mhz' not defined in _on_device_button_click.)
+# Version 20250803.0915.0 (Implemented new tabbed layout for controls and updated POKE button style.)
 
-current_version = "20250803.0855.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0915.0" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -73,7 +76,6 @@ class MarkersDisplayTab(ttk.Frame):
         self.headers = headers if headers is not None else []
         self.rows = rows if rows is not None else [] # Store full rows data
         self.app_instance = app_instance # Store reference to the main app instance
-        # self.console_print_func is removed, using console_log directly
 
         # Apply style to the main frame (this style is now defined globally in main_app.py)
         self.config(style="Markers.TFrame")
@@ -102,9 +104,8 @@ class MarkersDisplayTab(ttk.Frame):
         self.manual_freq_entry_var = tk.StringVar(self, value="") # For manual frequency input
         # --- END NEW ---
 
-        # --- NEW: Main Interaction Mode Variables and Buttons ---
-        self.main_mode_var = tk.StringVar(self, value="DISPLAY") # Default mode
-        self.main_mode_buttons = {} # Stores references to DISPLAY, POKE, CLEAR buttons
+        # --- NEW: POKE Mode Variable ---
+        self.poke_mode_active = tk.BooleanVar(self, value=False) # True if POKE is active, False if device selection is active
         # --- END NEW ---
 
         self._create_widgets()
@@ -133,44 +134,13 @@ class MarkersDisplayTab(ttk.Frame):
         main_split_frame.grid_columnconfigure(1, weight=1) # Right half (device buttons, manual freq) expands
 
         # Configure rows for the new layout
-        main_split_frame.grid_rowconfigure(0, weight=0) # Row for Interaction Mode buttons (fixed height)
-        main_split_frame.grid_rowconfigure(1, weight=1) # Row for Treeview and Device Buttons
-        main_split_frame.grid_rowconfigure(2, weight=0) # Row for Current settings (left) and Manual freq (right)
-        main_split_frame.grid_rowconfigure(3, weight=0) # Row for Span control (fixed height)
-        main_split_frame.grid_rowconfigure(4, weight=0) # Row for Trace mode controls (fixed height)
-        main_split_frame.grid_rowconfigure(5, weight=0) # Row for RBW control (full width)
+        main_split_frame.grid_rowconfigure(0, weight=1) # Row for Treeview and Device Buttons
+        main_split_frame.grid_rowconfigure(1, weight=0) # Row for the new Notebook (tabs)
 
 
-        # --- NEW: Interaction Mode Buttons Frame (Top row, full width) ---
-        interaction_mode_frame = ttk.LabelFrame(main_split_frame, text="Interaction Mode", padding=(1,1,1,1), style="Dark.TLabelframe")
-        interaction_mode_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
-        interaction_mode_frame.grid_columnconfigure(0, weight=1)
-        interaction_mode_frame.grid_columnconfigure(1, weight=1)
-        interaction_mode_frame.grid_columnconfigure(2, weight=1)
-
-        # DISPLAY Button
-        self.display_button = ttk.Button(interaction_mode_frame, text="DISPLAY", style="LargePreset.TButton",
-                                         command=lambda: self._on_main_mode_button_click("DISPLAY"))
-        self.display_button.grid(row=0, column=0, padx=2, pady=2, sticky="nsew")
-        self.main_mode_buttons["DISPLAY"] = self.display_button
-
-        # POKE Button
-        self.poke_button = ttk.Button(interaction_mode_frame, text="POKE", style="LargeYAK.TButton", # Use LargeYAK.TButton
-                                      command=lambda: self._on_main_mode_button_click("POKE"))
-        self.poke_button.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")
-        self.main_mode_buttons["POKE"] = self.poke_button
-
-        # CLEAR Button
-        self.clear_button = ttk.Button(interaction_mode_frame, text="CLEAR", style="LargePreset.TButton",
-                                       command=lambda: self._on_main_mode_button_click("CLEAR"))
-        self.clear_button.grid(row=0, column=2, padx=2, pady=2, sticky="nsew")
-        self.main_mode_buttons["CLEAR"] = self.clear_button
-
-        # --- END NEW ---
-
-        # Left Half: Treeview for Zones and Groups (Shifted to row 1)
+        # Left Half: Treeview for Zones and Groups (Row 0, Column 0)
         tree_frame = ttk.LabelFrame(main_split_frame, text="Zones & Groups", padding=(1,1,1,1), style='Dark.TLabelframe')
-        tree_frame.grid(row=1, column=0, sticky=tk.NSEW, padx=5, pady=5) # Shifted row
+        tree_frame.grid(row=0, column=0, sticky=tk.NSEW, padx=5, pady=5)
         tree_frame.grid_rowconfigure(0, weight=1)
         tree_frame.grid_columnconfigure(0, weight=1)
 
@@ -184,10 +154,9 @@ class MarkersDisplayTab(ttk.Frame):
         # Bind selection event to update device buttons
         self.zone_group_tree.bind("<<TreeviewSelect>>", self._on_tree_select)
 
-        # Right Half: Buttons for Devices (Shifted to row 1)
-        # Moved initialization before _on_main_mode_button_click call
+        # Right Half: Buttons for Devices (Row 0, Column 1)
         self.buttons_frame = ttk.LabelFrame(main_split_frame, text="Devices", padding=(1,1,1,1), style='Dark.TLabelframe')
-        self.buttons_frame.grid(row=1, column=1, sticky=tk.NSEW, padx=5, pady=5) # Shifted row
+        self.buttons_frame.grid(row=0, column=1, sticky=tk.NSEW, padx=5, pady=5)
 
         self.inner_buttons_frame = ttk.Frame(self.buttons_frame, style='Dark.TFrame')
         self.inner_buttons_frame.pack(fill=tk.BOTH, expand=True)
@@ -196,30 +165,50 @@ class MarkersDisplayTab(ttk.Frame):
         self.inner_buttons_frame.grid_columnconfigure(1, weight=1)
 
 
-        # Manual Frequency Control Frame (Shifted to row 2)
-        # Moved initialization before _on_main_mode_button_click call
-        self.manual_freq_frame = ttk.LabelFrame(main_split_frame, text="Manual Frequency Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        self.manual_freq_frame.grid(row=2, column=1, sticky="nsew", padx=5, pady=5) # Shifted row
-        self.manual_freq_frame.grid_columnconfigure(0, weight=1)
+        # --- NEW: Main Control Notebook (Tabs) (Row 1, Full Width) ---
+        self.control_notebook = ttk.Notebook(main_split_frame, style="Parent.TNotebook")
+        self.control_notebook.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
-        self.manual_freq_entry = ttk.Entry(self.manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
-        self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        # 1. Span Control Tab
+        self.span_tab_frame = ttk.Frame(self.control_notebook, style="Markers.TFrame")
+        self.control_notebook.add(self.span_tab_frame, text="Span Control")
+        self.span_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
 
-        # Grid the poke button within its frame
-        self.poke_button.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        # Relocate Span Control Buttons into this tab
+        span_control_frame = ttk.LabelFrame(self.span_tab_frame, text="Span Control", padding=(1,1,1,1), style="Dark.TLabelframe")
+        span_control_frame.pack(fill="both", expand=True, padx=5, pady=5) # Use pack within tab frame
+
+        for i in range(len(SPAN_OPTIONS)):
+            span_control_frame.grid_columnconfigure(i, weight=1)
+
+        self.span_buttons = {}
+        col = 0
+        for text_key, span_hz_value in SPAN_OPTIONS.items():
+            display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
+            button_text = f"{text_key}\n{display_value}"
+
+            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton",
+                             command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t))
+
+            self.span_buttons[text_key] = btn
+            btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
+            col += 1
+
+        normal_span_hz = SPAN_OPTIONS["Normal"]
+        normal_button_widget = self.span_buttons["Normal"]
+        self._on_span_button_click(normal_span_hz, normal_button_widget, "Normal")
 
 
-        # Set initial mode to DISPLAY AFTER all buttons and frames are created
-        self._on_main_mode_button_click("DISPLAY")
+        # 2. Manual Marker Tab (combines Manual Freq and Current Settings)
+        self.manual_marker_tab_frame = ttk.Frame(self.control_notebook, style="Markers.TFrame")
+        self.control_notebook.add(self.manual_marker_tab_frame, text="Manual Marker")
+        self.manual_marker_tab_frame.grid_columnconfigure(0, weight=1) # Left side (settings)
+        self.manual_marker_tab_frame.grid_columnconfigure(1, weight=1) # Right side (manual freq)
+        self.manual_marker_tab_frame.grid_rowconfigure(0, weight=1) # Allow content to expand
 
-
-        self._populate_zone_group_tree()
-        self._populate_device_buttons([])
-
-
-        # --- Current Instrument Settings Frame (Shifted to row 2) ---
-        self.current_settings_frame = ttk.LabelFrame(main_split_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
-        self.current_settings_frame.grid(row=2, column=0, sticky="nsew", padx=5, pady=5) # Shifted row
+        # Relocate Current Instrument Settings Frame into this tab
+        self.current_settings_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Current Instrument Settings", padding=(1,1,1,1), style="Dark.TLabelframe")
+        self.current_settings_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         self.current_settings_frame.grid_columnconfigure(0, weight=1)
         self.current_settings_frame.grid_columnconfigure(1, weight=1)
 
@@ -247,35 +236,29 @@ class MarkersDisplayTab(ttk.Frame):
         self.current_freq_label = ttk.Label(self.current_settings_frame, textvariable=self.current_displayed_center_freq_var, style="Markers.TLabel")
         self.current_freq_label.grid(row=5, column=1, sticky="w", padx=5, pady=2)
 
+        # Relocate Manual Frequency Control Frame into this tab
+        self.manual_freq_frame = ttk.LabelFrame(self.manual_marker_tab_frame, text="Manual Frequency Control", padding=(1,1,1,1), style="Dark.TLabelframe")
+        self.manual_freq_frame.grid(row=0, column=1, sticky="nsew", padx=5, pady=5)
+        self.manual_freq_frame.grid_columnconfigure(0, weight=1)
+        self.manual_freq_frame.grid_columnconfigure(1, weight=0) # For the POKE button
 
-        # --- Span Control Buttons Frame (Shifted to row 3) ---
-        span_control_frame = ttk.LabelFrame(main_split_frame, text="Span Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        span_control_frame.grid(row=3, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
+        self.manual_freq_entry = ttk.Entry(self.manual_freq_frame, textvariable=self.manual_freq_entry_var, width=20, style="Markers.TEntry")
+        self.manual_freq_entry.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        for i in range(len(SPAN_OPTIONS)):
-            span_control_frame.grid_columnconfigure(i, weight=1)
-
-        self.span_buttons = {}
-        col = 0
-        for text_key, span_hz_value in SPAN_OPTIONS.items():
-            display_value = f"{span_hz_value / MHZ_TO_HZ:.3f} MHz" if span_hz_value >= MHZ_TO_HZ else f"{span_hz_value / 1000:.0f} KHz"
-            button_text = f"{text_key}\n{display_value}"
-
-            btn = ttk.Button(span_control_frame, text=button_text, style="Markers.Config.Default.TButton",
-                             command=lambda s=span_hz_value, t=text_key: self._on_span_button_click(s, self.span_buttons[t], t))
-
-            self.span_buttons[text_key] = btn
-            btn.grid(row=0, column=col, padx=2, pady=2, sticky="nsew")
-            col += 1
-
-        normal_span_hz = SPAN_OPTIONS["Normal"]
-        normal_button_widget = self.span_buttons["Normal"]
-        self._on_span_button_click(normal_span_hz, normal_button_widget, "Normal")
+        # POKE Button - Moved into manual_freq_frame and style changed
+        self.poke_button = ttk.Button(self.manual_freq_frame, text="POKE", style="LargePreset.TButton", # Changed to LargePreset.TButton
+                                      command=self._on_poke_button_toggle)
+        self.poke_button.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
 
-        # --- Trace Mode Control Buttons Frame (Shifted to row 4) ---
-        trace_mode_control_frame = ttk.LabelFrame(main_split_frame, text="Trace Mode Control", padding=(1,1,1,1), style="Dark.TLabelframe")
-        trace_mode_control_frame.grid(row=4, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
+        # 3. Trace Mode Control Tab
+        self.trace_mode_tab_frame = ttk.Frame(self.control_notebook, style="Markers.TFrame")
+        self.control_notebook.add(self.trace_mode_tab_frame, text="Trace Mode Control")
+        self.trace_mode_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
+
+        # Relocate Trace Mode Control Buttons into this tab
+        trace_mode_control_frame = ttk.LabelFrame(self.trace_mode_tab_frame, text="Trace Mode Control", padding=(1,1,1,1), style="Dark.TLabelframe")
+        trace_mode_control_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         trace_mode_control_frame.grid_columnconfigure(0, weight=1)
         trace_mode_control_frame.grid_columnconfigure(1, weight=1)
@@ -299,9 +282,14 @@ class MarkersDisplayTab(ttk.Frame):
         self._update_trace_mode_button_styles()
 
 
-        # --- Resolution Bandwidth (RBW) Control Frame (Shifted to row 5) ---
-        rbw_control_frame = ttk.LabelFrame(main_split_frame, text="Resolution Bandwidth (RBW)", padding=(1,1,1,1), style="Dark.TLabelframe")
-        rbw_control_frame.grid(row=5, column=0, columnspan=2, sticky="ew", padx=5, pady=5) # Shifted row
+        # 4. Resolution Bandwidth Tab
+        self.rbw_tab_frame = ttk.Frame(self.control_notebook, style="Markers.TFrame")
+        self.control_notebook.add(self.rbw_tab_frame, text="Resolution Bandwidth")
+        self.rbw_tab_frame.grid_columnconfigure(0, weight=1) # Ensure content expands
+
+        # Relocate Resolution Bandwidth (RBW) Control Buttons into this tab
+        rbw_control_frame = ttk.LabelFrame(self.rbw_tab_frame, text="Resolution Bandwidth (RBW)", padding=(1,1,1,1), style="Dark.TLabelframe")
+        rbw_control_frame.pack(fill="both", expand=True, padx=5, pady=5)
 
         for i in range(len(RBW_OPTIONS)):
             rbw_control_frame.grid_columnconfigure(i, weight=1)
@@ -319,99 +307,154 @@ class MarkersDisplayTab(ttk.Frame):
         if default_rbw_key in self.rbw_buttons:
             self._on_rbw_button_click(RBW_OPTIONS[default_rbw_key], self.rbw_buttons[default_rbw_key], default_rbw_key)
 
+        # Initialize the state: Device selection active, POKE inactive
+        self._set_mode_device_selection() # Call this to set initial state
 
-    def _on_main_mode_button_click(self, mode_name):
+
+        self._populate_zone_group_tree()
+        self._populate_device_buttons([])
+
+
+    def _set_mode_poke(self):
+        """Sets the UI to POKE mode: enables manual freq, disables device buttons."""
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"Setting mode to POKE.", file=current_file, version=current_version, function=current_function)
+
+        self.poke_mode_active.set(True)
+        self.poke_button.config(style="SelectedPreset.Orange.TButton") # POKE button is orange when active
+
+        self._set_widget_state(self.buttons_frame, "disabled") # Disable Devices frame
+        self._set_widget_state(self.manual_freq_entry, "normal") # Enable Manual Freq entry
+        # Note: The manual_freq_frame itself doesn't need state, only its children.
+
+        # Clear any previously selected device
+        self.current_selected_device_button = None
+        self.selected_device_unique_id = None
+        self.current_selected_device_data = None
+        self._reset_device_button_styles(exclude_button=None) # Ensure all device buttons are reset
+
+        self._update_current_settings_display() # Refresh display to show POKE info
+
+    def _set_mode_device_selection(self):
+        """Sets the UI to Device Selection mode: enables device buttons, disables manual freq."""
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"Setting mode to Device Selection.", file=current_file, version=current_version, function=current_function)
+
+        self.poke_mode_active.set(False)
+        self.poke_button.config(style="LargePreset.TButton") # POKE button is LargePreset style when inactive
+
+        self._set_widget_state(self.buttons_frame, "normal") # Enable Devices frame
+        self._set_widget_state(self.manual_freq_entry, "disabled") # Disable Manual Freq entry
+
+        # If a device was previously selected, re-highlight it
+        if self.selected_device_unique_id and self.current_selected_device_data:
+            self._populate_device_buttons(self._current_displayed_devices if hasattr(self, '_current_displayed_devices') else [])
+        else:
+            self._reset_device_button_styles(exclude_button=None)
+
+        self._update_current_settings_display() # Refresh display
+
+    def _on_poke_button_toggle(self):
+        """Toggles between POKE mode and Device Selection mode."""
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"POKE button toggled. Current state: {self.poke_mode_active.get()}",
+                    file=current_file, version=current_version, function=current_function)
+
+        if self.poke_mode_active.get():
+            # If POKE is currently active, switch to Device Selection mode
+            self._set_mode_device_selection()
+            console_log("Switched to Device Selection mode.", function=current_function)
+        else:
+            # If Device Selection is currently active, switch to POKE mode
+            self._set_mode_poke()
+            console_log("Switched to POKE mode. Enter frequency and press POKE again to apply.", function=current_function)
+            # If POKE is now active, and the user presses it again, it should trigger the poke action
+            self._on_poke_action() # Call the action when POKE button is pressed while already in POKE mode
+
+    def _on_poke_action(self):
         """
-        Handles the click event for the main interaction mode buttons (DISPLAY, POKE, CLEAR).
-        Updates button styles and enables/disables relevant UI sections.
+        Performs the POKE action (sets instrument frequency) if in POKE mode.
+        This is separated from the toggle to allow the POKE button to both toggle
+        the mode and trigger the action when already in POKE mode.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"Main mode button clicked: {mode_name}",
+
+        if not self.poke_mode_active.get():
+            debug_log("POKE action attempted while not in POKE mode. Ignoring.",
+                        file=current_file, version=current_version, function=current_function)
+            return
+
+        manual_freq_str = self.manual_freq_entry_var.get().strip()
+
+        if not manual_freq_str:
+            console_log("⚠️ Warning: Please enter a frequency in the manual control box before POKING.", function=current_function)
+            debug_log(f"Manual frequency input is empty for POKE action. You gotta put something in, you know?",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+            return
+
+        try:
+            manual_freq_mhz = float(manual_freq_str)
+            freq_hz = manual_freq_mhz * MHZ_TO_HZ
+        except ValueError:
+            console_log("❌ Error: Invalid frequency entered. Please enter a numerical value in MHz for POKE.", function=current_function)
+            debug_log(f"Invalid manual frequency input for POKE action: '{manual_freq_str}'. What the hell is this garbage?!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+            return
+
+        console_log(f"\nPOKE: Setting instrument frequency to {manual_freq_mhz:.3f} MHz (Manual Input)...", function=current_function)
+        debug_log(f"POKE action: Setting frequency to {freq_hz} Hz from manual input.",
                     file=current_file,
                     version=current_version,
                     function=current_function)
 
-        self.main_mode_var.set(mode_name)
+        if self.app_instance and self.app_instance.inst:
+            inst = self.app_instance.inst
 
-        for name, button in self.main_mode_buttons.items():
-            if name == mode_name:
-                if name == "POKE":
-                    button.config(style="LargeYAK.TButton") # POKE always uses YAK style
-                else:
-                    button.config(style="SelectedPreset.Orange.TButton")
-                debug_log(f"Setting '{name}' button style to selected.",
-                            file=current_file, version=current_version, function=current_function)
-            else:
-                if name == "POKE":
-                    button.config(style="LargeYAK.TButton") # POKE always uses YAK style even when not active
-                else:
-                    button.config(style="LargePreset.TButton")
-                debug_log(f"Setting '{name}' button style to default.",
-                            file=current_file, version=current_version, function=current_function)
+            original_live_mode = self.live_mode_var.get()
+            original_max_hold_mode = self.max_hold_mode_var.get()
+            original_min_hold_mode = self.min_hold_mode_var.get()
 
-        # Enable/Disable UI sections based on mode
-        if mode_name == "DISPLAY":
-            # self.buttons_frame.config(state="normal") # Removed: LabelFrame does not have 'state' option
-            for child in self.buttons_frame.winfo_children():
-                self._set_widget_state(child, "normal")
-            # self.manual_freq_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
-            for child in self.manual_freq_frame.winfo_children():
-                self._set_widget_state(child, "disabled")
-            # If in DISPLAY mode, and a device was previously selected, re-highlight it
-            if self.selected_device_unique_id and self.current_selected_device_data:
-                # Re-populate buttons to ensure correct highlighting based on selected_device_unique_id
-                self._populate_device_buttons(self._current_displayed_devices if hasattr(self, '_current_displayed_devices') else [])
-            else:
-                # Clear device button highlighting if no device was selected
-                self._reset_device_button_styles(exclude_button=None)
-            self._update_current_settings_display() # Refresh display
-        elif mode_name == "POKE":
-            # self.buttons_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
-            for child in self.buttons_frame.winfo_children():
-                self._set_widget_state(child, "disabled")
-            # self.manual_freq_frame.config(state="normal") # Removed: LabelFrame does not have 'state' option
-            for child in self.manual_freq_frame.winfo_children():
-                self._set_widget_state(child, "normal")
-            # Clear any device button highlighting when in POKE mode
-            self._reset_device_button_styles(exclude_button=None)
-            self._update_current_settings_display() # Refresh display
-        elif mode_name == "CLEAR":
-            # self.buttons_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
-            for child in self.buttons_frame.winfo_children():
-                self._set_widget_state(child, "disabled")
-            # self.manual_freq_frame.config(state="disabled") # Removed: LabelFrame does not have 'state' option
-            for child in self.manual_freq_frame.winfo_children():
-                self._set_widget_state(child, "disabled")
-            # Clear all current settings display
-            self.current_displayed_device_name_var.set("N/A")
+            if original_max_hold_mode or original_min_hold_mode:
+                blank_hold_traces_logic(inst, console_log)
+
+            set_frequency_logic(inst, freq_hz, console_log)
+
+            set_trace_modes_logic(inst,
+                                  original_live_mode,
+                                  original_max_hold_mode,
+                                  original_min_hold_mode,
+                                  console_log)
+
+            self.current_displayed_center_freq_var.set(f"{manual_freq_mhz:.3f}")
+            self.current_displayed_device_name_var.set(f"POKE: {manual_freq_mhz:.3f}")
             self.current_displayed_device_type_var.set("N/A")
-            self.current_displayed_center_freq_var.set("N/A")
-            self.current_span_var.set("N/A")
-            self.current_trace_modes_var.set("N/A")
-            self.current_rbw_var.set("N/A")
-            # Clear device button highlighting
-            self._reset_device_button_styles(exclude_button=None)
-            # Potentially send instrument command to clear marker/traces
-            if self.app_instance and self.app_instance.inst:
-                inst = self.app_instance.inst
-                set_marker_logic(inst, 0, "OFF", console_log) # Turn marker off
-                blank_hold_traces_logic(inst, console_log) # Blank traces
-                set_trace_modes_logic(inst, False, False, False, console_log) # Set all traces to blank/off
-                set_span_logic(inst, 0, console_log) # Set span to full (0 Hz)
-                set_rbw_logic(inst, 0, console_log) # Set RBW to auto/min (0 Hz)
-                set_frequency_logic(inst, 0, console_log) # Set center freq to 0 or default
-            console_log("Instrument settings cleared.", function=current_function)
-            debug_log("Instrument settings cleared.", file=current_file, version=current_version, function=current_function)
+
+            self._update_current_settings_display()
+        else:
+            console_log("⚠️ Warning: Cannot POKE frequency: Instrument not connected.", function=current_function)
+            debug_log(f"Cannot POKE frequency: Instrument not connected. Fucking useless!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+
 
     def _set_widget_state(self, widget, state):
         """Recursively sets the state of a widget and its children."""
-        try:
-            widget.config(state=state)
-        except tk.TclError: # Some widgets like Frames don't have a 'state' option
-            pass
         for child in widget.winfo_children():
-            self._set_widget_state(child, state)
+            try:
+                child.config(state=state)
+            except tk.TclError: # Some widgets like Frames don't have a 'state' option
+                pass
+            if child.winfo_children(): # Recurse for nested widgets
+                self._set_widget_state(child, state)
 
 
     def _populate_zone_group_tree(self):
@@ -473,6 +516,10 @@ class MarkersDisplayTab(ttk.Frame):
                     function=current_function)
         selected_items = self.zone_group_tree.selection()
 
+        # Deactivate POKE mode when a tree item is selected
+        if self.poke_mode_active.get():
+            self._set_mode_device_selection() # Switch to device selection mode
+
         # Get the data for the newly selected tree item(s)
         selected_rows_data = []
         if selected_items:
@@ -505,8 +552,9 @@ class MarkersDisplayTab(ttk.Frame):
                 debug_log(f"Previously selected device (ID: {self.selected_device_unique_id}) is no longer in the displayed list. Clearing selection.",
                             file=current_file, version=current_version, function=current_function)
                 if self.current_selected_device_button:
-                    self.current_selected_device_button.config(style="DeviceButton.TButton") # Revert old button to neutral
-                    debug_log(f"Resetting previously selected device button '{self.current_selected_device_button.cget('text').splitlines()[0]}' style to DeviceButton.TButton (Default Blue).",
+                    # Use the new default style for device buttons
+                    self.current_selected_device_button.config(style="LargePreset.TButton")
+                    debug_log(f"Resetting previously selected device button '{self.current_selected_device_button.cget('text').splitlines()[0]}' style to LargePreset.TButton (Default).",
                                 file=current_file, version=current_version, function=current_function)
                 self.current_selected_device_button = None
                 self.selected_device_unique_id = None
@@ -514,7 +562,7 @@ class MarkersDisplayTab(ttk.Frame):
         else:
             # If no device was previously selected, just ensure the visual state is clear
             if self.current_selected_device_button: # This should ideally be None if selected_device_unique_id is None
-                self.current_selected_device_button.config(style="DeviceButton.TButton")
+                self.current_selected_device_button.config(style="LargePreset.TButton")
                 self.current_selected_device_button = None
             self.current_selected_device_data = None # Ensure data is clear if no unique ID
 
@@ -546,8 +594,8 @@ class MarkersDisplayTab(ttk.Frame):
             c. Creates a button.
             d. Determines button style:
                 - "ActiveScan.TButton" (green) if currently being scanned.
-                - "Markers.SelectedButton.TButton" (new orange) if currently selected.
-                - "DeviceButton.TButton" (default blue) otherwise.
+                - "SelectedPreset.Orange.TButton" (orange) if currently selected.
+                - "LargePreset.TButton" (default grey) otherwise.
             e. Grids the button.
         4. (Removed: Updates scroll region - no canvas)
 
@@ -562,6 +610,7 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-08-01 00:50) Change: Corrected dynamic column adjustment to always be 3 columns if > 20 devices,
                                 and 2 columns if <= 20 devices.
         (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        (2025-08-03 0905.0) Change: Updated device button styles to LargePreset.TButton and SelectedPreset.Orange.TButton.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
@@ -630,15 +679,15 @@ class MarkersDisplayTab(ttk.Frame):
                     display_freq_mhz = int(float(freq_mhz)) if float(freq_mhz) == int(float(freq_mhz)) else f"{float(freq_mhz):.3f}"
                     button_text = f"{display_name}\n{display_device}\n{display_freq_mhz} MHz"
 
-                    # Use "DeviceButton.TButton" for the unselected state
-                    btn = ttk.Button(self.inner_buttons_frame, text=button_text, style="DeviceButton.TButton",
+                    # Use "LargePreset.TButton" for the unselected state
+                    btn = ttk.Button(self.inner_buttons_frame, text=button_text, style="LargePreset.TButton",
                                      command=lambda d=device_data, btn_w=None: self._on_device_button_click(d, btn_w))
 
                     # Pass the button widget reference to the lambda after it's created
                     btn.configure(command=lambda d=device_data, u_id=unique_device_id, b_w=btn: self._on_device_button_click(d, b_w))
 
                     # --- NEW: Determine button style based on selection and active scan status ---
-                    button_style = "DeviceButton.TButton" # Default style
+                    button_style = "LargePreset.TButton" # Default style (grey)
 
                     is_currently_scanned = False
                     if self.app_instance and hasattr(self.app_instance, 'scanning_active_var') and self.app_instance.scanning_active_var.get():
@@ -650,13 +699,13 @@ class MarkersDisplayTab(ttk.Frame):
                         debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as ActiveScan.TButton (Green).",
                                     file=current_file, version=current_version, function=current_function)
                     elif unique_device_id == self.selected_device_unique_id:
-                        button_style = "Markers.SelectedButton.TButton" # Use the new unified selected style
-                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as Markers.SelectedButton.TButton (Orange).",
+                        button_style = "SelectedPreset.Orange.TButton" # Orange for selected
+                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as SelectedPreset.Orange.TButton (Orange).",
                                     file=current_file, version=current_version, function=current_function)
                         # Re-establish the reference to the currently selected button widget
                         self.current_selected_device_button = btn
                     else:
-                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as DeviceButton.TButton (Default Blue).",
+                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as LargePreset.TButton (Default Grey).",
                                     file=current_file, version=current_version, function=current_function)
 
                     btn.config(style=button_style)
@@ -729,11 +778,11 @@ class MarkersDisplayTab(ttk.Frame):
         # Iterate over all currently displayed buttons and reset their style
         for widget in self.inner_buttons_frame.winfo_children():
             if isinstance(widget, ttk.Button): # Only process buttons
-                widget.config(style="DeviceButton.TButton")
+                widget.config(style="LargePreset.TButton") # Use the new default style
                 # Safely get button text for logging
                 button_text_lines = widget.cget('text').splitlines()
                 button_display_name = button_text_lines[0] if button_text_lines else "Unknown Button"
-                debug_log(f"Resetting device button '{button_display_name}' style to DeviceButton.TButton (Default Blue).",
+                debug_log(f"Resetting device button '{button_display_name}' style to LargePreset.TButton (Default Grey).",
                             file=current_file, version=current_version, function=current_function)
 
 
@@ -774,21 +823,20 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
         (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style.
         (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
+        (2025-08-03 0905.0) Change: Deactivates POKE mode when a device button is clicked.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
 
-        # Ensure we are in DISPLAY mode to process device button clicks
-        if self.main_mode_var.get() != "DISPLAY":
-            console_log("ℹ️ Info: Device buttons are only active in 'DISPLAY' mode.", function=current_function)
-            debug_log("Device button clicked while not in DISPLAY mode. Ignoring.",
-                        file=current_file, version=current_version, function=current_function)
-            return
+        # Deactivate POKE mode if a device button is clicked
+        if self.poke_mode_active.get():
+            self._set_mode_device_selection() # This will also reset POKE button style
 
         freq_hz = float(device_data.get('FREQ')) * MHZ_TO_HZ
         name = device_data.get('NAME', '').strip() # Ensure name is stripped for display
         device_type = device_data.get('DEVICE', '').strip() # Get device type
-        unique_device_id = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{freq_mhz}"
+        # Corrected: Use device_data.get('FREQ') directly for the unique ID string
+        unique_device_id = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{device_data.get('FREQ', '')}"
 
         # Format frequency for display without decimal if it's a whole number
         display_freq_mhz = int(freq_hz / MHZ_TO_HZ) if (freq_hz / MHZ_TO_HZ) == int(freq_hz / MHZ_TO_HZ) else f"{freq_hz / MHZ_TO_HZ:.3f}"
@@ -802,8 +850,8 @@ class MarkersDisplayTab(ttk.Frame):
         self._reset_device_button_styles(exclude_button=clicked_button_widget)
 
         # Set new device selection
-        clicked_button_widget.config(style="Markers.SelectedButton.TButton") # Select new button (orange)
-        debug_log(f"Device button '{name}' (ID: {unique_device_id}) style set to Markers.SelectedButton.TButton (Orange).",
+        clicked_button_widget.config(style="SelectedPreset.Orange.TButton") # Select new button (orange)
+        debug_log(f"Device button '{name}' (ID: {unique_device_id}) style set to SelectedPreset.Orange.TButton (Orange).",
                     file=current_file, version=current_version, function=current_function)
         self.current_selected_device_button = clicked_button_widget
         self.selected_device_unique_id = unique_device_id
@@ -1023,93 +1071,6 @@ class MarkersDisplayTab(ttk.Frame):
                         function=current_function)
     # --- END NEW ---
 
-    # --- NEW: Poke Button Click Handler ---
-    # (2025-07-31 17:15) Change: Added new poke button click handler.
-    # (2025-07-31 23:00) Change: Refined button style management to avoid global resets.
-    # (2025-07-31 23:30) Change: Updated to use new 'Markers.SelectedButton.TButton' style and fix POKE display.
-    # (2025-08-01 2200.1) Change: Updated to use debug_log and console_log consistently.
-    def _on_poke_button_click(self):
-        """
-        Callback for the POKE button. Sets the instrument's center frequency
-        based on the manual input, treating it like a 'wild device'.
-        This method is now only callable when in 'POKE' main mode.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
-
-        if self.main_mode_var.get() != "POKE":
-            console_log("ℹ️ Info: POKE button is only active in 'POKE' mode.", function=current_function)
-            debug_log("POKE button clicked while not in POKE mode. Ignoring.",
-                        file=current_file, version=current_version, function=current_function)
-            return
-
-        manual_freq_str = self.manual_freq_entry_var.get().strip()
-
-        if not manual_freq_str:
-            console_log("⚠️ Warning: Please enter a frequency in the manual control box.", function=current_function)
-            debug_log(f"Manual frequency input is empty. You gotta put something in, you know?",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        try:
-            manual_freq_mhz = float(manual_freq_str)
-            freq_hz = manual_freq_mhz * MHZ_TO_HZ
-        except ValueError:
-            console_log("❌ Error: Invalid frequency entered. Please enter a numerical value in MHz.", function=current_function)
-            debug_log(f"Invalid manual frequency input: '{manual_freq_str}'. What the hell is this garbage?!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        console_log(f"\nPOKE: Setting instrument frequency to {manual_freq_mhz:.3f} MHz (Manual Input)...", function=current_function)
-        debug_log(f"POKE button clicked: Setting frequency to {freq_hz} Hz from manual input.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-
-        # No need to change POKE button style here, it's handled by _on_main_mode_button_click.
-        # No need to clear device button styles here, as it's handled by _on_main_mode_button_click.
-
-        if self.app_instance and self.app_instance.inst:
-            inst = self.app_instance.inst
-
-            # Store current trace mode states
-            original_live_mode = self.live_mode_var.get()
-            original_max_hold_mode = self.max_hold_mode_var.get()
-            original_min_hold_mode = self.min_hold_mode_var.get()
-
-            # Blank Max Hold and Min Hold traces if they were active
-            if original_max_hold_mode or original_min_hold_mode:
-                blank_hold_traces_logic(inst, console_log) # Passed console_log
-
-            # Set Frequency (like a wild device, no span or marker change implied by 'poke')
-            set_frequency_logic(inst, freq_hz, console_log) # Passed console_log
-
-            # Restore Trace Modes to their original states
-            set_trace_modes_logic(inst,
-                                  original_live_mode,
-                                  original_max_hold_mode,
-                                  original_min_hold_mode,
-                                  console_log) # Passed console_log
-
-            # Update the displayed selected frequency to reflect the manually set one
-            self.current_displayed_center_freq_var.set(f"{manual_freq_mhz:.3f}")
-            # FIX: Corrected string formatting for POKE display
-            self.current_displayed_device_name_var.set(f"POKE: {manual_freq_mhz:.3f}") # Set to "POKE: [freq]" as requested
-            self.current_displayed_device_type_var.set("N/A") # Clear device type for manual input
-
-            self._update_current_settings_display() # Update display after all commands
-        else:
-            console_log("⚠️ Warning: Cannot POKE frequency: Instrument not connected.", function=current_function)
-            debug_log(f"Cannot POKE frequency: Instrument not connected. Fucking useless!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-    # --- END NEW ---
-
 
     def _on_trace_mode_button_click(self, mode_name):
         """
@@ -1221,6 +1182,7 @@ class MarkersDisplayTab(ttk.Frame):
         (2025-07-31 17:15) Change: Added RBW display.
         (2025-07-31 23:30) Change: Ensured POKE display is correct.
         (2025-08-01 2200.1) Change: Updated to use debug_log consistently.
+        (2025-08-03 0905.0) Change: Adjusted display logic for POKE mode vs. device selection.
         """
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
@@ -1276,8 +1238,7 @@ class MarkersDisplayTab(ttk.Frame):
 
 
         # Update Selected Device Info Display based on active mode
-        current_mode = self.main_mode_var.get()
-        if current_mode == "POKE":
+        if self.poke_mode_active.get():
             try:
                 manual_freq_mhz = float(self.manual_freq_entry_var.get())
                 self.current_displayed_device_name_var.set(f"POKE: {manual_freq_mhz:.3f}")
@@ -1288,7 +1249,7 @@ class MarkersDisplayTab(ttk.Frame):
             self.current_displayed_device_type_var.set("N/A")
             debug_log(f"Displaying Selected Device Info (POKE): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
                         file=current_file, version=current_version, function=current_function)
-        elif current_mode == "DISPLAY" and self.current_selected_device_data:
+        elif self.current_selected_device_data:
             name = self.current_selected_device_data.get('NAME', '').strip()
             device_type = self.current_selected_device_data.get('DEVICE', '').strip()
             freq_mhz = self.current_selected_device_data.get('FREQ')
@@ -1307,11 +1268,11 @@ class MarkersDisplayTab(ttk.Frame):
             self.current_displayed_center_freq_var.set(display_freq)
             debug_log(f"Displaying Selected Device Info (Device Button): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
                         file=current_file, version=current_version, function=current_function)
-        else: # Default for CLEAR mode or no selection in DISPLAY mode
+        else: # Default for no selection in either mode
             self.current_displayed_device_name_var.set("N/A")
             self.current_displayed_device_type_var.set("N/A")
             self.current_displayed_center_freq_var.set("N/A")
-            debug_log(f"Displaying Selected Device Info: N/A (Mode: {current_mode}, No device button clicked or POKE active).",
+            debug_log(f"Displaying Selected Device Info: N/A (Neither POKE nor device button active).",
                         file=current_file, version=current_version, function=current_function)
 
 

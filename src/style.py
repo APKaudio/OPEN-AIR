@@ -303,7 +303,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure("LargePreset.TButton",
                     background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 25, "bold"), # Increased font size
+                    font=("Helvetica", 22, "bold"), # Increased font size
                     padding=[30, 15, 30, 15])
     style.map("LargePreset.TButton",
             background=[('active', COLOR_PALETTE['active_bg'])])
@@ -314,7 +314,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure("SelectedPreset.Orange.TButton",
                     background=COLOR_PALETTE['orange_btn'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 25, "bold"), # Increased font size
+                    font=("Helvetica", 22, "bold"), # Increased font size
                     padding=[30, 15, 20, 15])
     style.map("SelectedPreset.Orange.TButton",
             background=[('active', COLOR_PALETTE['orange_btn_active'])])
@@ -324,7 +324,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     # - `active`: Lighter orange when hovered/pressed.
     YAK_ORANGE = COLOR_PALETTE['orange_btn']
     style.configure('LargeYAK.TButton',
-                    font=('Helvetica', 100, 'bold'),
+                    font=('Helvetica', 88, 'bold'),
                     background=YAK_ORANGE,
                     foreground=COLOR_PALETTE['foreground'],
                     padding=[20, 10])
