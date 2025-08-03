@@ -21,12 +21,29 @@
 # Version 20250802.2225.0 (Handled 'nan' values, refined UI grouping for buttons.)
 # Version 20250802.2230.0 (Added debug logging to _export_presets for header/blank file issue.)
 # Version 20250803.0030.0 (Updated Treeview column headers to include units for Center, Span, RBW, VBW.)
+# Version 20250803.0050.0 (FIXED: populate_presets_table to only refresh Treeview from internal data.
+#                         FIXED: _add_new_empty_row to use default values for Center, Span, RBW.)
+# Version 20250803.0055.0 (Added window focus event to reload presets; clarified tab change save behavior.)
+# Version 20250803.0100.0 (FIXED: AttributeError: '_tkinter.tkapp' object has no attribute 'root' by binding to app_instance directly.)
+# Version 20250803.0115.0 (FIXED: Delete bug by adding existence check and explicit _end_edit call.
+#                         FIXED: UI layout for Add buttons.
+#                         CLARIFIED: Save/Load behavior on tab/window changes.)
+# Version 20250803.0130.0 (CRITICAL FIX: Removed automatic CSV reload on tab select/window focus to prevent data loss.
+#                         Ensured Save/Export/Delete operate on in-memory data.
+#                         Added more debug logging for data consistency.)
+# Version 20250803.0145.0 (FIXED: PresetEditorTab not displaying CSV content by re-introducing CSV load on tab select/window focus,
+#                         with a prompt for unsaved changes. Added self.has_unsaved_changes flag.)
+# Version 20250803.0200.0 (CRITICAL FIX: Removed all messagebox calls, replaced with simpledialog for confirmation where needed.
+#                         CRITICAL FIX: Changed _import_presets to REPLACE existing data, not extend.
+#                         Modified tab/window focus logic to auto-save unsaved changes before reloading.)
+# Version 20250803.0215.0 (CRITICAL FIX: Removed all simpledialog prompts for save/delete confirmations.
+#                         Auto-saves after import and delete. Console messages provide feedback.)
 
-current_version = "20250803.0030.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 30 * 0 # Example hash, adjust as needed.
+current_version = "20250803.0215.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 215 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
-from tkinter import ttk, filedialog, simpledialog
+from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
 import inspect
 import os
 import csv
@@ -78,11 +95,23 @@ class PresetEditorTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        self.presets_data = [] # List of dictionaries to hold preset data
+        # Load presets initially from CSV. This is the primary load point.
+        self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+        debug_log(f"Initial load of presets_data in PresetEditorTab __init__: {len(self.presets_data)} entries.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
         self.current_edit_cell = None # (item_id, col_index) of the cell being edited
+        self.has_unsaved_changes = False # Flag to track if data has been modified
 
         self._create_widgets()
-        self.populate_presets_table() # Initial population
+        self.populate_presets_table() # Initial population of Treeview from loaded data
+
+        # Bind to the main application window's FocusIn event
+        # This ensures that if the window loses and regains focus, presets are reloaded
+        self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
+
 
         debug_log(f"PresetEditorTab initialized. Version: {current_version}. Preset editor is live!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -102,8 +131,26 @@ class PresetEditorTab(ttk.Frame):
                     function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=1) # Treeview
-        self.grid_rowconfigure(1, weight=0) # Buttons
+        # Adjusted row weights for new button placement
+        self.grid_rowconfigure(0, weight=0) # Add buttons
+        self.grid_rowconfigure(1, weight=1) # Treeview
+        self.grid_rowconfigure(2, weight=0) # Scrollbar for Treeview
+        self.grid_rowconfigure(3, weight=0) # File Ops buttons
+
+        # --- Grouping for "Add" buttons (Moved to top) ---
+        add_button_frame = ttk.Frame(self, style='Dark.TFrame')
+        add_button_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
+        add_button_frame.grid_columnconfigure(0, weight=1)
+        add_button_frame.grid_columnconfigure(1, weight=1)
+
+        # Add Current Settings Button
+        add_current_button = ttk.Button(add_button_frame, text="Add Current Settings", command=self._add_current_settings, style='Green.TButton')
+        add_current_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        # Add New Empty Row Button
+        add_empty_row_button = ttk.Button(add_button_frame, text="Add New Empty Row", command=self._add_new_empty_row, style='Blue.TButton')
+        add_empty_row_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
 
         # --- Treeview for Presets ---
         # Define columns with units
@@ -123,7 +170,7 @@ class PresetEditorTab(ttk.Frame):
         }
 
         self.presets_tree = ttk.Treeview(self, columns=self.columns, show='headings', style='Treeview')
-        self.presets_tree.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        self.presets_tree.grid(row=1, column=0, sticky="nsew", padx=10, pady=10) # Moved to row 1
 
         # Configure columns and headings
         for col in self.columns:
@@ -132,19 +179,19 @@ class PresetEditorTab(ttk.Frame):
 
         # Add scrollbars
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.presets_tree.yview)
-        vsb.grid(row=0, column=1, sticky='ns')
+        vsb.grid(row=1, column=1, sticky='ns') # Moved to row 1
         self.presets_tree.configure(yscrollcommand=vsb.set)
 
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.presets_tree.xview)
-        hsb.grid(row=1, column=0, sticky='ew')
+        hsb.grid(row=2, column=0, sticky='ew') # Moved to row 2
         self.presets_tree.configure(xscrollcommand=hsb.set)
 
         # Bind double-click event for editing
         self.presets_tree.bind("<Double-1>", self._on_double_click)
 
-        # --- Button Frame ---
+        # --- Button Frame for File Operations ---
         button_frame = ttk.Frame(self, style='Dark.TFrame')
-        button_frame.grid(row=2, column=0, columnspan=2, pady=10, padx=10, sticky="ew")
+        button_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew") # Moved to row 3
         button_frame.grid_columnconfigure(0, weight=1) # Allow buttons to spread out
         button_frame.grid_columnconfigure(1, weight=1)
         button_frame.grid_columnconfigure(2, weight=1)
@@ -153,24 +200,9 @@ class PresetEditorTab(ttk.Frame):
         button_frame.grid_columnconfigure(5, weight=1)
 
 
-        # Grouping for "Add" buttons
-        add_button_frame = ttk.Frame(button_frame, style='Dark.TFrame')
-        add_button_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
-        add_button_frame.grid_columnconfigure(0, weight=1)
-        add_button_frame.grid_columnconfigure(1, weight=1)
-
-        # Add Current Settings Button
-        add_current_button = ttk.Button(add_button_frame, text="Add Current Settings", command=self._add_current_settings, style='Green.TButton')
-        add_current_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
-        # Add New Empty Row Button
-        add_empty_row_button = ttk.Button(add_button_frame, text="Add New Empty Row", command=self._add_new_empty_row, style='Blue.TButton')
-        add_empty_row_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-
         # Grouping for "File Operations" buttons
         file_ops_button_frame = ttk.Frame(button_frame, style='Dark.TFrame')
-        file_ops_button_frame.grid(row=0, column=2, columnspan=4, sticky="ew", padx=5, pady=5)
+        file_ops_button_frame.grid(row=0, column=0, columnspan=6, sticky="ew", padx=5, pady=5) # Spanning all columns
         file_ops_button_frame.grid_columnconfigure(0, weight=1)
         file_ops_button_frame.grid_columnconfigure(1, weight=1)
         file_ops_button_frame.grid_columnconfigure(2, weight=1)
@@ -202,23 +234,22 @@ class PresetEditorTab(ttk.Frame):
 
     def populate_presets_table(self):
         """
-        Loads user presets from the CSV file and populates the Treeview.
+        Populates the Treeview with the current data from self.presets_data.
+        This function should NOT reload from CSV; it only refreshes the display.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Populating local presets table...",
+        debug_log("Populating local presets table from internal data...",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-        # Clear existing entries
+        # Clear existing entries in the Treeview
         for item in self.presets_tree.get_children():
             self.presets_tree.delete(item)
 
-        self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
-
         if not self.presets_data:
-            self.console_print_func("ℹ️ No user presets found in PRESETS.CSV to display in editor.")
-            debug_log("No user presets found for editor.",
+            self.console_print_func("ℹ️ No user presets in memory to display in editor.")
+            debug_log("No user presets in memory for editor.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -240,15 +271,16 @@ class PresetEditorTab(ttk.Frame):
             
             self.presets_tree.insert('', 'end', values=row_values)
         
-        self.console_print_func(f"✅ Loaded {len(self.presets_data)} user presets into the editor.")
-        debug_log(f"Local presets table populated with {len(self.presets_data)} entries.",
+        self.console_print_func(f"✅ Displayed {len(self.presets_data)} user presets in the editor.")
+        debug_log(f"Local presets table populated with {len(self.presets_data)} entries from internal data.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
     def _add_current_settings(self):
         """
-        Queries current instrument settings and adds them as a new row to the Treeview.
+        Queries current instrument settings and adds them as a new row to the Treeview
+        and the internal presets_data list.
         """
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Adding current instrument settings to presets...")
@@ -297,7 +329,7 @@ class PresetEditorTab(ttk.Frame):
             new_preset = {
                 'Filename': f"USER_{datetime.now().strftime('%Y%m%d_%H%M%S')}.STA",
                 'NickName': simpledialog.askstring("Nickname", "Enter a nickname for this preset:",
-                                                  parent=self.app_instance.root),
+                                                  parent=self.app_instance), # Use app_instance as parent
                 'Center': f"{self.app_instance.center_freq_hz_var.get() / self.app_instance.MHZ_TO_HZ:.3f}", # Convert Hz to MHz for CSV
                 'Span': f"{self.app_instance.span_hz_var.get() / self.app_instance.MHZ_TO_HZ:.3f}",         # Convert Hz to MHz for CSV
                 'RBW': f"{self.app_instance.rbw_hz_var.get():.0f}",
@@ -327,9 +359,10 @@ class PresetEditorTab(ttk.Frame):
                 return
 
             self.presets_data.append(new_preset)
-            self.populate_presets_table() # Refresh table to show new entry
-            self.console_print_func("✅ Current settings added as a new preset.")
-            debug_log("Current settings added as new preset.",
+            self.populate_presets_table() # Refresh table to show new entry from internal data
+            self.has_unsaved_changes = True # Mark as unsaved
+            self.console_print_func("✅ Current settings added as a new preset. Remember to save your changes!")
+            debug_log(f"Current settings added as new preset. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -344,6 +377,7 @@ class PresetEditorTab(ttk.Frame):
     def _add_new_empty_row(self):
         """
         Adds a new empty row to the Treeview and the internal presets_data list.
+        Initializes with default values for common settings.
         """
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Adding a new empty row to the presets table...")
@@ -355,11 +389,16 @@ class PresetEditorTab(ttk.Frame):
         new_empty_preset = {col.split(' ')[0]: '' for col in self.columns} # Initialize with empty strings
         new_empty_preset['Filename'] = f"NEW_{datetime.now().strftime('%Y%m%d_%H%M%S')}.STA"
         new_empty_preset['NickName'] = "New Preset" # Default nickname
+        new_empty_preset['Center'] = "100.0" # Default Center in MHz
+        new_empty_preset['Span'] = "100.0"   # Default Span in MHz
+        new_empty_preset['RBW'] = "100000.0" # Default RBW in Hz
+        new_empty_preset['VBW'] = "" # Keep VBW empty or set a default if desired, e.g., "30000.0"
 
         self.presets_data.append(new_empty_preset)
-        self.populate_presets_table() # Refresh table to show new entry
+        self.populate_presets_table() # Refresh table to show new entry from internal data
+        self.has_unsaved_changes = True # Mark as unsaved
         self.console_print_func("✅ New empty row added. Remember to save your changes!")
-        debug_log("New empty row added.",
+        debug_log(f"New empty row added. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -377,18 +416,15 @@ class PresetEditorTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        # Ensure that self.presets_data reflects the current Treeview content
-        # This is crucial if edits were made directly in the Treeview via the entry widget
-        # but not yet committed back to self.presets_data.
-        # For this implementation, edits are committed to self.presets_data in _end_edit.
-        # So, we can directly use self.presets_data.
-
+        # self.presets_data is the source of truth for saving, as _end_edit updates it.
         if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, self.presets_data, self.console_print_func):
             self.console_print_func("✅ Presets saved successfully to PRESETS.CSV.")
-            debug_log("Presets saved to CSV successfully.",
+            debug_log(f"Presets saved to CSV successfully. Total entries: {len(self.presets_data)}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+            self.has_unsaved_changes = False # No unsaved changes after saving
+
             # After saving, refresh the local presets tab to reflect changes
             if hasattr(self.app_instance, 'presets_parent_tab') and \
                hasattr(self.app_instance.presets_parent_tab, 'local_presets_tab') and \
@@ -398,18 +434,21 @@ class PresetEditorTab(ttk.Frame):
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
+            return True # Indicate success
         else:
             self.console_print_func("❌ Failed to save presets to PRESETS.CSV.")
             debug_log("Failed to save presets to CSV.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+            return False # Indicate failure
 
 
     def _import_presets(self):
         """
         Opens a file dialog to select a CSV file and imports its contents
-        into the current presets table, merging with existing data.
+        into the current presets table, REPLACING existing data.
+        Automatically saves changes after import.
         """
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Initiating preset import...")
@@ -419,7 +458,7 @@ class PresetEditorTab(ttk.Frame):
                     function=current_function)
 
         file_path = filedialog.askopenfilename(
-            parent=self.app_instance.root,
+            parent=self.app_instance, # Use app_instance as parent
             title="Select CSV file to import",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
         )
@@ -442,7 +481,7 @@ class PresetEditorTab(ttk.Frame):
                 for key, value in preset.items():
                     if pd.isna(value):
                         preset[key] = '' # Replace NaN with empty string
-                    elif isinstance(value, (float, np.float_)): # Convert floats to string, but keep original if not NaN
+                    elif isinstance(value, (float, np.float64)): # Use np.float64 for NumPy 2.0 compatibility
                         # Check if it's an integer value represented as float (e.g., 50.0)
                         if value.is_integer():
                             preset[key] = str(int(value))
@@ -451,26 +490,19 @@ class PresetEditorTab(ttk.Frame):
                     else:
                         preset[key] = str(value) # Ensure all values are strings
 
-            # Merge imported presets with existing ones (simple append for now, can add more complex merge logic if needed)
-            self.presets_data.extend(imported_presets)
-            self.populate_presets_table() # Refresh the display
+            # CRITICAL CHANGE: Replace existing presets_data with imported data
+            self.presets_data = imported_presets
+            self.populate_presets_table() # Refresh the display from updated internal data
+            self.has_unsaved_changes = True # Mark as unsaved after import
 
-            self.console_print_func(f"✅ Successfully imported {len(imported_presets)} presets from {os.path.basename(file_path)}.")
-            debug_log(f"Imported {len(imported_presets)} presets from {file_path}.",
+            self.console_print_func(f"✅ Successfully imported {len(imported_presets)} presets from {os.path.basename(file_path)}. Existing data replaced. Automatically saving changes...")
+            debug_log(f"Imported {len(imported_presets)} presets from {file_path}. Existing data replaced. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
-            # Prompt to save changes
-            if simpledialog.askstring("Save Changes", "Imported presets. Do you want to save these changes to your main PRESETS.CSV now? (yes/no)",
-                                      parent=self.app_instance.root).lower() == 'yes':
-                self._save_presets_to_csv()
-            else:
-                self.console_print_func("ℹ️ Imported presets not saved to main PRESETS.CSV. They are only in memory.")
-                debug_log("Imported presets not saved to main CSV.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
+            # Automatically save changes after import
+            self._save_presets_to_csv()
 
         except Exception as e:
             self.console_print_func(f"❌ Error importing presets: {e}. Check file format.")
@@ -487,7 +519,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Exporting presets to CSV...")
-        debug_log("Exporting presets...",
+        debug_log(f"Exporting presets. Current presets_data count: {len(self.presets_data)}.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -505,7 +537,7 @@ class PresetEditorTab(ttk.Frame):
         default_filename = f"exported_presets_{timestamp}.csv"
 
         file_path = filedialog.asksaveasfilename(
-            parent=self.app_instance.root,
+            parent=self.app_instance, # Use app_instance as parent
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
             initialfile=default_filename
@@ -538,7 +570,7 @@ class PresetEditorTab(ttk.Frame):
                         value = preset.get(field, '')
                         if isinstance(value, float) and np.isnan(value):
                             row_to_write[field] = '' # Replace NaN with empty string
-                        elif isinstance(value, (float, np.float_)) and value.is_integer():
+                        elif isinstance(value, (float, np.float64)) and value.is_integer(): # Use np.float64
                             row_to_write[field] = str(int(value))
                         else:
                             row_to_write[field] = str(value) # Ensure all values are strings
@@ -565,6 +597,7 @@ class PresetEditorTab(ttk.Frame):
     def _delete_selected_preset(self):
         """
         Deletes the selected preset(s) from the Treeview and the internal data list.
+        Automatically saves changes after deletion.
         """
         current_function = inspect.currentframe().f_code.co_name
         selected_items = self.presets_tree.selection()
@@ -576,18 +609,24 @@ class PresetEditorTab(ttk.Frame):
                         function=current_function)
             return
 
-        if not simpledialog.askstring("Confirm Deletion", "Are you sure you want to delete the selected preset(s)? Type 'yes' to confirm.",
-                                      parent=self.app_instance.root).lower() == 'yes':
-            self.console_print_func("ℹ️ Deletion cancelled.")
-            debug_log("Deletion cancelled by user.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return
+        # No confirmation dialog, proceed directly with deletion
+        self.console_print_func("💬 Deleting selected preset(s)...")
+        debug_log("Proceeding with deletion of selected presets.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
         deleted_count = 0
         # Iterate in reverse to avoid issues with index changes during deletion
         for item_id in reversed(selected_items):
+            # Check if the item being deleted is currently being edited
+            if self.current_edit_cell and self.current_edit_cell[0] == item_id:
+                self._end_edit() # Gracefully end the edit before deleting the item
+                debug_log(f"Ending active edit on item {item_id} before deletion.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
             # Get the values of the item to be deleted
             values = self.presets_tree.item(item_id, 'values')
             if values:
@@ -595,29 +634,41 @@ class PresetEditorTab(ttk.Frame):
                 filename_to_delete = values[0]
                 
                 # Find and remove from self.presets_data
+                initial_len = len(self.presets_data)
                 self.presets_data = [p for p in self.presets_data if p.get('Filename') != filename_to_delete]
+                if len(self.presets_data) < initial_len:
+                    # Only increment deleted_count if an item was actually removed from the list
+                    deleted_count += 1
+                    debug_log(f"Removed preset with Filename: {filename_to_delete} from internal data.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+                else:
+                    debug_log(f"Preset with Filename: {filename_to_delete} not found in internal data for deletion.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
                 
                 # Delete from Treeview
                 self.presets_tree.delete(item_id)
-                deleted_count += 1
-                debug_log(f"Deleted preset with Filename: {filename_to_delete}.",
+                debug_log(f"Deleted item {item_id} from Treeview.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
-        self.console_print_func(f"✅ Deleted {deleted_count} preset(s). Remember to save your changes!")
-        debug_log(f"Deleted {deleted_count} presets. Prompting to save.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+        if deleted_count > 0:
+            self.has_unsaved_changes = True # Mark as unsaved
+            self.console_print_func(f"✅ Deleted {deleted_count} preset(s). Automatically saving changes...")
+            debug_log(f"Deleted {deleted_count} presets. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}. Automatically saving.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
-        # Prompt to save changes after deletion
-        if simpledialog.askstring("Save Changes", "Changes made. Do you want to save these changes to your main PRESETS.CSV now? (yes/no)",
-                                  parent=self.app_instance.root).lower() == 'yes':
+            # Automatically save changes after deletion
             self._save_presets_to_csv()
         else:
-            self.console_print_func("ℹ️ Deleted presets not saved to main PRESETS.CSV. They are only in memory.")
-            debug_log("Deleted presets not saved to main CSV.",
+            self.console_print_func("ℹ️ No presets were deleted.")
+            debug_log("No presets deleted.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -816,6 +867,17 @@ class PresetEditorTab(ttk.Frame):
 
         if self.current_edit_cell:
             item_id, col_index = self.current_edit_cell
+
+            # CRITICAL FIX: Check if item_id still exists in the Treeview
+            if not self.presets_tree.exists(item_id):
+                debug_log(f"Attempted to end edit on non-existent item_id: {item_id}. Destroying editor.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                self.edit_entry.destroy()
+                self.current_edit_cell = None
+                return # Exit early as the item is gone
+
             new_value = self.edit_entry.get()
 
             # Get current values of the row
@@ -836,10 +898,11 @@ class PresetEditorTab(ttk.Frame):
                 if preset.get('Filename') == filename:
                     preset[original_col_name] = new_value
                     self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename)}' to '{new_value}'. Remember to save!")
-                    debug_log(f"Internal data updated for {filename}: {original_col_name} = {new_value}.",
+                    debug_log(f"Internal data updated for {filename}: {original_col_name} = {new_value}. Unsaved changes: True.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
+                    self.has_unsaved_changes = True # Mark as unsaved
                     break
             
             self.current_edit_cell = None # Clear the editing state
@@ -855,10 +918,68 @@ class PresetEditorTab(ttk.Frame):
         """
         Called when this tab is selected in the notebook.
         Refreshes the local presets table to show the most current values.
+        This now automatically saves unsaved changes before reloading from CSV.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("PresetEditorTab selected. Refreshing table... Let's get this updated!",
+        debug_log("PresetEditorTab selected. Checking for unsaved changes before refreshing...",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+
+        if self.has_unsaved_changes:
+            self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
+            debug_log("Unsaved changes detected. Attempting auto-save.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            self._save_presets_to_csv() # Attempt to save automatically
+
+        # Always reload from CSV to ensure the latest disk version is displayed
+        self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
         self.populate_presets_table()
+        debug_log(f"PresetEditorTab refreshed from CSV. Current presets_data count: {len(self.presets_data)}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+
+    def _on_window_focus_in(self, event):
+        """
+        Called when the main application window gains focus.
+        Reloads and repopulates the presets table if this tab is currently active,
+        automatically saving unsaved changes first.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log("Main window gained focus. Checking if PresetEditorTab is active for refresh.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
+        # Check if this tab is currently the selected tab in the notebook
+        if hasattr(self.master, 'select') and self.master.select() == str(self):
+            self.console_print_func("💬 Window focused and Preset Editor tab active. Checking for unsaved changes.")
+            debug_log("Window focused and Preset Editor tab active. Checking for unsaved changes.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+
+            if self.has_unsaved_changes:
+                self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
+                debug_log("Unsaved changes detected. Attempting auto-save.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                self._save_presets_to_csv() # Attempt to save automatically
+
+            # Always reload from CSV to ensure the latest disk version is displayed
+            self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+            self.populate_presets_table()
+            debug_log(f"Presets table refreshed from CSV due to window focus gain. Current presets_data count: {len(self.presets_data)}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log("Window focused, but PresetEditorTab is not active or no unsaved changes. Skipping reload.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)

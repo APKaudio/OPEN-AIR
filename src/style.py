@@ -245,7 +245,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure("LargePreset.TButton",
                     background=COLOR_PALETTE['active_bg'],
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 25, "bold"), # Changed font size from 30 to 25
+                    font=("Helvetica", 20), # Changed font size from 30 to 25
                     padding=[30, 15, 30, 15])
     style.map("LargePreset.TButton",
             background=[('active', COLOR_PALETTE['active_bg'])])
@@ -254,8 +254,8 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure("SelectedPreset.Orange.TButton", # Renamed style to be explicit
                     background=COLOR_PALETTE['orange_btn'], # Orange color
                     foreground=COLOR_PALETTE['foreground'],
-                    font=("Helvetica", 25, "bold"), # Changed font size from 30 to 25
-                    padding=[30, 15, 30, 15])
+                    font=("Helvetica", 20, "bold"), # Changed font size from 30 to 25
+                    padding=[30, 15, 20, 15])
     style.map("SelectedPreset.Orange.TButton",
             background=[('active', COLOR_PALETTE['orange_btn_active'])]) # Darker orange on active/hover
 
