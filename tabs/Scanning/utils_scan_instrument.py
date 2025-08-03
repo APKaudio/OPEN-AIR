@@ -16,6 +16,7 @@
 #
 #
 # Version 20250802.1230.1 (Reverted to old version of scan_bands and perform_segment_sweep, updated logging.)
+# Version 20250803.1750.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
 
 current_version = "20250802.1230.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 1230 * 1 # Example hash, adjust as needed
@@ -41,7 +42,7 @@ from src.console_logic import console_log
 # The user's old file uses utils.utils_instrument_control, but I'll use the current path if it's been moved.
 # Based on previous conversation, utils_instrument_control.py is in 'utils' folder.
 # The `initialize_instrument` function is still needed.
-from tabs.Instrument.instrument_logic import initialize_instrument # Only initialize_instrument is kept
+from tabs.Instrument.instrument_logic import initialize_instrument_logic # CORRECTED: Changed import name
 
 # Import CSV utility (still used for incremental saving of raw data)
 from utils.utils_csv_writer import write_scan_data_to_csv
@@ -421,7 +422,7 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
         app_console_update_func("Scan Paused. Click Resume to continue.")
         time.sleep(0.1)
         if stop_event.is_set():
-            app_console_update_func(f"Scan for {band_name} interrupted during pause in segment {segment_counter}.")
+            app_console_update_func(f"Scan for {band_name} interrupted during pause in max hold for segment {segment_counter}.")
             debug_log("Stop event set during pause.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -710,7 +711,7 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
 
     # Initialize instrument for scan (basic setup, no specific scan parameters here)
     app_console_update_func("Initializing instrument for scan settings...")
-    if not initialize_instrument(
+    if not initialize_instrument_logic( # CORRECTED: Call initialize_instrument_logic
         inst,
         model_match=app_instance_ref.instrument_model,
         ref_level_dbm=ref_level_dbm,

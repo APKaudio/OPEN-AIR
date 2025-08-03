@@ -25,6 +25,7 @@
 # Version 20250803.0325.0 (Grouped all Markers tab specific styles together for better organization.)
 # Version 20250803.0330.0 (Added extensive comments describing each style, its usage, and states.)
 # Version 20250803.0335.0 (Refined Markers tab button styles into 4 distinct states: Device Selected/Scanning, Device Selected/Not Scanning, Config Active, Config Inactive.)
+# Version 20250803.1800.0 (ADDED: Red.TLabel.Value style for disconnected status.)
 
 current_version = "20250803.0335.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250803 * 335 * 0 # Example hash, adjust as needed.
@@ -150,6 +151,25 @@ def apply_styles(style, debug_log_func, current_app_version):
     # Styles for status labels (e.g., instrument connection status)
     style.configure('Green.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['green_btn'], font=('Helvetica', 10, 'bold')) # Green text for "Connected"
     style.configure('Red.TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))   # Red text for "Disconnected"
+
+    # NEW: Style for red labels displaying values (e.g., disconnected status with a value-like appearance)
+    # This combines the red color of 'Red.TLabel' with the bold font of 'Dark.TLabel.Value'.
+    try:
+        tlabel_layout = style.layout('TLabel') # Ensure layout is copied if not already
+        style.layout('Red.TLabel.Value', tlabel_layout)
+        debug_log_func(f"Copied TLabel layout to Red.TLabel.Value. This should finally register the damn thing! Version: {current_version}",
+                        file=__file__,
+                        version=current_app_version,
+                        function=inspect.currentframe().f_code.co_name,
+                        special=True)
+    except TclError as e:
+        debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout for Red.TLabel.Value: {e}. This is some serious bullshit! Version: {current_version}",
+                        file=__file__,
+                        version=current_app_version,
+                        function=inspect.currentframe().f_code.co_name,
+                        special=True)
+    style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
+
 
     # Style for Tkinter Entry widgets (text input fields)
     # - `fieldbackground`: Background color of the input area.

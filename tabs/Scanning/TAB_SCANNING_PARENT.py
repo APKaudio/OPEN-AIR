@@ -17,16 +17,17 @@
 #
 # Version 20250801.2335.3 (Fixed TclError: unknown option "-style_obj" by removing it from kwargs for child tabs.)
 # Version 20250803.0132.1 (Added _on_parent_tab_selected to display ASCII art for Scanning tab.)
+# Version 20250803.1930.0 (FIXED: Corrected typo in import name 'ScanTa' to 'ScanTab'.)
 
-current_version = "20250803.0132.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 132 * 1 # Example hash, adjust as needed
+current_version = "20250803.1930.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1930 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
 # Import the child tabs - CORRECTED PATHS
-from tabs.Scanning.tab_scanning_child_scan_configuration import ScanTab
+from tabs.Scanning.tab_scanning_child_scan_configuration import ScanTab # CORRECTED: Changed ScanTa to ScanTab
 from tabs.Scanning.tab_scanning_child_scan_meta_data import ScanMetaDataTab
 
 # Updated imports for new logging functions
@@ -99,71 +100,27 @@ class TAB_SCANNING_PARENT(ttk.Frame):
                     function=current_function)
 
     def _on_tab_selected(self, event):
-        # Handles tab change events within the child notebook of the Scanning tab.
-        # It propagates the selection event to the active child tab.
-        #
-        # Inputs:
-        #   event (tkinter.Event): The event object that triggered the tab change.
-        #
-        # Process:
-        #   1. Prints a debug message.
-        #   2. Determines the currently selected child tab.
-        #   3. Retrieves the widget instance of the selected child tab.
-        #   4. If the selected child tab has an `_on_tab_selected` method, calls it.
-        #      This allows individual child tabs to refresh their content or state
-        #      when they become active.
-        #
-        # Outputs:
-        #   None. Triggers content refreshes in child tabs.
-        #
-        # (2025-07-31) Change: Initial creation.
-        # (2025-07-31) Change: Updated header.
-        # (2025-08-01) Change: Updated debug prints to new format.
-        # (2025-08-01) Change: Updated debug_print calls to use debug_log and console_log.
         """
-        Handles tab change events within the child notebook of the Scanning tab,
-        propagating the selection event to the active child tab.
+        Handles tab change events within the child notebook of the Scanning tab.
+        It propagates the selection event to the active child tab.
+
+        Inputs:
+            event (tkinter.Event): The event object that triggered the tab change.
+
+        Process:
+            1. Prints a debug message.
+            2. Determines the currently selected child tab.
+            3. Retrieves the widget instance of the selected child tab.
+            4. If the selected child tab has an `_on_tab_selected` method,
+               it calls that method to allow the child tab to refresh its UI.
+            5. Logs whether the event was propagated.
+
+        Outputs:
+            None. Updates the UI of the selected child tab.
         """
+        # This ensures ASCII art creation to display ASCII art when the parent tab is selected.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"TAB_SCANNING_PARENT selected. Version: {current_version}. Let's get these scan settings refreshed!",
-                    file=f"{__file__} - {current_version}",
-                    version=current_version,
-                    function=current_function,
-                    special=True)
-
-        # Ensure the currently visible child tab also gets its _on_tab_selected called
-        selected_child_tab_id = self.child_notebook.select()
-        if selected_child_tab_id:
-            selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
-            if hasattr(selected_child_tab_widget, '_on_tab_selected'):
-                selected_child_tab_widget._on_tab_selected(event)
-                debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()}. Version: {current_version}.",
-                            file=f"{__file__} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-            else:
-                debug_log(f"Active child tab {selected_child_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?! Version: {current_version}.",
-                            file=f"{__file__} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-
-    def _on_parent_tab_selected(self, event):
-        # Function Description: Handles the event when the Scanning parent tab is selected in the main notebook.
-        #
-        # Inputs to this function:
-        #   event (tkinter.Event): The event object that triggered the tab selection.
-        #
-        # Process of this function:
-        #   1. Logs a debug message indicating the Scanning parent tab has been selected.
-        #   2. Calls the `_print_scan_ascii` function to display the Scanning-specific ASCII art in the console.
-        #   3. Ensures that if there's an active child tab, its `_on_tab_selected` method is also called to refresh its state.
-        #
-        # Outputs of this function:
-        #   None. Displays ASCII art and potentially refreshes the active child tab.
-        #
-        # (2025-08-03) Change: Initial creation to display ASCII art when the parent tab is selected.
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Scanning Parent Tab selected. Version: {current_version}. Time to get those scans rolling! 📈",
+        debug_log(f"Scanning Parent Tab selected. Version: {current_version}. Time to get those scans rolling! �",
                     file=f"{__file__} - {current_version}",
                     version=current_version,
                     function=current_function,

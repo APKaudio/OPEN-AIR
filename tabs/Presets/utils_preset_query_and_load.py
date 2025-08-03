@@ -17,6 +17,7 @@
 #
 # Version 20250802.1701.10 (Refactored from utils_preset.py to handle query and load logic.)
 # Version 20250802.1800.8 (Updated load_selected_preset_logic to handle local presets via dict.)
+# Version 20250803.1740.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
 
 current_version = "20250802.1800.8" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 1800 * 8 # Example hash, adjust as needed
@@ -34,7 +35,7 @@ from src.console_logic import console_log
 
 # Import read/write safe functions from the new dedicated module
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
-from tabs.Instrument.utils_instrument_initialize import initialize_instrument
+from tabs.Instrument.utils_instrument_initialize import initialize_instrument_logic # CORRECTED: Changed import name
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
@@ -205,17 +206,8 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
                 # you would need to store them in the CSV and retrieve them here.
                 # For now, they are not part of the basic CSV structure, so they won't be updated.
                 # If the instrument is connected, you might want to apply these settings.
-                if app_instance.inst:
-                    # After updating GUI, apply these settings to the instrument
-                    # This requires the apply_settings_logic to be called with the updated Tkinter vars
-                    # This is usually handled by the InstrumentTab's _apply_settings_to_instrument
-                    # or a direct call to apply_settings_logic.
-                    # For simplicity, we'll assume the GUI update is enough for now,
-                    # and the user can manually apply if needed, or a subsequent query will sync.
-                    # Or, if you want to apply automatically:
-                    # from tabs.Instrument.instrument_logic import apply_settings_logic
-                    # apply_settings_logic(app_instance, console_print_func)
-                    pass # Handled by the _update_gui_from_preset_data in LocalPresetsTab
+                # This is usually handled by the _update_gui_from_preset_data in LocalPresetsTab
+                pass # Handled by the _update_gui_from_preset_data in LocalPresetsTab
 
                 console_print_func(f"GUI settings updated from preset: Center Freq={center_freq_hz / app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz:.0f} Hz. Looking good!")
                 debug_log(f"GUI settings updated from loaded local preset.",
@@ -238,7 +230,6 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
                     version=current_version,
                     function=current_function)
         return False, 0.0, 0.0, 0.0
-
 
 
 
