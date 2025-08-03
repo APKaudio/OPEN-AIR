@@ -18,8 +18,10 @@
 #
 # Version 20250802.0050.1 (Fixed TclError: unknown option "-console_print_func" by removing from kwargs.)
 # Version 20250803.0340.0 (Updated button styles to use the new, more specific names from style.py.)
+# Version 20250803.0755.0 (Added debug logs for device button styling and ensured style application.)
+# Version 20250803.0800.0 (Fixed device button highlighting persistence across tree selections.)
 
-current_version = "20250803.0340.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.0800.0" # this variable should always be defined below the header to make the debugging better
 
 import tkinter as tk
 from tkinter import scrolledtext, filedialog, ttk # Keep other imports
@@ -360,62 +362,77 @@ class MarkersDisplayTab(ttk.Frame):
         """
         Handles selection events in the zone/group treeview.
         Populates the device buttons based on the selected zone or group.
-        Also resets the selected device button state.
+        Manages selected device button state, preserving selection if device is still present.
         """
         current_function = inspect.currentframe().f_code.co_name
-        current_file = os.path.basename(__file__) # Changed to os.path.basename(__file__)
+        current_file = os.path.basename(__file__)
         debug_log(f"Tree item selected...",
                     file=current_file,
                     version=current_version,
                     function=current_function)
         selected_items = self.zone_group_tree.selection()
 
-        # Reset selected device button state when tree selection changes
-        # (This is the specific device button, not span/RBW/poke)
-        if self.current_selected_device_button:
-            self.current_selected_device_button.config(style="DeviceButton.TButton") # Revert old button to neutral
-            self.current_selected_device_button = None
-            self.selected_device_unique_id = None
-            self.current_selected_device_data = None # NEW: Clear stored device data
+        # Get the data for the newly selected tree item(s)
+        selected_rows_data = []
+        if selected_items:
+            for item_id in selected_items:
+                item_tags = self.zone_group_tree.item(item_id, 'tags')
+                if 'zone' in item_tags:
+                    zone_name = self.zone_group_tree.item(item_id, 'text')
+                    for row in self.rows:
+                        if row.get('ZONE', '').strip() == zone_name:
+                            selected_rows_data.append(row)
+                elif 'group' in item_tags:
+                    group_name = self.zone_group_tree.item(item_id, 'text')
+                    parent_id = self.zone_group_tree.parent(item_id)
+                    zone_name = self.zone_group_tree.item(parent_id, 'text')
+                    for row in self.rows:
+                        if row.get('ZONE', '').strip() == zone_name and row.get('GROUP', '').strip() == group_name:
+                            selected_rows_data.append(row)
+
+        # Check if the previously selected device is still in the new list of devices
+        # If not, clear the stored selection
+        if self.selected_device_unique_id:
+            is_prev_selected_device_still_present = False
+            for device_data in selected_rows_data:
+                unique_device_id_candidate = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{device_data.get('FREQ', '')}"
+                if unique_device_id_candidate == self.selected_device_unique_id:
+                    is_prev_selected_device_still_present = True
+                    break
+
+            if not is_prev_selected_device_still_present:
+                debug_log(f"Previously selected device (ID: {self.selected_device_unique_id}) is no longer in the displayed list. Clearing selection.",
+                            file=current_file, version=current_version, function=current_function)
+                if self.current_selected_device_button:
+                    self.current_selected_device_button.config(style="DeviceButton.TButton") # Revert old button to neutral
+                    debug_log(f"Resetting previously selected device button '{self.current_selected_device_button.cget('text').splitlines()[0]}' style to DeviceButton.TButton (Default Blue).",
+                                file=current_file, version=current_version, function=current_function)
+                self.current_selected_device_button = None
+                self.selected_device_unique_id = None
+                self.current_selected_device_data = None
+        else:
+            # If no device was previously selected, just ensure the visual state is clear
+            if self.current_selected_device_button: # This should ideally be None if selected_device_unique_id is None
+                self.current_selected_device_button.config(style="DeviceButton.TButton")
+                self.current_selected_device_button = None
+            self.current_selected_device_data = None # Ensure data is clear if no unique ID
 
         # Also reset Poke button style if it was selected, as tree selection implies
         # looking at specific devices, not a manual poke.
         if self.last_selected_poke_button:
             self.last_selected_poke_button.config(style="Markers.TButton")
+            debug_log(f"Resetting POKE button style to Markers.TButton (Default Blue) due to tree selection change.",
+                        file=current_file, version=current_version, function=current_function)
             self.last_selected_poke_button = None
 
 
-        if not selected_items:
-            self._populate_device_buttons([])
-            # --- NEW: Clear displayed device info when no item is selected ---
-            self.current_displayed_device_name_var.set("N/A")
-            self.current_displayed_device_type_var.set("N/A")
-            self.current_displayed_center_freq_var.set("N/A")
-            # --- END NEW ---
-            return
-
-        selected_rows_data = []
-
-        for item_id in selected_items:
-            item_tags = self.zone_group_tree.item(item_id, 'tags')
-
-            if 'zone' in item_tags:
-                zone_name = self.zone_group_tree.item(item_id, 'text')
-                # Collect all markers belonging to this zone
-                for row in self.rows:
-                    if row.get('ZONE', '').strip() == zone_name:
-                        selected_rows_data.append(row)
-            elif 'group' in item_tags:
-                group_name = self.zone_group_tree.item(item_id, 'text')
-                parent_id = self.zone_group_tree.parent(item_id)
-                zone_name = self.zone_group_tree.item(parent_id, 'text')
-                # Collect all markers belonging to this specific group within this zone
-                for row in self.rows:
-                    if row.get('ZONE', '').strip() == zone_name and row.get('GROUP', '').strip() == group_name:
-                        selected_rows_data.append(row)
-            # No 'marker' tag check needed here as individual markers are not tree nodes anymore
-
         self._populate_device_buttons(selected_rows_data)
+
+        # After populating, if a device was previously selected and is still in the new list,
+        # its button should now be highlighted by _populate_device_buttons.
+        # We also need to update the current settings display based on the *current* selected device,
+        # which might be the one that was just re-highlighted.
+        self._update_current_settings_display() # Call this to refresh the display based on potentially re-selected device.
 
     def _populate_device_buttons(self, devices_to_display):
         """
@@ -460,7 +477,7 @@ class MarkersDisplayTab(ttk.Frame):
                     file=current_file,
                     version=current_version,
                     function=current_function)
-        
+
         # Clear existing buttons
         for widget in self.inner_buttons_frame.winfo_children():
             widget.destroy()
@@ -538,12 +555,19 @@ class MarkersDisplayTab(ttk.Frame):
 
                     if is_currently_scanned:
                         button_style = "ActiveScan.TButton" # Green with black font for active scan
+                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as ActiveScan.TButton (Green).",
+                                    file=current_file, version=current_version, function=current_function)
                     elif unique_device_id == self.selected_device_unique_id:
                         button_style = "Markers.SelectedButton.TButton" # Use the new unified selected style
-                        
+                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as Markers.SelectedButton.TButton (Orange).",
+                                    file=current_file, version=current_version, function=current_function)
+                        # Re-establish the reference to the currently selected button widget
+                        self.current_selected_device_button = btn
+                    else:
+                        debug_log(f"Device button '{display_name}' (ID: {unique_device_id}) styled as DeviceButton.TButton (Default Blue).",
+                                    file=current_file, version=current_version, function=current_function)
+
                     btn.config(style=button_style)
-                    if unique_device_id == self.selected_device_unique_id:
-                        self.current_selected_device_button = btn # Re-establish reference for selected button
                     # --- END NEW ---
 
                     # Use sticky="nsew" to make buttons expand within their grid cells
@@ -611,16 +635,19 @@ class MarkersDisplayTab(ttk.Frame):
                     function=current_function)
 
         # Iterate over all currently displayed buttons and reset their style
-        # This is crucial because _populate_device_buttons might not re-create all widgets
-        # but rather update existing ones.
         for widget in self.inner_buttons_frame.winfo_children():
-            if isinstance(widget, ttk.Button):
+            if isinstance(widget, ttk.Button): # Only process buttons
                 widget.config(style="DeviceButton.TButton")
+                # Safely get button text for logging
+                button_text_lines = widget.cget('text').splitlines()
+                button_display_name = button_text_lines[0] if button_text_lines else "Unknown Button"
+                debug_log(f"Resetting device button '{button_display_name}' style to DeviceButton.TButton (Default Blue).",
+                            file=current_file, version=current_version, function=current_function)
 
-        # Clear the internal reference to the currently selected device button
-        self.current_selected_device_button = None
-        self.selected_device_unique_id = None
-        self.current_selected_device_data = None
+
+        # Note: self.current_selected_device_button, self.selected_device_unique_id,
+        # and self.current_selected_device_data are NOT cleared here.
+        # They are managed by _on_tree_select or _on_device_button_click.
 
 
     def _on_device_button_click(self, device_data, clicked_button_widget):
@@ -676,10 +703,14 @@ class MarkersDisplayTab(ttk.Frame):
         self._reset_device_button_styles(exclude_button=clicked_button_widget)
         if self.last_selected_poke_button: # Reset poke button if it was active
             self.last_selected_poke_button.config(style="Markers.TButton")
+            debug_log(f"POKE button style reset to Markers.TButton (Default Blue).",
+                        file=current_file, version=current_version, function=current_function)
             self.last_selected_poke_button = None
 
         # Set new device selection
         clicked_button_widget.config(style="Markers.SelectedButton.TButton") # Select new button (orange)
+        debug_log(f"Device button '{name}' (ID: {unique_device_id}) style set to Markers.SelectedButton.TButton (Orange).",
+                    file=current_file, version=current_version, function=current_function)
         self.current_selected_device_button = clicked_button_widget
         self.selected_device_unique_id = unique_device_id
         self.current_selected_device_data = device_data # Store the full device data
@@ -806,7 +837,7 @@ class MarkersDisplayTab(ttk.Frame):
                                 file=current_file,
                                 version=current_version,
                                 function=current_function)
-            
+
             # 2. Restore Trace Modes to their original states
             set_trace_modes_logic(inst,
                                   original_live_mode,
@@ -943,9 +974,14 @@ class MarkersDisplayTab(ttk.Frame):
         # Reset previously selected POKE button if it was different
         if self.last_selected_poke_button and self.last_selected_poke_button != self.poke_button:
             self.last_selected_poke_button.config(style="Markers.TButton")
+            debug_log(f"Previous POKE button style reset to Markers.TButton (Default Blue).",
+                        file=current_file, version=current_version, function=current_function)
+
 
         # Highlight the POKE button
         self.poke_button.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
+        debug_log(f"POKE button style set to Markers.SelectedButton.TButton (Orange).",
+                    file=current_file, version=current_version, function=current_function)
         self.last_selected_poke_button = self.poke_button
 
 
@@ -1066,8 +1102,12 @@ class MarkersDisplayTab(ttk.Frame):
             var = data["var"]
             if var.get():
                 button.config(style="Markers.SelectedButton.TButton") # Use the new unified selected style
+                debug_log(f"Trace mode button '{mode_name}' style set to Markers.SelectedButton.TButton (Orange).",
+                            file=current_file, version=current_version, function=current_function)
             else:
                 button.config(style="Markers.TButton") # Use default blue for unselected
+                debug_log(f"Trace mode button '{mode_name}' style set to Markers.TButton (Default Blue).",
+                            file=current_file, version=current_version, function=current_function)
 
     def _update_current_settings_display(self):
         """
@@ -1158,6 +1198,8 @@ class MarkersDisplayTab(ttk.Frame):
                 self.current_displayed_device_name_var.set("POKE: Invalid Freq")
                 self.current_displayed_center_freq_var.set("Invalid Freq")
             self.current_displayed_device_type_var.set("N/A")
+            debug_log(f"Displaying Selected Device Info (POKE): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
+                        file=current_file, version=current_version, function=current_function)
         elif self.current_selected_device_data:
             name = self.current_selected_device_data.get('NAME', '').strip()
             device_type = self.current_selected_device_data.get('DEVICE', '').strip()
@@ -1175,11 +1217,15 @@ class MarkersDisplayTab(ttk.Frame):
             self.current_displayed_device_name_var.set(display_name)
             self.current_displayed_device_type_var.set(display_device)
             self.current_displayed_center_freq_var.set(display_freq)
+            debug_log(f"Displaying Selected Device Info (Device Button): Name='{self.current_displayed_device_name_var.get()}', Type='{self.current_displayed_device_type_var.get()}', Freq='{self.current_displayed_center_freq_var.get()}'",
+                        file=current_file, version=current_version, function=current_function)
         else:
             # If no device is selected and POKE is not active, clear display
             self.current_displayed_device_name_var.set("N/A")
             self.current_displayed_device_type_var.set("N/A")
             self.current_displayed_center_freq_var.set("N/A")
+            debug_log(f"Displaying Selected Device Info: N/A (No device button clicked or POKE active).",
+                        file=current_file, version=current_version, function=current_function)
 
 
     # Function Description:
@@ -1214,12 +1260,26 @@ class MarkersDisplayTab(ttk.Frame):
         self._populate_zone_group_tree() # This will clear and rebuild the tree
         # After populating the tree, the _on_tree_select event will handle populating the device buttons
         # if a zone/group is selected. If no selection is made, device buttons will remain empty, which is correct.
-        self._reset_device_button_styles(exclude_button=None) # Clear any highlighted device buttons
-        self.current_selected_device_button = None
-        self.selected_device_unique_id = None
-        self.current_selected_device_data = None
-        self._populate_device_buttons([]) # Explicitly clear device buttons until a new selection is made
+        # We need to re-evaluate if the previously selected device is still present after data update.
+        if self.selected_device_unique_id:
+            is_prev_selected_device_still_present = False
+            for device_data in new_rows: # Check against the new_rows directly
+                unique_device_id_candidate = f"{device_data.get('ZONE', '')}-{device_data.get('GROUP', '')}-{device_data.get('DEVICE', '')}-{device_data.get('NAME', '')}-{device_data.get('FREQ', '')}"
+                if unique_device_id_candidate == self.selected_device_unique_id:
+                    is_prev_selected_device_still_present = True
+                    break
+            if not is_prev_selected_device_still_present:
+                debug_log(f"Previously selected device (ID: {self.selected_device_unique_id}) is no longer in the updated marker data. Clearing selection.",
+                            file=current_file, version=current_version, function=current_function)
+                self.current_selected_device_button = None
+                self.selected_device_unique_id = None
+                self.current_selected_device_data = None
+        else:
+            self.current_selected_device_button = None
+            self.selected_device_unique_id = None
+            self.current_selected_device_data = None
 
+        self._populate_device_buttons([]) # Explicitly clear device buttons until a new selection is made by tree or click
         console_log(f"✅ Markers Display Tab updated with {len(new_rows)} markers.", function=current_function)
 
 

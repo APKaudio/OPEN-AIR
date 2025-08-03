@@ -357,7 +357,7 @@ def apply_styles(style, debug_log_func, current_app_version):
                     relief="flat",
                     focusthickness=0)
     style.map('Markers.Device.Default.TButton',
-              background=[('active', COLOR_PALETTE['active_bg']), ('disabled', COLOR_PALETTE['disabled_bg'])])
+              background=[('active', COLOR_PALETTE['orange_btn']), ('disabled', COLOR_PALETTE['disabled_bg'])])
 
     # 2. Device Button: Selected, Not Scanning
     # This state applies when a device button is clicked and selected, but the instrument
