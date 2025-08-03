@@ -16,6 +16,8 @@
 #
 # Version 20250802.1800.7 (Refactored to use new debug_log and console_log.)
 # Version 20250803.0955.0 (Modified overwrite_user_presets_csv to accept 'fieldnames' argument.)
+# Version 20250803.1018.0 (FIXED: get_presets_csv_path to prevent DATA\DATA duplication.
+#                         ADDED: Debug logging for save path in overwrite_user_presets_csv.)
 
 import os
 import csv
@@ -27,13 +29,14 @@ import numpy as np # For handling NaN values
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-current_version = "20250803.0955.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 955 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1018.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1018 * 0 # Example hash, adjust as needed.
 
 def get_presets_csv_path(config_file_path, console_print_func=None):
     """
     Determines the full path to the PRESETS.CSV file.
-    It assumes PRESETS.CSV is in a 'DATA' subdirectory relative to the config file.
+    It assumes PRESETS.CSV is in the same directory as the config file,
+    or in a 'DATA' subdirectory if the config file is one level up.
 
     Inputs:
         config_file_path (str): The full path to the application's config.ini file.
@@ -45,14 +48,21 @@ def get_presets_csv_path(config_file_path, console_print_func=None):
     _print = console_print_func if console_print_func else print
     current_function = inspect.currentframe().f_code.co_name
     
-    # Get the directory of the config file
+    # Get the directory containing the config file
     config_dir = os.path.dirname(config_file_path)
     
-    # Construct the path to the DATA folder
-    data_folder = os.path.join(config_dir, "DATA")
-    
-    # Construct the full path to PRESETS.CSV
-    presets_csv_path = os.path.join(data_folder, "PRESETS.CSV")
+    # Check if config_dir itself ends with 'DATA'
+    if os.path.basename(config_dir).upper() == 'DATA':
+        # If config_file_path is already within the DATA folder, use that folder directly
+        presets_csv_path = os.path.join(config_dir, "PRESETS.CSV")
+    else:
+        # Otherwise, assume DATA is a sibling directory to config_dir
+        # This might need adjustment based on your exact project structure.
+        # For now, let's assume config_file_path is like ".../OPEN-AIR/config.ini"
+        # and DATA is ".../OPEN-AIR/DATA/"
+        app_root_dir = os.path.dirname(config_dir)
+        data_folder = os.path.join(app_root_dir, "DATA")
+        presets_csv_path = os.path.join(data_folder, "PRESETS.CSV")
 
     debug_log(f"Determined presets CSV path: {presets_csv_path}.",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -243,14 +253,14 @@ def overwrite_user_presets_csv(config_file_path, presets_data, console_print_fun
             writer.writeheader()
             writer.writerows(cleaned_presets_data)
         
-        debug_log(f"Successfully overwrote PRESETS.CSV with {len(cleaned_presets_data)} entries.",
+        debug_log(f"Successfully overwrote PRESETS.CSV at: {presets_csv_path} with {len(cleaned_presets_data)} entries.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return True
     except Exception as e:
         _print(f"❌ An unexpected error occurred overwriting presets: {e}. What a mess!")
-        debug_log(f"An unexpected error occurred overwriting presets: {e}.",
+        debug_log(f"An unexpected error occurred overwriting presets to {presets_csv_path}: {e}.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)

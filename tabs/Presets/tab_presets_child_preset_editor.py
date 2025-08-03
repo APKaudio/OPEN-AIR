@@ -64,9 +64,15 @@
 #                         Introduced self.is_editing_cell flag to suppress focus-in events during active edit.
 #                         Added more debug logging for focus and edit states.)
 # Version 20250803.1006.0 (FIXED: TclError: unknown option "-xyscrollcommand" by changing to xscrollcommand.)
+# Version 20250803.1012.0 (ADDED: Move Preset UP/DOWN buttons and functionality.)
+# Version 20250803.1018.0 (REFINED: _on_window_focus_in to prevent unnecessary table reloads and preserve selection.
+#                         ADDED: Debug logging for selection state in move functions.)
+# Version 20250803.1020.0 (REFINED: _on_window_focus_in to be less disruptive.
+#                         ADDED: _on_tree_select method and bind to <<TreeviewSelect>> for selection debugging.
+#                         ADDED: Explicit console message for save path in _save_presets_to_csv.)
 
-current_version = "20250803.1006.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1006 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1020.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1020 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -163,9 +169,10 @@ class PresetEditorTab(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
         # Adjusted row weights for new button placement
         self.grid_rowconfigure(0, weight=0) # Add/Delete buttons
-        self.grid_rowconfigure(1, weight=1) # Treeview
-        self.grid_rowconfigure(2, weight=0) # Scrollbar for Treeview
-        self.grid_rowconfigure(3, weight=0) # File Ops buttons
+        self.grid_rowconfigure(1, weight=0) # Move buttons (NEW)
+        self.grid_rowconfigure(2, weight=1) # Treeview (shifted from row 1 to row 2)
+        self.grid_rowconfigure(3, weight=0) # Scrollbar for Treeview (shifted from row 2 to row 3)
+        self.grid_rowconfigure(4, weight=0) # File Ops buttons (shifted from row 3 to row 4)
 
         # --- Grouping for "Add" and "Delete" buttons (Moved to top) ---
         top_button_frame = ttk.Frame(self, style='Dark.TFrame')
@@ -186,6 +193,20 @@ class PresetEditorTab(ttk.Frame):
         delete_button = ttk.Button(top_button_frame, text="Delete Selected", command=self._delete_selected_preset, style='Red.TButton')
         delete_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
+        # --- NEW: Grouping for "Move" buttons ---
+        move_button_frame = ttk.Frame(self, style='Dark.TFrame')
+        move_button_frame.grid(row=1, column=0, columnspan=2, sticky="ew", padx=10, pady=5) # New row for move buttons
+        move_button_frame.grid_columnconfigure(0, weight=1)
+        move_button_frame.grid_columnconfigure(1, weight=1)
+
+        # Move Preset UP Button
+        move_up_button = ttk.Button(move_button_frame, text="Move Preset UP", command=self._move_preset_up, style='Orange.TButton')
+        move_up_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        # Move Preset DOWN Button
+        move_down_button = ttk.Button(move_button_frame, text="Move Preset DOWN", command=self._move_preset_down, style='Orange.TButton')
+        move_down_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
 
         # --- Treeview for Presets ---
         # Define columns with units
@@ -205,7 +226,7 @@ class PresetEditorTab(ttk.Frame):
         }
 
         self.presets_tree = ttk.Treeview(self, columns=self.columns, show='headings', style='Treeview')
-        self.presets_tree.grid(row=1, column=0, sticky="nsew", padx=10, pady=10) # Moved to row 1
+        self.presets_tree.grid(row=2, column=0, sticky="nsew", padx=10, pady=10) # Moved to row 2
 
         # Configure columns and headings
         for col in self.columns:
@@ -214,20 +235,22 @@ class PresetEditorTab(ttk.Frame):
 
         # Add scrollbars
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.presets_tree.yview)
-        vsb.grid(row=1, column=1, sticky='ns') # Moved to row 1
+        vsb.grid(row=2, column=1, sticky='ns') # Moved to row 2
         self.presets_tree.configure(yscrollcommand=vsb.set)
 
         hsb = ttk.Scrollbar(self, orient="horizontal", command=self.presets_tree.xview)
-        hsb.grid(row=2, column=0, sticky='ew') # Moved to row 2
-        # FIX: Changed xyscrollcommand to xscrollcommand
+        hsb.grid(row=3, column=0, sticky='ew') # Moved to row 3
         self.presets_tree.configure(xscrollcommand=hsb.set)
 
         # Bind double-click event for editing
         self.presets_tree.bind("<Double-1>", self._on_double_click)
+        # NEW: Bind to TreeviewSelect event for debugging selection
+        self.presets_tree.bind("<<TreeviewSelect>>", self._on_tree_select)
+
 
         # --- Button Frame for File Operations (excluding Save) ---
         file_ops_button_frame = ttk.Frame(self, style='Dark.TFrame')
-        file_ops_button_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew") # Moved to row 3
+        file_ops_button_frame.grid(row=4, column=0, columnspan=2, pady=10, padx=10, sticky="ew") # Moved to row 4
         file_ops_button_frame.grid_columnconfigure(0, weight=1)
         file_ops_button_frame.grid_columnconfigure(1, weight=1)
         file_ops_button_frame.grid_columnconfigure(2, weight=1)
@@ -429,9 +452,12 @@ class PresetEditorTab(ttk.Frame):
         # self.presets_data is the source of truth for saving, as _end_edit updates it.
         # Pass the column headers explicitly to overwrite_user_presets_csv to ensure consistency
         fieldnames_for_save = [col.split(' ')[0] for col in self.columns]
+        
+        # Get the full path for logging
+        presets_csv_full_path = get_presets_csv_path(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
 
         if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, self.presets_data, self.console_print_func, fieldnames=fieldnames_for_save):
-            self.console_print_func("✅ Presets saved successfully to PRESETS.CSV.")
+            self.console_print_func(f"✅ Presets saved successfully to: {presets_csv_full_path}")
             debug_log(f"Presets saved to CSV successfully. Total entries: {len(self.presets_data)}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -968,58 +994,232 @@ class PresetEditorTab(ttk.Frame):
     def _on_window_focus_in(self, event):
         """
         Called when the main application window gains focus.
-        Reloads and repopulates the presets table if this tab is currently active,
-        automatically saving unsaved changes first.
+        Performs an auto-save if unsaved changes exist and no cell is being edited.
+        Does NOT automatically reload the table to preserve selection.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Main window gained focus. Checking if PresetEditorTab is active for refresh.",
+        debug_log("Main window gained focus. Checking if PresetEditorTab is active.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         
         # Check if this tab is currently the selected tab in the notebook
         if hasattr(self.master, 'select') and self.master.select() == str(self):
-            # NEW: Only proceed if not currently in an active cell edit
+            # Only proceed if not currently in an active cell edit
             if self.is_editing_cell:
-                debug_log("Window focused, but a cell is currently being edited. Skipping table refresh to avoid interruption.",
+                debug_log("Window focused, but a cell is currently being edited. Skipping auto-save/reload to avoid interruption.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-                return # Skip the refresh if an edit is active
+                return # Skip everything if an edit is active
 
-            self.console_print_func("💬 Window focused and Preset Editor tab active. Checking for unsaved changes.")
-            debug_log("Window focused and Preset Editor tab active. Checking for unsaved changes.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-
-            # First, ensure any active edit is committed (this should ideally be handled by _end_edit's FocusOut)
-            # This block might be redundant with the new is_editing_cell check, but kept for robustness.
-            if hasattr(self, 'edit_entry') and self.edit_entry.winfo_exists():
-                debug_log("Active edit detected on window focus. Ending edit before reload.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-                self._end_edit() # This will update internal data and set has_unsaved_changes if needed
-
+            # If there are unsaved changes, attempt to auto-save
             if self.has_unsaved_changes:
-                self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
-                debug_log("Unsaved changes detected. Attempting auto-save.",
+                self.console_print_func("💬 Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.")
+                debug_log("Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 self._save_presets_to_csv() # Attempt to save automatically
+                # NOTE: We do NOT call populate_presets_table() here to preserve selection.
+                # The _on_tab_selected will handle the refresh when the tab is explicitly selected.
+            else:
+                debug_log("Window focused, Preset Editor tab active, but no unsaved changes. Skipping auto-save.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+        else:
+            debug_log("Window focused, but PresetEditorTab is not the active tab. Skipping auto-save.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
-            # Always reload from CSV to ensure the latest disk version is displayed
-            self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
-            self.populate_presets_table()
-            debug_log(f"Presets table refreshed from CSV due to window focus gain. Current presets_data count: {len(self.presets_data)}.",
+    def _on_tree_select(self, event):
+        """
+        Handles selection events on the Treeview. Logs the selected items.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        selected_items = self.presets_tree.selection()
+        if selected_items:
+            # For debugging, log the filenames of selected items
+            selected_filenames = [self.presets_tree.item(item, 'values')[0] for item in selected_items]
+            debug_log(f"Treeview selection changed. Selected items: {selected_filenames}",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
-            debug_log("Window focused, but PresetEditorTab is not active or no unsaved changes. Skipping reload.",
+            debug_log("Treeview selection cleared (no items selected).",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+
+
+    def _move_preset_up(self):
+        """
+        Moves the selected preset(s) one position up in the table and internal data.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        selected_items = self.presets_tree.selection()
+        debug_log(f"Move Preset UP clicked. Selected items: {selected_items}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+        if not selected_items:
+            self.console_print_func("⚠️ No preset selected to move up. Select one, genius!")
+            debug_log("No preset selected for move up.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            return
+
+        # Ensure active edit is ended before moving
+        if self.is_editing_cell:
+            self._end_edit()
+
+        # Sort selected items by their current position (topmost first)
+        sorted_selected_items = sorted(selected_items, key=lambda x: self.presets_tree.index(x))
+
+        moved_count = 0
+        original_filenames_to_reselect = [] # Store filenames to re-select after repopulation
+
+        for item_id in sorted_selected_items:
+            current_index = self.presets_tree.index(item_id)
+            if current_index > 0: # Can only move up if not the first item
+                # Get the filename of the item to move
+                filename_to_move = self.presets_tree.item(item_id, 'values')[0]
+                original_filenames_to_reselect.append(filename_to_move) # Add to list for re-selection
+                
+                # Find the corresponding preset in self.presets_data
+                preset_to_move = None
+                for i, p in enumerate(self.presets_data):
+                    if p.get('Filename') == filename_to_move:
+                        preset_to_move = p
+                        break
+                
+                if preset_to_move:
+                    # Remove from current position and insert at new position in data list
+                    self.presets_data.pop(i)
+                    self.presets_data.insert(current_index - 1, preset_to_move)
+                    moved_count += 1
+                    debug_log(f"Moved preset '{filename_to_move}' from index {current_index} to {current_index - 1} in internal data.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+                else:
+                    debug_log(f"Preset with filename '{filename_to_move}' not found in internal data for move up.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+            else:
+                self.console_print_func(f"⚠️ Preset '{self.presets_tree.item(item_id, 'values')[1]}' is already at the top. Cannot move up.")
+                debug_log(f"Attempted to move top preset '{self.presets_tree.item(item_id, 'values')[1]}' up.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+        if moved_count > 0:
+            self.has_unsaved_changes = True
+            self.populate_presets_table() # Refresh Treeview from updated data
+            
+            # Re-select the moved items based on their original filenames
+            new_selection_ids = []
+            for filename in original_filenames_to_reselect:
+                for new_item_id in self.presets_tree.get_children():
+                    if self.presets_tree.item(new_item_id, 'values')[0] == filename:
+                        new_selection_ids.append(new_item_id)
+                        break
+            self.presets_tree.selection_set(new_selection_ids)
+            if new_selection_ids: # Ensure there's something to focus
+                self.presets_tree.focus(new_selection_ids[0]) # Focus the first moved item
+            
+            self.console_print_func(f"✅ Moved {moved_count} preset(s) up. Automatically saving changes...")
+            self._save_presets_to_csv()
+        else:
+            self.console_print_func("ℹ️ No presets were moved up.")
+
+
+    def _move_preset_down(self):
+        """
+        Moves the selected preset(s) one position down in the table and internal data.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        selected_items = self.presets_tree.selection()
+        debug_log(f"Move Preset DOWN clicked. Selected items: {selected_items}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+        if not selected_items:
+            self.console_print_func("⚠️ No preset selected to move down. Select one, buddy!")
+            debug_log("No preset selected for move down.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            return
+
+        # Ensure active edit is ended before moving
+        if self.is_editing_cell:
+            self._end_edit()
+
+        # Sort selected items by their current position (bottommost first for down movement)
+        sorted_selected_items = sorted(selected_items, key=lambda x: self.presets_tree.index(x), reverse=True)
+
+        moved_count = 0
+        original_filenames_to_reselect = [] # Store filenames to re-select after repopulation
+
+        for item_id in sorted_selected_items:
+            current_index = self.presets_tree.index(item_id)
+            if current_index < len(self.presets_data) - 1: # Can only move down if not the last item
+                # Get the filename of the item to move
+                filename_to_move = self.presets_tree.item(item_id, 'values')[0]
+                original_filenames_to_reselect.append(filename_to_move) # Add to list for re-selection
+                
+                # Find the corresponding preset in self.presets_data
+                preset_to_move = None
+                for i, p in enumerate(self.presets_data):
+                    if p.get('Filename') == filename_to_move:
+                        preset_to_move = p
+                        break
+                
+                if preset_to_move:
+                    # Remove from current position and insert at new position in data list
+                    self.presets_data.pop(i)
+                    self.presets_data.insert(current_index + 1, preset_to_move)
+                    moved_count += 1
+                    debug_log(f"Moved preset '{filename_to_move}' from index {current_index} to {current_index + 1} in internal data.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+                else:
+                    debug_log(f"Preset with filename '{filename_to_move}' not found in internal data for move down.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+            else:
+                self.console_print_func(f"⚠️ Preset '{self.presets_tree.item(item_id, 'values')[1]}' is already at the bottom. Cannot move down.")
+                debug_log(f"Attempted to move bottom preset '{self.presets_tree.item(item_id, 'values')[1]}' down.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+        if moved_count > 0:
+            self.has_unsaved_changes = True
+            self.populate_presets_table() # Refresh Treeview from updated data
+            
+            # Re-select the moved items based on their original filenames
+            new_selection_ids = []
+            for filename in original_filenames_to_reselect:
+                for new_item_id in self.presets_tree.get_children():
+                    if self.presets_tree.item(new_item_id, 'values')[0] == filename:
+                        new_selection_ids.append(new_item_id)
+                        break
+            self.presets_tree.selection_set(new_selection_ids)
+            if new_selection_ids: # Ensure there's something to focus
+                self.presets_tree.focus(new_selection_ids[0]) # Focus the first moved item
+            
+            self.console_print_func(f"✅ Moved {moved_count} preset(s) down. Automatically saving changes...")
+            self._save_presets_to_csv()
+        else:
+            self.console_print_func("ℹ️ No presets were moved down.")
 
