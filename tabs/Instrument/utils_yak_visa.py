@@ -1,4 +1,4 @@
-# utils/utils_yak_visa.py
+# # tabs/Instrument/utils_yak_visa.py
 #
 # This file provides utility functions for safe and standardized execution of
 # VISA commands (GET, SET, DO) on connected instruments. It wraps PyVISA operations

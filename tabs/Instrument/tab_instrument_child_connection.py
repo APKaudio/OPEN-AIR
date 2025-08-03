@@ -18,11 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1701.18 (Fixed ImportError by updating function names from instrument_logic.)
-# Version 20250802.2045.1 (Added connection_status_label as an instance attribute to fix AttributeError.)
+# Version 20250803.1115.4 (Fixed argument mismatch for apply_settings_logic call.)
 
-current_version = "20250802.2045.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 2045 * 1 # Example hash, adjust as needed
+current_version = "20250803.1115.4" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1115 * 4 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,768 +30,818 @@ import os
 import threading
 
 # Import instrument control logic functions
-from tabs.Instrument.instrument_logic import (
-    populate_resources_logic, connect_instrument_logic, disconnect_instrument_logic,
-    apply_settings_logic, query_current_settings_logic # Corrected function names
-)
-from src.connection_status_logic import update_connection_status_logic
-from src.settings_and_config.config_manager import save_config # Import save_config
+from tabs.Instrument.utils_instrument_connection import list_visa_resources, connect_to_instrument, disconnect_instrument
+from tabs.Instrument.utils_instrument_initialize import initialize_instrument
+from tabs.Instrument.utils_instrument_query_settings import query_instrument_settings
+from tabs.Instrument.utils_instrument_read_and_write import write_safe, query_safe
 
-# Import new debug_logic and console_logic modules
+# Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
-# Define current_file for consistent logging
-current_file = os.path.basename(__file__)
+# Import the logic functions from instrument_logic.py
+from tabs.Instrument.instrument_logic import apply_settings_logic, disconnect_instrument_logic, connect_instrument_logic, query_current_settings_logic, restore_default_settings_logic, restore_last_used_settings_logic
 
 
 class InstrumentTab(ttk.Frame):
     """
     Function Description:
-    Manages the Instrument Connection tab in the GUI. This includes:
-    - Discovering and displaying available VISA resources.
-    - Connecting to and disconnecting from a selected instrument.
-    - Displaying current instrument settings (Center Freq, Span, RBW, VBW, Ref Level, Preamp, High Sensitivity).
-    - Providing buttons to apply current GUI settings to the instrument and query current instrument settings.
-    - Dynamically updating UI element visibility based on connection state.
-    - Saving and loading the last selected VISA resource to/from config.ini.
+    Manages the Instrument Connection tab in the GUI.
+    Handles VISA resource discovery, instrument connection/disconnection,
+    and displaying current instrument settings. It dynamically manages
+    the visibility of UI elements based on connection state.
 
     Inputs:
-        parent (tk.Widget): The parent widget (e.g., ttk.Notebook).
-        app_instance (object): The main application instance, providing access to shared data and methods.
-        console_print_func (function): Function to print messages to the console.
-        style_obj (ttk.Style): The ttk.Style object for applying custom styles.
+        parent (ttk.Notebook): The parent notebook widget.
+        app_instance (App): A reference to the main application instance.
+        console_print_func (function): Function to print messages to the GUI console.
+        style_obj (ttk.Style): The ttk.Style object for applying styles.
 
-    Process of this class:
-        1. Initializes the Tkinter Frame and sets up instance variables.
-        2. Creates and arranges widgets:
-           - Resource discovery section (label, combobox, refresh button).
-           - Connection status section (labels for model, serial, firmware, options).
-           - Connection control buttons (Connect, Disconnect).
-           - Current settings display (labels for Center Freq, Span, RBW, VBW, Ref Level, Preamp, High Sensitivity).
-           - Settings control buttons (Apply Settings, Query Settings).
-        3. Sets up event bindings for buttons and combobox selection.
-        4. Loads the last selected resource from config.ini on initialization.
-        5. Updates UI element visibility based on initial connection status.
-        6. Implements methods for:
-           - Refreshing VISA resources (`_refresh_resources`).
-           - Connecting to the selected instrument (`_connect_instrument`).
-           - Disconnecting from the instrument (`_disconnect_instrument`).
-           - Applying settings to the instrument (`_apply_settings_to_instrument`).
-           - Querying settings from the instrument (`_query_settings_from_instrument`).
-           - Clearing the settings display (`_clear_settings_display`).
-           - Updating UI element visibility (`_update_ui_elements_visibility`).
-           - Loading/saving last selected resource (`_load_last_selected_resource`, `_save_last_selected_resource`).
-           - Handling tab selection events (`_on_tab_selected`).
+    Process:
+        1. Initializes the Tkinter Frame.
+        2. Stores references to the app instance, console print function, and style object.
+        3. Calls `_create_widgets` to build the tab's UI.
+        4. Binds the `_on_tab_selected` method to the tab's visibility event.
 
-    Outputs of this class:
-        A functional Tkinter Frame for instrument connection and settings management.
+    Outputs:
+        None. Initializes the InstrumentTab UI.
     """
-    def __init__(self, parent, app_instance, console_print_func, style_obj):
-        """
-        Initializes the InstrumentTab.
-        """
-        super().__init__(parent, style='Dark.TFrame')
+    def __init__(self, parent, app_instance, console_print_func, **kwargs):
+        # Explicitly filter style_obj from kwargs before passing to super().__init__
+        style_obj = kwargs.pop('style_obj', None)
+        super().__init__(parent, **kwargs)
+
         self.app_instance = app_instance
         self.console_print_func = console_print_func
-        self.style_obj = style_obj # Store the style object
+        self.style = style_obj # Store the style object
 
-        debug_log(f"Initializing InstrumentTab...",
-                    file=current_file,
-                    version=current_version,
+        # Get current file and function for debug_log
+        self.current_file = os.path.basename(__file__)
+        self.current_version = current_version # Use the module-level current_version
+
+        debug_log(f"Initializing InstrumentTab. Version: {self.current_version}. Let's get this show on the road!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=inspect.currentframe().f_code.co_name)
 
         self._create_widgets()
-        self._setup_bindings()
-        self._load_last_selected_resource() # Load last selected resource on init
-        # Initial state: disconnected and no resources found
-        self._update_ui_elements_visibility(connected=False, resource_found=False)
 
-        debug_log(f"InstrumentTab initialized.",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
+        # Bind the tab selection event
+        parent.bind("<<NotebookTabChanged>>", self._on_tab_selected)
 
     def _create_widgets(self):
         """
         Function Description:
-        Creates and arranges all the widgets for the Instrument Connection tab.
+        Creates and arranges all GUI widgets for the Instrument Connection tab.
+        This includes frames for resource selection, connection control,
+        instrument settings display, and action buttons.
 
         Inputs:
             None.
 
         Process:
             1. Configures the grid layout for the main frame.
-            2. Creates and places a LabelFrame for "VISA Resource Discovery".
-            3. Inside the discovery frame:
-               - Creates a Label and Combobox for VISA resources.
-               - Creates a "Refresh Devices" button.
-            4. Creates and places a LabelFrame for "Instrument Connection Status".
-            5. Inside the status frame:
-               - Creates Labels to display Instrument Model, Serial, Firmware, and Options.
-            6. Creates and places a LabelFrame for "Connection Control".
-            7. Inside the control frame:
-               - Creates "Connect" and "Disconnect" buttons.
-            8. Creates and places a LabelFrame for "Current Instrument Settings".
-            9. Inside the settings frame:
-               - Creates Labels to display Center Frequency, Span, RBW, VBW, Ref Level, Preamp, and High Sensitivity.
-            10. Creates and places a LabelFrame for "Settings Control".
-            11. Inside the settings control frame:
-                - Creates "Apply Settings to Instrument" and "Query Settings from Instrument" buttons.
+            2. Creates and packs a frame for VISA resource selection,
+                including a label, combobox for available resources,
+                and a "Refresh Devices" button.
+            3. Creates and packs a frame for connection control,
+                including a connection status label and Connect/Disconnect button.
+            4. Creates and packs a frame for instrument settings display,
+                including labels for Center Freq, Span, RBW, VBW, Sweep Time,
+                Preamplifier, and High Sensitivity.
+            5. Creates and packs a frame for action buttons (Apply Settings, Initialize, Restore Defaults, Restore Last Used).
+            6. Populates the combobox with initial available resources.
 
         Outputs:
-            None. Populates the tab with GUI elements.
+            None. Populates the InstrumentTab with GUI elements.
         """
-        debug_log(f"Creating InstrumentTab widgets...",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating widgets for InstrumentTab. Version: {self.current_version}. Building the interface!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0) # Resource Discovery
-        self.grid_rowconfigure(1, weight=0) # Connection Status
-        self.grid_rowconfigure(2, weight=0) # Connection Control
-        self.grid_rowconfigure(3, weight=0) # Current Settings
-        self.grid_rowconfigure(4, weight=1) # Settings Control (takes remaining space)
+        self.grid_rowconfigure(0, weight=0) # Resource selection
+        self.grid_rowconfigure(1, weight=0) # Connection control
+        self.grid_rowconfigure(2, weight=1) # Instrument settings
+        self.grid_rowconfigure(3, weight=0) # Action buttons
 
-
-        # --- VISA Resource Discovery ---
-        resource_frame = ttk.LabelFrame(self, text="VISA Resource Discovery", style='Dark.TLabelframe')
-        resource_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-        resource_frame.grid_columnconfigure(0, weight=1)
+        # --- VISA Resource Selection ---
+        resource_frame = ttk.LabelFrame(self, text="VISA Resource Selection", style='Dark.TLabelframe')
+        resource_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
         resource_frame.grid_columnconfigure(1, weight=1)
-        resource_frame.grid_columnconfigure(2, weight=0) # Button column
 
         ttk.Label(resource_frame, text="Available Resources:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.resource_combobox = ttk.Combobox(resource_frame, textvariable=self.app_instance.selected_resource, state="readonly", style='TCombobox')
         self.resource_combobox.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.resource_combobox.bind("<<ComboboxSelected>>", self._on_resource_selected)
 
-        self.refresh_button = ttk.Button(resource_frame, text="Refresh Devices", command=self._refresh_resources, style='Blue.TButton')
-        self.refresh_button.grid(row=0, column=2, padx=5, pady=5, sticky="e")
+        self.refresh_button = ttk.Button(resource_frame, text="Refresh Devices", command=self._refresh_devices, style='Dark.TButton')
+        self.refresh_button.grid(row=0, column=2, padx=5, pady=5)
 
-
-        # --- Instrument Connection Status ---
-        status_frame = ttk.LabelFrame(self, text="Instrument Connection Status", style='Dark.TLabelframe')
-        status_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
-        status_frame.grid_columnconfigure(0, weight=0) # Label column
-        status_frame.grid_columnconfigure(1, weight=1) # Value column
-
-        ttk.Label(status_frame, text="Model:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        self.model_label = ttk.Label(status_frame, textvariable=self.app_instance.instrument_model, style='Dark.TLabel.Value')
-        self.model_label.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(status_frame, text="Serial:", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.serial_label = ttk.Label(status_frame, textvariable=self.app_instance.instrument_serial, style='Dark.TLabel.Value')
-        self.serial_label.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(status_frame, text="Firmware:", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        self.firmware_label = ttk.Label(status_frame, textvariable=self.app_instance.instrument_firmware, style='Dark.TLabel.Value')
-        self.firmware_label.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(status_frame, text="Options:", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
-        self.options_label = ttk.Label(status_frame, textvariable=self.app_instance.instrument_options, style='Dark.TLabel.Value')
-        self.options_label.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
-
-        # Connection Status Label - This needs to be an instance attribute
-        self.connection_status_label = ttk.Label(status_frame, text="Status: Disconnected 💀", foreground="red", style='Dark.TLabel')
-        self.connection_status_label.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        # Populate the combobox with initial available resources
+        self._refresh_devices()
 
 
         # --- Connection Control ---
-        connection_control_frame = ttk.LabelFrame(self, text="Connection Control", style='Dark.TLabelframe')
-        connection_control_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
-        connection_control_frame.grid_columnconfigure(0, weight=1)
-        connection_control_frame.grid_columnconfigure(1, weight=1)
+        connection_frame = ttk.LabelFrame(self, text="Instrument Connection", style='Dark.TLabelframe')
+        connection_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        connection_frame.grid_columnconfigure(0, weight=1)
+        connection_frame.grid_columnconfigure(1, weight=1)
 
-        self.connect_button = ttk.Button(connection_control_frame, text="Connect", command=self._connect_instrument, style='Green.TButton')
-        self.connect_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.connection_status_label = ttk.Label(connection_frame, text="Status: Disconnected 💀", foreground="red", style='Dark.TLabel')
+        self.connection_status_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        self.disconnect_button = ttk.Button(connection_control_frame, text="Disconnect", command=self._disconnect_instrument, style='Red.TButton')
-        self.disconnect_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-
-        # --- Current Instrument Settings Display ---
-        settings_display_frame = ttk.LabelFrame(self, text="Current Instrument Settings (from GUI)", style='Dark.TLabelframe')
-        settings_display_frame.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
-        settings_display_frame.grid_columnconfigure(0, weight=0) # Label column
-        settings_display_frame.grid_columnconfigure(1, weight=1) # Value column
-
-        ttk.Label(settings_display_frame, text="Center Freq:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        self.display_center_freq = ttk.Label(settings_display_frame, textvariable=self.app_instance.center_freq_hz_var, style='Dark.TLabel.Value')
-        self.display_center_freq.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="Span:", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.display_span = ttk.Label(settings_display_frame, textvariable=self.app_instance.span_hz_var, style='Dark.TLabel.Value')
-        self.display_span.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="RBW:", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        self.display_rbw = ttk.Label(settings_display_frame, textvariable=self.app_instance.rbw_hz_var, style='Dark.TLabel.Value')
-        self.display_rbw.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="VBW:", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
-        self.display_vbw = ttk.Label(settings_display_frame, textvariable=self.app_instance.vbw_hz_var, style='Dark.TLabel.Value')
-        self.display_vbw.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="Ref Level (dBm):", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        self.display_ref_level = ttk.Label(settings_display_frame, textvariable=self.app_instance.reference_level_dbm_var, style='Dark.TLabel.Value')
-        self.display_ref_level.grid(row=4, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="Preamp:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
-        self.display_preamp = ttk.Label(settings_display_frame, textvariable=self.app_instance.preamp_on_var, style='Dark.TLabel.Value')
-        self.display_preamp.grid(row=5, column=1, padx=5, pady=2, sticky="ew")
-
-        ttk.Label(settings_display_frame, text="High Sensitivity:", style='Dark.TLabel').grid(row=6, column=0, padx=5, pady=2, sticky="w")
-        self.display_high_sensitivity = ttk.Label(settings_display_frame, textvariable=self.app_instance.high_sensitivity_var, style='Dark.TLabel.Value')
-        self.display_high_sensitivity.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
+        self.connect_button = ttk.Button(connection_frame, text="Connect", command=self._toggle_connection, style='FlashingGray.TButton')
+        self.connect_button.grid(row=0, column=1, padx=5, pady=5, sticky="e")
 
 
-        # --- Settings Control (Apply/Query) ---
-        settings_control_frame = ttk.LabelFrame(self, text="Settings Control", style='Dark.TLabelframe')
-        settings_control_frame.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
-        settings_control_frame.grid_columnconfigure(0, weight=1)
-        settings_control_frame.grid_columnconfigure(1, weight=1)
+        # --- Instrument Settings Display ---
+        settings_display_frame = ttk.LabelFrame(self, text="Current Instrument Settings", style='Dark.TLabelframe')
+        settings_display_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        settings_display_frame.grid_columnconfigure(1, weight=1)
+        settings_display_frame.grid_columnconfigure(3, weight=1)
 
-        self.apply_settings_button = ttk.Button(settings_control_frame, text="Apply Settings to Instrument", command=self._apply_settings_to_instrument, style='Orange.TButton')
-        self.apply_settings_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        # Row 0: Instrument Info
+        ttk.Label(settings_display_frame, text="Model:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_model, style='Dark.TLabel').grid(row=0, column=1, padx=5, pady=2, sticky="w")
 
-        self.query_settings_button = ttk.Button(settings_control_frame, text="Query Settings from Instrument", command=self._query_settings_from_instrument, style='Blue.TButton')
-        self.query_settings_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        ttk.Label(settings_display_frame, text="Serial:", style='Dark.TLabel').grid(row=0, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_serial, style='Dark.TLabel').grid(row=0, column=3, padx=5, pady=2, sticky="w")
 
-        debug_log(f"InstrumentTab widgets created. Ready to serve!",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
+        # Row 1: Firmware & Options
+        ttk.Label(settings_display_frame, text="Firmware:", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_firmware, style='Dark.TLabel').grid(row=1, column=1, padx=5, pady=2, sticky="w")
 
-    def _setup_bindings(self):
-        """
-        Function Description:
-        Sets up event bindings for the widgets in the InstrumentTab.
+        ttk.Label(settings_display_frame, text="Options:", style='Dark.TLabel').grid(row=1, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.instrument_options, style='Dark.TLabel').grid(row=1, column=3, padx=5, pady=2, sticky="w")
 
-        Inputs:
-            None.
 
-        Process:
-            1. Binds the `<<ComboboxSelected>>` event to the resource combobox,
-                triggering `_on_resource_selected`.
+        # Row 2: Center Freq & Span
+        ttk.Label(settings_display_frame, text="Center Freq (Hz):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.center_freq_hz_var, style='Dark.TLabel').grid(row=2, column=1, padx=5, pady=2, sticky="w")
 
-        Outputs:
-            None. Establishes event handling.
-        """
-        debug_log(f"Setting up InstrumentTab bindings...",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
-        self.resource_combobox.bind("<<ComboboxSelected>>", self._on_resource_selected)
-        debug_log(f"InstrumentTab bindings setup complete.",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
+        ttk.Label(settings_display_frame, text="Span (Hz):", style='Dark.TLabel').grid(row=2, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.span_hz_var, style='Dark.TLabel').grid(row=2, column=3, padx=5, pady=2, sticky="w")
 
-    def _refresh_resources(self):
-        """
-        Function Description:
-        Initiates the process of discovering available VISA resources in a separate thread
-        to keep the GUI responsive. It updates the resource combobox with the found resources.
+        # Row 3: RBW & VBW
+        ttk.Label(settings_display_frame, text="RBW (Hz):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.rbw_hz_var, style='Dark.TLabel').grid(row=3, column=1, padx=5, pady=2, sticky="w")
 
-        Inputs:
-            None.
+        ttk.Label(settings_display_frame, text="VBW (Hz):", style='Dark.TLabel').grid(row=3, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.vbw_hz_var, style='Dark.TLabel').grid(row=3, column=3, padx=5, pady=2, sticky="w")
 
-        Process:
-            1. Prints a console message.
-            2. Prints a debug message.
-            3. Disables relevant UI elements to prevent user interaction during resource discovery.
-            4. Starts a new thread that calls `populate_resources_logic`.
-            5. The `populate_resources_logic` function (in `src.instrument_logic.py`)
-                will return the list of resources.
-            6. A callback function is scheduled on the main Tkinter thread (`self.app_instance.after`)
-                to update the combobox and re-enable buttons.
+        # Row 4: Sweep Time
+        ttk.Label(settings_display_frame, text="Sweep Time (s):", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.sweep_time_s_var, style='Dark.TLabel').grid(row=4, column=1, padx=5, pady=2, sticky="w")
 
-        Outputs:
-            None. Triggers resource discovery and UI updates.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        self.console_print_func("Searching for VISA instruments...")
-        debug_log(f"Initiating resource refresh.",
-                    file=current_file,
-                    version=current_version,
+        # Row 5: Preamplifier & High Sensitivity
+        ttk.Label(settings_display_frame, text="Preamplifier:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.preamp_on_var, style='Dark.TLabel').grid(row=5, column=1, padx=5, pady=2, sticky="w")
+
+        ttk.Label(settings_display_frame, text="High Sensitivity:", style='Dark.TLabel').grid(row=5, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(settings_display_frame, textvariable=self.app_instance.high_sensitivity_var, style='Dark.TLabel').grid(row=5, column=3, padx=5, pady=2, sticky="w")
+
+
+        # --- Action Buttons ---
+        action_buttons_frame = ttk.Frame(self, style='Dark.TFrame')
+        action_buttons_frame.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+        action_buttons_frame.grid_columnconfigure((0,1,2,3), weight=1)
+
+        ttk.Button(action_buttons_frame, text="Apply Settings", command=self._apply_settings, style='Dark.TButton').grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        ttk.Button(action_buttons_frame, text="Initialize Instrument", command=self._initialize_instrument, style='Dark.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        ttk.Button(action_buttons_frame, text="Restore Defaults", command=self._restore_default_settings, style='Dark.TButton').grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        ttk.Button(action_buttons_frame, text="Restore Last Used", command=self._restore_last_used_settings, style='Dark.TButton').grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+
+        debug_log(f"InstrumentTab widgets created. Ready to rock!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Disable buttons during refresh
-        self.refresh_button.config(state=tk.DISABLED)
-        self.connect_button.config(state=tk.DISABLED)
-        self.disconnect_button.config(state=tk.DISABLED)
-        self.resource_combobox.config(state="disabled")
 
-        # Clear existing resources and selection
-        self.app_instance.available_resources.set("")
-        self.app_instance.selected_resource.set("")
-        self.resource_combobox['values'] = []
-        self._clear_settings_display() # Clear displayed settings
-
-        # Clear instrument info labels
-        self.app_instance.instrument_model.set("N/A")
-        self.app_instance.instrument_serial.set("N/A")
-        self.app_instance.instrument_firmware.set("N/A")
-        self.app_instance.instrument_options.set("N/A")
-
-        def _run_refresh_in_thread():
-            """Helper function to run populate_resources_logic in a separate thread."""
-            # populate_resources_logic now returns the list of resources
-            resources = populate_resources_logic(self.app_instance, self.console_print_func)
-            # Schedule the GUI update on the main thread
-            self.app_instance.after(0, self._update_resources_in_gui_callback, resources)
-
-        # Start resource population in a separate thread
-        threading.Thread(target=_run_refresh_in_thread).start()
-
-    def _update_resources_in_gui_callback(self, resources):
+    def _refresh_devices(self):
         """
         Function Description:
-        Callback function executed on the main Tkinter thread to update the GUI
-        with discovered VISA resources and re-enable buttons.
+        Discovers available VISA resources and updates the combobox.
+        This function is executed in a separate thread to prevent GUI freezing.
 
         Inputs:
-            resources (list): A list of discovered VISA resource strings.
+            None.
 
         Process:
-            1. Updates the `values` of the resource combobox.
-            2. Updates `app_instance.available_resources` for persistence.
-            3. Sets the `selected_resource` to the first found resource or clears it.
-            4. Calls `_update_ui_elements_visibility` to re-enable relevant buttons.
+            1. Disables the refresh button.
+            2. Starts a new thread to call `_refresh_devices_thread`.
+            3. Re-enables the refresh button in the thread's completion.
+
+        Outputs:
+            None. Updates the `resource_combobox`.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Refreshing VISA devices. Version: {self.current_version}. Searching for instruments!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        self.refresh_button.config(state=tk.DISABLED)
+        threading.Thread(target=self._refresh_devices_thread, daemon=True).start()
+
+    def _refresh_devices_thread(self):
+        """
+        Function Description:
+        Worker function for `_refresh_devices`. Lists VISA resources
+        and updates the Tkinter variable for the combobox.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Calls `list_visa_resources` to get available resources.
+            2. Updates `self.app_instance.available_resources` and `self.resource_combobox['values']`
+                on the main thread using `app_instance.after`.
+            3. Selects the first resource if available, or clears the selection.
+            4. Re-enables the refresh button on the main thread.
 
         Outputs:
             None. Updates GUI elements.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Updating GUI with discovered resources: {resources}",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Running _refresh_devices_thread. Version: {self.current_version}. The hunt is on!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        self.resource_combobox['values'] = resources
-        self.app_instance.available_resources.set(','.join(resources)) # Store for config
+        resources = list_visa_resources(self.console_print_func)
+        resource_names = [r for r in resources] # Convert to list of strings
 
-        if resources:
-            # Try to re-select the last known resource, otherwise select the first
-            last_selected = self.app_instance.config.get('LAST_USED_SETTINGS', 'last_instrument_connection__visa_resource', fallback='')
-            if last_selected and last_selected in resources:
-                self.app_instance.selected_resource.set(last_selected)
-                debug_log(f"Restored last selected resource in combobox: {last_selected}",
-                            file=current_file,
-                            version=current_version,
+        # Update Tkinter variables on the main thread
+        self.app_instance.after(0, lambda: self.app_instance.available_resources.set(",".join(resource_names)))
+        self.app_instance.after(0, lambda: self.resource_combobox.config(values=resource_names))
+
+        if resource_names:
+            # If a resource was previously selected and is still available, keep it selected.
+            # Otherwise, select the first one.
+            current_selection = self.app_instance.selected_resource.get()
+            if current_selection and current_selection in resource_names:
+                self.app_instance.after(0, lambda: self.resource_combobox.set(current_selection))
+                debug_log(f"Retained previous selection: {current_selection}. Version: {self.current_version}. Smart move!",
+                            file=f"{self.current_file} - {self.current_version}",
+                            version=self.current_version,
                             function=current_function)
             else:
-                self.app_instance.selected_resource.set(resources[0])
-                debug_log(f"Setting selected resource to first available: {resources[0]}",
-                            file=current_file,
-                            version=current_version,
+                self.app_instance.after(0, lambda: self.resource_combobox.set(resource_names[0]))
+                self.app_instance.after(0, lambda: self.app_instance.selected_resource.set(resource_names[0]))
+                debug_log(f"Selected first available resource: {resource_names[0]}. Version: {self.current_version}. Fresh start!",
+                            file=f"{self.current_file} - {self.current_version}",
+                            version=self.current_version,
                             function=current_function)
-            self._update_ui_elements_visibility(connected=self.app_instance.inst is not None, resource_found=True)
         else:
-            self.app_instance.selected_resource.set("")
-            self._update_ui_elements_visibility(connected=False, resource_found=False)
+            self.app_instance.after(0, lambda: self.resource_combobox.set(""))
+            self.app_instance.after(0, lambda: self.app_instance.selected_resource.set(""))
+            debug_log(f"No VISA resources found. Version: {self.current_version}. This is a bummer!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
 
-        debug_log(f"Resource combobox updated and UI elements re-enabled.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+        self.app_instance.after(0, lambda: self.refresh_button.config(state=tk.NORMAL))
+
 
     def _on_resource_selected(self, event):
         """
         Function Description:
-        Handles the event when a VISA resource is selected from the combobox.
-        It saves the selected resource to the application's configuration.
+        Handles the event when a new VISA resource is selected from the combobox.
+        Updates the `selected_resource` Tkinter variable in the main app instance.
 
         Inputs:
             event (tkinter.Event): The event object.
 
         Process:
-            1. Prints a debug message.
-            2. Calls `_save_last_selected_resource` to persist the selection.
-            3. Updates UI element visibility to reflect that a resource is now selected.
+            1. Retrieves the currently selected value from the combobox.
+            2. Updates `self.app_instance.selected_resource` with the new value.
+            3. Logs the selection.
 
         Outputs:
-            None. Persists selected resource and updates UI.
+            None. Updates application state.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Resource selected: {self.app_instance.selected_resource.get()}.",
-                    file=current_file,
-                    version=current_version,
+        selected_resource = self.resource_combobox.get()
+        self.app_instance.selected_resource.set(selected_resource)
+        debug_log(f"VISA resource selected: {selected_resource}. Version: {self.current_version}. Choice made!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
-        self._save_last_selected_resource()
-        # A resource is selected, so update UI to enable connect button
-        self._update_ui_elements_visibility(connected=False, resource_found=True)
 
-    def _connect_instrument(self):
+
+    def _toggle_connection(self):
         """
         Function Description:
-        Attempts to establish a connection to the selected VISA instrument in a
-        separate thread to prevent GUI freezing. Updates UI based on connection success.
+        Toggles the instrument connection status (connects if disconnected, disconnects if connected).
+        This function is executed in a separate thread to prevent GUI freezing.
 
         Inputs:
             None.
 
         Process:
-            1. Prints a console message.
-            2. Prints a debug message.
-            3. Disables the Connect button and enables the Disconnect button temporarily.
-            4. Starts a new thread that calls `connect_instrument_logic`.
-            5. `connect_instrument_logic` will update `self.app_instance.inst`
-                and other instrument info variables upon completion, and importantly,
-                it calls `app_instance.update_connection_status` which will handle
-                the overall UI update.
+            1. Disables the connect button.
+            2. Starts a new thread to call `_toggle_connection_thread`.
+            3. Re-enables the connect button in the thread's completion.
 
         Outputs:
-            None. Triggers instrument connection and UI updates.
+            None. Manages instrument connection.
         """
         current_function = inspect.currentframe().f_code.co_name
-        selected_resource = self.app_instance.selected_resource.get()
-        if not selected_resource:
-            self.console_print_func("❌ No VISA resource selected. Please select a device.")
-            debug_log(f"Attempted to connect without selecting a resource. User is an idiot!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        self.console_print_func(f"Connecting to {selected_resource}...")
-        debug_log(f"Initiating connection to {selected_resource}.",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Toggling instrument connection. Version: {self.current_version}. Let's get connected (or disconnected)!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Optimistic UI update while connecting (buttons handled by update_connection_status_logic)
         self.connect_button.config(state=tk.DISABLED)
-        self.refresh_button.config(state=tk.DISABLED)
-        self.resource_combobox.config(state="disabled")
+        threading.Thread(target=self._toggle_connection_thread, daemon=True).start()
 
-        # The connect_instrument_logic will call app_instance.update_connection_status
-        # which will then call update_connection_status_logic to manage all button states.
-        threading.Thread(target=connect_instrument_logic,
-                         args=(self.app_instance, self.console_print_func)).start()
-
-    def _disconnect_instrument(self):
+    def _toggle_connection_thread(self):
         """
         Function Description:
-        Attempts to disconnect from the currently connected VISA instrument in a
-        separate thread to prevent GUI freezing. Updates UI based on disconnection success.
+        Worker function for `_toggle_connection`. Handles the actual
+        connection/disconnection logic.
 
         Inputs:
             None.
 
         Process:
-            1. Prints a console message.
-            2. Prints a debug message.
-            3. Disables the Disconnect button and enables the Connect button temporarily.
-            4. Starts a new thread to call `disconnect_instrument_logic`.
-            5. `disconnect_instrument_logic` will set `self.app_instance.inst` to None
-                and clear instrument info variables upon completion, and importantly,
-                it calls `app_instance.update_connection_status` which will handle
-                the overall UI update.
+            1. Checks if the instrument is currently connected (`self.app_instance.inst`).
+            2. If connected, calls `disconnect_instrument_logic`.
+            3. If disconnected, calls `connect_instrument_logic` using the selected resource.
+            4. Updates the main application's connection status via `app_instance.update_connection_status`.
+            5. Re-enables the connect button on the main thread.
+            6. If connected after the toggle, queries settings to update the display.
 
         Outputs:
-            None. Triggers instrument disconnection and UI updates.
+            None. Manages instrument connection and updates GUI.
         """
         current_function = inspect.currentframe().f_code.co_name
-        if not self.app_instance.inst:
-            self.console_print_func("⚠️ No instrument is currently connected. Nothing to disconnect, you moron!")
-            debug_log(f"Attempted to disconnect when no instrument was connected. What a waste of time!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        self.console_print_func("Disconnecting instrument...")
-        debug_log(f"Initiating disconnection.",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Running _toggle_connection_thread. Version: {self.current_version}. The connection dance begins!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Optimistic UI update while disconnecting (buttons handled by update_connection_status_logic)
-        self.disconnect_button.config(state=tk.DISABLED)
-        self.resource_combobox.config(state="disabled")
+        if self.app_instance.inst:
+            debug_log(f"Instrument is connected. Disconnecting. Version: {self.current_version}.",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+            disconnect_instrument_logic(self.app_instance, self.console_print_func)
+            self.app_instance.after(0, lambda: self.app_instance.update_connection_status(False, self.app_instance.scanning))
+            self.app_instance.after(0, self._clear_settings_display) # Clear display on disconnect
+        else:
+            selected_resource = self.app_instance.selected_resource.get()
+            if selected_resource:
+                debug_log(f"Instrument is disconnected. Connecting to {selected_resource}. Version: {self.current_version}.",
+                            file=f"{self.current_file} - {self.current_version}",
+                            version=self.current_version,
+                            function=current_function)
+                # Corrected function call to connect_instrument_logic
+                connect_success = connect_instrument_logic(self.app_instance, self.console_print_func)
+                # app_instance.inst is now updated within connect_instrument_logic
+                self.app_instance.after(0, lambda: self.app_instance.update_connection_status(connect_success, self.app_instance.scanning))
+                if connect_success:
+                    self.app_instance.after(0, self._query_settings_from_instrument) # Query settings on successful connect
+            else:
+                self.app_instance.after(0, lambda: self.console_print_func("❌ No VISA resource selected. Please select a device to connect."))
+                debug_log(f"No VISA resource selected for connection. Version: {self.current_version}. What are we connecting to?!",
+                            file=f"{self.current_file} - {self.current_version}",
+                            version=self.current_version,
+                            function=current_function)
 
-        # The disconnect_instrument_logic will call app_instance.update_connection_status
-        # which will then call update_connection_status_logic to manage all button states.
-        threading.Thread(target=disconnect_instrument_logic,
-                         args=(self.app_instance, self.console_print_func)).start()
+        self.app_instance.after(0, lambda: self.connect_button.config(state=tk.NORMAL))
 
-    def _apply_settings_to_instrument(self):
+
+    def _apply_settings(self):
         """
         Function Description:
-        Applies the current settings from the GUI's Tkinter variables to the connected instrument.
-        This operation is performed in a separate thread to keep the GUI responsive.
+        Applies the current settings from the GUI to the connected instrument.
+        This function is executed in a separate thread to prevent GUI freezing.
 
         Inputs:
             None.
 
         Process:
-            1. Checks if an instrument is connected; if not, logs an error and returns.
-            2. Prints a console message.
-            3. Prints a debug message.
-            4. Disables the "Apply Settings" and "Query Settings" buttons to prevent re-entry.
-            5. Starts a new thread to call `apply_settings_logic`.
-            6. Re-enables buttons upon completion via `self.app_instance.after`.
+            1. Disables relevant buttons.
+            2. Starts a new thread to call `_apply_settings_thread`.
+            3. Re-enables buttons in the thread's completion.
 
         Outputs:
-            None. Configures the connected instrument.
+            None. Applies instrument settings.
         """
         current_function = inspect.currentframe().f_code.co_name
-        if not self.app_instance.inst:
-            self.console_print_func("❌ No instrument connected. Cannot apply settings.")
-            debug_log(f"Attempted to apply settings with no instrument connected. What a fucking waste!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        self.console_print_func("Applying settings to instrument...")
-        debug_log(f"Initiating apply settings to instrument.",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Applying instrument settings. Version: {self.current_version}. Sending commands!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Disable buttons while applying settings
-        self.apply_settings_button.config(state=tk.DISABLED)
-        self.query_settings_button.config(state=tk.DISABLED)
+        self.connect_button.config(state=tk.DISABLED)
+        # Add other buttons to disable if necessary
+        threading.Thread(target=self._apply_settings_thread, daemon=True).start()
 
-        # The apply_settings_logic will handle re-enabling buttons
-        threading.Thread(target=apply_settings_logic, # Corrected function name
-                         args=(self.app_instance, self.console_print_func)).start()
+    def _apply_settings_thread(self):
+        """
+        Function Description:
+        Worker function for `_apply_settings`. Handles the actual
+        application of settings to the instrument.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Checks if the instrument is connected.
+            2. If connected, calls `apply_settings_logic` with relevant Tkinter variable values.
+            3. Re-enables buttons on the main thread.
+
+        Outputs:
+            None. Applies settings and updates GUI.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Running _apply_settings_thread. Version: {self.current_version}. The instrument is listening!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        if self.app_instance.inst:
+            # Corrected call to apply_settings_logic - pass only app_instance and console_print_func
+            apply_settings_logic(self.app_instance, self.console_print_func)
+        else:
+            self.app_instance.after(0, lambda: self.console_print_func("❌ Instrument not connected. Cannot apply settings."))
+            debug_log(f"Instrument not connected. Cannot apply settings. Version: {self.current_version}. What a mess!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+
+        self.app_instance.after(0, lambda: self.connect_button.config(state=tk.NORMAL))
+        # Re-enable other buttons here
+
+
+    def _initialize_instrument(self):
+        """
+        Function Description:
+        Initializes the connected instrument to a known state.
+        This function is executed in a separate thread to prevent GUI freezing.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Disables relevant buttons.
+            2. Starts a new thread to call `_initialize_instrument_thread`.
+            3. Re-enables buttons in the thread's completion.
+
+        Outputs:
+            None. Initializes instrument.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing instrument. Version: {self.current_version}. Resetting to factory settings!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        self.connect_button.config(state=tk.DISABLED)
+        # Add other buttons to disable if necessary
+        threading.Thread(target=self._initialize_instrument_thread, daemon=True).start()
+
+    def _initialize_instrument_thread(self):
+        """
+        Function Description:
+        Worker function for `_initialize_instrument`. Handles the actual
+        initialization of the instrument.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Checks if the instrument is connected.
+            2. If connected, calls `initialize_instrument`.
+            3. Re-enables buttons on the main thread.
+
+        Outputs:
+            None. Initializes instrument and updates GUI.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Running _initialize_instrument_thread. Version: {self.current_version}. Fresh start!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        if self.app_instance.inst:
+            # initialize_instrument expects specific parameters, not app_instance directly
+            # We need to get these from app_instance's Tkinter variables
+            ref_level_dbm = float(self.app_instance.reference_level_dbm_var.get())
+            high_sensitivity_on = self.app_instance.high_sensitivity_var.get()
+            preamp_on = self.app_instance.preamp_on_var.get()
+            rbw_config_val = float(self.app_instance.rbw_hz_var.get()) # Assuming this is the desired RBW for initialization
+            vbw_config_val = float(self.app_instance.vbw_hz_var.get()) # Assuming this is the desired VBW for initialization
+            model_match = self.app_instance.instrument_model.get() # Get the connected instrument model
+
+            initialize_instrument(
+                self.app_instance.inst,
+                ref_level_dbm,
+                high_sensitivity_on,
+                preamp_on,
+                rbw_config_val,
+                vbw_config_val,
+                model_match,
+                self.console_print_func
+            )
+            self.app_instance.after(0, self._query_settings_from_instrument) # Query settings after initialization
+        else:
+            self.app_instance.after(0, lambda: self.console_print_func("❌ Instrument not connected. Cannot initialize."))
+            debug_log(f"Instrument not connected. Cannot initialize. Version: {self.current_version}. What a pain!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+
+        self.app_instance.after(0, lambda: self.connect_button.config(state=tk.NORMAL))
+        # Re-enable other buttons here
+
+
+    def _restore_default_settings(self):
+        """
+        Function Description:
+        Restores default settings to the GUI variables.
+        This function is executed in a separate thread to prevent GUI freezing.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Disables relevant buttons.
+            2. Starts a new thread to call `_restore_default_settings_thread`.
+            3. Re-enables buttons in the thread's completion.
+
+        Outputs:
+            None. Restores GUI settings.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Restoring default settings. Version: {self.current_version}. Back to basics!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        self.connect_button.config(state=tk.DISABLED)
+        # Add other buttons to disable if necessary
+        threading.Thread(target=self._restore_default_settings_thread, daemon=True).start()
+
+    def _restore_default_settings_thread(self):
+        """
+        Function Description:
+        Worker function for `_restore_default_settings`. Handles the actual
+        restoration of default settings to the Tkinter variables.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Calls `restore_default_settings_logic` to update Tkinter variables.
+            2. If the instrument is connected, applies these settings to the instrument.
+            3. Re-enables buttons on the main thread.
+
+        Outputs:
+            None. Restores settings and updates GUI/instrument.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Running _restore_default_settings_thread. Version: {self.current_version}. The defaults are calling!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        restore_default_settings_logic(self.app_instance, self.console_print_func)
+        if self.app_instance.inst:
+            self.app_instance.after(0, self._apply_settings_thread) # Apply to instrument if connected
+        self.app_instance.after(0, lambda: self.connect_button.config(state=tk.NORMAL))
+        # Re-enable other buttons here
+
+
+    def _restore_last_used_settings(self):
+        """
+        Function Description:
+        Restores the last used settings to the GUI variables from config.ini.
+        This function is executed in a separate thread to prevent GUI freezing.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Disables relevant buttons.
+            2. Starts a new thread to call `_restore_last_used_settings_thread`.
+            3. Re-enables buttons in the thread's completion.
+
+        Outputs:
+            None. Restores GUI settings.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Restoring last used settings. Version: {self.current_version}. Back in time!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        self.connect_button.config(state=tk.DISABLED)
+        # Add other buttons to disable if necessary
+        threading.Thread(target=self._restore_last_used_settings_thread, daemon=True).start()
+
+    def _restore_last_used_settings_thread(self):
+        """
+        Function Description:
+        Worker function for `_restore_last_used_settings`. Handles the actual
+        restoration of last used settings to the Tkinter variables.
+
+        Inputs:
+            None.
+
+        Process:
+            1. Calls `restore_last_used_settings_logic` to update Tkinter variables.
+            2. If the instrument is connected, applies these settings to the instrument.
+            3. Re-enables buttons on the main thread.
+
+        Outputs:
+            None. Restores settings and updates GUI/instrument.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Running _restore_last_used_settings_thread. Version: {self.current_version}. Remembering the past!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        restore_last_used_settings_logic(self.app_instance, self.console_print_func)
+        if self.app_instance.inst:
+            self.app_instance.after(0, self._apply_settings_thread) # Apply to instrument if connected
+        self.app_instance.after(0, lambda: self.connect_button.config(state=tk.NORMAL))
+        # Re-enable other buttons here
+
 
     def _query_settings_from_instrument(self):
         """
         Function Description:
-        Queries the current settings from the connected instrument and updates the GUI display.
-        This operation is performed in a separate thread to keep the GUI responsive.
+        Queries the current settings from the connected instrument and updates
+        the corresponding Tkinter variables in the GUI.
 
         Inputs:
             None.
 
         Process:
-            1. Checks if an instrument is connected; if not, logs an error and returns.
-            2. Prints a console message.
-            3. Prints a debug message.
-            4. Disables the "Apply Settings" and "HQuery Settings" buttons to prevent re-entry.
-            5. Starts a new thread to call `query_current_settings_logic`.
-            6. Updates the display labels with the queried values upon completion via `self.app_instance.after`.
-            7. Re-enables buttons upon completion.
+            1. Checks if the instrument is connected.
+            2. If connected, calls `query_instrument_settings` to retrieve values.
+            3. Updates `self.app_instance`'s Tkinter variables for center frequency,
+                span, RBW, VBW, sweep time, preamplifier, and high sensitivity.
+            4. If not connected, logs an error.
 
         Outputs:
-            None. Updates GUI with instrument's current settings.
+            None. Updates GUI display based on instrument state.
         """
         current_function = inspect.currentframe().f_code.co_name
-        if not self.app_instance.inst:
-            self.console_print_func("❌ No instrument connected. Cannot query settings.")
-            debug_log(f"Attempted to query settings with no instrument connected. What a fucking waste!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return
-
-        self.console_print_func("Querying settings from instrument...")
-        debug_log(f"Initiating query settings from instrument.",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Querying settings from instrument. Version: {self.current_version}. Getting the scoop!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Disable buttons while querying
-        self.apply_settings_button.config(state=tk.DISABLED)
-        self.query_settings_button.config(state=tk.DISABLED)
+        if self.app_instance.inst:
+            # query_current_settings_logic expects app_instance and console_print_func
+            query_current_settings_logic(self.app_instance, self.console_print_func)
 
-        # The query_current_settings_logic will handle re-enabling buttons
-        threading.Thread(target=query_current_settings_logic, # Corrected function name
-                         args=(self.app_instance, self.console_print_func)).start()
+            debug_log(f"Settings queried and UI updated. Version: {self.current_version}. Success!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+        else:
+            self.app_instance.after(0, lambda: self.console_print_func("❌ Instrument not connected. Cannot query settings."))
+            debug_log(f"Instrument not connected. Cannot query settings. Version: {self.current_version}. This is a disaster!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
 
     def _clear_settings_display(self):
         """
         Function Description:
-        Clears the displayed instrument settings on the GUI.
+        Clears the displayed instrument settings in the GUI, typically called
+        when the instrument is disconnected.
 
         Inputs:
             None.
 
         Process:
-            1. Sets the text of all settings display labels to "N/A" or default values.
+            1. Sets all relevant Tkinter variables to default/empty values.
+            2. Logs the action.
 
         Outputs:
-            None. Resets the settings display.
+            None. Clears GUI display.
         """
-        debug_log(f"Clearing instrument settings display.",
-                    file=current_file,
-                    version=current_version,
-                    function=inspect.currentframe().f_code.co_name)
-        self.app_instance.center_freq_hz_var.set(0.0)
-        self.app_instance.span_hz_var.set(0.0)
-        self.app_instance.rbw_hz_var.set(0.0)
-        self.app_instance.vbw_hz_var.set(0.0)
-        self.app_instance.reference_level_dbm_var.set("N/A")
-        self.app_instance.preamp_on_var.set(False)
-        self.app_instance.high_sensitivity_var.set(False)
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Clearing instrument settings display. Version: {self.current_version}. Wiping the slate clean!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        # Schedule updates on the main thread
+        self.app_instance.after(0, lambda: self.app_instance.center_freq_hz_var.set(0.0))
+        self.app_instance.after(0, lambda: self.app_instance.span_hz_var.set(0.0))
+        self.app_instance.after(0, lambda: self.app_instance.rbw_hz_var.set(0.0))
+        self.app_instance.after(0, lambda: self.app_instance.vbw_hz_var.set(0.0))
+        self.app_instance.after(0, lambda: self.app_instance.sweep_time_s_var.set(0.0))
+        self.app_instance.after(0, lambda: self.app_instance.preamp_on_var.set(False))
+        self.app_instance.after(0, lambda: self.app_instance.high_sensitivity_var.set(False))
+        self.app_instance.after(0, lambda: self.app_instance.instrument_model.set("N/A"))
+        self.app_instance.after(0, lambda: self.app_instance.instrument_serial.set("N/A"))
+        self.app_instance.after(0, lambda: self.app_instance.instrument_firmware.set("N/A"))
+        self.app_instance.after(0, lambda: self.app_instance.instrument_options.set("N/A"))
+
+
+    def _on_tab_selected(self, event):
+        """
+        Function Description:
+        Called when this tab is selected in the notebook.
+        Refreshes the UI elements based on the current connection status.
+        If connected, it queries the settings from the instrument to update the display.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"InstrumentTab selected. Refreshing UI based on connection status. Version: {self.current_version}. Time to shine!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
+                    function=current_function)
+
+        # Check if this tab is the currently selected tab in its parent notebook
+        # This prevents unnecessary refreshes when other tabs in the same parent notebook are selected
+        if event and event.widget.select() != self._w:
+            return
+
+        is_connected = self.app_instance.inst is not None
+        # Use selected_resource, not selected_resource_var
+        resource_found = bool(self.app_instance.selected_resource.get())
+
+        # Always update UI visibility first based on current connection state
+        self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
+
+        if is_connected:
+            debug_log("Instrument is connected. Querying current settings to update display. Version: {self.current_version}. Getting the latest data!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+            # Call query settings logic to update the display
+            self._query_settings_from_instrument()
+        else:
+            debug_log("Instrument is NOT connected. Clearing settings display on tab selection. Version: {self.current_version}. Nothing to see here!",
+                        file=f"{self.current_file} - {self.current_version}",
+                        version=self.current_version,
+                        function=current_function)
+            self._clear_settings_display()
 
     def _update_ui_elements_visibility(self, connected, resource_found):
         """
         Function Description:
-        Updates the visibility and state of various UI elements on the InstrumentTab
-        based on the instrument's connection status and whether a resource has been found.
+        Manages the visibility and state of various UI elements on the tab
+        based on the instrument's connection status and whether a resource is found.
 
         Inputs:
-            connected (bool): True if the instrument is currently connected.
-            resource_found (bool): True if a VISA resource has been selected/found.
+            connected (bool): True if the instrument is connected, False otherwise.
+            resource_found (bool): True if a VISA resource is selected, False otherwise.
 
         Process:
-            1. Prints a debug message.
-            2. Sets the state of connection buttons (Connect, Disconnect) based on `connected` and `resource_found`.
-            3. Sets the state of settings control buttons (Apply, Query) based on `connected`.
-            4. Updates the resource combobox state.
-            5. Updates the instrument info labels (Model, Serial, Firmware, Options) based on `connected`.
+            1. Updates the state and text of the connect button.
+            2. Updates the state of the resource combobox and refresh button.
+            3. Updates the state of settings display labels and action buttons.
+            4. Logs the visibility update.
 
         Outputs:
-            None. Adjusts UI element states.
+            None. Adjusts GUI element visibility.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Updating InstrumentTab UI visibility. Connected: {connected}, Resource Found: {resource_found}",
-                    file=current_file,
-                    version=current_version,
+        debug_log(f"Updating UI element visibility. Connected: {connected}, Resource Found: {resource_found}. Version: {self.current_version}. Adapting the view!",
+                    file=f"{self.current_file} - {self.current_version}",
+                    version=self.current_version,
                     function=current_function)
 
-        # Connection Control Buttons
         if connected:
-            self.connect_button.config(state=tk.DISABLED)
-            self.disconnect_button.config(state=tk.NORMAL)
-            self.refresh_button.config(state=tk.NORMAL) # Can refresh even when connected
-            self.resource_combobox.config(state="readonly")
-        elif resource_found:
+            self.connect_button.config(text="Disconnect", style="FlashingGreen.TButton")
+            self.resource_combobox.config(state=tk.DISABLED)
+            self.refresh_button.config(state=tk.DISABLED)
+            # Enable settings display and action buttons
+            for child in self.winfo_children():
+                if isinstance(child, ttk.LabelFrame) and child.cget("text") == "Current Instrument Settings":
+                    for sub_child in child.winfo_children():
+                        sub_child.config(state=tk.NORMAL)
+                elif isinstance(child, ttk.Frame) and any(b.cget("text") == "Apply Settings" for b in child.winfo_children()):
+                    for sub_child in child.winfo_children():
+                        sub_child.config(state=tk.NORMAL)
+        else:
+            self.connect_button.config(text="Connect", style="FlashingGray.TButton")
+            self.resource_combobox.config(state="readonly" if resource_found else tk.DISABLED)
+            self.refresh_button.config(state=tk.NORMAL)
+            # Disable settings display and action buttons
+            for child in self.winfo_children():
+                if isinstance(child, ttk.LabelFrame) and child.cget("text") == "Current Instrument Settings":
+                    for sub_child in child.winfo_children():
+                        sub_child.config(state=tk.DISABLED)
+                elif isinstance(child, ttk.Frame) and any(b.cget("text") == "Apply Settings" for b in child.winfo_children()):
+                    for sub_child in child.winfo_children():
+                        sub_child.config(state=tk.DISABLED)
+
+        # Ensure the connect button is enabled if a resource is found, even if not connected
+        if resource_found:
             self.connect_button.config(state=tk.NORMAL)
-            self.disconnect_button.config(state=tk.DISABLED)
-            self.refresh_button.config(state=tk.NORMAL)
-            self.resource_combobox.config(state="readonly")
-        else: # No resource found or selected
+        else:
             self.connect_button.config(state=tk.DISABLED)
-            self.disconnect_button.config(state=tk.DISABLED)
-            self.refresh_button.config(state=tk.NORMAL)
-            self.resource_combobox.config(state="disabled")
-
-        # Settings Control Buttons
-        settings_button_state = tk.NORMAL if connected else tk.DISABLED
-        self.apply_settings_button.config(state=settings_button_state)
-        self.query_settings_button.config(state=settings_button_state)
-
-        # Instrument Info Labels (Model, Serial, Firmware, Options)
-        # These are now Tkinter StringVars, so their values are automatically updated
-        # by the instrument_logic functions. We just need to ensure they are displayed.
-        # The labels are always present, their text will reflect the StringVar value.
-        if not connected:
-            self.app_instance.instrument_model.set("N/A")
-            self.app_instance.instrument_serial.set("N/A")
-            self.app_instance.instrument_firmware.set("N/A")
-            self.app_instance.instrument_options.set("N/A")
-            self._clear_settings_display() # Clear settings display when disconnected
-
-        debug_log(f"InstrumentTab UI visibility updated.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-
-
-    def _load_last_selected_resource(self):
-        """
-        Function Description:
-        Loads the last selected VISA resource from the application's configuration
-        and sets it as the current selection in the combobox.
-
-        Inputs:
-            None.
-
-        Process:
-            1. Prints a debug message.
-            2. Retrieves the 'last_instrument_connection__visa_resource' from config.ini.
-            3. Sets the `self.app_instance.selected_resource` Tkinter variable.
-            4. Prints a debug message about the loaded resource.
-
-        Outputs:
-            None. Updates the combobox selection.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Loading last selected resource from config.ini...",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        
-        last_selected_from_config = self.app_instance.config.get('LAST_USED_SETTINGS', 'last_instrument_connection__visa_resource', fallback='').strip()
-        self.app_instance.selected_resource.set(last_selected_from_config)
-
-        if last_selected_from_config:
-            debug_log(f"Last selected resource loaded: {last_selected_from_config}.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-        else:
-            debug_log(f"No last selected resource found in config.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-
-    def _save_last_selected_resource(self):
-        """
-        Function Description:
-        Saves the currently selected VISA resource to the application's configuration.
-
-        Inputs:
-            None.
-
-        Process:
-            1. Prints a debug message.
-            2. Retrieves the current value of `self.app_instance.selected_resource`.
-            3. Sets the 'last_instrument_connection__visa_resource' in the config.ini.
-            4. Calls `save_config` to persist the changes to the file.
-
-        Outputs:
-            None. Persists the selected resource.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        selected_resource = self.app_instance.selected_resource.get()
-        debug_log(f"Saving last selected resource to config.ini: {selected_resource}.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        
-        self.app_instance.config.set('LAST_USED_SETTINGS', 'last_instrument_connection__visa_resource', selected_resource)
-        # Pass console_log from here to save_config
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        debug_log(f"Last selected resource saved: {selected_resource}.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-
-    def _on_tab_selected(self, event):
-        """
-        Called when this tab is selected in the notebook.
-        Refreshes the UI elements based on the current connection status.
-        If connected, it clears the settings display (but does not automatically query).
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"InstrumentTab selected. Refreshing UI based on connection status.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-
-        is_connected = self.app_instance.inst is not None
-        resource_found = bool(self.app_instance.selected_resource.get())
-
-        if is_connected:
-            debug_log("Instrument is connected. Clearing settings display on tab selection (no automatic query, you gotta push the button for that, you lazy bastard).",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            self._clear_settings_display() # Just clear, don't query automatically
-        else:
-            debug_log("Instrument is NOT connected. Clearing settings display on tab selection.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            self._clear_settings_display()
-
-        # Update UI visibility based on connection status when tab is selected
-        self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
-

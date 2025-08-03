@@ -15,20 +15,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1800.4 (New file for Local Presets, simplified for display and loading only.)
-# Version 20250802.2300.1 (Replaced Listbox with a grid of buttons for local presets and integrated push_preset_logic.)
-# Version 20250802.2305.0 (Fixed AttributeError: 'Style' object has no attribute 'colors' by importing COLOR_PALETTE.)
-# Version 20250802.2310.0 (Fixed incorrect import path for push_preset_logic from src.utils_push_preset.)
-# Version 20250802.2315.0 (CRITICAL FIX: Corrected MHz/Hz conversion for Center/Span in preset loading and display.)
-# Version 20250803.0005.0 (Added selected preset details box, dynamic button styling, and adjusted button font size.)
-# Version 20250803.0015.0 (FIXED: SyntaxError: leading zeros in decimal integer literals by correcting current_version_hash.)
-# Version 20250803.0025.0 (Adjusted display units and labels for Center, Span (MHz) and RBW, VBW (Hz).)
-# Version 20250803.0035.0 (Removed 'Nickname: ' prefix from preset buttons.)
-# Version 20250803.1026.0 (IMPROVED: _update_gui_from_preset_data with granular error handling for data conversion
-#                         and better display of invalid values in the details box.)
+#
+# Version 20250803.1110.0 (FIXED: Reverted import path for push_preset_logic to original correct path.)
 
-current_version = "20250803.1026.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1026 * 0 # Example hash, adjust as needed.
+current_version = "20250803.1110.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1110 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk
@@ -41,8 +32,8 @@ from src.console_logic import console_log
 
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv
-# Import push_preset_logic directly for button commands
-from tabs.Presets.utils_push_preset import push_preset_logic # CORRECTED: Import path from src.utils_push_preset
+# Reverted Import push_preset_logic to original correct path
+from tabs.Presets.utils_push_preset import push_preset_logic # REVERTED TO ORIGINAL CORRECT IMPORT PATH
 from src.style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
 
 class LocalPresetsTab(ttk.Frame):
@@ -70,7 +61,7 @@ class LocalPresetsTab(ttk.Frame):
         self.style_obj = style_obj
 
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing LocalPresetsTab. Version: {current_version}. Setting up local preset display!",
+        debug_log(f"Initializing LocalPresetsTab. Version: {current_version}. Setting up local preset display! 💾",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -83,12 +74,12 @@ class LocalPresetsTab(ttk.Frame):
         self.selected_preset_center_var = tk.StringVar(self, value="N/A")
         self.selected_preset_span_var = tk.StringVar(self, value="N/A")
         self.selected_preset_rbw_var = tk.StringVar(self, value="N/A")
-        self.selected_preset_vbw_var = tk.StringVar(self, value="N/A") # NEW: VBW display variable
+        self.selected_preset_vbw_var = tk.StringVar(self, value="N/A")
 
         self._create_widgets()
         self.populate_local_presets_list() # Initial population
 
-        debug_log(f"LocalPresetsTab initialized. Version: {current_version}. Local presets ready!",
+        debug_log(f"LocalPresetsTab initialized. Version: {current_version}. Local presets ready! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -156,12 +147,12 @@ class LocalPresetsTab(ttk.Frame):
         ttk.Label(selected_preset_box, text="RBW (Hz):", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(selected_preset_box, textvariable=self.selected_preset_rbw_var, style='Dark.TLabel.Value').grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
-        # NEW: VBW (Hz)
+        # VBW (Hz)
         ttk.Label(selected_preset_box, text="VBW (Hz):", style='TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(selected_preset_box, textvariable=self.selected_preset_vbw_var, style='Dark.TLabel.Value').grid(row=4, column=1, padx=5, pady=2, sticky="ew")
 
 
-        debug_log("LocalPresetsTab widgets created. Scrollable button container and details box ready!",
+        debug_log("LocalPresetsTab widgets created. Scrollable button container and details box ready! 🖼️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -196,7 +187,7 @@ class LocalPresetsTab(ttk.Frame):
         if not self.user_presets_data:
             ttk.Label(self.scrollable_frame, text="No local presets found.", style='TLabel').grid(row=0, column=0, columnspan=3, padx=10, pady=10)
             self.console_print_func("ℹ️ No local presets found in PRESETS.CSV.")
-            debug_log("No local presets found.",
+            debug_log("No local presets found. 🤷‍♂️",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -218,7 +209,7 @@ class LocalPresetsTab(ttk.Frame):
                 if preset.get('Span', '').strip():
                     span_mhz_display = f"{float(preset.get('Span')):.3f}"
             except ValueError:
-                debug_log(f"Warning: Could not convert Center/Span for button text for preset '{nickname}'.",
+                debug_log(f"Warning: Could not convert Center/Span for button text for preset '{nickname}'. What a mess!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -249,7 +240,7 @@ class LocalPresetsTab(ttk.Frame):
         self.canvas.config(scrollregion=self.canvas.bbox("all"))
 
         self.console_print_func(f"✅ Displayed {len(self.user_presets_data)} local presets as buttons.")
-        debug_log(f"Local presets buttons populated with {len(self.user_presets_data)} entries.",
+        debug_log(f"Local presets buttons populated with {len(self.user_presets_data)} entries. Looking good! 👍",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -263,7 +254,7 @@ class LocalPresetsTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         display_name = preset_data.get('NickName', preset_data.get('Filename', 'Unnamed Preset'))
         self.console_print_func(f"Attempting to load and apply preset: {display_name}...")
-        debug_log(f"Preset button clicked for: {display_name}. Applying settings to GUI and instrument.",
+        debug_log(f"Preset button clicked for: {display_name}. Applying settings to GUI and instrument. 🖱️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -284,31 +275,55 @@ class LocalPresetsTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
+        # 1. Defer config saving while updating multiple GUI variables
+        self.app_instance.defer_config_save = True
+        debug_log("Config saving deferred. GUI updates won't trigger saves yet. 🛑",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
-        # 1. Update GUI Tkinter variables first (including the new display variables)
-        self._update_gui_from_preset_data(preset_data)
+        try:
+            # Update GUI Tkinter variables first (including the new display variables)
+            self._update_gui_from_preset_data(preset_data)
 
-        # 2. Push settings to instrument using the updated push_preset_logic
-        if self.app_instance.inst:
+            # Push settings to instrument using the updated push_preset_logic
+            # This call should happen regardless of whether an instrument is connected,
+            # as push_preset_logic also updates GUI elements.
+            debug_log(f"Calling push_preset_logic for preset '{display_name}' with app_instance and preset_data. ➡️",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            
             success = push_preset_logic(self.app_instance, self.console_print_func, preset_data)
+            
             if success:
                 self.console_print_func(f"✅ Preset '{display_name}' applied to instrument and GUI. Fantastic!")
-                debug_log(f"Preset '{display_name}' applied to instrument and GUI successfully.",
+                debug_log(f"Preset '{display_name}' applied to instrument and GUI successfully. 🎉",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            elif self.app_instance and not self.app_instance.inst:
+                 self.console_print_func("⚠️ No instrument connected. GUI updated only.")
+                 debug_log("No instrument connected. GUI updated only by push_preset_logic. 🖥️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
                 self.console_print_func(f"❌ Failed to apply preset '{display_name}' to instrument. GUI updated only.")
-                debug_log(f"Failed to apply preset '{display_name}' to instrument. GUI updated only.",
+                debug_log(f"Failed to apply preset '{display_name}' to instrument. GUI updated only. 🤦‍♂️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-        else:
-            self.console_print_func("⚠️ No instrument connected. GUI updated only.")
-            debug_log("No instrument connected. GUI updated only.",
+
+        finally:
+            # Re-enable config saving and trigger a single save
+            self.app_instance.defer_config_save = False
+            debug_log("Config saving re-enabled. Triggering final save. ✅",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
+            self.app_instance.config_manager.save_config(self.app_instance)
+
 
         # Ensure the Instrument tab's display updates after loading
         if hasattr(self.app_instance, 'instrument_parent_tab') and \
@@ -325,7 +340,7 @@ class LocalPresetsTab(ttk.Frame):
         It also updates the new selected preset details display.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Updating GUI from preset data: {preset_data.get('NickName', 'Unnamed')}",
+        debug_log(f"Updating GUI from preset data: {preset_data.get('NickName', 'Unnamed')}. 🔄",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -353,13 +368,13 @@ class LocalPresetsTab(ttk.Frame):
                             function=current_function)
             except ValueError as e:
                 tk_var.set("Invalid Value")
-                debug_log(f"Error converting preset '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Displaying 'Invalid Value'.",
+                debug_log(f"Error converting preset '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Displaying 'Invalid Value'. 💥",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             except Exception as e:
                 tk_var.set("Error")
-                debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'.",
+                debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'. �",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -370,16 +385,12 @@ class LocalPresetsTab(ttk.Frame):
         set_display_var(self.selected_preset_vbw_var, 'VBW', "{:.0f}", float)
 
         # Now, update the main application's instrument control variables
-        # This part remains mostly the same, but uses the same robust `get_and_set_var` logic
-        # or similar explicit error handling if not using the helper.
-        # Ensure these also handle empty/invalid strings gracefully.
         
         # Helper to safely get and convert value for app_instance variables
         def get_and_set_app_var(key, app_tk_var, conversion_func=str, scale_factor=1.0):
             value_str = preset_data.get(key, '').strip()
             if not value_str:
-                # If value is empty, do not change the app_tk_var, or set to a default if desired
-                debug_log(f"App var '{key}' is empty in preset. Skipping update for app_tk_var.",
+                debug_log(f"App var '{key}' is empty in preset. Skipping update for app_tk_var. 🤷‍♀️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -393,12 +404,12 @@ class LocalPresetsTab(ttk.Frame):
                             version=current_version,
                             function=current_function)
             except ValueError as e:
-                debug_log(f"Error converting app var '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Skipping app_tk_var update.",
+                debug_log(f"Error converting app var '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Skipping app_tk_var update. 💥",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             except Exception as e:
-                debug_log(f"Unexpected error processing app var '{key}' value '{value_str}': {e}. Skipping app_tk_var update.",
+                debug_log(f"Unexpected error processing app var '{key}' value '{value_str}': {e}. Skipping app_tk_var update. 🤯",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -423,7 +434,7 @@ class LocalPresetsTab(ttk.Frame):
             elif value_str in ['OFF', 'FALSE', '']:
                 app_tk_var.set(False)
             else:
-                debug_log(f"Warning: Unexpected boolean value for '{key}': '{value_str}'. Not updating app_tk_var.",
+                debug_log(f"Warning: Unexpected boolean value for '{key}': '{value_str}'. Not updating app_tk_var. ⚠️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -457,8 +468,7 @@ class LocalPresetsTab(ttk.Frame):
 
 
         self.console_print_func(f"✅ GUI settings updated from local preset '{preset_data.get('NickName', 'Unnamed')}'.")
-        debug_log("GUI settings updated from local preset.",
+        debug_log("GUI settings updated from local preset. Done! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-

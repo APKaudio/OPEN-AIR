@@ -1,4 +1,4 @@
-# src/instrument_logic.py
+# # tabs/Instrument/instrument_logic.py
 #
 # This file contains the core logic for interacting with the instrument,
 # including connection, disconnection, applying settings, and querying
@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1701.11 (Added conditional query for MAXHold state, specific to N9342CN.)
+# Version 20250803.1115.0 (Ensured all Tkinter variable updates are scheduled on the main thread via app_instance.after(0, ...))
 
-current_version = "20250802.1701.11" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 11 # Example hash, adjust as needed
+current_version = "20250803.1115.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1115 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -84,13 +84,14 @@ def populate_resources_logic(app_instance, console_print_func):
     resources = ()
     try:
         resources = list_visa_resources(console_print_func)
-        app_instance.available_resources.set(",".join(resources))
+        # Schedule Tkinter variable update on the main thread
+        app_instance.after(0, lambda: app_instance.available_resources.set(",".join(resources)))
         debug_log(f"Found VISA resources: {resources}. Success!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         # Update UI based on whether resources were found
-        app_instance.update_connection_status(app_instance.inst is not None, is_scanning=False)
+        app_instance.after(0, lambda: app_instance.update_connection_status(app_instance.inst is not None, is_scanning=False))
         return resources
     except Exception as e:
         console_print_func(f"❌ Error listing VISA resources: {e}. This thing is a pain in the ass!")
@@ -98,8 +99,8 @@ def populate_resources_logic(app_instance, console_print_func):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        app_instance.available_resources.set("")
-        app_instance.update_connection_status(False, is_scanning=False) # Ensure UI is updated even on error
+        app_instance.after(0, lambda: app_instance.available_resources.set(""))
+        app_instance.after(0, lambda: app_instance.update_connection_status(False, is_scanning=False)) # Ensure UI is updated even on error
         return ()
 
 def connect_instrument_logic(app_instance, console_print_func):
@@ -123,6 +124,7 @@ def connect_instrument_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
     # (2025-08-02) Change: Updated imports for `connect_to_instrument`, `disconnect_instrument`, `write_safe`, `query_safe`.
+    # (2025-08-03) Change: Ensured Tkinter variable updates are scheduled on the main thread.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to connect to instrument. Let's make this happen! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -147,19 +149,19 @@ def connect_instrument_logic(app_instance, console_print_func):
             if idn_response:
                 parts = idn_response.strip().split(',')
                 if len(parts) >= 4:
-                    app_instance.instrument_model.set(parts[1].strip())
-                    app_instance.instrument_serial.set(parts[2].strip())
-                    app_instance.instrument_firmware.set(parts[3].strip())
+                    app_instance.after(0, lambda: app_instance.connected_instrument_model.set(parts[1].strip()))
+                    app_instance.after(0, lambda: app_instance.connected_instrument_serial.set(parts[2].strip()))
+                    app_instance.after(0, lambda: app_instance.connected_instrument_firmware.set(parts[3].strip()))
                     # Attempt to get options if available (e.g., for Agilent/Keysight)
                     if len(parts) > 4: # Some instruments might have more parts
-                        app_instance.instrument_options.set(parts[4].strip())
+                        app_instance.after(0, lambda: app_instance.connected_instrument_options.set(parts[4].strip()))
                     else:
-                        app_instance.instrument_options.set("N/A")
+                        app_instance.after(0, lambda: app_instance.connected_instrument_options.set("N/A"))
                 else:
-                    app_instance.instrument_model.set(idn_response.strip()) # Fallback if IDN is not standard
-                    app_instance.instrument_serial.set("N/A")
-                    app_instance.instrument_firmware.set("N/A")
-                    app_instance.instrument_options.set("N/A")
+                    app_instance.after(0, lambda: app_instance.connected_instrument_model.set(idn_response.strip())) # Fallback if IDN is not standard
+                    app_instance.after(0, lambda: app_instance.connected_instrument_serial.set("N/A"))
+                    app_instance.after(0, lambda: app_instance.connected_instrument_firmware.set("N/A"))
+                    app_instance.after(0, lambda: app_instance.connected_instrument_options.set("N/A"))
                 debug_log(f"Instrument IDN: {idn_response.strip()}. Got the goods!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
@@ -188,7 +190,7 @@ def connect_instrument_logic(app_instance, console_print_func):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            app_instance.update_connection_status(True, is_scanning=False)
+            app_instance.after(0, lambda: app_instance.update_connection_status(True, is_scanning=False))
             return True
         else:
             console_print_func("❌ Failed to connect to instrument. Check resource string and connection. This is a goddamn mess!")
@@ -196,7 +198,7 @@ def connect_instrument_logic(app_instance, console_print_func):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            app_instance.update_connection_status(False, is_scanning=False)
+            app_instance.after(0, lambda: app_instance.update_connection_status(False, is_scanning=False))
             return False
     except pyvisa.errors.VisaIOError as e:
         console_print_func(f"❌ VISA error during connection: {e}. This is a critical error!")
@@ -205,7 +207,7 @@ def connect_instrument_logic(app_instance, console_print_func):
                     version=current_version,
                     function=current_function)
         app_instance.inst = None
-        app_instance.update_connection_status(False, is_scanning=False)
+        app_instance.after(0, lambda: app_instance.update_connection_status(False, is_scanning=False))
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred during connection: {e}. This is a disaster!")
@@ -214,7 +216,7 @@ def connect_instrument_logic(app_instance, console_print_func):
                     version=current_version,
                     function=current_function)
         app_instance.inst = None
-        app_instance.update_connection_status(False, is_scanning=False)
+        app_instance.after(0, lambda: app_instance.update_connection_status(False, is_scanning=False))
         return False
 
 def disconnect_instrument_logic(app_instance, console_print_func):
@@ -237,6 +239,7 @@ def disconnect_instrument_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
     # (2025-08-02) Change: Updated import for `disconnect_instrument` from `utils_instrument_connection`.
+    # (2025-08-03) Change: Ensured Tkinter variable updates are scheduled on the main thread.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to disconnect instrument. Let's pull the plug! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -246,16 +249,16 @@ def disconnect_instrument_logic(app_instance, console_print_func):
         console_print_func("💬 Disconnecting instrument...")
         if disconnect_instrument(app_instance.inst, console_print_func):
             app_instance.inst = None
-            app_instance.instrument_model.set("N/A")
-            app_instance.instrument_serial.set("N/A")
-            app_instance.instrument_firmware.set("N/A")
-            app_instance.instrument_options.set("N/A")
+            app_instance.after(0, lambda: app_instance.connected_instrument_model.set("N/A"))
+            app_instance.after(0, lambda: app_instance.connected_instrument_serial.set("N/A"))
+            app_instance.after(0, lambda: app_instance.connected_instrument_firmware.set("N/A"))
+            app_instance.after(0, lambda: app_instance.connected_instrument_options.set("N/A"))
             console_print_func("✅ Instrument disconnected successfully. Adios!")
             debug_log("Instrument disconnected. Mission accomplished!",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            app_instance.update_connection_status(False, is_scanning=False)
+            app_instance.after(0, lambda: app_instance.update_connection_status(False, is_scanning=False))
             return True
         else:
             console_print_func("❌ Failed to disconnect instrument. This is a goddamn mess!")
@@ -322,7 +325,7 @@ def apply_settings_logic(app_instance, console_print_func):
         preamp_on = app_instance.preamp_on_var.get()
 
         # Get the model match from app_instance.instrument_model
-        model_match = app_instance.instrument_model.get()
+        model_match = app_instance.connected_instrument_model.get() # Use connected_instrument_model
 
         if initialize_instrument(
             app_instance.inst,
@@ -387,6 +390,7 @@ def query_current_settings_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Updated import for `query_safe` from `utils_instrument_read_and_write`.
     # (2025-08-02) Change: Added conditional queries for N9342CN specific commands: :SENSe:POWer:RF:HSENse? and :SENSe:FREQuency:SHIFt?.
     # (2025-08-02) Change: Added conditional query for N9342CN specific command: :DISPlay:WINDow:TRACe:MAXHold:STATe?.
+    # (2025-08-03) Change: Ensured all Tkinter variable updates are scheduled on the main thread via app_instance.after(0, ...).
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Querying current settings from instrument. Let's see what's going on! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -406,22 +410,18 @@ def query_current_settings_logic(app_instance, console_print_func):
         center_freq_mhz, span_mhz, rbw_hz = \
             query_current_instrument_settings(app_instance.inst, MHZ_TO_HZ_CONVERSION, console_print_func)
 
-        # Update Tkinter variables
+        # Update Tkinter variables - ENSURE ALL ARE SCHEDULED ON MAIN THREAD
         if center_freq_mhz is not None:
-            app_instance.center_freq_hz_var.set(center_freq_mhz * MHZ_TO_HZ_CONVERSION)
+            app_instance.after(0, lambda: app_instance.center_freq_hz_var.set(center_freq_mhz * MHZ_TO_HZ_CONVERSION))
         if span_mhz is not None:
-            app_instance.span_hz_var.set(span_mhz * MHZ_TO_HZ_CONVERSION)
+            app_instance.after(0, lambda: app_instance.span_hz_var.set(span_mhz * MHZ_TO_HZ_CONVERSION))
         if rbw_hz is not None:
-            app_instance.rbw_hz_var.set(rbw_hz)
-        # The remaining variables (vbw_hz, sweep_time_s, ref_level_dbm, attenuation_db, freq_shift_hz)
-        # are not returned by query_current_instrument_settings, so they need to be queried individually
-        # or their updates removed if they are not meant to be updated here.
-        # For now, I'm assuming they should be queried individually if needed.
+            app_instance.after(0, lambda: app_instance.rbw_hz_var.set(rbw_hz))
 
         # Query VBW
         vbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:VIDeo?", console_print_func)
         if vbw_str:
-            app_instance.vbw_hz_var.set(float(vbw_str))
+            app_instance.after(0, lambda: app_instance.vbw_hz_var.set(float(vbw_str)))
             debug_log(f"Queried VBW: {vbw_str.strip()} Hz.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -430,47 +430,44 @@ def query_current_settings_logic(app_instance, console_print_func):
         # Query Sweep Time
         sweep_time_str = query_safe(app_instance.inst, ":SENSe:SWEep:TIME?", console_print_func)
         if sweep_time_str:
-            app_instance.sweep_time_s_var.set(float(sweep_time_str))
+            app_instance.after(0, lambda: app_instance.sweep_time_s_var.set(float(sweep_time_str)))
             debug_log(f"Queried Sweep Time: {sweep_time_str.strip()} s.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
+                        version=current_function)
 
         # Query Reference Level
         ref_level_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", console_print_func)
         if ref_level_str:
             ref_level_val = ref_level_str.strip().replace("DBM", "")
-            app_instance.reference_level_dbm_var.set(float(ref_level_val))
+            app_instance.after(0, lambda: app_instance.reference_level_dbm_var.set(float(ref_level_val)))
             debug_log(f"Queried Reference Level: {ref_level_val} dBm.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
         # Query Attenuation (assuming a command exists for it, if not, this will fail)
-        # NOTE: There is no direct query for attenuation in utils_instrument_control.py's query_current_instrument_settings
-        # I'm adding a placeholder query here. You might need to confirm the correct SCPI command.
         attenuation_str = query_safe(app_instance.inst, ":POWer:ATTenuation?", console_print_func) # Placeholder command
         if attenuation_str:
-            app_instance.attenuation_var.set(int(float(attenuation_str))) # Attenuation is usually an integer
+            app_instance.after(0, lambda: app_instance.attenuation_var.set(int(float(attenuation_str)))) # Attenuation is usually an integer
             debug_log(f"Queried Attenuation: {attenuation_str.strip()} dB.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
         # Get the instrument model to conditionally query commands
-        instrument_model = app_instance.instrument_model.get()
+        instrument_model = app_instance.connected_instrument_model.get() # Use connected_instrument_model
 
         if instrument_model == "N9342CN":
             # Query Frequency Shift (specific to N9342CN)
             freq_shift_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SHIFt?", console_print_func)
             if freq_shift_str:
-                app_instance.freq_shift_var.set(float(freq_shift_str))
+                app_instance.after(0, lambda: app_instance.freq_shift_var.set(float(freq_shift_str)))
                 debug_log(f"Queried Frequency Shift: {freq_shift_str.strip()} Hz.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
-                app_instance.freq_shift_var.set(0.0) # Set to default if not queried
+                app_instance.after(0, lambda: app_instance.freq_shift_var.set(0.0)) # Set to default if not queried
                 debug_log(f"Frequency Shift command not supported or failed for {instrument_model}.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
@@ -479,13 +476,13 @@ def query_current_settings_logic(app_instance, console_print_func):
             # Query High Sensitivity (specific to N9342CN)
             high_sensitivity_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:HSENse?", console_print_func)
             if high_sensitivity_str:
-                app_instance.high_sensitivity_var.set(high_sensitivity_str.strip().upper() == "ON")
+                app_instance.after(0, lambda: app_instance.high_sensitivity_var.set(high_sensitivity_str.strip().upper() == "ON"))
                 debug_log(f"Queried High Sensitivity State: {high_sensitivity_str.strip()}. Sweet!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
-                app_instance.high_sensitivity_var.set(False) # Set to default if not queried
+                app_instance.after(0, lambda: app_instance.high_sensitivity_var.set(False)) # Set to default if not queried
                 debug_log(f"High Sensitivity command not supported or failed for {instrument_model}.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
@@ -494,22 +491,22 @@ def query_current_settings_logic(app_instance, console_print_func):
             # Query Maxhold State (specific to N9342CN)
             maxhold_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:MAXHold:STATe?", console_print_func)
             if maxhold_str:
-                app_instance.maxhold_enabled_var.set(maxhold_str.strip().upper() == "ON")
+                app_instance.after(0, lambda: app_instance.maxhold_enabled_var.set(maxhold_str.strip().upper() == "ON"))
                 debug_log(f"Queried Maxhold State: {maxhold_str.strip()}. Good to go!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             else:
-                app_instance.maxhold_enabled_var.set(False) # Set to default if not queried
+                app_instance.after(0, lambda: app_instance.maxhold_enabled_var.set(False)) # Set to default if not queried
                 debug_log(f"Maxhold State command not supported or failed for {instrument_model}.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
         else:
             # Set default values if not N9342CN
-            app_instance.freq_shift_var.set(0.0)
-            app_instance.high_sensitivity_var.set(False)
-            app_instance.maxhold_enabled_var.set(False)
+            app_instance.after(0, lambda: app_instance.freq_shift_var.set(0.0))
+            app_instance.after(0, lambda: app_instance.high_sensitivity_var.set(False))
+            app_instance.after(0, lambda: app_instance.maxhold_enabled_var.set(False))
             debug_log(f"Skipping N9342CN specific queries for instrument model: {instrument_model}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -519,7 +516,7 @@ def query_current_settings_logic(app_instance, console_print_func):
         # Query preamp state (generally common)
         preamp_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:GAIN:STATe?", console_print_func)
         if preamp_str:
-            app_instance.preamp_on_var.set(preamp_str.strip().upper() == "ON")
+            app_instance.after(0, lambda: app_instance.preamp_on_var.set(preamp_str.strip().upper() == "ON"))
             debug_log(f"Queried Preamp State: {preamp_str.strip()}. Nice!",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -543,6 +540,5 @@ def query_current_settings_logic(app_instance, console_print_func):
         console_print_func(f"❌ An unexpected error occurred while querying settings: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred while querying settings: {e}. Fucking hell!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+                    version=current_function)
         return False
