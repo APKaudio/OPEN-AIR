@@ -15,10 +15,12 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1800.3 (New file for Preset Editor, consolidating editing and save-as functionality.)
+# Version 20250802.1900.0 (Added Trace Mode columns and reordered NickName column.)
+# Version 20250802.2215.0 (Implemented flexible column matching for import, new export filename,
+#                         added 'Add New Empty Row' button, excluded SweepTime and FreqShift.)
 
-current_version = "20250802.1800.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1800 * 3 # Example hash, adjust as needed
+current_version = "20250802.2215.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2215 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -40,7 +42,7 @@ class PresetEditorTab(ttk.Frame):
     A Tkinter Frame that provides comprehensive functionality for managing
     user-defined presets stored locally in a CSV file. It includes a table
     for displaying and editing presets, along with buttons for saving,
-    importing, exporting, and adding new presets.
+    improving, exporting, and adding new presets.
     """
     def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
         """
@@ -102,13 +104,16 @@ class PresetEditorTab(ttk.Frame):
         button_frame.grid_columnconfigure(1, weight=1)
         button_frame.grid_columnconfigure(2, weight=1)
         button_frame.grid_columnconfigure(3, weight=1)
-        button_frame.grid_columnconfigure(4, weight=1) # For new "Add Current Settings" button
+        button_frame.grid_columnconfigure(4, weight=1)
+        button_frame.grid_columnconfigure(5, weight=1) # For new "Add Row" button
+
 
         ttk.Button(button_frame, text="Reload Presets", command=self.populate_presets_table, style='Blue.TButton').grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Save Presets", command=self._save_presets_to_csv, style='Green.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Import Presets", command=self._import_presets, style='Orange.TButton').grid(row=0, column=2, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Export Presets", command=self._export_presets, style='Purple.TButton').grid(row=0, column=3, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Add Current Settings as New Preset", command=self._add_current_settings_as_new_preset, style='Green.TButton').grid(row=0, column=4, padx=5, pady=5, sticky="ew")
+        ttk.Button(button_frame, text="Add New Empty Row", command=self._add_new_empty_row, style='Blue.TButton').grid(row=0, column=5, padx=5, pady=5, sticky="ew")
 
 
         # --- Presets Table (Treeview) ---
@@ -117,12 +122,20 @@ class PresetEditorTab(ttk.Frame):
         table_frame.grid_columnconfigure(0, weight=1)
         table_frame.grid_rowconfigure(0, weight=1)
 
-        columns = ("Filename", "Center", "Span", "RBW", "NickName", "Markers")
+        # Updated columns and order, with NickName after Filename and new Trace Modes
+        # Removed SweepTime and FreqShift
+        columns = ("Filename", "NickName", "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", "Trace3Mode", "Trace4Mode", "Marker1Max", "Marker2Max", "Marker3Max", "Marker4Max", "Marker5Max", "Marker6Max")
         self.presets_tree = ttk.Treeview(table_frame, columns=columns, show="headings")
 
         for col in columns:
             self.presets_tree.heading(col, text=col, anchor="w")
-            self.presets_tree.column(col, width=100, stretch=True) # Default width
+            # Set default widths for better visibility of new columns
+            if "Mode" in col or "Max" in col:
+                self.presets_tree.column(col, width=80, stretch=False)
+            elif col == "Filename" or col == "NickName":
+                self.presets_tree.column(col, width=120, stretch=True)
+            else:
+                self.presets_tree.column(col, width=100, stretch=True)
 
         self.presets_tree.grid(row=0, column=0, sticky="nsew")
 
@@ -164,14 +177,30 @@ class PresetEditorTab(ttk.Frame):
         self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
 
         for row_data in self.presets_data:
-            # Ensure all columns are present, even if empty in CSV
+            # Ensure all columns are present, even if empty in CSV, and in the new order
+            # Removed SweepTime and FreqShift
             values = [
                 row_data.get("Filename", ""),
+                row_data.get("NickName", ""), # Reordered
                 row_data.get("Center", ""),
                 row_data.get("Span", ""),
                 row_data.get("RBW", ""),
-                row_data.get("NickName", ""),
-                row_data.get("Markers", "") # New Markers column
+                row_data.get("VBW", ""),
+                row_data.get("RefLevel", ""),
+                row_data.get("Attenuation", ""),
+                row_data.get("MaxHold", ""),
+                row_data.get("HighSens", ""),
+                row_data.get("PreAmp", ""),
+                row_data.get("Trace1Mode", ""),
+                row_data.get("Trace2Mode", ""),
+                row_data.get("Trace3Mode", ""),
+                row_data.get("Trace4Mode", ""),
+                row_data.get("Marker1Max", ""),
+                row_data.get("Marker2Max", ""),
+                row_data.get("Marker3Max", ""),
+                row_data.get("Marker4Max", ""),
+                row_data.get("Marker5Max", ""),
+                row_data.get("Marker6Max", ""),
             ]
             self.presets_tree.insert("", "end", values=values)
         
@@ -198,14 +227,30 @@ class PresetEditorTab(ttk.Frame):
         updated_presets = []
         for item_id in self.presets_tree.get_children():
             values = self.presets_tree.item(item_id, "values")
-            # Convert tuple of values back to dictionary
+            # Convert tuple of values back to dictionary, matching new order and columns
+            # Removed SweepTime and FreqShift
             row_data = {
                 "Filename": values[0],
-                "Center": values[1],
-                "Span": values[2],
-                "RBW": values[3],
-                "NickName": values[4],
-                "Markers": values[5] # New Markers column
+                "NickName": values[1],
+                "Center": values[2],
+                "Span": values[3],
+                "RBW": values[4],
+                "VBW": values[5],
+                "RefLevel": values[6],
+                "Attenuation": values[7],
+                "MaxHold": values[8],
+                "HighSens": values[9],
+                "PreAmp": values[10],
+                "Trace1Mode": values[11],
+                "Trace2Mode": values[12],
+                "Trace3Mode": values[13],
+                "Trace4Mode": values[14],
+                "Marker1Max": values[15],
+                "Marker2Max": values[16],
+                "Marker3Max": values[17],
+                "Marker4Max": values[18],
+                "Marker5Max": values[19],
+                "Marker6Max": values[20],
             }
             updated_presets.append(row_data)
 
@@ -221,6 +266,7 @@ class PresetEditorTab(ttk.Frame):
         """
         Allows the user to select a CSV file to import presets from.
         The imported presets are appended to the current local presets.
+        It uses a flexible column matching logic (first 4 letters).
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Initiating preset import...",
@@ -237,16 +283,42 @@ class PresetEditorTab(ttk.Frame):
                 imported_data = []
                 with open(file_path, mode='r', newline='', encoding='utf-8') as file:
                     reader = csv.DictReader(file)
+                    
+                    # Define expected headers in their correct order
+                    expected_headers = [
+                        "Filename", "NickName", "Center", "Span", "RBW", "VBW",
+                        "RefLevel", "Attenuation", "MaxHold", "HighSens", "PreAmp",
+                        "Trace1Mode", "Trace2Mode", "Trace3Mode", "Trace4Mode",
+                        "Marker1Max", "Marker2Max", "Marker3Max", "Marker4Max", "Marker5Max", "Marker6Max"
+                    ]
+
+                    # Create a mapping from actual CSV headers to expected headers
+                    # based on the "first 4 letters" rule
+                    header_map = {}
+                    for csv_header in reader.fieldnames:
+                        matched = False
+                        for expected_header in expected_headers:
+                            if csv_header[:4].lower() == expected_header[:4].lower():
+                                header_map[csv_header] = expected_header
+                                matched = True
+                                break
+                        if not matched:
+                            debug_log(f"CSV header '{csv_header}' did not match any expected header by first 4 letters. It will be ignored.",
+                                        file=f"{os.path.basename(__file__)} - {current_version}",
+                                        version=current_version,
+                                        function=current_function)
+
                     for row in reader:
-                        # Ensure all expected columns are present, add defaults if missing
-                        processed_row = {
-                            "Filename": row.get("Filename", ""),
-                            "Center": row.get("Center", ""),
-                            "Span": row.get("Span", ""),
-                            "RBW": row.get("RBW", ""),
-                            "NickName": row.get("NickName", ""),
-                            "Markers": row.get("Markers", "") # New Markers column
-                        }
+                        processed_row = {}
+                        for expected_header in expected_headers:
+                            # Find the corresponding CSV header using the map, or default to empty string
+                            found_value = ""
+                            for csv_header, mapped_header in header_map.items():
+                                if mapped_header == expected_header:
+                                    found_value = row.get(csv_header, "")
+                                    break
+                            processed_row[expected_header] = found_value
+                        
                         imported_data.append(processed_row)
 
                 # Append imported data to current presets
@@ -275,6 +347,7 @@ class PresetEditorTab(ttk.Frame):
     def _export_presets(self):
         """
         Allows the user to select a location to export the current local presets to a CSV file.
+        The filename will be in the format: exported_presets_YYYYMMDD_HHSS.csv
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Initiating preset export...",
@@ -282,11 +355,15 @@ class PresetEditorTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
+        # Generate the dynamic filename
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M") # YYYYMMDD_HHMM
+        initial_filename = f"exported_presets_{timestamp}.csv"
+
         file_path = filedialog.asksaveasfilename(
             defaultextension=".csv",
             filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
             title="Export Presets As",
-            initialfile="exported_presets.csv"
+            initialfile=initial_filename
         )
         if file_path:
             try:
@@ -297,17 +374,34 @@ class PresetEditorTab(ttk.Frame):
                 data_to_export = []
                 for item_id in self.presets_tree.get_children():
                     values = self.presets_tree.item(item_id, "values")
+                    # Removed SweepTime and FreqShift
                     data_to_export.append({
                         "Filename": values[0],
-                        "Center": values[1],
-                        "Span": values[2],
-                        "RBW": values[3],
-                        "NickName": values[4],
-                        "Markers": values[5] # New Markers column
+                        "NickName": values[1],
+                        "Center": values[2],
+                        "Span": values[3],
+                        "RBW": values[4],
+                        "VBW": values[5],
+                        "RefLevel": values[6],
+                        "Attenuation": values[7],
+                        "MaxHold": values[8],
+                        "HighSens": values[9],
+                        "PreAmp": values[10],
+                        "Trace1Mode": values[11],
+                        "Trace2Mode": values[12],
+                        "Trace3Mode": values[13],
+                        "Trace4Mode": values[14],
+                        "Marker1Max": values[15],
+                        "Marker2Max": values[16],
+                        "Marker3Max": values[17],
+                        "Marker4Max": values[18],
+                        "Marker5Max": values[19],
+                        "Marker6Max": values[20],
                     })
 
+                # Updated fieldnames to match new column order and exclusions
+                fieldnames = ["Filename", "NickName", "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", "Trace3Mode", "Trace4Mode", "Marker1Max", "Marker2Max", "Marker3Max", "Marker4Max", "Marker5Max", "Marker6Max"]
                 with open(file_path, mode='w', newline='', encoding='utf-8') as file:
-                    fieldnames = ["Filename", "Center", "Span", "RBW", "NickName", "Markers"]
                     writer = csv.DictWriter(file, fieldnames=fieldnames)
                     writer.writeheader()
                     writer.writerows(data_to_export)
@@ -333,7 +427,7 @@ class PresetEditorTab(ttk.Frame):
     def _add_current_settings_as_new_preset(self):
         """
         Prompts the user for a preset name and adds the current instrument settings
-        (Center Freq, Span, RBW, Markers) as a new row to the local presets table.
+        as a new row to the local presets table.
         It then saves the updated table to the CSV file.
         """
         current_function = inspect.currentframe().f_code.co_name
@@ -343,21 +437,33 @@ class PresetEditorTab(ttk.Frame):
                     function=current_function)
 
         # First, query the current instrument settings from the app_instance's Tkinter variables
-        # These variables should be kept up-to-date by the Instrument Connection tab.
         center_freq_hz = self.app_instance.center_freq_hz_var.get()
         span_hz = self.app_instance.span_hz_var.get()
         rbw_hz = self.app_instance.rbw_hz_var.get()
-        
-        # For Markers, we need a way to get their current state.
-        # Assuming Markers data is not directly available as a single TkinterVar,
-        # you might need to combine info from multiple marker-related TkinterVars
-        # or have a dedicated variable for a "Markers string/JSON".
-        # For now, let's use a placeholder or a simple representation.
-        # This would ideally come from the instrument_logic's query.
-        markers_data = "N/A" # Placeholder. You'd need to query actual marker states if available.
-        # If you have specific marker variables, you could concatenate them:
-        # markers_data = f"M1_Freq:{self.app_instance.marker1_freq_var.get()}, M1_Amp:{self.app_instance.marker1_amp_var.get()}"
-        
+        vbw_hz = self.app_instance.vbw_hz_var.get() if hasattr(self.app_instance, 'vbw_hz_var') else ""
+        # sweep_time_s = self.app_instance.sweep_time_s_var.get() if hasattr(self.app_instance, 'sweep_time_s_var') else "" # Excluded
+        ref_level_dbm = self.app_instance.reference_level_dbm_var.get() if hasattr(self.app_instance, 'reference_level_dbm_var') else ""
+        attenuation_db = self.app_instance.attenuation_var.get() if hasattr(self.app_instance, 'attenuation_var') else ""
+        # freq_shift_hz = self.app_instance.freq_shift_var.get() if hasattr(self.app_instance, 'freq_shift_var') else "" # Excluded
+        maxhold_enabled = self.app_instance.maxhold_enabled_var.get() if hasattr(self.app_instance, 'maxhold_enabled_var') else ""
+        high_sensitivity_enabled = self.app_instance.high_sensitivity_var.get() if hasattr(self.app_instance, 'high_sensitivity_var') else ""
+        preamp_on = self.app_instance.preamp_on_var.get() if hasattr(self.app_instance, 'preamp_on_var') else ""
+
+        # New Trace Mode variables
+        trace1_mode = self.app_instance.trace1_mode_var.get() if hasattr(self.app_instance, 'trace1_mode_var') else ""
+        trace2_mode = self.app_instance.trace2_mode_var.get() if hasattr(self.app_instance, 'trace2_mode_var') else ""
+        trace3_mode = self.app_instance.trace3_mode_var.get() if hasattr(self.app_instance, 'trace3_mode_var') else ""
+        trace4_mode = self.app_instance.trace4_mode_var.get() if hasattr(self.app_instance, 'trace4_mode_var') else ""
+
+        # New Marker Calculate Max variables
+        marker1_max = self.app_instance.marker1_calculate_max_var.get() if hasattr(self.app_instance, 'marker1_calculate_max_var') else ""
+        marker2_max = self.app_instance.marker2_calculate_max_var.get() if hasattr(self.app_instance, 'marker2_calculate_max_var') else ""
+        marker3_max = self.app_instance.marker3_calculate_max_var.get() if hasattr(self.app_instance, 'marker3_calculate_max_var') else ""
+        marker4_max = self.app_instance.marker4_calculate_max_var.get() if hasattr(self.app_instance, 'marker4_calculate_max_var') else ""
+        marker5_max = self.app_instance.marker5_calculate_max_var.get() if hasattr(self.app_instance, 'marker5_calculate_max_var') else ""
+        marker6_max = self.app_instance.marker6_calculate_max_var.get() if hasattr(self.app_instance, 'marker6_calculate_max_var') else ""
+
+        # Check if basic settings are meaningful, otherwise prompt user
         if center_freq_hz == 0.0 and span_hz == 0.0 and rbw_hz == 0.0:
             self.console_print_func("⚠️ Current instrument settings are all zero. Please connect to an instrument and query settings first.")
             debug_log("Current instrument settings are zero. Aborting 'add current settings'.",
@@ -383,11 +489,26 @@ class PresetEditorTab(ttk.Frame):
 
         new_preset_data = {
             'Filename': filename,
+            'NickName': nickname, # Reordered
             'Center': f"{center_freq_hz}", # Store as string to match CSV format
             'Span': f"{span_hz}",
             'RBW': f"{rbw_hz}",
-            'NickName': nickname,
-            'Markers': markers_data
+            'VBW': f"{vbw_hz}",
+            'RefLevel': f"{ref_level_dbm}",
+            'Attenuation': f"{attenuation_db}",
+            'MaxHold': f"{maxhold_enabled}",
+            'HighSens': f"{high_sensitivity_enabled}",
+            'PreAmp': f"{preamp_on}",
+            'Trace1Mode': f"{trace1_mode}",
+            'Trace2Mode': f"{trace2_mode}",
+            'Trace3Mode': f"{trace3_mode}",
+            'Trace4Mode': f"{trace4_mode}",
+            'Marker1Max': f"{marker1_max}",
+            'Marker2Max': f"{marker2_max}",
+            'Marker3Max': f"{marker3_max}",
+            'Marker4Max': f"{marker4_max}",
+            'Marker5Max': f"{marker5_max}",
+            'Marker6Max': f"{marker6_max}",
         }
 
         # Add to the in-memory data and refresh the table
@@ -399,6 +520,51 @@ class PresetEditorTab(ttk.Frame):
 
         self.console_print_func(f"✅ Current settings added as new local preset: '{nickname}'. Success!")
         debug_log(f"Current settings added as new local preset: '{nickname}'. BOOM!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+    def _add_new_empty_row(self):
+        """
+        Adds a new empty row to the presets table with default values.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log("Adding a new empty row to presets table...",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+        # Define a default empty row with all expected columns
+        new_empty_row = {
+            "Filename": "",
+            "NickName": "",
+            "Center": "",
+            "Span": "",
+            "RBW": "",
+            "VBW": "",
+            "RefLevel": "",
+            "Attenuation": "",
+            "MaxHold": "",
+            "HighSens": "",
+            "PreAmp": "",
+            "Trace1Mode": "",
+            "Trace2Mode": "",
+            "Trace3Mode": "",
+            "Trace4Mode": "",
+            "Marker1Max": "",
+            "Marker2Max": "",
+            "Marker3Max": "",
+            "Marker4Max": "",
+            "Marker5Max": "",
+            "Marker6Max": "",
+        }
+
+        self.presets_data.append(new_empty_row)
+        self.populate_presets_table() # Refresh the table display
+        self._save_presets_to_csv() # Save the updated data to CSV
+
+        self.console_print_func("✅ New empty row added to presets table. Fill it up!")
+        debug_log("New empty row added and saved.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -658,4 +824,3 @@ class PresetEditorTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         self.populate_presets_table()
-

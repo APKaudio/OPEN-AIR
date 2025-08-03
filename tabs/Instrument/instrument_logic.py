@@ -15,10 +15,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1701.9 (Updated imports to use new refactored utility files.)
+#
+# Version 20250802.1701.11 (Added conditional query for MAXHold state, specific to N9342CN.)
 
-current_version = "20250802.1701.9" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 9 # Example hash, adjust as needed
+current_version = "20250802.1701.11" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 1701 * 11 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -384,6 +385,8 @@ def query_current_settings_logic(app_instance, console_print_func):
     # (2025-08-02) Change: Corrected call to `query_current_instrument_settings` with correct arguments.
     # (2025-08-02) Change: Updated import for `query_current_instrument_settings` from `utils_instrument_query_settings`.
     # (2025-08-02) Change: Updated import for `query_safe` from `utils_instrument_read_and_write`.
+    # (2025-08-02) Change: Added conditional queries for N9342CN specific commands: :SENSe:POWer:RF:HSENse? and :SENSe:FREQuency:SHIFt?.
+    # (2025-08-02) Change: Added conditional query for N9342CN specific command: :DISPlay:WINDow:TRACe:MAXHold:STATe?.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Querying current settings from instrument. Let's see what's going on! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -454,27 +457,66 @@ def query_current_settings_logic(app_instance, console_print_func):
                         version=current_version,
                         function=current_function)
 
-        # Query Frequency Shift (assuming a command exists for it)
-        # NOTE: There is no direct query for frequency shift in utils_instrument_control.py's query_current_instrument_settings
-        # I'm adding a placeholder query here. You might need to confirm the correct SCPI command.
-        freq_shift_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SHIFt?", console_print_func) # Placeholder command
-        if freq_shift_str:
-            app_instance.freq_shift_var.set(float(freq_shift_str))
-            debug_log(f"Queried Frequency Shift: {freq_shift_str.strip()} Hz.",
+        # Get the instrument model to conditionally query commands
+        instrument_model = app_instance.instrument_model.get()
+
+        if instrument_model == "N9342CN":
+            # Query Frequency Shift (specific to N9342CN)
+            freq_shift_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SHIFt?", console_print_func)
+            if freq_shift_str:
+                app_instance.freq_shift_var.set(float(freq_shift_str))
+                debug_log(f"Queried Frequency Shift: {freq_shift_str.strip()} Hz.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            else:
+                app_instance.freq_shift_var.set(0.0) # Set to default if not queried
+                debug_log(f"Frequency Shift command not supported or failed for {instrument_model}.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+            # Query High Sensitivity (specific to N9342CN)
+            high_sensitivity_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:HSENse?", console_print_func)
+            if high_sensitivity_str:
+                app_instance.high_sensitivity_var.set(high_sensitivity_str.strip().upper() == "ON")
+                debug_log(f"Queried High Sensitivity State: {high_sensitivity_str.strip()}. Sweet!",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            else:
+                app_instance.high_sensitivity_var.set(False) # Set to default if not queried
+                debug_log(f"High Sensitivity command not supported or failed for {instrument_model}.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+
+            # Query Maxhold State (specific to N9342CN)
+            maxhold_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:MAXHold:STATe?", console_print_func)
+            if maxhold_str:
+                app_instance.maxhold_enabled_var.set(maxhold_str.strip().upper() == "ON")
+                debug_log(f"Queried Maxhold State: {maxhold_str.strip()}. Good to go!",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            else:
+                app_instance.maxhold_enabled_var.set(False) # Set to default if not queried
+                debug_log(f"Maxhold State command not supported or failed for {instrument_model}.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+        else:
+            # Set default values if not N9342CN
+            app_instance.freq_shift_var.set(0.0)
+            app_instance.high_sensitivity_var.set(False)
+            app_instance.maxhold_enabled_var.set(False)
+            debug_log(f"Skipping N9342CN specific queries for instrument model: {instrument_model}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
 
-        # Query and update maxhold, high sensitivity, and preamp states
-        maxhold_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:MAXHold:STATe?", console_print_func)
-        if maxhold_str:
-            app_instance.maxhold_enabled_var.set(maxhold_str.strip().upper() == "ON")
-            debug_log(f"Queried Maxhold State: {maxhold_str.strip()}. Good to go!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-
+        # Query preamp state (generally common)
         preamp_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:GAIN:STATe?", console_print_func)
         if preamp_str:
             app_instance.preamp_on_var.set(preamp_str.strip().upper() == "ON")
@@ -483,13 +525,6 @@ def query_current_settings_logic(app_instance, console_print_func):
                         version=current_version,
                         function=current_function)
 
-        high_sensitivity_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:HSENse?", console_print_func)
-        if high_sensitivity_str:
-            app_instance.high_sensitivity_var.set(high_sensitivity_str.strip().upper() == "ON")
-            debug_log(f"Queried High Sensitivity State: {high_sensitivity_str.strip()}. Sweet!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
 
         console_print_func("✅ Current settings queried successfully from instrument. All systems go!")
         debug_log("Settings queried from instrument. UI updated! Fucking awesome!",
