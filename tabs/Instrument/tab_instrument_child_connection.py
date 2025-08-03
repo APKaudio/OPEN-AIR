@@ -19,9 +19,10 @@
 #
 #
 # Version 20250802.1701.18 (Fixed ImportError by updating function names from instrument_logic.)
+# Version 20250802.2045.1 (Added connection_status_label as an instance attribute to fix AttributeError.)
 
-current_version = "20250802.1701.18" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 18 # Example hash, adjust as needed
+current_version = "20250802.2045.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2045 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -191,6 +192,10 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(status_frame, text="Options:", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         self.options_label = ttk.Label(status_frame, textvariable=self.app_instance.instrument_options, style='Dark.TLabel.Value')
         self.options_label.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+
+        # Connection Status Label - This needs to be an instance attribute
+        self.connection_status_label = ttk.Label(status_frame, text="Status: Disconnected 💀", foreground="red", style='Dark.TLabel')
+        self.connection_status_label.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 
         # --- Connection Control ---
@@ -790,3 +795,4 @@ class InstrumentTab(ttk.Frame):
 
         # Update UI visibility based on connection status when tab is selected
         self._update_ui_elements_visibility(connected=is_connected, resource_found=resource_found)
+

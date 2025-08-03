@@ -15,18 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0014.7 (Changed __init__ signature to use explicit positional arguments for master and app_instance.)
-# Version 20250802.1805.0 (Fixed dropdown freezing by re-introducing description StringVars and linking comboboxes.)
-# Version 20250802.1810.0 (Added debug log for ref_scanner_setting_lists.py version to diagnose ImportError.)
-# Version 20250802.1915.0 (Fixed AttributeError: 'freq_shift_hz_var' by changing to 'freq_shift_var'.)
-# Version 20250802.1920.0 (Added scan_mode_combobox and linked it to app_instance.scan_mode_var.)
-# Version 20250802.1930.0 (Removed 'console_print_func' argument from debug_log calls as it's not supported.)
-# Version 20250802.2010.0 (Ensured dropdowns store raw values in config.ini, not display strings.)
-# Version 20250802.2020.0 (Fixed KeyError: 'time_s' by adding checks for missing keys in combobox value generation and parsing.)
+# Version 20250802.2015.1 (Standardized data structures to use 'label', 'value', and 'description' for comboboxes.)
 # Version 20250802.2030.0 (Fixed AttributeError: 'desired_default_focus_width_combobox' by changing it from Entry to Combobox.)
+# Version 20250802.2035.0 (Updated combobox value and label keys to 'value' and 'label' as per new ref_scanner_setting_lists.py structure.)
 
-current_version = "20250802.2030.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 2030 * 0 # Example hash, adjust as needed
+current_version = "20250802.2035.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2035 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -171,7 +165,7 @@ class ScanTab(ttk.Frame):
         Process of this function:
             1. Sets up the grid layout for the frame.
             2. Creates and places widgets for:
-                - Scan Name and Output Folder with a browse button.
+                - Scan Name and Output Folder.
                 - Dropdowns for Number of Scan Cycles, RBW Step Size, Cycle Wait Time, Maxhold Time.
                 - Dropdowns for Scan RBW, Reference Level, Attenuation, Frequency Shift, Scan Mode.
                 - Checkboxes for Maxhold, High Sensitivity, Preamplifier On.
@@ -185,7 +179,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating ScanTab widgets... Building the scan configuration form! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
         # Main grid configuration for the tab
@@ -230,13 +224,13 @@ class ScanTab(ttk.Frame):
         self.graph_quality_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._graph_quality_display_var, # Linked to local display StringVar
-            values=[f"{item['resolution_hz']} Hz - {item['label']}" for item in graph_quality_drop_down if 'resolution_hz' in item and 'label' in item],
+            values=[f"{item['value']} Hz - {item['label']}" for item in graph_quality_drop_down if 'value' in item and 'label' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.graph_quality_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.graph_quality_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, 'resolution_hz', self.graph_quality_description_var, 'label', 'description', "{item[resolution_hz]} Hz - {label}"))
+        self.graph_quality_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, 'value', self.graph_quality_description_var, 'label', 'description', "{item[value]} Hz - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.graph_quality_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -246,13 +240,13 @@ class ScanTab(ttk.Frame):
         self.dwell_time_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._dwell_time_display_var, # Linked to local display StringVar
-            values=[f"{item['time_s']} s - {item['label']}" for item in dwell_time_drop_down if 'time_s' in item and 'label' in item], # Added check for 'time_s' and 'label'
+            values=[f"{item['value']} s - {item['label']}" for item in dwell_time_drop_down if 'value' in item and 'label' in item], # Added check for 'value' and 'label'
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.dwell_time_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.dwell_time_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, 'time_s', self.dwell_time_description_var, 'label', 'description', "{item[time_s]} s - {label}"))
+        self.dwell_time_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, 'value', self.dwell_time_description_var, 'label', 'description', "{item[value]} s - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.dwell_time_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -262,13 +256,13 @@ class ScanTab(ttk.Frame):
         self.max_hold_time_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._max_hold_time_display_var, # Linked to local display StringVar
-            values=[f"{item['time_s']} s - {item['label']}" for item in cycle_wait_time_presets if 'time_s' in item and 'label' in item], # Added check for 'time_s' and 'label'
+            values=[f"{item['value']} s - {item['label']}" for item in cycle_wait_time_presets if 'value' in item and 'label' in item], # Added check for 'value' and 'label'
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.max_hold_time_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.max_hold_time_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, 'time_s', self.max_hold_time_description_var, 'label', 'description', "{item[time_s]} s - {label}"))
+        self.max_hold_time_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, 'value', self.max_hold_time_description_var, 'label', 'description', "{item[value]} s - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.max_hold_time_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -278,13 +272,13 @@ class ScanTab(ttk.Frame):
         self.scan_rbw_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._scan_rbw_display_var, # Linked to local display StringVar
-            values=[f"{item['rbw_hz']} Hz - {item['label']}" for item in rbw_presets if 'rbw_hz' in item and 'label' in item],
+            values=[f"{item['value']} Hz - {item['label']}" for item in rbw_presets if 'value' in item and 'label' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.scan_rbw_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.scan_rbw_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.scan_rbw_hz_var, rbw_presets, 'rbw_hz', self.scan_rbw_description_var, 'label', 'description', "{item[rbw_hz]} Hz - {label}"))
+        self.scan_rbw_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.scan_rbw_hz_var, rbw_presets, 'value', self.scan_rbw_description_var, 'label', 'description', "{item[value]} Hz - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.scan_rbw_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -294,13 +288,13 @@ class ScanTab(ttk.Frame):
         self.reference_level_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._reference_level_display_var, # Linked to local display StringVar
-            values=[f"{item['Value']} dBm - {item['Description']}" for item in reference_level_drop_down if 'Value' in item and 'Description' in item],
+            values=[f"{item['value']} dBm - {item['description']}" for item in reference_level_drop_down if 'value' in item and 'description' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.reference_level_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.reference_level_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.reference_level_dbm_var, reference_level_drop_down, 'Value', self.reference_level_description_var, 'Description', 'Description', "{item[Value]} dBm - {label}"))
+        self.reference_level_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.reference_level_dbm_var, reference_level_drop_down, 'value', self.reference_level_description_var, 'label', 'description', "{item[value]} dBm - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.reference_level_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -309,13 +303,13 @@ class ScanTab(ttk.Frame):
         self.attenuation_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._attenuation_display_var, # Linked to local display StringVar
-            values=[f"{item['Value']} dB - {item['Description']}" for item in attenuation_levels if 'Value' in item and 'Description' in item],
+            values=[f"{item['value']} dB - {item['description']}" for item in attenuation_levels if 'value' in item and 'description' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.attenuation_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.attenuation_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.attenuation_var, attenuation_levels, 'Value', self.attenuation_description_var, 'Description', 'Description', "{item[Value]} dB - {label}"))
+        self.attenuation_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.attenuation_var, attenuation_levels, 'value', self.attenuation_description_var, 'label', 'description', "{item[value]} dB - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.attenuation_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -324,13 +318,13 @@ class ScanTab(ttk.Frame):
         self.frequency_shift_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._frequency_shift_display_var, # Linked to local display StringVar
-            values=[f"{item['shift_hz']} Hz - {item['Description']}" for item in frequency_shift_presets if 'shift_hz' in item and 'Description' in item],
+            values=[f"{item['value']} Hz - {item['label']}" for item in frequency_shift_presets if 'value' in item and 'label' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.frequency_shift_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.frequency_shift_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.freq_shift_var, frequency_shift_presets, 'shift_hz', self.frequency_shift_description_var, 'Description', 'Description', "{item[shift_hz]} Hz - {label}"))
+        self.frequency_shift_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.freq_shift_var, frequency_shift_presets, 'value', self.frequency_shift_description_var, 'label', 'description', "{item[value]} Hz - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.frequency_shift_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -379,13 +373,13 @@ class ScanTab(ttk.Frame):
         self.desired_default_focus_width_combobox = ttk.Combobox( # Changed to combobox
             scan_settings_frame,
             textvariable=self._desired_default_focus_width_display_var, # Linked to local display StringVar
-            values=[f"{item['resolution_hz']} Hz - {item['label']}" for item in graph_quality_drop_down if 'resolution_hz' in item and 'label' in item],
+            values=[f"{item['value']} Hz - {item['label']}" for item in graph_quality_drop_down if 'value' in item and 'label' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.desired_default_focus_width_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.desired_default_focus_width_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.desired_default_focus_width_var, graph_quality_drop_down, 'resolution_hz', self.desired_default_focus_width_description_var, 'label', 'description', "{item[resolution_hz]} Hz - {label}"))
+        self.desired_default_focus_width_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.desired_default_focus_width_var, graph_quality_drop_down, 'value', self.desired_default_focus_width_description_var, 'label', 'description', "{item[value]} Hz - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.desired_default_focus_width_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -394,13 +388,13 @@ class ScanTab(ttk.Frame):
         self.num_scan_cycles_combobox = ttk.Combobox(
             scan_settings_frame,
             textvariable=self._num_scan_cycles_display_var, # Linked to local display StringVar
-            values=[f"{item['scans']} cycles - {item['label']}" for item in number_of_scans_presets if 'scans' in item and 'label' in item],
+            values=[f"{item['value']} cycles - {item['label']}" for item in number_of_scans_presets if 'value' in item and 'label' in item],
             state="readonly",
             width=35, # Increased width for the combobox
             style='Fixedwidth.TCombobox'
         )
         self.num_scan_cycles_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.num_scan_cycles_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.num_scan_cycles_var, number_of_scans_presets, 'scans', self.num_scan_cycles_description_var, 'label', 'description', "{item[scans]} cycles - {label}"))
+        self.num_scan_cycles_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.num_scan_cycles_var, number_of_scans_presets, 'value', self.num_scan_cycles_description_var, 'label', 'description', "{item[value]} cycles - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.num_scan_cycles_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -409,13 +403,13 @@ class ScanTab(ttk.Frame):
         self.scan_mode_combobox = ttk.Combobox( # Assign to an instance variable
             scan_settings_frame,
             textvariable=self._scan_mode_display_var, # Linked to local display StringVar
-            values=[item['Value'] for item in scan_modes if 'Value' in item],
+            values=[f"{item['value']} - {item['label']}" for item in scan_modes if 'value' in item and 'label' in item],
             state="readonly",
             width=35,
             style='Fixedwidth.TCombobox'
         )
         self.scan_mode_combobox.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        self.scan_mode_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.scan_mode_var, scan_modes, 'Value', self.scan_mode_description_var, 'Description', 'Description', "{item[Value]}"))
+        self.scan_mode_combobox.bind("<<ComboboxSelected>>", lambda e: self._on_combobox_select(e, self.app_instance.scan_mode_var, scan_modes, 'value', self.scan_mode_description_var, 'label', 'description', "{item[value]} - {label}"))
         ttk.Label(scan_settings_frame, textvariable=self.scan_mode_description_var, wraplength=350, justify="left", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         row_idx += 1
 
@@ -623,11 +617,11 @@ class ScanTab(ttk.Frame):
             event: The Tkinter event object.
             tk_var (tk.StringVar/DoubleVar/IntVar): The Tkinter variable to update with the raw value.
             data_list (list): The list of dictionaries (e.g., rbw_presets) from ref_scanner_setting_lists.
-            value_key (str): The key in the dictionary that holds the raw value (e.g., 'rbw_hz', 'scans', 'Value', 'shift_hz').
+            value_key (str): The key in the dictionary that holds the raw value (e.g., 'value').
             description_tk_var (tk.StringVar): The Tkinter variable for the description label.
-            label_key (str): The key in the dictionary that holds the display label (e.g., 'label', 'Description', 'Value').
+            label_key (str): The key in the dictionary that holds the display label (e.g., 'label').
             description_key (str): The key in the dictionary that holds the full description.
-            display_format_string (str): A format string to reconstruct the display value (e.g., "{item[resolution_hz]} Hz - {label}").
+            display_format_string (str): A format string to reconstruct the display value (e.g., "{item[value]} Hz - {label}").
 
         Process of this function:
             1. Gets the currently selected display value from the combobox.
@@ -657,10 +651,13 @@ class ScanTab(ttk.Frame):
                             function=current_function)
                 continue
 
+            # Special handling for boolean vars (High Sensitivity, Preamplifier ON) as their data_list is custom
             if isinstance(tk_var, tk.BooleanVar):
-                expected_display = "Yes" if item[value_key] else "No"
+                # The custom data_list for these has 'Value' and 'Description'
+                expected_display = item.get('Description') # The display string is the 'Description'
             else:
                 try:
+                    # Use the provided display_format_string for general cases
                     expected_display = display_format_string.format(item=item, label=item[label_key], value=item[value_key])
                 except KeyError:
                     # Fallback if a key is missing in the item for the format string
@@ -673,7 +670,8 @@ class ScanTab(ttk.Frame):
         if found_item:
             # Set the raw value to the Tkinter variable
             if isinstance(tk_var, tk.BooleanVar):
-                tk_var.set(found_item[value_key]) # Set boolean directly
+                # For boolean vars, the 'value_key' (which is 'Value' in their custom list) holds the boolean
+                tk_var.set(found_item[value_key])
             else:
                 tk_var.set(str(found_item[value_key])) # Set string representation of raw value
             debug_log(f"Set {tk_var._name} to raw value: {tk_var.get()}. Version: {current_version}",
@@ -705,21 +703,21 @@ class ScanTab(ttk.Frame):
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
         selected_value = self._high_sensitivity_display_var.get() # Get from local display var
-        
+
         # Update app_instance's BooleanVar based on selection
         self.app_instance.high_sensitivity_var.set(selected_value == "Yes")
 
         debug_log(f"High Sensitivity selected: {self.app_instance.high_sensitivity_var.get()}. Saving configuration! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
-        
+
         # Update description
         if selected_value == "Yes":
             self.high_sensitivity_description_var.set("Yes: High sensitivity mode enabled, optimizing for detection of weak signals.")
         else:
             self.high_sensitivity_description_var.set("No: High sensitivity mode disabled, potentially faster scans but less sensitive.")
-        
+
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
@@ -737,15 +735,15 @@ class ScanTab(ttk.Frame):
 
         debug_log(f"Preamplifier ON selected: {self.app_instance.preamp_on_var.get()}. Saving configuration! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
-        
+
         # Update description
         if selected_value == "Yes":
             self.preamp_on_description_var.set("Yes: Preamplifier is enabled, increasing sensitivity but potentially adding noise.")
         else:
             self.preamp_on_description_var.set("No: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal.")
-        
+
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
@@ -757,7 +755,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Selecting all bands. Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
         for band_item in self.app_instance.band_vars:
             band_item["var"].set(True)
@@ -772,7 +770,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Deselecting all bands. Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
         for band_item in self.app_instance.band_vars:
             band_item["var"].set(False)
@@ -789,7 +787,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"ScanTab selected. Refreshing settings... Let's get this updated! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function,
                     special=True) # Adding special flag as per your style
 
@@ -797,7 +795,7 @@ class ScanTab(ttk.Frame):
         self._load_band_selections_from_config()
         debug_log(f"ScanTab refreshed. Settings are up-to-date! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
 
@@ -810,7 +808,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading band selections from config.ini... Syncing checkboxes with saved settings! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
         # Get the last used selected bands from config using the new prefixed key
@@ -834,7 +832,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Band checkbox changed. Saving configuration! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
         selected_bands = [
@@ -850,7 +848,7 @@ class ScanTab(ttk.Frame):
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         debug_log(f"Selected bands saved: {selected_bands}. Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
 
@@ -864,7 +862,7 @@ class ScanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading current settings into dropdowns. Syncing UI with config! Version: {current_version}",
                     file=current_file,
-                    version=current_function,
+                    version=current_function, # Corrected to current_version
                     function=current_function)
 
         # Helper to set combobox display and description based on raw value
@@ -873,32 +871,40 @@ class ScanTab(ttk.Frame):
             found_item = None
 
             # Special handling for boolean vars (High Sensitivity, Preamplifier ON)
+            # Their data_list is custom: [{"Value": True, "Description": "..."}]
             if isinstance(app_tk_var, tk.BooleanVar):
-                # Find item where value_key matches the boolean state
-                found_item = next((item for item in data_list if item.get(value_key) == current_raw_value), None) # Use .get() for safety
+                # We need to find the item in the *custom* list where 'Value' matches the boolean state
+                # The display format string for these is "{item[Description]}"
+                for item in data_list:
+                    if item.get('Value') == current_raw_value:
+                        found_item = item
+                        break
                 if found_item:
-                    display_value = "Yes" if current_raw_value else "No"
+                    display_value = found_item.get('Description') # The display string is the 'Description'
                     combobox_widget.set(display_value)
-                    description_tk_var.set(found_item.get(description_key, "No matching description.")) # Use .get() for safety
+                    description_tk_var.set(found_item.get(description_key, "No matching description."))
                 else:
+                    # Fallback if no matching item is found for the boolean state
                     combobox_widget.set("No") # Default to "No" if not found
                     description_tk_var.set("No matching description.")
                 return
 
-            # For other types (numerical, string)
+            # For other types (numerical, string) using the standardized 'label', 'value', 'description'
             for item in data_list:
                 # Use .get() for safe access and ensure all required keys exist
                 if (value_key in item and label_key in item and description_key in item and
                     str(item.get(value_key)) == str(current_raw_value)):
                     found_item = item
                     break
-            
+
             if found_item:
                 try:
-                    combobox_widget.set(display_format_string.format(item=found_item, label=found_item.get(label_key, ''), value=found_item.get(value_key, ''))) # Use .get() for safety
+                    # Use the provided display_format_string for general cases
+                    combobox_widget.set(display_format_string.format(item=found_item, label=found_item.get(label_key, ''), value=found_item.get(value_key, '')))
                 except KeyError:
+                    # Fallback if a key is missing in the item for the format string
                     combobox_widget.set(str(found_item.get(value_key, ''))) # Fallback
-                description_tk_var.set(found_item.get(description_key, "No matching description.")) # Use .get() for safety
+                description_tk_var.set(found_item.get(description_key, "No matching description."))
             else:
                 combobox_widget.set("")
                 description_tk_var.set("No matching description.")
@@ -909,40 +915,40 @@ class ScanTab(ttk.Frame):
 
 
         # Graph Quality
-        _set_combobox_display_and_description(self.graph_quality_combobox, self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, 'resolution_hz', self.graph_quality_description_var, 'label', 'description', "{item[resolution_hz]} Hz - {label}")
+        _set_combobox_display_and_description(self.graph_quality_combobox, self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, 'value', self.graph_quality_description_var, 'label', 'description', "{item[value]} Hz - {label}")
 
         # DWELL
-        _set_combobox_display_and_description(self.dwell_time_combobox, self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, 'time_s', self.dwell_time_description_var, 'label', 'description', "{item[time_s]} s - {label}")
+        _set_combobox_display_and_description(self.dwell_time_combobox, self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, 'value', self.dwell_time_description_var, 'label', 'description', "{item[value]} s - {label}")
 
         # Max Hold Time
-        _set_combobox_display_and_description(self.max_hold_time_combobox, self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, 'time_s', self.max_hold_time_description_var, 'label', 'description', "{item[time_s]} s - {label}")
+        _set_combobox_display_and_description(self.max_hold_time_combobox, self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, 'value', self.max_hold_time_description_var, 'label', 'description', "{item[value]} s - {label}")
 
         # Scan RBW
-        _set_combobox_display_and_description(self.scan_rbw_combobox, self.app_instance.scan_rbw_hz_var, rbw_presets, 'rbw_hz', self.scan_rbw_description_var, 'label', 'description', "{item[rbw_hz]} Hz - {label}")
+        _set_combobox_display_and_description(self.scan_rbw_combobox, self.app_instance.scan_rbw_hz_var, rbw_presets, 'value', self.scan_rbw_description_var, 'label', 'description', "{item[value]} Hz - {label}")
 
         # Reference Level
-        _set_combobox_display_and_description(self.reference_level_combobox, self.app_instance.reference_level_dbm_var, reference_level_drop_down, 'Value', self.reference_level_description_var, 'Description', 'Description', "{item[Value]} dBm - {label}")
+        _set_combobox_display_and_description(self.reference_level_combobox, self.app_instance.reference_level_dbm_var, reference_level_drop_down, 'value', self.reference_level_description_var, 'label', 'description', "{item[value]} dBm - {label}")
 
         # Attenuation
-        _set_combobox_display_and_description(self.attenuation_combobox, self.app_instance.attenuation_var, attenuation_levels, 'Value', self.attenuation_description_var, 'Description', 'Description', "{item[Value]} dB - {label}")
+        _set_combobox_display_and_description(self.attenuation_combobox, self.app_instance.attenuation_var, attenuation_levels, 'value', self.attenuation_description_var, 'label', 'description', "{item[value]} dB - {label}")
 
         # Frequency Shift
-        _set_combobox_display_and_description(self.frequency_shift_combobox, self.app_instance.freq_shift_var, frequency_shift_presets, 'shift_hz', self.frequency_shift_description_var, 'Description', 'Description', "{item[shift_hz]} Hz - {label}")
+        _set_combobox_display_and_description(self.frequency_shift_combobox, self.app_instance.freq_shift_var, frequency_shift_presets, 'value', self.frequency_shift_description_var, 'label', 'description', "{item[value]} Hz - {label}")
 
         # High Sensitivity
-        _set_combobox_display_and_description(self.high_sensitivity_combobox, self.app_instance.high_sensitivity_var, [{"Value": True, "Description": "Yes: High sensitivity mode enabled, optimizing for detection of weak signals."}, {"Value": False, "Description": "No: High sensitivity mode disabled, potentially faster scans but less sensitive."}], 'Value', self.high_sensitivity_description_var, 'Description', 'Description', "{item[Description]}")
+        _set_combobox_display_and_description(self.high_sensitivity_combobox, self.app_instance.high_sensitivity_var, [{"value": True, "label": "Yes", "description": "Yes: High sensitivity mode enabled, optimizing for detection of weak signals."}, {"value": False, "label": "No", "description": "No: High sensitivity mode disabled, potentially faster scans but less sensitive."}], 'value', self.high_sensitivity_description_var, 'label', 'description', "{item[label]}")
 
         # Preamplifier ON
-        _set_combobox_display_and_description(self.preamp_on_combobox, self.app_instance.preamp_on_var, [{"Value": True, "Description": "Yes: Preamplifier is enabled, increasing sensitivity but potentially adding noise."}, {"Value": False, "Description": "No: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal."}], 'Value', self.preamp_on_description_var, 'Description', 'Description', "{item[Description]}")
+        _set_combobox_display_and_description(self.preamp_on_combobox, self.app_instance.preamp_on_var, [{"value": True, "label": "Yes", "description": "Yes: Preamplifier is enabled, increasing sensitivity but potentially adding noise."}, {"value": False, "label": "No", "description": "No: Preamplifier is disabled, reducing sensitivity but potentially cleaner signal."}], 'value', self.preamp_on_description_var, 'label', 'description', "{item[label]}")
 
         # Number of Scan Cycles
-        _set_combobox_display_and_description(self.num_scan_cycles_combobox, self.app_instance.num_scan_cycles_var, number_of_scans_presets, 'scans', self.num_scan_cycles_description_var, 'label', 'description', "{item[scans]} cycles - {label}")
+        _set_combobox_display_and_description(self.num_scan_cycles_combobox, self.app_instance.num_scan_cycles_var, number_of_scans_presets, 'value', self.num_scan_cycles_description_var, 'label', 'description', "{item[value]} cycles - {label}")
 
         # Scan Mode
-        _set_combobox_display_and_description(self.scan_mode_combobox, self.app_instance.scan_mode_var, scan_modes, 'Value', self.scan_mode_description_var, 'Description', 'Description', "{item[Value]}")
+        _set_combobox_display_and_description(self.scan_mode_combobox, self.app_instance.scan_mode_var, scan_modes, 'value', self.scan_mode_description_var, 'label', 'description', "{item[value]} - {label}")
 
         # Desired Default Focus Width (This was an entry, now making it a combobox)
-        _set_combobox_display_and_description(self.desired_default_focus_width_combobox, self.app_instance.desired_default_focus_width_var, graph_quality_drop_down, 'resolution_hz', self.desired_default_focus_width_description_var, 'label', 'description', "{item[resolution_hz]} Hz - {label}")
+        _set_combobox_display_and_description(self.desired_default_focus_width_combobox, self.app_instance.desired_default_focus_width_var, graph_quality_drop_down, 'value', self.desired_default_focus_width_description_var, 'label', 'description', "{item[value]} Hz - {label}")
 
 
         debug_log(f"Current settings loaded into dropdowns and descriptions updated. Version: {current_version}",

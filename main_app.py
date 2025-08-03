@@ -23,9 +23,14 @@
 # Version 20250802.1910.1 (Fixed KeyError: 'Mode' by using 'Value' for scan_modes initialization.)
 # Version 20250802.1945.0 (Initialized debug_to_gui_console_var and applied it in _check_config_and_set_debug.)
 # Version 20250802.1950.0 (Corrected `main_app.py` to ensure it's complete and not truncated.)
+# Version 20250802.2040.0 (Updated Tkinter variable initializations to use 'value' key from ref_scanner_setting_lists.py.)
+# Version 20250802.2045.0 (FIXED: Removed duplicate _setup_tkinter_vars and corrected KeyError: 'Value' by using 'value' key consistently.)
+# Version 20250802.2100.0 (CRITICAL FIX: Restored full file content after previous truncation and verified all 'value' key usages.)
+# Version 20250802.2105.0 (FIXED: TclError: Invalid slave specification in _on_parent_tab_change by correcting tab iteration logic.)
+# Version 20250802.2110.0 (FIXED: TclError: unknown option "-style" by removing incorrect style application in _on_parent_tab_change.)
 
-current_version = "20250802.1950.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1950 * 0 # Example hash, adjust as needed
+current_version = "20250802.2110.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2110 * 0 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -98,7 +103,7 @@ from tabs.Console.ConsoleTab import ConsoleTab # NEW: Import ConsoleTab directly
 # Import constants from frequency_bands.py
 from ref.frequency_bands import SCAN_BAND_RANGES, MHZ_TO_HZ, VBW_RBW_RATIO
 # NEW: Import scan_modes, attenuation_levels, and frequency_shift_presets for initializing Tkinter variables
-from ref.ref_scanner_setting_lists import scan_modes, attenuation_levels, frequency_shift_presets
+from ref.ref_scanner_setting_lists import scan_modes, attenuation_levels, frequency_shift_presets, graph_quality_drop_down, number_of_scans_presets, rbw_presets, dwell_time_drop_down, cycle_wait_time_presets, reference_level_drop_down
 
 
 class App(tk.Tk):
@@ -561,33 +566,32 @@ class App(tk.Tk):
         self.output_folder_var = tk.StringVar(self, value=self.DATA_FOLDER_PATH)
         self.output_folder_var.trace_add("write", create_trace_callback("output_folder_var"))
 
-        self.num_scan_cycles_var = tk.IntVar(self, value=1)
+        # Initialize with 'value' key from the standardized lists
+        self.num_scan_cycles_var = tk.IntVar(self, value=number_of_scans_presets[0]["value"])
         self.num_scan_cycles_var.trace_add("write", create_trace_callback("num_scan_cycles_var"))
 
-        self.rbw_step_size_hz_var = tk.StringVar(self, value="10000")
+        self.rbw_step_size_hz_var = tk.StringVar(self, value=str(graph_quality_drop_down[0]["value"]))
         self.rbw_step_size_hz_var.trace_add("write", create_trace_callback("rbw_step_size_hz_var"))
 
-        self.cycle_wait_time_seconds_var = tk.StringVar(self, value="0.5")
+        self.cycle_wait_time_seconds_var = tk.StringVar(self, value=str(cycle_wait_time_presets[0]["value"]))
         self.cycle_wait_time_seconds_var.trace_add("write", create_trace_callback("cycle_wait_time_seconds_var"))
 
-        self.maxhold_time_seconds_var = tk.StringVar(self, value="3")
+        self.maxhold_time_seconds_var = tk.StringVar(self, value=str(dwell_time_drop_down[0]["value"]))
         self.maxhold_time_seconds_var.trace_add("write", create_trace_callback("maxhold_time_seconds_var"))
 
-        self.scan_rbw_hz_var = tk.StringVar(self, value="10000")
+        self.scan_rbw_hz_var = tk.StringVar(self, value=str(rbw_presets[0]["value"]))
         self.scan_rbw_hz_var.trace_add("write", create_trace_callback("scan_rbw_hz_var"))
 
-        self.reference_level_dbm_var = tk.StringVar(self, value="-40")
+        self.reference_level_dbm_var = tk.StringVar(self, value=str(reference_level_drop_down[0]["value"]))
         self.reference_level_dbm_var.trace_add("write", create_trace_callback("reference_level_dbm_var"))
 
-        self.attenuation_var = tk.StringVar(self, value=str(attenuation_levels[0]["Value"])) # NEW: Initialize attenuation_var
+        self.attenuation_var = tk.StringVar(self, value=str(attenuation_levels[0]["value"])) # Corrected to 'value'
         self.attenuation_var.trace_add("write", create_trace_callback("attenuation_var"))
 
-        # FIX: Corrected to use frequency_shift_presets and 'shift_hz' key
-        self.freq_shift_var = tk.StringVar(self, value=str(frequency_shift_presets[0]["shift_hz"])) # NEW: Initialize freq_shift_var
+        self.freq_shift_var = tk.StringVar(self, value=str(frequency_shift_presets[0]["value"])) # Corrected to 'value'
         self.freq_shift_var.trace_add("write", create_trace_callback("freq_shift_var"))
 
-        # FIX: Corrected to use scan_modes and 'Value' key
-        self.scan_mode_var = tk.StringVar(self, value=scan_modes[0]["Value"]) # Initialize with first mode
+        self.scan_mode_var = tk.StringVar(self, value=scan_modes[0]["value"]) # Corrected to 'value'
         self.scan_mode_var.trace_add("write", create_trace_callback("scan_mode_var"))
 
         self.maxhold_enabled_var = tk.BooleanVar(self, value=True)
@@ -602,7 +606,7 @@ class App(tk.Tk):
         self.scan_rbw_segmentation_var = tk.StringVar(self, value="1000000.0")
         self.scan_rbw_segmentation_var.trace_add("write", create_trace_callback("scan_rbw_segmentation_var"))
 
-        self.desired_default_focus_width_var = tk.StringVar(self, value="10000000") # Corrected default value to string
+        self.desired_default_focus_width_var = tk.StringVar(self, value=str(graph_quality_drop_down[0]["value"]))
         self.desired_default_focus_width_var.trace_add("write", create_trace_callback("desired_default_focus_width_var"))
 
 
@@ -1128,167 +1132,72 @@ class App(tk.Tk):
 
         self.destroy()
 
-
-    def _ensure_data_directory_exists(self):
-        """
-        Function Description:
-        Ensures that the 'DATA' directory exists at the specified `self.DATA_FOLDER_PATH`.
-        If the directory does not exist, it attempts to create it. This is crucial
-        for storing configuration files, scan data, and other application-related files.
-
-        Inputs to this function:
-            None (operates on self.DATA_FOLDER_PATH).
-
-        Process of this function:
-            1. Prints a debug message indicating the attempt to create the directory.
-            2. Uses `os.makedirs` with `exist_ok=True` to create the directory.
-                `exist_ok=True` prevents an error if the directory already exists (e.g., due to a race condition).
-            3. Prints informative messages to the console about the directory status.
-            4. Includes error handling for potential issues during directory creation.
-
-        Outputs of this function:
-            None. Ensures the 'DATA' directory is available for file operations.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_logic_module.debug_log(f"Ensuring DATA directory exists at: {self.DATA_FOLDER_PATH}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
-        try:
-            os.makedirs(self.DATA_FOLDER_PATH, exist_ok=True)
-            console_logic_module.console_log(f"✅ DATA directory ensured at: {self.DATA_FOLDER_PATH}", function=current_function)
-            debug_logic_module.debug_log(f"DATA directory created or already exists.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                        version=current_version,
-                        function=current_function)
-        except Exception as e:
-            console_logic_module.console_log(f"❌ Error creating DATA directory at {self.DATA_FOLDER_PATH}: {e}. This is a real clusterfuck!", function=current_function)
-            debug_logic_module.debug_log(f"ERROR: Error creating DATA directory: {e}",
-                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                        version=current_version,
-                        function=current_function)
-            raise
-
-    def update_connection_status(self, is_connected, is_scanning):
-        """
-        Function Description:
-        This function updates the state (enabled/disabled) of various GUI elements
-        across different tabs based on the instrument's connection status and
-        the current scan state. It ensures that only relevant
-        actions are available to the user at any given time.
-
-        Inputs:
-            is_connected (bool): True if the instrument is connected, False otherwise.
-            is_scanning (bool): True if a scan is active, False otherwise.
-
-        Outputs:
-            None. Modifies the state of GUI widgets.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_logic_module.debug_log(f"Updating connection status. Connected: {is_connected}, Scanning: {is_scanning}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
-
-        # Call the centralized logic function
-        update_connection_status_logic(
-            app_instance=self,
-            is_connected=is_connected,
-            is_scanning=is_scanning,
-            console_print_func=console_logic_module.console_log
-        )
-
-    def get_tab_instance(self, parent_tab_name, child_tab_name):
-        """
-        Function Description:
-        Retrieves a reference to a specific child tab instance.
-
-        Inputs:
-            parent_tab_name (str): The name of the parent tab (e.g., "Instrument", "Scanning").
-            child_tab_name (str): The name of the child tab (e.g., "Connection", "Scan Control").
-
-        Process:
-            1. Looks up the tab instance in the `self.tab_instances` dictionary.
-            2. Prints a debug message if the tab is found or not.
-
-        Outputs:
-            The Tkinter Frame instance of the requested child tab, or None if not found.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-
-        if parent_tab_name in self.tab_instances and child_tab_name in self.tab_instances[parent_tab_name]:
-            debug_logic_module.debug_log(f"Retrieved tab instance: {parent_tab_name} -> {child_tab_name}.",
-                                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                version=current_version,
-                                function=current_function)
-            return self.tab_instances[parent_tab_name][child_tab_name]
-        else:
-            debug_logic_module.debug_log(f"WARNING: Tab instance not found for {parent_tab_name} -> {child_tab_name}.",
-                                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                version=current_version,
-                                function=current_function)
-            return None
-
-
     def _on_parent_tab_change(self, event):
         """
         Function Description:
-        Handles the event when a parent tab is changed in the main notebook.
-        It updates the visual style of the newly selected tab (making it active)
-        and the previously selected tab (making it inactive). It also propagates
-        the tab selection event to the active child tab within the newly selected
-        parent tab, if that child tab has an `_on_tab_selected` method.
+        Handles the event when the parent tab selection changes.
+        It updates the styling of the parent tabs to reflect the active tab
+        and propagates the `_on_tab_selected` event to the newly selected
+        parent tab and its currently visible child tab.
 
         Inputs:
-            event (tkinter.Event): The event object that triggered the tab change.
-                                    Can be None during initial startup.
+            event (tkinter.Event): The event object, or None if called manually.
 
         Process:
-            1. Prints a debug message.
-            2. Determines the currently selected parent tab's ID and widget.
-            3. Iterates through all parent tabs:
-                a. For each tab, it determines if it's the currently selected one.
-                b. Applies the appropriate 'active' or 'inactive' style to the tab.
-            4. If a child notebook exists for the newly selected parent tab,
-                it identifies the currently active child tab within that notebook.
-            5. If the active child tab has an `_on_tab_selected` method, it calls it,
-                allowing the child tab to refresh its content or state.
+            1. Retrieves the currently selected parent tab's ID and text.
+            2. **Removed: Iteration and direct style application for individual tabs.**
+               The styling based on 'selected' state is handled by `apply_styles`
+               and the `ttk.Style` engine.
+            3. Calls `_on_tab_selected` on the newly selected parent tab if the method exists.
+            4. If the selected parent tab has a child notebook, it then
+               propagates the `_on_tab_selected` event to the active child tab within it.
+            5. Logs debug messages throughout the process.
 
         Outputs:
-            None. Updates parent tab visual styles and triggers child tab updates.
+            None. Updates GUI appearance and triggers tab-specific logic.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_logic_module.debug_log(f"Parent tab changed.",
+        debug_logic_module.debug_log(f"Parent tab changed event triggered. Version: {current_version}. Time to update styles!",
                     file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
-                    function=current_function)
+                    function=current_function,
+                    special=True) # Adding special flag as per your style
 
         selected_tab_id = self.parent_notebook.select()
         selected_tab_text = self.parent_notebook.tab(selected_tab_id, "text")
 
+        # Removed the loop that was causing the "unknown option -style" error.
+        # The dynamic styling based on 'selected' state should be handled by
+        # the apply_styles function in src/style.py, which sets up the style.map
+        # for Parent.TNotebook.Tab. Tkinter's ttk engine will automatically apply
+        # these mapped styles when a tab becomes selected or unselected.
+        # The style.map calls and direct style application on tabs within this loop
+        # were redundant and incorrect.
 
-        for tab_name, tab_widget in self.parent_tab_widgets.items():
-            if tab_name == selected_tab_text:
-                style_name = f'Parent.Tab.{tab_name}.Active'
-            else:
-                style_name = f'Parent.Tab.{tab_name}.Inactive'
+        # Propagate _on_tab_selected to the selected parent tab
+        selected_parent_tab_widget = self.parent_notebook.nametowidget(selected_tab_id)
+        if hasattr(selected_parent_tab_widget, '_on_tab_selected'):
+            selected_parent_tab_widget._on_tab_selected(event)
+            debug_logic_module.debug_log(f"Propagated _on_tab_selected to active parent tab: {selected_parent_tab_widget.winfo_class()}. Version: {current_version}. Looking good!",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_logic_module.debug_log(f"Active parent tab {selected_parent_tab_widget.winfo_class()} has no _on_tab_selected method. What the hell?! Version: {current_version}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
 
-            # Apply the style directly to the tab using the notebook's tab method
-            # This is how ttk.Notebook tab styles are typically updated
-            self.style.configure(f"TNotebook.Tab", background=self.parent_tab_colors[tab_name]["inactive"], foreground=self.parent_tab_colors[tab_name]["fg_inactive"])
-            self.style.map(f"TNotebook.Tab",
-                           background=[("selected", self.parent_tab_colors[tab_name]["active"])],
-                           foreground=[("selected", self.parent_tab_colors[tab_name]["fg_active"])])
-
-
+        # Ensure the currently visible child tab also gets its _on_tab_selected called
+        # This needs to be done after the parent tab's _on_tab_selected, as the parent might change its child selection.
         if selected_tab_text in self.child_notebooks:
-            active_child_notebook = self.child_notebooks[selected_tab_text]
-            selected_child_tab_id = active_child_notebook.select()
+            child_notebook = self.child_notebooks[selected_tab_text]
+            selected_child_tab_id = child_notebook.select()
             if selected_child_tab_id:
-                selected_child_tab_widget = active_child_notebook.nametowidget(selected_child_tab_id)
+                selected_child_tab_widget = child_notebook.nametowidget(selected_child_tab_id)
                 if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                     selected_child_tab_widget._on_tab_selected(event)
-                    debug_logic_module.debug_log(f"Propagated _on_tab_selected to active child tab: {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'.",
+                    debug_logic_module.debug_log(f"Propagated _on_tab_selected to active child tab {selected_child_tab_widget.winfo_class()} in parent '{selected_tab_text}'. Version: {current_version}. All good!",
                                 file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                                 version=current_version,
                                 function=current_function)
@@ -1308,10 +1217,115 @@ class App(tk.Tk):
                         version=current_version,
                         function=current_function)
 
-    # Removed _redirect_stdout_to_console as its functionality is now handled by ConsoleTab
-    # Removed _toggle_general_debug_mode, _toggle_visa_logging_mode, _toggle_debug_to_terminal_mode,
-    # _toggle_debug_to_file_mode, _toggle_include_console_messages_to_debug_file_mode as they are now in ConsoleTab
-    # Removed _clear_debug_log_file_action as it is now in ConsoleTab
+    def update_connection_status(self, is_connected, is_scanning):
+        """
+        Function Description:
+        Updates the connection status label and the flashing state of the Connect/Disconnect button
+        on the Instrument Connection tab. It dynamically changes the button's style
+        based on the connection and scanning status.
+
+        Inputs:
+            is_connected (bool): True if the instrument is connected, False otherwise.
+            is_scanning (bool): True if a scan is currently in progress, False otherwise.
+
+        Process:
+            1. Logs the status update.
+            2. Retrieves the Instrument Connection tab instance.
+            3. If the tab exists:
+                a. Updates the connection status label text.
+                b. Manages the flashing state of the Connect/Disconnect button:
+                    - If scanning, sets it to 'flashing_red'.
+                    - If connected and not scanning, sets it to 'flashing_green'.
+                    - If disconnected, sets it to 'flashing_gray'.
+                c. Updates the button's style.
+            4. If the tab does not exist, logs a warning.
+
+        Outputs:
+            None. Updates GUI elements.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_logic_module.debug_log(f"Updating connection status: Connected={is_connected}, Scanning={is_scanning}. Version: {current_version}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                    version=current_version,
+                    function=current_function)
+
+        instrument_connection_tab = self.tab_instances.get("Instrument", {}).get("Connection")
+
+        if instrument_connection_tab:
+            if is_connected:
+                instrument_connection_tab.connection_status_label.config(text="Status: Connected 🎉", foreground="green")
+            else:
+                instrument_connection_tab.connection_status_label.config(text="Status: Disconnected 💀", foreground="red")
+
+            # Manage flashing state of the Connect/Disconnect button
+            if is_scanning:
+                instrument_connection_tab.connect_button.config(style="FlashingRed.TButton")
+                debug_logic_module.debug_log(f"Connect button style set to FlashingRed.",
+                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            version=current_version,
+                            function=current_function)
+            elif is_connected:
+                instrument_connection_tab.connect_button.config(style="FlashingGreen.TButton")
+                debug_logic_module.debug_log(f"Connect button style set to FlashingGreen.",
+                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            version=current_version,
+                            function=current_function)
+            else:
+                instrument_connection_tab.connect_button.config(style="FlashingGray.TButton")
+                debug_logic_module.debug_log(f"Connect button style set to FlashingGray.",
+                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            version=current_version,
+                            function=current_function)
+        else:
+            debug_logic_module.debug_log(f"WARNING: Instrument Connection tab not found for status update.",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+
+    def get_tab_instance(self, parent_tab_name, child_tab_name=None):
+        """
+        Function Description:
+        Retrieves a specific tab instance from the `tab_instances` dictionary.
+        This provides a centralized way to access tab objects for updating their
+        GUI elements or calling their methods.
+
+        Inputs:
+            parent_tab_name (str): The name of the parent tab (e.g., "Instrument", "Scanning").
+            child_tab_name (str, optional): The name of the child tab within the parent.
+                                            If None, returns the parent tab widget itself.
+
+        Process:
+            1. If `child_tab_name` is provided, it attempts to retrieve the specific
+                child tab instance from the nested dictionary.
+            2. If `child_tab_name` is None, it returns the parent tab widget.
+            3. Includes error handling for cases where the tab is not found.
+
+        Outputs:
+            The requested tab instance, or None if not found.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_logic_module.debug_log(f"Attempting to get tab instance: Parent='{parent_tab_name}', Child='{child_tab_name}'. Version: {current_version}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                    version=current_version,
+                    function=current_function)
+
+        if parent_tab_name not in self.tab_instances:
+            debug_logic_module.debug_log(f"ERROR: Parent tab '{parent_tab_name}' not found in tab_instances.",
+                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        version=current_version,
+                        function=current_function)
+            return None
+
+        if child_tab_name:
+            if child_tab_name not in self.tab_instances[parent_tab_name]:
+                debug_logic_module.debug_log(f"ERROR: Child tab '{child_tab_name}' not found in parent '{parent_tab_name}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            version=current_version,
+                            function=current_function)
+                return None
+            return self.tab_instances[parent_tab_name][child_tab_name]
+        else:
+            return self.parent_tab_widgets.get(parent_tab_name)
 
 if __name__ == "__main__":
     app = App()
