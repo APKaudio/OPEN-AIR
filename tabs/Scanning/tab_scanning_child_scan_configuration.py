@@ -15,6 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.193000.1 (Restored missing text fields and converted band selection to buttons.)
 # Version 20250803.192500.0 (FIXED: Implemented config saving on change and loading of settings into UI.)
 # Version 20250803.183200.0 (Complete refactor from scratch. Standardized widget creation and event handling.)
 
@@ -40,7 +41,7 @@ from ref.ref_scanner_setting_lists import (
     rbw_presets
 )
 
-current_version = "20250803.192500.0"
+current_version = "20250803.193000.1"
 
 class ScanTab(ttk.Frame):
     """
@@ -53,10 +54,7 @@ class ScanTab(ttk.Frame):
         self.console_print_func = console_print_func
 
         self.bands_inner_frame_id = None
-
-        # Store widgets and their associated data for easier access
         self.setting_widgets = {}
-
         self._create_widgets()
         self.after(100, self._on_tab_selected)
 
@@ -84,34 +82,29 @@ class ScanTab(ttk.Frame):
         settings_frame.grid_columnconfigure(2, weight=1)
 
         row_idx = 0
-        self._create_setting_row(settings_frame, row_idx, "graph_quality", "Graph Quality:", self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, "Hz")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "dwell_time", "DWELL (s):", self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, "s")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "max_hold_time", "Max Hold Time (s):", self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, "s")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "scan_rbw", "Scan RBW (Hz):", self.app_instance.scan_rbw_hz_var, rbw_presets, "Hz")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dbm_var, reference_level_drop_down, "dBm")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "frequency_shift", "Frequency Shift (Hz):", self.app_instance.freq_shift_var, frequency_shift_presets, "Hz")
-        row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "num_scan_cycles", "Number of Scan Cycles:", self.app_instance.num_scan_cycles_var, number_of_scans_presets, "cycles")
-        row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "graph_quality", "Graph Quality:", self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, "Hz"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "dwell_time", "DWELL (s):", self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, "s"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "max_hold_time", "Max Hold Time (s):", self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, "s"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "scan_rbw", "Scan RBW (Hz):", self.app_instance.scan_rbw_hz_var, rbw_presets, "Hz"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dbm_var, reference_level_drop_down, "dBm"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "frequency_shift", "Frequency Shift (Hz):", self.app_instance.freq_shift_var, frequency_shift_presets, "Hz"); row_idx += 1
+        self._create_setting_row(settings_frame, row_idx, "num_scan_cycles", "Number of Scan Cycles:", self.app_instance.num_scan_cycles_var, number_of_scans_presets, "cycles"); row_idx += 1
 
         # Boolean settings
-        ttk.Label(settings_frame, text="High Sensitivity:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        hs_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35)
-        hs_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        hs_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.high_sensitivity_var: self._on_boolean_combobox_select(e, v))
-        self.setting_widgets['high_sensitivity'] = {'widget': hs_combo, 'var': self.app_instance.high_sensitivity_var}
-        row_idx += 1
+        ttk.Label(settings_frame, text="High Sensitivity:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
+        hs_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); hs_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
+        hs_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.high_sensitivity_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['high_sensitivity'] = {'widget': hs_combo, 'var': self.app_instance.high_sensitivity_var}; row_idx += 1
 
-        ttk.Label(settings_frame, text="Preamplifier ON:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        pa_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35)
-        pa_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        pa_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.preamp_on_var: self._on_boolean_combobox_select(e, v))
-        self.setting_widgets['preamp_on'] = {'widget': pa_combo, 'var': self.app_instance.preamp_on_var}
+        ttk.Label(settings_frame, text="Preamplifier ON:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
+        pa_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); pa_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
+        pa_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.preamp_on_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['preamp_on'] = {'widget': pa_combo, 'var': self.app_instance.preamp_on_var}; row_idx += 1
+        
+        # --- ADDED BACK: Simple Entry fields ---
+        ttk.Label(settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
+        row_idx += 1
+        ttk.Label(settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
         row_idx += 1
         
         # --- Bands to Scan ---
@@ -139,47 +132,32 @@ class ScanTab(ttk.Frame):
         self.bands_inner_frame.bind('<Configure>', lambda e: self.bands_canvas.configure(scrollregion=self.bands_canvas.bbox("all")))
         self.bands_canvas.bind('<Configure>', lambda e: self.bands_canvas.itemconfigure(self.bands_inner_frame_id, width=e.width))
 
-        self._populate_band_checkboxes()
+        self._populate_band_buttons()
         
     def _create_setting_row(self, parent, row, key, label_text, app_var, data_list, unit=""):
         """Generic function to create and store a labeled combobox row for a setting."""
         ttk.Label(parent, text=label_text).grid(row=row, column=0, padx=5, pady=2, sticky="w")
-        
         display_values = [f"{item['value']} {unit}".strip() + f" - {item['label']}" for item in data_list]
         combo = ttk.Combobox(parent, values=display_values, state="readonly", width=35)
         combo.grid(row=row, column=1, padx=5, pady=2, sticky="w")
-        
         description_var = tk.StringVar(self)
         ttk.Label(parent, textvariable=description_var, wraplength=400, justify="left").grid(row=row, column=2, padx=5, pady=2, sticky="w")
-        
-        combo.bind("<<ComboboxSelected>>", lambda e, v=app_var, d=data_list, dv=description_var, u=unit: 
-                   self._on_combobox_select(e, v, d, dv, u))
-        
-        self.setting_widgets[key] = {
-            'widget': combo,
-            'var': app_var,
-            'data': data_list,
-            'desc_var': description_var,
-            'unit': unit
-        }
+        combo.bind("<<ComboboxSelected>>", lambda e, v=app_var, d=data_list, dv=description_var, u=unit: self._on_combobox_select(e, v, d, dv, u))
+        self.setting_widgets[key] = {'widget': combo, 'var': app_var, 'data': data_list, 'desc_var': description_var, 'unit': unit}
 
     def _on_combobox_select(self, event, app_var, data_list, description_var, unit):
         """Generic event handler for our settings comboboxes."""
         selected_display = event.widget.get()
-        
         found_item = None
         for item in data_list:
             item_display = f"{item['value']} {unit}".strip() + f" - {item['label']}"
             if selected_display == item_display:
                 found_item = item
                 break
-        
         if found_item:
             app_var.set(found_item['value'])
             description_var.set(found_item['description'])
             save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        else:
-            debug_log(f"FUCK! Could not find a match for '{selected_display}' in the data list.", file=f"{os.path.basename(__file__)}", function="_on_combobox_select")
 
     def _on_boolean_combobox_select(self, event, app_var):
         """Handler specifically for 'Yes'/'No' comboboxes."""
@@ -191,26 +169,16 @@ class ScanTab(ttk.Frame):
         """Helper to find and set the display text and description for a given raw value."""
         widget_info = self.setting_widgets.get(key)
         if not widget_info: return
-
-        combo = widget_info['widget']
-        app_var = widget_info['var']
-        data_list = widget_info['data']
-        desc_var = widget_info['desc_var']
-        unit = widget_info['unit']
-        
+        combo, app_var, data_list, desc_var, unit = widget_info['widget'], widget_info['var'], widget_info['data'], widget_info['desc_var'], widget_info['unit']
         current_value = app_var.get()
         found_item = None
-        
         for item in data_list:
-            # Use a tolerance for float comparison
-            if isinstance(current_value, float):
-                if abs(float(item['value']) - current_value) < 1e-9:
-                    found_item = item
-                    break
+            if isinstance(current_value, float) and abs(float(item['value']) - current_value) < 1e-9:
+                found_item = item
+                break
             elif str(item['value']) == str(current_value):
                 found_item = item
                 break
-        
         if found_item:
             display_text = f"{found_item['value']} {unit}".strip() + f" - {found_item['label']}"
             combo.set(display_text)
@@ -222,33 +190,66 @@ class ScanTab(ttk.Frame):
     def _load_settings_into_ui(self):
         """Populates all UI elements with values from the app_instance variables."""
         for key in self.setting_widgets:
-            if key in ['high_sensitivity', 'preamp_on']: # Handle booleans
+            if key in ['high_sensitivity', 'preamp_on']:
                 widget_info = self.setting_widgets[key]
                 widget_info['widget'].set("Yes" if widget_info['var'].get() else "No")
             else:
                 self._set_combobox_display_from_value(key)
 
-    def _populate_band_checkboxes(self):
-        """Populates the scrollable frame with band selection checkboxes."""
+    def _populate_band_buttons(self):
+        """Populates the scrollable frame with band selection buttons."""
         for widget in self.bands_inner_frame.winfo_children():
             widget.destroy()
+        
+        self.bands_inner_frame.grid_columnconfigure(0, weight=1)
+        self.bands_inner_frame.grid_columnconfigure(1, weight=1)
 
         for i, band_item in enumerate(self.app_instance.band_vars):
             band = band_item["band"]
             var = band_item["var"]
-            text = f"{band['Band Name']} ({band['Start MHz']:.3f} - {band['Stop MHz']:.3f} MHz)"
-            cb = ttk.Checkbutton(self.bands_inner_frame, text=text, variable=var, style='TCheckbutton',
-                                 command=lambda: save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance))
-            cb.grid(row=i, column=0, sticky="w", padx=5, pady=2)
+            
+            button_text = f"{band['Band Name']}\nStart: {band['Start MHz']:.3f} MHz\nStop: {band['Stop MHz']:.3f} MHz"
+            
+            btn = ttk.Button(self.bands_inner_frame, text=button_text)
+            band_item['widget'] = btn # Store widget reference
+            
+            btn.configure(command=lambda v=var, b=btn: self._on_band_button_toggle(v, b))
+            
+            style = "Band.Selected.TButton" if var.get() else "Band.TButton"
+            btn.configure(style=style)
+
+            row, col = divmod(i, 2)
+            btn.grid(row=row, column=col, sticky="ew", padx=2, pady=2)
+
+    def _on_band_button_toggle(self, band_var, button_widget):
+        """Toggles the state of a band and updates its button style."""
+        new_state = not band_var.get()
+        band_var.set(new_state)
+        
+        style = "Band.Selected.TButton" if new_state else "Band.TButton"
+        button_widget.configure(style=style)
+        
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+
+    def _update_all_band_button_styles(self):
+        """Updates the style of all band buttons to match their variable state."""
+        for band_item in self.app_instance.band_vars:
+            var = band_item["var"]
+            widget = band_item.get("widget")
+            if widget:
+                style = "Band.Selected.TButton" if var.get() else "Band.TButton"
+                widget.configure(style=style)
 
     def _select_all_bands(self):
         for band_item in self.app_instance.band_vars:
             band_item["var"].set(True)
+        self._update_all_band_button_styles()
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _deselect_all_bands(self):
         for band_item in self.app_instance.band_vars:
             band_item["var"].set(False)
+        self._update_all_band_button_styles()
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _browse_output_folder(self):
