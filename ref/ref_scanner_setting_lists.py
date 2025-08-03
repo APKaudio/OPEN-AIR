@@ -244,3 +244,83 @@ scan_modes = [
     {"label": "Max Hold", "value": "MAX_HOLD", "description": "Max hold trace mode"},
     {"label": "Min Hold", "value": "MIN_HOLD", "description": "Min hold trace mode"},
 ]
+
+def display_graph_quality_drop_down():
+    """
+    Prints the content of graph_quality_drop_down in a readable format.
+    """
+    print("\n--- GRAPH QUALITY OPTIONS ---")
+    for item in graph_quality_drop_down:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_dwell_time_drop_down():
+    """
+    Prints the content of dwell_time_drop_down in a readable format.
+    """
+    print("\n--- DWELL TIME OPTIONS ---")
+    for item in dwell_time_drop_down:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_cycle_wait_time_presets():
+    """
+    Prints the content of cycle_wait_time_presets in a readable format.
+    """
+    print("\n--- CYCLE WAIT TIME PRESETS ---")
+    for item in cycle_wait_time_presets:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_reference_level_drop_down():
+    """
+    Prints the content of reference_level_drop_down in a readable format.
+    """
+    print("\n--- REFERENCE LEVEL OPTIONS ---")
+    for item in reference_level_drop_down:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_frequency_shift_presets():
+    """
+    Prints the content of frequency_shift_presets in a readable format.
+    """
+    print("\n--- FREQUENCY SHIFT PRESETS ---")
+    for item in frequency_shift_presets:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_number_of_scans_presets():
+    """
+    Prints the content of number_of_scans_presets in a readable format.
+    """
+    print("\n--- NUMBER OF SCANS PRESETS ---")
+    for item in number_of_scans_presets:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_rbw_presets():
+    """
+    Prints the content of rbw_presets in a readable format.
+    """
+    print("\n--- RBW PRESETS ---")
+    for item in rbw_presets:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_attenuation_levels():
+    """
+    Prints the content of attenuation_levels in a readable format.
+    """
+    print("\n--- ATTENUATION LEVELS ---")
+    for item in attenuation_levels:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_frequency_shifts():
+    """
+    Prints the content of frequency_shifts in a readable format.
+    """
+    print("\n--- FREQUENCY SHIFTS ---")
+    for item in frequency_shifts:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")
+
+def display_scan_modes():
+    """
+    Prints the content of scan_modes in a readable format.
+    """
+    print("\n--- SCAN MODES ---")
+    for item in scan_modes:
+        print(f"Label: {item['label']}, Value: {item['value']}, Description: {item['description']}")

@@ -23,9 +23,10 @@
 # Version 20250803.1400.0 (Corrected passing of app_instance to connect_instrument_logic and disconnect_instrument_logic.)
 # Version 20250803.1655.0 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'selected_resource' by changing to 'selected_visa_resource_var'.)
 # Version 20250803.1700.0 (Refactored apply_instrument_settings_logic into a new utility file.)
+# Version 20250803.1705.0 (Fixed ImportError for initialize_instrument_logic by importing from utils_instrument_initialize.py.)
 
-current_version = "20250803.1700.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1700 * 0 # Example hash, adjust as needed
+current_version = "20250803.1705.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1705 * 0 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -40,7 +41,6 @@ from src.console_logic import console_log
 from tabs.Instrument.instrument_logic import (
     connect_instrument_logic,
     disconnect_instrument_logic,
-    initialize_instrument_logic
 )
 
 # Import utility functions for instrument connection
@@ -51,6 +51,9 @@ from tabs.Instrument.utils_instrument_apply_settings import apply_instrument_set
 
 # Import utility for querying settings
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
+
+# Import utility for initializing instrument
+from tabs.Instrument.utils_instrument_initialize import initialize_instrument_logic
 
 # Import ref data
 from ref.ref_scanner_setting_lists import (
