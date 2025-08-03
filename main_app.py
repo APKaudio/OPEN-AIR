@@ -28,9 +28,10 @@
 # Version 20250802.2100.0 (CRITICAL FIX: Restored full file content after previous truncation and verified all 'value' key usages.)
 # Version 20250802.2105.0 (FIXED: TclError: Invalid slave specification in _on_parent_tab_change by correcting tab iteration logic.)
 # Version 20250802.2110.0 (FIXED: TclError: unknown option "-style" by removing incorrect style application in _on_parent_tab_change.)
+# Version 20250802.2246.0 (Fixed TypeError: apply_styles() takes 3 positional arguments but 4 were given by removing parent_tab_colors argument.)
 
-current_version = "20250802.2110.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 2110 * 0 # Example hash, adjust as needed
+current_version = "20250802.2246.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2246 * 0 # Example hash, adjust as needed
 
 
 # Project file structure
@@ -204,30 +205,32 @@ class App(tk.Tk):
         self.MHZ_TO_HZ = MHZ_TO_HZ
         self.VBW_RBW_RATIO = VBW_RBW_RATIO
 
-        # Parent Tab Colors
-        PARENT_INSTRUMENT_ACTIVE = "#FF0000"
-        PARENT_INSTRUMENT_INACTIVE = "#660C0C"
-        PARENT_SCANNING_ACTIVE = "#FF6600"
-        PARENT_SCANNING_INACTIVE = "#926002"
-        PARENT_PLOTTING_ACTIVE = "#D1D10E"
-        PARENT_PLOTTING_INACTIVE = "#72720A"
-        PARENT_MARKERS_ACTIVE = "#319131"
-        PARENT_MARKERS_INACTIVE = "#1B4B1B"
-        PARENT_PRESETS_ACTIVE = "#0303C9"
-        PARENT_PRESETS_INACTIVE = "#00008B"
-        ACCENT_PURPLE = "#6f42c1"
-        PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
-        PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
+        # Parent Tab Colors - These are now defined in src/style.py's COLOR_PALETTE
+        # and are no longer needed as a separate attribute here.
+        # PARENT_INSTRUMENT_ACTIVE = "#FF0000"
+        # PARENT_INSTRUMENT_INACTIVE = "#660C0C"
+        # PARENT_SCANNING_ACTIVE = "#FF6600"
+        # PARENT_SCANNING_INACTIVE = "#926002"
+        # PARENT_PLOTTING_ACTIVE = "#D1D10E"
+        # PARENT_PLOTTING_INACTIVE = "#72720A"
+        # PARENT_MARKERS_ACTIVE = "#319131"
+        # PARENT_MARKERS_INACTIVE = "#1B4B1B"
+        # PARENT_PRESETS_ACTIVE = "#0303C9"
+        # PARENT_PRESETS_INACTIVE = "#00008B"
+        # ACCENT_PURPLE = "#6f42c1"
+        # PARENT_EXPERIMENTS_ACTIVE = ACCENT_PURPLE
+        # PARENT_EXPERIMENTS_INACTIVE = "#4d2482"
 
-        # Store parent tab color mappings for dynamic updates
-        self.parent_tab_colors = {
-            "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
-            "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
-            "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-            "EXPERIMENTS": {"active": PARENT_EXPERIMENTS_ACTIVE, "inactive": PARENT_EXPERIMENTS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
-        }
+        # Store parent tab color mappings for dynamic updates - This will now be accessed via COLOR_PALETTE['parent_tabs']
+        # self.parent_tab_colors = {
+        #     "INSTRUMENT": {"active": PARENT_INSTRUMENT_ACTIVE, "inactive": PARENT_INSTRUMENT_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+        #     "SCANNING": {"active": PARENT_SCANNING_ACTIVE, "inactive": PARENT_SCANNING_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+        #     "PLOTTING": {"active": PARENT_PLOTTING_ACTIVE, "inactive": PARENT_PLOTTING_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
+        #     "MARKERS": {"active": PARENT_MARKERS_ACTIVE, "inactive": PARENT_MARKERS_INACTIVE, "fg_active": "black", "fg_inactive": "#cccccc"},
+        #     "PRESETS": {"active": PARENT_PRESETS_ACTIVE, "inactive": PARENT_PRESETS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+        #     "EXPERIMENTS": {"active": PARENT_EXPERIMENTS_ACTIVE, "inactive": PARENT_EXPERIMENTS_INACTIVE, "fg_active": "white", "fg_inactive": "#cccccc"},
+        # }
+
 
         self._setup_tkinter_vars()
 
@@ -1051,7 +1054,8 @@ class App(tk.Tk):
                     file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                     version=current_version,
                     function=current_function)
-        apply_styles(self.style, debug_logic_module.debug_log, current_version, self.parent_tab_colors)
+        # Removed self.parent_tab_colors as it's now handled internally by apply_styles via COLOR_PALETTE
+        apply_styles(self.style, debug_logic_module.debug_log, current_version)
 
 
     def _on_window_configure(self, event):

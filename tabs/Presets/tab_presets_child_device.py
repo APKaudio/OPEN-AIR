@@ -15,9 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.1800.1 (New file for Device Presets, migrated from old tab_presets_child_preset.py)
+# Version 20250802.2235.0 (Updated import and call for saving presets to use overwrite_user_presets_csv.)
+# Version 20250802.2238.0 (Corrected import and call for query_device_presets_logic.)
+# Version 20250802.2245.1 (Updated to use COLOR_PALETTE from style.py for Listbox styling.)
 
-current_version = "20250802.1800.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1800 * 1 # Example hash, adjust as needed
+current_version = "20250802.2245.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250802 * 2245 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -29,349 +32,334 @@ from datetime import datetime # For timestamping user presets
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
+# Import the COLOR_PALETTE from style.py
+from src.style import COLOR_PALETTE
 
-# Import functions from the newly refactored preset utility modules
-from tabs.Presets.utils_preset_query_and_load import query_device_presets_logic, load_selected_preset_logic
-from tabs.Presets.utils_preset_process import save_user_preset_to_csv, load_user_presets_from_csv # Need this for saving current settings as user preset
+# Import functions from preset utility modules
+from tabs.Presets.utils_preset_query_and_load import load_selected_preset_logic, query_device_presets_logic
+from tabs.Presets.utils_preset_process import load_user_presets_from_csv, overwrite_user_presets_csv
+
+# Import instrument-related utilities
+from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
 
 class DevicePresetsTab(ttk.Frame):
-    """
-    A Tkinter Frame that provides functionality for managing instrument-defined presets.
-    It includes sections for querying presets from the connected instrument and
-    loading selected presets.
-    """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
-        """
-        Initializes the DevicePresetsTab.
-
-        Inputs:
-            master (tk.Widget): The parent widget (the ttk.Notebook).
-            app_instance (App): The main application instance, used for accessing
-                                shared state like instrument connection, Tkinter variables,
-                                and console print function.
-            console_print_func (function): Function to print messages to the GUI console.
-            style_obj (ttk.Style): The ttk.Style object for applying custom styles.
-            **kwargs: Arbitrary keyword arguments for Tkinter Frame.
-        """
-        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
-        super().__init__(master, **filtered_kwargs)
+    def __init__(self, parent, app_instance, console_print_func, style_obj, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
         self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else console_log
-        self.style_obj = style_obj # Store the style object
-
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing DevicePresetsTab. Version: {current_version}. Let's get these device presets organized!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-
-        self._create_widgets()
-        self.instrument_presets = [] # To store names of presets from the instrument
+        self.console_print_func = console_print_func
+        self.style_obj = style_obj # Store the style object (though we'll use COLOR_PALETTE directly for Listbox)
         self.cached_user_presets = {} # To store user presets for nickname lookup
 
-        # Initial population of device presets (if connected)
-        self._query_device_presets()
+        self.create_widgets()
+        self.setup_layout()
+        self.bind_events()
 
-        debug_log(f"DevicePresetsTab initialized. Version: {current_version}. Ready to rock and roll with device presets!",
+        # Initial check for connection status
+        is_connected = self.app_instance.inst is not None
+        instrument_model = self.app_instance.connected_instrument_model.get() if hasattr(self.app_instance, 'connected_instrument_model') else ""
+        self.on_connection_status_changed(is_connected, instrument_model)
+
+        debug_log(f"DevicePresetsTab initialized. Version: {current_version}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
-                    function=current_function)
+                    function=inspect.currentframe().f_code.co_name)
 
-    def _create_widgets(self):
-        """
-        Creates and arranges the widgets for the Device Presets tab.
-        This includes sections for Instrument Presets and a button to save current settings.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Creating DevicePresetsTab widgets...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+    def create_widgets(self):
+        # Frame for Device Presets controls
+        self.device_presets_frame = ttk.LabelFrame(self, text="Device Presets", style='Custom.TLabelframe')
+        self.device_presets_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1) # Listboxes row
-        self.grid_rowconfigure(1, weight=0) # Save button row
-
-        # --- Instrument Presets Section ---
-        instrument_preset_frame = ttk.LabelFrame(self, text="Instrument Presets (from Device)", style='Dark.TLabelframe')
-        instrument_preset_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew", columnspan=2)
-        instrument_preset_frame.grid_columnconfigure(0, weight=1)
-        instrument_preset_frame.grid_rowconfigure(0, weight=0) # Button row
-        instrument_preset_frame.grid_rowconfigure(1, weight=1) # Listbox row
-
-        self.query_device_presets_button = ttk.Button(instrument_preset_frame, text="Query Device Presets", command=self._query_device_presets, style='Blue.TButton')
+        # Query Device Presets Button
+        self.query_device_presets_button = ttk.Button(self.device_presets_frame,
+                                                    text="Query Device Presets",
+                                                    command=self.query_and_populate_device_presets,
+                                                    style='TButton')
         self.query_device_presets_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.query_device_presets_button.config(state=tk.DISABLED) # Start disabled
 
-        # Inner frame for MON and Other presets listboxes
-        listbox_container_frame = ttk.Frame(instrument_preset_frame, style='Dark.TFrame')
-        listbox_container_frame.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
-        listbox_container_frame.grid_columnconfigure(0, weight=1)
-        listbox_container_frame.grid_columnconfigure(1, weight=1)
-        listbox_container_frame.grid_rowconfigure(0, weight=1)
+        # Device Presets Listbox
+        self.device_preset_listbox_label = ttk.Label(self.device_presets_frame, text="Available Device Presets:")
+        self.device_preset_listbox_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
 
-        # MON Presets Listbox
-        mon_frame = ttk.LabelFrame(listbox_container_frame, text="MON Presets", style='Dark.TLabelframe')
-        mon_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        mon_frame.grid_columnconfigure(0, weight=1)
-        mon_frame.grid_rowconfigure(0, weight=1)
-        self.mon_preset_listbox = tk.Listbox(mon_frame, bg="#2b2b2b", fg="#cccccc", selectbackground="#4a4a4a", selectforeground="white")
-        self.mon_preset_listbox.grid(row=0, column=0, sticky="nsew")
-        self.mon_preset_listbox.bind("<<ListboxSelect>>", self._on_instrument_preset_selected)
-        mon_scrollbar = ttk.Scrollbar(mon_frame, orient="vertical", command=self.mon_preset_listbox.yview)
-        mon_scrollbar.grid(row=0, column=1, sticky="ns")
-        self.mon_preset_listbox.config(yscrollcommand=mon_scrollbar.set)
+        self.device_preset_listbox_frame = ttk.Frame(self.device_presets_frame, style='TFrame')
+        self.device_preset_listbox_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
 
-        # Other Presets Listbox
-        other_frame = ttk.LabelFrame(listbox_container_frame, text="Other Presets", style='Dark.TLabelframe')
-        other_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
-        other_frame.grid_columnconfigure(0, weight=1)
-        other_frame.grid_rowconfigure(0, weight=1)
-        self.other_preset_listbox = tk.Listbox(other_frame, bg="#2b2b2b", fg="#cccccc", selectbackground="#4a4a4a", selectforeground="white")
-        self.other_preset_listbox.grid(row=0, column=0, sticky="nsew")
-        self.other_preset_listbox.bind("<<ListboxSelect>>", self._on_instrument_preset_selected)
-        other_scrollbar = ttk.Scrollbar(other_frame, orient="vertical", command=self.other_preset_listbox.yview)
-        other_scrollbar.grid(row=0, column=1, sticky="ns")
-        self.other_preset_listbox.config(yscrollcommand=other_scrollbar.set)
+        self.device_preset_listbox = tk.Listbox(self.device_preset_listbox_frame, height=10, width=50,
+                                                selectmode=tk.SINGLE, exportselection=False,
+                                                bg=COLOR_PALETTE.get('input_bg'), # Use COLOR_PALETTE
+                                                fg=COLOR_PALETTE.get('input_fg'), # Use COLOR_PALETTE
+                                                selectbackground=COLOR_PALETTE.get('select_bg'), # Use COLOR_PALETTE
+                                                selectforeground=COLOR_PALETTE.get('select_fg')) # Use COLOR_PALETTE
+        self.device_preset_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+        self.device_preset_scrollbar = ttk.Scrollbar(self.device_preset_listbox_frame, orient="vertical", command=self.device_preset_listbox.yview)
+        self.device_preset_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        self.device_preset_listbox.config(yscrollcommand=self.device_preset_scrollbar.set)
 
-        # --- Save Current Settings as User Preset Button ---
-        ttk.Button(self, text="Save Current Instrument Settings as Local User Preset", command=self._save_current_settings_as_user_preset, style='Green.TButton').grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
+        # Load Device Preset Button
+        self.load_device_preset_button = ttk.Button(self.device_presets_frame,
+                                                    text="Load Selected Device Preset",
+                                                    command=self.load_selected_device_preset,
+                                                    style='TButton')
+        self.load_device_preset_button.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.load_device_preset_button.config(state=tk.DISABLED) # Start disabled
 
-        debug_log("DevicePresetsTab widgets created. Ready to interact with the device!",
+        # --- Save Current Settings as User Preset ---
+        self.save_current_frame = ttk.LabelFrame(self, text="Save Current Instrument Settings as User Preset", style='Custom.TLabelframe')
+        self.save_current_frame.grid(row=4, column=0, padx=10, pady=10, sticky="ew")
+
+        self.filename_label = ttk.Label(self.save_current_frame, text="Filename (e.g., MY_PRESET.STA):")
+        self.filename_label.grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.filename_entry = ttk.Entry(self.save_current_frame, style='TEntry')
+        self.filename_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+
+        self.nickname_label = ttk.Label(self.save_current_frame, text="Nickname (optional):")
+        self.nickname_label.grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        self.nickname_entry = ttk.Entry(self.save_current_frame, style='TEntry')
+        self.nickname_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+
+        self.save_current_button = ttk.Button(self.save_current_frame,
+                                            text="Save Current Settings to PRESETS.CSV",
+                                            command=self.save_current_settings_as_user_preset,
+                                            style='TButton')
+        self.save_current_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.save_current_button.config(state=tk.DISABLED) # Start disabled
+
+    def setup_layout(self):
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.device_presets_frame.grid_columnconfigure(0, weight=1)
+        self.device_preset_listbox_frame.grid_columnconfigure(0, weight=1)
+        self.save_current_frame.grid_columnconfigure(1, weight=1)
+
+    def bind_events(self):
+        self.device_preset_listbox.bind("<<ListboxSelect>>", self.on_device_preset_select)
+        # Bind the connection status change event
+        self.app_instance.bind("<<ConnectionStatusChanged>>", self._handle_connection_status_change_event)
+
+    def _handle_connection_status_change_event(self, event=None):
+        """
+        Internal handler for the custom <<ConnectionStatusChanged>> event.
+        Extracts status and model from the event and calls on_connection_status_changed.
+        """
+        is_connected = self.app_instance.inst is not None
+        instrument_model = self.app_instance.connected_instrument_model.get() if hasattr(self.app_instance, 'connected_instrument_model') else ""
+        self.on_connection_status_changed(is_connected, instrument_model)
+
+    def on_connection_status_changed(self, is_connected, instrument_model):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Connection status changed event received in DevicePresetsTab: Connected={is_connected}, Model={instrument_model}. Updating UI state.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+
+        # Enable/disable "Query Device Presets" and "Load Selected Device Preset" buttons
+        if is_connected and "N9342CN" in instrument_model:
+            self.query_device_presets_button.config(state=tk.NORMAL)
+            self.load_device_preset_button.config(state=tk.NORMAL)
+            self.save_current_button.config(state=tk.NORMAL) # Enable Save button
+            if not self.device_preset_listbox.get(0, tk.END): # Only auto-query if list is empty
+                self.query_and_populate_device_presets() # Auto-query when connected to N9342CN
+        else:
+            self.query_device_presets_button.config(state=tk.DISABLED)
+            self.load_device_preset_button.config(state=tk.DISABLED)
+            self.save_current_button.config(state=tk.DISABLED) # Disable Save button
+            self.populate_device_preset_listboxes([]) # Clear displayed presets
+            self.console_print_func("⚠️ Query Device Presets button disabled (not connected or not N9342CN).")
+
+    def query_and_populate_device_presets(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Querying device presets. Getting the list of presets from the instrument. Version: {current_version}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        if self.app_instance.inst:
+            presets = query_device_presets_logic(self.app_instance, self.console_print_func)
+            self.populate_device_preset_listboxes(presets)
+            if presets:
+                self.console_print_func(f"✅ Found {len(presets)} device presets.")
+            else:
+                self.console_print_func("ℹ️ No device presets found or instrument does not support preset querying.")
+        else:
+            self.console_print_func("❌ Instrument not connected. Cannot query device presets.")
+            debug_log("Instrument not connected. Cannot query device presets. What a mess!",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
     def populate_device_preset_listboxes(self, presets):
-        """
-        Populates the MON and Other preset listboxes with names of presets found on the device.
-        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Populating device preset listboxes with {len(presets)} presets. Get ready for some data!",
+        debug_log(f"Populating device preset listbox with {len(presets)} entries. Filling up the display!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        self.device_preset_listbox.delete(0, tk.END)
+        for preset in presets:
+            self.device_preset_listbox.insert(tk.END, preset)
+        debug_log("Device preset listbox populated.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-        self.mon_preset_listbox.delete(0, tk.END)
-        self.other_preset_listbox.delete(0, tk.END)
-        self.instrument_presets = presets # Store the actual list
-
-        mon_presets = sorted([p for p in presets if "MON" in p.upper()])
-        other_presets = sorted([p for p in presets if "MON" not in p.upper()])
-
-        for preset_name in mon_presets:
-            self.mon_preset_listbox.insert(tk.END, preset_name)
-        for preset_name in other_presets:
-            self.other_preset_listbox.insert(tk.END, preset_name)
-
-        debug_log("Device preset listboxes populated. Mission accomplished!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-
-    def _query_device_presets(self):
-        """
-        Initiates the process of querying available presets from the connected instrument.
-        This button is only active if the connected device is "N9342CN".
-        """
+    def on_device_preset_select(self, event):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Calling query_device_presets_logic... Time to talk to the instrument!",
+        debug_log(f"Device preset selected event triggered. Let's see what's chosen! Version: {current_version}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-
-        if not self.app_instance.inst:
-            self.console_print_func("⚠️ Not connected to an instrument. Cannot query device presets.")
-            debug_log("No instrument connected for querying device presets. Aborting.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            self.query_device_presets_button.config(state=tk.DISABLED)
-            return
-
-        # Check if the connected device is N9342CN
-        if hasattr(self.app_instance, 'connected_instrument_model') and \
-           self.app_instance.connected_instrument_model.get() == "N9342CN":
-            self.query_device_presets_button.config(state=tk.NORMAL)
-            self.instrument_presets = query_device_presets_logic(self.app_instance, self.console_print_func)
-            self.populate_device_preset_listboxes(self.instrument_presets)
+        # Enable/disable Load button based on selection
+        if self.device_preset_listbox.curselection():
+            self.load_device_preset_button.config(state=tk.NORMAL)
         else:
-            self.console_print_func("⚠️ Device is not N9342CN. Cannot query device presets (feature limited to N9342CN).")
-            debug_log("Device is not N9342CN. Disabling query device presets button.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            self.query_device_presets_button.config(state=tk.DISABLED)
-            self.populate_device_preset_listboxes([]) # Clear displayed presets if not N9342CN
+            self.load_device_preset_button.config(state=tk.DISABLED)
+        debug_log("Device preset selection handled.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
-    def _on_instrument_preset_selected(self, event):
-        """
-        Handles selection of an instrument preset from either listbox.
-        Loads the selected preset onto the instrument.
-        """
+    def load_selected_device_preset(self):
         current_function = inspect.currentframe().f_code.co_name
-        
-        # Determine which listbox was clicked
-        if event.widget == self.mon_preset_listbox:
-            selected_indices = self.mon_preset_listbox.curselection()
-            listbox_type = "MON"
-        elif event.widget == self.other_preset_listbox:
-            selected_indices = self.other_preset_listbox.curselection()
-            listbox_type = "Other"
-        else:
-            return # Not a listbox we care about
-
-        if selected_indices:
-            index = selected_indices[0]
-            selected_preset_name = event.widget.get(index)
-            self.console_print_func(f"Selected {listbox_type} instrument preset: {selected_preset_name}")
-            debug_log(f"Instrument preset selected: {selected_preset_name}. Let's load this bad boy!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-
-            # Update the app_instance's last selected preset name
-            self.app_instance.last_selected_preset_name_var.set(selected_preset_name)
-
-            # Call the logic to load the preset and update GUI settings
-            success, center_freq, span, rbw = load_selected_preset_logic(self.app_instance, selected_preset_name, self.console_print_func)
+        debug_log(f"Loading selected device preset. Applying the magic! Version: {current_version}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        selected_index = self.device_preset_listbox.curselection()
+        if selected_index:
+            selected_preset_name = self.device_preset_listbox.get(selected_index[0])
+            self.console_print_func(f"Attempting to load device preset: {selected_preset_name}...")
+            # For device presets, load_selected_preset_logic will directly use the name
+            success, center, span, rbw = load_selected_preset_logic(
+                self.app_instance,
+                self.console_print_func,
+                selected_preset_name,
+                preset_type='device' # Indicate that this is a device preset
+            )
             if success:
-                self.console_print_func(f"✅ Instrument preset '{selected_preset_name}' loaded. Success!")
-                debug_log(f"Instrument preset '{selected_preset_name}' loaded successfully. BOOM!",
+                self.console_print_func(f"✅ Successfully loaded device preset: {selected_preset_name}.")
+                debug_log(f"Device preset '{selected_preset_name}' loaded successfully. Good job!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
-
-                # Update the app_instance's loaded preset details for display in other tabs
-                self.app_instance.last_loaded_preset_center_freq_mhz_var.set(f"{center_freq / self.app_instance.MHZ_TO_HZ:.3f}")
-                self.app_instance.last_loaded_preset_span_mhz_var.set(f"{span / self.app_instance.MHZ_TO_HZ:.3f}")
-                self.app_instance.last_loaded_preset_rbw_hz_var.set(f"{rbw:.0f}")
-
-                # Ensure the Instrument tab's display updates
-                if hasattr(self.app_instance, 'instrument_parent_tab') and \
-                   hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
-                   hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
-                    self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
             else:
-                self.console_print_func(f"❌ Failed to load instrument preset '{selected_preset_name}'. This is a nightmare!")
-                debug_log(f"Failed to load instrument preset '{selected_preset_name}'. What the hell happened?!",
+                self.console_print_func(f"❌ Failed to load device preset: {selected_preset_name}. Something went wrong!")
+                debug_log(f"Failed to load device preset '{selected_preset_name}'. This is a disaster!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
+        else:
+            self.console_print_func("⚠️ No device preset selected to load. Pick one!")
+            debug_log("No device preset selected to load.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
-    def _save_current_settings_as_user_preset(self):
-        """
-        Prompts the user for a preset name and saves the current instrument settings
-        (Center Freq, Span, RBW, Markers) as a new user-defined preset to the CSV file.
-        """
+    def save_current_settings_as_user_preset(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Attempting to save current settings as user preset... Let's make this happen!",
+        debug_log(f"Saving current settings as user preset. Getting all the goodies! Version: {current_version}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-        # First, query the current instrument settings
-        if not self.app_instance.inst:
-            self.console_print_func("⚠️ No instrument connected. Cannot save current settings as preset. Connect the damn thing first!")
-            debug_log("No instrument connected, cannot save current settings as preset. Fucking useless!",
+        filename = self.filename_entry.get().strip()
+        nickname = self.nickname_entry.get().strip()
+
+        if not filename:
+            self.console_print_func("❌ Filename cannot be empty. Please enter a filename.")
+            debug_log("Filename for new preset was empty. User needs to provide one.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return
 
-        # Use the _query_current_settings method from the Instrument Connection tab
-        # This method is expected to query the instrument and update the app_instance's Tkinter variables
-        # and also return the queried values.
-        if hasattr(self.app_instance, 'instrument_parent_tab') and \
-           hasattr(self.app_instance.instrument_parent_tab, 'instrument_connection_tab') and \
-           hasattr(self.app_instance.instrument_parent_tab.instrument_connection_tab, '_query_current_settings'):
-            # Call the _query_current_settings method which now returns the queried values
-            center_freq_mhz, span_mhz, rbw_hz, ref_level_dbm, preamp_on, high_sensitivity = \
-                self.app_instance.instrument_parent_tab.instrument_connection_tab._query_current_settings()
+        if not filename.endswith(".STA"):
+            filename += ".STA"
 
-            # Convert MHz back to Hz for saving if necessary, or ensure query returns Hz
-            center_freq_hz = center_freq_mhz * self.app_instance.MHZ_TO_HZ
-            span_hz = span_mhz * self.app_instance.MHZ_TO_HZ
+        # Query current instrument settings
+        current_settings = query_current_instrument_settings(self.app_instance, self.console_print_func)
+        if not current_settings:
+            self.console_print_func("❌ Could not retrieve current instrument settings to save.")
+            debug_log("Failed to retrieve current instrument settings. Cannot save preset.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            return
 
-            # Placeholder for Markers - in a real scenario, you'd query these from the instrument
-            # For now, let's assume no markers are set or a default value
-            markers_data = "N/A" # You would query this from the instrument if available
+        # Prepare the new preset dictionary, ensuring all fields are present
+        new_preset = {
+            'Filename': filename,
+            'NickName': nickname,
+            'Center': str(current_settings.get('center_freq_hz', 0.0)),
+            'Span': str(current_settings.get('span_freq_hz', 0.0)),
+            'RBW': str(current_settings.get('rbw_hz', 0.0)),
+            'VBW': str(current_settings.get('vbw_hz', '')),
+            'RefLevel': str(current_settings.get('ref_level_dbm', '')),
+            'Attenuation': str(current_settings.get('attenuation_db', '')),
+            'MaxHold': current_settings.get('max_hold_enabled', 'OFF'), # Stored as ON/OFF, not boolean
+            'HighSens': current_settings.get('high_sensitivity_enabled', 'OFF'), # Stored as ON/OFF
+            'PreAmp': current_settings.get('preamp_enabled', 'OFF'), # Stored as ON/OFF
+            'Trace1Mode': current_settings.get('trace1_mode', ''),
+            'Trace2Mode': current_settings.get('trace2_mode', ''),
+            'Trace3Mode': current_settings.get('trace3_mode', ''),
+            'Trace4Mode': current_settings.get('trace4_mode', ''),
+            'Marker1Max': str(current_settings.get('marker1_max', '')),
+            'Marker2Max': str(current_settings.get('marker2_max', '')),
+            'Marker3Max': str(current_settings.get('marker3_max', '')),
+            'Marker4Max': str(current_settings.get('marker4_max', '')),
+            'Marker5Max': str(current_settings.get('marker5_max', '')),
+            'Marker6Max': str(current_settings.get('marker6_max', ''))
+        }
 
-            if center_freq_hz is None: # If query failed
-                self.console_print_func("❌ Failed to query current instrument settings. Cannot save preset. This is a disaster!")
-                debug_log("Failed to query current instrument settings for saving preset. What a mess!",
+        # Load existing presets
+        all_presets = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+
+        # Check if a preset with the same filename already exists and ask for overwrite
+        existing_index = -1
+        for i, preset in enumerate(all_presets):
+            if preset.get('Filename') == filename:
+                existing_index = i
+                break
+
+        if existing_index != -1:
+            if tk.messagebox.askyesno("Overwrite Preset",
+                                    f"A preset with filename '{filename}' already exists. Do you want to overwrite it?",
+                                    parent=self): # Add parent for better dialog focus
+                all_presets[existing_index] = new_preset
+                self.console_print_func(f"ℹ️ Overwriting existing preset: {filename}.")
+                debug_log(f"User confirmed overwrite for preset: {filename}",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+            else:
+                self.console_print_func("ℹ️ Preset save cancelled by user.")
+                debug_log("User cancelled preset overwrite.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 return
         else:
-            self.console_print_func("❌ Instrument connection tab or _query_current_settings method not found. Cannot save preset. This is a critical error!")
-            debug_log("Instrument connection tab or _query_current_settings method not found. Fucking hell!",
+            all_presets.append(new_preset)
+            self.console_print_func(f"ℹ️ Adding new preset: {filename}.")
+            debug_log(f"Adding new preset: {filename}",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            return
 
-        # Prompt for a nickname for the preset
-        nickname = simpledialog.askstring("Save User Preset", "Enter a nickname for this preset:",
-                                          parent=self.app_instance)
-        if nickname is None: # User cancelled
-            self.console_print_func("ℹ️ Preset save cancelled. Fine, be that way!")
-            debug_log("Preset save cancelled by user. What a waste!",
+        # Save the updated list of presets back to the CSV
+        if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, all_presets, self.console_print_func):
+            self.console_print_func(f"✅ Preset '{filename}' saved successfully to PRESETS.CSV!")
+            debug_log(f"Preset '{filename}' saved to CSV. All good!",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            return
-
-        # Generate a unique filename (e.g., based on timestamp)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"USER_{timestamp}.STA" # Use .STA extension for consistency with device presets
-
-        preset_data = {
-            'Filename': filename,
-            'Center': center_freq_hz,
-            'Span': span_hz,
-            'RBW': rbw_hz,
-            'NickName': nickname,
-            'Markers': markers_data # New Markers column
-            # Add other settings if desired, e.g., 'RefLevel': ref_level_dbm, etc.
-        }
-
-        save_user_preset_to_csv(preset_data, self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
-        self.console_print_func(f"✅ Current settings saved as user preset: '{nickname}'. Success!")
-        debug_log(f"Current settings saved as user preset: '{nickname}'. BOOM!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-
-        # After saving, refresh the Local Presets tab to show the new entry
-        if hasattr(self.app_instance, 'presets_parent_tab') and \
-           hasattr(self.app_instance.presets_parent_tab, 'local_presets_tab') and \
-           hasattr(self.app_instance.presets_parent_tab.local_presets_tab, 'populate_presets_table'):
-            self.app_instance.presets_parent_tab.local_presets_tab.populate_presets_table()
-
-
-    def on_connection_status_changed(self, is_connected, instrument_model):
-        """
-        Called by the main application when the instrument connection status changes.
-        This method updates the state of the query presets button based on connection
-        and instrument model.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"DevicePresetsTab received connection status update: Connected={is_connected}, Model={instrument_model}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-
-        if is_connected and instrument_model == "N9342CN":
-            self.query_device_presets_button.config(state=tk.NORMAL)
-            self._query_device_presets() # Auto-query when connected to N9342CN
+            # Clear the entry fields after successful save
+            self.filename_entry.delete(0, tk.END)
+            self.nickname_entry.delete(0, tk.END)
         else:
-            self.query_device_presets_button.config(state=tk.DISABLED)
-            self.populate_device_preset_listboxes([]) # Clear displayed presets
-            self.console_print_func("⚠️ Query Device Presets button disabled (not connected or not N9342CN).")
-
+            self.console_print_func(f"❌ Failed to save preset '{filename}'. Check console for errors.")
+            debug_log(f"Failed to save preset '{filename}'. This is a nightmare!",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
     def _on_tab_selected(self, event):
         """
@@ -383,14 +371,15 @@ class DevicePresetsTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        
+
         # Ensure the connection status is checked and buttons are enabled/disabled correctly
         is_connected = self.app_instance.inst is not None
         instrument_model = self.app_instance.connected_instrument_model.get() if hasattr(self.app_instance, 'connected_instrument_model') else ""
         self.on_connection_status_changed(is_connected, instrument_model)
 
         # Reload cached user presets for nickname lookup when saving current settings
-        self.cached_user_presets = {
-            p['Filename']: p for p in load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
-        }
-
+        # This part might not be strictly necessary for this tab's direct functionality
+        # but is good practice if this tab also interacts with user presets beyond just saving.
+        # self.cached_user_presets = {
+        #     p['Filename']: p for p in load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+        # }

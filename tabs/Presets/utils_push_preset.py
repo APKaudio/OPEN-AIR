@@ -15,12 +15,16 @@
 #
 #
 # Version 20250802.1702.1 (Added trace mode and marker calculation settings to push preset logic for N9340B.)
+# Version 20250802.2300.0 (Modified push_preset_logic to accept preset_data dict and handle empty/BLANK values.)
+# Version 20250803.0040.0 (FIXED: Corrected Center/Span frequency conversion from MHz to Hz for SCPI commands.)
+# Version 20250803.0045.0 (FIXED: Removed unused 'read_safe' import to resolve ImportError.)
 
-current_version = "20250802.1702.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1702 * 1 # Example hash, adjust as needed
+current_version = "20250803.0045.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 45 * 0 # Example hash, adjust as needed.
 
 import os
 import inspect # Import inspect module
+import re # For regular expressions to match instrument model
 
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
@@ -31,142 +35,174 @@ from tabs.Instrument.utils_instrument_initialize import (
 )
 from tabs.Instrument.utils_instrument_read_and_write import (
     write_safe,
-    query_safe
+    # read_safe # Removed as it's not used in this module and causing ImportError
 )
+from ref.frequency_bands import MHZ_TO_HZ # NEW: Import MHZ_TO_HZ for conversions
 
+def push_preset_logic(app_instance, console_print_func, preset_data):
+    """
+    Function Description:
+    Applies the current settings from the GUI (or a provided preset_data dictionary)
+    to the connected instrument.
 
-def push_preset_logic(app_instance, console_print_func, Filena):
-    # Function Description:
-    # Applies the current settings from the GUI or a loaded preset to the connected instrument.
-    #
-    # Inputs:
-    # - app_instance: The main application instance, used to access Tkinter variables and retrieve settings.
-    # - console_print_func: A function to print messages to the GUI console.
-    # - Filena: The filename from which the preset was loaded (currently unused but kept for potential future use).
-    #
-    # Process:
-    # 1. Logs the start of applying settings.
-    # 2. Checks if an instrument is connected.
-    # 3. Retrieves various settings (frequency, power, trace modes, marker settings etc.) from Tkinter variables.
-    # 4. Calls `initialize_instrument` for core settings.
-    # 5. Implements conditional logic to send SCPI commands for trace modes and marker calculations
-    #    based on the `instrument_model`, specifically for the N9340B.
-    # 6. Logs success or failure for each setting application.
-    #
-    # Outputs:
-    # - True if settings are applied successfully, False otherwise.
-    #
-    # (2025-08-02) Change: Initial implementation.
-    # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
-    # (2025-08-02) Change: Corrected call to `initialize_instrument` with correct arguments.
-    # (2025-08-02) Change: Updated import for `initialize_instrument` from `utils_instrument_initialize`.
-    # (2025-08-02) Change: Added logic to apply trace mode and marker calculation settings based on instrument model.
+    Inputs:
+    - app_instance: The main application instance, used to access Tkinter variables and retrieve settings.
+    - console_print_func: A function to print messages to the GUI console.
+    - preset_data (dict): A dictionary containing the preset settings to apply.
+                          Keys should match the CSV headers (e.g., 'Center', 'Span', 'RBW').
+
+    Process:
+    1. Logs the start of applying settings.
+    2. Checks if an instrument is connected.
+    3. Retrieves settings from the provided preset_data dictionary.
+    4. Converts frequency values (Center, Span) from MHz to Hz for SCPI commands.
+    5. Sends SCPI commands to the instrument to apply settings.
+    6. Handles model-specific commands (e.g., for N9340B/N9342CN).
+    7. Logs success or failure.
+
+    Outputs:
+    - True if settings are applied successfully, False otherwise.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Applying settings to instrument. Let's dial this in! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
+
     if not app_instance.inst:
-        console_print_func("❌ No instrument connected. Cannot apply settings. You gotta connect first, you know!")
-        debug_log("No instrument connected to apply settings. This is a goddamn mess!",
+        console_print_func("❌ No instrument connected. Please connect to an instrument first. What are you doing?!")
+        debug_log("No instrument connected. Cannot apply settings.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False
 
-    console_print_func("💬 Applying settings to instrument...")
     try:
-        center_freq_hz = float(app_instance.center_freq_hz_var.get())
-        span_hz = float(app_instance.span_hz_var.get())
-        rbw_hz = float(app_instance.rbw_hz_var.get())
-        vbw_hz = float(app_instance.vbw_hz_var.get())
-        sweep_time_s = float(app_instance.sweep_time_s_var.get())
-        ref_level_dbm = float(app_instance.reference_level_dbm_var.get())
-        attenuation_db = int(app_instance.attenuation_var.get())
-        freq_shift_hz = float(app_instance.freq_shift_var.get())
-        maxhold_enabled = app_instance.maxhold_enabled_var.get()
-        high_sensitivity_enabled = app_instance.high_sensitivity_var.get()
-        preamp_on = app_instance.preamp_on_var.get()
+        # Retrieve values from preset_data, handling potential missing keys or empty strings
+        # Use .strip() to handle whitespace, and convert to float/int where necessary.
+        # If a value is missing or empty, it will be treated as None or default.
 
-        # New variables for trace and marker settings
-        trace1_mode = app_instance.trace1_mode_var.get() if hasattr(app_instance, 'trace1_mode_var') else None
-        trace2_mode = app_instance.trace2_mode_var.get() if hasattr(app_instance, 'trace2_mode_var') else None
-        trace3_mode = app_instance.trace3_mode_var.get() if hasattr(app_instance, 'trace3_mode_var') else None
-        trace4_mode = app_instance.trace4_mode_var.get() if hasattr(app_instance, 'trace4_mode_var') else None
+        # Center and Span are in MHz in the CSV, convert to Hz for instrument
+        center_freq_mhz_str = preset_data.get('Center', '').strip()
+        center_freq_hz = float(center_freq_mhz_str) * MHZ_TO_HZ if center_freq_mhz_str else None
 
-        marker1_calculate_max = app_instance.marker1_calculate_max_var.get() if hasattr(app_instance, 'marker1_calculate_max_var') else False
-        marker2_calculate_max = app_instance.marker2_calculate_max_var.get() if hasattr(app_instance, 'marker2_calculate_max_var') else False
-        marker3_calculate_max = app_instance.marker3_calculate_max_var.get() if hasattr(app_instance, 'marker3_calculate_max_var') else False
-        marker4_calculate_max = app_instance.marker4_calculate_max_var.get() if hasattr(app_instance, 'marker4_calculate_max_var') else False
-        marker5_calculate_max = app_instance.marker5_calculate_max_var.get() if hasattr(app_instance, 'marker5_calculate_max_var') else False
-        marker6_calculate_max = app_instance.marker6_calculate_max_var.get() if hasattr(app_instance, 'marker6_calculate_max_var') else False
+        span_mhz_str = preset_data.get('Span', '').strip()
+        span_hz = float(span_mhz_str) * MHZ_TO_HZ if span_mhz_str else None
+
+        # RBW and VBW are in Hz in the CSV
+        rbw_hz_str = preset_data.get('RBW', '').strip()
+        rbw_hz = float(rbw_hz_str) if rbw_hz_str else None
+
+        vbw_hz_str = preset_data.get('VBW', '').strip()
+        vbw_hz = float(vbw_hz_str) if vbw_hz_str else None
+
+        ref_level_str = preset_data.get('RefLevel', '').strip()
+        reference_level_dbm = float(ref_level_str) if ref_level_str else None
+
+        attenuation_str = preset_data.get('Attenuation', '').strip()
+        attenuation_db = int(attenuation_str) if attenuation_str else None
+
+        maxhold_str = preset_data.get('MaxHold', '').strip()
+        maxhold_enabled = maxhold_str.upper() == 'ON' if maxhold_str else None
+
+        high_sensitivity_str = preset_data.get('HighSens', '').strip()
+        high_sensitivity_on = high_sensitivity_str.upper() == 'ON' if high_sensitivity_str else None
+
+        preamp_str = preset_data.get('PreAmp', '').strip()
+        preamp_on = preamp_str.upper() == 'ON' if preamp_str else None
+
+        trace1_mode = preset_data.get('Trace1Mode', '').strip()
+        trace2_mode = preset_data.get('Trace2Mode', '').strip()
+        trace3_mode = preset_data.get('Trace3Mode', '').strip()
+        trace4_mode = preset_data.get('Trace4Mode', '').strip()
+
+        marker1_max = preset_data.get('Marker1Max', '').strip()
+        marker2_max = preset_data.get('Marker2Max', '').strip()
+        marker3_max = preset_data.get('Marker3Max', '').strip()
+        marker4_max = preset_data.get('Marker4Max', '').strip()
+        marker5_max = preset_data.get('Marker5Max', '').strip()
+        marker6_max = preset_data.get('Marker6Max', '').strip()
 
 
-        # Get the model match from app_instance.instrument_model
-        model_match = app_instance.instrument_model.get()
+        console_print_func("💬 Applying settings to instrument...")
 
-        if initialize_instrument(
-            app_instance.inst,
-            ref_level_dbm,
-            high_sensitivity_enabled,
-            preamp_on,
-            rbw_hz, # Passing rbw_hz as rbw_config_val
-            vbw_hz, # Passing vbw_hz as vbw_config_val
-            model_match,
-            console_print_func
-        ):
-            console_print_func("✅ Core settings applied successfully. Boom!")
-            debug_log("Core settings applied to instrument. Fucking awesome!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-        else:
-            console_print_func("❌ Failed to apply core settings. What the hell went wrong?!")
-            debug_log("Failed to apply core settings to instrument. This is a disaster!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return False
+        # Apply Center, Span, Attenuation if their values are present (not empty strings)
+        if center_freq_hz is not None:
+            write_safe(app_instance.inst, f":SENSe:FREQuency:CENTer {center_freq_hz}", console_print_func)
+            debug_log(f"Applied Center Frequency: {center_freq_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        if span_hz is not None:
+            write_safe(app_instance.inst, f":SENSe:FREQuency:SPAN {span_hz}", console_print_func)
+            debug_log(f"Applied Span Frequency: {span_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        if attenuation_db is not None:
+            write_safe(app_instance.inst, f":POWer:ATTenuation {attenuation_db}", console_print_func)
+            debug_log(f"Applied Attenuation: {attenuation_db} dB.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
 
-        # Apply model-specific settings
-        if model_match == "N9340B":
-            # Apply Trace Modes
+        # Apply RBW and VBW
+        if rbw_hz is not None:
+            write_safe(app_instance.inst, f":SENSe:BANDwidth:RESolution {rbw_hz}", console_print_func)
+            debug_log(f"Applied RBW: {rbw_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        if vbw_hz is not None:
+            write_safe(app_instance.inst, f":SENSe:BANDwidth:VIDeo {vbw_hz}", console_print_func)
+            debug_log(f"Applied VBW: {vbw_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+
+        # Apply Reference Level
+        if reference_level_dbm is not None:
+            write_safe(app_instance.inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {reference_level_dbm}", console_print_func)
+            debug_log(f"Applied Reference Level: {reference_level_dbm} dBm.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+
+        # Apply MaxHold
+        if maxhold_enabled is not None:
+            write_safe(app_instance.inst, f":DISPlay:WINDow:TRACe:MAXHold {'ON' if maxhold_enabled else 'OFF'}", console_print_func)
+            debug_log(f"Applied MaxHold: {'ON' if maxhold_enabled else 'OFF'}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+
+        # Apply High Sensitivity (N9340B specific)
+        model_match = app_instance.connected_instrument_model.get()
+        if model_match and re.match(r"N9340B|N9342CN", model_match, re.IGNORECASE):
+            if high_sensitivity_on is not None:
+                write_safe(app_instance.inst, f":POWer:HSENse {'ON' if high_sensitivity_on else 'OFF'}", console_print_func)
+                debug_log(f"Applied High Sensitivity: {'ON' if high_sensitivity_on else 'OFF'}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if preamp_on is not None:
+                write_safe(app_instance.inst, f":POWer:GAIN:STATe {'ON' if preamp_on else 'OFF'}", console_print_func)
+                debug_log(f"Applied Preamp: {'ON' if preamp_on else 'OFF'}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            
+            # Apply Trace Modes (N9340B specific)
             if trace1_mode:
-                write_safe(app_instance.inst, f":TRAC1:MODE {trace1_mode}", console_print_func)
+                write_safe(app_instance.inst, f":TRACe1:MODE {trace1_mode}", console_print_func)
                 debug_log(f"Applied Trace 1 Mode: {trace1_mode}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
             if trace2_mode:
-                write_safe(app_instance.inst, f":TRAC2:MODE {trace2_mode}", console_print_func)
+                write_safe(app_instance.inst, f":TRACe2:MODE {trace2_mode}", console_print_func)
                 debug_log(f"Applied Trace 2 Mode: {trace2_mode}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
             if trace3_mode:
-                write_safe(app_instance.inst, f":TRAC3:MODE {trace3_mode}", console_print_func)
+                write_safe(app_instance.inst, f":TRACe3:MODE {trace3_mode}", console_print_func)
                 debug_log(f"Applied Trace 3 Mode: {trace3_mode}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
             if trace4_mode:
-                write_safe(app_instance.inst, f":TRAC4:MODE {trace4_mode}", console_print_func)
+                write_safe(app_instance.inst, f":TRACe4:MODE {trace4_mode}", console_print_func)
                 debug_log(f"Applied Trace 4 Mode: {trace4_mode}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
 
-            # Apply Marker Calculate Max
-            if marker1_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer1:MAX", console_print_func)
-                debug_log("Applied Marker 1 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            if marker2_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer2:MAX", console_print_func)
-                debug_log("Applied Marker 2 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            if marker3_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer3:MAX", console_print_func)
-                debug_log("Applied Marker 3 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            if marker4_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer4:MAX", console_print_func)
-                debug_log("Applied Marker 4 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            if marker5_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer5:MAX", console_print_func)
-                debug_log("Applied Marker 5 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-            if marker6_calculate_max:
-                write_safe(app_instance.inst, ":CALCulate:MARKer6:MAX", console_print_func)
-                debug_log("Applied Marker 6 Calculate Max.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
-
-            debug_log(f"N9340B specific settings applied for model: {model_match}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            # Apply Marker Max settings (N9340B specific)
+            if marker1_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer1:MAX:STATe {'ON' if marker1_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 1 Max: {marker1_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if marker2_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer2:MAX:STATe {'ON' if marker2_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 2 Max: {marker2_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if marker3_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer3:MAX:STATe {'ON' if marker3_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 3 Max: {marker3_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if marker4_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer4:MAX:STATe {'ON' if marker4_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 4 Max: {marker4_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if marker5_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer5:MAX:STATe {'ON' if marker5_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 5 Max: {marker5_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            if marker6_max:
+                write_safe(app_instance.inst, f":CALCulate:MARKer6:MAX:STATe {'ON' if marker6_max.upper() == 'WRITE' else 'OFF'}", console_print_func)
+                debug_log(f"Applied Marker 6 Max: {marker6_max}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
         else:
-            debug_log(f"Skipping N9340B specific settings for instrument model: {model_match}.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            debug_log(f"Skipping N9340B specific settings for instrument model: {model_match}. This is not an N9340B or N9342CN.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
 
         console_print_func("✅ All settings applied successfully. Boom!")
         debug_log("All settings applied to instrument. Fucking awesome!",

@@ -100,8 +100,16 @@ def load_user_presets_from_csv(config_file_path, console_print_func):
                         function=current_function)
             # Create the file with headers
             with open(csv_path, mode='w', newline='', encoding='utf-8') as file:
-                writer = csv.writer(file)
-                writer.writerow(['Filename', 'Center', 'Span', 'RBW', 'NickName', 'Markers']) # Add 'Markers' header
+                # Updated fieldnames for new CSV format
+                fieldnames = [
+                    'Filename', 'NickName', 'Center', 'Span', 'RBW', 'VBW',
+                    'RefLevel', 'Attenuation', 'MaxHold', 'HighSens', 'PreAmp',
+                    'Trace1Mode', 'Trace2Mode', 'Trace3Mode', 'Trace4Mode',
+                    'Marker1Max', 'Marker2Max', 'Marker3Max', 'Marker4Max',
+                    'Marker5Max', 'Marker6Max'
+                ]
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
             console_print_func("✅ New user presets file created with headers.")
             debug_log("New user presets file created.",
                         file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
@@ -121,81 +129,38 @@ def load_user_presets_from_csv(config_file_path, console_print_func):
                     function=current_function)
     return presets
 
-def save_user_preset_to_csv(preset_data, config_file_path, console_print_func):
+def overwrite_user_presets_csv(config_file_path, all_presets_data, console_print_func):
     """
-    Appends a single user-defined preset to the PRESETS.CSV file.
+    Overwrites the PRESETS.CSV file with the provided list of preset dictionaries.
+    This function is intended for saving the current state of user presets.
 
     Inputs:
-        preset_data (dict): A dictionary containing the preset's data.
         config_file_path (str): The full path to the config.ini file (used to derive CSV path).
+        all_presets_data (list): A list of dictionaries, each representing a preset row
+                                 to be written to the CSV.
         console_print_func (function): Function to print messages to the GUI console.
 
     Outputs:
-        bool: True if save was successful, False otherwise.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    csv_path = get_presets_csv_path(config_file_path)
-    file_exists = os.path.exists(csv_path)
-
-    debug_log(f"Saving single user preset to CSV: {preset_data.get('NickName', 'Unnamed')}.",
-                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                version=current_version,
-                function=current_function)
-
-    try:
-        with open(csv_path, mode='a', newline='', encoding='utf-8') as file:
-            fieldnames = ['Filename', 'Center', 'Span', 'RBW', 'NickName', 'Markers'] # Ensure 'Markers' is here
-            writer = csv.DictWriter(file, fieldnames=fieldnames)
-
-            if not file_exists:
-                writer.writeheader() # Write header only if file is new
-
-            writer.writerow(preset_data)
-        console_print_func(f"✅ User preset '{preset_data.get('NickName', 'Unnamed')}' saved to {csv_path}.")
-        debug_log(f"User preset '{preset_data.get('NickName', 'Unnamed')}' saved successfully.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
-        return True
-    except IOError as e:
-        console_print_func(f"❌ I/O Error saving user preset to {csv_path}: {e}. This is a disaster!")
-        debug_log(f"IOError saving user preset: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
-        return False
-    except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred saving user preset: {e}. What a mess!")
-        debug_log(f"Unexpected error saving user preset: {e}. This is a pain in the ass!",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                    version=current_version,
-                    function=current_function)
-        return False
-
-def overwrite_user_presets_csv(all_presets_data, config_file_path, console_print_func):
-    """
-    Overwrites the entire PRESETS.CSV file with the provided list of preset data.
-    This is used after editing or importing multiple presets.
-
-    Inputs:
-        all_presets_data (list): A list of dictionaries, each representing a preset row.
-        config_file_path (str): The full path to the config.ini file (used to derive CSV path).
-        console_print_func (function): Function to print messages to the GUI console.
-
-    Outputs:
-        bool: True if overwrite was successful, False otherwise.
+        bool: True if presets were overwritten successfully, False otherwise.
     """
     current_function = inspect.currentframe().f_code.co_name
     csv_path = get_presets_csv_path(config_file_path)
 
-    debug_log(f"Overwriting user presets CSV with {len(all_presets_data)} entries at {csv_path}.",
+    debug_log(f"Attempting to overwrite user presets CSV at: {csv_path}. Let's do this!",
                 file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
     try:
         with open(csv_path, mode='w', newline='', encoding='utf-8') as file:
-            fieldnames = ['Filename', 'Center', 'Span', 'RBW', 'NickName', 'Markers'] # Ensure 'Markers' is here
+            # Updated fieldnames for new CSV format
+            fieldnames = [
+                'Filename', 'NickName', 'Center', 'Span', 'RBW', 'VBW',
+                'RefLevel', 'Attenuation', 'MaxHold', 'HighSens', 'PreAmp',
+                'Trace1Mode', 'Trace2Mode', 'Trace3Mode', 'Trace4Mode',
+                'Marker1Max', 'Marker2Max', 'Marker3Max', 'Marker4Max',
+                'Marker5Max', 'Marker6Max'
+            ]
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_presets_data)
@@ -219,4 +184,3 @@ def overwrite_user_presets_csv(all_presets_data, config_file_path, console_print
                     version=current_version,
                     function=current_function)
         return False
-
