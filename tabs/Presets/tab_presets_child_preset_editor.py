@@ -38,9 +38,18 @@
 #                         Modified tab/window focus logic to auto-save unsaved changes before reloading.)
 # Version 20250803.0215.0 (CRITICAL FIX: Removed all simpledialog prompts for save/delete confirmations.
 #                         Auto-saves after import and delete. Console messages provide feedback.)
+# Version 20250803.0230.0 (FIXED: _end_edit to ensure Treeview update.
+#                         UPDATED: _add_current_settings to use query_current_instrument_settings and populate all columns.
+#                         UPDATED: Nickname and Filename format for 'Add Current Settings'.
+#                         CLARIFIED: Save button message.)
+# Version 20250803.0245.0 (IMPLEMENTED: Instant save on cell edit.
+#                         IMPLEMENTED: Enter/Tab/Shift+Tab navigation in edit mode.
+#                         REMOVED: Redundant 'Save Changes' button.
+#                         MOVED: 'Delete Selected' button to top right.
+#                         FIXED: AttributeError in _add_current_settings by safely accessing instrument model.)
 
-current_version = "20250803.0215.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 215 * 0 # Example hash, adjust as needed.
+current_version = "20250803.0245.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 245 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -62,7 +71,10 @@ from tabs.Presets.utils_preset_process import (
     load_user_presets_from_csv,
     overwrite_user_presets_csv # NEW: For saving changes back to CSV
 )
-from tabs.Instrument.instrument_logic import query_current_settings_logic # For 'Add Current Settings'
+# Specific import for querying instrument settings
+from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
+from tabs.Instrument.utils_instrument_read_and_write import query_safe # For additional queries
+
 from src.style import COLOR_PALETTE # For styling
 
 class PresetEditorTab(ttk.Frame):
@@ -132,24 +144,29 @@ class PresetEditorTab(ttk.Frame):
 
         self.grid_columnconfigure(0, weight=1)
         # Adjusted row weights for new button placement
-        self.grid_rowconfigure(0, weight=0) # Add buttons
+        self.grid_rowconfigure(0, weight=0) # Add/Delete buttons
         self.grid_rowconfigure(1, weight=1) # Treeview
         self.grid_rowconfigure(2, weight=0) # Scrollbar for Treeview
         self.grid_rowconfigure(3, weight=0) # File Ops buttons
 
-        # --- Grouping for "Add" buttons (Moved to top) ---
-        add_button_frame = ttk.Frame(self, style='Dark.TFrame')
-        add_button_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
-        add_button_frame.grid_columnconfigure(0, weight=1)
-        add_button_frame.grid_columnconfigure(1, weight=1)
+        # --- Grouping for "Add" and "Delete" buttons (Moved to top) ---
+        top_button_frame = ttk.Frame(self, style='Dark.TFrame')
+        top_button_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
+        top_button_frame.grid_columnconfigure(0, weight=1)
+        top_button_frame.grid_columnconfigure(1, weight=1)
+        top_button_frame.grid_columnconfigure(2, weight=1) # For Delete button
 
         # Add Current Settings Button
-        add_current_button = ttk.Button(add_button_frame, text="Add Current Settings", command=self._add_current_settings, style='Green.TButton')
+        add_current_button = ttk.Button(top_button_frame, text="Add Current Settings", command=self._add_current_settings, style='Green.TButton')
         add_current_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Add New Empty Row Button
-        add_empty_row_button = ttk.Button(add_button_frame, text="Add New Empty Row", command=self._add_new_empty_row, style='Blue.TButton')
+        add_empty_row_button = ttk.Button(top_button_frame, text="Add New Empty Row", command=self._add_new_empty_row, style='Blue.TButton')
         add_empty_row_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+        # Delete Selected Button (Moved)
+        delete_button = ttk.Button(top_button_frame, text="Delete Selected", command=self._delete_selected_preset, style='Red.TButton')
+        delete_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
 
         # --- Treeview for Presets ---
@@ -189,41 +206,21 @@ class PresetEditorTab(ttk.Frame):
         # Bind double-click event for editing
         self.presets_tree.bind("<Double-1>", self._on_double_click)
 
-        # --- Button Frame for File Operations ---
-        button_frame = ttk.Frame(self, style='Dark.TFrame')
-        button_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew") # Moved to row 3
-        button_frame.grid_columnconfigure(0, weight=1) # Allow buttons to spread out
-        button_frame.grid_columnconfigure(1, weight=1)
-        button_frame.grid_columnconfigure(2, weight=1)
-        button_frame.grid_columnconfigure(3, weight=1)
-        button_frame.grid_columnconfigure(4, weight=1)
-        button_frame.grid_columnconfigure(5, weight=1)
-
-
-        # Grouping for "File Operations" buttons
-        file_ops_button_frame = ttk.Frame(button_frame, style='Dark.TFrame')
-        file_ops_button_frame.grid(row=0, column=0, columnspan=6, sticky="ew", padx=5, pady=5) # Spanning all columns
+        # --- Button Frame for File Operations (excluding Save) ---
+        file_ops_button_frame = ttk.Frame(self, style='Dark.TFrame')
+        file_ops_button_frame.grid(row=3, column=0, columnspan=2, pady=10, padx=10, sticky="ew") # Moved to row 3
         file_ops_button_frame.grid_columnconfigure(0, weight=1)
         file_ops_button_frame.grid_columnconfigure(1, weight=1)
         file_ops_button_frame.grid_columnconfigure(2, weight=1)
-        file_ops_button_frame.grid_columnconfigure(3, weight=1)
 
-
-        # Save Button
-        save_button = ttk.Button(file_ops_button_frame, text="Save Changes", command=self._save_presets_to_csv, style='Green.TButton')
-        save_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Import Button
         import_button = ttk.Button(file_ops_button_frame, text="Import Presets", command=self._import_presets, style='Orange.TButton')
-        import_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        import_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Export Button
         export_button = ttk.Button(file_ops_button_frame, text="Export Presets", command=self._export_presets, style='Purple.TButton')
-        export_button.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-
-        # Delete Selected Button
-        delete_button = ttk.Button(file_ops_button_frame, text="Delete Selected", command=self._delete_selected_preset, style='Red.TButton')
-        delete_button.grid(row=0, column=3, padx=5, pady=5, sticky="ew")
+        export_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 
         debug_log("PresetEditorTab widgets created. Treeview and buttons are ready for action!",
@@ -297,78 +294,71 @@ class PresetEditorTab(ttk.Frame):
                         function=current_function)
             return
 
-        # Query current settings using the instrument_logic function
-        # This function updates the app_instance's Tkinter variables
-        success = query_current_settings_logic(
-            self.app_instance.inst,
-            self.app_instance.center_freq_hz_var,
-            self.app_instance.span_hz_var,
-            self.app_instance.rbw_hz_var,
-            self.app_instance.vbw_hz_var,
-            self.app_instance.reference_level_dbm_var,
-            self.app_instance.attenuation_var,
-            self.app_instance.maxhold_enabled_var,
-            self.app_instance.high_sensitivity_var,
-            self.app_instance.preamp_on_var,
-            self.app_instance.trace1_mode_var,
-            self.app_instance.trace2_mode_var,
-            self.app_instance.trace3_mode_var,
-            self.app_instance.trace4_mode_var,
-            self.app_instance.marker1_calculate_max_var,
-            self.app_instance.marker2_calculate_max_var,
-            self.app_instance.marker3_calculate_max_var,
-            self.app_instance.marker4_calculate_max_var,
-            self.app_instance.marker5_calculate_max_var,
-            self.app_instance.marker6_calculate_max_var,
-            self.app_instance.connected_instrument_model, # Pass the model var
-            self.console_print_func
-        )
+        # Safely get the instrument model string
+        instrument_model = ""
+        if hasattr(self.app_instance, 'connected_instrument_model') and \
+           isinstance(self.app_instance.connected_instrument_model, tk.StringVar):
+            instrument_model = self.app_instance.connected_instrument_model.get()
+        debug_log(f"Instrument model for query: '{instrument_model}'.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
 
-        if success:
-            # Create a new preset dictionary from current GUI values
+
+        # Query all current settings from the instrument
+        (center_freq_mhz, span_mhz, rbw_hz_val, vbw_hz_val,
+         ref_level_dbm, attenuation_db, maxhold_on, high_sensitivity_on, preamp_on,
+         trace1_mode, trace2_mode, trace3_mode, trace4_mode,
+         marker1_calc_max, marker2_calc_max, marker3_calc_max,
+         marker4_calc_max, marker5_calc_max, marker6_calc_max) = \
+            query_current_instrument_settings(self.app_instance.inst, self.console_print_func, instrument_model)
+
+        # Check if all critical values were successfully retrieved
+        if all(x is not None for x in [center_freq_mhz, span_mhz, rbw_hz_val, vbw_hz_val,
+                                       ref_level_dbm, attenuation_db, maxhold_on, high_sensitivity_on, preamp_on,
+                                       trace1_mode, trace2_mode, trace3_mode, trace4_mode,
+                                       marker1_calc_max, marker2_calc_max, marker3_calc_max,
+                                       marker4_calc_max, marker5_calc_max, marker6_calc_max]):
+            
+            # Generate Filename and NickName based on current timestamp
+            timestamp_filename = datetime.now().strftime('%Y%m%d_%H%M%S')
+            timestamp_nickname = datetime.now().strftime('%Y%m%d %H%M')
+            
             new_preset = {
-                'Filename': f"USER_{datetime.now().strftime('%Y%m%d_%H%M%S')}.STA",
-                'NickName': simpledialog.askstring("Nickname", "Enter a nickname for this preset:",
-                                                  parent=self.app_instance), # Use app_instance as parent
-                'Center': f"{self.app_instance.center_freq_hz_var.get() / self.app_instance.MHZ_TO_HZ:.3f}", # Convert Hz to MHz for CSV
-                'Span': f"{self.app_instance.span_hz_var.get() / self.app_instance.MHZ_TO_HZ:.3f}",         # Convert Hz to MHz for CSV
-                'RBW': f"{self.app_instance.rbw_hz_var.get():.0f}",
-                'VBW': f"{self.app_instance.vbw_hz_var.get():.0f}",
-                'RefLevel': f"{self.app_instance.reference_level_dbm_var.get():.1f}",
-                'Attenuation': f"{self.app_instance.attenuation_var.get()}",
-                'MaxHold': 'ON' if self.app_instance.maxhold_enabled_var.get() else 'OFF',
-                'HighSens': 'ON' if self.app_instance.high_sensitivity_var.get() else 'OFF',
-                'PreAmp': 'ON' if self.app_instance.preamp_on_var.get() else 'OFF',
-                'Trace1Mode': self.app_instance.trace1_mode_var.get(),
-                'Trace2Mode': self.app_instance.trace2_mode_var.get(),
-                'Trace3Mode': self.app_instance.trace3_mode_var.get(),
-                'Trace4Mode': self.app_instance.trace4_mode_var.get(),
-                'Marker1Max': 'WRITE' if self.app_instance.marker1_calculate_max_var.get() else '',
-                'Marker2Max': 'WRITE' if self.app_instance.marker2_calculate_max_var.get() else '',
-                'Marker3Max': 'WRITE' if self.app_instance.marker3_calculate_max_var.get() else '',
-                'Marker4Max': 'WRITE' if self.app_instance.marker4_calculate_max_var.get() else '',
-                'Marker5Max': 'WRITE' if self.app_instance.marker5_calculate_max_var.get() else '',
-                'Marker6Max': 'WRITE' if self.app_instance.marker6_calculate_max_var.get() else '',
+                'Filename': f"USER_{timestamp_filename}.STA",
+                'NickName': f"Device {timestamp_nickname}",
+                'Center': f"{center_freq_mhz:.3f}",
+                'Span': f"{span_mhz:.3f}",
+                'RBW': f"{rbw_hz_val:.0f}",
+                'VBW': f"{vbw_hz_val:.0f}",
+                'RefLevel': f"{ref_level_dbm:.1f}",
+                'Attenuation': f"{attenuation_db:.0f}", # Assuming attenuation is an integer value
+                'MaxHold': 'ON' if maxhold_on else 'OFF',
+                'HighSens': 'ON' if high_sensitivity_on else 'OFF',
+                'PreAmp': 'ON' if preamp_on else 'OFF',
+                'Trace1Mode': trace1_mode,
+                'Trace2Mode': trace2_mode,
+                'Trace3Mode': trace3_mode,
+                'Trace4Mode': trace4_mode,
+                'Marker1Max': 'WRITE' if marker1_calc_max else '',
+                'Marker2Max': 'WRITE' if marker2_calc_max else '',
+                'Marker3Max': 'WRITE' if marker3_calc_max else '',
+                'Marker4Max': 'WRITE' if marker4_calc_max else '',
+                'Marker5Max': 'WRITE' if marker5_calc_max else '',
+                'Marker6Max': 'WRITE' if marker6_calc_max else '',
             }
-            if new_preset['NickName'] is None: # User cancelled nickname input
-                self.console_print_func("ℹ️ Adding current settings cancelled by user.")
-                debug_log("Adding current settings cancelled (nickname input).",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-                return
 
             self.presets_data.append(new_preset)
             self.populate_presets_table() # Refresh table to show new entry from internal data
             self.has_unsaved_changes = True # Mark as unsaved
-            self.console_print_func("✅ Current settings added as a new preset. Remember to save your changes!")
+            self.console_print_func("✅ Current instrument settings added as a new preset. Remember to save your changes!")
             debug_log(f"Current settings added as new preset. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
         else:
-            self.console_print_func("❌ Failed to query current settings from instrument.")
-            debug_log("Failed to query current settings.",
+            self.console_print_func("❌ Failed to query all current settings from instrument. Some values were missing.")
+            debug_log("Failed to query all current settings. Some values were None.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
@@ -408,6 +398,7 @@ class PresetEditorTab(ttk.Frame):
         """
         Saves the current state of the presets_data (from the Treeview) back to the CSV file.
         Uses overwrite_user_presets_csv from utils_preset_process.
+        This function is called automatically on cell edit, tab change, and window focus.
         """
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Saving all presets to PRESETS.CSV...")
@@ -755,83 +746,109 @@ class PresetEditorTab(ttk.Frame):
         self.edit_entry.bind("<Escape>", self._on_edit_escape)
 
     def _on_edit_return(self, event):
-        """Handles Enter key press during editing."""
+        """
+        Handles Enter key press during editing. Saves the current edit and moves
+        to the first editable cell in the row below.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Enter key pressed during edit. Ending edit.",
+        debug_log("Enter key pressed during edit. Ending edit and moving to next row.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        self._end_edit()
-        # Prevent default Tkinter behavior (e.g., moving focus)
+        
+        item_id, _ = self.current_edit_cell # Get current item_id before _end_edit clears it
+        self._end_edit() # This will save and destroy the current entry
+
+        # Find the next row
+        next_item_id = self.presets_tree.next(item_id)
+        if next_item_id:
+            # Find the first editable column in the next row (skip 'Filename')
+            first_editable_col_index = 0
+            while first_editable_col_index < len(self.columns) and self.columns[first_editable_col_index] == 'Filename':
+                first_editable_col_index += 1
+            if first_editable_col_index < len(self.columns): # Ensure an editable column exists
+                self._start_edit(next_item_id, first_editable_col_index)
+            else:
+                self.console_print_func("ℹ️ Reached end of table. No more editable cells to go down.")
+                debug_log("Reached end of table via Enter key (no editable columns in next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        else:
+            self.console_print_func("ℹ️ Reached end of table. No more rows to go down.")
+            debug_log("Reached end of table via Enter key (no next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
         return "break"
 
     def _on_edit_tab(self, event):
-        """Handles Tab key press during editing to move to the next editable cell."""
+        """
+        Handles Tab key press during editing. Saves the current edit and moves
+        to the next editable cell to the right, or to the next row.
+        """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Tab key pressed during edit. Moving to next cell.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        self._end_edit() # Commit current edit
-
-        item_id, col_index = self.current_edit_cell
-        next_col_index = col_index + 1
         
-        # Find the next editable column
+        item_id, col_index = self.current_edit_cell # Get current item_id and col_index before _end_edit clears it
+        self._end_edit() # Save and destroy
+
+        next_col_index = col_index + 1
         while next_col_index < len(self.columns) and self.columns[next_col_index] == 'Filename':
             next_col_index += 1
 
         if next_col_index < len(self.columns):
             self._start_edit(item_id, next_col_index)
         else:
-            # If at the end of the row, move to the first editable column of the next row
+            # Move to the next row, first editable column
             next_item_id = self.presets_tree.next(item_id)
             if next_item_id:
                 first_editable_col_index = 0
                 while first_editable_col_index < len(self.columns) and self.columns[first_editable_col_index] == 'Filename':
                     first_editable_col_index += 1
-                self._start_edit(next_item_id, first_editable_col_index)
+                if first_editable_col_index < len(self.columns):
+                    self._start_edit(next_item_id, first_editable_col_index)
+                else:
+                    self.console_print_func("ℹ️ Reached end of table. No more editable cells to tab to.")
+                    debug_log("Reached end of table via Tab key (no editable columns in next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
             else:
                 self.console_print_func("ℹ️ Reached end of table. No more cells to tab to.")
-                debug_log("Reached end of table via Tab key.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-        return "break" # Prevent default Tkinter behavior
+                debug_log("Reached end of table via Tab key (no next row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        return "break"
 
     def _on_edit_shift_tab(self, event):
-        """Handles Shift-Tab key press during editing to move to the previous editable cell."""
+        """
+        Handles Shift-Tab key press during editing. Saves the current edit and moves
+        to the previous editable cell to the left, or to the previous row.
+        """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Shift-Tab key pressed during edit. Moving to previous cell.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        self._end_edit() # Commit current edit
+        
+        item_id, col_index = self.current_edit_cell # Get current item_id and col_index before _end_edit clears it
+        self._end_edit() # Save and destroy
 
-        item_id, col_index = self.current_edit_cell
         prev_col_index = col_index - 1
-
-        # Find the previous editable column
         while prev_col_index >= 0 and self.columns[prev_col_index] == 'Filename':
             prev_col_index -= 1
 
         if prev_col_index >= 0:
             self._start_edit(item_id, prev_col_index)
         else:
-            # If at the beginning of the row, move to the last editable column of the previous row
+            # Move to the previous row, last editable column
             prev_item_id = self.presets_tree.prev(item_id)
             if prev_item_id:
                 last_editable_col_index = len(self.columns) - 1
                 while last_editable_col_index >= 0 and self.columns[last_editable_col_index] == 'Filename':
                     last_editable_col_index -= 1
-                self._start_edit(prev_item_id, last_editable_col_index)
+                if last_editable_col_index >= 0:
+                    self._start_edit(prev_item_id, last_editable_col_index)
+                else:
+                    self.console_print_func("ℹ️ Reached beginning of table. No more editable cells to shift-tab to.")
+                    debug_log("Reached beginning of table via Shift-Tab key (no editable columns in previous row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
             else:
                 self.console_print_func("ℹ️ Reached beginning of table. No more cells to shift-tab to.")
-                debug_log("Reached beginning of table via Shift-Tab key.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-        return "break" # Prevent default Tkinter behavior
+                debug_log("Reached beginning of table via Shift-Tab key (no previous row).", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        return "break"
 
     def _on_edit_escape(self, event):
         """Handles Escape key press during editing to cancel the edit."""
@@ -851,6 +868,7 @@ class PresetEditorTab(ttk.Frame):
         """
         Commits the changes from the Entry widget back to the Treeview and
         the internal presets_data list, then destroys the Entry widget.
+        Also triggers an immediate save to CSV.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Ending edit...",
@@ -885,7 +903,14 @@ class PresetEditorTab(ttk.Frame):
             
             # Update the specific column's value
             current_values[col_index] = new_value
+            
+            # Update the Treeview item with the new list of values
             self.presets_tree.item(item_id, values=current_values)
+            debug_log(f"Treeview item {item_id} updated with new values: {current_values}.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+
 
             # Update the internal presets_data list
             # Find the corresponding preset dictionary using Filename (first column)
@@ -897,12 +922,13 @@ class PresetEditorTab(ttk.Frame):
             for preset in self.presets_data:
                 if preset.get('Filename') == filename:
                     preset[original_col_name] = new_value
-                    self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename)}' to '{new_value}'. Remember to save!")
-                    debug_log(f"Internal data updated for {filename}: {original_col_name} = {new_value}. Unsaved changes: True.",
+                    self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename)}' to '{new_value}'. Automatically saving changes!")
+                    debug_log(f"Internal data updated for {filename}: {original_col_name} = {new_value}. Unsaved changes: True. Triggering auto-save.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
                     self.has_unsaved_changes = True # Mark as unsaved
+                    self._save_presets_to_csv() # Trigger instant save
                     break
             
             self.current_edit_cell = None # Clear the editing state
