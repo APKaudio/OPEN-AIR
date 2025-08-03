@@ -18,9 +18,10 @@
 # Version 20250802.0152.1 (Refined debug_log and console_log interaction, clarified DEBUG_MODE logic.)
 # Version 20250802.1935.0 (Added DEBUG_TO_GUI_CONSOLE flag and logic to control debug output to GUI console.)
 # Version 20250802.1940.0 (Ensured debug_log respects DEBUG_TO_GUI_CONSOLE flag for output to GUI.)
+# Version 20250803.1535.0 (Added set_log_visa_command_func to resolve ImportError in program_initialization.py)
 
-current_version = "20250802.1940.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 75 * 1 # Example hash, adjust as needed
+current_version = "20250803.1535.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1535 * 0 # Example hash, adjust as needed
 
 import sys
 import os
@@ -46,6 +47,9 @@ _original_stderr = sys.stderr
 
 # NEW: Global variable to hold reference to console_log function from console_logic
 _console_log_func_ref = None
+
+# NEW: Global variable to hold reference to the log_visa_command function for external registration
+_log_visa_command_func_ref = None
 
 
 def set_debug_mode(mode: bool):
@@ -285,6 +289,23 @@ def set_console_log_func(func):
     _console_log_func_ref = func
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Console log function registered with debug_logic. Breaking the circular import!",
+                file=__file__,
+                version=current_version,
+                function=current_function,
+                special=True)
+
+# NEW: Function to register log_visa_command with debug_logic (for external modules to reference)
+def set_log_visa_command_func(func):
+    """
+    Registers the log_visa_command function from debug_logic.
+    This allows other modules to get a reference to the log_visa_command function
+    if needed, effectively making it available for external use without direct import
+    if a circular dependency arises.
+    """
+    global _log_visa_command_func_ref
+    _log_visa_command_func_ref = func
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Log VISA command function registered with debug_logic. Ready to track commands!",
                 file=__file__,
                 version=current_version,
                 function=current_function,

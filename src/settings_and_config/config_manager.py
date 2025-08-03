@@ -15,8 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.0152.7 (Modified save_config to update a Tkinter variable instead of printing success message.)
+# Version 20250803.1545.0 (Moved DEFAULT_CONFIG_SETTINGS to program_default_values.py and updated load_config to use it.)
 
-current_version = "20250802.0152.7" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.1545.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 15 * 1 # Example hash, adjust as needed
 
 import configparser
@@ -28,6 +29,7 @@ from datetime import datetime # Import datetime for timestamp
 # Updated imports for new logging functions
 from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_log
 from src.console_logic import console_log # Added for console_print_func
+from src.program_default_values import DEFAULT_CONFIG_SETTINGS # NEW: Import default settings
 
 
 def load_config(config_obj, file_path, console_print_func, app_instance):
@@ -46,7 +48,7 @@ def load_config(config_obj, file_path, console_print_func, app_instance):
 
     Process of this function:
         1. Prints debug messages.
-        2. Sets default configuration values within the `config_obj`.
+        2. Sets default configuration values within the `config_obj` using `DEFAULT_CONFIG_SETTINGS`.
         3. Attempts to read the configuration file.
         4. If the file is not found, logs a warning and proceeds with defaults.
         5. Iterates through the `app_instance.setting_var_map` to:
@@ -69,6 +71,7 @@ def load_config(config_obj, file_path, console_print_func, app_instance):
     (2025-08-01 1900.2) Change: No functional changes.
     (2025-08-01 2045.1) Change: Updated to use debug_log consistently.
     (2025-08-02 0015.1) Change: Updated version number.
+    (2025-08-03 1545.0) Change: Moved DEFAULT_CONFIG_SETTINGS to program_default_values.py and updated load_config to use it.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Loading configuration from {file_path}. Let's get this config loaded!",
@@ -76,75 +79,8 @@ def load_config(config_obj, file_path, console_print_func, app_instance):
                 version=current_version,
                 function=current_function)
 
-    # Set default configuration values
-    config_obj['DEFAULT_SETTINGS'] = {
-        'default_GLOBAL__debug_enabled': 'False',
-        'default_GLOBAL__log_visa_commands_enabled': 'False',
-        'default_GLOBAL__debug_to_Terminal': 'False', # NEW
-        'default_GLOBAL__paned_window_sash_position': '700', # NEW
-        'default_GLOBAL__window_geometry': '1400x780+100+100', # Default window size and position
-        'default_GLOBAL__last_config_save_time': 'Never', # NEW: Default for last save time
-
-        'default_instrument_connection__visa_resource': '',
-
-        'default_scan_configuration__scan_name': 'New Scan',
-        'default_scan_configuration__scan_directory': os.path.join(os.path.expanduser('~'), 'Documents', 'OPEN-AIR-Scans'), # Default to Documents
-        'default_scan_configuration__num_scan_cycles': '1',
-        'default_scan_configuration__rbw_step_size_hz': '10000',
-        'default_scan_configuration__cycle_wait_time_seconds': '0.5',
-        'default_scan_configuration__maxhold_time_seconds': '3',
-        'default_scan_configuration__scan_rbw_hz': '10000',
-        'default_scan_configuration__reference_level_dbm': '-40',
-        'default_scan_configuration__freq_shift_hz': '0',
-        'default_scan_configuration__maxhold_enabled': 'True',
-        'default_scan_configuration__sensitivity': 'True', # Corresponds to high_sensitivity_var
-        'default_scan_configuration__preamp_on': 'True',
-        'default_scan_configuration__scan_rbw_segmentation': '1000000.0',
-        'default_scan_configuration__default_focus_width': '10000.0',
-        'default_scan_configuration__selected_bands': '[]', # Store as JSON string of list of band names
-
-        'default_scan_meta_data__operator_name': 'Anthony Peter Kuzub',
-        'default_scan_meta_data__contact': 'I@Like.audio',
-        'default_scan_meta_data__name': 'My Venue', # Corresponds to venue_name_var
-        'default_scan_meta_data__venue_postal_code': '', # NEW
-        'default_scan_meta_data__address_field': '', # NEW
-        'default_scan_meta_data__city': 'Whitby',
-        'default_scan_meta_data__province': 'Ontario', # NEW
-        'default_scan_meta_data__scanner_type': 'Unknown',
-        'default_scan_meta_data__selected_antenna_type': '', # NEW
-        'default_scan_meta_data__antenna_description': '', # NEW
-        'default_scan_meta_data__antenna_use': '', # NEW
-        'default_scan_meta_data__antenna_mount': '', # NEW
-        'default_scan_meta_data__selected_amplifier_type': '', # NEW
-        'default_scan_meta_data__antenna_amplifier': '', # NEW
-        'default_scan_meta_data__amplifier_description': '', # NEW
-        'default_scan_meta_data__amplifier_use': '', # NEW
-        'default_scan_meta_data__notes': 'Enter any notes about the scan here.',
-
-        'default_instrument_preset__selected_preset_name': '', # NEW
-        'default_instrument_preset__loaded_preset_center_freq_mhz': '', # NEW
-        'default_instrument_preset__loaded_preset_span_mhz': '', # NEW
-        'default_instrument_preset__loaded_preset_rbw_hz': '', # NEW
-
-        'default_plotting__scan_markers_to_plot__include_gov_markers': 'True',
-        'default_plotting__scan_markers_to_plot__include_tv_markers': 'True',
-        'default_plotting__scan_markers_to_plot__include_markers': 'True',
-        'default_plotting__scan_markers_to_plot__include_intermod_markers': 'False', # NEW
-        'default_plotting__scan_markers_to_plot__open_html_after_complete': 'True',
-        'default_plotting__scan_markers_to_plot__create_html': 'True', # NEW
-
-        'default_plotting__average_markers_to_plot__include_gov_markers': 'True', # NEW
-        'default_plotting__average_markers_to_plot__include_tv_markers': 'True', # NEW
-        'default_plotting__average_markers_to_plot__include_markers': 'True', # NEW
-        'default_plotting__average_markers_to_plot__include_intermod_markers': 'False', # NEW
-        'default_plotting__average_markers_to_plot__math_average': 'True',
-        'default_plotting__average_markers_to_plot__math_median': 'True',
-        'default_plotting__average_markers_to_plot__math_range': 'True',
-        'default_plotting__average_markers_to_plot__math_standard_deviation': 'True',
-        'default_plotting__average_markers_to_plot__math_variance': 'True',
-        'default_plotting__average_markers_to_plot__math_psd': 'True',
-        'default_GLOBAL__include_console_messages_to_debug_file': 'False', # NEW
-    }
+    # Set default configuration values from the imported dictionary
+    config_obj.read_dict({'DEFAULT_SETTINGS': DEFAULT_CONFIG_SETTINGS})
 
     # Ensure LAST_USED_SETTINGS section exists or create it
     if 'LAST_USED_SETTINGS' not in config_obj:
@@ -399,4 +335,3 @@ def save_config_as_new_file(config_obj, file_path, console_print_func):
                     version=current_version,
                     function=current_function)
         raise # Re-raise to be caught by the calling function
-

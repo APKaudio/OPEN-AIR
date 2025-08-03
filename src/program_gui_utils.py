@@ -17,6 +17,7 @@
 #
 # Version 20250803.1500.0 (Initial creation: Moved _apply_saved_geometry and _setup_styles from main_app.py)
 # Version 20250803.1505.0 (Moved _create_widgets from main_app.py to this file as create_widgets)
+# Version 20250803.1600.0 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'DEFAULT_WINDOW_GEOMETRY' by importing it.)
 
 import os
 import inspect
@@ -28,6 +29,8 @@ import src.debug_logic as debug_logic_module
 import src.console_logic as console_logic_module
 from src.settings_and_config.config_manager import save_config
 from src.program_style import apply_styles # Import apply_styles for setup_styles
+from src.program_default_values import DEFAULT_WINDOW_GEOMETRY # NEW: Import DEFAULT_WINDOW_GEOMETRY
+
 
 # Import tab classes that are now created within create_widgets
 from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
@@ -40,7 +43,7 @@ from tabs.Console.ConsoleTab import ConsoleTab
 from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
 
 
-current_version = "20250803.1505.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250803.1600.0" # this variable should always be defined below the header to make the debugging better
 
 def apply_saved_geometry(app_instance):
     """
@@ -64,7 +67,8 @@ def apply_saved_geometry(app_instance):
     """
     current_function = inspect.currentframe().f_code.co_name
 
-    saved_geometry = app_instance.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback=app_instance.DEFAULT_WINDOW_GEOMETRY)
+    # Use the imported DEFAULT_WINDOW_GEOMETRY directly
+    saved_geometry = app_instance.config.get('LAST_USED_SETTINGS', 'last_GLOBAL__window_geometry', fallback=DEFAULT_WINDOW_GEOMETRY)
     try:
         app_instance.geometry(saved_geometry)
         debug_logic_module.debug_log(f"Applied saved geometry: {saved_geometry}.",
@@ -76,7 +80,7 @@ def apply_saved_geometry(app_instance):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        app_instance.geometry(app_instance.DEFAULT_WINDOW_GEOMETRY)
+        app_instance.geometry(DEFAULT_WINDOW_GEOMETRY) # Use the imported DEFAULT_WINDOW_GEOMETRY
 
 def setup_styles(app_instance):
     """
@@ -275,4 +279,3 @@ def create_widgets(app_instance):
                 file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
-
