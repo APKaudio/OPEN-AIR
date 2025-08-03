@@ -63,10 +63,8 @@ from ref.ref_scanner_setting_lists import (
     cycle_wait_time_presets,
     reference_level_drop_down,
     frequency_shift_presets,
-    high_sensitivity_drop_down,
     number_of_scans_presets,
-    rbw_presets,
-    preamp_options
+    rbw_presets
 )
 
 class InstrumentTab(ttk.Frame):
@@ -176,10 +174,10 @@ class InstrumentTab(ttk.Frame):
         connection_frame.columnconfigure(1, weight=1) # Allow resource combobox to expand
 
         # VISA Resource
-        ttk.Label(connection_frame, text="VISA Resource:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        self.resource_combobox = ttk.Combobox(connection_frame, textvariable=self.app_instance.selected_visa_resource_var, state="readonly", style='TCombobox')
-        self.resource_combobox.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-        self.resource_combobox.bind("<<ComboboxSelected>>", self._on_resource_selected)
+        #ttk.Label(connection_frame, text="VISA Resource:", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        #self.resource_combobox = ttk.Combobox(connection_frame, textvariable=self.app_instance.selected_visa_resource_var, state="readonly", style='TCombobox')
+        #self.resource_combobox.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        #self.resource_combobox.bind("<<ComboboxSelected>>", self._on_resource_selected)
 
         # Refresh Devices Button
         ttk.Button(connection_frame, text="Refresh Devices", command=self._refresh_devices, style='Dark.TButton').grid(row=0, column=2, padx=5, pady=2)
@@ -191,18 +189,18 @@ class InstrumentTab(ttk.Frame):
         self.disconnect_button.grid(row=1, column=1, padx=5, pady=5, sticky="ew")
 
         # Instrument Info Display
-        ttk.Label(connection_frame, text="Model:", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(connection_frame, textvariable=self.app_instance.instrument_model_var, style='Dark.TLabel.Value').grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+    #    ttk.Label(connection_frame, text="Model:", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
+     #   ttk.Label(connection_frame, textvariable=self.app_instance.instrument_model_var, style='Dark.TLabel.Value').grid(row=2, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(connection_frame, text="Serial:", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(connection_frame, textvariable=self.app_instance.instrument_serial_var, style='Dark.TLabel.Value').grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+     #   ttk.Label(connection_frame, text="Serial:", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
+    #    ttk.Label(connection_frame, textvariable=self.app_instance.instrument_serial_var, style='Dark.TLabel.Value').grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(connection_frame, text="Firmware:", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(connection_frame, textvariable=self.app_instance.instrument_firmware_var, style='Dark.TLabel.Value').grid(row=4, column=1, padx=5, pady=2, sticky="ew")
+     #   ttk.Label(connection_frame, text="Firmware:", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
+      #  ttk.Label(connection_frame, textvariable=self.app_instance.instrument_firmware_var, style='Dark.TLabel.Value').grid(row=4, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Label(connection_frame, text="Status:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
-        self.connection_status_label = ttk.Label(connection_frame, textvariable=self.app_instance.instrument_connection_status_var, style='Dark.TLabel.Value')
-        self.connection_status_label.grid(row=5, column=1, padx=5, pady=2, sticky="ew")
+    #    ttk.Label(connection_frame, text="Status:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
+      #  self.connection_status_label = ttk.Label(connection_frame, textvariable=self.app_instance.instrument_connection_status_var, style='Dark.TLabel.Value')
+      #  self.connection_status_label.grid(row=5, column=1, padx=5, pady=2, sticky="ew")
 
 
         # --- Instrument Settings Frame ---
@@ -211,45 +209,7 @@ class InstrumentTab(ttk.Frame):
         settings_frame.columnconfigure(1, weight=1) # Allow entry/combobox to expand
 
   
-        # RBW
-        ttk.Label(settings_frame, text="RBW (Hz):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        self.rbw_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.rbw_hz_var, style='TEntry')
-        self.rbw_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
-        self.rbw_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in rbw_presets], style='TCombobox')
-        self.rbw_combobox.grid(row=2, column=2, padx=5, pady=2)
-        self.rbw_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.rbw_hz_var: self._set_combobox_value(event, var))
-
-
-        # Reference Level
-        ttk.Label(settings_frame, text="Ref Level (dBm):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
-        self.ref_level_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.ref_level_dbm_var, style='TEntry')
-        self.ref_level_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
-        self.ref_level_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in reference_level_drop_down], style='TCombobox')
-        self.ref_level_combobox.grid(row=3, column=2, padx=5, pady=2)
-        self.ref_level_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.ref_level_dbm_var: self._set_combobox_value(event, var))
-
-
-        # Preamp
-        ttk.Label(settings_frame, text="Preamp:", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in preamp_options], state="readonly", style='TCombobox')
-        self.preamp_combobox.grid(row=4, column=1, padx=5, pady=2, sticky="ew", columnspan=2)
-        self.preamp_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.preamp_on_var, preamp_options))
-
-
-        # High Sensitivity Mode
-        ttk.Label(settings_frame, text="High Sensitivity:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
-        self.high_sensitivity_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in high_sensitivity_drop_down], state="readonly", style='TCombobox')
-        self.high_sensitivity_combobox.grid(row=5, column=1, padx=5, pady=2, sticky="ew", columnspan=2)
-        self.high_sensitivity_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.high_sensitivity_on_var, high_sensitivity_drop_down))
-
-
-        # Action Buttons
-        self.apply_settings_button = ttk.Button(settings_frame, text="Apply Settings", command=self._apply_settings, style='Dark.TButton')
-        self.apply_settings_button.grid(row=6, column=0, padx=5, pady=5, sticky="ew")
-        self.initialize_instrument_button = ttk.Button(settings_frame, text="Initialize Instrument", command=self._initialize_instrument, style='Dark.TButton')
-        self.initialize_instrument_button.grid(row=6, column=1, padx=5, pady=5, sticky="ew")
-        self.query_settings_button = ttk.Button(settings_frame, text="Query Settings", command=self._query_settings_and_info, style='Dark.TButton')
-        self.query_settings_button.grid(row=6, column=2, padx=5, pady=5, sticky="ew")
+       
 
         debug_log(f"Widgets created for InstrumentTab. Version: {self.current_version}. Interface is built!",
                     file=f"{self.current_file} - {self.current_version}",
@@ -694,33 +654,7 @@ class InstrumentTab(ttk.Frame):
                     version=self.current_version,
                     function=current_function)
 
-        if is_connected:
-            self.app_instance.instrument_connection_status_var.set("Connected")
-            self.connection_status_label.config(style='Green.TLabel') # Changed style to Green.TLabel
-            # Enable buttons for connected state
-            if self.connect_button: self.connect_button.config(state=tk.DISABLED)
-            if self.disconnect_button: self.disconnect_button.config(state=tk.NORMAL)
-            if self.apply_settings_button: self.apply_settings_button.config(state=tk.NORMAL)
-            if self.initialize_instrument_button: self.initialize_instrument_button.config(state=tk.NORMAL)
-            if self.query_settings_button: self.query_settings_button.config(state=tk.NORMAL)
-            debug_log("UI updated to 'Connected' state. Buttons enabled!",
-                        file=f"{self.current_file} - {self.current_version}",
-                        version=self.current_version,
-                        function=current_function)
-        else:
-            self.app_instance.instrument_connection_status_var.set("Disconnected")
-            self.connection_status_label.config(style='Red.TLabel') # Changed style to Red.TLabel
-            # Disable buttons for disconnected state
-            if self.connect_button: self.connect_button.config(state=tk.NORMAL)
-            if self.disconnect_button: self.disconnect_button.config(state=tk.DISABLED)
-            if self.apply_settings_button: self.apply_settings_button.config(state=tk.DISABLED)
-            if self.initialize_instrument_button: self.initialize_instrument_button.config(state=tk.DISABLED)
-            if self.query_settings_button: self.query_settings_button.config(state=tk.DISABLED)
-            debug_log("UI updated to 'Disconnected' state. Buttons disabled!",
-                        file=f"{self.current_file} - {self.current_version}",
-                        version=self.current_version,
-                        function=current_function)
-
+     
     def _on_resource_selected(self, event):
         """
         Function Description:
