@@ -52,8 +52,12 @@ antenna_types = [
     }
 ]
 
-# Example of how to access data:
-# for antenna in antenna_types:
-#     print(f"Type: {antenna['Type']}")
-#     print(f"Description: {antenna['Description']}")
-#     print(f"Use: {antenna['Use']}\n")
+def display_antenna_types():
+    """
+    Prints the content of antenna_types in a readable format.
+    """
+    print("\n--- ANTENNA TYPES ---")
+    for antenna in antenna_types:
+        print(f"Type: {antenna['Type']}")
+        print(f"  Description: {antenna['Description']}")
+        print(f"  Use: {antenna['Use']}\n")

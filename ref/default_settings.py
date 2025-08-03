@@ -66,3 +66,11 @@ DEFAULT_SETTINGS_STRUCTURE = {
         'plotting__average_markers_to_plot__math_variance': 'True',
         'plotting__average_markers_to_plot__math_psd': 'True',
     }
+
+def display_default_settings_structure():
+    """
+    Prints the content of DEFAULT_SETTINGS_STRUCTURE in a readable format.
+    """
+    print("\n--- DEFAULT SETTINGS STRUCTURE ---")
+    for key, value in DEFAULT_SETTINGS_STRUCTURE.items():
+        print(f"{key}: {value}")

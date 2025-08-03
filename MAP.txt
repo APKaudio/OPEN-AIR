@@ -12,6 +12,7 @@
 #├── utils/
 #├── .gitattributes
 #├── .gitignore
+#├── MAP.txt
 #├── README.md
 #└── main_app.py
 #        |   -> Class: App
@@ -69,17 +70,33 @@
 #            |   -> Function: process_and_stitch_scan_data
 #            |   -> Function: stitch_and_save_scan_data
 #    ├── Antenna_type.py
-#            - No functions or classes found.
+#            |   -> Function: display_antenna_types
 #    ├── __init__ .py
 #            - No functions or classes found.
 #    ├── antenna_amplifier_type.py
-#            - No functions or classes found.
+#            |   -> Function: display_antenna_amplifier_types
 #    ├── default_settings.py
-#            - No functions or classes found.
+#            |   -> Function: display_default_settings_structure
 #    ├── frequency_bands.py
-#            - No functions or classes found.
+#            |   -> Function: display_default_freq_shift_options
+#            |   -> Function: display_default_ref_level_options
+#            |   -> Function: display_eu_tv_band_markers
+#            |   -> Function: display_gov_plot_band_markers
+#            |   -> Function: display_rbw_options
+#            |   -> Function: display_scan_band_ranges
+#            |   -> Function: display_tv_plot_band_markers
+#            |   -> Function: display_vbw_rbw_ratio_options
 #    └── ref_scanner_setting_lists.py
-#            - No functions or classes found.
+#            |   -> Function: display_attenuation_levels
+#            |   -> Function: display_cycle_wait_time_presets
+#            |   -> Function: display_dwell_time_drop_down
+#            |   -> Function: display_frequency_shift_presets
+#            |   -> Function: display_frequency_shifts
+#            |   -> Function: display_graph_quality_drop_down
+#            |   -> Function: display_number_of_scans_presets
+#            |   -> Function: display_rbw_presets
+#            |   -> Function: display_reference_level_drop_down
+#            |   -> Function: display_scan_modes
 #    ├── ThisIsMyScan_RBW1K_HOLD3_Offset0_20250801_100125.csv
 #    ├── ThisIsMyScan_RBW1K_HOLD3_Offset0_20250801_101838.csv
 #    ├── ThisIsMyScan_RBW1K_HOLD3_Offset1000_20250801_004411.csv

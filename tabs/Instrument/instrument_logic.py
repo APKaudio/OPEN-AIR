@@ -1,4 +1,4 @@
-# # tabs/Instrument/instrument_logic.py
+# tabs/Instrument/instrument_logic.py
 #
 # This file contains the core logic for interacting with the instrument,
 # including connection, disconnection, applying settings, and querying
@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.1115.0 (Ensured all Tkinter variable updates are scheduled on the main thread via app_instance.after(0, ...))
+# Version 20250803.1115.1 (Fixed ImportError: cannot import name 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
 
-current_version = "20250803.1115.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1115 * 0 # Example hash, adjust as needed
+current_version = "20250803.1115.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250803 * 1115 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import pyvisa
@@ -43,7 +43,7 @@ from tabs.Instrument.utils_instrument_read_and_write import (
     query_safe
 )
 from tabs.Instrument.utils_instrument_initialize import (
-    initialize_instrument
+    initialize_instrument_logic # CORRECTED: Changed import name
 )
 from tabs.Instrument.utils_instrument_query_settings import (
     query_current_instrument_settings
@@ -287,7 +287,7 @@ def apply_settings_logic(app_instance, console_print_func):
     # 1. Logs the start of applying settings.
     # 2. Checks if an instrument is connected.
     # 3. Retrieves settings from Tkinter variables.
-    # 4. Calls `initialize_instrument` to apply settings to the instrument.
+    # 4. Calls `initialize_instrument_logic` to apply settings to the instrument.
     # 5. Logs success or failure.
     #
     # Outputs:
@@ -295,8 +295,8 @@ def apply_settings_logic(app_instance, console_print_func):
     #
     # (2025-08-02) Change: Initial implementation.
     # (2025-08-02) Change: Updated debug file name to use `os.path.basename(__file__)`.
-    # (2025-08-02) Change: Corrected call to `initialize_instrument` with correct arguments.
-    # (2025-08-02) Change: Updated import for `initialize_instrument` from `utils_instrument_initialize`.
+    # (2025-08-02) Change: Corrected call to `initialize_instrument_logic` with correct arguments.
+    # (2025-08-02) Change: Updated import for `initialize_instrument_logic` from `utils_instrument_initialize`.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Applying settings to instrument. Let's dial this in! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -327,7 +327,7 @@ def apply_settings_logic(app_instance, console_print_func):
         # Get the model match from app_instance.instrument_model
         model_match = app_instance.connected_instrument_model.get() # Use connected_instrument_model
 
-        if initialize_instrument(
+        if initialize_instrument_logic( # CORRECTED: Changed function call name
             app_instance.inst,
             ref_level_dbm,
             high_sensitivity_enabled,
@@ -433,7 +433,8 @@ def query_current_settings_logic(app_instance, console_print_func):
             app_instance.after(0, lambda: app_instance.sweep_time_s_var.set(float(sweep_time_str)))
             debug_log(f"Queried Sweep Time: {sweep_time_str.strip()} s.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_function)
+                        version=current_version,
+                        function=current_function)
 
         # Query Reference Level
         ref_level_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", console_print_func)
@@ -540,5 +541,6 @@ def query_current_settings_logic(app_instance, console_print_func):
         console_print_func(f"❌ An unexpected error occurred while querying settings: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred while querying settings: {e}. Fucking hell!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_function)
+                    version=current_version,
+                    function=current_function)
         return False

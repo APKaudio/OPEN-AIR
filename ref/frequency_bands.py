@@ -196,3 +196,67 @@ GOV_PLOT_BAND_MARKERS = [
     {"Band Name": "Amateur Radio 13cm", "Start MHz": 2300, "Stop MHz": 2450},
     {"Band Name": "Amateur Radio 13cm (cont)", "Start MHz": 2400, "Stop MHz": 2450}, # Overlap with ISM
 ]
+
+def display_scan_band_ranges():
+    """
+    Prints the content of SCAN_BAND_RANGES in a readable format.
+    """
+    print("\n--- SCAN BAND RANGES ---")
+    for band in SCAN_BAND_RANGES:
+        print(f"Band Name: {band['Band Name']}, Start MHz: {band['Start MHz']}, Stop MHz: {band['Stop MHz']}")
+
+def display_tv_plot_band_markers():
+    """
+    Prints the content of TV_PLOT_BAND_MARKERS in a readable format.
+    """
+    print("\n--- NORTH AMERICAN TV PLOT BAND MARKERS ---")
+    for marker in TV_PLOT_BAND_MARKERS:
+        print(f"Band Name: {marker['Band Name']}, Start MHz: {marker['Start MHz']}, Stop MHz: {marker['Stop MHz']}")
+
+def display_eu_tv_band_markers():
+    """
+    Prints the content of EU_TV_BAND_MARKERS in a readable format.
+    """
+    print("\n--- EU TV PLOT BAND MARKERS ---")
+    for marker in EU_TV_BAND_MARKERS:
+        print(f"Band Name: {marker['Band Name']}, Start MHz: {marker['Start MHz']}, Stop MHz: {marker['Stop MHz']}")
+
+def display_gov_plot_band_markers():
+    """
+    Prints the content of GOV_PLOT_BAND_MARKERS in a readable format.
+    """
+    print("\n--- GOVERNMENT/COMMERCIAL PLOT BAND MARKERS ---")
+    for marker in GOV_PLOT_BAND_MARKERS:
+        print(f"Band Name: {marker['Band Name']}, Start MHz: {marker['Start MHz']}, Stop MHz: {marker['Stop MHz']}")
+
+def display_rbw_options():
+    """
+    Prints the content of RBW_OPTIONS in a readable format.
+    """
+    print("\n--- RBW OPTIONS (Hz) ---")
+    for option in RBW_OPTIONS:
+        print(f"RBW: {option} Hz")
+
+def display_vbw_rbw_ratio_options():
+    """
+    Prints the content of VBW_RBW_RATIO_OPTIONS in a readable format.
+    """
+    print("\n--- VBW/RBW RATIO OPTIONS ---")
+    for option in VBW_RBW_RATIO_OPTIONS:
+        print(f"Ratio: {option}")
+
+def display_default_ref_level_options():
+    """
+    Prints the content of DEFAULT_REF_LEVEL_OPTIONS in a readable format.
+    """
+    print("\n--- DEFAULT REFERENCE LEVEL OPTIONS (dBm) ---")
+    for option in DEFAULT_REF_LEVEL_OPTIONS:
+        print(f"Reference Level: {option} dBm")
+
+def display_default_freq_shift_options():
+    """
+    Prints the content of DEFAULT_FREQ_SHIFT_OPTIONS in a readable format.
+    """
+    print("\n--- DEFAULT FREQUENCY SHIFT OPTIONS (Hz) ---")
+    for option in DEFAULT_FREQ_SHIFT_OPTIONS:
+        print(f"Frequency Shift: {option} Hz")

@@ -24,6 +24,7 @@
 # Version 20250803.1655.0 (Fixed AttributeError: '_tkinter.tkapp' object has no attribute 'selected_resource' by changing to 'selected_visa_resource_var'.)
 # Version 20250803.1700.0 (Refactored apply_instrument_settings_logic into a new utility file.)
 # Version 20250803.1705.0 (Fixed ImportError for initialize_instrument_logic by importing from utils_instrument_initialize.py.)
+# Version 20250803.1720.0 (Fixed ModuleNotFoundError for 'frequency_bands' by correcting import path.)
 
 current_version = "20250803.1705.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250803 * 1705 * 0 # Example hash, adjust as needed
@@ -57,17 +58,25 @@ from tabs.Instrument.utils_instrument_initialize import initialize_instrument_lo
 
 # Import ref data
 from ref.ref_scanner_setting_lists import (
-    ref_level_drop_down,
-    rbw_drop_down,
-    span_drop_down,
-    center_freq_drop_down,
-    preamp_drop_down,
-    high_sensitivity_drop_down,
-    trace_mode_drop_down,
-    display_scale_drop_down,
-    sweep_time_drop_down,
-    data_format_drop_down
+    reference_level_drop_down, # CORRECTED: Changed import name from ref_level_drop_down
+    rbw_presets, # CORRECTED: Changed from rbw_drop_down to rbw_presets
+    # span_drop_down, # Not found in ref_scanner_setting_lists.py, removed.
+    # center_freq_drop_down, # Not found in ref_scanner_setting_lists.py, removed.
+    attenuation_levels, # Added attenuation_levels
+    frequency_shifts, # Added frequency_shifts
+    scan_modes, # Added scan_modes
+    dwell_time_drop_down, # Added dwell_time_drop_down
+    cycle_wait_time_presets, # Added cycle_wait_time_presets
+    number_of_scans_presets, # Added number_of_scans_presets
+    graph_quality_drop_down # Added graph_quality_drop_down
 )
+from ref.frequency_bands import ( # CORRECTED: Importing from ref.frequency_bands
+    SCAN_BAND_RANGES, # This is where SCAN_BAND_RANGES is defined
+    DEFAULT_REF_LEVEL_OPTIONS,
+    RBW_OPTIONS,
+    DEFAULT_FREQ_SHIFT_OPTIONS
+)
+
 
 class InstrumentTab(ttk.Frame):
     """
@@ -205,7 +214,8 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(settings_frame, text="Center Freq (MHz):", style='Dark.TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.center_freq_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.center_freq_mhz_var, style='TEntry')
         self.center_freq_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-        self.center_freq_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in center_freq_drop_down], style='TCombobox')
+        # Using a subset of frequency_bands for center frequency options for now, as a dedicated list isn't present
+        self.center_freq_combobox = ttk.Combobox(settings_frame, values=[band['Start MHz'] for band in SCAN_BAND_RANGES] + [band['Stop MHz'] for band in SCAN_BAND_RANGES], style='TCombobox')
         self.center_freq_combobox.grid(row=0, column=2, padx=5, pady=2)
         self.center_freq_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.center_freq_mhz_var: self._set_combobox_value(event, var))
 
@@ -214,7 +224,9 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(settings_frame, text="Span (MHz):", style='Dark.TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.span_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.span_mhz_var, style='TEntry')
         self.span_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        self.span_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in span_drop_down], style='TCombobox')
+        # Using a subset of frequency_bands for span options for now, as a dedicated list isn't present
+        # This is a placeholder, you might want to define specific span options in ref_scanner_setting_lists.py
+        self.span_combobox = ttk.Combobox(settings_frame, values=[10, 20, 50, 100, 200, 500, 1000], style='TCombobox')
         self.span_combobox.grid(row=1, column=2, padx=5, pady=2)
         self.span_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.span_mhz_var: self._set_combobox_value(event, var))
 
@@ -223,7 +235,7 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(settings_frame, text="RBW (Hz):", style='Dark.TLabel').grid(row=2, column=0, padx=5, pady=2, sticky="w")
         self.rbw_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.rbw_hz_var, style='TEntry')
         self.rbw_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
-        self.rbw_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in rbw_drop_down], style='TCombobox')
+        self.rbw_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in rbw_presets], style='TCombobox') # Changed to rbw_presets
         self.rbw_combobox.grid(row=2, column=2, padx=5, pady=2)
         self.rbw_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.rbw_hz_var: self._set_combobox_value(event, var))
 
@@ -232,23 +244,25 @@ class InstrumentTab(ttk.Frame):
         ttk.Label(settings_frame, text="Ref Level (dBm):", style='Dark.TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
         self.ref_level_entry = ttk.Entry(settings_frame, textvariable=self.app_instance.ref_level_dbm_var, style='TEntry')
         self.ref_level_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
-        self.ref_level_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in ref_level_drop_down], style='TCombobox')
+        self.ref_level_combobox = ttk.Combobox(settings_frame, values=[item['value'] for item in reference_level_drop_down], style='TCombobox') # CORRECTED: reference_level_drop_down
         self.ref_level_combobox.grid(row=3, column=2, padx=5, pady=2)
         self.ref_level_combobox.bind("<<ComboboxSelected>>", lambda event, var=self.app_instance.ref_level_dbm_var: self._set_combobox_value(event, var))
 
 
         # Preamp
         ttk.Label(settings_frame, text="Preamp:", style='Dark.TLabel').grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in preamp_drop_down], state="readonly", style='TCombobox')
+        # Assuming preamp_drop_down will be a list of dicts like [{"label": "ON", "value": True}, {"label": "OFF", "value": False}]
+        self.preamp_combobox = ttk.Combobox(settings_frame, values=["ON", "OFF"], state="readonly", style='TCombobox') # Using simple ON/OFF for now
         self.preamp_combobox.grid(row=4, column=1, padx=5, pady=2, sticky="ew", columnspan=2)
-        self.preamp_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.preamp_on_var, preamp_drop_down))
+        self.preamp_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.preamp_on_var, [{"label": "ON", "value": True}, {"label": "OFF", "value": False}]))
 
 
         # High Sensitivity Mode
         ttk.Label(settings_frame, text="High Sensitivity:", style='Dark.TLabel').grid(row=5, column=0, padx=5, pady=2, sticky="w")
-        self.high_sensitivity_combobox = ttk.Combobox(settings_frame, values=[item['label'] for item in high_sensitivity_drop_down], state="readonly", style='TCombobox')
+        # Assuming high_sensitivity_drop_down will be a list of dicts like [{"label": "ON", "value": True}, {"label": "OFF", "value": False}]
+        self.high_sensitivity_combobox = ttk.Combobox(settings_frame, values=["ON", "OFF"], state="readonly", style='TCombobox') # Using simple ON/OFF for now
         self.high_sensitivity_combobox.grid(row=5, column=1, padx=5, pady=2, sticky="ew", columnspan=2)
-        self.high_sensitivity_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.high_sensitivity_on_var, high_sensitivity_drop_down))
+        self.high_sensitivity_combobox.bind("<<ComboboxSelected>>", lambda event: self._set_boolean_combobox_value(event, self.app_instance.high_sensitivity_on_var, [{"label": "ON", "value": True}, {"label": "OFF", "value": False}]))
 
 
         # Action Buttons
@@ -366,17 +380,15 @@ class InstrumentTab(ttk.Frame):
                     function=current_function)
 
         # Pass app_instance to the logic function
-        success, instrument_obj, model, serial, firmware = connect_instrument_logic( # Added instrument_obj, model, serial, firmware
-            selected_resource,
-            self.console_print_func,
-            self.app_instance # Pass app_instance
+        # connect_instrument_logic now returns a boolean for success and sets app_instance.inst directly
+        success = connect_instrument_logic( # Removed tuple unpacking as connect_instrument_logic no longer returns these
+            self.app_instance, # Pass app_instance directly
+            self.console_print_func
         )
         self.app_instance.is_connected.set(success)
-        if success: # Only update if connection was successful
-            self.app_instance.instrument = instrument_obj # Store the instrument object
-            self.app_instance.instrument_model_var.set(model)
-            self.app_instance.instrument_serial_var.set(serial)
-            self.app_instance.instrument_firmware_var.set(firmware)
+        # The instrument_logic.py's connect_instrument_logic function now handles setting
+        # app_instance.inst, model, serial, and firmware directly.
+        # So, no need to set them here.
 
         self._update_connection_status_ui()
 
@@ -420,15 +432,16 @@ class InstrumentTab(ttk.Frame):
 
         # Pass app_instance to the logic function
         success = disconnect_instrument_logic(
-            self.app_instance.instrument, # Pass the instrument object from app_instance
+            self.app_instance, # Pass the app_instance directly
             self.console_print_func
         )
         self.app_instance.is_connected.set(not success) # If disconnect is successful, is_connected should be False
         if success:
-            self.app_instance.instrument = None # Clear the instrument reference
-            self.app_instance.instrument_model_var.set("")
-            self.app_instance.instrument_serial_var.set("")
-            self.app_instance.instrument_firmware_var.set("")
+            # These are now handled by instrument_logic.py's disconnect_instrument_logic
+            # self.app_instance.instrument = None # Clear the instrument reference
+            # self.app_instance.instrument_model_var.set("")
+            # self.app_instance.instrument_serial_var.set("")
+            # self.app_instance.instrument_firmware_var.set("")
             self.console_print_func("✅ Instrument disconnected.")
             debug_log("Instrument disconnected. All done!",
                         file=f"{self.current_file} - {self.current_version}",

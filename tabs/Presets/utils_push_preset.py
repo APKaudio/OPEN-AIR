@@ -18,6 +18,7 @@
 # Version 20250802.2300.0 (Modified push_preset_logic to accept preset_data dict and handle empty/BLANK values.)
 # Version 20250803.0040.0 (FIXED: Corrected Center/Span frequency conversion from MHz to Hz for SCPI commands.)
 # Version 20250803.0045.0 (FIXED: Removed unused 'read_safe' import to resolve ImportError.)
+# Version 20250803.1730.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
 
 current_version = "20250803.0045.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250803 * 45 * 0 # Example hash, adjust as needed.
@@ -31,7 +32,7 @@ from src.debug_logic import debug_log
 from src.console_logic import console_log
 
 from tabs.Instrument.utils_instrument_initialize import (
-    initialize_instrument
+    initialize_instrument_logic # CORRECTED: Changed from initialize_instrument
 )
 from tabs.Instrument.utils_instrument_read_and_write import (
     write_safe,

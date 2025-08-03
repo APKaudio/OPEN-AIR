@@ -52,8 +52,12 @@ antenna_amplifier_types = [
     }
 ]
 
-# Example of how to access data:
-# for amplifier in antenna_amplifier_types:
-#     print(f"Type: {amplifier['Type']}")
-#     print(f"Description: {amplifier['Description']}")
-#     print(f"Use: {amplifier['Use']}\n")
+def display_antenna_amplifier_types():
+    """
+    Prints the content of antenna_amplifier_types in a readable format.
+    """
+    print("\n--- ANTENNA AMPLIFIER TYPES ---")
+    for amplifier in antenna_amplifier_types:
+        print(f"Type: {amplifier['Type']}")
+        print(f"  Description: {amplifier['Description']}")
+        print(f"  Use: {amplifier['Use']}\n")
