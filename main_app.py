@@ -85,7 +85,7 @@ class App(tk.Tk):
             "Experiments": _print_xxx_ascii,
         }
         
-        self.title(f"OPEN-AIR RF Spectrum Analyzer Controller (v{self.current_version})")
+        self.title(f"OPEN-AIR - Zone Awareness Processor   (v{self.current_version})")
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
         self.style = ttk.Style(self)

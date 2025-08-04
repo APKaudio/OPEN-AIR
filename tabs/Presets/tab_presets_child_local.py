@@ -21,8 +21,11 @@
 # Version 20250804.000003.0 (FIXED: Mapped preset CSV keys to correct app_instance attribute names (e.g., 'Center' -> 'center_freq_hz_var').)
 # Version 20250804.000006.0 (MODIFIED: Confirmed 3-column layout and ensured consistent behavior.)
 # Version 20250804.000007.0 (MODIFIED: Changed preset button layout to 4 columns and enabled mouse scroll wheel for canvas.)
+# Version 20250804.000008.0 (MODIFIED: Changed preset button layout to 5 columns as requested.)
+# Version 20250804.000009.0 (ADDED: _on_tab_selected and _on_window_focus_in to ensure instant button refresh.)
+# Version 20250804.000010.0 (FIXED: AttributeError by moving _on_window_focus_in definition before __init__ bind.)
 
-current_version = "20250804.000007.0" # Incremented version
+current_version = "20250804.000010.0" # Incremented version
 current_version_hash = 20250803 * 1110 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
@@ -48,6 +51,45 @@ class LocalPresetsTab(ttk.Frame):
     to load them, which updates the main application's instrument settings
     and pushes them to the connected instrument.
     """
+    def _on_window_focus_in(self, event):
+        """
+        Called when the main application window gains focus.
+        This will trigger a refresh of the displayed presets to ensure they are up-to-date.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Main window gained focus. Refreshing Local Presets. 🔄",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        # Check if this tab is the active one in its notebook
+        if self.master.winfo_exists() and self.master.select() == str(self):
+            self.populate_local_presets_list()
+            debug_log(f"Local Presets tab active and window focused. Buttons refreshed. ✅",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log(f"Window focused, but Local Presets tab not active. Skipping refresh. 😴",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+
+    def _on_tab_selected(self, event):
+        """
+        Called when this tab is selected in the notebook.
+        Ensures the presets are reloaded and buttons are refreshed instantly.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Local Presets tab selected. Refreshing buttons instantly. 🚀",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        self.populate_local_presets_list()
+        debug_log(f"Local Presets tab refreshed after selection. 👍",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
     def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
         """
         Initializes the LocalPresetsTab.
@@ -83,6 +125,10 @@ class LocalPresetsTab(ttk.Frame):
 
         self._create_widgets()
         self.populate_local_presets_list() # Initial population
+
+        # Bind to main app window focus-in event for refresh when app gains focus
+        # This binding needs to be after _on_window_focus_in is defined.
+        self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
 
         debug_log(f"LocalPresetsTab initialized. Version: {current_version}. Local presets ready! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -128,8 +174,8 @@ class LocalPresetsTab(ttk.Frame):
         self.canvas.bind('<Enter>', lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
         self.canvas.bind('<Leave>', lambda e: self.canvas.unbind_all("<MouseWheel>"))
 
-        # Configure the scrollable frame to expand with 4 columns (or 5 if preferred)
-        self.max_cols = 4 # Changed from 3 to 4. Can be 5 as requested.
+        # Configure the scrollable frame to expand with 5 columns
+        self.max_cols = 5 # Changed to 5 as requested
         for i in range(self.max_cols):
             self.scrollable_frame.grid_columnconfigure(i, weight=1)
 
@@ -257,7 +303,8 @@ class LocalPresetsTab(ttk.Frame):
         self.console_print_func(f"✅ Displayed {len(self.user_presets_data)} local presets as buttons.")
         debug_log(f"Local presets buttons populated with {len(self.user_presets_data)} entries. Looking good! 👍",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_function)
+                    version=current_version,
+                    function=current_function)
 
     def _on_preset_button_click(self, preset_data, clicked_button):
         """
