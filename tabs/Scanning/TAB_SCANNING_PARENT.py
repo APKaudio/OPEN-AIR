@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.2300.3 (REFACTORED: Applied color-coded child notebook style.)
 # Version 20250803.2210.3 (REFACTORED: Removed ASCII art logic to break circular import.)
-# Version 20250803.1930.0 (FIXED: Corrected typo in import name 'ScanTa' to 'ScanTab'.)
 
-current_version = "20250803.2210.3"
+current_version = "20250803.2300.3"
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,7 +30,6 @@ from tabs.Scanning.tab_scanning_child_scan_meta_data import ScanMetaDataTab
 # Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
-# REMOVED: from src.gui_elements import _print_scan_ascii - THIS CAUSED THE CIRCULAR IMPORT
 
 class TAB_SCANNING_PARENT(ttk.Frame):
     """
@@ -41,7 +40,8 @@ class TAB_SCANNING_PARENT(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
-        self.child_notebook = ttk.Notebook(self, style='Child.TNotebook')
+        # Use the specific, color-coded style for this child notebook
+        self.child_notebook = ttk.Notebook(self, style='Scanning.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
         self.scan_config_tab = ScanTab(self.child_notebook, self.app_instance, self.console_print_func)
@@ -63,6 +63,5 @@ class TAB_SCANNING_PARENT(ttk.Frame):
     def _on_parent_tab_selected(self, event):
         """
         Handles the event when this parent tab is selected.
-        The core logic is now handled by main_app.py.
         """
         self._on_child_tab_selected(event)

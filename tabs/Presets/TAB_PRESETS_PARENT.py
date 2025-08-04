@@ -14,21 +14,20 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.2300.2 (REFACTORED: Applied color-coded child notebook style.)
 # Version 20250803.224000.0 (FIXED: Added missing style_obj argument to DevicePresetsTab constructor.)
 # Version 20250803.2210.2 (REFACTORED: Removed ASCII art logic to break circular import.)
 
-current_version = "20250803.224000.0"
+current_version = "20250803.2300.2"
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 import os
 
-# Import the child tabs
 from tabs.Presets.tab_presets_child_local import LocalPresetsTab
 from tabs.Presets.tab_presets_child_device import DevicePresetsTab
 from tabs.Presets.tab_presets_child_preset_editor import PresetEditorTab
-
 from src.debug_logic import debug_log
 from src.console_logic import console_log
 
@@ -41,7 +40,8 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
-        self.child_notebook = ttk.Notebook(self, style='Child.TNotebook')
+        # Use the specific, color-coded style for this child notebook
+        self.child_notebook = ttk.Notebook(self, style='Presets.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
         self.local_presets_tab = LocalPresetsTab(self.child_notebook, self.app_instance, self.console_print_func)
@@ -50,7 +50,6 @@ class TAB_PRESETS_PARENT(ttk.Frame):
         self.preset_editor_tab = PresetEditorTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.preset_editor_tab, text="Preset Editor")
 
-        # CORRECTED: Added the missing 'style_obj' argument
         self.device_presets_tab = DevicePresetsTab(self.child_notebook, self.app_instance, self.console_print_func, style_obj=self.app_instance.style)
         self.child_notebook.add(self.device_presets_tab, text="Presets In Device")
 
@@ -67,6 +66,5 @@ class TAB_PRESETS_PARENT(ttk.Frame):
     def _on_parent_tab_selected(self, event):
         """
         Handles the event when this parent tab is selected.
-        The core logic is now handled by main_app.py.
         """
         self._on_child_tab_selected(event)

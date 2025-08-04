@@ -15,11 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
 # Version 20250803.223500.0 (FIXED: Restored missing COLOR_PALETTE keys like 'blue_btn'.)
-# Version 20250803.223000.0 (FIXED: Restored missing child widget styles (TLabel, Treeview, etc.).)
-# Version 20250803.214000.0 (REFACTORED: Added styles for custom tab buttons (Path B).)
 
-current_version = "20250803.223500.0"
+current_version = "20250803.225500.0"
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -51,21 +50,19 @@ COLOR_PALETTE = {
 }
 
 COLOR_PALETTE_TABS = {
-    'instruments_active': '#d13438',
-    'markers_active': '#ff8c00',
-    'presets_active': '#ffb900',
-    'scanning_active': '#00b294',
-    'plotting_active': '#0078d4',
-    'experiments_active': '#8a2be2',
+    'Instruments': {'active': '#d13438', 'fg': 'white'},
+    'Markers': {'active': '#ff8c00', 'fg': 'black'},
+    'Presets': {'active': '#ffb900', 'fg': 'black'},
+    'Scanning': {'active': '#00b294', 'fg': 'white'},
+    'Plotting': {'active': '#0078d4', 'fg': 'white'},
+    'Experiments': {'active': '#8a2be2', 'fg': 'white'},
 }
 
 def _get_dark_color(hex_color):
     """Calculates a 50% darker version of a hex color."""
     hex_color = hex_color.lstrip('#')
     r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
-    r = int(r * 0.5)
-    g = int(g * 0.5)
-    b = int(b * 0.5)
+    r = int(r * 0.5); g = int(g * 0.5); b = int(b * 0.5)
     return f'#{r:02x}{g:02x}{b:02x}'
 
 def apply_styles(style, debug_log_func, current_app_version):
@@ -79,10 +76,12 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure('Dark.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
     style.configure('TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
     
+    # --- Custom Label Styles ---
     try:
         tlabel_layout = style.layout('TLabel')
-        style.layout('Dark.TLabel.Value', tlabel_layout)
-        style.layout('Red.TLabel.Value', tlabel_layout)
+        if tlabel_layout:
+            style.layout('Dark.TLabel.Value', tlabel_layout)
+            style.layout('Red.TLabel.Value', tlabel_layout)
     except TclError as e:
         debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=__file__, version=current_app_version, function="apply_styles")
 
@@ -92,39 +91,39 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['input_fg'], borderwidth=1, relief="solid")
     style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
     
-    # --- Custom Tab Button Styles ---
-    tab_configs = {
-        "Instruments": {"color": COLOR_PALETTE_TABS['instruments_active'], "fg": "white"},
-        "Markers": {"color": COLOR_PALETTE_TABS['markers_active'], "fg": "black"},
-        "Presets": {"color": COLOR_PALETTE_TABS['presets_active'], "fg": "black"},
-        "Scanning": {"color": COLOR_PALETTE_TABS['scanning_active'], "fg": "white"},
-        "Plotting": {"color": COLOR_PALETTE_TABS['plotting_active'], "fg": "white"},
-        "Experiments": {"color": COLOR_PALETTE_TABS['experiments_active'], "fg": "white"},
-    }
-
-    for name, config in tab_configs.items():
-        active_color = config['color']
+    # --- Custom Tab Button Styles (Parents) & Child Notebook Styles ---
+    for name, config in COLOR_PALETTE_TABS.items():
+        active_color = config['active']
         inactive_color = _get_dark_color(active_color)
-        active_style_name = f'{name}.Active.TButton'
-        inactive_style_name = f'{name}.Inactive.TButton'
         
-        style.configure(active_style_name, background=active_color, foreground=config['fg'], font=('Helvetica', 14, 'bold'), relief='flat')
-        style.map(active_style_name, background=[('active', active_color)])
+        # Parent Active Style
+        style.configure(f'{name}.Active.TButton', background=active_color, foreground=config['fg'], font=('Helvetica', 14, 'bold'), relief='flat')
+        style.map(f'{name}.Active.TButton', background=[('active', active_color)])
         
-        style.configure(inactive_style_name, background=inactive_color, foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 11, 'bold'), relief='flat')
-        style.map(inactive_style_name, background=[('active', active_color)])
+        # Parent Inactive Style
+        style.configure(f'{name}.Inactive.TButton', background=inactive_color, foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 11, 'bold'), relief='flat')
+        style.map(f'{name}.Inactive.TButton', background=[('active', active_color)])
 
-    # --- Child Notebook and Treeview Styles ---
-    style.configure('Child.TNotebook', background=COLOR_PALETTE['background'])
-    style.configure('Child.TNotebook.Tab', background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], padding=[8, 4], font=('Helvetica', 9))
-    style.map('Child.TNotebook.Tab', background=[('selected', COLOR_PALETTE['select_bg'])])
+        # Child Notebook Styles
+        child_style_name = f'{name}.Child.TNotebook'
+        child_tab_style_name = f'{child_style_name}.Tab'
+        
+        style.configure(child_style_name, background=COLOR_PALETTE['background'], borderwidth=1)
+        style.configure(child_tab_style_name, 
+                        background=inactive_color, 
+                        foreground=COLOR_PALETTE['foreground'], 
+                        padding=[8, 4], 
+                        font=('Helvetica', 10, 'bold'))
+        style.map(child_tab_style_name, 
+                  background=[('selected', active_color)],
+                  foreground=[('selected', config['fg'])])
 
+    # --- Other Widget Styles ---
     style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))
     style.map("Treeview", background=[('selected', COLOR_PALETTE['select_bg'])], foreground=[('selected', COLOR_PALETTE['select_fg'])])
     style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
     style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])
 
-    # --- General Colored Button Styles ---
     style.configure('Green.TButton', background=COLOR_PALETTE['green_btn'], foreground='white')
     style.map('Green.TButton', background=[('active', COLOR_PALETTE['green_btn_active'])])
     style.configure('Red.TButton', background=COLOR_PALETTE['red_btn'], foreground='white')

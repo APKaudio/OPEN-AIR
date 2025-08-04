@@ -14,23 +14,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.2300.0 (REFACTORED: Applied color-coded child notebook style.)
 # Version 20250803.2210.0 (REFACTORED: Removed ASCII art logic to break circular import.)
-# Version 20250803.0131.1 (Added _on_parent_tab_selected to display ASCII art for Instrument tab.)
 
-current_version = "20250803.2210.0"
+current_version = "20250803.2300.0"
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
-# Import child tabs for the Instrument parent tab
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
-
-# Updated imports for new logging functions
 from src.debug_logic import debug_log
 from src.console_logic import console_log
-# REMOVED: from src.gui_elements import _print_inst_ascii - THIS CAUSED THE CIRCULAR IMPORT
 
 class TAB_INSTRUMENT_PARENT(ttk.Frame):
     """
@@ -41,7 +37,8 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
-        self.child_notebook = ttk.Notebook(self, style='Child.TNotebook')
+        # Use the specific, color-coded style for this child notebook
+        self.child_notebook = ttk.Notebook(self, style='Instruments.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
         self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
@@ -63,8 +60,5 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
     def _on_parent_tab_selected(self, event):
         """
         Handles the event when this parent tab is selected.
-        The core logic (like printing ASCII art) is now handled by main_app.py.
-        This method is kept for consistency and future use.
         """
-        # Also ensure the currently visible child tab gets its _on_tab_selected called
         self._on_child_tab_selected(event)
