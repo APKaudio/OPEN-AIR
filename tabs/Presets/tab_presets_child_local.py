@@ -17,8 +17,12 @@
 #
 #
 # Version 20250803.1110.0 (FIXED: Reverted import path for push_preset_logic to original correct path.)
+# Version 20250803.235902.0 (MODIFIED: Applied 3-column layout and new button styles for local presets. Added explicit online check.)
+# Version 20250804.000003.0 (FIXED: Mapped preset CSV keys to correct app_instance attribute names (e.g., 'Center' -> 'center_freq_hz_var').)
+# Version 20250804.000006.0 (MODIFIED: Confirmed 3-column layout and ensured consistent behavior.)
+# Version 20250804.000007.0 (MODIFIED: Changed preset button layout to 4 columns and enabled mouse scroll wheel for canvas.)
 
-current_version = "20250803.1110.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250804.000007.0" # Incremented version
 current_version_hash = 20250803 * 1110 * 0 # Example hash, adjust as needed.
 
 import tkinter as tk
@@ -33,8 +37,9 @@ from src.console_logic import console_log
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv
 # Reverted Import push_preset_logic to original correct path
-from tabs.Presets.utils_push_preset import push_preset_logic # REVERTED TO ORIGINAL CORRECT IMPORT PATH
+from tabs.Presets.utils_push_preset import push_preset_logic
 from src.program_style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
+from src.settings_and_config.config_manager import save_config # Explicit import of save_config
 
 class LocalPresetsTab(ttk.Frame):
     """
@@ -81,8 +86,7 @@ class LocalPresetsTab(ttk.Frame):
 
         debug_log(f"LocalPresetsTab initialized. Version: {current_version}. Local presets ready! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+                    version=current_function)
 
     def _create_widgets(self):
         """
@@ -120,10 +124,14 @@ class LocalPresetsTab(ttk.Frame):
         self.canvas.grid(row=0, column=0, sticky="nsew")
         self.scrollbar.grid(row=0, column=1, sticky="ns")
 
-        # Configure the scrollable frame to expand
-        self.scrollable_frame.grid_columnconfigure(0, weight=1) # Ensure columns within the frame expand
-        self.scrollable_frame.grid_columnconfigure(1, weight=1)
-        self.scrollable_frame.grid_columnconfigure(2, weight=1)
+        # Bind mouse scroll wheel to canvas
+        self.canvas.bind('<Enter>', lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
+        self.canvas.bind('<Leave>', lambda e: self.canvas.unbind_all("<MouseWheel>"))
+
+        # Configure the scrollable frame to expand with 4 columns (or 5 if preferred)
+        self.max_cols = 4 # Changed from 3 to 4. Can be 5 as requested.
+        for i in range(self.max_cols):
+            self.scrollable_frame.grid_columnconfigure(i, weight=1)
 
 
         # --- Selected Preset Details Box ---
@@ -157,6 +165,14 @@ class LocalPresetsTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
+    def _on_mousewheel(self, event):
+        """Handles mouse wheel scrolling for the canvas."""
+        self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        debug_log(f"Mouse wheel scrolled by {event.delta} units. Adjusting canvas view.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
     def populate_local_presets_list(self):
         """
         Loads user presets from the PRESETS.CSV file and populates the scrollable frame with buttons.
@@ -185,7 +201,7 @@ class LocalPresetsTab(ttk.Frame):
         self.user_presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
 
         if not self.user_presets_data:
-            ttk.Label(self.scrollable_frame, text="No local presets found.", style='TLabel').grid(row=0, column=0, columnspan=3, padx=10, pady=10)
+            ttk.Label(self.scrollable_frame, text="No local presets found.", style='TLabel').grid(row=0, column=0, columnspan=self.max_cols, padx=10, pady=10)
             self.console_print_func("ℹ️ No local presets found in PRESETS.CSV.")
             debug_log("No local presets found. 🤷‍♂️",
                         file=f"{os.path.basename(__file__)} - {current_version}",
@@ -195,8 +211,7 @@ class LocalPresetsTab(ttk.Frame):
 
         row_idx = 0
         col_idx = 0
-        max_cols = 3 # Three buttons per row as requested
-
+        
         for preset in self.user_presets_data:
             nickname = preset.get('NickName', preset.get('Filename', 'Unnamed Preset'))
             
@@ -221,8 +236,8 @@ class LocalPresetsTab(ttk.Frame):
             # Use lambda to capture the current preset_data for each button
             preset_button = ttk.Button(self.scrollable_frame,
                                        text=button_text,
-                                       command=lambda p=preset, btn=None: self._on_preset_button_click(p, btn), # Pass button reference
-                                       style='LargePreset.TButton')
+                                       command=lambda p=preset, b=None: self._on_preset_button_click(p, b), # Pass button reference
+                                       style='LocalPreset.TButton') # Use the new style
             
             # Update the lambda to pass the button itself once it's created
             # This is a common pattern for Tkinter buttons in loops
@@ -231,7 +246,7 @@ class LocalPresetsTab(ttk.Frame):
             preset_button.grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="nsew")
 
             col_idx += 1
-            if col_idx >= max_cols:
+            if col_idx >= self.max_cols: # Use self.max_cols here
                 col_idx = 0
                 row_idx += 1
         
@@ -242,8 +257,7 @@ class LocalPresetsTab(ttk.Frame):
         self.console_print_func(f"✅ Displayed {len(self.user_presets_data)} local presets as buttons.")
         debug_log(f"Local presets buttons populated with {len(self.user_presets_data)} entries. Looking good! 👍",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+                    version=current_function)
 
     def _on_preset_button_click(self, preset_data, clicked_button):
         """
@@ -261,14 +275,14 @@ class LocalPresetsTab(ttk.Frame):
 
         # Reset style of previously clicked button
         if self.last_clicked_button and self.last_clicked_button != clicked_button:
-            self.last_clicked_button.config(style='LargePreset.TButton')
+            self.last_clicked_button.config(style='LocalPreset.TButton') # Use the new default style
             debug_log(f"Reset style of previous button: {self.last_clicked_button.cget('text').splitlines()[0]}",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
 
         # Set style of current button to orange
-        clicked_button.config(style='SelectedPreset.Orange.TButton')
+        clicked_button.config(style='SelectedPreset.Orange.TButton') # Use the new selected style
         self.last_clicked_button = clicked_button
         debug_log(f"Set style of current button to orange: {display_name}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -282,39 +296,47 @@ class LocalPresetsTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
 
-        try:
-            # Update GUI Tkinter variables first (including the new display variables)
-            self._update_gui_from_preset_data(preset_data)
-
-            # Push settings to instrument using the updated push_preset_logic
-            # This call should happen regardless of whether an instrument is connected,
-            # as push_preset_logic also updates GUI elements.
-            debug_log(f"Calling push_preset_logic for preset '{display_name}' with app_instance and preset_data. ➡️",
+        # --- Explicit check for instrument connection ---
+        success_push_to_instrument = False
+        if not self.app_instance.inst:
+            self.console_print_func("⚠️ Instrument not connected. Settings will be applied to GUI only.")
+            debug_log("Instrument not connected. Skipping SCPI commands. GUI only update. 🖥️",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            
-            success = push_preset_logic(self.app_instance, self.console_print_func, preset_data)
-            
-            if success:
-                self.console_print_func(f"✅ Preset '{display_name}' applied to instrument and GUI. Fantastic!")
-                debug_log(f"Preset '{display_name}' applied to instrument and GUI successfully. 🎉",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-            elif self.app_instance and not self.app_instance.inst:
-                 self.console_print_func("⚠️ No instrument connected. GUI updated only.")
-                 debug_log("No instrument connected. GUI updated only by push_preset_logic. 🖥️",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-            else:
-                self.console_print_func(f"❌ Failed to apply preset '{display_name}' to instrument. GUI updated only.")
-                debug_log(f"Failed to apply preset '{display_name}' to instrument. GUI updated only. 🤦‍♂️",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
+            # Proceed to update GUI from preset_data even if not connected
+            self._update_gui_from_preset_data(preset_data)
+        else:
+            # If connected, update GUI first, then attempt to push to instrument
+            self._update_gui_from_preset_data(preset_data)
+            debug_log(f"Instrument is connected ({self.app_instance.inst}). Attempting to push preset to device. ⚡",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+            success_push_to_instrument = push_preset_logic(self.app_instance, self.console_print_func, preset_data)
+        
+        if success_push_to_instrument:
+            self.console_print_func(f"✅ Preset '{display_name}' applied to instrument and GUI. Fantastic!")
+            debug_log(f"Preset '{display_name}' applied to instrument and GUI successfully. 🎉",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        elif self.app_instance.inst: # If app.inst exists but push_preset_logic returned False
+             self.console_print_func(f"❌ Failed to apply preset '{display_name}' to instrument. GUI updated only.")
+             debug_log(f"Failed to apply preset '{display_name}' to instrument. GUI updated only. 🤦‍♂️",
+                         file=f"{os.path.basename(__file__)} - {current_version}",
+                         version=current_version,
+                         function=current_function)
+        # else (if not connected): message already shown above
 
+        # Wrap config save and following code in a try-finally block
+        try:
+            # Ensure the Instrument tab's display updates after loading
+            if hasattr(self.app_instance, 'instrument_parent_tab') and \
+               hasattr(self.app_instance.instrument_parent_tab, 'instrument_settings_tab') and \
+               hasattr(self.app_instance.instrument_parent_tab.instrument_settings_tab, '_query_current_settings'):
+                # Call query_current_settings to refresh the display, but it won't query hardware if not connected
+                self.app_instance.instrument_parent_tab.instrument_settings_tab._query_current_settings()
         finally:
             # Re-enable config saving and trigger a single save
             self.app_instance.defer_config_save = False
@@ -322,22 +344,25 @@ class LocalPresetsTab(ttk.Frame):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
-            self.app_instance.config_manager.save_config(self.app_instance)
-
-
-        # Ensure the Instrument tab's display updates after loading
-        if hasattr(self.app_instance, 'instrument_parent_tab') and \
-           hasattr(self.app_instance.instrument_parent_tab, 'instrument_settings_tab') and \
-           hasattr(self.app_instance.instrument_parent_tab.instrument_settings_tab, '_query_current_settings'):
-            # Call query_current_settings to refresh the display, but it won't query hardware if not connected
-            self.app_instance.instrument_parent_tab.instrument_settings_tab._query_current_settings()
+            
+            # Assuming config_manager is a module or an instance with a save_config method
+            # The save_config function from src.settings_and_config.config_manager
+            # expects: (config_parser_object, config_file_path, console_print_func, app_instance_ref)
+            try:
+                save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            except Exception as e:
+                debug_log(f"CRITICAL ERROR: Could not save config after preset load: {e}. Config not saved!",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                self.console_print_func("❌ CRITICAL ERROR: Application config could not be saved! See debug log.")
 
 
     def _update_gui_from_preset_data(self, preset_data):
         """
         Updates the main application's Tkinter variables based on the provided preset data.
         This function ensures that the GUI elements reflect the loaded preset.
-        It also updates the new selected preset details display.
+        It also updates the new selected preset details.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating GUI from preset data: {preset_data.get('NickName', 'Unnamed')}. 🔄",
@@ -348,12 +373,12 @@ class LocalPresetsTab(ttk.Frame):
         # Update the new display variables for selected preset details box first
         self.selected_preset_nickname_var.set(preset_data.get('NickName', 'N/A'))
 
-        # Helper to safely get and convert value for display variables
+        # Helper to safely get and convert value for display variables (these are local to this tab)
         def set_display_var(tk_var, key, format_str="{}", conversion_func=str, default_val="N/A"):
             value_str = preset_data.get(key, '').strip()
             if not value_str:
                 tk_var.set(default_val)
-                debug_log(f"Preset '{key}' is empty. Setting display to '{default_val}'.",
+                debug_log(f"Preset '{key}' is empty for display. Setting display to '{default_val}'.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -374,7 +399,7 @@ class LocalPresetsTab(ttk.Frame):
                             function=current_function)
             except Exception as e:
                 tk_var.set("Error")
-                debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'. �",
+                debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'. 🤯",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -387,10 +412,22 @@ class LocalPresetsTab(ttk.Frame):
         # Now, update the main application's instrument control variables
         
         # Helper to safely get and convert value for app_instance variables
-        def get_and_set_app_var(key, app_tk_var, conversion_func=str, scale_factor=1.0):
-            value_str = preset_data.get(key, '').strip()
+        def get_and_set_app_var(preset_key, app_attr_name, conversion_func=str, scale_factor=1.0):
+            # preset_key: key from the preset_data dict (e.g., 'Center', 'RBW')
+            # app_attr_name: name of the attribute on app_instance (e.g., 'center_freq_hz_var', 'rbw_hz_var')
+            
+            value_str = preset_data.get(preset_key, '').strip()
+            app_tk_var = getattr(self.app_instance, app_attr_name, None) # Get the Tkinter var by its attribute name
+
+            if app_tk_var is None:
+                debug_log(f"WARNING: app_instance does not have attribute '{app_attr_name}'. Cannot update. ⚠️",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return
+            
             if not value_str:
-                debug_log(f"App var '{key}' is empty in preset. Skipping update for app_tk_var. 🤷‍♀️",
+                debug_log(f"Preset '{preset_key}' is empty. Skipping update for app_instance.{app_attr_name}. 🤷‍♀️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
@@ -399,69 +436,84 @@ class LocalPresetsTab(ttk.Frame):
             try:
                 converted_value = conversion_func(value_str) * scale_factor
                 app_tk_var.set(converted_value)
-                debug_log(f"App var '{key}' updated to '{converted_value}'.",
+                debug_log(f"App var '{app_attr_name}' (from '{preset_key}') updated to '{converted_value}'.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             except ValueError as e:
-                debug_log(f"Error converting app var '{key}' value '{value_str}' to {conversion_func.__name__}: {e}. Skipping app_tk_var update. 💥",
+                debug_log(f"Error converting preset '{preset_key}' value '{value_str}' to {conversion_func.__name__} for app_instance.{app_attr_name}: {e}. Skipping update. 💥",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             except Exception as e:
-                debug_log(f"Unexpected error processing app var '{key}' value '{value_str}': {e}. Skipping app_tk_var update. 🤯",
+                debug_log(f"Unexpected error processing preset '{preset_key}' value '{value_str}' for app_instance.{app_attr_name}: {e}. Skipping update. 🤯",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
 
-        # Convert Center and Span from MHz (CSV) to Hz (Tkinter var) for app_instance
-        get_and_set_app_var('Center', self.app_instance.center_freq_hz_var, float, self.app_instance.MHZ_TO_HZ)
-        get_and_set_app_var('Span', self.app_instance.span_hz_var, float, self.app_instance.MHZ_TO_HZ)
-
-        # RBW and VBW are already in Hz in the CSV, so direct conversion
-        get_and_set_app_var('RBW', self.app_instance.rbw_hz_var, float)
-        get_and_set_app_var('VBW', self.app_instance.vbw_hz_var, float)
-
-        get_and_set_app_var('RefLevel', self.app_instance.reference_level_dbm_var, float)
-        get_and_set_app_var('Attenuation', self.app_instance.attenuation_var, int)
+        # Apply preset values to app_instance's Tkinter variables
+        # Map preset_data keys (from CSV) to app_instance's variable attribute names (from DEFAULT_CONFIG)
         
+        # Frequencies (from MHz in CSV to Hz in app_instance)
+        get_and_set_app_var('Center', 'center_freq_hz_var', float, self.app_instance.MHZ_TO_HZ)
+        get_and_set_app_var('Span', 'span_hz_var', float, self.app_instance.MHZ_TO_HZ)
+
+        # RBW and VBW are already in Hz in the CSV, map to app_instance's rbw_hz_var and vbw_hz_var
+        get_and_set_app_var('RBW', 'rbw_hz_var', float)
+        get_and_set_app_var('VBW', 'vbw_hz_var', float)
+        
+        # Other instrument settings
+        get_and_set_app_var('RefLevel', 'reference_level_dbm_var', float)
+        get_and_set_app_var('Attenuation', 'attenuation_db_var', int)
+        get_and_set_app_var('FreqShift', 'freq_shift_hz_var', float)
+
         # For boolean values, ensure they are correctly interpreted
-        def get_and_set_bool_app_var(key, app_tk_var):
-            value_str = preset_data.get(key, '').strip().upper()
-            if value_str in ['ON', 'TRUE', 'WRITE']:
+        def get_and_set_bool_app_var(preset_key, app_attr_name):
+            value_str = preset_data.get(preset_key, '').strip().upper()
+            app_tk_var = getattr(self.app_instance, app_attr_name, None)
+
+            if app_tk_var is None:
+                debug_log(f"WARNING: app_instance does not have attribute '{app_attr_name}'. Cannot update. ⚠️",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
+                return
+
+            if value_str in ['ON', 'TRUE', 'WRITE']: # 'WRITE' used for MarkerMax state in CSV
                 app_tk_var.set(True)
             elif value_str in ['OFF', 'FALSE', '']:
                 app_tk_var.set(False)
             else:
-                debug_log(f"Warning: Unexpected boolean value for '{key}': '{value_str}'. Not updating app_tk_var. ⚠️",
+                debug_log(f"Warning: Unexpected boolean value for '{preset_key}': '{value_str}'. Not updating app_instance.{app_attr_name}. ⚠️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
-        get_and_set_bool_app_var('MaxHold', self.app_instance.maxhold_enabled_var)
-        get_and_set_bool_app_var('HighSens', self.app_instance.high_sensitivity_var)
-        get_and_set_bool_app_var('PreAmp', self.app_instance.preamp_on_var)
+        get_and_set_bool_app_var('MaxHold', 'maxhold_enabled_var')
+        get_and_set_bool_app_var('HighSens', 'high_sensitivity_var')
+        get_and_set_bool_app_var('PreAmp', 'preamp_on_var')
 
         # Trace Modes (StringVars)
-        get_and_set_app_var('Trace1Mode', self.app_instance.trace1_mode_var)
-        get_and_set_app_var('Trace2Mode', self.app_instance.trace2_mode_var)
-        get_and_set_app_var('Trace3Mode', self.app_instance.trace3_mode_var)
-        get_and_set_app_var('Trace4Mode', self.app_instance.trace4_mode_var)
+        get_and_set_app_var('Trace1Mode', 'trace1_mode_var')
+        get_and_set_app_var('Trace2Mode', 'trace2_mode_var')
+        get_and_set_app_var('Trace3Mode', 'trace3_mode_var')
+        get_and_set_app_var('Trace4Mode', 'trace4_mode_var')
 
-        # Marker Max (BooleanVars, assuming 'WRITE' means True)
-        get_and_set_bool_app_var('Marker1Max', self.app_instance.marker1_calculate_max_var)
-        get_and_set_bool_app_var('Marker2Max', self.app_instance.marker2_calculate_max_var)
-        get_and_set_bool_app_var('Marker3Max', self.app_instance.marker3_calculate_max_var)
-        get_and_set_bool_app_var('Marker4Max', self.app_instance.marker4_calculate_max_var)
-        get_and_set_bool_app_var('Marker5Max', self.app_instance.marker5_calculate_max_var)
-        get_and_set_bool_app_var('Marker6Max', self.app_instance.marker6_calculate_max_var)
+        # Marker Max (BooleanVars, assuming 'WRITE' means True in CSV)
+        get_and_set_bool_app_var('Marker1Max', 'marker1_calculate_max_var')
+        get_and_set_bool_app_var('Marker2Max', 'marker2_calculate_max_var')
+        get_and_set_bool_app_var('Marker3Max', 'marker3_calculate_max_var')
+        get_and_set_bool_app_var('Marker4Max', 'marker4_calculate_max_var')
+        get_and_set_bool_app_var('Marker5Max', 'marker5_calculate_max_var')
+        get_and_set_bool_app_var('Marker6Max', 'marker6_calculate_max_var')
 
 
         # Update the app_instance's last selected preset name and loaded values (these are already for display in MHz)
         self.app_instance.last_selected_preset_name_var.set(preset_data.get('NickName', preset_data.get('Filename', '')))
         
-        # These are also display variables, so use similar robust setting
+        # These are *additional* display variables on app_instance (not part of instrument control)
+        # They need to be explicitly initialized in program_shared_values.py
         set_display_var(self.app_instance.last_loaded_preset_center_freq_mhz_var, 'Center', "{:.3f}", float)
         set_display_var(self.app_instance.last_loaded_preset_span_mhz_var, 'Span', "{:.3f}", float)
         set_display_var(self.app_instance.last_loaded_preset_rbw_hz_var, 'RBW', "{:.0f}", float)

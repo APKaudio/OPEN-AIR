@@ -18,6 +18,7 @@
 #
 # Version 20250803.234000.0 (REWRITTEN: Restored robust, nested dictionary processing to fix ImportError.)
 # Version 20250803.204901.0 (REFACTORED: Removed trace callback creation to break circular import with config_manager.)
+# Version 20250804.000004.0 (ADDED: Explicit initialization for global display Tkinter variables (last_loaded_preset_X).)
 
 import tkinter as tk
 import inspect
@@ -26,7 +27,7 @@ from src.debug_logic import debug_log
 from src.program_default_values import DEFAULT_CONFIG
 from ref.frequency_bands import SCAN_BAND_RANGES
 
-current_version = "20250803.234000.0"
+current_version = "20250804.000004.0" # Incremented version
 
 def setup_tkinter_variables(app_instance):
     """Initializes all Tkinter variables for the application from the default config."""
@@ -38,8 +39,11 @@ def setup_tkinter_variables(app_instance):
     # Iterate through the nested default config dictionary to create variables
     for section, settings in DEFAULT_CONFIG.items():
         for key, value in settings.items():
-            # Create the tk.StringVar and set its default value
-            var = tk.StringVar(app_instance, value=value, name=f"{section}_{key}")
+            # Determine variable type based on common conventions or explicit checks
+            if value.lower() in ['true', 'false']:
+                var = tk.BooleanVar(app_instance, value=(value.lower() == 'true'), name=f"{section}_{key}")
+            else:
+                var = tk.StringVar(app_instance, value=value, name=f"{section}_{key}")
             
             # Store the variable on the app_instance (e.g., app_instance.geometry_var)
             setattr(app_instance, f"{key}_var", var)
@@ -50,7 +54,13 @@ def setup_tkinter_variables(app_instance):
     # --- Handle special, non-config variables ---
     app_instance.is_connected = tk.BooleanVar(app_instance, value=False)
     app_instance.connected_instrument_model = tk.StringVar(app_instance, value="")
-    app_instance.inst = None
+    app_instance.inst = None # This will hold the PyVISA instrument object
+    
+    # NEW: Global Tkinter variables for displaying last loaded preset details
+    app_instance.last_selected_preset_name_var = tk.StringVar(app_instance, value="None")
+    app_instance.last_loaded_preset_center_freq_mhz_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.last_loaded_preset_span_mhz_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.last_loaded_preset_rbw_hz_var = tk.StringVar(app_instance, value="N/A")
 
     # --- Band Selection Variables ---
     app_instance.band_vars = []

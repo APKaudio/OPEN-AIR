@@ -19,8 +19,10 @@
 # Version 20250803.232501.0 (ADDED: New 'DeviceButton' styles with larger, centered font.)
 # Version 20250803.232500.0 (ADDED: Custom styles for active/inactive device buttons on Markers tab.)
 # Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
+# Version 20250803.235901.0 (ADDED: 'LocalPreset.TButton' and 'SelectedPreset.Orange.TButton' styles.)
+# Version 20250804.000005.0 (MODIFIED: LocalPreset.TButton font size to 25pt.)
 
-current_version = "20250803.232000.0"
+current_version = "20250804.000005.0" # Incremented version
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -128,6 +130,37 @@ def apply_styles(style, debug_log_func, current_app_version):
                     anchor='center',
                     justify='center')
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
+
+    # --- NEW: Styles for Local Preset Buttons ---
+    # Base for unselected preset buttons
+    style.configure('LocalPreset.TButton',
+                    background=COLOR_PALETTE['active_bg'], # Or a slightly darker shade
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 25), # MODIFIED: Font size to 25pt
+                    padding=[10, 8], # More padding for multi-line text
+                    anchor='center', # Center text for multi-line
+                    justify='center',
+                    relief='flat',
+                    borderwidth=1,
+                    focusthickness=0) # Remove dotted focus outline
+    style.map('LocalPreset.TButton',
+              background=[('active', COLOR_PALETTE['select_bg'])], # Darker on hover
+              foreground=[('active', COLOR_PALETTE['select_fg'])]) # Keep foreground white on hover
+
+    # Style for selected preset button
+    style.configure('SelectedPreset.Orange.TButton',
+                    background=COLOR_PALETTE['orange_btn'],
+                    foreground='black', # Black text for visibility on orange
+                    font=('Helvetica', 25, 'bold'), # MODIFIED: Font size to 25pt, bold for selected
+                    padding=[10, 8],
+                    anchor='center',
+                    justify='center',
+                    relief='raised', # Make it look "pushed" or selected
+                    borderwidth=2,
+                    focusthickness=0)
+    style.map('SelectedPreset.Orange.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active'])],
+              foreground=[('active', 'black')]) # Keep black on hover
 
     # --- Control Buttons (Span, RBW, Trace) ---
     style.configure('ControlButton.Inactive.TButton',
