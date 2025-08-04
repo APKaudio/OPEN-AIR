@@ -9,13 +9,14 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can benegotiated. There is no change to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.204901.0 (REFACTORED: Removed trace callback creation to break circular import with config_manager.)
 # Version 20250803.190500.1 (FIXED: Added last_config_save_time_var to prevent AttributeError.)
 # Version 20250803.184500.0 (FIXED: AttributeError by initializing app_instance.inst to None.)
 # Version 20250803.184400.0 (FIXED: Added all missing Tkinter variables for the Plotting Average tab.)
@@ -27,22 +28,14 @@ import tkinter as tk
 import inspect
 import os
 from src.debug_logic import debug_log
-from src.settings_and_config.config_manager import save_config
 from src.program_default_values import DEFAULT_CONFIG_SETTINGS
 from ref.frequency_bands import SCAN_BAND_RANGES
 
-current_version = "20250803.190500.1"
+current_version = "20250803.204901.0"
 
 def str_to_bool(s):
     """Converts a string to a boolean."""
     return str(s).lower() in ('true', '1', 't', 'y', 'yes')
-
-def create_trace_callback(app_instance, var_name):
-    """Creates a callback function for Tkinter variable traces to save config."""
-    def callback(*args):
-        debug_log(f"Variable '{var_name}' changed. Saving config.", file=os.path.basename(__file__), function="trace_callback")
-        save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, app_instance.console_log_func, app_instance)
-    return callback
 
 def setup_tkinter_variables(app_instance):
     """Initializes all Tkinter variables for the application."""
@@ -57,14 +50,21 @@ def setup_tkinter_variables(app_instance):
         if var_type == tk.BooleanVar:
             var = var_type(app_instance, value=str_to_bool(default_value))
         elif var_type == tk.IntVar:
-            var = var_type(app_instance, value=int(float(default_value)))
+            # Handle potential float strings in defaults for IntVars
+            try:
+                var = var_type(app_instance, value=int(float(default_value)))
+            except (ValueError, TypeError):
+                 var = var_type(app_instance, value=0)
         elif var_type == tk.DoubleVar:
-            var = var_type(app_instance, value=float(default_value))
+            try:
+                var = var_type(app_instance, value=float(default_value))
+            except (ValueError, TypeError):
+                var = var_type(app_instance, value=0.0)
         else: # Default to StringVar
             var = tk.StringVar(app_instance, value=default_value)
             
         setattr(app_instance, var_name, var)
-        var.trace_add("write", create_trace_callback(app_instance, var_name))
+        # REMOVED: The trace is now set in main_app.py
         app_instance.setting_var_map[var_name] = (last_key, default_key, var)
 
     # --- GLOBAL SETTINGS ---
@@ -72,10 +72,12 @@ def setup_tkinter_variables(app_instance):
     add_variable("log_visa_commands_enabled_var", tk.BooleanVar, 'default_GLOBAL__log_visa_commands_enabled', 'last_GLOBAL__log_visa_commands_enabled')
     add_variable("paned_window_sash_position_var", tk.IntVar, 'default_GLOBAL__paned_window_sash_position', 'last_GLOBAL__paned_window_sash_position')
     add_variable("debug_to_terminal_var", tk.BooleanVar, 'default_GLOBAL__debug_to_Terminal', 'last_GLOBAL__debug_to_Terminal')
+    # Note: 'debug_to_file_var' and 'debug_to_gui_console_var' do not exist in the provided DEFAULT_CONFIG_SETTINGS
     add_variable("debug_to_file_var", tk.BooleanVar, 'default_GLOBAL__debug_to_file', 'last_GLOBAL__debug_to_file')
     add_variable("include_console_messages_to_debug_file_var", tk.BooleanVar, 'default_GLOBAL__include_console_messages_to_debug_file', 'last_GLOBAL__include_console_messages_to_debug_file')
     add_variable("debug_to_gui_console_var", tk.BooleanVar, 'default_GLOBAL__debug_to_gui_console', 'last_GLOBAL__debug_to_gui_console')
     add_variable("last_config_save_time_var", tk.StringVar, 'default_GLOBAL__last_config_save_time', 'last_GLOBAL__last_config_save_time')
+
 
     # --- INSTRUMENT CONNECTION ---
     add_variable("visa_resource_var", tk.StringVar, 'default_instrument_connection__visa_resource', 'last_instrument_connection__visa_resource')
@@ -98,6 +100,7 @@ def setup_tkinter_variables(app_instance):
     add_variable("preamp_on_var", tk.BooleanVar, 'default_scan_configuration__preamp_on', 'last_scan_configuration__preamp_on')
     add_variable("scan_rbw_segmentation_var", tk.DoubleVar, 'default_scan_configuration__scan_rbw_segmentation', 'last_scan_configuration__scan_rbw_segmentation')
     add_variable("desired_default_focus_width_var", tk.DoubleVar, 'default_scan_configuration__default_focus_width', 'last_scan_configuration__default_focus_width')
+    # Note: 'scan_mode_var' does not exist in the provided DEFAULT_CONFIG_SETTINGS
     add_variable("scan_mode_var", tk.StringVar, 'default_scan_configuration__scan_mode', 'last_scan_configuration__scan_mode')
 
     # --- SCAN META DATA SETTINGS ---
@@ -141,8 +144,9 @@ def setup_tkinter_variables(app_instance):
 
     # --- BAND SELECTION VARIABLES ---
     app_instance.band_vars = []
-    for band in SCAN_BAND_RANGES:
-        var = tk.BooleanVar(app_instance, value=False)
-        app_instance.band_vars.append({"band": band, "var": var})
+    if SCAN_BAND_RANGES:
+        for band in SCAN_BAND_RANGES:
+            var = tk.BooleanVar(app_instance, value=False)
+            app_instance.band_vars.append({"band": band, "var": var})
 
     debug_log(f"Finished setting up Tkinter variables. The brain is fully operational! Version: {current_version}", file=os.path.basename(__file__), function=current_function)

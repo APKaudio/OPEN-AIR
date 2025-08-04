@@ -209,7 +209,7 @@
 #    ├── Scanning/
 #    ├── Start_Pause_Stop/
 #    ├── __init__.py
-#    └── t
+#    └── tabs
 #        └── ConsoleTab.py
 #                |   -> Class: ConsoleTab
 #                |   -> Function: __init__

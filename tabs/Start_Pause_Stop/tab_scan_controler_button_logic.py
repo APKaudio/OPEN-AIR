@@ -1,8 +1,7 @@
-# tabs/Start_Pause_Stop/scan_control_logic.py
+# tabs/Start_Pause_Stop/tab_scan_controler_button_logic.py
 #
-# This file contains the core logic for controlling spectrum scans,
-# including starting, pausing, stopping, and executing the scan process.
-# It abstracts the instrument communication and data processing from the GUI.
+# This file defines the GUI component for the scan control buttons (Start, Pause, Stop).
+# It creates the visual elements and links them to the core scan control logic.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,109 +13,100 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250803.194500.1 (FIXED: Incorrect call to scan_bands with wrong number of arguments.)
-# Version 20250803.194000.1 (Verified all scan parameters are correctly passed to scan_bands.)
-# Version 20250802.1701.16 (Initial creation of scan control logic module.)
+#
+# Version 20250803.221500.0 (REBUILT: Created the ScanControlTab class to define the GUI, fixing the ImportError.)
 
-current_version = "20250803.194500.1"
+current_version = "20250803.221500.0"
 
+import tkinter as tk
+from tkinter import ttk
 import threading
-import time
-import os
-from datetime import datetime
-import pandas as pd
-import inspect
 
-from src.debug_logic import debug_log
+# Import the LOGIC functions, not the GUI
+from .scan_control_logic import start_scan_logic, toggle_pause_resume_logic, stop_scan_logic
 from src.console_logic import console_log
-from tabs.Scanning.utils_scan_instrument import scan_bands
-from process_math.scan_stitch import stitch_and_save_scan_data
-from src.connection_status_logic import update_connection_status_logic
 
-def start_scan_logic(app_instance, console_print_func, stop_event, pause_event, update_progress_func):
-    """Initiates the spectrum scan in a separate thread."""
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        console_print_func("⚠️ Scan already in progress.")
-        return False
+class ScanControlTab(ttk.Frame):
+    """
+    GUI Frame for the Start, Pause/Resume, and Stop scan buttons.
+    """
+    def __init__(self, parent, app_instance):
+        super().__init__(parent, style='TFrame')
+        self.app = app_instance
+        self.app.scan_control_tab = self # Make this instance accessible from the main app
 
-    if not app_instance.is_connected.get():
-        console_print_func("❌ Instrument not connected. Cannot start scan.")
-        return False
+        # Threading events to control the scan
+        self.stop_event = threading.Event()
+        self.pause_event = threading.Event()
+        
+        self.is_blinking = False
 
-    selected_bands = [band_item["band"] for band_item in app_instance.band_vars if band_item["var"].get()]
+        self._create_widgets()
+        self._update_button_states()
 
-    if not selected_bands:
-        console_print_func("⚠️ No bands selected for scan.")
-        return False
+    def _create_widgets(self):
+        """Creates and packs the control buttons."""
+        self.grid_columnconfigure((0, 1, 2), weight=1)
 
-    stop_event.clear()
-    pause_event.clear()
-    app_instance.is_paused_by_user = False
+        self.start_button = ttk.Button(self, text="Start Scan", command=self._start_scan_action, style="StartScan.TButton")
+        self.start_button.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
 
-    app_instance.scan_thread = threading.Thread(
-        target=_scan_thread_target,
-        args=(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func)
-    )
-    app_instance.scan_thread.daemon = True
-    app_instance.scan_thread.start()
-    return True
+        self.pause_resume_button = ttk.Button(self, text="Pause Scan", command=self._toggle_pause_resume_action, style="PauseScan.TButton")
+        self.pause_resume_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
 
-def toggle_pause_resume_logic(app_instance, console_print_func, pause_event):
-    """Toggles the pause/resume state of the scan."""
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        if pause_event.is_set():
-            pause_event.clear()
-            app_instance.is_paused_by_user = False
-            console_print_func("▶️ Scan resumed.")
+        self.stop_button = ttk.Button(self, text="Stop Scan", command=self._stop_scan_action, style="StopScan.TButton")
+        self.stop_button.grid(row=0, column=2, padx=5, pady=5, sticky='ew')
+
+    def _start_scan_action(self):
+        """Action to start the scan."""
+        if start_scan_logic(self.app, console_log, self.stop_event, self.pause_event, self._update_progress):
+            self._update_button_states()
+
+    def _toggle_pause_resume_action(self):
+        """Action to pause or resume the scan."""
+        toggle_pause_resume_logic(self.app, console_log, self.pause_event)
+        self._update_button_states()
+
+    def _stop_scan_action(self):
+        """Action to stop the scan."""
+        stop_scan_logic(self.app, console_log, self.stop_event, self.pause_event)
+        # The thread itself will call _update_button_states in its finally block
+        
+    def _update_progress(self, current, total, a, b, c):
+        """Placeholder for progress bar updates."""
+        # This can be expanded to update a progress bar widget if you add one
+        pass
+
+    def _update_button_states(self):
+        """Enables/disables buttons based on the scan state."""
+        scan_is_running = self.app.scan_thread and self.app.scan_thread.is_alive()
+        is_paused = self.pause_event.is_set()
+
+        if scan_is_running:
+            self.start_button.config(state='disabled')
+            self.stop_button.config(state='normal')
+            self.pause_resume_button.config(state='normal')
+            if is_paused:
+                self.pause_resume_button.config(text="Resume Scan")
+                if not self.is_blinking:
+                    self.is_blinking = True
+                    self._blink_resume_button()
+            else:
+                self.is_blinking = False
+                self.pause_resume_button.config(text="Pause Scan", style="PauseScan.TButton")
         else:
-            pause_event.set()
-            app_instance.is_paused_by_user = True
-            console_print_func("⏸️ Scan paused.")
-
-def stop_scan_logic(app_instance, console_print_func, stop_event, pause_event):
-    """Stops the currently running scan."""
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        stop_event.set()
-        pause_event.clear()
-        app_instance.is_paused_by_user = False
-        console_print_func("⏹️ Stopping scan...")
-
-def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func):
-    """The main function executed in the scanning thread."""
-    console_print_func("--- Initiating Spectrum Scan ---")
-    try:
-        # This call passes all the necessary scan parameters from the UI to the instrument control utility.
-        raw_scan_data, markers_data = scan_bands(
-            app_instance_ref=app_instance,
-            inst=app_instance.inst,
-            selected_bands=selected_bands,
-            rbw_hz=float(app_instance.scan_rbw_hz_var.get()),
-            ref_level_dbm=float(app_instance.reference_level_dbm_var.get()),
-            freq_shift_hz=float(app_instance.freq_shift_var.get()),
-            maxhold_enabled=bool(app_instance.maxhold_enabled_var.get()),
-            high_sensitivity=app_instance.high_sensitivity_var.get(),
-            preamp_on=app_instance.preamp_on_var.get(),
-            rbw_step_size_hz=float(app_instance.rbw_step_size_hz_var.get()),
-            max_hold_time_seconds=float(app_instance.maxhold_time_seconds_var.get()),
-            scan_name=app_instance.scan_name_var.get(),
-            output_folder=app_instance.output_folder_var.get(),
-            stop_event=stop_event,
-            pause_event=pause_event,
-            log_visa_commands_enabled=app_instance.log_visa_commands_enabled_var.get(),
-            general_debug_enabled=app_instance.general_debug_enabled_var.get(),
-            app_console_update_func=console_print_func
-        )
-
-        if not stop_event.is_set():
-            console_print_func("\n--- Stitching and saving scan data ---")
-            # This is a placeholder for where you would call stitching and saving logic
-            # stitch_and_save_scan_data(...)
-            console_print_func("--- Scan process finished. ---")
-        else:
-            console_print_func("--- Scan process stopped by user. ---")
-
-    except Exception as e:
-        console_print_func(f"❌ An error occurred during scan: {e}")
-    finally:
-        app_instance.after(0, lambda: app_instance.scan_control_tab._update_button_states())
-        app_instance.after(0, lambda: update_connection_status_logic(app_instance, app_instance.is_connected.get(), False, console_print_func))
+            self.start_button.config(state='normal')
+            self.stop_button.config(state='disabled')
+            self.pause_resume_button.config(state='disabled', text="Pause Scan")
+            self.is_blinking = False
+            
+    def _blink_resume_button(self):
+        """Toggles the style of the resume button to create a blinking effect."""
+        if not self.is_blinking:
+            self.pause_resume_button.config(style="PauseScan.TButton") # Revert to normal when blinking stops
+            return
+        
+        current_style = self.pause_resume_button.cget('style')
+        new_style = "ResumeScan.Blink.TButton" if current_style == "PauseScan.TButton" else "PauseScan.TButton"
+        self.pause_resume_button.config(style=new_style)
+        self.app.after(500, self._blink_resume_button)
