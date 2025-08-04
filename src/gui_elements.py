@@ -14,116 +14,56 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0025.1 (Refactored debug_print to debug_log; added flair.)
-# Version 20250803.0250.0 (Updated ASCII art for splash screen with new designs.)
-# Version 20250803.0255.0 (Refactored ASCII art blocks into individual functions.)
-# Version 20250803.0300.0 (Replaced print() statements with console_log() for GUI output.)
-# Version 20250803.0305.0 (CRITICAL FIX: Ensured each line of ASCII art is sent via console_log.)
+#
+# Version 20250803.2215.0 (REFACTORED: Removed all parent tab imports to finally kill the circular dependency.)
 # Version 20250803.0147.1 (Added call to clear_console before each ASCII art display.)
 
-current_version = "20250803.0147.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 305 * 0 # Example hash, adjust as needed
+current_version = "20250803.2215.0"
 
 import tkinter as tk
 import sys
 import time
 from tkinter import scrolledtext, TclError
-import inspect # Added for debug_log
+import inspect
 
-# Import the debug logic module to use debug_log
-from src.debug_logic import debug_log # Changed from debug_print
-from src.console_logic import console_log, clear_console # Import console_log and the new clear_console
+from src.debug_logic import debug_log
+from src.console_logic import console_log, clear_console
 
+#
+# REMOVED ALL 'from tabs... import TAB_..._PARENT' LINES.
+# This file is a low-level utility and must not import high-level UI components.
+# This was the source of the circular import error.
+#
 
 class TextRedirector(object):
     """
-    Function Description:
-    A class to redirect standard output (stdout) and standard error (stderr)
-    to a Tkinter scrolled text widget. This allows all print statements and
-    error messages from the application's backend to be displayed directly
-    within the GUI's console area, providing real-time feedback to the user.
-
-    Inputs to this function:
-    - widget (tk.scrolledtext.ScrolledText): The Tkinter scrolled text widget
-                                              where output will be displayed.
-    - tag (str, optional): A tag for text formatting within the widget. Defaults to "stdout".
-
-    Process of this function:
-    1. Stores the provided `widget` and `tag`.
-    2. Initializes a `_buffer` to temporarily hold text before updating the widget.
-    3. Sets a `_last_flush_time` to control the frequency of widget updates.
-
-    Outputs of this function:
-    - None. Initializes the TextRedirector object.
+    A class to redirect stdout/stderr to a Tkinter scrolled text widget.
     """
     def __init__(self, widget, tag="stdout"):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing TextRedirector for tag '{tag}'. Setting up console redirection! Version: {current_version}",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
         self.widget = widget
         self.tag = tag
         self._buffer = ""
         self._last_flush_time = 0
 
     def write(self, text):
-        """
-        Function Description:
-        Writes text to the redirected widget. Text is buffered and flushed periodically
-        to improve performance and prevent GUI freezing.
-
-        Inputs:
-        - text (str): The text string to write.
-
-        Process of this function:
-        1. Appends the input `text` to an internal buffer.
-        2. Checks if enough time has passed since the last flush (0.1 seconds)
-           or if the buffer size exceeds a threshold (1000 characters).
-        3. If a flush is needed, inserts the buffered text into the widget,
-           applies the specified tag, scrolls to the end, and clears the buffer.
-        4. Handles `TclError` in case the widget is destroyed.
-
-        Outputs of this function:
-        - None. Modifies the Tkinter widget.
-        """
         self._buffer += text
-        # Flush every 0.1 seconds or if buffer is too large
-        current_time = time.time() # Assuming time module is imported or available
+        current_time = time.time()
         if current_time - self._last_flush_time > 0.1 or len(self._buffer) > 1000:
             self.flush()
 
     def flush(self):
-        """
-        Function Description:
-        Flushes the buffered text to the Tkinter widget.
-
-        Inputs:
-        - None.
-
-        Process of this function:
-        1. If the buffer is not empty, attempts to insert its content into the widget.
-        2. Applies the configured text tag.
-        3. Scrolls the widget to the end to show the latest messages.
-        4. Clears the buffer and updates the `_last_flush_time`.
-        5. Handles `TclError` if the widget has been destroyed, preventing crashes.
-
-        Outputs of this function:
-        - None. Modifies the Tkinter widget.
-        """
         if self._buffer:
             try:
                 self.widget.insert(tk.END, self._buffer, (self.tag,))
                 self.widget.see(tk.END)
                 self._buffer = ""
-                self._last_flush_time = time.time() # Assuming time module is imported or available
+                self._last_flush_time = time.time()
             except TclError:
-                # Widget has been destroyed, stop writing
                 pass
 
 def _print_open_air_ascii(console_print_func):
     """Prints the 'OPEN AIR' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         " ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓████████▓▒ ░▒▓███████▓▒░        ░▒▓██████▓▒░ ░▒▓█▓▒░ ▒▓███████▓▒░  ",
         "░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░       ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒ ░▒▓█▓▒░ ▒▓█▓▒░░▒▓█▓▒░ ",
@@ -138,7 +78,8 @@ def _print_open_air_ascii(console_print_func):
 
 def _print_collaboration_ascii(console_print_func):
     """Prints the collaboration ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
+    # ... (rest of ASCII functions are unchanged) ...
     lines = [
         "                                               #              #####                     ## ####",
         "                                               ###            ##   ######               ##  ## ",
@@ -167,7 +108,7 @@ def _print_collaboration_ascii(console_print_func):
 
 def _print_inst_ascii(console_print_func):
     """Prints the 'INST' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "INST",
         "░▒▓█▓▒░▒▓███████▓▒░ ░▒▓███████▓▒░▒▓████████▓▒░ ",
@@ -183,7 +124,7 @@ def _print_inst_ascii(console_print_func):
 
 def _print_scan_ascii(console_print_func):
     """Prints the 'SCAN' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "SCAN",
         " ░▒▓███████▓▒░ ░▒▓██████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░  ",
@@ -199,7 +140,7 @@ def _print_scan_ascii(console_print_func):
 
 def _print_plot_ascii(console_print_func):
     """Prints the 'PLOT' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "PLOT:                                                   ",
         "░▒▓███████▓▒░ ░▒▓█▓▒░       ░▒▓██████▓▒░░▒▓████████▓▒░ ",
@@ -215,7 +156,7 @@ def _print_plot_ascii(console_print_func):
 
 def _print_marks_ascii(console_print_func):
     """Prints the 'MARKS' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "MARKS:                                                                                                                ",
         "░▒▓██████████████▓▒░  ░▒▓██████▓▒░ ░▒▓███████▓▒░ ░▒▓█▓▒░░▒▓█▓▒░ ",
@@ -231,7 +172,7 @@ def _print_marks_ascii(console_print_func):
 
 def _print_presets_ascii(console_print_func):
     """Prints the 'PRESETS.CSV' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "PRESETS.CSV is a file that contains user-defined presets for the application.",
         "                                                                ",
@@ -248,7 +189,7 @@ def _print_presets_ascii(console_print_func):
 
 def _print_xxx_ascii(console_print_func):
     """Prints the 'XXX' ASCII art to the console."""
-    clear_console() # Clear console before displaying ASCII art
+    clear_console()
     lines = [
         "XXX",
         "░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░      ",
@@ -264,49 +205,15 @@ def _print_xxx_ascii(console_print_func):
 
 def display_splash_screen():
     """
-    Function Description:
     Prints a stylized ASCII art splash screen to the terminal.
-    This function is intended for initial application startup feedback
-    before the full GUI is loaded.
-
-    Inputs:
-    - None.
-
-    Process of this function:
-    1. Prints several lines of ASCII art and application information.
-    2. Includes author and blog details.
-
-    Outputs of this function:
-    - None. Prints directly to standard output.
     """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Displaying splash screen. Welcome to the Spectrum Scanner! Version: {current_version}",
-                file=__file__,
-                version=current_version,
-                function=current_function,
-                special=True) # Adding special flag for splash screen
-
-    # Use console_log for all output to ensure it goes to the GUI console
-    console_log("") # Blank line
-    console_log("") # Blank line
-    console_log("") # Blank line
+    console_log("")
     _print_open_air_ascii(console_log)
-                                                                                             
-    console_log("") # Blank line
-    console_log("") # Blank line
-    console_log("") # Blank line
-
+    console_log("")
     _print_collaboration_ascii(console_log)
-    console_log("") # Blank line
-    console_log("") # Blank line
-    console_log("") # Blank line
+    console_log("")
     console_log("A Colaboration betweeen Ike Zimbel and Anthony P. Kuzub")
-    console_log("") # Blank line
+    console_log("")
     console_log("https://zimbelaudio.com/ike-zimbel/    ")
     console_log("https://www.like.audio/")
-    console_log("") # Blank line
-
-    console_log("") # Blank line
-    
-    console_log("") # Blank line
-    console_log("EXPERIMENTAL: This splash screen is designed to be displayed in the console.")
+    console_log("")
