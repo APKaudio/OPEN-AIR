@@ -21,8 +21,9 @@
 # Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
 # Version 20250803.235901.0 (ADDED: 'LocalPreset.TButton' and 'SelectedPreset.Orange.TButton' styles.)
 # Version 20250804.000005.0 (MODIFIED: LocalPreset.TButton font size to 25pt.)
+# Version 20250804.022800.1 (ADDED: 'Band.TButton' and 'Band.Selected.TButton' styles for scan bands.)
 
-current_version = "20250804.000005.0" # Incremented version
+current_version = "20250804.022800.1" # Incremented version
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -51,6 +52,8 @@ COLOR_PALETTE = {
     'purple_btn': '#673AB7',
     'purple_btn_active': '#7E57C2',
     'value_fg': '#ADD8E6',
+    'grey_btn': '#707070', # Added for grey button
+    'grey_btn_active': '#858585', # Added for active grey button
 }
 
 COLOR_PALETTE_TABS = {
@@ -131,7 +134,33 @@ def apply_styles(style, debug_log_func, current_app_version):
                     justify='center')
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
-    # --- NEW: Styles for Local Preset Buttons ---
+    # --- NEW: Styles for Band Selection Buttons (Scanning Tab) ---
+    style.configure('Band.TButton',
+                    background=COLOR_PALETTE['grey_btn'], # Grey for unselected
+                    foreground='white',
+                    font=('Helvetica', 10),
+                    padding=[5, 5],
+                    anchor='center',
+                    justify='center',
+                    relief='flat',
+                    borderwidth=1)
+    style.map('Band.TButton',
+              background=[('active', COLOR_PALETTE['grey_btn_active'])]) # Lighter grey on hover
+
+    style.configure('Band.Selected.TButton',
+                    background=COLOR_PALETTE['orange_btn'], # Orange for selected
+                    foreground='black', # Black text for contrast on orange
+                    font=('Helvetica', 10, 'bold'), # Bold for selected
+                    padding=[5, 5],
+                    anchor='center',
+                    justify='center',
+                    relief='raised', # Make it look "pushed" or selected
+                    borderwidth=2)
+    style.map('Band.Selected.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active'])]) # Brighter orange on hover
+
+
+    # --- Styles for Local Preset Buttons ---
     # Base for unselected preset buttons
     style.configure('LocalPreset.TButton',
                     background=COLOR_PALETTE['active_bg'], # Or a slightly darker shade

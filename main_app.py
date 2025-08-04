@@ -21,8 +21,9 @@
 # Version 20250803.215000.0 (REFACTORED: Implemented switch_tab logic for custom button-based UI.)
 # Version 20250804.000000.0 (ADDED: collected_scans_dataframes, MHZ_TO_HZ, and initialized defer_config_save.)
 # Version 20250804.020700.1 (FIXED: Populated setting_var_map for all relevant Tkinter variables from config.)
+# Version 20250804.021600.0 (DEBUGGING: Added debug print for sash position in _on_closing.)
 
-current_version_string = "20250804.020700.1"
+current_version_string = "20250804.021600.0" # Incremented version for debugging
 current_version_hash_value = 0 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
@@ -77,7 +78,8 @@ class App(tk.Tk):
         self.defer_config_save = False # Initialize the defer_config_save flag
         self.collected_scans_dataframes = [] # NEW: Initialize collected_scans_dataframes here
         self.inst = None # Initialize inst here, it will be updated by connection logic
-        
+        self.paned_window = None # Initialize paned_window attribute here
+
         self.tab_art_map = {
             "Instruments": _print_inst_ascii,
             "Markers": _print_marks_ascii,
@@ -155,7 +157,19 @@ class App(tk.Tk):
     def _on_closing(self):
         """Handles application shutdown, including saving configuration."""
         if hasattr(self, 'config') and self.config:
-            # Ensure config is saved one last time on closing
+            # DEBUGGING: Print sash position before saving
+            if hasattr(self, 'paned_window'):
+                current_sash_pos = self.paned_window.sashpos(0)
+                console_log(f"DEBUG: Sash position read before saving: {current_sash_pos}")
+                debug_log(f"DEBUG: Sash position read before saving: {current_sash_pos}",
+                            file=f"{os.path.basename(__file__)} - {self.current_version}",
+                            function="_on_closing")
+            else:
+                console_log("DEBUG: paned_window attribute not found on app_instance before saving.")
+                debug_log("DEBUG: paned_window attribute not found on app_instance before saving.",
+                            file=f"{os.path.basename(__file__)} - {self.current_version}",
+                            function="_on_closing")
+
             save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
         self.destroy()
 

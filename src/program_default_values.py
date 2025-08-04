@@ -39,7 +39,7 @@ DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
 DEFAULT_CONFIG = {
     'Application': {
         'geometry': '1200x800+50+50',
-        'paned_window_sash_position': '300',
+        'paned_window_sash_position': '700',
         'last_config_save_time': 'Never',
     },
     'Debug': {

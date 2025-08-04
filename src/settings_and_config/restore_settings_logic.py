@@ -15,8 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250802.0045.1 (Refactored debug_print to debug_log; updated imports and flair.)
+# Version 20250804.022251.0 (FIXED: Added logic to load selected bands in restore_last_used_settings_logic.)
 
-current_version = "20250802.0045.1" # this variable should always be defined below the header to make the debugging better
+current_version = "20250804.022251.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250802 * 45 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
@@ -179,7 +180,8 @@ def restore_default_settings_logic(app_instance, console_print_func=None):
     save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
 
     # Reset setting colors (e.g., remove any "changed" highlights)
-    app_instance.reset_setting_colors_logic()
+    if hasattr(app_instance, 'reset_setting_colors_logic'):
+        app_instance.reset_setting_colors_logic()
     
     console_print_func("✅ All settings restored to default values. Fresh start!")
     debug_log("Default settings restored and saved. UI reset!",
@@ -272,17 +274,17 @@ def restore_last_used_settings_logic(app_instance, console_print_func=None):
                 version=current_version,
                 function=current_function)
 
-    # Restore selected bands
+    # --- NEW/FIXED: Restore selected bands from config ---
     last_selected_bands_str = app_instance.config.get('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands', fallback='')
     last_selected_band_names = [name.strip() for name in last_selected_bands_str.split(',') if name.strip()]
     if last_selected_band_names:
         for band_item in app_instance.band_vars:
             band_name = band_item["band"]["Band Name"]
             band_item["var"].set(band_name in last_selected_band_names)
-        debug_log(f"Restored selected bands to last used: {last_selected_band_names}",
+        debug_log(f"Restored selected bands to last used: {last_selected_band_names}. Bands loaded!",
                     file=__file__,
                     version=current_version,
-                    function=current_function)
+                    function=current_function, special=True)
     else:
         # If no last_selected_bands in config, ensure all are deselected
         for band_item in app_instance.band_vars:
@@ -338,7 +340,8 @@ def restore_last_used_settings_logic(app_instance, console_print_func=None):
                     function=current_function)
 
     # Reset setting colors (e.g., remove any "changed" highlights)
-    app_instance.reset_setting_colors_logic()
+    if hasattr(app_instance, 'reset_setting_colors_logic'):
+        app_instance.reset_setting_colors_logic()
     
     console_print_func("✅ All settings restored to last used values. Back in business!")
     debug_log("Last used settings restored. UI synced!",
