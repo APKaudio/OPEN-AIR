@@ -12,13 +12,15 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.232000.0 (MODIFIED: Changed active ControlButton style to orange.)
+# Version 20250803.231500.0 (ADDED: 'ControlButton' styles. MODIFIED: Increased 'DeviceButton' font to 14pt.)
+# Version 20250803.232501.0 (ADDED: New 'DeviceButton' styles with larger, centered font.)
 # Version 20250803.232500.0 (ADDED: Custom styles for active/inactive device buttons on Markers tab.)
 # Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
 
-current_version = "20250803.232500.0"
+current_version = "20250803.232000.0"
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -108,24 +110,41 @@ def apply_styles(style, debug_log_func, current_app_version):
         style.configure(child_tab_style_name, background=inactive_color, foreground=COLOR_PALETTE['foreground'], padding=[8, 4], font=('Helvetica', 10, 'bold'))
         style.map(child_tab_style_name, background=[('selected', active_color)], foreground=[('selected', config['fg'])])
 
-    # --- NEW: Marker Device Button Styles ---
-    # Inactive/Default Device Button
-    style.configure('Markers.Device.Inactive.TButton', 
+    # --- Device Buttons (Markers Tab) ---
+    style.configure('DeviceButton.Inactive.TButton', 
                     background=COLOR_PALETTE['active_bg'], 
                     foreground=COLOR_PALETTE['foreground'], 
-                    font=('Helvetica', 10),
+                    font=('Helvetica', 14),
                     padding=5,
-                    anchor='center')
-    style.map('Markers.Device.Inactive.TButton', background=[('active', COLOR_PALETTE['select_bg'])])
+                    anchor='center',
+                    justify='center')
+    style.map('DeviceButton.Inactive.TButton', background=[('active', COLOR_PALETTE['select_bg'])])
     
-    # Active/Selected Device Button ("ActivelyBeingDisplayed")
-    style.configure('Markers.Device.Active.TButton',
+    style.configure('DeviceButton.Active.TButton',
                     background=COLOR_PALETTE['orange_btn'],
                     foreground='black',
-                    font=('Helvetica', 13, 'bold'),
+                    font=('Helvetica', 14, 'bold'),
                     padding=5,
+                    anchor='center',
+                    justify='center')
+    style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
+
+    # --- Control Buttons (Span, RBW, Trace) ---
+    style.configure('ControlButton.Inactive.TButton',
+                    background=_get_dark_color(COLOR_PALETTE['blue_btn']),
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 10, 'bold'),
+                    padding=8,
                     anchor='center')
-    style.map('Markers.Device.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
+    style.map('ControlButton.Inactive.TButton', background=[('active', COLOR_PALETTE['blue_btn'])])
+
+    style.configure('ControlButton.Active.TButton',
+                    background=COLOR_PALETTE['orange_btn'],
+                    foreground='black',
+                    font=('Helvetica', 10, 'bold'),
+                    padding=8,
+                    anchor='center')
+    style.map('ControlButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
     # --- Other Widget Styles ---
     style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))

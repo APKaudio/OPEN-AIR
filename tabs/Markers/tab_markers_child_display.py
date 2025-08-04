@@ -7,18 +7,22 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can benegotiated. There is no change to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 #
 #
+# Version 20250803.232800.0 (CHANGED: Set default Span, RBW, and Trace modes on initialization.)
+# Version 20250803.232500.0 (FIXED: Re-enabled initial data load to ensure tab populates on startup.)
+# Version 20250803.232000.0 (FIXED: Renamed tab selection method to ensure MARKERS.CSV is reloaded on tab open.)
+# Version 20250803.231500.0 (FIXED: Applied new 'ControlButton' styles and updated POKE button style.)
+# Version 20250803.232501.0 (FIXED: Justification of device buttons. Switched to new 'DeviceButton' style.)
+# Version 20250803.230015.1 (FIXED: Span button text now multi-line. Device buttons now properly fill horizontal space.)
 # Version 20250803.225305.1 (CHANGED: Replaced control radio/check buttons with styled buttons. Adjusted tree logic for empty groups.)
-# Version 20250804.001500.0 (REBUILT: Implemented full user specification for layout and controls.)
-# Version 20250803.234000.0 (CORRECTED: Restored full file content and fixed NameError.)
 
-current_version = "20250803.225305.1" 
-current_version_hash = (20250803 * 225305 * 1 + 2039482) # Example hash
+current_version = "20250803.232800.0" 
+current_version_hash = (20250803 * 232800 * 0 + 2039482) # Example hash
 
 import tkinter as tk
 from tkinter import ttk 
@@ -46,12 +50,12 @@ class MarkersDisplayTab(ttk.Frame):
         self.selected_device_unique_id = None
         
         # --- State Variables for Controls ---
-        self.span_var = tk.StringVar()
-        self.rbw_var = tk.StringVar()
+        self.span_var = tk.StringVar(value="1000000.0") # Default to 1 MHz
+        self.rbw_var = tk.StringVar(value="1000000.0") # Default to 1 MHz
         self.poke_freq_var = tk.StringVar()
         self.trace_live_mode = tk.BooleanVar(value=True)
-        self.trace_max_hold_mode = tk.BooleanVar(value=False)
-        self.trace_min_hold_mode = tk.BooleanVar(value=False)
+        self.trace_max_hold_mode = tk.BooleanVar(value=True) # Default to enabled
+        self.trace_min_hold_mode = tk.BooleanVar(value=True) # Default to enabled
         
         # --- Dictionaries to hold control buttons for styling ---
         self.span_buttons = {}
@@ -59,7 +63,8 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_buttons = {}
 
         self._create_widgets()
-        self.after(100, self.load_markers_from_file)
+        # Restore initial data load to ensure it populates regardless of event firing
+        self.after(100, self.load_markers_from_file) 
         self.after(150, self._update_control_styles) # Initial style update
 
     def _create_widgets(self):
@@ -101,11 +106,15 @@ class MarkersDisplayTab(ttk.Frame):
         canvas = tk.Canvas(self.buttons_frame, bg=COLOR_PALETTE['background'], highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.buttons_frame, orient="vertical", command=canvas.yview)
         self.inner_buttons_frame = ttk.Frame(canvas, style='Dark.TFrame')
-        canvas.create_window((0, 0), window=self.inner_buttons_frame, anchor="nw")
+        
+        self.button_frame_window = canvas.create_window((0, 0), window=self.inner_buttons_frame, anchor="nw")
+
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
+        
         self.inner_buttons_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind('<Configure>', self._on_canvas_configure) # Make frame fill canvas width
         canvas.bind('<Enter>', lambda e: canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units")))
         canvas.bind('<Leave>', lambda e: canvas.unbind_all("<MouseWheel>"))
         
@@ -117,13 +126,12 @@ class MarkersDisplayTab(ttk.Frame):
         span_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
         self.controls_notebook.add(span_tab, text="Span")
         for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
-            btn = ttk.Button(span_tab, text=name, command=lambda s=span_hz: self._on_span_button_click(s))
-            btn.grid(row=0, column=i, padx=5, pady=(0,2), sticky="ew")
-            
             val_text = self._format_hz(span_hz)
-            lbl = ttk.Label(span_tab, text=val_text, anchor="center")
-            lbl.grid(row=1, column=i, padx=5, pady=(0,5), sticky="ew")
-
+            btn_text = f"{name}\n{val_text}"
+            
+            btn = ttk.Button(span_tab, text=btn_text, command=lambda s=span_hz: self._on_span_button_click(s))
+            btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
+            
             self.span_buttons[str(span_hz)] = btn
             span_tab.grid_columnconfigure(i, weight=1)
 
@@ -152,13 +160,18 @@ class MarkersDisplayTab(ttk.Frame):
         poke_tab.grid_columnconfigure(0, weight=1) # Entry takes up space
         poke_tab.grid_columnconfigure(1, weight=1) # Button takes up equal space
         ttk.Entry(poke_tab, textvariable=self.poke_freq_var).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Button(poke_tab, text="POKE", command=self._on_poke_action, style='Markers.Device.Active.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        ttk.Button(poke_tab, text="POKE", command=self._on_poke_action, style='DeviceButton.Active.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+    def _on_canvas_configure(self, event):
+        """Ensures the inner frame width matches the canvas width."""
+        canvas = event.widget
+        canvas.itemconfig(self.button_frame_window, width=event.width)
 
     def _format_hz(self, hz_val):
         """Formats a frequency in Hz to a human-readable string in MHz or kHz."""
         try:
             hz = float(hz_val)
-            if hz == 100 * MHZ_TO_HZ: return "Full" # Special case for Ultra Wide
+            if hz == 100 * MHZ_TO_HZ: return "100 MHz" # Special case for Ultra Wide text
             if hz >= MHZ_TO_HZ:
                 return f"{hz / MHZ_TO_HZ:.1f}".replace('.0', '') + " MHz"
             elif hz >= 1000:
@@ -173,19 +186,19 @@ class MarkersDisplayTab(ttk.Frame):
         # Update Span Buttons
         current_span = self.span_var.get()
         for span_val, button in self.span_buttons.items():
-            style = 'Markers.Device.Active.TButton' if span_val == current_span else 'Markers.Device.Inactive.TButton'
+            style = 'ControlButton.Active.TButton' if span_val == current_span else 'ControlButton.Inactive.TButton'
             button.configure(style=style)
 
         # Update RBW Buttons
         current_rbw = self.rbw_var.get()
         for rbw_val, button in self.rbw_buttons.items():
-            style = 'Markers.Device.Active.TButton' if rbw_val == current_rbw else 'Markers.Device.Inactive.TButton'
+            style = 'ControlButton.Active.TButton' if rbw_val == current_rbw else 'ControlButton.Inactive.TButton'
             button.configure(style=style)
 
         # Update Trace Buttons
-        self.trace_buttons['Live'].configure(style='Markers.Device.Active.TButton' if self.trace_live_mode.get() else 'Markers.Device.Inactive.TButton')
-        self.trace_buttons['Max Hold'].configure(style='Markers.Device.Active.TButton' if self.trace_max_hold_mode.get() else 'Markers.Device.Inactive.TButton')
-        self.trace_buttons['Min Hold'].configure(style='Markers.Device.Active.TButton' if self.trace_min_hold_mode.get() else 'Markers.Device.Inactive.TButton')
+        self.trace_buttons['Live'].configure(style='ControlButton.Active.TButton' if self.trace_live_mode.get() else 'ControlButton.Inactive.TButton')
+        self.trace_buttons['Max Hold'].configure(style='ControlButton.Active.TButton' if self.trace_max_hold_mode.get() else 'ControlButton.Inactive.TButton')
+        self.trace_buttons['Min Hold'].configure(style='ControlButton.Active.TButton' if self.trace_min_hold_mode.get() else 'ControlButton.Inactive.TButton')
 
     def _populate_zone_group_tree(self):
         """
@@ -237,7 +250,8 @@ class MarkersDisplayTab(ttk.Frame):
             freq = data.get('FREQ', 'N/A')
             uid = f"{data.get('NAME', '')}-{freq}"
             text = f"{data.get('NAME', 'N/A')}\n{data.get('DEVICE', 'N/A')}\n{freq} MHz"
-            style = 'Markers.Device.Active.TButton' if uid == self.selected_device_unique_id else 'Markers.Device.Inactive.TButton'
+            # Use the new, larger, centered styles
+            style = 'DeviceButton.Active.TButton' if uid == self.selected_device_unique_id else 'DeviceButton.Inactive.TButton'
             btn = ttk.Button(self.inner_buttons_frame, text=text, style=style, command=lambda d=data: self._on_device_button_click(d))
             btn.grid(row=i // num_columns, column=i % num_columns, padx=5, pady=5, sticky="ew")
 
@@ -332,5 +346,13 @@ class MarkersDisplayTab(ttk.Frame):
             except (ValueError, TypeError) as e:
                 console_log(f"Invalid POKE frequency: {e}")
 
-    def _on_tab_selected(self, event):
+    def _on_parent_tab_selected(self, event):
+        """
+        _on_parent_tab_selected
+        # Called by main_app when the parent 'Markers' tab is selected.
+        # This ensures the marker data is always fresh when viewing the tab.
+        """
+        debug_log(f"🚀 Markers tab selected, reloading {os.path.basename(self.app_instance.MARKERS_FILE_PATH)}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=inspect.currentframe().f_code.co_name)
         self.load_markers_from_file()

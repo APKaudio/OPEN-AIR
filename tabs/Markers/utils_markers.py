@@ -39,13 +39,13 @@ SPAN_OPTIONS = {
 # --- NEW: Constants for Resolution Bandwidth (RBW) Options ---
 # (2025-07-31 17:15) Change: Added RBW options.
 RBW_OPTIONS = {
-    "1 MHz": 1 * MHZ_TO_HZ,
-    "300 kHz": 300 * 1000,
-    "100 kHz": 100 * 1000,
-    "30 kHz": 30 * 1000,
-    "10 kHz": 10 * 1000,
-    "3 kHz": 3 * 1000,
-    "1 kHz": 1 * 1000,
+    "Fast": 1 * MHZ_TO_HZ,
+    "Brisk": 300 * 1000,
+    "Deliberate": 100 * 1000,
+    "Steady": 30 * 1000,
+    "Leisurely": 10 * 1000,
+    "Unhurried": 3 * 1000,
+    "Slothlike": 1 * 1000,
 }
 # --- END NEW ---
 
