@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.232500.0 (ADDED: Custom styles for active/inactive device buttons on Markers tab.)
 # Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
-# Version 20250803.223500.0 (FIXED: Restored missing COLOR_PALETTE keys like 'blue_btn'.)
 
-current_version = "20250803.225500.0"
+current_version = "20250803.232500.0"
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -76,7 +76,6 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure('Dark.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
     style.configure('TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
     
-    # --- Custom Label Styles ---
     try:
         tlabel_layout = style.layout('TLabel')
         if tlabel_layout:
@@ -96,27 +95,37 @@ def apply_styles(style, debug_log_func, current_app_version):
         active_color = config['active']
         inactive_color = _get_dark_color(active_color)
         
-        # Parent Active Style
         style.configure(f'{name}.Active.TButton', background=active_color, foreground=config['fg'], font=('Helvetica', 14, 'bold'), relief='flat')
         style.map(f'{name}.Active.TButton', background=[('active', active_color)])
         
-        # Parent Inactive Style
         style.configure(f'{name}.Inactive.TButton', background=inactive_color, foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 11, 'bold'), relief='flat')
         style.map(f'{name}.Inactive.TButton', background=[('active', active_color)])
 
-        # Child Notebook Styles
         child_style_name = f'{name}.Child.TNotebook'
         child_tab_style_name = f'{child_style_name}.Tab'
         
         style.configure(child_style_name, background=COLOR_PALETTE['background'], borderwidth=1)
-        style.configure(child_tab_style_name, 
-                        background=inactive_color, 
-                        foreground=COLOR_PALETTE['foreground'], 
-                        padding=[8, 4], 
-                        font=('Helvetica', 10, 'bold'))
-        style.map(child_tab_style_name, 
-                  background=[('selected', active_color)],
-                  foreground=[('selected', config['fg'])])
+        style.configure(child_tab_style_name, background=inactive_color, foreground=COLOR_PALETTE['foreground'], padding=[8, 4], font=('Helvetica', 10, 'bold'))
+        style.map(child_tab_style_name, background=[('selected', active_color)], foreground=[('selected', config['fg'])])
+
+    # --- NEW: Marker Device Button Styles ---
+    # Inactive/Default Device Button
+    style.configure('Markers.Device.Inactive.TButton', 
+                    background=COLOR_PALETTE['active_bg'], 
+                    foreground=COLOR_PALETTE['foreground'], 
+                    font=('Helvetica', 10),
+                    padding=5,
+                    anchor='center')
+    style.map('Markers.Device.Inactive.TButton', background=[('active', COLOR_PALETTE['select_bg'])])
+    
+    # Active/Selected Device Button ("ActivelyBeingDisplayed")
+    style.configure('Markers.Device.Active.TButton',
+                    background=COLOR_PALETTE['orange_btn'],
+                    foreground='black',
+                    font=('Helvetica', 13, 'bold'),
+                    padding=5,
+                    anchor='center')
+    style.map('Markers.Device.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
     # --- Other Widget Styles ---
     style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))
