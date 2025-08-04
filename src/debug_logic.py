@@ -19,8 +19,9 @@
 # Version 20250802.1935.0 (Added DEBUG_TO_GUI_CONSOLE flag and logic to control debug output to GUI console.)
 # Version 20250802.1940.0 (Ensured debug_log respects DEBUG_TO_GUI_CONSOLE flag for output to GUI.)
 # Version 20250803.1535.0 (Added set_log_visa_command_func to resolve ImportError in program_initialization.py)
+# Version 20250804.000019.0 (FIXED: Enhanced debug_log/log_visa_command resilience for early calls and direct file logging. Added path checks.)
 
-current_version = "20250803.1535.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250804.000019.0" # Incremented version
 current_version_hash = 20250803 * 1535 * 0 # Example hash, adjust as needed
 
 import sys
@@ -28,16 +29,15 @@ import os
 from datetime import datetime
 import inspect # Import inspect for function name
 
-# REMOVED: from src.console_logic import console_log - This caused the circular import!
-
 # Global variables for debug control
-DEBUG_MODE = False # Master switch: Controls if debug_log messages are processed at all
-LOG_VISA_COMMANDS = False # Controls if VISA commands are logged (only if DEBUG_MODE is True)
-DEBUG_TO_TERMINAL = False # Controls where debug_log output goes (True: terminal, False: GUI console)
-DEBUG_TO_FILE = False # Controls if debug_log output goes to a file
-INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE = False # Controls if console_log messages also go to debug file
-DEBUG_TO_GUI_CONSOLE = False # NEW: Controls if debug_log messages go to the GUI console
-DEBUG_FILE_PATH = None # Path to the debug log file
+DEBUG_MODE = True # Master switch: Controls if debug_log messages are processed at all (SET TO TRUE FOR DEBUGGING THIS!)
+LOG_VISA_COMMANDS = True # Controls if VISA commands are logged (only if DEBUG_MODE is True) (SET TO TRUE FOR DEBUGGING THIS!)
+DEBUG_TO_TERMINAL = True # Controls where debug_log output goes (True: terminal, False: GUI console) (SET TO TRUE FOR DEBUGGING THIS!)
+DEBUG_TO_FILE = True # Controls if debug_log output goes to a file (SET TO TRUE FOR DEBUGGING THIS!)
+INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE = True # Controls if console_log messages also go to debug file (SET TO TRUE FOR DEBUGGING THIS!)
+DEBUG_TO_GUI_CONSOLE = True # NEW: Controls if debug_log messages go to the GUI console (SET TO TRUE FOR DEBUGGING THIS!)
+DEBUG_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'DATA', 'DEBUG_SOFTWARE.log') # Pre-define a fallback path here
+
 
 # Reference to the GUI console TextRedirector or original stdout/stderr
 _gui_console_stdout_redirector = None
@@ -146,10 +146,11 @@ def set_debug_to_file_mode(mode: bool, file_path: str = None):
     Inputs:
     - mode (bool): True to enable logging to file, False to disable.
     - file_path (str, optional): The full path to the debug log file. Required if mode is True.
+                                 If None, it tries to use the globally defined DEBUG_FILE_PATH.
 
     Process of this function:
     1. Updates the global `DEBUG_TO_FILE` and `DEBUG_FILE_PATH` variables.
-    2. If `mode` is True and `file_path` is provided, attempts to open the file in write mode ('w').
+    2. If `mode` is True, attempts to open the file in write mode ('w').
        This will overwrite any existing content.
     3. Prints a debug message indicating the new state.
 
@@ -158,7 +159,9 @@ def set_debug_to_file_mode(mode: bool, file_path: str = None):
     """
     global DEBUG_TO_FILE, DEBUG_FILE_PATH
     DEBUG_TO_FILE = mode
-    DEBUG_FILE_PATH = file_path
+    # Use provided file_path or fallback to the module's global DEBUG_FILE_PATH
+    effective_file_path = file_path if file_path is not None else DEBUG_FILE_PATH
+    DEBUG_FILE_PATH = effective_file_path # Update global for consistency
     
     current_function = inspect.currentframe().f_code.co_name
     if DEBUG_TO_FILE and DEBUG_FILE_PATH:
@@ -315,13 +318,16 @@ def set_log_visa_command_func(func):
 def _write_to_debug_file(message: str):
     """
     Internal helper to write a message to the debug log file if DEBUG_TO_FILE is True.
+    Ensures the file path is set and directory exists.
     """
     if DEBUG_TO_FILE and DEBUG_FILE_PATH:
         try:
+            # Ensure directory exists before writing
+            os.makedirs(os.path.dirname(DEBUG_FILE_PATH), exist_ok=True)
             with open(DEBUG_FILE_PATH, 'a', encoding='utf-8') as f: # 'a' for append mode
                 f.write(message + "\n")
         except Exception as e:
-            # If writing to file fails, print to original stdout as a last resort
+            # If writing to file fails, print to original stderr as a last resort
             print(f"ERROR: Failed to write to debug log file {DEBUG_FILE_PATH}: {e}", file=_original_stderr)
 
 def clear_debug_log_file(file_path: str):
@@ -395,9 +401,9 @@ def debug_log(message, file=None, version=None, function=None, special=False):
         2. Generates a timestamp.
         3. Constructs a prefix based on `file`, `version`, `function`, and `special` flags.
         4. Formats the full message.
-        5. Directs the message to `_original_stdout` (terminal) if `DEBUG_TO_TERMINAL` is True.
-        6. Directs the message to `_gui_console_stdout_redirector` (GUI console) if available and `DEBUG_TO_TERMINAL` is False.
-        7. Writes the message to the debug file if `DEBUG_TO_FILE` is True.
+        5. Writes the message to the debug file if `DEBUG_TO_FILE` is True. (Moved to top for resilience)
+        6. Directs the message to `_original_stdout` (terminal) if `DEBUG_TO_TERMINAL` is True.
+        7. Directs the message to `_gui_console_stdout_redirector` (GUI console) if available and `DEBUG_TO_TERMINAL` is False.
         8. Falls back to `_original_stdout` if no other output destination is active.
 
     Outputs of this function:
@@ -422,6 +428,10 @@ def debug_log(message, file=None, version=None, function=None, special=False):
     
     full_message = f"🚫🐛 [{timestamp}] {prefix}{message}"
     
+    # Output to debug file FIRST for resilience
+    if DEBUG_TO_FILE:
+        _write_to_debug_file(full_message)
+
     # Output to terminal
     if DEBUG_TO_TERMINAL:
         print(full_message, file=_original_stdout)
@@ -431,10 +441,6 @@ def debug_log(message, file=None, version=None, function=None, special=False):
     # Fallback to original stdout if GUI console not ready/enabled and not debugging to terminal
     else:
         print(full_message, file=_original_stdout)
-
-    # Output to debug file
-    if DEBUG_TO_FILE:
-        _write_to_debug_file(full_message)
 
 
 def log_visa_command(command, direction="SENT"):
@@ -451,9 +457,9 @@ def log_visa_command(command, direction="SENT"):
         1. Checks if `LOG_VISA_COMMANDS` is enabled. If not, exits early.
         2. Generates a timestamp.
         3. Formats the log message.
-        4. Directs the message to `_original_stdout` (terminal) if `DEBUG_TO_TERMINAL` is True.
-        5. Directs the message to `_gui_console_stdout_redirector` (GUI console) if available and `DEBUG_TO_TERMINAL` is False.
-        6. Writes the message to the debug file if `DEBUG_TO_FILE` is True.
+        4. Writes the message to the debug file if `DEBUG_TO_FILE` is True. (Moved to top for resilience)
+        5. Directs the message to `_original_stdout` (terminal) if `DEBUG_TO_TERMINAL` is True.
+        6. Directs the message to `_gui_console_stdout_redirector` (GUI console) if available and `DEBUG_TO_TERMINAL` is False.
         7. Falls back to `_original_stdout` if no other output destination is active.
 
     Outputs of this function:
@@ -465,6 +471,10 @@ def log_visa_command(command, direction="SENT"):
     timestamp = datetime.now().strftime("%M.%S")
     log_message = f"🌲 [{timestamp}] {direction}: {command.strip()}"
     
+    # Output to debug file FIRST for resilience
+    if DEBUG_TO_FILE:
+        _write_to_debug_file(log_message)
+
     # Output to terminal
     if DEBUG_TO_TERMINAL:
         print(log_message, file=_original_stdout)
@@ -474,7 +484,3 @@ def log_visa_command(command, direction="SENT"):
     # Fallback to original stdout if GUI console not ready/enabled and not debugging to terminal
     else:
         print(log_message, file=_original_stdout)
-
-    # Output to debug file
-    if DEBUG_TO_FILE:
-        _write_to_debug_file(log_message)
