@@ -16,11 +16,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250803.231000.0 (FIXED: Attached all missing path constants to the app instance.)
+# Version 20250803.220500.0 (REFACTORED: Moved ASCII art logic here to break circular import.)
 # Version 20250803.215000.0 (REFACTORED: Implemented switch_tab logic for custom button-based UI.)
-# Version 20250803.220000.0 (REFACTORED: Final update to call the new GUI builder, completing the UI restoration.)
 
-current_version_string = "20250803.215000.0"
-current_version_hash_value = 20250803 * 215000 * 0
+current_version_string = "20250803.231000.0"
+current_version_hash_value = 20250803 * 231000 * 0
 
 import tkinter as tk
 from tkinter import ttk
@@ -37,8 +38,12 @@ from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_ge
 from src.settings_and_config.config_manager import save_config
 from src.debug_logic import debug_log, set_debug_redirectors
 from src.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
+from src.gui_elements import (_print_inst_ascii, _print_marks_ascii, _print_presets_ascii,
+                              _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii)
+# CORRECTED: Import all path constants
 from src.program_default_values import (
-    CONFIG_FILE_PATH, DATA_FOLDER_PATH
+    CONFIG_FILE_PATH, DATA_FOLDER_PATH, PRESETS_FILE_PATH,
+    MARKERS_FILE_PATH, VISA_COMMANDS_FILE_PATH, DEBUG_COMMANDS_FILE_PATH
 )
 
 class App(tk.Tk):
@@ -50,90 +55,85 @@ class App(tk.Tk):
         self.current_version = current_version_string
         self.current_version_hash = current_version_hash_value
 
-        # --- Attach path constants to the instance ---
+        # --- CORRECTED: Attach ALL path constants to the instance ---
         self.DATA_FOLDER_PATH = DATA_FOLDER_PATH
         self.CONFIG_FILE_PATH = CONFIG_FILE_PATH
+        self.PRESETS_FILE_PATH = PRESETS_FILE_PATH
+        self.MARKERS_FILE_PATH = MARKERS_FILE_PATH
+        self.VISA_COMMANDS_FILE_PATH = VISA_COMMANDS_FILE_PATH
+        self.DEBUG_COMMANDS_FILE_PATH = DEBUG_COMMANDS_FILE_PATH
         
         # --- Initialize runtime state attributes ---
         self.scan_thread = None 
-        self.active_tab_name = None # For custom tab system
+        self.active_tab_name = None
+        
+        self.tab_art_map = {
+            "Instruments": _print_inst_ascii,
+            "Markers": _print_marks_ascii,
+            "Presets": _print_presets_ascii,
+            "Scanning": _print_scan_ascii,
+            "Plotting": _print_plot_ascii,
+            "Experiments": _print_xxx_ascii,
+        }
         
         self.title(f"OPEN-AIR RF Spectrum Analyzer Controller (v{self.current_version})")
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
 
-        # --- Setup Backend (Variables, Configs) ---
         self.style = ttk.Style(self)
         setup_tkinter_variables(self)
         initialize_program_environment(self)
         
-        # --- Build Frontend (GUI) ---
         apply_saved_geometry(self)
         apply_styles(self.style, debug_log, self.current_version)
         create_main_layout_and_widgets(self)
         
-        # --- Connect Backend to Frontend ---
         if hasattr(self, 'console_tab') and hasattr(self.console_tab, 'console_text'):
             set_gui_console_redirector(self.console_tab.console_text)
             set_debug_redirectors(self.console_tab.console_text)
             set_clear_console_func(self.console_tab._clear_applications_console_action)
         
-        # --- Finalize Setup ---
         self.after(100, self._post_gui_setup)
-        self.switch_tab("Instruments") # Set the initial active tab
+        self.switch_tab("Instruments")
 
-        debug_log(f"App initialized with custom tab UI. Version: {self.current_version}.",
+        debug_log(f"App initialized. Version: {self.current_version}.",
                     file=f"{os.path.basename(__file__)}", function="init", special=True)
 
     def switch_tab(self, new_tab_name):
-        """Switches the active tab in the custom button-based tab system."""
+        """Switches the active tab and triggers associated actions like printing ASCII art."""
         if self.active_tab_name == new_tab_name:
-            return # Do nothing if clicking the already active tab
+            return
 
         for name, button in self.tab_buttons.items():
             content_frame = self.tab_content_frames[name]
             if name == new_tab_name:
-                # Activate the selected tab
                 button.config(style=f'{name}.Active.TButton')
-                content_frame.tkraise() # Bring the content to the front
+                content_frame.tkraise()
                 
-                # Call the tab's selection handler if it exists
+                if name in self.tab_art_map:
+                    self.tab_art_map[name](console_log)
+
                 if hasattr(content_frame, '_on_parent_tab_selected'):
-                    content_frame._on_parent_tab_selected(None) # Pass None for event object
+                    content_frame._on_parent_tab_selected(None)
             else:
-                # Deactivate all other tabs
                 button.config(style=f'{name}.Inactive.TButton')
         
         self.active_tab_name = new_tab_name
         debug_log(f"Switched to tab: {new_tab_name}", file=f"{os.path.basename(__file__)}", function="switch_tab")
 
-
     def _post_gui_setup(self):
-        """
-        Performs setup tasks that need to run after the Tkinter mainloop has started.
-        """
         pass
 
     def _on_closing(self):
-        """
-        Handles the application closing event.
-        """
         if hasattr(self, 'config') and self.config:
             save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
         self.destroy()
 
     def get_tab_instance(self, parent_tab_name, child_tab_name=None):
-        """
-        Retrieves an instance of a specified tab.
-        """
         parent_tab = self.tab_content_frames.get(parent_tab_name)
         if not parent_tab:
             return None
-        
-        if child_tab_name:
-            # Assumes child tabs are stored in a dict named 'child_tabs' on the parent
-            if hasattr(parent_tab, 'child_tabs'):
-                return parent_tab.child_tabs.get(child_tab_name)
-            return None
+        if child_tab_name and hasattr(parent_tab, 'child_tabs'):
+            return parent_tab.child_tabs.get(child_tab_name)
         return parent_tab
 
 if __name__ == "__main__":
