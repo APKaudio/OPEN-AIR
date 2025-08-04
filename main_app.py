@@ -20,20 +20,22 @@
 # Version 20250803.220500.0 (REFACTORED: Moved ASCII art logic here to break circular import.)
 # Version 20250803.215000.0 (REFACTORED: Implemented switch_tab logic for custom button-based UI.)
 # Version 20250804.000000.0 (ADDED: collected_scans_dataframes, MHZ_TO_HZ, and initialized defer_config_save.)
+# Version 20250804.020700.1 (FIXED: Populated setting_var_map for all relevant Tkinter variables from config.)
 
-current_version_string = "20250804.000000.0" # Incremented version
-current_version_hash_value = 20250803 * 231000 * 0 # This will be updated by formula later, kept for now.
+current_version_string = "20250804.020700.1"
+current_version_hash_value = 0 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
 from tkinter import ttk
 import os
 import sys
 import inspect
+from datetime import datetime
 
 # Import functions from refactored modules
 from src.program_check_Dependancies import check_and_install_dependencies
 from src.program_initialization import initialize_program_environment
-from src.program_shared_values import setup_tkinter_variables
+from src.program_shared_values import setup_tkinter_variables # We'll modify this one to pass the map
 from src.program_style import apply_styles
 from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_geometry
 from src.settings_and_config.config_manager import save_config # Added for explicit save_config call
@@ -90,7 +92,11 @@ class App(tk.Tk):
 
         self.style = ttk.Style(self)
         
+        # Initialize the setting_var_map here. This is crucial for config_manager.
+        self.setting_var_map = {} # This map will hold references to Tkinter variables and their config keys
+
         # This function sets up most Tkinter variables based on DEFAULT_CONFIG
+        # and populates self.setting_var_map
         setup_tkinter_variables(self) 
         
         # This loads config from file and applies to self.config (a configparser object)
