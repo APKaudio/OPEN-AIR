@@ -22,8 +22,10 @@
 # Version 20250804.020800.1 (FIXED: Correctly populating app_instance.setting_var_map for all config values.)
 # Version 20250804.021015.0 (FIXED: Added paned_window_sash_position_var to app_instance.setting_var_map.)
 # Version 20250804.021100.1 (FIXED: Included last_config_save_time_var in app_instance variables for display.)
+# Version 20250804.025000.0 (FIXED: Added initialization for current_X_var display variables for instrument settings.)
+# Version 20250804.025800.0 (REMOVED: current_freq_shift_var initialization as per user request.)
 
-current_version = "20250804.021100.1" # Incremented version
+current_version = "20250804.025800.0" # Incremented version
 
 import tkinter as tk
 import inspect
@@ -77,6 +79,8 @@ def setup_tkinter_variables(app_instance):
     # (2025-08-04.020800.1) Change: Refined variable type detection and corrected how setting_var_map is populated.
     # (2025-08-04.021015.0) Change: Added paned_window_sash_position_var to app_instance.setting_var_map.
     # (2025-08-04.021100.1) Change: Included last_config_save_time_var in app_instance variables for display.
+    # (2025-08-04.025000.0) Change: Added initialization for current_X_var display variables for instrument settings.
+    # (2025-08-04.025800.0) Change: Removed current_freq_shift_var initialization as per user request.
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Setting up all application Tkinter variables from default config. Getting the gears in motion!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
@@ -135,6 +139,16 @@ def setup_tkinter_variables(app_instance):
     app_instance.last_loaded_preset_center_freq_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_span_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_rbw_hz_var = tk.StringVar(app_instance, value="N/A")
+
+    # NEW: Tkinter variables for displaying current instrument settings (excluding freq_shift_var)
+    app_instance.current_center_freq_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.current_span_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.current_rbw_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.current_ref_level_var = tk.StringVar(app_instance, value="N/A")
+    # REMOVED: app_instance.current_freq_shift_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.current_trace_mode_var = tk.StringVar(app_instance, value="N/A")
+    app_instance.current_preamp_status_var = tk.StringVar(app_instance, value="N/A")
+
 
     # --- Band Selection Variables ---
     # These are handled separately because they are a list of BooleanVars

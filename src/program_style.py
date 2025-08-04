@@ -22,8 +22,9 @@
 # Version 20250803.235901.0 (ADDED: 'LocalPreset.TButton' and 'SelectedPreset.Orange.TButton' styles.)
 # Version 20250804.000005.0 (MODIFIED: LocalPreset.TButton font size to 25pt.)
 # Version 20250804.022800.1 (ADDED: 'Band.TButton' and 'Band.Selected.TButton' styles for scan bands.)
+# Version 20250804.023345.0 (ADDED: Styles for Start, Pause, Stop scan control buttons.)
 
-current_version = "20250804.022800.1" # Incremented version
+current_version = "20250804.023345.0" # Incremented version
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -52,8 +53,10 @@ COLOR_PALETTE = {
     'purple_btn': '#673AB7',
     'purple_btn_active': '#7E57C2',
     'value_fg': '#ADD8E6',
-    'grey_btn': '#707070', # Added for grey button
-    'grey_btn_active': '#858585', # Added for active grey button
+    'grey_btn': '#707070',
+    'grey_btn_active': '#858585',
+    'white': 'white', # Explicit white for clarity
+    'black': 'black', # Explicit black for clarity
 }
 
 COLOR_PALETTE_TABS = {
@@ -134,7 +137,7 @@ def apply_styles(style, debug_log_func, current_app_version):
                     justify='center')
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
-    # --- NEW: Styles for Band Selection Buttons (Scanning Tab) ---
+    # --- Styles for Band Selection Buttons (Scanning Tab) ---
     style.configure('Band.TButton',
                     background=COLOR_PALETTE['grey_btn'], # Grey for unselected
                     foreground='white',
@@ -191,29 +194,48 @@ def apply_styles(style, debug_log_func, current_app_version):
               background=[('active', COLOR_PALETTE['orange_btn_active'])],
               foreground=[('active', 'black')]) # Keep black on hover
 
-    # --- Control Buttons (Span, RBW, Trace) ---
-    style.configure('ControlButton.Inactive.TButton',
-                    background=_get_dark_color(COLOR_PALETTE['blue_btn']),
-                    foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 10, 'bold'),
-                    padding=8,
-                    anchor='center')
-    style.map('ControlButton.Inactive.TButton', background=[('active', COLOR_PALETTE['blue_btn'])])
+    # --- Scan Control Buttons (Start, Pause, Stop) ---
+    style.configure('StartScan.TButton',
+                    background=COLOR_PALETTE['green_btn'],
+                    foreground=COLOR_PALETTE['white'],
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[10, 5])
+    style.map('StartScan.TButton',
+              background=[('active', COLOR_PALETTE['green_btn_active']),
+                          ('disabled', COLOR_PALETTE['disabled_bg'])],
+              foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
-    style.configure('ControlButton.Active.TButton',
+    style.configure('PauseScan.TButton',
                     background=COLOR_PALETTE['orange_btn'],
-                    foreground='black',
-                    font=('Helvetica', 10, 'bold'),
-                    padding=8,
-                    anchor='center')
-    style.map('ControlButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
+                    foreground=COLOR_PALETTE['black'],
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[10, 5])
+    style.map('PauseScan.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active']),
+                          ('disabled', COLOR_PALETTE['disabled_bg'])],
+              foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
-    # --- Other Widget Styles ---
-    style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))
-    style.map("Treeview", background=[('selected', COLOR_PALETTE['select_bg'])], foreground=[('selected', COLOR_PALETTE['select_fg'])])
-    style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
-    style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])
+    style.configure('StopScan.TButton',
+                    background=COLOR_PALETTE['red_btn'],
+                    foreground=COLOR_PALETTE['white'],
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[10, 5])
+    style.map('StopScan.TButton',
+              background=[('active', COLOR_PALETTE['red_btn_active']),
+                          ('disabled', COLOR_PALETTE['disabled_bg'])],
+              foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
+    
+    # Style for the blinking resume button
+    style.configure('ResumeScan.Blink.TButton',
+                    background=COLOR_PALETTE['select_bg'], # Blue to make it "blink" distinctively
+                    foreground=COLOR_PALETTE['white'],
+                    font=('Helvetica', 12, 'bold'),
+                    padding=[10, 5])
+    style.map('ResumeScan.Blink.TButton',
+              background=[('active', COLOR_PALETTE['blue_btn_active'])])
 
+
+    # --- Other Generic Buttons (e.g. for general use in UI) ---
     style.configure('Green.TButton', background=COLOR_PALETTE['green_btn'], foreground='white')
     style.map('Green.TButton', background=[('active', COLOR_PALETTE['green_btn_active'])])
     style.configure('Red.TButton', background=COLOR_PALETTE['red_btn'], foreground='white')
@@ -224,3 +246,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Orange.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
     style.configure('Purple.TButton', background=COLOR_PALETTE['purple_btn'], foreground='white')
     style.map('Purple.TButton', background=[('active', COLOR_PALETTE['purple_btn_active'])])
+
+    # --- Other Widget Styles (Treeview, etc.) ---
+    style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))
+    style.map("Treeview", background=[('selected', COLOR_PALETTE['select_bg'])], foreground=[('selected', COLOR_PALETTE['select_fg'])])
+    style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
+    style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])

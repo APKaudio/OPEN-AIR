@@ -1,4 +1,4 @@
-# utils/utils_scan_instrument.py
+# tabs/Scanning/utils_scan_instrument.py
 #
 # This module contains the core logic for controlling the spectrum analyzer
 # to perform frequency sweeps across specified bands. It handles the low-level
@@ -17,9 +17,11 @@
 #
 # Version 20250802.1230.1 (Reverted to old version of scan_bands and perform_segment_sweep, updated logging.)
 # Version 20250803.1750.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
+# Version 20250804.024500.0 (FIXED: Corrected instrument_model access; ensured debug_log and console_log usage.)
+# Version 20250804.024800.0 (Updated file version to reflect changes.)
 
-current_version = "20250802.1230.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1230 * 1 # Example hash, adjust as needed
+current_version = "20250804.024800.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250804 * 2480 * 0 # Example hash, adjust as needed (Updated from 1 for new version)
 
 import pyvisa
 import time
@@ -28,7 +30,6 @@ import re
 import tkinter as tk # Keeping tk for potential future GUI interactions, though messagebox is removed
 import datetime
 import os
-# import pandas as pd # Removed: Data processing moved to scan_stitch.py
 import inspect
 
 # Updated imports for new logging functions
@@ -36,44 +37,21 @@ from src.debug_logic import debug_log, log_visa_command
 from src.console_logic import console_log
 
 # Import instrument control functions - CORRECTED PATHS
-# Note: These are now the *only* imports from utils_instrument_control
-# Reverting to old imports for query_safe, write_safe, debug_print, initialize_instrument, etc.
-# However, I will map debug_print to debug_log and console_log for consistency.
-# The user's old file uses utils.utils_instrument_control, but I'll use the current path if it's been moved.
-# Based on previous conversation, utils_instrument_control.py is in 'utils' folder.
-# The `initialize_instrument` function is still needed.
-from tabs.Instrument.instrument_logic import initialize_instrument_logic # CORRECTED: Changed import name
+from tabs.Instrument.instrument_logic import initialize_instrument_logic
 
 # Import CSV utility (still used for incremental saving of raw data)
 from utils.utils_csv_writer import write_scan_data_to_csv
 
 # Import frequency band definitions
-from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO # SCAN_BAND_RANGES is not directly used here anymore
+from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO
 
 
 # Helper functions for instrument communication, now using the new logging
-# These were defined directly in the old utils_scan_instrument.py, but I'll keep them here
-# as they were in the old version, adapted for the new logging.
 def write_safe(inst, command, console_print_func):
     """
     Function Description:
     Safely writes a SCPI command to the instrument.
     Logs the command and handles potential errors.
-
-    Inputs to this function:
-    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
-    - command (str): The SCPI command string to write.
-    - console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-    1. Checks if the instrument is connected.
-    2. Attempts to write the command.
-    3. Logs success or failure to the console and debug log.
-
-    Outputs of this function:
-    - bool: True if the command was written successfully, False otherwise.
-
-    (2025-08-01) Change: Refactored to use new logging.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to write command: {command}",
@@ -104,21 +82,6 @@ def query_safe(inst, command, console_print_func):
     Function Description:
     Safely queries the instrument with a SCPI command and returns the response.
     Logs the command and response, and handles potential errors.
-
-    Inputs to this function:
-    - inst (pyvisa.resources.Resource): The PyVISA instrument object.
-    - command (str): The SCPI query command string.
-    - console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-    1. Checks if the instrument is connected.
-    2. Attempts to query the instrument.
-    3. Logs the command, response, and handles errors.
-
-    Outputs of this function:
-    - str or None: The instrument's response if successful, None otherwise.
-
-    (2025-08-01) Change: Refactored to use new logging.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to query command: {command}",
@@ -233,6 +196,7 @@ def configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_lev
     time.sleep(0.05)
 
     # Set Frequency Shift
+    # Using :SENSe:FREQuency:RFShift instead of :INPut:RFSense:FREQuency:SHIFt as per N9340B manual
     if not write_safe(inst, f":SENSe:FREQuency:RFShift {freq_shift_hz}", app_console_update_func): success = False
     time.sleep(0.05)
 
@@ -375,7 +339,7 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
     #   segment_stop_freq_hz (float): The stopping frequency for this specific sweep segment, in Hertz.
     #   maxhold_enabled (bool): A boolean flag indicating whether Max Hold mode should be enabled for this sweep.
     #   max_hold_time (float): The duration in seconds to wait for the Max Hold trace to stabilize.
-    #   app_instance_ref (object): A reference to the main application instance, used to access shared attributes like `instrument_model`.
+    #   app_instance_ref (object): A reference to the main application instance, used to access shared attributes like `connected_instrument_model`.
     #   pause_event (threading.Event): A threading event object used to signal and manage pausing of the scan.
     #   stop_event (threading.Event): A threading event object used to signal and manage stopping of the scan.
     #   segment_counter (int): The current segment number within the band, used for display and debugging.
@@ -393,7 +357,7 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
     #   5. If Max Hold is enabled and `max_hold_time` is greater than 0, enters a loop to wait for the
     #      specified duration, providing a countdown to the console. It continuously checks for pause/stop events.
     #   6. Calculates and displays a progress bar for the current segment to the console.
-    #   7. Queries the instrument for trace data, using different SCPI commands based on `app_instance_ref.instrument_model`.
+    #   7. Queries the instrument for trace data, using different SCPI commands based on `app_instance_ref.connected_instrument_model`.
     #   8. Checks if the received `trace_data_str` is valid (not None, not a timeout message, not empty).
     #       If invalid, prints an error and returns an empty list.
     #   9. Parses the `trace_data_str` to extract the numerical amplitude values. It handles cases where
@@ -486,11 +450,7 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
 
             if _ % 10 == 0: # Every 10 iterations (1 second)
                 sec_remaining = int(max_hold_time - (_ / 10))
-                # Removed 'end='\r''
-               # app_console_update_func(f"⏳ {sec_remaining}")
             time.sleep(0.1)
-        # Removed 'end='\r'' and the empty string print
-      #  app_console_update_func("✅ Max Hold Settled.")
 
     if stop_event.is_set():
         app_console_update_func(f"Scan for {band_name} interrupted after max hold for segment {segment_counter}.")
@@ -506,20 +466,20 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
     filled_length = int(round(bar_length * progress_percentage))
     progressbar = '█' * filled_length + '-' * (bar_length - filled_length)
 
-    # Removed 'end='\r''
     progress_message = f"{progressbar}🔍 Span:📊{(segment_stop_freq_hz - segment_start_freq_hz)/MHZ_TO_HZ:.3f} MHz--📈{segment_start_freq_hz/MHZ_TO_HZ:.3f} MHz to 📉{segment_stop_freq_hz/MHZ_TO_HZ:.3f} MHz   ✅{segment_counter} of {total_segments_in_band} "
     app_console_update_func(progress_message)
 
     segment_raw_data = []
     try:
         # Conditional trace data query based on instrument model
-        # Assuming app_instance_ref has instrument_model attribute
-        if app_instance_ref.instrument_model == "N9340B":
-            trace_data_str = query_safe(inst, ":TRAC2:DATA?", app_console_update_func) # Pass console_print_func
-        elif app_instance_ref.instrument_model == "N9342CN":
-            trace_data_str = query_safe(inst, ":TRACe:DATA? TRACe2", app_console_update_func) # Pass console_print_func
+        # CORRECTED: Use app_instance_ref.connected_instrument_model.get()
+        instrument_model = app_instance_ref.connected_instrument_model.get()
+        if instrument_model == "N9340B":
+            trace_data_str = query_safe(inst, ":TRAC2:DATA?", app_console_update_func)
+        elif instrument_model == "N9342CN":
+            trace_data_str = query_safe(inst, ":TRACe:DATA? TRACe2", app_console_update_func)
         else: # Fallback for unknown models
-            trace_data_str = query_safe(inst, ":TRACe:DATA? TRACe2", app_console_update_func) # Pass console_print_func
+            trace_data_str = query_safe(inst, ":TRACe:DATA? TRACe2", app_console_update_func)
 
         if trace_data_str is None or "[Not Supported or Timeout]" in trace_data_str or not trace_data_str.strip():
             app_console_update_func("🚫 No valid trace data string received for this segment.")
@@ -549,8 +509,8 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
                             function=current_function)
 
                 # Query actual start/stop frequencies from instrument
-                actual_center_freq_hz = float(query_safe(inst, ":SENSe:FREQuency:CENTer?", app_console_update_func)) # Pass console_print_func
-                actual_span_hz = float(query_safe(inst, ":SENSe:FREQuency:SPAN?", app_console_update_func)) # Pass console_print_func
+                actual_center_freq_hz = float(query_safe(inst, ":SENSe:FREQuency:CENTer?", app_console_update_func))
+                actual_span_hz = float(query_safe(inst, ":SENSe:FREQuency:SPAN?", app_console_update_func))
                 
                 # Derive num_points from the length of the amplitudes_dbm list
                 num_points = len(amplitudes_dbm)
@@ -574,9 +534,6 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
                 if len(amplitudes_dbm) == len(frequencies_hz):
                     for freq, amp in zip(frequencies_hz, amplitudes_dbm):
                         segment_raw_data.append((freq, amp))
-                    # Print the "Collected" message. It will appear on the same line as the progress bar
-                    # because the progress bar ended with '\r'. We then add a newline to move to the next line.
-                 #   app_console_update_func(f"  Collected {len(amplitudes_dbm)} data points for segment {segment_counter}.")
                     debug_log(f"Collected {len(amplitudes_dbm)} data points.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
@@ -663,7 +620,7 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
     #   6. Iterates through each `band` in `selected_bands`:
     #      a. Checks for a `stop_event` signal to break out of the band loop.
     #      b. Calculates the shifted start and stop frequencies for the current band.
-    #      c. Determines the `expected_sweep_points` based on the `instrument_model`.
+    #      c. Determines the `expected_sweep_points` based on the `connected_instrument_model`.
     #      d. Calculates the optimal segment span and total segments needed to cover the band,
     #         ensuring efficient sweeping based on sweep points and RBW step size.
     #      e. Enters a `while` loop to iterate through each segment within the current band:
@@ -694,12 +651,6 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
                 version=current_version,
                 function=current_function)
 
-    # Configure debug mode for underlying instrument control functions
-    # (2025-08-02 12:30) Change: Removed direct calls to set_debug_mode and set_log_visa_commands_mode
-    # as these are now handled globally by the main application instance.
-    # set_debug_mode(general_debug_enabled)
-    # set_log_visa_commands_mode(log_visa_commands_enabled)
-
     overall_start_freq_hz = min(band["Start MHz"] for band in selected_bands) * MHZ_TO_HZ
     overall_stop_freq_hz = max(band["Stop MHz"] for band in selected_bands) * MHZ_TO_HZ
     
@@ -711,15 +662,16 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
 
     # Initialize instrument for scan (basic setup, no specific scan parameters here)
     app_console_update_func("Initializing instrument for scan settings...")
-    if not initialize_instrument_logic( # CORRECTED: Call initialize_instrument_logic
+    # CORRECTED: Pass app_instance_ref.connected_instrument_model.get()
+    if not initialize_instrument_logic(
         inst,
-        model_match=app_instance_ref.instrument_model,
+        model_match=app_instance_ref.connected_instrument_model.get(), # CORRECTED
         ref_level_dbm=ref_level_dbm,
         high_sensitivity_on=high_sensitivity,
         preamp_on=preamp_on,
         rbw_config_val=rbw_hz,
         vbw_config_val=rbw_hz * VBW_RBW_RATIO, # VBW is derived from RBW
-        console_print_func=app_console_update_func # Pass console_print_func
+        console_print_func=app_console_update_func
     ):
         app_console_update_func("❌ Error: Failed to initialize instrument for scan. Aborting.")
         debug_log("Instrument initialization failed in scan_bands.",
@@ -754,6 +706,7 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
                     function=current_function)
         return -1, None, None
 
+    # Using :SENSe:FREQuency:RFShift instead of :INPut:RFSense:FREQuency:SHIFt as per N9340B manual
     if not write_safe(inst, f":SENSe:FREQuency:RFShift {freq_shift_hz}HZ", app_console_update_func):
         app_console_update_func(f"❌ Error: Failed to set frequency shift to {freq_shift_hz}Hz.")
         debug_log(f"Failed to set frequency shift: {freq_shift_hz}Hz",
@@ -761,46 +714,33 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
                     version=current_version,
                     function=current_function)
 
-    # (2025-08-02 12:30) Change: Reverted High Sensitivity and Preamplifier commands to match old version's structure
-    # and removed the redundant check for preamp_on outside of high_sensitivity.
     if high_sensitivity:
-        if not write_safe(inst, ":INPut:ATTenuation:AUTO OFF", app_console_update_func):
-            app_console_update_func("❌ Error: Failed to set attenuation auto OFF for high sensitivity.")
-            debug_log("Failed to set attenuation auto OFF.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-        if not write_safe(inst, ":INPut:GAIN:STATe ON", app_console_update_func):
-            app_console_update_func("❌ Error: Failed to turn ON preamp for high sensitivity.")
-            debug_log("Failed to turn ON preamp.",
+        # These commands are often tied together for high sensitivity mode on real instruments.
+        # :SENSe:POWer:RF:HSENs ON handles internal settings (attenuation, preamp) for high sensitivity
+        if not write_safe(inst, ":SENSe:POWer:RF:HSENs ON", app_console_update_func):
+            app_console_update_func("❌ Error: Failed to set High Sensitivity ON.")
+            debug_log("Failed to set High Sensitivity ON.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
     else:
-        if not write_safe(inst, ":INPut:ATTenuation:AUTO ON", app_console_update_func):
-            app_console_update_func("❌ Error: Failed to set attenuation auto ON for normal sensitivity.")
-            debug_log("Failed to set attenuation auto ON.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-        if not write_safe(inst, ":INPut:GAIN:STATe OFF", app_console_update_func):
-            app_console_update_func("❌ Error: Failed to turn OFF preamp for normal sensitivity.")
-            debug_log("Failed to turn OFF preamp.",
+        if not write_safe(inst, ":SENSe:POWer:RF:HSENs OFF", app_console_update_func):
+            app_console_update_func("❌ Error: Failed to set High Sensitivity OFF.")
+            debug_log("Failed to set High Sensitivity OFF.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
     
-    # This block was in the old version, but it's redundant if high_sensitivity already handles preamp.
-    # Keeping it as per user's request to revert, but noting potential redundancy.
+    # Separate control for preamp_on for finer control if needed, even with High Sensitivity settings
     if preamp_on:
-        if not write_safe(inst, ":INPut:GAIN:STATe ON", app_console_update_func):
+        if not write_safe(inst, ":SENSe:POWer:RF:GAIN ON", app_console_update_func): # Using SENSe:POWer:RF:GAIN
             app_console_update_func("❌ Error: Failed to turn ON preamp.")
             debug_log("Failed to turn ON preamp.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
     else:
-        if not write_safe(inst, ":INPut:GAIN:STATe OFF", app_console_update_func):
+        if not write_safe(inst, ":SENSe:POWer:RF:GAIN OFF", app_console_update_func): # Using SENSe:POWer:RF:GAIN
             app_console_update_func("❌ Error: Failed to turn OFF preamp.")
             debug_log("Failed to turn OFF preamp.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
@@ -841,11 +781,13 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
 
         # Determine expected_sweep_points based on instrument model
         expected_sweep_points = 500 # Default
-        if app_instance_ref.instrument_model == "N9340B":
+        # CORRECTED: Use app_instance_ref.connected_instrument_model.get()
+        instrument_model = app_instance_ref.connected_instrument_model.get()
+        if instrument_model == "N9340B":
             expected_sweep_points = 461
-        elif app_instance_ref.instrument_model == "N9342CN":
+        elif instrument_model == "N9342CN":
             expected_sweep_points = 500
-        app_console_update_func(f"📊 Using {expected_sweep_points} sweep points per trace for {band_name} ({app_instance_ref.instrument_model if app_instance_ref.instrument_model else 'Unknown'} detected).")
+        app_console_update_func(f"📊 Using {expected_sweep_points} sweep points per trace for {band_name} ({instrument_model if instrument_model else 'Unknown'} detected).")
 
 
         full_band_span_hz = band_stop_freq_hz - band_start_freq_hz
@@ -853,7 +795,6 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
             total_segments_in_band = 1
             optimal_segment_span_hz = full_band_span_hz
         else:
-            # (2025-08-02 12:30) Change: Reverted segmentation calculation to old version.
             total_segments_in_band = int(np.ceil(full_band_span_hz / (rbw_step_size_hz * (expected_sweep_points - 1))))
             if total_segments_in_band == 0:
                 total_segments_in_band = 1
@@ -878,7 +819,7 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
                 segment_stop_freq_hz,
                 maxhold_enabled,
                 max_hold_time_seconds,
-                app_instance_ref,
+                app_instance_ref, # app_instance_ref passed as is
                 pause_event,
                 stop_event,
                 segment_counter,
@@ -902,8 +843,6 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
                         filtered_segment_data_for_csv.append((freq_hz, amp_value))
 
                 if filtered_segment_data_for_csv:
-                    # Removed the header from the CSV write call as requested.
-                    # The write_scan_data_to_csv function will now be called with header=None.
                     csv_data_to_write = [(f / MHZ_TO_HZ, amp) for f, amp in filtered_segment_data_for_csv]
                     write_scan_data_to_csv(csv_filename_current_cycle, header=None, data=csv_data_to_write, append_mode=True, console_print_func=app_console_update_func)
                     debug_log(f"Appended {len(filtered_segment_data_for_csv)} points to {csv_filename_current_cycle}",

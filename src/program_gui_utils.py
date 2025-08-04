@@ -17,6 +17,7 @@
 #
 # Version 20250803.214500.1 (REFACTORED: Replaced ttk.Notebook with custom button-based tab system.)
 # Version 20250804.021433.0 (FIXED: Exposed main_paned_window to app_instance and corrected geometry loading key.)
+# Version 20250804.023600.0 (FIXED: Bound <<PanedWindowSashMoved>> to update sash_position_var.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -34,9 +35,9 @@ from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
 from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
 from tabs.Console.ConsoleTab import ConsoleTab
 from src.console_logic import console_log
-from src.debug_logic import debug_log # Import debug_log
+from src.debug_logic import debug_log
 
-current_version = "20250804.021433.0" # Incremented version
+current_version = "20250804.023600.0" # Incremented version
 
 def apply_saved_geometry(app_instance):
     # Function Description:
@@ -107,6 +108,7 @@ def create_main_layout_and_widgets(app_instance):
     #   `app_instance.tab_content_frames`, and `app_instance.console_tab`.
     #
     # (2025-08-04.021433.0) Change: Assigned main_paned_window to app_instance.paned_window.
+    # (2025-08-04.023600.0) Change: Bound <<PanedWindowSashMoved>> to update sash_position_var.
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Creating main layout and widgets. Laying out the foundation!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
@@ -116,6 +118,14 @@ def create_main_layout_and_widgets(app_instance):
     
     # EXPOSED: Assign the paned window to the app_instance
     app_instance.paned_window = main_paned_window
+
+    # Bind the sash moved event to update the Tkinter variable
+    # This is crucial for capturing live sash movements.
+    main_paned_window.bind('<<PanedWindowSashMoved>>', 
+                           lambda e: app_instance.paned_window_sash_position_var.set(main_paned_window.sashpos(0)))
+    debug_log("Bound <<PanedWindowSashMoved>> event to update paned_window_sash_position_var.",
+                file=os.path.basename(__file__), function=current_function, version=current_version)
+
 
     # --- Left Pane ---
     left_frame = ttk.Frame(main_paned_window, style='TFrame')

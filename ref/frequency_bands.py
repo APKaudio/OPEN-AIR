@@ -16,6 +16,7 @@
 #
 # Conversion factor from MHz to Hz
 MHZ_TO_HZ = 1_000_000
+KHZ_TO_HZ = 1_000
 
 # Ratio for Video Bandwidth (VBW) to Resolution Bandwidth (RBW)
 VBW_RBW_RATIO = 1/3

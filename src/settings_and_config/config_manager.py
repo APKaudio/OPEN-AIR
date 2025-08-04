@@ -21,8 +21,9 @@
 # Version 20250804.021740.0 (DEBUGGING: Added verbose logging in save_config for paned_window_sash_position.)
 # Version 20250804.022000.0 (DEBUGGING: Added more granular checks for paned_window existence in save_config.)
 # Version 20250804.022251.0 (FIXED: Explicitly saving selected bands from app_instance.band_vars.)
+# Version 20250804.024000.0 (FIXED: Prevented overwriting of geometry, sash_position, last_save_time by setting_var_map loop.)
 
-current_version = "20250804.022251.0" # Incremented version
+current_version = "20250804.024000.0" # Incremented version
 
 import configparser
 import os
@@ -95,8 +96,17 @@ def save_config(config, file_path, console_print_func, app_instance):
                 file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
+
+    # List of keys that are handled explicitly (not via setting_var_map iteration)
+    EXPLICITLY_HANDLED_KEYS = [
+        'geometry',
+        'last_config_save_time',
+        'paned_window_sash_position',
+        'last_scan_configuration__selected_bands' # Handled explicitly below band_vars
+    ]
+
     try:
-        # Update specific non-variable settings
+        # --- Explicitly handle geometry and last_config_save_time ---
         app_geometry = app_instance.geometry()
         config.set('Application', 'geometry', app_geometry)
         debug_log(f"Config object: Set 'geometry' to '{app_geometry}'.",
@@ -110,7 +120,9 @@ def save_config(config, file_path, console_print_func, app_instance):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        
+        app_instance.last_config_save_time_var.set(current_time) # Update Tkinter var for display
+
+        # --- Explicitly handle paned_window_sash_position ---
         debug_log(f"Checking for 'paned_window' on app_instance (hasattr: {hasattr(app_instance, 'paned_window')}).",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -144,22 +156,28 @@ def save_config(config, file_path, console_print_func, app_instance):
                         version=current_version,
                         function=current_function)
 
-        # Update settings from the setting_var_map
+        # --- Update settings from the setting_var_map ---
         if hasattr(app_instance, 'setting_var_map'):
             for key, (var, section) in app_instance.setting_var_map.items():
-                if not config.has_section(section):
-                    config.add_section(section)
-                # Removed the old special handling for band_vars here.
-                # It will be handled by the explicit block below.
-                if key != 'last_scan_configuration__selected_bands': # Skip if this key, handled separately
-                    config_value = str(var.get())
-                    config.set(section, key, config_value)
-                    debug_log(f"Config object: Set '{section}/{key}' to '{config_value}'.",
+                # --- NEW: Skip keys that are handled explicitly above ---
+                if key in EXPLICITLY_HANDLED_KEYS:
+                    debug_log(f"Skipping setting '{section}/{key}' from setting_var_map as it's handled explicitly.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
                                 version=current_version,
                                 function=current_function)
+                    continue
+
+                if not config.has_section(section):
+                    config.add_section(section)
+                
+                config_value = str(var.get())
+                config.set(section, key, config_value)
+                debug_log(f"Config object: Set '{section}/{key}' to '{config_value}'.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function)
         
-        # --- NEW/FIXED: Explicitly save selected bands from app_instance.band_vars ---
+        # --- Explicitly save selected bands from app_instance.band_vars ---
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
             selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
             selected_bands_str = ",".join(selected_bands)
@@ -212,25 +230,27 @@ def save_config_as_new_file(app_instance, new_file_path):
                 version=current_version,
                 function=current_function_name)
     
+    # List of keys that are handled explicitly (not via setting_var_map iteration)
+    # This ensures consistency even for new file saves.
+    EXPLICITLY_HANDLED_KEYS_FOR_NEW_FILE = [
+        'geometry',
+        'last_config_save_time',
+        'paned_window_sash_position',
+        'last_scan_configuration__selected_bands'
+    ]
+
     try:
         # Populate settings from the app's setting_var_map
         if hasattr(app_instance, 'setting_var_map'):
             for key, (var, section) in app_instance.setting_var_map.items():
+                if key in EXPLICITLY_HANDLED_KEYS_FOR_NEW_FILE:
+                    continue # Skip keys handled explicitly below
+                
                 if not new_config.has_section(section):
                     new_config.add_section(section)
-                # Special handling for band_vars (for new file save)
-                if key != 'last_scan_configuration__selected_bands': # Skip if this key, handled separately
-                    new_config.set(section, key, str(var.get()))
+                new_config.set(section, key, str(var.get()))
 
-        # Explicitly save selected bands from app_instance.band_vars for new file save
-        if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
-            selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
-            selected_bands_str = ",".join(selected_bands)
-            if not new_config.has_section('Scan'):
-                new_config.add_section('Scan')
-            new_config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
-
-        # Update specific non-variable settings
+        # Explicitly handle non-variable based values for the new config file
         if not new_config.has_section('Application'):
             new_config.add_section('Application')
         new_config.set('Application', 'geometry', app_instance.geometry())
@@ -239,6 +259,15 @@ def save_config_as_new_file(app_instance, new_file_path):
         if hasattr(app_instance, 'paned_window') and app_instance.paned_window:
              sash_pos = app_instance.paned_window.sashpos(0)
              new_config.set('Application', 'paned_window_sash_position', str(sash_pos))
+        
+        # Explicitly save selected bands from app_instance.band_vars for new file save
+        if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
+            selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
+            selected_bands_str = ",".join(selected_bands)
+            if not new_config.has_section('Scan'):
+                new_config.add_section('Scan')
+            new_config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
+
 
         # Write the new config object to the specified new file
         with open(new_file_path, 'w') as configfile:
