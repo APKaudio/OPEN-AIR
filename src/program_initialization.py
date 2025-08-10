@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250803.233621.0 (FIXED: Corrected function call to load_config with the right number of arguments.)
-# Version 20250803.204901.0 (REFACTORED: Moved console redirection logic to main_app.py to resolve circular import.)
+# Version 20250810.220100.8 (FIXED: Added call to restore_last_used_settings_logic after loading config to ensure saved settings are applied correctly at startup.)
 
-current_version = "20250803.233621.0"
+current_version = "20250810.220100.8"
+current_version_hash = 20250810 * 220100 * 8 # Example hash, adjust as needed
 
 import os
 import inspect
@@ -29,6 +29,7 @@ from src.program_default_values import (
     DATA_FOLDER_PATH, CONFIG_FILE_PATH
 )
 from src.settings_and_config.config_manager import load_config, save_config
+from src.settings_and_config.restore_settings_logic import restore_last_used_settings_logic # NEW: Import the restore logic
 
 def initialize_program_environment(app_instance):
     """
@@ -40,7 +41,8 @@ def initialize_program_environment(app_instance):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Initializing program environment...",
-              file=f"{os.path.basename(__file__)} - {current_version}",
+              file=os.path.basename(__file__),
+              version=current_version,
               function=current_function)
 
     # Ensure the main data folder exists
@@ -55,5 +57,13 @@ def initialize_program_environment(app_instance):
 
     # Load configuration
     # The load_config function will create a default if one doesn't exist.
-    # CORRECTED: The function call now uses the correct arguments and assigns the returned value.
     app_instance.config = load_config(CONFIG_FILE_PATH, console_log)
+    
+    # NEW LOGIC: After loading the config file, apply the last used settings to the Tkinter variables.
+    # This is the key piece that was missing. It ensures the UI reflects the saved state.
+    restore_last_used_settings_logic(app_instance, console_log)
+    debug_log("Called restore_last_used_settings_logic to apply loaded settings.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function,
+              special=True)

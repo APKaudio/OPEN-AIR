@@ -15,12 +15,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.150700.1 (FIXED: Removed the unnecessary display_default_settings_structure function that was causing unwanted output.)
+# Version 20250810.180100.8 (FIXED: Dynamically generated default band importance levels to prevent hard-coding and potential errors.)
 
-current_version = "20250810.150700.1"
-current_version_hash = 20250810 * 150700 * 1 # Example hash, adjust as needed
+current_version = "20250810.180100.8"
+current_version_hash = 20250810 * 180100 * 8 # Example hash, adjust as needed
 
 import os
+
+# Import the main frequency bands data
+from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Path Constants ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -85,6 +88,10 @@ DEFAULT_CONFIG = {
         'math_standard_deviation': 'True',
         'math_range': 'True',
         'math_psd': 'True',
+        # Dynamically generate default band importance levels
+        'last_scan_configuration__selected_bands_levels': ','.join(
+            [f"{band['Band Name']}=1" for band in SCAN_BAND_RANGES]
+        ),
     },
     'Antenna': {
         'selected_antenna_type': 'Generic',

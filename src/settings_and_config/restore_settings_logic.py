@@ -1,4 +1,4 @@
-# src/settings_logic.py
+# src/settings_and_config/restore_settings_logic.py
 #
 # This file contains the core logic for managing application settings,
 # including restoring default settings, restoring last-used settings,
@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250810.180100.2 (UPDATED: Modified logic to handle the new band importance levels.)
+# Version 20250810.220100.9 (FIXED: Corrected function call to load_config to match the new signature, resolving a TypeError.)
 
-current_version = "20250810.180100.2"
-current_version_hash = 20250810 * 180100 * 2 # Example hash, adjust as needed
+current_version = "20250810.220100.9"
+current_version_hash = 20250810 * 220100 * 9 # Example hash, adjust as needed
 
 import tkinter as tk
 import inspect
@@ -29,331 +29,237 @@ from display.console_logic import console_log
 
 # Import config management functions
 from src.settings_and_config.config_manager import load_config, save_config # Import save_config
-from src.program_default_values import DEFAULT_CONFIG # Import DEFAULT_CONFIG to get default band levels
+from src.program_default_values import DEFAULT_CONFIG # Import default values
 
 
-def restore_default_settings_logic(app_instance, console_print_func=None):
+def restore_default_settings_logic(app_instance, console_print_func):
     """
     Function Description:
-    Restores all application settings to their default values as defined in config.ini.
-    This function updates the Tkinter variables and then saves these defaults to
-    the LAST_USED_SETTINGS section, effectively resetting the user's saved preferences.
-
+    Loads the default configuration settings and applies them to the application's
+    variables, effectively resetting the UI to its initial state.
+    
     Inputs:
-    - app_instance (object): The main application instance, providing access to
-                             its `config` object and `setting_var_map`.
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Prints a debug message.
-    2. Iterates through `app_instance.setting_var_map`.
-    3. For each setting, retrieves its default value from the `DEFAULT_SETTINGS` section
-       of `app_instance.config`.
-    4. Converts the default value to the appropriate Tkinter variable type (Boolean, Int, Double, String).
-    5. Sets the Tkinter variable to the default value.
-    6. Updates the `LAST_USED_SETTINGS` section in `app_instance.config` with these defaults.
-    7. Handles special cases for `notes_var`, `band_vars`, `selected_antenna_type_var`,
-       `selected_amplifier_type_var`, `output_folder_var`, and `scan_name_var`.
-    8. Saves the modified configuration using `save_config`.
-    9. Calls `app_instance.reset_setting_colors_logic` to clear any visual indicators.
-    10. Logs success or failure.
-
+    - app_instance (object): A reference to the main application instance.
+    - console_print_func (function): A function for printing to the console.
+    
     Outputs of this function:
-    - None. Modifies Tkinter variables and the configuration file.
+    - None. The application's state and UI are updated to default values.
     """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Attempting to restore default settings... Wiping the slate clean!",
-                file=__file__,
+    current_file = os.path.basename(__file__)
+    
+    debug_log(f"Restoring all settings to default. Hitting the reset button! Version: {current_version}",
+                file=current_file,
                 version=current_version,
                 function=current_function)
-
-    # Iterate through the setting_var_map and set each Tkinter variable
-    # to its default value from the DEFAULT_SETTINGS section.
-    for tk_var_name, (last_key, default_key, tk_var_instance) in app_instance.setting_var_map.items():
-        if default_key: # Only restore if a default_key is defined
-            default_value_str = app_instance.config.get('DEFAULT_SETTINGS', default_key, fallback=None)
-            if default_value_str is not None:
+    
+    try:
+        # Create a temporary config object with default values
+        app_instance.config.clear()
+        for section, settings in DEFAULT_CONFIG.items():
+            if not app_instance.config.has_section(section):
+                app_instance.config.add_section(section)
+            for key, value in settings.items():
+                app_instance.config.set(section, key, str(value))
+        
+        # Now, load these values into the Tkinter variables
+        for var_name, var_info in app_instance.setting_var_map.items():
+            section, key = var_info['section'], var_info['key']
+            if app_instance.config.has_option(section, key):
                 try:
-                    # Convert to appropriate type based on Tkinter variable type
-                    if isinstance(tk_var_instance, tk.BooleanVar):
-                        value = default_value_str.lower() == 'true'
-                    elif isinstance(tk_var_instance, tk.IntVar):
-                        value = int(float(default_value_str)) # Handle floats stored as ints
-                    elif isinstance(tk_var_instance, tk.DoubleVar):
-                        value = float(default_value_str)
-                    else: # tk.StringVar
-                        value = default_value_str
-                    tk_var_instance.set(value)
-                    # Also update LAST_USED_SETTINGS immediately
-                    app_instance.config.set('LAST_USED_SETTINGS', last_key, str(value))
-                    debug_log(f"Restored '{tk_var_name}' to default '{value}'.",
-                                file=__file__,
-                                version=current_version,
-                                function=current_function)
-                except ValueError as e:
-                    error_msg = f"❌ Error converting default value for '{tk_var_name}': {default_value_str} - {e}. Data type mismatch!"
-                    console_print_func(error_msg)
-                    debug_log(error_msg,
-                                file=__file__,
+                    # Get the value from the new default config object
+                    value = app_instance.config.get(section, key)
+                    
+                    # Convert to correct type and set the Tkinter variable
+                    if isinstance(var_info['var'], tk.BooleanVar):
+                        value = value.lower() == 'true'
+                    elif isinstance(var_info['var'], tk.DoubleVar):
+                        value = float(value)
+                    elif isinstance(var_info['var'], tk.IntVar):
+                        value = int(value)
+                    
+                    var_info['var'].set(value)
+                    debug_log(f"Set '{var_name}' to default value: '{value}'",
+                                file=current_file,
                                 version=current_version,
                                 function=current_function)
                 except Exception as e:
-                    error_msg = f"❌ An unexpected error occurred setting default for '{tk_var_name}': {e}. This is a problem!"
-                    console_print_func(error_msg)
-                    debug_log(error_msg,
-                                file=__file__,
+                    debug_log(f"❌ Error setting default value for '{var_name}': {e}. What a fucking mess!",
+                                file=current_file,
                                 version=current_version,
                                 function=current_function)
-            else:
-                debug_log(f"No default value found for '{tk_var_name}' in config. Skipping.",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-        else:
-            debug_log(f"'{tk_var_name}' has no default_key defined. Skipping default restore for this setting.",
-                        file=__file__,
+
+        # Restore band importance levels to defaults
+        bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
+        if bands_levels_str:
+            band_levels_dict = {}
+            for item in bands_levels_str.split(','):
+                try:
+                    name, level = item.split('=')
+                    band_levels_dict[name.strip()] = int(level.strip())
+                except ValueError:
+                    debug_log(f"❌ Error parsing band level item: '{item}'. Skipping.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+            
+            for band_item in app_instance.band_vars:
+                band_name = band_item["band"]["Band Name"]
+                band_item["level"] = band_levels_dict.get(band_name, 0)
+
+            debug_log("Restored band importance levels from default config.",
+                        file=current_file,
                         version=current_version,
                         function=current_function)
+        
+        # Save the default config to file
+        save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
+        
+        console_print_func("✅ All settings restored to program defaults. A clean slate!")
+        debug_log("Program defaults restored. UI reset!",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    special=True)
 
-    # Special handling for notes_var and band_vars (not in setting_var_map)
-    default_notes = app_instance.config.get('DEFAULT_SETTINGS', 'notes', fallback='')
-    app_instance.notes_var.set(default_notes)
-    app_instance.config.set('LAST_USED_SETTINGS', 'notes', default_notes)
-    debug_log(f"Restored notes to default: '{default_notes}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Reset selected bands to default (all unchecked)
-    # The default setting is for no bands to be selected, so we set level to 0 for all.
-    default_selected_bands_levels_str = DEFAULT_CONFIG.get('Scan', {}).get('last_scan_configuration__selected_bands_levels', '')
-    if default_selected_bands_levels_str:
-        band_levels = {name: int(level) for name, level in (pair.split('=') for pair in default_selected_bands_levels_str.split(','))}
-        for band_item in app_instance.band_vars:
-            band_name = band_item["band"]["Band Name"]
-            band_item["level"] = band_levels.get(band_name, 0)
-    else:
-        for band_item in app_instance.band_vars:
-            band_item["level"] = 0
-            
-    # Save this default state back to config
-    last_selected_bands_levels_str = ",".join(
-        [f"{item['band']['Band Name']}={item['level']}" for item in app_instance.band_vars]
-    )
-    app_instance.config.set('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands_levels', last_selected_bands_levels_str)
-    debug_log(f"Restored selected bands to default: {last_selected_bands_levels_str}",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Antenna Type
-    default_antenna_type = app_instance.config.get('DEFAULT_SETTINGS', 'antenna_type', fallback='')
-    app_instance.selected_antenna_type_var.set(default_antenna_type)
-    app_instance.config.set('LAST_USED_SETTINGS', 'antenna_type', default_antenna_type)
-    debug_log(f"Restored antenna type to default: '{default_antenna_type}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Antenna Amplifier Type
-    default_amplifier_type = app_instance.config.get('DEFAULT_SETTINGS', 'antenna_amplifier_type', fallback='')
-    app_instance.selected_amplifier_type_var.set(default_amplifier_type)
-    app_instance.config.set('LAST_USED_SETTINGS', 'antenna_amplifier_type', default_amplifier_type)
-    debug_log(f"Restored amplifier type to default: '{default_amplifier_type}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Output Folder
-    default_output_folder = app_instance.config.get('DEFAULT_SETTINGS', 'output_folder', fallback=os.path.join(os.getcwd(), 'scan_data'))
-    app_instance.output_folder_var.set(default_output_folder)
-    app_instance.config.set('LAST_USED_SETTINGS', 'output_folder', default_output_folder)
-    debug_log(f"Restored output folder to default: '{default_output_folder}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Scan Name
-    default_scan_name = app_instance.config.get('DEFAULT_SETTINGS', 'scan_name', fallback='New Scan')
-    app_instance.scan_name_var.set(default_scan_name)
-    app_instance.config.set('LAST_USED_SETTINGS', 'scan_name', default_scan_name)
-    debug_log(f"Restored scan name to default: '{default_scan_name}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-
-    # Save the updated config (with defaults now in LAST_USED_SETTINGS)
-    save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
-
-    # Reset setting colors (e.g., remove any "changed" highlights)
-    if hasattr(app_instance, 'reset_setting_colors_logic'):
-        app_instance.reset_setting_colors_logic()
+    except Exception as e:
+        console_print_func(f"❌ An error occurred while restoring default settings: {e}. This is a problem!")
+        debug_log(f"Failed to restore default settings: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    special=True)
     
-    console_print_func("✅ All settings restored to default values. Fresh start!")
-    debug_log("Default settings restored and saved. UI reset!",
-                file=__file__,
-                version=current_version,
-                function=current_function,
-                special=True)
 
-
-def restore_last_used_settings_logic(app_instance, console_print_func=None):
+def restore_last_used_settings_logic(app_instance, console_print_func):
     """
     Function Description:
-    Restores all application settings to their last-used values as saved in config.ini.
-    This function updates the Tkinter variables from the `LAST_USED_SETTINGS` section.
+    Loads the last used configuration from the config file and applies it to the
+    application's variables.
 
     Inputs:
-    - app_instance (object): The main application instance, providing access to
-                             its `config` object, `setting_var_map`, and other Tkinter variables.
-    - console_print_func (function, optional): Function to print messages to the GUI console.
-                                               Defaults to console_log if None.
-
-    Process of this function:
-    1. Prints a debug message.
-    2. Iterates through `app_instance.setting_var_map`.
-    3. For each setting, retrieves its last-used value from the `LAST_USED_SETTINGS` section
-       of `app_instance.config`.
-    4. Converts the value to the appropriate Tkinter variable type.
-    5. Sets the Tkinter variable to the last-used value.
-    6. Handles special cases for `notes_var`, `band_vars`, `selected_antenna_type_var`,
-       `selected_amplifier_type_var`, `output_folder_var`, and `scan_name_var`.
-    7. Calls `app_instance._set_initial_slider_positions` if available, to update sliders.
-    8. Calls `app_instance.reset_setting_colors_logic` to clear any visual indicators.
-    9. Logs success or failure.
-
+    - app_instance (object): A reference to the main application instance.
+    - console_print_func (function): A function for printing to the console.
+    
     Outputs of this function:
-    - None. Modifies Tkinter variables.
+    - None. The application's state and UI are updated to last used values.
     """
-    console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Attempting to restore last used settings... Bringing back the old setup!",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Iterate through the setting_var_map and set each Tkinter variable
-    # to its last used value from the LAST_USED_SETTINGS section.
-    for tk_var_name, (last_key, default_key, tk_var_instance) in app_instance.setting_var_map.items():
-        last_value_str = app_instance.config.get('LAST_USED_SETTINGS', last_key, fallback=None)
-        if last_value_str is not None:
-            try:
-                # Convert to appropriate type based on Tkinter variable type
-                if isinstance(tk_var_instance, tk.BooleanVar):
-                    value = last_value_str.lower() == 'true'
-                elif isinstance(tk_var_instance, tk.IntVar):
-                    value = int(float(last_value_str)) # Handle floats stored as ints
-                elif isinstance(tk_var_instance, tk.DoubleVar):
-                    value = float(last_value_str)
-                else: # tk.StringVar
-                    value = last_value_str
-                tk_var_instance.set(value)
-                debug_log(f"Restored '{tk_var_name}' to last used '{value}'.",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-            except ValueError as e:
-                error_msg = f"❌ Error converting last used value for '{tk_var_name}': {last_value_str} - {e}. Data type mismatch!"
-                console_print_func(error_msg)
-                debug_log(error_msg,
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-            except Exception as e:
-                error_msg = f"❌ An unexpected error occurred setting last used for '{tk_var_name}': {e}. This is a problem!"
-                console_print_func(error_msg)
-                debug_log(error_msg,
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-        else:
-            debug_log(f"No last used value found for '{tk_var_name}' in config. Skipping.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-
-    # --- NEW: Restore selected bands and their levels from config ---
-    last_selected_bands_levels_str = app_instance.config.get('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands_levels', fallback='')
-    band_levels = {}
-    if last_selected_bands_levels_str:
-        try:
-            for pair in last_selected_bands_levels_str.split(','):
-                if '=' in pair:
-                    name, level_str = pair.split('=')
-                    band_levels[name.strip()] = int(level_str.strip())
-        except (ValueError, IndexError) as e:
-            console_print_func(f"❌ Error parsing band importance levels from config: {e}. Fucking useless config file! Resetting bands to default.")
-            debug_log(f"Error parsing band levels: {e}. String was: '{last_selected_bands_levels_str}'. Resetting to 0.",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            band_levels = {}
-
-    for band_item in app_instance.band_vars:
-        band_name = band_item["band"]["Band Name"]
-        band_item["level"] = band_levels.get(band_name, 0)
+    current_file = os.path.basename(__file__)
     
-    debug_log(f"Restored selected bands and their levels from config. Bands loaded with levels!",
-                file=__file__,
-                version=current_version,
-                function=current_function, special=True)
-
-
-    # Restore Antenna Type
-    last_antenna_type = app_instance.config.get('LAST_USED_SETTINGS', 'antenna_type', fallback='')
-    app_instance.selected_antenna_type_var.set(last_antenna_type)
-    debug_log(f"Restored antenna type: '{last_antenna_type}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Antenna Amplifier Type
-    last_amplifier_type = app_instance.config.get('LAST_USED_SETTINGS', 'antenna_amplifier_type', fallback='')
-    app_instance.selected_amplifier_type_var.set(last_amplifier_type)
-    debug_log(f"Restored amplifier type: '{last_amplifier_type}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Output Folder
-    last_output_folder = app_instance.config.get('LAST_USED_SETTINGS', 'output_folder', fallback=os.path.join(os.getcwd(), 'scan_data'))
-    app_instance.output_folder_var.set(last_output_folder)
-    debug_log(f"Restored output folder: '{last_output_folder}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Restore Scan Name
-    last_scan_name = app_instance.config.get('LAST_USED_SETTINGS', 'scan_name', fallback='New Scan')
-    app_instance.scan_name_var.set(last_scan_name)
-    debug_log(f"Restored scan name: '{last_scan_name}'",
-                file=__file__,
-                version=current_version,
-                function=current_function)
-
-    # Update sliders to reflect new last-used values
-    if hasattr(app_instance, '_set_initial_slider_positions'):
-        app_instance._set_initial_slider_positions() # Assuming this method exists and correctly updates sliders
-        debug_log("Called _set_initial_slider_positions to update sliders. Sliders adjusted!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-    else:
-        debug_log("App instance does not have _set_initial_slider_positions method. Skipping slider update.",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-
-    # Reset setting colors (e.g., remove any "changed" highlights)
-    if hasattr(app_instance, 'reset_setting_colors_logic'):
-        app_instance.reset_setting_colors_logic()
-    
-    console_print_func("✅ All settings restored to last used values. Back in business!")
-    debug_log("Last used settings restored. UI synced!",
-                file=__file__,
+    debug_log(f"RESTORE_LAST_USED_SETTINGS_LOGIC HAS BEEN CALLED! Let's get back to where we were! Version: {current_version}",
+                file=current_file,
                 version=current_version,
                 function=current_function,
                 special=True)
+    
+    try:
+        # Load the configuration from file into the app_instance.config object
+        # CORRECTED: The load_config function now requires only two arguments.
+        # This fixes the TypeError: load_config() takes 2 positional arguments but 3 were given
+        app_instance.config = load_config(app_instance.CONFIG_FILE_PATH, console_print_func)
+        
+        # Restore the main Tkinter variables using the loaded config
+        # We can safely assume setting_var_map has been populated by this point
+        for key, var_info in app_instance.setting_var_map.items():
+            section, key_name = var_info['section'], var_info['key']
+            if app_instance.config.has_option(section, key_name):
+                try:
+                    value = app_instance.config.get(section, key_name)
+                    
+                    if isinstance(var_info['var'], tk.BooleanVar):
+                        value = value.lower() == 'true'
+                    elif isinstance(var_info['var'], tk.DoubleVar):
+                        value = float(value)
+                    elif isinstance(var_info['var'], tk.IntVar):
+                        value = int(value)
+                    
+                    var_info['var'].set(value)
+                    debug_log(f"Restored '{key_name}' to last used value: '{value}'",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+                except Exception as e:
+                    debug_log(f"❌ Error restoring last used value for '{key_name}': {e}",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+        
+        # NEW LOGIC: Restore band importance levels from the loaded config.ini file.
+        bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
+        debug_log(f"Attempting to restore band levels from config. Raw string: '{bands_levels_str}'",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function, special=True)
+        if bands_levels_str:
+            band_levels_dict = {}
+            for item in bands_levels_str.split(','):
+                try:
+                    name, level = item.split('=')
+                    band_levels_dict[name.strip()] = int(level.strip())
+                except ValueError:
+                    debug_log(f"❌ Error parsing band level item: '{item}'. This is fucking ridiculous. Skipping.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function)
+            
+            # Now, apply these levels to the band_vars list.
+            for band_item in app_instance.band_vars:
+                band_name = band_item["band"]["Band Name"]
+                # Use .get() to avoid key errors if a band from the config is missing.
+                band_item["level"] = band_levels_dict.get(band_name, 0)
+                debug_log(f"Set band '{band_name}' to level: {band_item['level']}",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function)
+
+
+            debug_log("Restored band importance levels from last used config successfully!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log("No saved band importance levels found in config. Using current defaults.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        
+        # Restore the last used scan name
+        last_scan_name = app_instance.config.get('Scan', 'scan_name', fallback='New Scan')
+        app_instance.scan_name_var.set(last_scan_name)
+        debug_log(f"Restored scan name: '{last_scan_name}'",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function)
+
+        # Update sliders to reflect new last-used values
+        if hasattr(app_instance, '_set_initial_slider_positions'):
+            app_instance._set_initial_slider_positions() # Assuming this method exists and correctly updates sliders
+            debug_log("Called _set_initial_slider_positions to update sliders. Sliders adjusted!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log("App instance does not have _set_initial_slider_positions method. Skipping slider update.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+
+        # Reset setting colors (e.g., remove any "changed" highlights)
+        if hasattr(app_instance, 'reset_setting_colors_logic'):
+            app_instance.reset_setting_colors_logic()
+        
+        console_print_func("✅ All settings restored to last used values. Back in business!")
+        debug_log("Last used settings restored. UI synced!",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    special=True)
+            
+    except Exception as e:
+        console_print_func(f"❌ An error occurred while restoring last used settings: {e}. This is a disaster!")
+        debug_log(f"Failed to restore last used settings: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    special=True)

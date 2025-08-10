@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.180100.1 (UPDATED: Modified save_config to handle new multi-state band importance levels.)
+# Version 20250810.220100.4 (FIXED: Corrected load_config signature to match calling code, fixed save_config loop for new setting_var_map, and removed redundant version from debug logs.)
 
-current_version = "20250810.180100.1"
-current_version_hash = 20250810 * 180100 * 1 # Example hash, adjust as needed
+current_version = "20250810.220100.4"
+current_version_hash = 20250810 * 220100 * 4 # Example hash, adjust as needed
 
 import configparser
 import os
@@ -43,7 +43,7 @@ def load_config(file_path, console_print_func):
     if not os.path.exists(file_path):
         console_print_func(f"Configuration file not found at '{file_path}'. Creating with default settings.")
         debug_log(f"Config file not found: {file_path}. Initializing with defaults.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         config.read_dict(DEFAULT_CONFIG)
@@ -53,14 +53,14 @@ def load_config(file_path, console_print_func):
                 config.write(configfile)
             console_print_func("✅ Default configuration file created successfully.")
             debug_log("Default config file created.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
         except Exception as e:
             error_msg = f"❌ Error creating default config file: {e}. This is a problem!"
             console_print_func(error_msg)
             debug_log(error_msg,
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
     else:
@@ -68,16 +68,15 @@ def load_config(file_path, console_print_func):
             config.read(file_path)
             console_print_func(f"✅ Configuration loaded from '{file_path}'.")
             debug_log(f"Config loaded from: {file_path}",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
         except configparser.Error as e:
             console_print_func(f"❌ Error reading config file: {e}. Starting with default settings.")
             debug_log(f"Config read error: {e}. Reverting to defaults.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
-            config = configparser.ConfigParser(interpolation=None)
             config.read_dict(DEFAULT_CONFIG)
 
     return config
@@ -88,7 +87,7 @@ def save_config(config, file_path, console_print_func, app_instance):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to save configuration to {file_path}. Initiating config dump!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -98,7 +97,7 @@ def save_config(config, file_path, console_print_func, app_instance):
         'last_config_save_time',
         'paned_window_sash_position',
         'last_scan_configuration__selected_bands',
-        'last_scan_configuration__selected_bands_levels', # ADDED for new band importance levels
+        'last_scan_configuration__selected_bands_levels',
     ]
 
     try:
@@ -106,68 +105,62 @@ def save_config(config, file_path, console_print_func, app_instance):
         app_geometry = app_instance.geometry()
         config.set('Application', 'geometry', app_geometry)
         debug_log(f"Config object: Set 'geometry' to '{app_geometry}'.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         config.set('Application', 'last_config_save_time', current_time)
         debug_log(f"Config object: Set 'last_config_save_time' to '{current_time}'.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-        app_instance.last_config_save_time_var.set(current_time)
+        if hasattr(app_instance, 'last_config_save_time_var'):
+            app_instance.last_config_save_time_var.set(current_time)
 
         # --- Explicitly handle paned_window_sash_position ---
-        if hasattr(app_instance, 'paned_window') and app_instance.paned_window: # Ensure it's not None
+        if hasattr(app_instance, 'paned_window') and app_instance.paned_window:
             try:
                 sash_pos = app_instance.paned_window.sashpos(0)
                 config.set('Application', 'paned_window_sash_position', str(sash_pos))
                 debug_log(f"Config object: SUCCESSFULLY SET 'paned_window_sash_position' to '{sash_pos}'. This should be the correct value!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function, special=True)
             except Exception as e:
                 debug_log(f"ERROR: Failed to get sash position or set it in config: {e}. What the hell is going on?!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function, special=True)
         else:
             debug_log("Config object: 'app_instance.paned_window' attribute does NOT exist. Skipping sash position save.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
         # --- Update settings from the setting_var_map ---
         if hasattr(app_instance, 'setting_var_map'):
-            for key, (var, section) in app_instance.setting_var_map.items():
+            # CORRECTED: The loop now unpacks the dictionary correctly
+            for key, var_info in app_instance.setting_var_map.items():
                 if key in EXPLICITLY_HANDLED_KEYS:
-                    debug_log(f"Skipping setting '{section}/{key}' from setting_var_map as it's handled explicitly.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                    debug_log(f"Skipping setting '{var_info['section']}/{key}' from setting_var_map as it's handled explicitly.",
+                                file=os.path.basename(__file__),
                                 version=current_version,
                                 function=current_function)
                     continue
 
-                if not config.has_section(section):
-                    config.add_section(section)
+                if not config.has_section(var_info['section']):
+                    config.add_section(var_info['section'])
                 
-                config_value = str(var.get())
-                config.set(section, key, config_value)
-                debug_log(f"Config object: Set '{section}/{key}' to '{config_value}'.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                config_value = str(var_info['var'].get())
+                config.set(var_info['section'], key, config_value)
+                debug_log(f"Config object: Set '{var_info['section']}/{key}' to '{config_value}'.",
+                            file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
         
         # --- Explicitly save selected bands from app_instance.band_vars ---
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
-            # ORIGINAL LOGIC: Saves just a comma-separated list of names
-            # selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
-            # selected_bands_str = ",".join(selected_bands)
-            # if not config.has_section('Scan'):
-            #     config.add_section('Scan')
-            # config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
-
-            # NEW LOGIC: Save a list of "name=level" pairs
             selected_bands_with_levels = [
                 f"{item['band']['Band Name']}={item.get('level', 0)}" for item in app_instance.band_vars
             ]
@@ -177,19 +170,18 @@ def save_config(config, file_path, console_print_func, app_instance):
                 config.add_section('Scan')
             config.set('Scan', 'last_scan_configuration__selected_bands_levels', selected_bands_str)
             debug_log(f"Config object: Explicitly set 'Scan/last_scan_configuration__selected_bands_levels' to '{selected_bands_str}'. Bands with levels saved!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function, special=True)
         else:
             debug_log("Config object: 'app_instance.band_vars' not available or empty. Skipping band selection save.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
-        # FINAL CHECK: What does the config object itself think is the sash position just before writing?
         final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position', fallback='NOT SET IN CONFIG OBJECT')
         debug_log(f"Config object reports 'paned_window_sash_position' as '{final_sash_pos_in_config}' just before file write. Is this the right value? This better work!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function, special=True)
 
@@ -198,7 +190,7 @@ def save_config(config, file_path, console_print_func, app_instance):
             
         console_print_func("✅ Configuration saved successfully. Persistence achieved!")
         debug_log(f"Configuration successfully written to {file_path}. Mission accomplished!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function, special=True)
         
@@ -206,7 +198,7 @@ def save_config(config, file_path, console_print_func, app_instance):
         error_message = f"❌ Failed to save configuration: {e}. This is a critical failure! Fucking hell!"
         console_print_func(error_message)
         debug_log(error_message,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -219,30 +211,30 @@ def save_config_as_new_file(app_instance, new_file_path):
     new_config = configparser.ConfigParser(interpolation=None)
     current_function_name = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to save configuration as new file to {new_file_path}. Creating snapshot!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function_name)
     
     # List of keys that are handled explicitly (not via setting_var_map iteration)
-    # This ensures consistency even for new file saves.
     EXPLICITLY_HANDLED_KEYS_FOR_NEW_FILE = [
         'geometry',
         'last_config_save_time',
         'paned_window_sash_position',
         'last_scan_configuration__selected_bands',
-        'last_scan_configuration__selected_bands_levels', # ADDED for new band importance levels
+        'last_scan_configuration__selected_bands_levels',
     ]
 
     try:
         # Populate settings from the app's setting_var_map
         if hasattr(app_instance, 'setting_var_map'):
-            for key, (var, section) in app_instance.setting_var_map.items():
+            for key, var_info in app_instance.setting_var_map.items():
                 if key in EXPLICITLY_HANDLED_KEYS_FOR_NEW_FILE:
-                    continue # Skip keys handled explicitly below
+                    continue
                 
-                if not new_config.has_section(section):
-                    new_config.add_section(section)
-                new_config.set(section, key, str(var.get()))
+                if not new_config.has_section(var_info['section']):
+                    new_config.add_section(var_info['section'])
+                new_config.set(var_info['section'], key, str(var_info['var'].get()))
+
 
         # Explicitly handle non-variable based values for the new config file
         if not new_config.has_section('Application'):
@@ -256,7 +248,6 @@ def save_config_as_new_file(app_instance, new_file_path):
         
         # Explicitly save selected bands from app_instance.band_vars for new file save
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
-            # NEW LOGIC: Save a list of "name=level" pairs
             selected_bands_with_levels = [
                 f"{item['band']['Band Name']}={item.get('level', 0)}" for item in app_instance.band_vars
             ]
@@ -271,7 +262,7 @@ def save_config_as_new_file(app_instance, new_file_path):
         
         console_log(f"✅ Configuration saved successfully as '{os.path.basename(new_file_path)}'. New file created!")
         debug_log(f"New configuration file created: {new_file_path}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function_name)
 
@@ -279,6 +270,6 @@ def save_config_as_new_file(app_instance, new_file_path):
         error_message = f"❌ Failed to save new configuration file: {e}. This is a problem!"
         console_log(error_message)
         debug_log(error_message,
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function_name)

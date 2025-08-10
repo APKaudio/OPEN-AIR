@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.170100.3 (FIXED: Removed the scrollable canvas and now display all band buttons at once.)
+# Version 20250810.220100.5 (FIXED: Removed redundant save_config call from _on_tab_selected to prevent overwriting saved settings on app startup.)
 
-current_version = "20250810.170100.3"
-current_version_hash = 20250810 * 170100 * 3 # Example hash, adjust as needed
+current_version = "20250810.220100.5"
+current_version_hash = 20250810 * 220100 * 5 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -52,7 +52,7 @@ class BandsTab(ttk.Frame):
         #   None. Initializes the Tkinter frame and its internal state.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing BandsTab...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -65,10 +65,11 @@ class BandsTab(ttk.Frame):
         self.band_chart_canvas = None
 
         self._create_widgets()
+        # The call to _on_tab_selected here is crucial, but it shouldn't save the config!
         self.after(100, self._on_tab_selected)
 
         debug_log(f"BandsTab initialized. All the band buttons are ready to be toggled!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -84,7 +85,7 @@ class BandsTab(ttk.Frame):
         #   None. Populates the tab with GUI elements.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating BandsTab widgets.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -133,7 +134,7 @@ class BandsTab(ttk.Frame):
         self.band_chart_canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
         
         debug_log(f"BandsTab widgets created.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -149,7 +150,7 @@ class BandsTab(ttk.Frame):
         #   None. Populates the `bands_inner_frame` with buttons.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Populating band buttons.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -176,7 +177,7 @@ class BandsTab(ttk.Frame):
             btn.grid(row=row, column=col, sticky="ew", padx=2, pady=2)
             
         debug_log(f"Band buttons populated. Ready to toggle!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -193,7 +194,7 @@ class BandsTab(ttk.Frame):
         #   None. Modifies the appearance of the button.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating button style for level {level}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -219,7 +220,7 @@ class BandsTab(ttk.Frame):
         #   None. Updates internal state, saves config, and refreshes the UI.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Toggling band importance. Current level: {band_item.get('level', 0)}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -229,6 +230,7 @@ class BandsTab(ttk.Frame):
         
         self._update_button_style(band_item["widget"], new_level)
         
+        # This is the correct place to save the config, AFTER a user action.
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         
         self._update_band_table()
@@ -246,7 +248,7 @@ class BandsTab(ttk.Frame):
         #   None. Refreshes the content of the `band_table` Treeview.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating band table with selected bands.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -281,7 +283,7 @@ class BandsTab(ttk.Frame):
         #   None. Renders the chart to the Tkinter canvas.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating band chart.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -313,7 +315,7 @@ class BandsTab(ttk.Frame):
 
         if not selected_bands:
             debug_log(f"No bands selected to plot.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             self.band_chart_canvas.draw()
@@ -361,7 +363,7 @@ class BandsTab(ttk.Frame):
         #   None. Modifies the appearance of buttons.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating all band button styles.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -385,7 +387,7 @@ class BandsTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         console_log("Selecting all bands for scan.", function=current_function)
         debug_log(f"Selecting all bands and saving config.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -411,7 +413,7 @@ class BandsTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         console_log("Deselecting all bands for scan.", function=current_function)
         debug_log(f"Deselecting all bands and saving config.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -436,10 +438,12 @@ class BandsTab(ttk.Frame):
         #   None. Refreshes the UI.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"BandsTab selected. Populating and refreshing all widgets.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-
+        
+        # We only want to populate the UI here, not save the config.
+        # The save action is triggered by the user interacting with the buttons.
         self._populate_band_buttons()
         self._update_all_band_button_styles()
         self._update_band_table()
