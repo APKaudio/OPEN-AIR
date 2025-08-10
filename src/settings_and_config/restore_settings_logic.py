@@ -25,8 +25,8 @@ import inspect
 import os
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 # Import config management functions
 from src.settings_and_config.config_manager import load_config, save_config # Import save_config

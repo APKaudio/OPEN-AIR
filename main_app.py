@@ -1,3 +1,7 @@
+# This print statement is a canary in the coal mine. If you see this message,
+# it means the Python interpreter successfully started executing this file.
+print("Hello from main_app.py! Let's see if we can get this bastard running!")
+
 # OPEN-AIR/main_app.py
 #
 # This is the main entry point for the RF Spectrum Analyzer Controller application.
@@ -16,15 +20,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.231000.0 (FIXED: Attached all missing path constants to the app instance.)
-# Version 20250803.220500.0 (REFACTORED: Moved ASCII art logic here to break circular import.)
-# Version 20250803.215000.0 (REFACTORED: Implemented switch_tab logic for custom button-based UI.)
-# Version 20250804.000000.0 (ADDED: collected_scans_dataframes, MHZ_TO_HZ, and initialized defer_config_save.)
-# Version 20250804.020700.1 (FIXED: Populated setting_var_map for all relevant Tkinter variables from config.)
-# Version 20250804.021600.0 (DEBUGGING: Added debug print for sash position in _on_closing.)
+# Version 20250810.152000.1 (FIXED: The main app now correctly instantiates the new TAB_DISPLAY_PARENT and passes the console_log function to it, ensuring correct behavior.)
 
-current_version_string = "20250804.021600.0" # Incremented version for debugging
-current_version_hash_value = 0 # Placeholder, will be set during runtime or in a dedicated versioning module.
+current_version = "20250810.152000.1"
+current_version_hash = 20250810 * 152000 * 1 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
 from tkinter import ttk
@@ -36,12 +35,15 @@ from datetime import datetime
 # Import functions from refactored modules
 from src.program_check_Dependancies import check_and_install_dependencies
 from src.program_initialization import initialize_program_environment
-from src.program_shared_values import setup_tkinter_variables # We'll modify this one to pass the map
+from src.program_shared_values import setup_tkinter_variables
 from src.program_style import apply_styles
 from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_geometry
 from src.settings_and_config.config_manager import save_config # Added for explicit save_config call
-from src.debug_logic import debug_log, set_debug_redirectors
-from src.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
+
+
+from display.debug_logic import debug_log, set_debug_redirectors, set_console_log_func
+from display.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
+
 from src.gui_elements import (_print_inst_ascii, _print_marks_ascii, _print_presets_ascii,
                               _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii)
 # CORRECTED: Import all path constants
@@ -59,8 +61,7 @@ class App(tk.Tk):
     """
     def __init__(self):
         super().__init__()
-        self.current_version = current_version_string
-        # Hash value will be correctly calculated when code is executed
+        self.current_version = current_version
         self.current_version_hash = 0 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
         # --- CORRECTED: Attach ALL path constants to the instance ---
@@ -75,7 +76,7 @@ class App(tk.Tk):
         # --- Initialize runtime state attributes ---
         self.scan_thread = None 
         self.active_tab_name = None
-        self.defer_config_save = False # Initialize the defer_config_save flag
+        self.defer_config_save_id = None # Initialize a deferred save ID
         self.collected_scans_dataframes = [] # NEW: Initialize collected_scans_dataframes here
         self.inst = None # Initialize inst here, it will be updated by connection logic
         self.paned_window = None # Initialize paned_window attribute here
@@ -91,7 +92,10 @@ class App(tk.Tk):
         
         self.title(f"OPEN-AIR - Zone Awareness Processor   (v{self.current_version})")
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
-
+        
+        # Bind events to save configuration on window resize and move
+        self.bind("<Configure>", self._on_app_resize_or_move)
+        
         self.style = ttk.Style(self)
         
         # Initialize the setting_var_map here. This is crucial for config_manager.
@@ -154,23 +158,60 @@ class App(tk.Tk):
         # This can be used for any setup that must happen after all GUI elements are packed/gridded
         pass
 
+    def _on_app_resize_or_move(self, event):
+        """
+        Function Description:
+        Event handler for when the main window is resized or moved.
+        It updates the stored geometry and calls save_config.
+        """
+        # This event is triggered for every pixel change. We only want to save once after the user is done.
+        # We use a deferred save with `after_idle` to accomplish this.
+        # This event also includes widget configure events, so we must filter for the root window.
+        if event.widget is self:
+            if self.defer_config_save_id:
+                self.after_cancel(self.defer_config_save_id)
+            
+            # The lambda captures the current geometry value to ensure it's correct when saved.
+            self.defer_config_save_id = self.after_idle(
+                lambda: self._save_config_on_idle(f"Geometry updated to: {self.geometry()}")
+            )
+            debug_log(f"Window configured event. Deferring save for geometry: {self.geometry()}",
+                        file=f"{os.path.basename(__file__)} - {self.current_version}",
+                        function="_on_app_resize_or_move")
+
+    def _on_sash_moved(self):
+        """
+        Function Description:
+        Event handler for when the sash of the PanedWindow is moved.
+        It updates the stored sash position and calls save_config.
+        """
+        if self.defer_config_save_id:
+            self.after_cancel(self.defer_config_save_id)
+            
+        sash_pos = self.paned_window.sashpos(0)
+        self.defer_config_save_id = self.after_idle(
+            lambda: self._save_config_on_idle(f"Sash position updated to: {sash_pos}")
+        )
+        debug_log(f"Sash moved event. Deferring save for position: {sash_pos}",
+                    file=f"{os.path.basename(__file__)} - {self.current_version}",
+                    function="_on_sash_moved")
+
+    def _save_config_on_idle(self, message):
+        """Helper function to save config after a delay and reset the flag."""
+        # Set the deferred save ID to None to indicate it's been handled.
+        self.defer_config_save_id = None
+        save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+        debug_log(f"Deferred config save triggered. {message}",
+                    file=f"{os.path.basename(__file__)} - {self.current_version}",
+                    function="_save_config_on_idle", special=True)
+        
     def _on_closing(self):
         """Handles application shutdown, including saving configuration."""
         if hasattr(self, 'config') and self.config:
-            # DEBUGGING: Print sash position before saving
-            if hasattr(self, 'paned_window'):
-                current_sash_pos = self.paned_window.sashpos(0)
-                console_log(f"DEBUG: Sash position read before saving: {current_sash_pos}")
-                debug_log(f"DEBUG: Sash position read before saving: {current_sash_pos}",
-                            file=f"{os.path.basename(__file__)} - {self.current_version}",
-                            function="_on_closing")
-            else:
-                console_log("DEBUG: paned_window attribute not found on app_instance before saving.")
-                debug_log("DEBUG: paned_window attribute not found on app_instance before saving.",
-                            file=f"{os.path.basename(__file__)} - {self.current_version}",
-                            function="_on_closing")
-
+            # We call save_config one last time to ensure the final state is captured
+            console_log("Saving configuration on shutdown...")
             save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
+            console_log("✅ Configuration saved successfully on shutdown.")
         self.destroy()
 
     def get_tab_instance(self, parent_tab_name, child_tab_name=None):

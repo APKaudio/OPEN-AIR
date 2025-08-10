@@ -28,8 +28,8 @@ import inspect # Import inspect module
 import re # For regular expressions to match instrument model
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 from tabs.Instrument.utils_instrument_initialize import (
     initialize_instrument_logic # CORRECTED: Changed from initialize_instrument

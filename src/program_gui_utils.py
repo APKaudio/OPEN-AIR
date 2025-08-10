@@ -15,9 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.214500.1 (REFACTORED: Replaced ttk.Notebook with custom button-based tab system.)
-# Version 20250804.021433.0 (FIXED: Exposed main_paned_window to app_instance and corrected geometry loading key.)
-# Version 20250804.023600.0 (FIXED: Bound <<PanedWindowSashMoved>> to update sash_position_var.)
+# Version 20250810.152300.2 (FIXED: The main app now correctly instantiates the new TAB_DISPLAY_PARENT and passes the console_log function to it, ensuring correct behavior.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,17 +31,19 @@ from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
 from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
 from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
 from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
-from tabs.Console.ConsoleTab import ConsoleTab
-from src.console_logic import console_log
-from src.debug_logic import debug_log
+from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT # NEW: Import the new display parent tab
+# The old ConsoleTab is no longer imported here as it is now a child of TAB_DISPLAY_PARENT.
 
-current_version = "20250804.023600.0" # Incremented version
+from display.console_logic import console_log
+from display.debug_logic import debug_log
+
+current_version = "20250810.152300.2" # Incremented version
 
 def apply_saved_geometry(app_instance):
     # Function Description:
-    # Applies the last saved window geometry to the application's main window.
-    # It retrieves the geometry string from the application's configuration
-    # and sets it on the Tkinter root window.
+    # Applies the last saved window geometry and state to the application's main window.
+    # It retrieves the geometry and state strings from the application's configuration
+    # and sets them on the Tkinter root window.
     #
     # Inputs to this function:
     #   app_instance (object): The main application instance (an instance of `App`).
@@ -51,21 +51,27 @@ def apply_saved_geometry(app_instance):
     # Process of this function:
     #   1. Retrieves the 'geometry' setting from the 'Application' section of
     #      `app_instance.config`. It falls back to a default if not found.
-    #   2. Logs the retrieved geometry for debugging.
-    #   3. Applies the geometry string to the `app_instance` (Tkinter root window).
+    #   2. Retrieves the 'window_state' setting and applies it.
+    #   3. Logs the retrieved geometry for debugging.
+    #   4. Applies the geometry string to the `app_instance` (Tkinter root window).
     #
     # Outputs of this function:
     #   None. Modifies the application's window size and position.
     #
     # (2025-08-04.021433.0) Change: Corrected config key from 'last_GLOBAL__window_geometry' to 'geometry'.
+    # (2025-08-10.145500.2) Change: Added logic to restore window state (maximized).
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Applying saved window geometry.",
+    debug_log("Applying saved window geometry and state.",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
 
     # CORRECTED: Load 'geometry' from 'Application' section
-    last_geometry = app_instance.config.get('Application', 'geometry', fallback='1400x850+100+100')
+    last_geometry = app_instance.config.get('Application', 'geometry', fallback='1000x1000+0+0')
+    last_state = app_instance.config.get('Application', 'window_state', fallback='normal')
+
     app_instance.geometry(last_geometry)
-    debug_log(f"Applied geometry: {last_geometry}",
+    app_instance.state(last_state)
+
+    debug_log(f"Applied geometry: {last_geometry}, State: {last_state}",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
 
 
@@ -109,6 +115,8 @@ def create_main_layout_and_widgets(app_instance):
     #
     # (2025-08-04.021433.0) Change: Assigned main_paned_window to app_instance.paned_window.
     # (2025-08-04.023600.0) Change: Bound <<PanedWindowSashMoved>> to update sash_position_var.
+    # (2025-08-10.145500.2) Change: The sash position is now calculated based on the window's width,
+    #                               and the event handler is bound to the main app instance.
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Creating main layout and widgets. Laying out the foundation!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
@@ -119,10 +127,9 @@ def create_main_layout_and_widgets(app_instance):
     # EXPOSED: Assign the paned window to the app_instance
     app_instance.paned_window = main_paned_window
 
-    # Bind the sash moved event to update the Tkinter variable
-    # This is crucial for capturing live sash movements.
+    # Bind the sash moved event to the new handler in main_app
     main_paned_window.bind('<<PanedWindowSashMoved>>', 
-                           lambda e: app_instance.paned_window_sash_position_var.set(main_paned_window.sashpos(0)))
+                           lambda e: app_instance._on_sash_moved())
     debug_log("Bound <<PanedWindowSashMoved>> event to update paned_window_sash_position_var.",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
 
@@ -146,17 +153,16 @@ def create_main_layout_and_widgets(app_instance):
     right_frame = ttk.Frame(main_paned_window, style='TFrame')
     main_paned_window.add(right_frame, weight=1)
     
-    # Try to set sash position if the variable exists and has a value
+    # Try to set sash position based on a percentage of the window's width
     try:
-        sash_position = app_instance.paned_window_sash_position_var.get()
-        main_paned_window.sashpos(0, sash_position)
-        debug_log(f"Set sash position to: {sash_position}",
-                    file=os.path.basename(__file__), function=current_function, version=current_version)
-    except AttributeError:
-        debug_log("paned_window_sash_position_var not found or not initialized. Skipping sash position restore.",
-                    file=os.path.basename(__file__), function=current_function, version=current_version)
+        sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position', fallback='50'))
+        if app_instance.winfo_width() > 1: # Avoid division by zero on startup
+             initial_sash_position = int((sash_position_percentage / 100) * app_instance.winfo_width())
+             main_paned_window.sashpos(0, initial_sash_position)
+             debug_log(f"Set sash position to: {initial_sash_position} ({sash_position_percentage}%)",
+                        file=os.path.basename(__file__), function=current_function, version=current_version)
     except Exception as e:
-        debug_log(f"Error setting sash position: {e}",
+        debug_log(f"Error setting sash position from config: {e}. Skipping sash position restore.",
                     file=os.path.basename(__file__), function=current_function, version=current_version)
     
     right_top_frame = ttk.Frame(right_frame, style='TFrame')
@@ -194,8 +200,22 @@ def create_main_layout_and_widgets(app_instance):
     scan_controls = ScanControlTab(right_top_frame, app_instance)
     scan_controls.pack(expand=True, fill='both')
     
-    app_instance.console_tab = ConsoleTab(right_bottom_frame, app_instance)
-    app_instance.console_tab.pack(expand=True, fill='both')
+    # NEW: The console tab is now a child of the display parent
+    app_instance.display_parent_tab = TAB_DISPLAY_PARENT(right_bottom_frame, app_instance, console_log)
+    app_instance.display_parent_tab.pack(expand=True, fill='both')
+    
+    # The console text widget is now inside the new parent tab's children.
+    # We'll need to set up the redirection after the widgets are created.
+    # The logic for this is now in the __init__ of the ConsoleTab itself,
+    # which is a much cleaner approach.
+    
+    # We do need to assign the console text widget to the app_instance though.
+    # We can do that by getting a reference from the new tab instance.
+    if hasattr(app_instance.display_parent_tab, 'console_tab') and hasattr(app_instance.display_parent_tab.console_tab, 'console_text'):
+        app_instance.console_text = app_instance.display_parent_tab.console_tab.console_text
+    else:
+        debug_log("ERROR: Console text widget not found in the new display tab structure.",
+                    file=os.path.basename(__file__), function=current_function, version=current_version)
 
     debug_log("Main layout and widgets created. UI ready!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)

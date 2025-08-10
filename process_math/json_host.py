@@ -26,8 +26,8 @@ import inspect
 from flask import Flask, jsonify, send_from_directory, request
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log # Added for console_print_func
+from display.debug_logic import debug_log
+from display.console_logic import console_log # Added for console_print_func
 
 # --- Path Configuration for Imports and Data Folder ---
 # This block ensures that the project root is in sys.path, allowing imports

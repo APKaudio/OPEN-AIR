@@ -36,8 +36,8 @@ from process_math.calculate_intermod import multi_zone_intermods, ZoneData
 from process_math.ploting_intermod_zones import plot_zones
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class InterModTab(ttk.Frame):
     """

@@ -28,8 +28,8 @@ import os
 from tabs.Presets.tab_presets_child_local import LocalPresetsTab
 from tabs.Presets.tab_presets_child_device import DevicePresetsTab
 from tabs.Presets.tab_presets_child_preset_editor import PresetEditorTab
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_PRESETS_PARENT(ttk.Frame):
     """

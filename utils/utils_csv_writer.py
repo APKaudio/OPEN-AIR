@@ -14,20 +14,20 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250801.2355.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250810.134500.1 (FIXED: Added app_instance_ref parameter and wrapped console calls with after() to prevent GIL errors.)
 
-current_version = "20250801.2355.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2355 * 1 # Example hash, adjust as needed
+current_version = "20250810.134500.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250810 * 134500 * 1 # Example hash, adjust as needed
 
 import csv
 import os
 import inspect # Import inspect module
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
-def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_print_func=None):
+def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode=False, console_print_func=None):
     """
     Writes scan data to a CSV file. This function is designed to write raw frequency
     and amplitude data collected from the spectrum analyzer. It handles creating
@@ -40,6 +40,7 @@ def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_p
                                If None, no header will be written.
         data (list): A list of lists or tuples, where each inner list/tuple represents
                      a row of data (e.g., [frequency_mhz, level_dbm]).
+        app_instance_ref (object): A reference to the main application instance.
         append_mode (bool): If True, data will be appended to the file if it exists.
                             If False, the file will be overwritten.
         console_print_func (function, optional): Function to use for console output.
@@ -65,7 +66,8 @@ def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_p
                         function=current_function)
         except OSError as e:
             error_msg = f"❌ Error creating directory '{output_dir}': {e}. This is a disaster!"
-            console_print_func(error_msg)
+            # WRAPPED WITH after() to prevent cross-thread access
+            app_instance_ref.after(0, lambda: console_print_func(error_msg))
             debug_log(error_msg,
                         file=__file__,
                         version=current_version,
@@ -81,7 +83,7 @@ def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_p
         mode = 'a' if append_mode and file_exists else 'w'
         
         # Flag to indicate if header needs to be written
-        # Write header ONLY if header is not None AND we are creating a new file or overwriting
+        # Write header ONLY if header is not None and we are creating a new file or overwriting
         write_header = (header is not None) and (mode == 'w')
 
         with open(file_path, mode, newline='') as csv_file:
@@ -97,14 +99,16 @@ def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_p
             # Write data rows
             for freq_mhz, level_dbm in data:
                 csv_writer.writerow([f"{freq_mhz:.3f}", f"{level_dbm:.3f}"])
-        console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!")
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!"))
         debug_log(f"Scan data written to CSV: {file_path}. Mission accomplished!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
     except IOError as e:
         error_msg = f"❌ I/O Error writing to CSV file {file_path}: {e}. This is a disaster!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=__file__,
                     version=current_version,
@@ -112,7 +116,8 @@ def write_scan_data_to_csv(file_path, header, data, append_mode=False, console_p
         raise # Re-raise to allow higher-level error handling
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while writing to CSV file {file_path}: {e}. What a mess!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=__file__,
                     version=current_version,

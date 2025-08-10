@@ -30,8 +30,8 @@ from tabs.Plotting.tab_plotting_child_average import AveragingTab
 from tabs.Plotting.tab_plotting_child_3D import Plotting3DTab
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_PLOTTING_PARENT(ttk.Frame):
     """

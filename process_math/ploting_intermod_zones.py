@@ -27,8 +27,8 @@ import inspect # For debug_log
 import os # For path manipulation
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log # Added for console_print_func
+from display.debug_logic import debug_log
+from display.console_logic import console_log # Added for console_print_func
 
 # Define ZoneData type for clarity (needs to be consistent with calculate_intermod.py)
 ZoneData = Dict[str, Tuple[List[Tuple[float, str]], Tuple[float, float]]]

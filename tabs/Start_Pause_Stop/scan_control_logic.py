@@ -28,8 +28,8 @@ from datetime import datetime
 import pandas as pd
 import inspect
 
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 # The main scan_bands function
 from tabs.Scanning.utils_scan_instrument import scan_bands
 from process_math.scan_stitch import stitch_and_save_scan_data

@@ -26,8 +26,8 @@ from datetime import datetime
 import json # Import json for pretty printing debug output
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log # Added for console_print_func
+from display.debug_logic import debug_log
+from display.console_logic import console_log # Added for console_print_func
 
 # IMPORTANT: Replace with your actual Google Maps API Key
 # This key should ideally be loaded from a secure configuration or environment variable.

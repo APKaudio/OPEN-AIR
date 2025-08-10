@@ -26,8 +26,8 @@ import time
 from tkinter import scrolledtext, TclError
 import inspect
 
-from src.debug_logic import debug_log
-from src.console_logic import console_log, clear_console
+from display.debug_logic import debug_log
+from display.console_logic import console_log, clear_console
 
 #
 # REMOVED ALL 'from tabs... import TAB_..._PARENT' LINES.

@@ -31,14 +31,14 @@ import sys # For TextRedirector
 import os # For os.path.basename
 
 # Import debug_log and the specific debug control functions from debug_logic
-from src.debug_logic import (
+from display.debug_logic import (
     debug_log,
     set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode,
     set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode,
     clear_debug_log_file # Import the new clear log function
 )
 # CORRECTED: Import console_log and set_gui_console_redirector, set_clear_console_func from src.console_logic
-from src.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
+from display.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
 from src.gui_elements import TextRedirector # Import TextRedirector
 
 

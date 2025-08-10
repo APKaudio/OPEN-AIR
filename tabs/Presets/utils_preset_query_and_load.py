@@ -30,8 +30,8 @@ from datetime import datetime
 import csv
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log, log_visa_command
-from src.console_logic import console_log
+from display.debug_logic import debug_log, log_visa_command
+from display.console_logic import console_log
 
 # Import read/write safe functions from the new dedicated module
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe

@@ -28,7 +28,7 @@ import subprocess
 import sys
 
 # Local application imports
-from src.debug_logic import debug_log
+from display.debug_logic import debug_log
 from src.settings_and_config.config_manager import save_config
 from ref.frequency_bands import SCAN_BAND_RANGES
 from ref.ref_scanner_setting_lists import (

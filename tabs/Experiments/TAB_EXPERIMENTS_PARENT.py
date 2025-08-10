@@ -30,8 +30,8 @@ from tabs.Experiments.tab_experiments_colouring import ColouringTab
 from tabs.Experiments.tab_experiments_child_initial_configuration import InitialConfigurationTab
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_EXPERIMENTS_PARENT(ttk.Frame):
     """

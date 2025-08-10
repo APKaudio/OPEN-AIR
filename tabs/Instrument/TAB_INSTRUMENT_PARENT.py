@@ -25,8 +25,8 @@ import inspect
 
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_INSTRUMENT_PARENT(ttk.Frame):
     """

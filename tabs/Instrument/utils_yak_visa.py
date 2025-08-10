@@ -22,8 +22,8 @@ current_version_hash = 20250801 * 2220 * 1 # Example hash, adjust as needed
 
 import inspect
 # Updated imports for new logging functions
-from src.debug_logic import debug_log, log_visa_command
-from src.console_logic import console_log
+from display.debug_logic import debug_log, log_visa_command
+from display.console_logic import console_log
 
 # Helper functions for instrument communication, using the new logging
 def write_safe(inst, command, console_print_func):

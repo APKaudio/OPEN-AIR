@@ -28,8 +28,8 @@ import pdfplumber
 import inspect
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 
 def convert_html_report_to_csv(html_content, console_print_func=None):

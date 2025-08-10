@@ -30,8 +30,8 @@ import os
 
 # Import the COLOR_PALETTE from style.py
 from src.program_style import COLOR_PALETTE
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class ColouringTab(ttk.Frame):
     """

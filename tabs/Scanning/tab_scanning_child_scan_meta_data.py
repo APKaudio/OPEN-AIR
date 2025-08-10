@@ -27,8 +27,8 @@ import os # For os.path.exists and os.makedirs
 import subprocess # For opening folders
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 from src.settings_and_config.config_manager import save_config
 

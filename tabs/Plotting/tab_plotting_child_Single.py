@@ -33,8 +33,8 @@ import numpy as np # Added for PSD calculation in _plot_current_cycle_average
 from tabs.Plotting.utils_plotting import plot_single_scan_data, plot_multi_trace_data, _open_plot_in_browser
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 # Removed: from process_math.averaging_utils import average_scan
 # Removed: from utils.plot_scans_over_time import plot_Scans_over_time

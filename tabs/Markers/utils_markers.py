@@ -22,8 +22,8 @@ current_version_hash = 20250803 * 233500 * 0 # Example hash, adjust as needed
 
 import inspect
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 from ref.frequency_bands import MHZ_TO_HZ
 import time # Import time for potential small delays
 
@@ -85,7 +85,7 @@ def query_safe(inst, command, console_print_func):
         return None
 
 # Import log_visa_command from debug_logic
-from src.debug_logic import log_visa_command
+from display.debug_logic import log_visa_command
 
 # Functions set_frequency_logic, set_span_logic, set_rbw_logic, set_trace_modes_logic, 
 # blank_hold_traces_logic, and set_marker_logic remain unchanged.

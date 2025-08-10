@@ -28,8 +28,8 @@ import os
 import configparser
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
 from src.settings_and_config.config_manager import save_config_as_new_file # Will be added in config_manager.py

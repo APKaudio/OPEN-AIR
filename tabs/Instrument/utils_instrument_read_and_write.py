@@ -17,10 +17,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1052.1 (Added debug to list_visa_resources to show passed arguments.)
+# Version 20250810.133600.1 (FIXED: Passed app_instance_ref and wrapped all console calls with after() to prevent cross-thread access and the fatal GIL error.)
 
-current_version = "20250802.1052.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1052 * 1 # Example hash, adjust as needed
+current_version = "20250810.133600.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250810 * 133600 * 1 # Example hash, adjust as needed
 
 import pyvisa
 import time
@@ -29,15 +29,11 @@ import os # Import os module to fix NameError
 from datetime import datetime # Import datetime for timestamp
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log, log_visa_command # Ensure log_visa_command is imported
-from src.console_logic import console_log
-
-# Global variable for debug mode, controlled by GUI checkbox (These are now managed by src.debug_logic directly)
-# DEBUG_MODE = False
-# LOG_VISA_COMMANDS = False # New global variable for VISA command logging
+from display.debug_logic import debug_log, log_visa_command # Ensure log_visa_command is imported
+from display.console_logic import console_log
 
 
-def write_safe(inst, command, console_print_func=None):
+def write_safe(inst, command, app_instance_ref, console_print_func=None):
     """
     Function Description:
     Safely writes a command to the instrument.
@@ -45,6 +41,7 @@ def write_safe(inst, command, console_print_func=None):
     Inputs to this function:
     - inst (pyvisa.resources.Resource): The PyVISA instrument object.
     - command (str): The SCPI command string to write.
+    - app_instance_ref (object): A reference to the main application instance.
     - console_print_func (function, optional): Function to print messages to the GUI console.
                                                Defaults to console_log if None.
 
@@ -64,7 +61,8 @@ def write_safe(inst, command, console_print_func=None):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        console_print_func(f"⚠️ Warning: Not connected. Failed to write: {command}. Connect the damn thing first!")
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(f"⚠️ Warning: Not connected. Failed to write: {command}. Connect the damn thing first!"))
         return False
     try:
         log_visa_command(command, "SENT") # Use the imported log_visa_command
@@ -72,7 +70,8 @@ def write_safe(inst, command, console_print_func=None):
         return True
     except pyvisa.errors.VisaIOError as e:
         error_msg = f"🛑 VISA error sending command '{command.strip()}': {e}. This is a nightmare!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -80,7 +79,8 @@ def write_safe(inst, command, console_print_func=None):
         return False
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while sending command '{command.strip()}': {e}. What a mess!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -88,7 +88,7 @@ def write_safe(inst, command, console_print_func=None):
         return False
 
 
-def query_safe(inst, command, console_print_func=None):
+def query_safe(inst, command, app_instance_ref, console_print_func=None):
     """
     Function Description:
     Safely queries the instrument and returns the response.
@@ -97,6 +97,7 @@ def query_safe(inst, command, console_print_func=None):
     Inputs to this function:
     - inst (pyvisa.resources.Resource): The PyVISA instrument object.
     - command (str): The SCPI query command string.
+    - app_instance_ref (object): A reference to the main application instance.
     - console_print_func (function, optional): Function to print messages to the GUI console.
                                                Defaults to console_log if None.
 
@@ -118,7 +119,8 @@ def query_safe(inst, command, console_print_func=None):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        console_print_func(f"⚠️ Warning: Not connected. Failed to query: {command}. Connect the damn thing first!")
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(f"⚠️ Warning: Not connected. Failed to query: {command}. Connect the damn thing first!"))
         return "" # Return empty string on error if not connected
     try:
         log_visa_command(command, "SENT") # Use the imported log_visa_command
@@ -131,7 +133,8 @@ def query_safe(inst, command, console_print_func=None):
         return response
     except pyvisa.errors.VisaIOError as e:
         error_msg = f"🛑 VISA error querying '{command.strip()}': {e}. This goddamn thing is broken!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -139,10 +142,10 @@ def query_safe(inst, command, console_print_func=None):
         return "" # Return empty string on error
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while querying '{command.strip()}': {e}. What a pain!"
-        console_print_func(error_msg)
+        # WRAPPED WITH after() to prevent cross-thread access
+        app_instance_ref.after(0, lambda: console_print_func(error_msg))
         debug_log(error_msg,
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return "" # Return empty string on error
-

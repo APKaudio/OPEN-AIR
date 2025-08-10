@@ -27,8 +27,8 @@ import tkinter as tk
 import inspect
 import os
 
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 
 def update_connection_status_logic(app_instance, is_connected, is_scanning, console_print_func):

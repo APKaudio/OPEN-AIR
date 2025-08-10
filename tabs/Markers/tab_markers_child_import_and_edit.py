@@ -38,8 +38,8 @@ import re
 # Import the new report converter utility functions
 from tabs.Markers.utils_report_converter import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
 from src.gui_elements import TextRedirector 
-from src.debug_logic import debug_log 
-from src.console_logic import console_log 
+from display.debug_logic import debug_log 
+from display.console_logic import console_log 
 # Removed: from tabs.Markers.tab_markers_child_display import load_markers_from_file
 # The load_markers_from_file from display tab will be called via the instance.
 

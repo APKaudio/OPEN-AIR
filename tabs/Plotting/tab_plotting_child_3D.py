@@ -36,8 +36,8 @@ import numpy as np # Added for PSD calculation
 from tabs.Plotting.utils_plotting_scans_over_time import plot_Scans_over_time
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 
 class Plotting3DTab(ttk.Frame):

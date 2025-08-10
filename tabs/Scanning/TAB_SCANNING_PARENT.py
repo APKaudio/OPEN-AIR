@@ -28,8 +28,8 @@ from tabs.Scanning.tab_scanning_child_scan_configuration import ScanTab
 from tabs.Scanning.tab_scanning_child_scan_meta_data import ScanMetaDataTab
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_SCANNING_PARENT(ttk.Frame):
     """

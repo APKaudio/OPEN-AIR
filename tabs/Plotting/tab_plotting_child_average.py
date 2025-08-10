@@ -37,8 +37,8 @@ import numpy as np # Added for PSD calculation
 from tabs.Plotting.utils_plotting import plot_multi_trace_data, _open_plot_in_browser
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 from process_math.averaging_utils import average_scan # NEW import
 # Removed: from utils.plot_scans_over_time import plot_Scans_over_time # Moved to tab_plotting_child_3D.py

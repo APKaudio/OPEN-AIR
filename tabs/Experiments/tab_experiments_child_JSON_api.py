@@ -32,8 +32,8 @@ import sys # Explicitly import sys for use with sys.executable
 import requests # For making HTTP requests to the Flask API
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 
 class JsonApiTab(ttk.Frame):

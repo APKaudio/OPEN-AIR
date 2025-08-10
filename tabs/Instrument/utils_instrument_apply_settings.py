@@ -3,8 +3,8 @@
 
 import inspect
 import os
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 from tabs.Instrument.utils_instrument_read_and_write import write_safe
 
 # Constants for frequency conversion (if needed)

@@ -28,8 +28,8 @@ import os
 import inspect # Import inspect module for debug_log
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 from tabs.Instrument.utils_yak_visa import execute_visa_command # Corrected import path for utils_yak_visa
 

@@ -28,8 +28,8 @@ import csv
 import inspect
 
 from tabs.Markers.utils_markers import SPAN_OPTIONS, RBW_OPTIONS, set_span_logic, set_frequency_logic, set_trace_modes_logic, set_marker_logic, set_rbw_logic
-from src.debug_logic import debug_log 
-from src.console_logic import console_log 
+from display.debug_logic import debug_log 
+from display.console_logic import console_log 
 from ref.frequency_bands import MHZ_TO_HZ 
 from src.program_style import COLOR_PALETTE
 

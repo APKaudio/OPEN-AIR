@@ -26,7 +26,7 @@ import inspect # For debug_log
 import os # For debug_log
 
 # Import the debug logic module to use debug_log
-from src.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_log
+from display.debug_logic import set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, debug_log
 
 
 def check_and_install_dependencies(current_app_version):

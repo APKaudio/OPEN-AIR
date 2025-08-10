@@ -25,8 +25,8 @@ import inspect
 
 from tabs.Markers.tab_markers_child_display import MarkersDisplayTab
 from tabs.Markers.tab_markers_child_import_and_edit import ReportConverterTab
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 class TAB_MARKERS_PARENT(ttk.Frame):
     """

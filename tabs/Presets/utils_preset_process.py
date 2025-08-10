@@ -26,8 +26,8 @@ import pandas as pd # For robust CSV reading/writing
 import numpy as np # For handling NaN values
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 current_version = "20250803.1018.0" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250803 * 1018 * 0 # Example hash, adjust as needed.

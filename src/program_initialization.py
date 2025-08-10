@@ -23,8 +23,8 @@ import os
 import inspect
 
 # Local application imports
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 from src.program_default_values import (
     DATA_FOLDER_PATH, CONFIG_FILE_PATH
 )

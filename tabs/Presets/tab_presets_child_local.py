@@ -34,8 +34,8 @@ import inspect
 import os
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv

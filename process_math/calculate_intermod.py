@@ -27,8 +27,8 @@ from typing import Dict, List, Tuple
 import inspect # Used for enhanced debug printing context
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log # Added for console_print_func
+from display.debug_logic import debug_log
+from display.console_logic import console_log # Added for console_print_func
 
 
 # Define a type alias for better clarity:

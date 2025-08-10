@@ -24,7 +24,7 @@ import threading
 
 # Import the LOGIC functions, not the GUI
 from .scan_control_logic import start_scan_logic, toggle_pause_resume_logic, stop_scan_logic
-from src.console_logic import console_log
+from display.console_logic import console_log
 
 class ScanControlTab(ttk.Frame):
     """

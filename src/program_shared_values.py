@@ -30,7 +30,7 @@ current_version = "20250804.025800.0" # Incremented version
 import tkinter as tk
 import inspect
 import os
-from src.debug_logic import debug_log
+from display.debug_logic import debug_log
 from src.program_default_values import DEFAULT_CONFIG
 from ref.frequency_bands import SCAN_BAND_RANGES
 

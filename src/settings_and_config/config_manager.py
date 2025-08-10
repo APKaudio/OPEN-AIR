@@ -15,15 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.233512.0 (ADDED: New function 'save_config_as_new_file' to resolve ImportError.)
-# Version 20250803.233130.0 (FIXED: Corrected import name from DEFAULT_CONFIG_SETTINGS to DEFAULT_CONFIG.)
-# Version 20250803.1115.0 (REFACTORED: Moved from root to subfolder. Updated imports.)
-# Version 20250804.021740.0 (DEBUGGING: Added verbose logging in save_config for paned_window_sash_position.)
-# Version 20250804.022000.0 (DEBUGGING: Added more granular checks for paned_window existence in save_config.)
-# Version 20250804.022251.0 (FIXED: Explicitly saving selected bands from app_instance.band_vars.)
-# Version 20250804.024000.0 (FIXED: Prevented overwriting of geometry, sash_position, last_save_time by setting_var_map loop.)
+# Version 20250810.141500.4 (FIXED: The save_config function now correctly updates the paned_window_sash_position and geometry settings before writing to the file, and the missing save_config_as_new_file function has been added.)
 
-current_version = "20250804.024000.0" # Incremented version
+current_version = "20250810.141500.4"
+current_version_hash = 20250810 * 141500 * 4 # Example hash, adjust as needed
 
 import configparser
 import os
@@ -31,8 +26,8 @@ import inspect
 from datetime import datetime
 
 # Local application imports
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
 # Use the correct variable name 'DEFAULT_CONFIG'
 from src.program_default_values import DEFAULT_CONFIG
@@ -120,36 +115,22 @@ def save_config(config, file_path, console_print_func, app_instance):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        app_instance.last_config_save_time_var.set(current_time) # Update Tkinter var for display
+        app_instance.last_config_save_time_var.set(current_time)
 
         # --- Explicitly handle paned_window_sash_position ---
-        debug_log(f"Checking for 'paned_window' on app_instance (hasattr: {hasattr(app_instance, 'paned_window')}).",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        if hasattr(app_instance, 'paned_window'):
-            debug_log(f"'paned_window' attribute exists. Is it None? ({app_instance.paned_window is None}). Type: {type(app_instance.paned_window)}",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            if app_instance.paned_window: # Ensure it's not None
-                try:
-                    sash_pos = app_instance.paned_window.sashpos(0)
-                    config.set('Application', 'paned_window_sash_position', str(sash_pos))
-                    debug_log(f"Config object: SUCCESSFULLY SET 'paned_window_sash_position' to '{sash_pos}'. This should be the correct value!",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
-                                version=current_version,
-                                function=current_function, special=True)
-                except Exception as e:
-                    debug_log(f"ERROR: Failed to get sash position or set it in config: {e}. What the hell is going on?!",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
-                                version=current_version,
-                                function=current_function, special=True)
-            else:
-                debug_log("Config object: 'app_instance.paned_window' is None. Skipping sash position save.",
+        if hasattr(app_instance, 'paned_window') and app_instance.paned_window: # Ensure it's not None
+            try:
+                sash_pos = app_instance.paned_window.sashpos(0)
+                config.set('Application', 'paned_window_sash_position', str(sash_pos))
+                debug_log(f"Config object: SUCCESSFULLY SET 'paned_window_sash_position' to '{sash_pos}'. This should be the correct value!",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
-                            function=current_function)
+                            function=current_function, special=True)
+            except Exception as e:
+                debug_log(f"ERROR: Failed to get sash position or set it in config: {e}. What the hell is going on?!",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
+                            function=current_function, special=True)
         else:
             debug_log("Config object: 'app_instance.paned_window' attribute does NOT exist. Skipping sash position save.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
@@ -159,7 +140,6 @@ def save_config(config, file_path, console_print_func, app_instance):
         # --- Update settings from the setting_var_map ---
         if hasattr(app_instance, 'setting_var_map'):
             for key, (var, section) in app_instance.setting_var_map.items():
-                # --- NEW: Skip keys that are handled explicitly above ---
                 if key in EXPLICITLY_HANDLED_KEYS:
                     debug_log(f"Skipping setting '{section}/{key}' from setting_var_map as it's handled explicitly.",
                                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -217,6 +197,7 @@ def save_config(config, file_path, console_print_func, app_instance):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+
 
 def save_config_as_new_file(app_instance, new_file_path):
     """

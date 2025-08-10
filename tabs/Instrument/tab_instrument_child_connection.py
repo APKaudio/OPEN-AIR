@@ -30,8 +30,8 @@ import os
 
 # Import logical functions
 from tabs.Instrument.instrument_logic import connect_instrument_logic, disconnect_instrument_logic, populate_resources_logic, query_current_settings_logic
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 from src.connection_status_logic import update_connection_status_logic
 from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ # KHZ_TO_HZ is still needed for RBW display
 

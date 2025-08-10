@@ -24,7 +24,7 @@ import inspect
 import os
 import time
 
-from src.debug_logic import debug_log
+from display.debug_logic import debug_log
 from tabs.Instrument.utils_instrument_read_and_write import write_safe
 
 def initialize_instrument_logic(inst, model_match, ref_level_dbm, high_sensitivity_on, preamp_on, rbw_config_val, vbw_config_val, console_print_func):

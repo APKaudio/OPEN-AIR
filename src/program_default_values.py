@@ -15,13 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.235000.0 (FIXED: Renamed 'address' key to 'address_field' to match UI variable.)
-# Version 20250803.234500.0 (FIXED: Restored missing desired_default_focus_width key to Scan settings.)
-# Version 20250803.233500.0 (ADDED: Default settings for the Markers Display Tab.)
-# Version 20250803.235500.0 (ADDED: 'scanner_type' to Report section in DEFAULT_CONFIG.)
-# Version 20250803.235900.0 (ADDED: avg_include_tv_markers, avg_include_gov_markers, avg_include_markers, avg_include_intermod_markers to Plotting section.)
+# Version 20250810.150700.1 (FIXED: Removed the unnecessary display_default_settings_structure function that was causing unwanted output.)
 
-current_version = "20250803.235900.0" # Incremented version
+current_version = "20250810.150700.1"
+current_version_hash = 20250810 * 150700 * 1 # Example hash, adjust as needed
 
 import os
 
@@ -38,17 +35,18 @@ DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
 # --- Default Configuration Dictionary ---
 DEFAULT_CONFIG = {
     'Application': {
-        'geometry': '1200x800+50+50',
-        'paned_window_sash_position': '700',
+        'geometry': '1000x1000+0+0',
+        'window_state': 'normal',
+        'paned_window_sash_position': '50', # UPDATED: Sash position as a percentage of the window width
         'last_config_save_time': 'Never',
     },
     'Debug': {
-        'general_debug_enabled': 'True',
-        'debug_to_gui_console': 'True',
+        'general_debug_enabled': 'False',
+        'debug_to_gui_console': 'False',
         'debug_to_terminal': 'False',
-        'debug_to_file': 'True',
-        'include_console_messages_to_debug_file': 'True',
-        'log_visa_commands_enabled': 'True',
+        'debug_to_file': 'False',
+        'include_console_messages_to_debug_file': 'False',
+        'log_visa_commands_enabled': 'False',
     },
     'Instrument': {
         'visa_resource': 'TCPIP0::192.168.1.100::INSTR',

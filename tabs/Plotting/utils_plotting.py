@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250801.2240.1 (Refactored debug_print to use debug_log and console_log.)
+# Version 20250810.140800.1 (FIXED: Removed top-level import of frequency_bands.py constants to resolve startup error. The constants will now be passed to the functions that need them.)
 
-current_version = "20250801.2240.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2240 * 1 # Example hash, adjust as needed
+current_version = "20250810.140800.1" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250810 * 140800 * 1 # Example hash, adjust as needed
 
 import pandas as pd
 import plotly.express as px
@@ -32,37 +32,11 @@ import csv # New: Import csv for MARKERS.CSV
 import inspect # Import inspect for debug_log
 
 # Updated imports for new logging functions
-from src.debug_logic import debug_log
-from src.console_logic import console_log
+from display.debug_logic import debug_log
+from display.console_logic import console_log
 
-# Import constants from frequency_bands.py - CORRECTED PATH
-try:
-    from ref.frequency_bands import (
-        MHZ_TO_HZ,
-        TV_BAND_MARKERS_MHZ,
-        GOVERNMENT_BAND_MARKERS_MHZ,
-        DEFAULT_MARKERS_FILE,
-        DEFAULT_INTERMOD_FILE
-    )
-except ImportError:
-    # Fallback if frequency_bands.py is not found or constants are missing
-    debug_log("Error: frequency_bands.py or its constants not found in 'ref'. Using default values. This is a goddamn mess!",
-                file=__file__,
-                version=current_version,
-                function=inspect.currentframe().f_code.co_name)
-    MHZ_TO_HZ = 1_000_000
-    TV_BAND_MARKERS_MHZ = {
-        "VHF-Low": [54, 88], "FM Radio": [88, 108], "VHF-High": [174, 216],
-        "UHF": [470, 698], "600 MHz Repack Guard Band": [614, 617],
-        "600 MHz Duplex Gap": [652, 663]
-    }
-    GOVERNMENT_BAND_MARKERS_MHZ = {
-        "Public Safety": [700, 800], "LTE Band 14": [788, 798],
-        "WLAN (5 GHz)": [5150, 5825]
-    }
-    DEFAULT_MARKERS_FILE = "MARKERS.csv"
-    DEFAULT_INTERMOD_FILE = "INTERMOD.csv"
-
+# The `frequency_bands` constants are now passed to the functions that need them.
+# The previous `try...except` block has been removed, resolving the startup error.
 
 def _open_plot_in_browser(html_file_path, console_print_func):
     """
@@ -111,7 +85,7 @@ def _open_plot_in_browser(html_file_path, console_print_func):
                     function=current_function)
 
 
-def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, console_print_func):
+def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, MHZ_TO_HZ, console_print_func):
     """
     Function Description:
     Adds rectangular shape annotations to a Plotly figure to represent frequency bands.
@@ -123,16 +97,8 @@ def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix
         line_color (str): The color for the band outlines (e.g., 'rgba(255, 0, 0, 0.5)').
         line_dash (str): The dash style for the band outlines (e.g., 'dot', 'dash').
         band_name_suffix (str): A suffix to add to the band names for legend clarity (e.g., " (TV)").
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
         console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-        1. Iterates through the `markers_dict`.
-        2. For each band, creates a rectangular shape annotation using `fig.add_shape`.
-        3. Sets the x-axis range for the rectangle based on the band's frequencies (converted to Hz).
-        4. Sets the y-axis range to 'paper' (0 to 1) to span the entire plot height.
-        5. Configures line color, width, and dash style.
-        6. Adds a legend entry for each band.
-        7. Logs debug information about added markers.
 
     Outputs of this function:
         Modifies the `fig` object by adding shapes.
@@ -180,7 +146,7 @@ def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix
                 function=current_function)
 
 
-def _add_markers_from_csv(fig, markers_csv_path, console_print_func):
+def _add_markers_from_csv(fig, markers_csv_path, MHZ_TO_HZ, console_print_func):
     """
     Function Description:
     Reads markers from a specified CSV file and adds vertical line annotations to a Plotly figure.
@@ -189,15 +155,8 @@ def _add_markers_from_csv(fig, markers_csv_path, console_print_func):
     Inputs to this function:
         fig (go.Figure): The Plotly figure object to which markers will be added.
         markers_csv_path (str): The path to the CSV file containing marker data.
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
         console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-        1. Checks if the `markers_csv_path` exists.
-        2. If it exists, reads the CSV into a Pandas DataFrame.
-        3. Iterates through each row of the DataFrame.
-        4. For each row, creates a vertical line annotation using `fig.add_vline` at the specified frequency.
-        5. Adds a text label for the marker name.
-        6. Logs debug information about added markers.
 
     Outputs of this function:
         Modifies the `fig` object by adding vertical lines and text annotations.
@@ -240,13 +199,13 @@ def _add_markers_from_csv(fig, markers_csv_path, console_print_func):
         console_print_func(f"✅ Added markers from {os.path.basename(markers_csv_path)}.")
     except Exception as e:
         console_print_func(f"❌ Error reading or adding markers from CSV {os.path.basename(markers_csv_path)}: {e}. This CSV is a stubborn bastard!")
-        debug_log(f"Error adding markers from CSV {markers_csv_path}: {e}",
+        debug_log(f"Error reading or adding markers from CSV {markers_csv_path}: {e}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
 
 
-def _add_intermodulation_markers(fig, intermod_csv_path, console_print_func):
+def _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_print_func):
     """
     Function Description:
     Reads intermodulation product frequencies from a specified CSV file and adds
@@ -256,16 +215,8 @@ def _add_intermodulation_markers(fig, intermod_csv_path, console_print_func):
     Inputs to this function:
         fig (go.Figure): The Plotly figure object to which markers will be added.
         intermod_csv_path (str): The path to the CSV file containing intermodulation data.
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
         console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-        1. Checks if the `intermod_csv_path` exists.
-        2. If it exists, reads the CSV into a Pandas DataFrame.
-        3. Iterates through each row of the DataFrame.
-        4. For each row, creates a vertical line annotation using `fig.add_vline` at the specified
-           intermodulation frequency (converted to Hz).
-        5. Adds a text label for the IMD product.
-        6. Logs debug information about added markers.
 
     Outputs of this function:
         Modifies the `fig` object by adding vertical lines and text annotations.
@@ -309,7 +260,7 @@ def _add_intermodulation_markers(fig, intermod_csv_path, console_print_func):
         console_print_func(f"✅ Added intermodulation markers from {os.path.basename(intermod_csv_path)}.")
     except Exception as e:
         console_print_func(f"❌ Error reading or adding intermodulation markers from CSV {os.path.basename(intermod_csv_path)}: {e}. This IMD CSV is a stubborn bastard!")
-        debug_log(f"Error adding intermodulation markers from CSV {intermod_csv_path}: {e}",
+        debug_log(f"Error reading or adding intermodulation markers from CSV {intermod_csv_path}: {e}",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -318,7 +269,8 @@ def _add_intermodulation_markers(fig, intermod_csv_path, console_print_func):
 def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_gov_markers,
                           include_markers, include_intermod_markers, output_html_path,
                           y_range_min_override, y_range_max_override, console_print_func,
-                          scan_data_folder):
+                          scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ,
+                          DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE):
     """
     Function Description:
     Generates a Plotly HTML interactive plot for spectrum analyzer data.
@@ -338,6 +290,11 @@ def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_g
         y_range_max_override (float or None): Optional maximum Y-axis value.
         console_print_func (function): Function to print messages to the GUI console.
         scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
+        TV_BAND_MARKERS_MHZ (dict): Dictionary of TV band markers.
+        GOVERNMENT_BAND_MARKERS_MHZ (dict): Dictionary of Government band markers.
+        DEFAULT_MARKERS_FILE (str): Default filename for markers CSV.
+        DEFAULT_INTERMOD_FILE (str): Default filename for intermodulation CSV.
 
     Process of this function:
         1. Initializes an empty Plotly figure.
@@ -355,6 +312,7 @@ def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_g
     (2025-07-31) Change: Added y_range_min_override and y_range_max_override parameters.
     (2025-08-01) Change: Added include_intermod_markers parameter and call to _add_intermodulation_markers.
     (2025-08-01) Change: Updated debug_print to debug_log.
+    (2025-08-10) Change: Updated function signature to accept constants as arguments.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Creating spectrum plot: '{plot_title}'",
@@ -423,15 +381,15 @@ def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_g
 
     # Conditionally add markers
     if include_tv_markers:
-        _add_band_markers(fig, TV_BAND_MARKERS_MHZ, 'rgba(0, 255, 0, 0.5)', 'dot', ' (TV)', console_print_func)
+        _add_band_markers(fig, TV_BAND_MARKERS_MHZ, 'rgba(0, 255, 0, 0.5)', 'dot', ' (TV)', MHZ_TO_HZ, console_print_func)
     if include_gov_markers:
-        _add_band_markers(fig, GOVERNMENT_BAND_MARKERS_MHZ, 'rgba(255, 165, 0, 0.5)', 'dash', ' (Gov)', console_print_func)
+        _add_band_markers(fig, GOVERNMENT_BAND_MARKERS_MHZ, 'rgba(255, 165, 0, 0.5)', 'dash', ' (Gov)', MHZ_TO_HZ, console_print_func)
     if include_markers and scan_data_folder:
         markers_csv_path = os.path.join(scan_data_folder, DEFAULT_MARKERS_FILE)
-        _add_markers_from_csv(fig, markers_csv_path, console_print_func)
+        _add_markers_from_csv(fig, markers_csv_path, MHZ_TO_HZ, console_print_func)
     if include_intermod_markers and scan_data_folder:
         intermod_csv_path = os.path.join(scan_data_folder, DEFAULT_INTERMOD_FILE)
-        _add_intermodulation_markers(fig, intermod_csv_path, console_print_func)
+        _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_print_func)
 
 
     # Apply Y-axis range override if provided
@@ -489,7 +447,8 @@ def _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_g
 
 def plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_markers,
                           include_markers, include_intermod_markers, output_html_path, console_print_func,
-                          scan_data_folder):
+                          scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ,
+                          DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE):
     """
     Function Description:
     Plots a single spectrum analyzer scan. This is a wrapper around `_create_spectrum_plot`.
@@ -504,6 +463,11 @@ def plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_m
         output_html_path (str or None): If a string, saves the plot to this HTML file. If None, does not save.
         console_print_func (function): Function to print messages to the GUI console.
         scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
+        TV_BAND_MARKERS_MHZ (dict): Dictionary of TV band markers.
+        GOVERNMENT_BAND_MARKERS_MHZ (dict): Dictionary of Government band markers.
+        DEFAULT_MARKERS_FILE (str): Default filename for markers CSV.
+        DEFAULT_INTERMOD_FILE (str): Default filename for intermodulation CSV.
 
     Outputs of this function:
         tuple: (go.Figure, str or None) - The Plotly figure object and the path to the saved HTML file (or None).
@@ -511,6 +475,7 @@ def plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_m
     (2025-07-31) Change: Simplified to be a wrapper for _create_spectrum_plot.
     (2025-08-01) Change: Added include_intermod_markers parameter.
     (2025-08-01) Change: Updated debug_print to debug_log.
+    (2025-08-10) Change: Updated function signature to accept constants as arguments.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Plotting single scan data for '{plot_title}'...",
@@ -539,7 +504,12 @@ def plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_m
         y_range_min_override=None,
         y_range_max_override=None,
         console_print_func=console_print_func,
-        scan_data_folder=scan_data_folder
+        scan_data_folder=scan_data_folder,
+        MHZ_TO_HZ=MHZ_TO_HZ,
+        TV_BAND_MARKERS_MHZ=TV_BAND_MARKERS_MHZ,
+        GOVERNMENT_BAND_MARKERS_MHZ=GOVERNMENT_BAND_MARKERS_MHZ,
+        DEFAULT_MARKERS_FILE=DEFAULT_MARKERS_FILE,
+        DEFAULT_INTERMOD_FILE=DEFAULT_INTERMOD_FILE
     )
     debug_log(f"Finished plotting single scan data for '{plot_title}'.",
                 file=__file__,
@@ -552,7 +522,8 @@ def plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include
                           include_markers, include_intermod_markers, historical_dfs_with_names,
                           individual_scan_dfs_with_names, output_html_path,
                           y_range_min_override, y_range_max_override, console_print_func,
-                          scan_data_folder):
+                          scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ,
+                          DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE):
     """
     Function Description:
     Plots multiple traces on a single Plotly graph, including an aggregated trace (e.g., average)
@@ -575,6 +546,11 @@ def plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include
         y_range_max_override (float or None): Optional maximum Y-axis value.
         console_print_func (function): Function to print messages to the GUI console.
         scan_data_folder (str): The folder where scan data (and potentially MARKERS.csv/INTERMOD.csv) resides.
+        MHZ_TO_HZ (float): The conversion factor from MHz to Hz.
+        TV_BAND_MARKERS_MHZ (dict): Dictionary of TV band markers.
+        GOVERNMENT_BAND_MARKERS_MHZ (dict): Dictionary of Government band markers.
+        DEFAULT_MARKERS_FILE (str): Default filename for markers CSV.
+        DEFAULT_INTERMOD_FILE (str): Default filename for intermodulation CSV.
 
     Outputs of this function:
         tuple: (go.Figure, str or None) - The Plotly figure object and the path to the saved HTML file (or None).
@@ -583,6 +559,7 @@ def plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include
     (2025-07-31) Change: Added y_range_min_override and y_range_max_override parameters.
     (2025-08-01) Change: Added include_intermod_markers parameter.
     (2025-08-01) Change: Updated debug_print to debug_log.
+    (2025-08-10) Change: Updated function signature to accept constants as arguments.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Plotting multi-trace data for '{plot_title}'...",
@@ -689,5 +666,10 @@ def plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include
         y_range_min_override,
         y_range_max_override,
         console_print_func,
-        scan_data_folder
+        scan_data_folder,
+        MHZ_TO_HZ=MHZ_TO_HZ,
+        TV_BAND_MARKERS_MHZ=TV_BAND_MARKERS_MHZ,
+        GOVERNMENT_BAND_MARKERS_MHZ=GOVERNMENT_BAND_MARKERS_MHZ,
+        DEFAULT_MARKERS_FILE=DEFAULT_MARKERS_FILE,
+        DEFAULT_INTERMOD_FILE=DEFAULT_INTERMOD_FILE
     )

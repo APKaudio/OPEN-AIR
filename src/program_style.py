@@ -30,7 +30,7 @@ import tkinter as tk
 from tkinter import ttk, TclError
 import inspect
 
-from src.debug_logic import debug_log
+from display.debug_logic import debug_log
 
 COLOR_PALETTE = {
     'background': '#2b2b2b',
