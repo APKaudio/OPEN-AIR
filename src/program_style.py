@@ -14,17 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250803.232000.0 (MODIFIED: Changed active ControlButton style to orange.)
-# Version 20250803.231500.0 (ADDED: 'ControlButton' styles. MODIFIED: Increased 'DeviceButton' font to 14pt.)
-# Version 20250803.232501.0 (ADDED: New 'DeviceButton' styles with larger, centered font.)
-# Version 20250803.232500.0 (ADDED: Custom styles for active/inactive device buttons on Markers tab.)
-# Version 20250803.225500.0 (ADDED: Unique, color-coded styles for each parent's child tabs.)
-# Version 20250803.235901.0 (ADDED: 'LocalPreset.TButton' and 'SelectedPreset.Orange.TButton' styles.)
-# Version 20250804.000005.0 (MODIFIED: LocalPreset.TButton font size to 25pt.)
-# Version 20250804.022800.1 (ADDED: 'Band.TButton' and 'Band.Selected.TButton' styles for scan bands.)
-# Version 20250804.023345.0 (ADDED: Styles for Start, Pause, Stop scan control buttons.)
+# Version 20250810.170100.1 (ADDED: New styles for multi-state band selection buttons.)
 
-current_version = "20250804.023345.0" # Incremented version
+current_version = "20250810.170100.1"
+current_version_hash = 20250810 * 170100 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -57,6 +50,8 @@ COLOR_PALETTE = {
     'grey_btn_active': '#858585',
     'white': 'white', # Explicit white for clarity
     'black': 'black', # Explicit black for clarity
+    'yellow_btn': '#FFEB3B', # NEW: Yellow button color
+    'yellow_btn_active': '#FFF176', # NEW: Yellow button active color
 }
 
 COLOR_PALETTE_TABS = {
@@ -138,6 +133,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
     # --- Styles for Band Selection Buttons (Scanning Tab) ---
+    # Unselected
     style.configure('Band.TButton',
                     background=COLOR_PALETTE['grey_btn'], # Grey for unselected
                     foreground='white',
@@ -150,18 +146,44 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Band.TButton',
               background=[('active', COLOR_PALETTE['grey_btn_active'])]) # Lighter grey on hover
 
-    style.configure('Band.Selected.TButton',
-                    background=COLOR_PALETTE['orange_btn'], # Orange for selected
-                    foreground='black', # Black text for contrast on orange
-                    font=('Helvetica', 10, 'bold'), # Bold for selected
+    # Low Importance (Yellow)
+    style.configure('Band.Low.TButton',
+                    background=COLOR_PALETTE['yellow_btn'],
+                    foreground='black', # Black text for contrast on yellow
+                    font=('Helvetica', 10, 'bold'),
                     padding=[5, 5],
                     anchor='center',
                     justify='center',
-                    relief='raised', # Make it look "pushed" or selected
+                    relief='raised',
                     borderwidth=2)
-    style.map('Band.Selected.TButton',
-              background=[('active', COLOR_PALETTE['orange_btn_active'])]) # Brighter orange on hover
+    style.map('Band.Low.TButton',
+              background=[('active', COLOR_PALETTE['yellow_btn_active'])])
 
+    # Medium Importance (Orange)
+    style.configure('Band.Medium.TButton',
+                    background=COLOR_PALETTE['orange_btn'],
+                    foreground='black',
+                    font=('Helvetica', 10, 'bold'),
+                    padding=[5, 5],
+                    anchor='center',
+                    justify='center',
+                    relief='raised',
+                    borderwidth=2)
+    style.map('Band.Medium.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active'])])
+
+    # High Importance (Red)
+    style.configure('Band.High.TButton',
+                    background=COLOR_PALETTE['red_btn'],
+                    foreground='white',
+                    font=('Helvetica', 10, 'bold'),
+                    padding=[5, 5],
+                    anchor='center',
+                    justify='center',
+                    relief='raised',
+                    borderwidth=2)
+    style.map('Band.High.TButton',
+              background=[('active', COLOR_PALETTE['red_btn_active'])])
 
     # --- Styles for Local Preset Buttons ---
     # Base for unselected preset buttons

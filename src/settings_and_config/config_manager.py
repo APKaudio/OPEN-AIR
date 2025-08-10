@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.141500.4 (FIXED: The save_config function now correctly updates the paned_window_sash_position and geometry settings before writing to the file, and the missing save_config_as_new_file function has been added.)
+# Version 20250810.180100.1 (UPDATED: Modified save_config to handle new multi-state band importance levels.)
 
-current_version = "20250810.141500.4"
-current_version_hash = 20250810 * 141500 * 4 # Example hash, adjust as needed
+current_version = "20250810.180100.1"
+current_version_hash = 20250810 * 180100 * 1 # Example hash, adjust as needed
 
 import configparser
 import os
@@ -97,7 +97,8 @@ def save_config(config, file_path, console_print_func, app_instance):
         'geometry',
         'last_config_save_time',
         'paned_window_sash_position',
-        'last_scan_configuration__selected_bands' # Handled explicitly below band_vars
+        'last_scan_configuration__selected_bands',
+        'last_scan_configuration__selected_bands_levels', # ADDED for new band importance levels
     ]
 
     try:
@@ -159,12 +160,23 @@ def save_config(config, file_path, console_print_func, app_instance):
         
         # --- Explicitly save selected bands from app_instance.band_vars ---
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
-            selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
-            selected_bands_str = ",".join(selected_bands)
+            # ORIGINAL LOGIC: Saves just a comma-separated list of names
+            # selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
+            # selected_bands_str = ",".join(selected_bands)
+            # if not config.has_section('Scan'):
+            #     config.add_section('Scan')
+            # config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
+
+            # NEW LOGIC: Save a list of "name=level" pairs
+            selected_bands_with_levels = [
+                f"{item['band']['Band Name']}={item.get('level', 0)}" for item in app_instance.band_vars
+            ]
+            selected_bands_str = ",".join(selected_bands_with_levels)
+            
             if not config.has_section('Scan'):
                 config.add_section('Scan')
-            config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
-            debug_log(f"Config object: Explicitly set 'Scan/last_scan_configuration__selected_bands' to '{selected_bands_str}'. Bands saved!",
+            config.set('Scan', 'last_scan_configuration__selected_bands_levels', selected_bands_str)
+            debug_log(f"Config object: Explicitly set 'Scan/last_scan_configuration__selected_bands_levels' to '{selected_bands_str}'. Bands with levels saved!",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function, special=True)
@@ -217,7 +229,8 @@ def save_config_as_new_file(app_instance, new_file_path):
         'geometry',
         'last_config_save_time',
         'paned_window_sash_position',
-        'last_scan_configuration__selected_bands'
+        'last_scan_configuration__selected_bands',
+        'last_scan_configuration__selected_bands_levels', # ADDED for new band importance levels
     ]
 
     try:
@@ -243,12 +256,14 @@ def save_config_as_new_file(app_instance, new_file_path):
         
         # Explicitly save selected bands from app_instance.band_vars for new file save
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
-            selected_bands = [item["band"]["Band Name"] for item in app_instance.band_vars if item["var"].get()]
-            selected_bands_str = ",".join(selected_bands)
+            # NEW LOGIC: Save a list of "name=level" pairs
+            selected_bands_with_levels = [
+                f"{item['band']['Band Name']}={item.get('level', 0)}" for item in app_instance.band_vars
+            ]
+            selected_bands_str = ",".join(selected_bands_with_levels)
             if not new_config.has_section('Scan'):
                 new_config.add_section('Scan')
-            new_config.set('Scan', 'last_scan_configuration__selected_bands', selected_bands_str)
-
+            new_config.set('Scan', 'last_scan_configuration__selected_bands_levels', selected_bands_str)
 
         # Write the new config object to the specified new file
         with open(new_file_path, 'w') as configfile:

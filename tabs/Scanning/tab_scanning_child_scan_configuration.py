@@ -1,8 +1,7 @@
 # tabs/Scanning/tab_scanning_child_scan_configuration.py
 #
-# This file defines the ScanTab, a Tkinter Frame that contains the Scan Configuration settings
-# and the band selection checkboxes. It uses a clean, data-driven approach to populate
-# dropdowns and handle user selections for all scan parameters.
+# This file defines the ScanTab, a Tkinter Frame that contains the Scan Configuration settings.
+# All band selection logic has been moved to a separate file, `tab_scanning_child_bands.py`.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,9 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.193000.1 (Restored missing text fields and converted band selection to buttons.)
-# Version 20250803.192500.0 (FIXED: Implemented config saving on change and loading of settings into UI.)
-# Version 20250803.183200.0 (Complete refactor from scratch. Standardized widget creation and event handling.)
+# Version 20250810.160100.2 (REFACTORED: Extracted all band selection UI and logic into a new tab.)
 
 
 import tkinter as tk
@@ -29,6 +26,8 @@ import sys
 
 # Local application imports
 from display.debug_logic import debug_log
+from display.console_logic import console_log
+
 from src.settings_and_config.config_manager import save_config
 from ref.frequency_bands import SCAN_BAND_RANGES
 from ref.ref_scanner_setting_lists import (
@@ -41,7 +40,8 @@ from ref.ref_scanner_setting_lists import (
     rbw_presets
 )
 
-current_version = "20250803.193000.1"
+current_version = "20250810.160100.2"
+current_version_hash = 20250810 * 160100 * 2 # Example hash, adjust as needed
 
 class ScanTab(ttk.Frame):
     """
@@ -49,17 +49,55 @@ class ScanTab(ttk.Frame):
     up a scan session.
     """
     def __init__(self, master, app_instance, console_print_func, **kwargs):
+        # This function description tells me what this function does
+        # Initializes the ScanTab, creating a frame to hold the main scan
+        # configuration settings, such as output folder, scan name, and
+        # instrument parameters.
+        #
+        # Inputs to this function
+        #   master (tk.Widget): The parent widget, typically a ttk.Notebook.
+        #   app_instance (object): A reference to the main application instance.
+        #   console_print_func (function): A function to use for console output.
+        #   **kwargs: Arbitrary keyword arguments.
+        #
+        # Outputs of this function
+        #   None. Initializes the Tkinter frame and its internal state.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing ScanTab...",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
-        self.bands_inner_frame_id = None
         self.setting_widgets = {}
         self._create_widgets()
         self.after(100, self._on_tab_selected)
+        
+        debug_log(f"ScanTab initialized. Scan configuration widgets are ready.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
 
     def _create_widgets(self):
-        """Creates and arranges all widgets in the tab."""
+        # This function description tells me what this function does
+        # Creates and arranges all widgets in the tab, including the output
+        # settings frame and the instrument scan settings frame.
+        #
+        # Inputs to this function
+        #   None.
+        #
+        # Outputs of this function
+        #   None. Populates the tab with GUI elements.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating ScanTab widgets.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
 
@@ -106,36 +144,20 @@ class ScanTab(ttk.Frame):
         ttk.Label(settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         ttk.Entry(settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
         row_idx += 1
-        
-        # --- Bands to Scan ---
-        bands_frame = ttk.LabelFrame(self, text="Bands to Scan", style='Dark.TLabelframe')
-        bands_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
-        bands_frame.grid_rowconfigure(1, weight=1)
-        bands_frame.grid_columnconfigure(0, weight=1)
 
-        band_button_frame = ttk.Frame(bands_frame, style='Dark.TFrame')
-        band_button_frame.grid(row=0, column=0, pady=5, sticky="ew")
-        band_button_frame.grid_columnconfigure(0, weight=1)
-        band_button_frame.grid_columnconfigure(1, weight=1)
-        ttk.Button(band_button_frame, text="Select All", command=self._select_all_bands, style='Blue.TButton').grid(row=0, column=0, padx=5, sticky="ew")
-        ttk.Button(band_button_frame, text="Deselect All", command=self._deselect_all_bands, style='Blue.TButton').grid(row=0, column=1, padx=5, sticky="ew")
-
-        self.bands_canvas = tk.Canvas(bands_frame, background="#2e2e2e", highlightthickness=0)
-        bands_scrollbar = ttk.Scrollbar(bands_frame, orient="vertical", command=self.bands_canvas.yview)
-        self.bands_canvas.configure(yscrollcommand=bands_scrollbar.set)
-        self.bands_canvas.grid(row=1, column=0, sticky="nsew")
-        bands_scrollbar.grid(row=1, column=1, sticky="ns")
-
-        self.bands_inner_frame = ttk.Frame(self.bands_canvas, style='Dark.TFrame')
-        self.bands_inner_frame_id = self.bands_canvas.create_window((0, 0), window=self.bands_inner_frame, anchor="nw")
-
-        self.bands_inner_frame.bind('<Configure>', lambda e: self.bands_canvas.configure(scrollregion=self.bands_canvas.bbox("all")))
-        self.bands_canvas.bind('<Configure>', lambda e: self.bands_canvas.itemconfigure(self.bands_inner_frame_id, width=e.width))
-
-        self._populate_band_buttons()
+        debug_log(f"ScanTab widgets created.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
         
     def _create_setting_row(self, parent, row, key, label_text, app_var, data_list, unit=""):
         """Generic function to create and store a labeled combobox row for a setting."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating setting row for {key}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         ttk.Label(parent, text=label_text).grid(row=row, column=0, padx=5, pady=2, sticky="w")
         display_values = [f"{item['value']} {unit}".strip() + f" - {item['label']}" for item in data_list]
         combo = ttk.Combobox(parent, values=display_values, state="readonly", width=35)
@@ -147,6 +169,12 @@ class ScanTab(ttk.Frame):
 
     def _on_combobox_select(self, event, app_var, data_list, description_var, unit):
         """Generic event handler for our settings comboboxes."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Combobox selected. Updating value and description.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         selected_display = event.widget.get()
         found_item = None
         for item in data_list:
@@ -161,12 +189,24 @@ class ScanTab(ttk.Frame):
 
     def _on_boolean_combobox_select(self, event, app_var):
         """Handler specifically for 'Yes'/'No' comboboxes."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Boolean combobox selected. Updating value.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         is_yes = event.widget.get() == "Yes"
         app_var.set(is_yes)
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _set_combobox_display_from_value(self, key):
         """Helper to find and set the display text and description for a given raw value."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Setting combobox display from value for {key}.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         widget_info = self.setting_widgets.get(key)
         if not widget_info: return
         combo, app_var, data_list, desc_var, unit = widget_info['widget'], widget_info['var'], widget_info['data'], widget_info['desc_var'], widget_info['unit']
@@ -189,6 +229,12 @@ class ScanTab(ttk.Frame):
 
     def _load_settings_into_ui(self):
         """Populates all UI elements with values from the app_instance variables."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Loading settings into UI.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         for key in self.setting_widgets:
             if key in ['high_sensitivity', 'preamp_on']:
                 widget_info = self.setting_widgets[key]
@@ -196,70 +242,45 @@ class ScanTab(ttk.Frame):
             else:
                 self._set_combobox_display_from_value(key)
 
-    def _populate_band_buttons(self):
-        """Populates the scrollable frame with band selection buttons."""
-        for widget in self.bands_inner_frame.winfo_children():
-            widget.destroy()
-        
-        self.bands_inner_frame.grid_columnconfigure(0, weight=1)
-        self.bands_inner_frame.grid_columnconfigure(1, weight=1)
-
-        for i, band_item in enumerate(self.app_instance.band_vars):
-            band = band_item["band"]
-            var = band_item["var"]
-            
-            button_text = f"{band['Band Name']}\nStart: {band['Start MHz']:.3f} MHz\nStop: {band['Stop MHz']:.3f} MHz"
-            
-            btn = ttk.Button(self.bands_inner_frame, text=button_text)
-            band_item['widget'] = btn # Store widget reference
-            
-            btn.configure(command=lambda v=var, b=btn: self._on_band_button_toggle(v, b))
-            
-            style = "Band.Selected.TButton" if var.get() else "Band.TButton"
-            btn.configure(style=style)
-
-            row, col = divmod(i, 2)
-            btn.grid(row=row, column=col, sticky="ew", padx=2, pady=2)
-
-    def _on_band_button_toggle(self, band_var, button_widget):
-        """Toggles the state of a band and updates its button style."""
-        new_state = not band_var.get()
-        band_var.set(new_state)
-        
-        style = "Band.Selected.TButton" if new_state else "Band.TButton"
-        button_widget.configure(style=style)
-        
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-
-    def _update_all_band_button_styles(self):
-        """Updates the style of all band buttons to match their variable state."""
-        for band_item in self.app_instance.band_vars:
-            var = band_item["var"]
-            widget = band_item.get("widget")
-            if widget:
-                style = "Band.Selected.TButton" if var.get() else "Band.TButton"
-                widget.configure(style=style)
-
-    def _select_all_bands(self):
-        for band_item in self.app_instance.band_vars:
-            band_item["var"].set(True)
-        self._update_all_band_button_styles()
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-
-    def _deselect_all_bands(self):
-        for band_item in self.app_instance.band_vars:
-            band_item["var"].set(False)
-        self._update_all_band_button_styles()
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-
     def _browse_output_folder(self):
+        # This function description tells me what this function does
+        # Opens a file dialog for the user to select an output folder and saves
+        # the selected path to the `output_folder_var` in the main application instance.
+        #
+        # Inputs to this function
+        #   None.
+        #
+        # Outputs of this function
+        #   None. Updates a Tkinter variable and saves the config.
+        current_function = inspect.currentframe().f_code.co_name
+        console_log("Browsing for output folder...", function=current_function)
+        debug_log(f"Opening file dialog to select output folder.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         folder = filedialog.askdirectory()
         if folder:
             self.app_instance.output_folder_var.set(folder)
             save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _open_output_folder(self):
+        # This function description tells me what this function does
+        # Opens the currently selected output folder using the default file explorer
+        # for the operating system. It handles different OS commands and logs errors.
+        #
+        # Inputs to this function
+        #   None.
+        #
+        # Outputs of this function
+        #   None. Opens a file explorer window.
+        current_function = inspect.currentframe().f_code.co_name
         path = self.app_instance.output_folder_var.get()
+        debug_log(f"Attempting to open output folder: {path}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         if os.path.isdir(path):
             try:
                 if sys.platform == "win32":
@@ -268,11 +289,18 @@ class ScanTab(ttk.Frame):
                     subprocess.Popen(["open", path])
                 else:
                     subprocess.Popen(["xdg-open", path])
+                console_log(f"✅ Opened output folder: {path}", function=current_function)
             except Exception as e:
-                self.console_print_func(f"❌ Error opening folder: {e}")
+                console_log(f"❌ Error opening folder: {e}", function=current_function)
         else:
-            self.console_print_func(f"❌ Folder not found: {path}")
+            console_log(f"❌ Folder not found: {path}", function=current_function)
 
     def _on_tab_selected(self, event=None):
         """Called when the tab is selected, ensures UI is synced with config."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"ScanTab selected. Refreshing UI from config.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
         self._load_settings_into_ui()

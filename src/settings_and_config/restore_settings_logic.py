@@ -14,11 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0045.1 (Refactored debug_print to debug_log; updated imports and flair.)
-# Version 20250804.022251.0 (FIXED: Added logic to load selected bands in restore_last_used_settings_logic.)
+# Version 20250810.180100.2 (UPDATED: Modified logic to handle the new band importance levels.)
 
-current_version = "20250804.022251.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 45 * 1 # Example hash, adjust as needed
+current_version = "20250810.180100.2"
+current_version_hash = 20250810 * 180100 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 import inspect
@@ -30,6 +29,7 @@ from display.console_logic import console_log
 
 # Import config management functions
 from src.settings_and_config.config_manager import load_config, save_config # Import save_config
+from src.program_default_values import DEFAULT_CONFIG # Import DEFAULT_CONFIG to get default band levels
 
 
 def restore_default_settings_logic(app_instance, console_print_func=None):
@@ -126,15 +126,24 @@ def restore_default_settings_logic(app_instance, console_print_func=None):
                 version=current_version,
                 function=current_function)
 
-    # Reset selected bands to default (usually all unchecked or a specific default set)
-    # Assuming default is no bands selected unless specified otherwise in DEFAULT_SETTINGS
-    default_selected_bands_str = app_instance.config.get('DEFAULT_SETTINGS', 'last_scan_configuration__selected_bands', fallback='')
-    default_selected_band_names = [name.strip() for name in default_selected_bands_str.split(',') if name.strip()]
-    for band_item in app_instance.band_vars:
-        band_name = band_item["band"]["Band Name"]
-        band_item["var"].set(band_name in default_selected_band_names)
-    app_instance.config.set('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands', ",".join(default_selected_band_names))
-    debug_log(f"Restored selected bands to default: {default_selected_band_names}",
+    # Reset selected bands to default (all unchecked)
+    # The default setting is for no bands to be selected, so we set level to 0 for all.
+    default_selected_bands_levels_str = DEFAULT_CONFIG.get('Scan', {}).get('last_scan_configuration__selected_bands_levels', '')
+    if default_selected_bands_levels_str:
+        band_levels = {name: int(level) for name, level in (pair.split('=') for pair in default_selected_bands_levels_str.split(','))}
+        for band_item in app_instance.band_vars:
+            band_name = band_item["band"]["Band Name"]
+            band_item["level"] = band_levels.get(band_name, 0)
+    else:
+        for band_item in app_instance.band_vars:
+            band_item["level"] = 0
+            
+    # Save this default state back to config
+    last_selected_bands_levels_str = ",".join(
+        [f"{item['band']['Band Name']}={item['level']}" for item in app_instance.band_vars]
+    )
+    app_instance.config.set('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands_levels', last_selected_bands_levels_str)
+    debug_log(f"Restored selected bands to default: {last_selected_bands_levels_str}",
                 file=__file__,
                 version=current_version,
                 function=current_function)
@@ -266,33 +275,32 @@ def restore_last_used_settings_logic(app_instance, console_print_func=None):
                         version=current_version,
                         function=current_function)
 
-    # Special handling for notes_var and band_vars (not in setting_var_map)
-    notes_from_config = app_instance.config.get('LAST_USED_SETTINGS', 'notes', fallback='')
-    app_instance.notes_var.set(notes_from_config)
-    debug_log(f"Restored notes: '{notes_from_config}'",
+    # --- NEW: Restore selected bands and their levels from config ---
+    last_selected_bands_levels_str = app_instance.config.get('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands_levels', fallback='')
+    band_levels = {}
+    if last_selected_bands_levels_str:
+        try:
+            for pair in last_selected_bands_levels_str.split(','):
+                if '=' in pair:
+                    name, level_str = pair.split('=')
+                    band_levels[name.strip()] = int(level_str.strip())
+        except (ValueError, IndexError) as e:
+            console_print_func(f"❌ Error parsing band importance levels from config: {e}. Fucking useless config file! Resetting bands to default.")
+            debug_log(f"Error parsing band levels: {e}. String was: '{last_selected_bands_levels_str}'. Resetting to 0.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            band_levels = {}
+
+    for band_item in app_instance.band_vars:
+        band_name = band_item["band"]["Band Name"]
+        band_item["level"] = band_levels.get(band_name, 0)
+    
+    debug_log(f"Restored selected bands and their levels from config. Bands loaded with levels!",
                 file=__file__,
                 version=current_version,
-                function=current_function)
+                function=current_function, special=True)
 
-    # --- NEW/FIXED: Restore selected bands from config ---
-    last_selected_bands_str = app_instance.config.get('LAST_USED_SETTINGS', 'last_scan_configuration__selected_bands', fallback='')
-    last_selected_band_names = [name.strip() for name in last_selected_bands_str.split(',') if name.strip()]
-    if last_selected_band_names:
-        for band_item in app_instance.band_vars:
-            band_name = band_item["band"]["Band Name"]
-            band_item["var"].set(band_name in last_selected_band_names)
-        debug_log(f"Restored selected bands to last used: {last_selected_band_names}. Bands loaded!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function, special=True)
-    else:
-        # If no last_selected_bands in config, ensure all are deselected
-        for band_item in app_instance.band_vars:
-            band_item["var"].set(False) # Default to unchecked if no last used bands
-        debug_log("No last_selected_bands in config.ini. All bands set to unchecked. Starting fresh!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
 
     # Restore Antenna Type
     last_antenna_type = app_instance.config.get('LAST_USED_SETTINGS', 'antenna_type', fallback='')
