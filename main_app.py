@@ -20,10 +20,10 @@ print("Hello from main_app.py! Let's see if we can get this bastard running!")
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.152000.1 (FIXED: The main app now correctly instantiates the new TAB_DISPLAY_PARENT and passes the console_log function to it, ensuring correct behavior.)
+# Version 20250810.150400.1 (FIXED: The sash position is now saved as a percentage, and the window state is correctly handled.)
 
-current_version = "20250810.152000.1"
-current_version_hash = 20250810 * 152000 * 1 # Placeholder, will be set during runtime or in a dedicated versioning module.
+current_version = "20250810.150400.1"
+current_version_hash = 20250810 * 150400 * 1 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
 from tkinter import ttk

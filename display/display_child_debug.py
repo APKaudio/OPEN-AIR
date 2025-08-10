@@ -1,9 +1,9 @@
 # display/display_child_debug.py
 #
 # This file defines the DebugTab, a Tkinter Frame that provides the application's
-# debug control settings. It includes checkboxes to manage various debug flags
-# and a button to clear the debug log file. This tab is designed to be a child
-# of the new TAB_DISPLAY_PARENT.
+# debug control settings. It includes checkboxes to manage various debug flags,
+# a button to clear the debug log file, and two ScrolledText widgets to display
+# the contents of the debug log files in real-time.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -16,24 +16,25 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.152700.3 (FIXED: Corrected the __init__ signature to match the new parent caller.)
+# Version 20250810.160100.5 (UPDATED: Restructured log display to use a vertical PanedWindow for stackable and resizable log viewers.)
 
-current_version = "20250810.152700.3" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250810 * 152700 * 3 # Example hash, adjust as needed
+current_version = "20250810.160100.5"
+current_version_hash = 20250810 * 160100 * 5 # Example hash, adjust as needed
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, scrolledtext
 import inspect
 import os
 
 # Import debug_log and the specific debug control functions from debug_logic
-from display.debug_logic import ( # CORRECTED: Import from src, not display
+from display.debug_logic import (
     debug_log,
     set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode,
     set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode,
-    clear_debug_log_file # Import the new clear log function
+    clear_debug_log_file,
+    DEBUG_FILE_PATH
 )
-from display.console_logic import console_log # CORRECTED: Import from src, not display
+from display.console_logic import console_log
 
 class DebugTab(ttk.Frame):
     """
@@ -42,7 +43,8 @@ class DebugTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, **kwargs):
         # This function description tells me what this function does
         # Initializes the DebugTab, creating a dedicated frame for debug control settings.
-        # It sets up checkboxes to manage various debug flags and a button to clear the debug log.
+        # It sets up checkboxes to manage various debug flags, a button to clear the debug log,
+        # and two ScrolledText widgets to display the contents of the debug log files.
         #
         # Inputs to this function
         #   master (tk.Widget): The parent widget, typically a ttk.Notebook.
@@ -60,10 +62,13 @@ class DebugTab(ttk.Frame):
 
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
+        self.polling_id = None
+        self.last_software_log_size = 0
+        self.last_visa_log_size = 0
 
         self._create_widgets()
         
-        debug_log(f"DebugTab initialized. The debug controls are ready for action!",
+        debug_log(f"DebugTab initialized. The debug controls and log viewers are ready for action!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -71,7 +76,8 @@ class DebugTab(ttk.Frame):
     def _create_widgets(self):
         # This function description tells me what this function does
         # Creates and arranges the widgets for the Debug tab.
-        # This includes checkboxes for various debug flags and a button to clear the debug log file.
+        # This includes checkboxes for various debug flags, a button to clear the debug log file,
+        # and two ScrolledText widgets to display the log file contents.
         #
         # Inputs to this function
         #   None.
@@ -86,6 +92,7 @@ class DebugTab(ttk.Frame):
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(5, weight=1)
 
         # General Debug Checkbox
         self.general_debug_checkbox = ttk.Checkbutton(self, text="Enable General Debug",
@@ -134,7 +141,36 @@ class DebugTab(ttk.Frame):
                                                  style='Red.TButton')
         self.clear_debug_log_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
-        debug_log(f"DebugTab widgets created.",
+        # Separator for visual distinction
+        ttk.Separator(self, orient=tk.HORIZONTAL).grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
+        
+        # PanedWindow for resizable log display windows
+        log_paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
+        log_paned_window.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        
+        # Frame for Software Log
+        software_log_frame = ttk.Frame(log_paned_window)
+        log_paned_window.add(software_log_frame, weight=1)
+        software_log_frame.grid_columnconfigure(0, weight=1)
+        software_log_frame.grid_rowconfigure(1, weight=1)
+
+        ttk.Label(software_log_frame, text="Software Debug Log", style='Dark.TLabel.Value').grid(row=0, column=0, sticky="ew", pady=(0, 2))
+        self.software_log_text = scrolledtext.ScrolledText(software_log_frame, wrap="word", height=10, bg="#2b2b2b", fg="#cccccc", insertbackground="white")
+        self.software_log_text.grid(row=1, column=0, sticky="nsew")
+        self.software_log_text.config(state=tk.DISABLED)
+
+        # Frame for VISA Log
+        visa_log_frame = ttk.Frame(log_paned_window)
+        log_paned_window.add(visa_log_frame, weight=1)
+        visa_log_frame.grid_columnconfigure(0, weight=1)
+        visa_log_frame.grid_rowconfigure(1, weight=1)
+
+        ttk.Label(visa_log_frame, text="VISA Commands Log", style='Dark.TLabel.Value').grid(row=0, column=0, sticky="ew", pady=(0, 2))
+        self.visa_log_text = scrolledtext.ScrolledText(visa_log_frame, wrap="word", height=10, bg="#2b2b2b", fg="#cccccc", insertbackground="white")
+        self.visa_log_text.grid(row=1, column=0, sticky="nsew")
+        self.visa_log_text.config(state=tk.DISABLED)
+
+        debug_log(f"DebugTab widgets created. Log viewers are a go!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -187,19 +223,118 @@ class DebugTab(ttk.Frame):
     def _clear_debug_log_file_action(self):
         """Action to clear the debug log file."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Attempting to clear debug log file: {self.app_instance.DEBUG_COMMANDS_FILE_PATH}",
+        debug_log(f"Attempting to clear debug log files.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        clear_debug_log_file(self.app_instance.DEBUG_COMMANDS_FILE_PATH)
-        console_log(f"Debug log file cleared.", function=current_function)
+        
+        # Determine log file paths based on app_instance variables
+        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
+        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+
+        clear_debug_log_file(software_log_path)
+        clear_debug_log_file(visa_log_path)
+        
+        console_log(f"Debug log files cleared. Fucking finally!", function=current_function)
+        
+        # Manually clear the display widgets to ensure they update immediately
+        self.software_log_text.config(state=tk.NORMAL)
+        self.software_log_text.delete("1.0", tk.END)
+        self.software_log_text.config(state=tk.DISABLED)
+        self.visa_log_text.config(state=tk.NORMAL)
+        self.visa_log_text.delete("1.0", tk.END)
+        self.visa_log_text.config(state=tk.DISABLED)
+        
+        self.last_software_log_size = 0
+        self.last_visa_log_size = 0
+
+
+    def _read_and_display_log(self, text_widget, file_path):
+        """Reads a file and displays its content in a scrolled text widget."""
+        current_function = inspect.currentframe().f_code.co_name
+        try:
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                text_widget.config(state=tk.NORMAL)
+                text_widget.delete("1.0", tk.END)
+                text_widget.insert(tk.END, content)
+                text_widget.config(state=tk.DISABLED)
+                text_widget.see(tk.END)
+        except Exception as e:
+            debug_log(f"ERROR: Failed to read log file {file_path}: {e}",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+
+    def _check_log_files(self):
+        """Checks for new content in the log files and updates the displays."""
+        current_function = inspect.currentframe().f_code.co_name
+        # Determine log file paths based on app_instance variables
+        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
+        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+
+        try:
+            if os.path.exists(software_log_path):
+                current_size = os.path.getsize(software_log_path)
+                if current_size != self.last_software_log_size:
+                    self.last_software_log_size = current_size
+                    self._read_and_display_log(self.software_log_text, software_log_path)
+            
+            if os.path.exists(visa_log_path):
+                current_size = os.path.getsize(visa_log_path)
+                if current_size != self.last_visa_log_size:
+                    self.last_visa_log_size = current_size
+                    self._read_and_display_log(self.visa_log_text, visa_log_path)
+        except Exception as e:
+            debug_log(f"ERROR: An error occurred while checking log files: {e}",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+        
+        self.polling_id = self.after(500, self._check_log_files)
 
     def _on_tab_selected(self, event):
-        """
-        No specific action needed for this tab on selection.
-        """
+        # This function description tells me what this function does
+        # Placeholder for actions to be taken when the Debug tab is selected.
+        # Starts log monitoring when the tab becomes active.
+        #
+        # Inputs to this function
+        #   event (tkinter.Event): The event object.
+        #
+        # Outputs of this function
+        #   None.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"DebugTab selected. No specific refresh action needed.",
+        debug_log(f"DebugTab selected. Initializing log monitoring.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+        
+        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
+        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+        
+        self._read_and_display_log(self.software_log_text, software_log_path)
+        self._read_and_display_log(self.visa_log_text, visa_log_path)
+        
+        self._start_log_monitoring()
+
+    def _start_log_monitoring(self):
+        """Starts the periodic check of log files."""
+        current_function = inspect.currentframe().f_code.co_name
+        if not self.polling_id:
+            self.polling_id = self.after(500, self._check_log_files)
+            debug_log(f"Log file monitoring started. �",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)
+    
+    def _stop_log_monitoring(self):
+        """Stops the periodic check of log files."""
+        current_function = inspect.currentframe().f_code.co_name
+        if self.polling_id:
+            self.after_cancel(self.polling_id)
+            self.polling_id = None
+            debug_log(f"Log file monitoring stopped. Phew.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=current_function)

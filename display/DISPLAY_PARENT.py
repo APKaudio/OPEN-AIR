@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.152700.1 (FIXED: Corrected the constructor call for child tabs to match their new signatures.)
+# Version 20250810.155200.2 (UPDATED: Added a new child tab for Scan Monitoring and placed it first.)
 
-current_version = "20250810.152700.1"
-current_version_hash = 20250810 * 152700 * 1 # Example hash, adjust as needed
+current_version = "20250810.155200.2"
+current_version_hash = 20250810 * 155200 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk
@@ -28,6 +28,7 @@ import os
 # Import the child tabs that will be created next
 from display.display_child_console import ConsoleTab
 from display.display_child_debug import DebugTab
+from display.display_child_scan_monitor import ScanMonitorTab # NEW: Import the new scan monitor tab
 
 # Import logging functions for debugging
 from display.debug_logic import debug_log
@@ -71,6 +72,10 @@ class TAB_DISPLAY_PARENT(ttk.Frame):
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Display.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
+
+        # NEW: Create and add the Scan Monitor tab first
+        self.scan_monitor_tab = ScanMonitorTab(self.child_notebook, self.app_instance)
+        self.child_notebook.add(self.scan_monitor_tab, text="Monitor")
 
         # CORRECTED: No longer passing console_print_func to child tabs
         self.console_tab = ConsoleTab(self.child_notebook, self.app_instance)
