@@ -3,7 +3,10 @@
 # This file defines the VisaInterpreterTab, a Tkinter Frame that provides a user-editable
 # cell editor for VISA commands. It displays model names, command types, actions, and the
 # commands themselves, allowing users to modify, add, or remove entries, and execute
-# selected commands directly on a connected instrument.
+# selected commands directly on a connected instrument. The layout and data handling have
+# been updated to include a 'Manufacturer' column, as well as new functionality for column
+# sorting and dynamic resizing. The file is also updated to save to the CSV after a
+# 'YAK' response.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -16,16 +19,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.141400.2 (REFACTORED: Moved the default VISA command array to ref/ref_visa_commands.py to consolidate data and logic, and updated this file to import from the new module.)
+# Version 20250811.153300.0 (RENOVATED: Implemented dynamic column resizing, column sorting by header click, and auto-saving the CSV after each 'YAK' command.)
 
-current_version = "20250811.141400.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250811 * 141400 * 2 # Example hash, adjust as needed
+current_version = "20250811.153300.0"
+current_version_hash = 20250811 * 153300 * 0
 
 import tkinter as tk
 from tkinter import ttk, filedialog
 import csv
 import os
-import inspect # Import inspect module for debug_log
+import inspect
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
@@ -77,6 +80,7 @@ class VisaInterpreterTab(ttk.Frame):
         # Tkinter variable for the model selection dropdown (for filtering/defaulting new rows)
         self.selected_model = tk.StringVar(self)
         self.selected_model.set("N9340B") # Default value for the dropdown filter
+        self.sort_direction = {}  # Dictionary to hold the sort direction for each column
 
         self._create_widgets()
         self._load_data() # Load existing data when the tab is initialized
@@ -128,33 +132,24 @@ class VisaInterpreterTab(ttk.Frame):
         model_frame.grid_columnconfigure(1, weight=1) # Allow dropdown to expand
 
         ttk.Label(model_frame, text="Select Instrument Model:", style='TLabel').grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        model_options = ["N9340B", "Agilent/Keysight", "Rohde & Schwarz"] # Added N9340B as a specific option
+        model_options = ["Agilent/Keysight", "N9340B", "N9342CN", "Rohde & Schwarz"] # Added N9340B as a specific option
         self.model_dropdown = ttk.OptionMenu(model_frame, self.selected_model, self.selected_model.get(), *model_options)
         self.model_dropdown.config(width=25)
         self.model_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
 
         # Treeview for displaying and editing commands - Moved to row 2
-        # Updated columns to include "Model" at the beginning
-        columns = ("Model", "Command Type", "Action", "VISA Command", "Variable", "Validated")
+        # Updated columns to include "Manufacturer" and "Model" at the beginning
+        columns = ("Manufacturer", "Model", "Command Type", "Action", "VISA Command", "Variable", "Validated")
         self.tree = ttk.Treeview(self, columns=columns, show="headings", style='Treeview')
         self.tree.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
+        
+        # Configure column headings with sorting functionality
+        for col in columns:
+            self.tree.heading(col, text=col, anchor=tk.W, command=lambda _col=col: self._sort_treeview_column(self.tree, _col))
+            self.tree.column(col, anchor=tk.W, stretch=tk.TRUE)
+            self.sort_direction[col] = 'asc' # Initialize sort direction
 
-        # Configure column headings
-        self.tree.heading("Model", text="Model", anchor=tk.W) # New heading for Model
-        self.tree.heading("Command Type", text="Command Type", anchor=tk.W)
-        self.tree.heading("Action", text="Action", anchor=tk.W)
-        self.tree.heading("VISA Command", text="VISA Command", anchor=tk.W)
-        self.tree.heading("Variable", text="Variable", anchor=tk.W)
-        self.tree.heading("Validated", text="Validated", anchor=tk.W)
-
-        # Configure column widths (adjust as needed)
-        self.tree.column("Model", width=100, minwidth=80, stretch=False) # Fixed width for Model
-        self.tree.column("Command Type", width=120, minwidth=100, stretch=False)
-        self.tree.column("Action", width=80, minwidth=60, stretch=False)
-        self.tree.column("VISA Command", width=250, minwidth=150, stretch=True)
-        self.tree.column("Variable", width=100, minwidth=80, stretch=True)
-        self.tree.column("Validated", width=80, minwidth=60, stretch=False)
 
         # Scrollbars
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
@@ -210,19 +205,35 @@ class VisaInterpreterTab(ttk.Frame):
             return
 
         values = self.tree.item(selected_item, 'values')
-        # Columns: (Model, Command Type, Action, VISA Command, Variable, Validated)
-        action_type = values[2] # "Action" column
-        visa_command = values[3] # "VISA Command" column
-        variable_value = values[4] # "Variable" column
+        # Columns: (Manufacturer, Model, Command Type, Action, VISA Command, Variable, Validated)
+        action_type = values[3] # "Action" column
+        visa_command = values[4] # "VISA Command" column
+        variable_value = values[5] # "Variable" column
 
         # Call the new utility function to execute the VISA command
-        execute_visa_command(
+        response = execute_visa_command(
             self.app_instance.inst,
             action_type,
             visa_command,
             variable_value,
             self.console_print_func
         )
+
+        # Check if the command was a GET and a response was received
+        if action_type == "GET" and response is not None:
+            # Update the 'Validated' column with the response
+            current_values = list(values)
+            validated_column_index = 6
+            current_values[validated_column_index] = response
+            self.tree.item(selected_item, values=current_values)
+            self.console_print_func(f"✅ Table updated: Validated column now shows '{response}'.")
+            debug_log(f"Table updated for item {selected_item}. Validated column now shows '{response}'. Fucking brilliant!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+
+        # NEW: Automatically save the data after a YAK command is executed
+        self._save_data()
 
 
     def _load_data(self):
@@ -297,6 +308,8 @@ class VisaInterpreterTab(ttk.Frame):
 
         for row in commands_to_load:
             self.tree.insert("", "end", values=row)
+
+        self._resize_columns_to_fit_content()
         debug_log(f"Displayed {len(commands_to_load)} commands in Treeview. Let's see if they work!",
                     file=__file__,
                     version=current_version,
@@ -326,8 +339,8 @@ class VisaInterpreterTab(ttk.Frame):
         try:
             with open(self.data_file, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
-                # Updated header to include 'Model'
-                writer.writerow(["Model", "Command Type", "Action", "VISA Command", "Variable", "Validated"])
+                # Updated header to include 'Manufacturer' and 'Model'
+                writer.writerow(["Manufacturer", "Model", "Command Type", "Action", "VISA Command", "Variable", "Validated"])
                 writer.writerows(data_to_save)
             self.console_print_func(f"✅ Saved {len(data_to_save)} commands to {os.path.basename(self.data_file)}.")
             debug_log(f"Saved {len(data_to_save)} commands to {self.data_file}. Fucking brilliant!",
@@ -346,8 +359,8 @@ class VisaInterpreterTab(ttk.Frame):
         Adds a new empty row to the Treeview with default values.
         """
         current_function = inspect.currentframe().f_code.co_name
-        # New rows will have default model ("N9340B"), "General" type, "SET" action, empty command, empty variable
-        self.tree.insert("", "end", values=("N9340B", "General", "SET", "", "", ""))
+        # New rows will have default manufacturer, model, "General" type, "SET" action, empty command, empty variable
+        self.tree.insert("", "end", values=("Agilent/Keysight", "N9340B", "General", "SET", "", "", ""))
         self.console_print_func("✅ Added a new empty row.")
         debug_log("Added new row. Another one bites the dust!",
                     file=__file__,
@@ -439,12 +452,11 @@ class VisaInterpreterTab(ttk.Frame):
             current_values = list(self.tree.item(item, 'values'))
             current_values[col_idx] = new_value
 
-            # If the edited column is the VISA Command column (index 3), update the Action (index 2)
-            # The "Command Type" column (index 1) should NOT be updated here.
-            if col_idx == 3: # This is the "VISA Command" column
+            # If the edited column is the VISA Command column (index 4), update the Action (index 3)
+            if col_idx == 4: # This is the "VISA Command" column
                 visa_command = new_value
                 action_type = "GET" if visa_command.strip().endswith("?") else ("DO" if visa_command.strip() in ["*RST", ":SYSTem:DISPlay:UPDate"] else "SET")
-                current_values[2] = action_type # Update the 'Action' column
+                current_values[3] = action_type # Update the 'Action' column
 
             self.tree.item(item, values=current_values)
             self.editor.destroy()
@@ -454,6 +466,11 @@ class VisaInterpreterTab(ttk.Frame):
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            
+            # Since the user might have edited the data, save the changes.
+            self._save_data()
+            self._resize_columns_to_fit_content()
+
 
     def _on_enter_edit(self, event):
         """Handles Enter key press to save and destroy editor."""
@@ -505,3 +522,94 @@ class VisaInterpreterTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         self._load_data() # Reload data to ensure it's up-to-date
+
+    def _resize_columns_to_fit_content(self):
+        """
+        Dynamically adjusts the width of each Treeview column to fit the content.
+        This is a fucking useful function that prevents text from being cut off.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log("Resizing Treeview columns to fit content. What a goddamn good idea!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+        columns = self.tree["columns"]
+        for col in columns:
+            max_width = self.tree.column(col, "width") # Use current width as a minimum
+            heading_text = self.tree.heading(col, "text")
+            heading_width = tk.font.Font().measure(heading_text) + 15 # Add some padding
+
+            for item in self.tree.get_children():
+                # Get the value for the specific column
+                col_index = columns.index(col)
+                value = self.tree.item(item, "values")[col_index]
+                item_width = tk.font.Font().measure(value) + 15
+
+                max_width = max(max_width, heading_width, item_width)
+
+            self.tree.column(col, width=max_width, stretch=tk.FALSE)
+            debug_log(f"Column '{col}' resized to width {max_width}.",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+
+        # After resizing, force a redraw to prevent weird visual glitches
+        self.tree.update_idletasks()
+
+    def _sort_treeview_column(self, tv, col):
+        """
+        Sorts the Treeview by a given column.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Sorting Treeview by column '{col}'. Let's get this organized!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        
+        # Get all children (rows) from the Treeview
+        items = list(tv.get_children(''))
+
+        # Get the index of the column to sort
+        col_index = tv['columns'].index(col)
+
+        # Determine if the column contains numeric data
+        is_numeric = False
+        if items:
+            try:
+                # Try converting the value of the first item to a number
+                float(tv.item(items[0], 'values')[col_index])
+                is_numeric = True
+            except (ValueError, IndexError):
+                is_numeric = False
+
+        # Get the current sort direction for this column
+        direction = self.sort_direction.get(col, 'asc')
+        reverse = (direction == 'desc')
+
+        # Sort the items
+        sorted_items = sorted(items, key=lambda x: tv.set(x, col), reverse=reverse)
+
+        # If numeric, sort numerically
+        if is_numeric:
+            def numeric_sort_key(x):
+                try:
+                    return float(tv.set(x, col))
+                except (ValueError, IndexError):
+                    return float('-inf') # Place non-numeric values at the bottom
+            sorted_items = sorted(items, key=numeric_sort_key, reverse=reverse)
+        else:
+            sorted_items = sorted(items, key=lambda x: tv.set(x, col), reverse=reverse)
+
+        # Re-insert the items in sorted order
+        for index, item in enumerate(sorted_items):
+            tv.move(item, '', index)
+
+        # Update the sort direction for the next click
+        self.sort_direction[col] = 'asc' if reverse else 'desc'
+        
+        tv.heading(col, text=f"{col} ({'▲' if not reverse else '▼'})")
+        debug_log(f"Treeview sorted by '{col}' in {'descending' if reverse else 'ascending'} order. Fucking marvelous!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)

@@ -31,7 +31,7 @@ DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
 CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
 PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'presets.csv')
 MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
-VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.csv') # CORRECTED: Changed to .csv
 DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
 
 
