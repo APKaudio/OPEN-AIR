@@ -58,8 +58,8 @@ DEFAULT_CONFIG = {
         'high_sensitivity': 'False',
     },
     'MarkerTabDefaults': {
-        'span': '1000000.0',
-        'rbw': '1000000.0',
+        'span': '1000000',
+        'rbw': '1000000',
         'trace_live': 'True',
         'trace_max_hold': 'True',
         'trace_min_hold': 'True',

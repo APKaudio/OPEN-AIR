@@ -13,13 +13,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250803.231500.0 (FIXED: Applied new 'ControlButton' styles and updated POKE button style.)
-# Version 20250803.232501.0 (FIXED: Justification of device buttons. Switched to new 'DeviceButton' style.)
-# Version 20250803.230015.1 (FIXED: Span button text now multi-line. Device buttons now properly fill horizontal space.)
-# Version 20250803.225305.1 (CHANGED: Replaced control radio/check buttons with styled buttons. Adjusted tree logic for empty groups.)
+# Version 20250810.220100.21 (FIXED: The _update_control_styles function now uses a robust comparison to correctly update button styles for numeric variables.)
 
-current_version = "20250803.231500.0" 
-current_version_hash = (20250803 * 231500 * 0 + 2039482) # Example hash
+current_version = "20250810.220100.21" 
+current_version_hash = (20250810 * 220100 * 21) # Example hash
 
 import tkinter as tk
 from tkinter import ttk 
@@ -32,7 +29,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log 
 from ref.frequency_bands import MHZ_TO_HZ 
 from src.program_style import COLOR_PALETTE
-
+from src.settings_and_config.config_manager import save_config
 
 class MarkersDisplayTab(ttk.Frame):
     """
@@ -47,12 +44,13 @@ class MarkersDisplayTab(ttk.Frame):
         self.selected_device_unique_id = None
         
         # --- State Variables for Controls ---
-        self.span_var = tk.StringVar()
-        self.rbw_var = tk.StringVar()
-        self.poke_freq_var = tk.StringVar()
-        self.trace_live_mode = tk.BooleanVar(value=True)
-        self.trace_max_hold_mode = tk.BooleanVar(value=False)
-        self.trace_min_hold_mode = tk.BooleanVar(value=False)
+        # These now reference the main app's variables, ensuring persistence.
+        self.span_var = self.app_instance.span_var
+        self.rbw_var = self.app_instance.rbw_var
+        self.poke_freq_var = tk.StringVar() # This is a temporary variable, no need to link to config
+        self.trace_live_mode = self.app_instance.trace_live_var
+        self.trace_max_hold_mode = self.app_instance.trace_max_hold_var
+        self.trace_min_hold_mode = self.app_instance.trace_min_hold_var
         
         # --- Dictionaries to hold control buttons for styling ---
         self.span_buttons = {}
@@ -135,7 +133,9 @@ class MarkersDisplayTab(ttk.Frame):
         rbw_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
         self.controls_notebook.add(rbw_tab, text="RBW")
         for i, (name, rbw_hz) in enumerate(RBW_OPTIONS.items()):
-            btn = ttk.Button(rbw_tab, text=name, command=lambda r=rbw_hz: self._on_rbw_button_click(r))
+            # NEW: Create a multi-line button text
+            btn_text = f"{name}\n{rbw_hz / 1000:.0f} kHz"
+            btn = ttk.Button(rbw_tab, text=btn_text, command=lambda r=rbw_hz: self._on_rbw_button_click(r))
             btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
             self.rbw_buttons[str(rbw_hz)] = btn
             rbw_tab.grid_columnconfigure(i, weight=1)
@@ -180,15 +180,17 @@ class MarkersDisplayTab(ttk.Frame):
     def _update_control_styles(self):
         """Updates the style of control buttons to reflect the current state."""
         # Update Span Buttons
-        current_span = self.span_var.get()
+        current_span_str = self.span_var.get()
         for span_val, button in self.span_buttons.items():
-            style = 'ControlButton.Active.TButton' if span_val == current_span else 'ControlButton.Inactive.TButton'
+            # Robust comparison by converting both to float before comparing strings
+            style = 'ControlButton.Active.TButton' if float(span_val) == float(current_span_str) else 'ControlButton.Inactive.TButton'
             button.configure(style=style)
 
         # Update RBW Buttons
-        current_rbw = self.rbw_var.get()
+        current_rbw_str = self.rbw_var.get()
         for rbw_val, button in self.rbw_buttons.items():
-            style = 'ControlButton.Active.TButton' if rbw_val == current_rbw else 'ControlButton.Inactive.TButton'
+            # Robust comparison by converting both to float before comparing strings
+            style = 'ControlButton.Active.TButton' if float(rbw_val) == float(current_rbw_str) else 'ControlButton.Inactive.TButton'
             button.configure(style=style)
 
         # Update Trace Buttons
@@ -315,6 +317,8 @@ class MarkersDisplayTab(ttk.Frame):
             try:
                 set_span_logic(self.app_instance.inst, span_hz, console_log)
             except (ValueError, TypeError): pass
+        # NEW LOGIC: Save the config after a user action.
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_rbw_button_click(self, rbw_hz):
         self.rbw_var.set(str(rbw_hz))
@@ -323,12 +327,16 @@ class MarkersDisplayTab(ttk.Frame):
             try:
                 set_rbw_logic(self.app_instance.inst, rbw_hz, console_log)
             except (ValueError, TypeError): pass
+        # NEW LOGIC: Save the config after a user action.
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_trace_button_click(self, trace_var):
         trace_var.set(not trace_var.get()) # Toggle the value
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+        # NEW LOGIC: Save the config after a user action.
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_poke_action(self):
         if self.app_instance and self.app_instance.inst:

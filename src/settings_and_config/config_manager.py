@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.4 (FIXED: Corrected load_config signature to match calling code, fixed save_config loop for new setting_var_map, and removed redundant version from debug logs.)
+# Version 20250810.220100.20 (FIXED: The save_config function now removes the trailing decimal from integer-like float values for cleaner config files.)
 
-current_version = "20250810.220100.4"
-current_version_hash = 20250810 * 220100 * 4 # Example hash, adjust as needed
+current_version = "20250810.220100.20"
+current_version_hash = 20250810 * 220100 * 20 # Example hash, adjust as needed
 
 import configparser
 import os
@@ -140,7 +140,6 @@ def save_config(config, file_path, console_print_func, app_instance):
 
         # --- Update settings from the setting_var_map ---
         if hasattr(app_instance, 'setting_var_map'):
-            # CORRECTED: The loop now unpacks the dictionary correctly
             for key, var_info in app_instance.setting_var_map.items():
                 if key in EXPLICITLY_HANDLED_KEYS:
                     debug_log(f"Skipping setting '{var_info['section']}/{key}' from setting_var_map as it's handled explicitly.",
@@ -152,7 +151,14 @@ def save_config(config, file_path, console_print_func, app_instance):
                 if not config.has_section(var_info['section']):
                     config.add_section(var_info['section'])
                 
-                config_value = str(var_info['var'].get())
+                # NEW LOGIC: Check if the value is a float that is a whole number.
+                # If so, save it as an integer string to remove the decimal point.
+                value_to_save = var_info['var'].get()
+                if isinstance(value_to_save, float) and value_to_save.is_integer():
+                    config_value = str(int(value_to_save))
+                else:
+                    config_value = str(value_to_save)
+                
                 config.set(var_info['section'], key, config_value)
                 debug_log(f"Config object: Set '{var_info['section']}/{key}' to '{config_value}'.",
                             file=os.path.basename(__file__),

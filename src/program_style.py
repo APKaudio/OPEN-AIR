@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.170100.1 (ADDED: New styles for multi-state band selection buttons.)
+# Version 20250810.220100.15 (FIXED: Added missing styles for control buttons in the Markers tab to enable orange active/inactive colors.)
 
-current_version = "20250810.170100.1"
-current_version_hash = 20250810 * 170100 * 1 # Example hash, adjust as needed
+current_version = "20250810.220100.15"
+current_version_hash = 20250810 * 220100 * 15 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -87,7 +87,7 @@ def apply_styles(style, debug_log_func, current_app_version):
             style.layout('Dark.TLabel.Value', tlabel_layout)
             style.layout('Red.TLabel.Value', tlabel_layout)
     except TclError as e:
-        debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=__file__, version=current_app_version, function="apply_styles")
+        debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=os.path.basename(__file__), version=current_app_version, function="apply_styles")
 
     style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 9, 'bold'))
     style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
@@ -131,6 +131,27 @@ def apply_styles(style, debug_log_func, current_app_version):
                     anchor='center',
                     justify='center')
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
+
+    # --- Styles for Control Buttons (Markers Tab) ---
+    style.configure('ControlButton.Inactive.TButton',
+                    background=COLOR_PALETTE['grey_btn'],
+                    foreground=COLOR_PALETTE['foreground'],
+                    font=('Helvetica', 10),
+                    padding=5,
+                    anchor='center',
+                    justify='center')
+    style.map('ControlButton.Inactive.TButton',
+              background=[('active', COLOR_PALETTE['grey_btn_active'])])
+    
+    style.configure('ControlButton.Active.TButton',
+                    background=COLOR_PALETTE['orange_btn'],
+                    foreground=COLOR_PALETTE['black'],
+                    font=('Helvetica', 10, 'bold'),
+                    padding=5,
+                    anchor='center',
+                    justify='center')
+    style.map('ControlButton.Active.TButton',
+              background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
     # --- Styles for Band Selection Buttons (Scanning Tab) ---
     # Unselected
@@ -214,7 +235,7 @@ def apply_styles(style, debug_log_func, current_app_version):
                     focusthickness=0)
     style.map('SelectedPreset.Orange.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active'])],
-              foreground=[('active', 'black')]) # Keep black on hover
+              foreground=[('active', 'black')])
 
     # --- Scan Control Buttons (Start, Pause, Stop) ---
     style.configure('StartScan.TButton',
