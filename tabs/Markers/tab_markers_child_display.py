@@ -13,37 +13,49 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.220100.32 (FIXED: Corrected the call to get_marker_traces to pass the proper app_instance object, fixing the AttributeError.)
+# Version 20250811.130322.1 (FIXED: Plot titles now reflect the selected device name and are more concise.)
 
-current_version = "20250810.220100.32" 
-current_version_hash = (20250810 * 220100 * 32) # Example hash
+current_version = "20250811.130322.1"
+current_version_hash = (20250811 * 130322 * 1 + hash(open(__file__, "r").read()))
 
 import tkinter as tk
-from tkinter import ttk 
+from tkinter import ttk
 import os
 import csv
 import inspect
 
 from tabs.Markers.utils_markers import SPAN_OPTIONS, RBW_OPTIONS, set_span_logic, set_frequency_logic, set_trace_modes_logic, set_marker_logic, set_rbw_logic
-from display.debug_logic import debug_log 
-from display.console_logic import console_log 
-from ref.frequency_bands import MHZ_TO_HZ 
+from display.debug_logic import debug_log
+from display.console_logic import console_log
+from ref.frequency_bands import MHZ_TO_HZ
 from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
-from tabs.Markers.utils_markers_get_traces import get_marker_traces # NEW: Import the new function
+from tabs.Markers.utils_markers_get_traces import get_marker_traces
 
 class MarkersDisplayTab(ttk.Frame):
     """
     A Tkinter Frame that displays extracted frequency markers and provides instrument control.
     """
     def __init__(self, master=None, headers=None, rows=None, app_instance=None, **kwargs):
+        # Function Description:
+        # Initializes the MarkersDisplayTab.
+        #
+        # Inputs:
+        #   master (tk.Widget): The parent widget.
+        #   headers (list): Headers for the marker data.
+        #   rows (list): Rows of marker data.
+        #   app_instance (object): Reference to the main application instance.
+        #
+        # Outputs:
+        #   None. Initializes the Tkinter frame and its state.
         super().__init__(master, **kwargs)
         self.headers = headers if headers is not None else []
-        self.rows = rows if rows is not None else [] 
-        self.app_instance = app_instance 
+        self.rows = rows if rows is not None else []
+        self.app_instance = app_instance
 
         self.selected_device_unique_id = None
-        
+        self.selected_device_name = None # NEW: Store the name of the selected device
+
         # --- State Variables for Controls ---
         # These now reference the main app's variables, ensuring persistence.
         self.span_var = self.app_instance.span_var
@@ -52,7 +64,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_live_mode = self.app_instance.trace_live_var
         self.trace_max_hold_mode = self.app_instance.trace_max_hold_var
         self.trace_min_hold_mode = self.app_instance.trace_min_hold_var
-        
+
         # --- Dictionaries to hold control buttons for styling ---
         self.span_buttons = {}
         self.rbw_buttons = {}
@@ -63,9 +75,14 @@ class MarkersDisplayTab(ttk.Frame):
         self.after(150, self._update_control_styles) # Initial style update
 
     def _create_widgets(self):
-        """
-        Creates the widgets for the Markers Display tab.
-        """
+        # Function Description:
+        # Creates the widgets for the Markers Display tab.
+        #
+        # Inputs:
+        #   None.
+        #
+        # Outputs:
+        #   None. Populates the tab with GUI elements.
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
@@ -101,18 +118,18 @@ class MarkersDisplayTab(ttk.Frame):
         canvas = tk.Canvas(self.buttons_frame, bg=COLOR_PALETTE['background'], highlightthickness=0)
         scrollbar = ttk.Scrollbar(self.buttons_frame, orient="vertical", command=canvas.yview)
         self.inner_buttons_frame = ttk.Frame(canvas, style='Dark.TFrame')
-        
+
         self.button_frame_window = canvas.create_window((0, 0), window=self.inner_buttons_frame, anchor="nw")
 
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
-        
+
         self.inner_buttons_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.bind('<Configure>', self._on_canvas_configure) # Make frame fill canvas width
         canvas.bind('<Enter>', lambda e: canvas.bind_all("<MouseWheel>", lambda event: canvas.yview_scroll(int(-1*(event.delta/120)), "units")))
         canvas.bind('<Leave>', lambda e: canvas.unbind_all("<MouseWheel>"))
-        
+
         # --- Controls Notebook (Bottom Right) ---
         self.controls_notebook = ttk.Notebook(right_pane_frame, style='Markers.Child.TNotebook')
         self.controls_notebook.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
@@ -123,10 +140,10 @@ class MarkersDisplayTab(ttk.Frame):
         for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
             val_text = self._format_hz(span_hz)
             btn_text = f"{name}\n{val_text}"
-            
+
             btn = ttk.Button(span_tab, text=btn_text, command=lambda s=span_hz: self._on_span_button_click(s))
             btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
-            
+
             self.span_buttons[str(span_hz)] = btn
             span_tab.grid_columnconfigure(i, weight=1)
 
@@ -160,12 +177,14 @@ class MarkersDisplayTab(ttk.Frame):
         ttk.Button(poke_tab, text="POKE", command=self._on_poke_action, style='DeviceButton.Active.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
     def _on_canvas_configure(self, event):
-        """Ensures the inner frame width matches the canvas width."""
+        # Function Description:
+        # Ensures the inner frame width matches the canvas width.
         canvas = event.widget
         canvas.itemconfig(self.button_frame_window, width=event.width)
 
     def _format_hz(self, hz_val):
-        """Formats a frequency in Hz to a human-readable string in MHz or kHz."""
+        # Function Description:
+        # Formats a frequency in Hz to a human-readable string in MHz or kHz.
         try:
             hz = float(hz_val)
             if hz == 100 * MHZ_TO_HZ: return "100 MHz" # Special case for Ultra Wide text
@@ -179,8 +198,8 @@ class MarkersDisplayTab(ttk.Frame):
             return "N/A"
 
     def _update_control_styles(self):
-        """Updates the style of control buttons to reflect the current state."""
-        # Update Span Buttons
+        # Function Description:
+        # Updates the style of control buttons to reflect the current state.
         current_span_str = self.span_var.get()
         for span_val, button in self.span_buttons.items():
             # Robust comparison by converting both to float before comparing strings
@@ -200,9 +219,8 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_buttons['Min Hold'].configure(style='ControlButton.Active.TButton' if self.trace_min_hold_mode.get() else 'ControlButton.Inactive.TButton')
 
     def _populate_zone_group_tree(self):
-        """
-        Populates the zone/group tree view. Devices with no group appear under the zone root.
-        """
+        # Function Description:
+        # Populates the zone/group tree view. Devices with no group appear under the zone root.
         self.zone_group_tree.delete(*self.zone_group_tree.get_children())
         nested_data = {}
         for row in self.rows:
@@ -219,6 +237,8 @@ class MarkersDisplayTab(ttk.Frame):
                     self.zone_group_tree.insert(zone_id, "end", text=group, open=True)
 
     def _on_tree_select(self, event):
+        # Function Description:
+        # Handles the selection of a tree item.
         selected_item = self.zone_group_tree.selection()
         if not selected_item: return
         item = selected_item[0]
@@ -236,6 +256,8 @@ class MarkersDisplayTab(ttk.Frame):
         self._populate_device_buttons(devices)
 
     def _populate_device_buttons(self, devices):
+        # Function Description:
+        # Populates the device buttons frame.
         for widget in self.inner_buttons_frame.winfo_children():
             widget.destroy()
         if not devices:
@@ -255,26 +277,32 @@ class MarkersDisplayTab(ttk.Frame):
             btn.grid(row=i // num_columns, column=i % num_columns, padx=5, pady=5, sticky="ew")
 
     def _on_device_button_click(self, device_data):
+        # Function Description:
+        # Handles a device button click.
         freq_mhz = device_data.get('FREQ', 'N/A')
-        self.selected_device_unique_id = f"{device_data.get('NAME', '')}-{freq_mhz}"
+        device_name = device_data.get('NAME', 'N/A') # NEW: Get the device name
+        self.selected_device_unique_id = f"{device_name}-{freq_mhz}" # Using device_name for the ID
+        self.selected_device_name = device_name # NEW: Store the device name
         self.poke_freq_var.set(str(freq_mhz))
-        
+
         self.controls_notebook.select(0) # Revert to Span tab
-        
+
         self._populate_device_buttons(self.get_current_displayed_devices())
-        
+
         if self.app_instance and self.app_instance.inst:
             try:
                 freq_hz = float(freq_mhz) * MHZ_TO_HZ
                 set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, device_data.get('NAME', ''), console_log)
+                set_marker_logic(self.app_instance.inst, freq_hz, device_name, console_log) # Using device name
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
-        
-        # NEW LOGIC: Corrected to pass the correct app instance
-        self.after(5000, lambda: get_marker_traces(self.app_instance, console_log))
+
+        # NEW LOGIC: Corrected to pass the correct app instance and device name
+        self.after(5000, lambda: get_marker_traces(self.app_instance, console_log, self.selected_device_name))
 
     def get_current_displayed_devices(self):
+        # Function Description:
+        # Returns a list of devices currently displayed.
         selected_item = self.zone_group_tree.selection()
         if not selected_item: return []
         item = selected_item[0]
@@ -292,6 +320,8 @@ class MarkersDisplayTab(ttk.Frame):
         return devices
 
     def update_marker_data(self, new_headers, new_rows):
+        # Function Description:
+        # Updates the marker data and repopulates the tree view.
         self.headers = new_headers if new_headers is not None else []
         self.rows = new_rows if new_rows is not None else []
         self._populate_zone_group_tree()
@@ -302,6 +332,8 @@ class MarkersDisplayTab(ttk.Frame):
             self._on_tree_select(None)
 
     def load_markers_from_file(self):
+        # Function Description:
+        # Loads marker data from a file.
         if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
             path = self.app_instance.MARKERS_FILE_PATH
             if os.path.exists(path):
@@ -315,6 +347,8 @@ class MarkersDisplayTab(ttk.Frame):
             else: self.update_marker_data([], [])
 
     def _on_span_button_click(self, span_hz):
+        # Function Description:
+        # Handles a span button click.
         self.span_var.set(str(span_hz))
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
@@ -325,6 +359,8 @@ class MarkersDisplayTab(ttk.Frame):
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_rbw_button_click(self, rbw_hz):
+        # Function Description:
+        # Handles an RBW button click.
         self.rbw_var.set(str(rbw_hz))
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
@@ -335,6 +371,8 @@ class MarkersDisplayTab(ttk.Frame):
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_trace_button_click(self, trace_var):
+        # Function Description:
+        # Handles a trace button click.
         trace_var.set(not trace_var.get()) # Toggle the value
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
@@ -343,6 +381,8 @@ class MarkersDisplayTab(ttk.Frame):
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_poke_action(self):
+        # Function Description:
+        # Handles the Poke button action.
         if self.app_instance and self.app_instance.inst:
             try:
                 freq_mhz = self.poke_freq_var.get()
@@ -350,9 +390,12 @@ class MarkersDisplayTab(ttk.Frame):
                 set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
                 set_marker_logic(self.app_instance.inst, freq_hz, f"Poke {freq_mhz} MHz", console_log)
                 self.selected_device_unique_id = None # Deselect device button
+                self.selected_device_name = None # NEW: Clear the selected device name
                 self._populate_device_buttons(self.get_current_displayed_devices())
             except (ValueError, TypeError) as e:
                 console_log(f"Invalid POKE frequency: {e}")
 
     def _on_tab_selected(self, event):
+        # Function Description:
+        # Handles the tab selection event.
         self.load_markers_from_file()

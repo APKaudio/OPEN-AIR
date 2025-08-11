@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220500.36 (REFACTORED: The plot layout was redesigned to use a ttk.PanedWindow and individually declared plots to allow for resizable sashes between them.)
+# Version 20250811.130322.1 (REFACTORED: The plot layout was redesigned to use a ttk.PanedWindow and individually declared plots to allow for resizable sashes between them.)
 
-current_version = "20250810.220500.36"
-current_version_hash = 20250810 * 220500 * 36
+current_version = "20250811.130322.1"
+current_version_hash = 20250811 * 130322 * 1 + hash(open(__file__, "r").read())
 
 import tkinter as tk
 from tkinter import ttk
@@ -103,7 +103,7 @@ class ScanMonitorTab(ttk.Frame):
         ax_top.spines['top'].set_color('white')
         ax_top.spines['left'].set_color('white')
         ax_top.spines['right'].set_color('white')
-        ax_top.set_title("Plot 1 Placeholder", color='white')
+        ax_top.set_title("Live", color='white') # UPDATED: Shorter title
         canvas_top = FigureCanvasTkAgg(figure_top, master=top_plot_frame)
         canvas_widget_top = canvas_top.get_tk_widget()
         canvas_widget_top.grid(row=0, column=0, sticky="nsew")
@@ -122,7 +122,7 @@ class ScanMonitorTab(ttk.Frame):
         ax_middle.spines['top'].set_color('white')
         ax_middle.spines['left'].set_color('white')
         ax_middle.spines['right'].set_color('white')
-        ax_middle.set_title("Plot 2 Placeholder", color='white')
+        ax_middle.set_title("Max Hold", color='white') # UPDATED: Shorter title
         canvas_middle = FigureCanvasTkAgg(figure_middle, master=middle_plot_frame)
         canvas_widget_middle = canvas_middle.get_tk_widget()
         canvas_widget_middle.grid(row=0, column=0, sticky="nsew")
@@ -141,7 +141,7 @@ class ScanMonitorTab(ttk.Frame):
         ax_bottom.spines['top'].set_color('white')
         ax_bottom.spines['left'].set_color('white')
         ax_bottom.spines['right'].set_color('white')
-        ax_bottom.set_title("Plot 3 Placeholder", color='white')
+        ax_bottom.set_title("Min Hold", color='white') # UPDATED: Shorter title
         canvas_bottom = FigureCanvasTkAgg(figure_bottom, master=bottom_plot_frame)
         canvas_widget_bottom = canvas_bottom.get_tk_widget()
         canvas_widget_bottom.grid(row=0, column=0, sticky="nsew")

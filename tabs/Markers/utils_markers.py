@@ -150,11 +150,11 @@ def set_trace_modes_logic(inst, live_mode, max_hold_mode, min_hold_mode, console
         return False
     success = True
     if not write_safe(inst, f":TRAC1:MODE {'WRITe' if live_mode else 'BLANK'}", console_print_func): success = False
-    time.sleep(0.05)
+    
     if not write_safe(inst, f":TRAC2:MODE {'MAXHold' if max_hold_mode else 'BLANK'}", console_print_func): success = False
-    time.sleep(0.05)
+    
     if not write_safe(inst, f":TRAC3:MODE {'MINHold' if min_hold_mode else 'BLANK'}", console_print_func): success = False
-    time.sleep(0.05)
+    
     return success
 
 def blank_hold_traces_logic(inst, console_print_func):
@@ -170,9 +170,9 @@ def set_marker_logic(inst, frequency_hz, marker_name, console_print_func):
         return False
     success = True
     if not write_safe(inst, ":CALCulate:MARKer1:STATe ON", console_print_func): success = False
-    time.sleep(0.05)
+
     if not write_safe(inst, f":CALCulate:MARKer1:X {frequency_hz}", console_print_func): success = False
-    time.sleep(0.05)
+
     if success:
         console_print_func(f"✅ Marker set to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
     else:
