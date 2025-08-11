@@ -13,10 +13,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.220100.21 (FIXED: The _update_control_styles function now uses a robust comparison to correctly update button styles for numeric variables.)
+# Version 20250810.220100.32 (FIXED: Corrected the call to get_marker_traces to pass the proper app_instance object, fixing the AttributeError.)
 
-current_version = "20250810.220100.21" 
-current_version_hash = (20250810 * 220100 * 21) # Example hash
+current_version = "20250810.220100.32" 
+current_version_hash = (20250810 * 220100 * 32) # Example hash
 
 import tkinter as tk
 from tkinter import ttk 
@@ -30,6 +30,7 @@ from display.console_logic import console_log
 from ref.frequency_bands import MHZ_TO_HZ 
 from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
+from tabs.Markers.utils_markers_get_traces import get_marker_traces # NEW: Import the new function
 
 class MarkersDisplayTab(ttk.Frame):
     """
@@ -269,6 +270,9 @@ class MarkersDisplayTab(ttk.Frame):
                 set_marker_logic(self.app_instance.inst, freq_hz, device_data.get('NAME', ''), console_log)
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
+        
+        # NEW LOGIC: Corrected to pass the correct app instance
+        self.after(5000, lambda: get_marker_traces(self.app_instance, console_log))
 
     def get_current_displayed_devices(self):
         selected_item = self.zone_group_tree.selection()

@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.14 (FIXED: Moved the splash screen display to a post-GUI setup function to ensure it appears in the GUI console.)
+# Version 20250810.220100.15 (FIXED: Improved the get_tab_instance function to correctly retrieve child tab instances, fixing the AttributeError.)
 
-current_version = "20250810.220100.14"
-current_version_hash = 20250810 * 220100 * 14 # Placeholder, will be set during runtime or in a dedicated versioning module.
+current_version = "20250810.220100.15"
+current_version_hash = 20250810 * 220100 * 15 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
 from tkinter import ttk
@@ -249,9 +249,16 @@ class App(tk.Tk):
         if child_tab_name and hasattr(parent_tab, 'child_tabs'):
             # Assuming child_tabs is a dictionary of child tab instances
             return parent_tab.child_tabs.get(child_tab_name)
+        
+        # NEW LOGIC: Check for child tabs within the display parent.
+        # This is a key part of the fix for the previous bug where the
+        # ScanMonitorTab instance was not being found.
+        if parent_tab_name == "display/DISPLAY_PARENT.py":
+            if hasattr(parent_tab, 'child_tabs'):
+                return parent_tab.child_tabs.get(child_tab_name)
+        
         return parent_tab
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-

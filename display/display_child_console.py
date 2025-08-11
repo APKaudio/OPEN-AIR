@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.152700.2 (FIXED: Corrected the __init__ signature to match the new parent caller.)
+# Version 20250810.220500.3 (FIXED: Corrected a race condition by initializing the console_text widget before other setup logic in the __init__ method, resolving the AttributeError.)
 
-current_version = "20250810.152700.2" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250810 * 152700 * 2 # Example hash, adjust as needed
+current_version = "20250810.220500.3" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250810 * 220500 * 3 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -50,9 +50,10 @@ class ConsoleTab(ttk.Frame):
         # Process of this function
         #   1. Calls the superclass constructor (ttk.Frame).
         #   2. Stores a reference to the main app instance.
-        #   3. Calls `_create_widgets` to build the UI.
-        #   4. Sets up the console redirection to the ScrolledText widget.
-        #   5. Registers the clear console action.
+        #   3. Initializes the console text widget and assigns it to app_instance.
+        #   4. Calls `_create_widgets` to build the rest of the UI.
+        #   5. Sets up the console redirection.
+        #   6. Registers the clear console action.
         #
         # Outputs of this function
         #   None. Initializes the Tkinter frame and its internal state.
@@ -64,6 +65,12 @@ class ConsoleTab(ttk.Frame):
 
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
+        
+        # CRITICAL FIX: The console text widget MUST be created here before it's used by other functions.
+        # This fixes the AttributeError that was happening.
+        self.console_text = scrolledtext.ScrolledText(self, wrap="word", bg="#2b2b2b", fg="#cccccc", insertbackground="white")
+        self.app_instance.console_text = self.console_text
+        self.console_text.config(state=tk.DISABLED)
 
         self._create_widgets()
 
@@ -100,11 +107,6 @@ class ConsoleTab(ttk.Frame):
         # Inputs to this function
         #   None.
         #
-        # Process of this function
-        #   1. Creates a ScrolledText widget for the console output and sets its appearance.
-        #   2. Assigns the widget to `self.app_instance.console_text` to be globally accessible.
-        #   3. Creates a button to clear the console and links it to `_clear_applications_console_action`.
-        #
         # Outputs of this function
         #   None. Populates the tab with GUI elements.
         current_function = inspect.currentframe().f_code.co_name
@@ -118,9 +120,8 @@ class ConsoleTab(ttk.Frame):
         self.grid_columnconfigure(0, weight=1)
 
         # Console ScrolledText
-        # Set the app_instance's console_text reference to this widget
-        self.app_instance.console_text = scrolledtext.ScrolledText(self, wrap="word", bg="#2b2b2b", fg="#cccccc", insertbackground="white")
-        self.app_instance.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        # The widget is created in __init__ now. We just need to place it.
+        self.console_text.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         # The state will be managed by console_log itself when writing.
 
         # Clear Applications Console Button

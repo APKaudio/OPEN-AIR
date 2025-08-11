@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.155200.1 (Initial creation of the ScanMonitor tab with placeholder plots.)
+# Version 20250810.220500.36 (REFACTORED: The plot layout was redesigned to use a ttk.PanedWindow and individually declared plots to allow for resizable sashes between them.)
 
-current_version = "20250810.155200.1"
-current_version_hash = 20250810 * 155200 * 1 # Example hash, adjust as needed
+current_version = "20250810.220500.36"
+current_version_hash = 20250810 * 220500 * 36
 
 import tkinter as tk
 from tkinter import ttk
@@ -51,19 +51,18 @@ class ScanMonitorTab(ttk.Frame):
         #   None. Initializes the Tkinter frame and its internal state.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing ScanMonitorTab. Preparing the plots!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
-        self.plots = [] # To store references to the plot canvases
+        self.plots = {} # To store references to the plot canvases by name
 
         self._create_widgets()
-        self._plot_dummy_data()
 
         debug_log(f"ScanMonitorTab initialized. Plots are ready to go!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -80,96 +79,75 @@ class ScanMonitorTab(ttk.Frame):
         #   None. Populates the tab with GUI elements.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating ScanMonitorTab widgets.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=1)
 
-        # Create three plot placeholders
-        for i in range(3):
-            figure = Figure(figsize=(5, 2.5), dpi=100, facecolor='#1e1e1e')
-            ax = figure.add_subplot(111, facecolor='#1e1e1e')
-            ax.tick_params(axis='x', colors='white')
-            ax.tick_params(axis='y', colors='white')
-            ax.spines['bottom'].set_color('white')
-            ax.spines['top'].set_color('white')
-            ax.spines['left'].set_color('white')
-            ax.spines['right'].set_color('white')
-            ax.set_title(f"Plot {i+1} Placeholder", color='white')
-            
-            canvas = FigureCanvasTkAgg(figure, master=self)
-            canvas_widget = canvas.get_tk_widget()
-            canvas_widget.grid(row=i, column=0, padx=5, pady=5, sticky="nsew")
-            
-            self.plots.append({'figure': figure, 'ax': ax, 'canvas': canvas, 'widget': canvas_widget})
-        
+        # NEW: Use a PanedWindow to hold the plots with sashes
+        plot_paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
+        plot_paned_window.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+        # --- Top Plot ---
+        top_plot_frame = ttk.Frame(plot_paned_window)
+        plot_paned_window.add(top_plot_frame, weight=1)
+        top_plot_frame.grid_columnconfigure(0, weight=1)
+        top_plot_frame.grid_rowconfigure(0, weight=1)
+        figure_top = Figure(figsize=(5, 2.5), dpi=100, facecolor='#1e1e1e')
+        ax_top = figure_top.add_subplot(111, facecolor='#1e1e1e')
+        ax_top.tick_params(axis='x', colors='white')
+        ax_top.tick_params(axis='y', colors='white')
+        ax_top.spines['bottom'].set_color('white')
+        ax_top.spines['top'].set_color('white')
+        ax_top.spines['left'].set_color('white')
+        ax_top.spines['right'].set_color('white')
+        ax_top.set_title("Plot 1 Placeholder", color='white')
+        canvas_top = FigureCanvasTkAgg(figure_top, master=top_plot_frame)
+        canvas_widget_top = canvas_top.get_tk_widget()
+        canvas_widget_top.grid(row=0, column=0, sticky="nsew")
+        self.plots["top"] = {'figure': figure_top, 'ax': ax_top, 'canvas': canvas_top, 'widget': canvas_widget_top}
+
+        # --- Middle Plot ---
+        middle_plot_frame = ttk.Frame(plot_paned_window)
+        plot_paned_window.add(middle_plot_frame, weight=1)
+        middle_plot_frame.grid_columnconfigure(0, weight=1)
+        middle_plot_frame.grid_rowconfigure(0, weight=1)
+        figure_middle = Figure(figsize=(5, 2.5), dpi=100, facecolor='#1e1e1e')
+        ax_middle = figure_middle.add_subplot(111, facecolor='#1e1e1e')
+        ax_middle.tick_params(axis='x', colors='white')
+        ax_middle.tick_params(axis='y', colors='white')
+        ax_middle.spines['bottom'].set_color('white')
+        ax_middle.spines['top'].set_color('white')
+        ax_middle.spines['left'].set_color('white')
+        ax_middle.spines['right'].set_color('white')
+        ax_middle.set_title("Plot 2 Placeholder", color='white')
+        canvas_middle = FigureCanvasTkAgg(figure_middle, master=middle_plot_frame)
+        canvas_widget_middle = canvas_middle.get_tk_widget()
+        canvas_widget_middle.grid(row=0, column=0, sticky="nsew")
+        self.plots["middle"] = {'figure': figure_middle, 'ax': ax_middle, 'canvas': canvas_middle, 'widget': canvas_widget_middle}
+
+        # --- Bottom Plot ---
+        bottom_plot_frame = ttk.Frame(plot_paned_window)
+        plot_paned_window.add(bottom_plot_frame, weight=1)
+        bottom_plot_frame.grid_columnconfigure(0, weight=1)
+        bottom_plot_frame.grid_rowconfigure(0, weight=1)
+        figure_bottom = Figure(figsize=(5, 2.5), dpi=100, facecolor='#1e1e1e')
+        ax_bottom = figure_bottom.add_subplot(111, facecolor='#1e1e1e')
+        ax_bottom.tick_params(axis='x', colors='white')
+        ax_bottom.tick_params(axis='y', colors='white')
+        ax_bottom.spines['bottom'].set_color('white')
+        ax_bottom.spines['top'].set_color('white')
+        ax_bottom.spines['left'].set_color('white')
+        ax_bottom.spines['right'].set_color('white')
+        ax_bottom.set_title("Plot 3 Placeholder", color='white')
+        canvas_bottom = FigureCanvasTkAgg(figure_bottom, master=bottom_plot_frame)
+        canvas_widget_bottom = canvas_bottom.get_tk_widget()
+        canvas_widget_bottom.grid(row=0, column=0, sticky="nsew")
+        self.plots["bottom"] = {'figure': figure_bottom, 'ax': ax_bottom, 'canvas': canvas_bottom, 'widget': canvas_widget_bottom}
+
         debug_log(f"ScanMonitorTab widgets created. The placeholders are ready!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-
-
-    def _plot_dummy_data(self):
-        # This function description tells me what this function does
-        # Generates and plots dummy data on the three Matplotlib graphs.
-        #
-        # Inputs to this function
-        #   None.
-        #
-        # Outputs of this function
-        #   None. Renders the dummy data to the plots.
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Plotting dummy data to the three graphs.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        
-        x_data = np.arange(400, 601) # X-axis from 400 to 600
-        
-        for plot_info in self.plots:
-            y_data = np.random.uniform(-120, 0, len(x_data)) # Random Y-axis data from -120 to 0
-            
-            ax = plot_info['ax']
-            ax.clear()
-            ax.set_facecolor('#1e1e1e')
-            ax.plot(x_data, y_data, color='cyan')
-            ax.set_title(plot_info['ax'].get_title(), color='white')
-            ax.set_xlabel("Frequency (MHz)", color='white')
-            ax.set_ylabel("Amplitude (dBm)", color='white')
-            ax.tick_params(axis='x', colors='white')
-            ax.tick_params(axis='y', colors='white')
-            ax.spines['bottom'].set_color('white')
-            ax.spines['top'].set_color('white')
-            ax.spines['left'].set_color('white')
-            ax.spines['right'].set_color('white')
-            plot_info['canvas'].draw()
-
-        debug_log(f"Dummy data plots complete!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-
-
-    def _on_tab_selected(self, event):
-        # This function description tells me what this function does
-        # Placeholder for actions to be taken when the Scan Monitor tab is selected.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object.
-        #
-        # Outputs of this function
-        #   None.
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"ScanMonitorTab selected. Redrawing plots.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
-        
-        # Redraw plots on tab selection to ensure they render correctly.
-        for plot_info in self.plots:
-            plot_info['canvas'].draw_idle()
-

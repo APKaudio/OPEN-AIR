@@ -531,10 +531,18 @@ class VisaInterpreterTab(ttk.Frame):
 
             # Trace/Display - Expanded for 4 traces
             # Trace Data Query
-            ("N9340B", "Trace/1/Data", "GET", ":TRACe:DATA? TRACE1", ""),
-            ("N9340B", "Trace/2/Data", "GET", ":TRACe:DATA? TRACE2", ""),
-            ("N9340B", "Trace/3/Data", "GET", ":TRACe:DATA? TRACE3", ""),
-            ("N9340B", "Trace/4/Data", "GET", ":TRACe:DATA? TRACE4", ""),
+            ("N9342CN", "Trace/1/Data", "GET", ":TRACe:DATA? TRACE1", ""),
+            ("N9342CN", "Trace/2/Data", "GET", ":TRACe:DATA? TRACE2", ""),
+            ("N9342CN", "Trace/3/Data", "GET", ":TRACe:DATA? TRACE3", ""),
+            ("N9342CN", "Trace/4/Data", "GET", ":TRACe:DATA? TRACE4", ""),
+
+
+                   # Trace/Display - Expanded for 4 traces
+            # Trace Data Query
+            ("N9340B", "Trace/1/Data", "GET", ":TRAC1:DATA?", ""),
+            ("N9340B", "Trace/2/Data", "GET", ":TRAC2:DATA?", ""),
+            ("N9340B", "Trace/3/Data", "GET", ":TRAC3:DATA?", ""),
+            ("N9340B", "Trace/4/Data", "GET", ":TRAC4:DATA?", ""),
 
             # Trace Mode Write
             ("N9340B", "Trace/1/Mode/Write", "SET", ":TRAC1:MODE", "WRITe"),

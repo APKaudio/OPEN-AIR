@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.152300.2 (FIXED: The main app now correctly instantiates the new TAB_DISPLAY_PARENT and passes the console_log function to it, ensuring correct behavior.)
+# Version 20250810.220500.9 (FIXED: Refactored the create_main_layout_and_widgets function to correctly create the TAB_DISPLAY_PARENT and remove redundant child tab retrieval logic.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,13 +31,14 @@ from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
 from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
 from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
 from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
-from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT # NEW: Import the new display parent tab
+from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT 
 # The old ConsoleTab is no longer imported here as it is now a child of TAB_DISPLAY_PARENT.
 
 from display.console_logic import console_log
 from display.debug_logic import debug_log
 
-current_version = "20250810.152300.2" # Incremented version
+current_version = "20250810.220500.9"
+current_version_hash = 20250810 * 220500 * 9
 
 def apply_saved_geometry(app_instance):
     # Function Description:
@@ -104,19 +105,15 @@ def create_main_layout_and_widgets(app_instance):
     #      b. Creates an instance of the tab's content class, passing `app_instance` and `console_log`.
     #      c. Grids the content frame and stores references to buttons and content frames
     #         on `app_instance.tab_buttons` and `app_instance.tab_content_frames` respectively.
-    #   10. Populates the right pane with `ScanControlTab` and `ConsoleTab` instances.
-    #       Assigns the `ConsoleTab` instance to `app_instance.console_tab`.
-    #   11. Logs exit with debug information.
+    #   10. Populates the right pane with `ScanControlTab` and the `TAB_DISPLAY_PARENT` instances.
+    #       It relies on `TAB_DISPLAY_PARENT` to set the `scan_monitor_tab` and `console_text`
+    #       attributes on the `app_instance`.
     #
     # Outputs of this function:
     #   None. Configures the application's main window and populates it with widgets.
     #   Sets `app_instance.paned_window`, `app_instance.tab_buttons`,
     #   `app_instance.tab_content_frames`, and `app_instance.console_tab`.
     #
-    # (2025-08-04.021433.0) Change: Assigned main_paned_window to app_instance.paned_window.
-    # (2025-08-04.023600.0) Change: Bound <<PanedWindowSashMoved>> to update sash_position_var.
-    # (2025-08-10.145500.2) Change: The sash position is now calculated based on the window's width,
-    #                               and the event handler is bound to the main app instance.
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Creating main layout and widgets. Laying out the foundation!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)
@@ -199,23 +196,21 @@ def create_main_layout_and_widgets(app_instance):
     # --- Populate Right Pane ---
     scan_controls = ScanControlTab(right_top_frame, app_instance)
     scan_controls.pack(expand=True, fill='both')
+    app_instance.scan_control_tab = scan_controls
     
     # NEW: The console tab is now a child of the display parent
     app_instance.display_parent_tab = TAB_DISPLAY_PARENT(right_bottom_frame, app_instance, console_log)
     app_instance.display_parent_tab.pack(expand=True, fill='both')
     
-    # The console text widget is now inside the new parent tab's children.
-    # We'll need to set up the redirection after the widgets are created.
-    # The logic for this is now in the __init__ of the ConsoleTab itself,
-    # which is a much cleaner approach.
-    
-    # We do need to assign the console text widget to the app_instance though.
-    # We can do that by getting a reference from the new tab instance.
-    if hasattr(app_instance.display_parent_tab, 'console_tab') and hasattr(app_instance.display_parent_tab.console_tab, 'console_text'):
-        app_instance.console_text = app_instance.display_parent_tab.console_tab.console_text
-    else:
-        debug_log("ERROR: Console text widget not found in the new display tab structure.",
-                    file=os.path.basename(__file__), function=current_function, version=current_version)
+    # FIX: We now trust the TAB_DISPLAY_PARENT's __init__ to correctly set the child references.
+    # We will now check if the references were successfully set after initialization.
+    if not hasattr(app_instance, 'scan_monitor_tab') or not app_instance.scan_monitor_tab:
+         debug_log("ERROR: `ScanMonitorTab` instance not found on app_instance after display parent creation. This is a critical error!",
+                    file=os.path.basename(__file__), function=current_function, version=current_version, special=True)
+    if not hasattr(app_instance, 'console_text') or not app_instance.console_text:
+        debug_log("ERROR: Console text widget not found on app_instance after display parent creation. This is a critical error!",
+                    file=os.path.basename(__file__), function=current_function, version=current_version, special=True)
+
 
     debug_log("Main layout and widgets created. UI ready!",
                 file=os.path.basename(__file__), function=current_function, version=current_version)

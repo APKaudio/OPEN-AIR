@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.155200.2 (UPDATED: Added a new child tab for Scan Monitoring and placed it first.)
+# Version 20250810.220500.33 (FIXED: The parent tab now correctly stores a direct reference to the ScanMonitorTab instance on the app_instance, and includes a debug log to confirm the assignment.)
 
-current_version = "20250810.155200.2"
-current_version_hash = 20250810 * 155200 * 2 # Example hash, adjust as needed
+current_version = "20250810.220500.33"
+current_version_hash = 20250810 * 220500 * 33
 
 import tkinter as tk
 from tkinter import ttk
@@ -72,18 +72,35 @@ class TAB_DISPLAY_PARENT(ttk.Frame):
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Display.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
+        
+        # NEW LOGIC: Create a dictionary to hold references to child tabs
+        self.child_tabs = {}
 
         # NEW: Create and add the Scan Monitor tab first
         self.scan_monitor_tab = ScanMonitorTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.scan_monitor_tab, text="Monitor")
+        self.child_tabs["ScanMonitorTab"] = self.scan_monitor_tab
+        # CRITICAL FIX: Assign the instance directly to app_instance here.
+        # This solves the main problem from the `utils_markers_get_traces.py` file.
+        self.app_instance.scan_monitor_tab = self.scan_monitor_tab
+        debug_log(f"ScanMonitorTab instance assigned to app_instance successfully! Hallelujah!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function, special=True)
+
 
         # CORRECTED: No longer passing console_print_func to child tabs
         self.console_tab = ConsoleTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.console_tab, text="Console")
+        self.child_tabs["ConsoleTab"] = self.console_tab
+        # CRITICAL FIX: The console_tab's __init__ method now handles the assignment
+        # to app_instance.console_text, so this line is removed.
+
 
         # CORRECTED: No longer passing console_print_func to child tabs
         self.debug_tab = DebugTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.debug_tab, text="Debug")
+        self.child_tabs["DebugTab"] = self.debug_tab
 
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_child_tab_selected)
         
