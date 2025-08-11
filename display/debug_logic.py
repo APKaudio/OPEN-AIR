@@ -15,27 +15,23 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.0152.1 (Refined debug_log and console_log interaction, clarified DEBUG_MODE logic.)
-# Version 20250802.1935.0 (Added DEBUG_TO_GUI_CONSOLE flag and logic to control debug output to GUI console.)
-# Version 20250802.1940.0 (Ensured debug_log respects DEBUG_TO_GUI_CONSOLE flag for output to GUI.)
-# Version 20250803.1535.0 (Added set_log_visa_command_func to resolve ImportError in program_initialization.py)
-# Version 20250804.000019.0 (FIXED: Enhanced debug_log/log_visa_command resilience for early calls and direct file logging. Added path checks.)
+# Version 20250810.220100.12 (FIXED: Changed default debug flags to False to prevent unwanted logging at startup before config is loaded.)
 
-current_version = "20250804.000019.0" # Incremented version
-current_version_hash = 20250803 * 1535 * 0 # Example hash, adjust as needed
+current_version = "20250810.220100.12" # Incremented version
+current_version_hash = 20250810 * 220100 * 12 # Example hash, adjust as needed
 
 import sys
 import os
 from datetime import datetime
 import inspect # Import inspect for function name
 
-# Global variables for debug control
-DEBUG_MODE = True # Master switch: Controls if debug_log messages are processed at all (SET TO TRUE FOR DEBUGGING THIS!)
-LOG_VISA_COMMANDS = True # Controls if VISA commands are logged (only if DEBUG_MODE is True) (SET TO TRUE FOR DEBUGGING THIS!)
-DEBUG_TO_TERMINAL = True # Controls where debug_log output goes (True: terminal, False: GUI console) (SET TO TRUE FOR DEBUGGING THIS!)
-DEBUG_TO_FILE = True # Controls if debug_log output goes to a file (SET TO TRUE FOR DEBUGGING THIS!)
-INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE = True # Controls if console_log messages also go to debug file (SET TO TRUE FOR DEBUGGING THIS!)
-DEBUG_TO_GUI_CONSOLE = True # NEW: Controls if debug_log messages go to the GUI console (SET TO TRUE FOR DEBUGGING THIS!)
+# Global variables for debug control - SET TO FALSE BY DEFAULT!
+DEBUG_MODE = False # Master switch: Controls if debug_log messages are processed at all
+LOG_VISA_COMMANDS = False # Controls if VISA commands are logged (only if DEBUG_MODE is True)
+DEBUG_TO_TERMINAL = False # Controls where debug_log output goes (True: terminal, False: GUI console)
+DEBUG_TO_FILE = False # Controls if debug_log output goes to a file
+INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE = False # Controls if console_log messages also go to debug file
+DEBUG_TO_GUI_CONSOLE = False # NEW: Controls if debug_log messages go to the GUI console
 DEBUG_FILE_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'DATA', 'DEBUG_SOFTWARE.log') # Pre-define a fallback path here
 
 
@@ -76,7 +72,7 @@ def set_debug_mode(mode: bool):
     else:
         print(f"DEBUG_MODE set to: {DEBUG_MODE}. (console_log not yet registered)", file=_original_stdout)
     debug_log(f"Debug mode set to: {DEBUG_MODE}. Let the debugging begin!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -104,7 +100,7 @@ def set_log_visa_commands_mode(mode: bool):
     else:
         print(f"LOG_VISA_COMMANDS set to: {LOG_VISA_COMMANDS}. (console_log not yet registered)", file=_original_stdout)
     debug_log(f"VISA command logging set to: {LOG_VISA_COMMANDS}. Tracking those commands!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -132,7 +128,7 @@ def set_debug_to_terminal_mode(mode: bool):
     else:
         print(f"DEBUG_TO_TERMINAL set to: {DEBUG_TO_TERMINAL}. (console_log not yet registered)", file=_original_stdout)
     debug_log(f"Debug output redirected to terminal: {DEBUG_TO_TERMINAL}. Adjusting the stream!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -176,7 +172,7 @@ def set_debug_to_file_mode(mode: bool, file_path: str = None):
             else:
                 print(f"Debug logging to file enabled. Output will be saved to: {DEBUG_FILE_PATH}. (console_log not yet registered)", file=_original_stdout)
             debug_log(f"Debug logging to file enabled. Output will be saved to: {DEBUG_FILE_PATH}. Overwriting previous log!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
         except Exception as e:
@@ -186,7 +182,7 @@ def set_debug_to_file_mode(mode: bool, file_path: str = None):
             else:
                 print(f"ERROR: Could not open debug log file at {DEBUG_FILE_PATH}: {e}. Debug logging to file disabled. (console_log not yet registered)", file=_original_stderr)
             debug_log(f"ERROR: Could not open debug log file at {DEBUG_FILE_PATH}: {e}. Debug logging to file disabled. This is a disaster!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
     else:
@@ -195,7 +191,7 @@ def set_debug_to_file_mode(mode: bool, file_path: str = None):
         else:
             print(f"Debug logging to file disabled. (console_log not yet registered)", file=_original_stdout)
         debug_log(f"Debug logging to file disabled.",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -223,7 +219,7 @@ def set_include_console_messages_to_debug_file_mode(mode: bool):
     else:
         print(f"INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE set to: {INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE}. (console_log not yet registered)", file=_original_stdout)
     debug_log(f"Including console messages in debug file set to: {INCLUDE_CONSOLE_MESSAGES_TO_DEBUG_FILE}.",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -251,7 +247,7 @@ def set_debug_to_gui_console_mode(mode: bool):
     else:
         print(f"DEBUG_TO_GUI_CONSOLE set to: {DEBUG_TO_GUI_CONSOLE}. (console_log not yet registered)", file=_original_stdout)
     debug_log(f"Debug logging to GUI console set to: {DEBUG_TO_GUI_CONSOLE}.",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -278,7 +274,7 @@ def set_debug_redirectors(stdout_redirector, stderr_redirector):
     _gui_console_stderr_redirector = stderr_redirector
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"GUI debug redirectors set. All debug messages will now flow to the GUI! Version: {current_version}",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -292,7 +288,7 @@ def set_console_log_func(func):
     _console_log_func_ref = func
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Console log function registered with debug_logic. Breaking the circular import!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function,
                 special=True)
@@ -309,7 +305,7 @@ def set_log_visa_command_func(func):
     _log_visa_command_func_ref = func
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Log VISA command function registered with debug_logic. Ready to track commands!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function,
                 special=True)
@@ -358,7 +354,7 @@ def clear_debug_log_file(file_path: str):
             else:
                 print(f"✅ Debug log file cleared: {file_path}", file=_original_stdout) # Fallback if not registered
             debug_log(f"Debug log file cleared.",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
         except Exception as e:
@@ -368,7 +364,7 @@ def clear_debug_log_file(file_path: str):
             else:
                 print(f"❌ Error clearing debug log file {file_path}: {e}", file=_original_stderr) # Fallback
             debug_log(f"ERROR: Failed to clear debug log file: {e}",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
     else:
@@ -378,7 +374,7 @@ def clear_debug_log_file(file_path: str):
         else:
             print(f"ℹ️ Debug log file does not exist: {file_path}. Nothing to clear.", file=_original_stdout) # Fallback
         debug_log(f"Debug log file does not exist. Cannot clear.",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 

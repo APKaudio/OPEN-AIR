@@ -14,22 +14,22 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.220100.8 (FIXED: Added call to restore_last_used_settings_logic after loading config to ensure saved settings are applied correctly at startup.)
+# Version 20250810.220100.10 (FIXED: Added calls to set debug modes after configuration is restored to prevent unwanted logging at startup.)
 
-current_version = "20250810.220100.8"
-current_version_hash = 20250810 * 220100 * 8 # Example hash, adjust as needed
+current_version = "20250810.220100.10"
+current_version_hash = 20250810 * 220100 * 10 # Example hash, adjust as needed
 
 import os
 import inspect
 
 # Local application imports
-from display.debug_logic import debug_log
+from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode
 from display.console_logic import console_log
 from src.program_default_values import (
     DATA_FOLDER_PATH, CONFIG_FILE_PATH
 )
 from src.settings_and_config.config_manager import load_config, save_config
-from src.settings_and_config.restore_settings_logic import restore_last_used_settings_logic # NEW: Import the restore logic
+from src.settings_and_config.restore_settings_logic import restore_last_used_settings_logic
 
 def initialize_program_environment(app_instance):
     """
@@ -59,10 +59,24 @@ def initialize_program_environment(app_instance):
     # The load_config function will create a default if one doesn't exist.
     app_instance.config = load_config(CONFIG_FILE_PATH, console_log)
     
-    # NEW LOGIC: After loading the config file, apply the last used settings to the Tkinter variables.
-    # This is the key piece that was missing. It ensures the UI reflects the saved state.
+    # After loading the config file, apply the last used settings to the Tkinter variables.
     restore_last_used_settings_logic(app_instance, console_log)
-    debug_log("Called restore_last_used_settings_logic to apply loaded settings.",
+    
+    # NEW LOGIC: Now that the config has been restored, we must set the global debug flags
+    # in debug_logic.py to match the values loaded from the config. This is the fix.
+    debug_log("Syncing debug settings with loaded configuration. Let's make this stick!",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function,
+              special=True)
+    
+    set_debug_mode(app_instance.general_debug_enabled_var.get())
+    set_log_visa_commands_mode(app_instance.log_visa_commands_enabled_var.get())
+    set_debug_to_terminal_mode(app_instance.debug_to_terminal_var.get())
+    set_debug_to_file_mode(app_instance.debug_to_file_var.get(), app_instance.DEBUG_COMMANDS_FILE_PATH)
+    set_include_console_messages_to_debug_file_mode(app_instance.include_console_messages_to_debug_file_var.get())
+    
+    debug_log("Debug settings synced. No more unwanted logging at startup!",
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function,

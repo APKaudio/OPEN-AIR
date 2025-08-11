@@ -1,7 +1,3 @@
-# This print statement is a canary in the coal mine. If you see this message,
-# it means the Python interpreter successfully started executing this file.
-print("Hello from main_app.py! Let's see if we can get this bastard running!")
-
 # OPEN-AIR/main_app.py
 #
 # This is the main entry point for the RF Spectrum Analyzer Controller application.
@@ -20,10 +16,10 @@ print("Hello from main_app.py! Let's see if we can get this bastard running!")
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.150400.1 (FIXED: The sash position is now saved as a percentage, and the window state is correctly handled.)
+# Version 20250810.220100.14 (FIXED: Moved the splash screen display to a post-GUI setup function to ensure it appears in the GUI console.)
 
-current_version = "20250810.150400.1"
-current_version_hash = 20250810 * 150400 * 1 # Placeholder, will be set during runtime or in a dedicated versioning module.
+current_version = "20250810.220100.14"
+current_version_hash = 20250810 * 220100 * 14 # Placeholder, will be set during runtime or in a dedicated versioning module.
 
 import tkinter as tk
 from tkinter import ttk
@@ -45,7 +41,7 @@ from display.debug_logic import debug_log, set_debug_redirectors, set_console_lo
 from display.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
 
 from src.gui_elements import (_print_inst_ascii, _print_marks_ascii, _print_presets_ascii,
-                              _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii)
+                              _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii, display_splash_screen)
 # CORRECTED: Import all path constants
 from src.program_default_values import (
     CONFIG_FILE_PATH, DATA_FOLDER_PATH, PRESETS_FILE_PATH,
@@ -118,12 +114,10 @@ class App(tk.Tk):
         # It also sets up self.tab_content_frames which contain the references.
         create_main_layout_and_widgets(self)
         
-        # Setup console redirection AFTER console_tab is created
-        if hasattr(self, 'console_tab') and hasattr(self.console_tab, 'console_text'):
-            set_gui_console_redirector(self.console_tab.console_text)
-            set_debug_redirectors(self.console_tab.console_text)
-            set_clear_console_func(self.console_tab._clear_applications_console_action)
-        
+        # NEW LOGIC: This must be called AFTER the GUI widgets are created
+        # but BEFORE the first calls to console_log and debug_log.
+        self._set_console_redirectors()
+
         # Initial tab selection
         self.after(100, self._post_gui_setup)
         self.switch_tab("Instruments")
@@ -155,8 +149,38 @@ class App(tk.Tk):
         debug_log(f"Switched to tab: {new_tab_name}", file=f"{os.path.basename(__file__)}", function="switch_tab")
 
     def _post_gui_setup(self):
-        # This can be used for any setup that must happen after all GUI elements are packed/gridded
-        pass
+        """
+        Function Description:
+        Performs setup tasks that must happen after the main GUI is fully initialized.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log("Post-GUI setup tasks starting.",
+                    file=f"{os.path.basename(__file__)}", function=current_function)
+        
+        display_splash_screen()
+        
+        debug_log("Post-GUI setup complete.",
+                    file=f"{os.path.basename(__file__)}", function=current_function)
+
+    def _set_console_redirectors(self):
+        """
+        Function Description:
+        Sets up the console redirection to the GUI and registers the console functions
+        with the debug logic.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        # Setup console redirection AFTER console_tab is created
+        if hasattr(self, 'console_tab') and hasattr(self.console_tab, 'console_text'):
+            set_gui_console_redirector(self.console_tab.console_text)
+            set_debug_redirectors(self.console_tab.console_text, sys.stderr) # Corrected to pass stderr redirector
+            set_console_log_func(console_log)
+            set_clear_console_func(self.console_tab._clear_applications_console_action)
+            debug_log("GUI console redirectors set up successfully. All logging should now go to the GUI!",
+                        file=f"{os.path.basename(__file__)}", function=current_function, special=True)
+        else:
+            debug_log("Console text widget not found. GUI console redirection is not available.",
+                        file=f"{os.path.basename(__file__)}", function=current_function, special=True)
 
     def _on_app_resize_or_move(self, event):
         """
@@ -230,3 +254,4 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
