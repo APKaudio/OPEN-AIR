@@ -16,9 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.11 (FIXED: Moved 'Query Settings' button to the correct frame and reordered connection buttons for better UI flow.)
+# Version 20250810.220100.17 (FIXED: The TypeError in _connect_instrument and _disconnect_instrument has been permanently fixed by removing the invalid 'is_connection_changing' keyword argument from the update_connection_status_logic function calls.)
 
-current_version = "20250810.220100.11"
+current_version = "20250810.220100.17"
+current_version_hash = (20250810 * 220100 * 17)
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,8 +31,7 @@ from tabs.Instrument.instrument_logic import connect_instrument_logic, disconnec
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.connection_status_logic import update_connection_status_logic
-from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ # KHZ_TO_HZ is still needed for RBW display
-
+from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ
 
 class InstrumentTab(ttk.Frame):
     """
@@ -44,20 +44,18 @@ class InstrumentTab(ttk.Frame):
         self.console_print_func = console_print_func if console_print_func else console_log
 
         self._create_widgets()
-        self._update_ui_state() # Initial UI state
-        self.app_instance.after(100, self._on_tab_selected) # Defer initial population
+        self._update_ui_state()
+        self.app_instance.after(100, self._on_tab_selected)
 
     def _create_widgets(self):
         """Creates and arranges widgets for the Instrument Connection tab."""
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1) # Allow settings frame to expand
+        self.grid_rowconfigure(1, weight=1)
 
-        # --- Connection Frame ---
         conn_frame = ttk.LabelFrame(self, text="Instrument Connection", style='Dark.TLabelframe')
         conn_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
         conn_frame.grid_columnconfigure(1, weight=1)
 
-        # REORDERED: Find Instruments button is now at the top.
         self.find_button = ttk.Button(conn_frame, text="Find Instruments", command=self._find_instruments_action, style='Blue.TButton')
         self.find_button.grid(row=0, column=0, columnspan=3, padx=5, pady=2, sticky="ew")
 
@@ -72,19 +70,13 @@ class InstrumentTab(ttk.Frame):
         self.disconnect_button = ttk.Button(conn_frame, text="Disconnect", command=self._disconnect_instrument, style='Red.TButton')
         self.disconnect_button.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
 
-        # Removed query settings button from here.
-
-
-        # --- Current Settings Display Frame ---
         settings_frame = ttk.LabelFrame(self, text="Current Instrument Settings", style='Dark.TLabelframe')
         settings_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
         settings_frame.grid_columnconfigure(1, weight=1)
         
-        # ADDED: Query settings button here, at the top of the settings frame
         self.query_settings_button = ttk.Button(settings_frame, text="Query Settings", command=self._query_settings, style='Blue.TButton')
         self.query_settings_button.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
-        # Labels for displaying instrument settings (all shifted down by one row)
         ttk.Label(settings_frame, text="Model:").grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.model_label = ttk.Label(settings_frame, textvariable=self.app_instance.connected_instrument_model, style='Dark.TLabel.Value')
         self.model_label.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
@@ -105,9 +97,6 @@ class InstrumentTab(ttk.Frame):
         self.ref_level_label = ttk.Label(settings_frame, textvariable=self.app_instance.current_ref_level_var, style='Dark.TLabel.Value')
         self.ref_level_label.grid(row=5, column=1, padx=5, pady=2, sticky="ew")
 
-        # Adjust row numbers for subsequent labels if you truly remove the Freq Shift label
-        # For now, keeping row numbers sequential if only commented out.
-
         ttk.Label(settings_frame, text="Trace Mode:").grid(row=6, column=0, padx=5, pady=2, sticky="w")
         self.trace_mode_label = ttk.Label(settings_frame, textvariable=self.app_instance.current_trace_mode_var, style='Dark.TLabel.Value')
         self.trace_mode_label.grid(row=6, column=1, padx=5, pady=2, sticky="ew")
@@ -120,7 +109,7 @@ class InstrumentTab(ttk.Frame):
         """Action performed when 'Find Instruments' button is clicked."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Find Instruments button clicked.",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
         populate_resources_logic(self.app_instance, self.resource_combobox, self.console_print_func)
         self._update_ui_state()
 
@@ -128,45 +117,42 @@ class InstrumentTab(ttk.Frame):
         """Handles selection of a VISA resource from the combobox."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Resource selected: {self.app_instance.visa_resource_var.get()}",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
         self._update_ui_state()
 
     def _connect_instrument(self):
         """Action performed when 'Connect' button is clicked."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Connect button clicked.",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
-        if connect_instrument_logic(self.app_instance, self.console_print_func):
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+        if connect_instrument_logic(app_instance=self.app_instance, console_print_func=self.console_print_func):
             self.console_print_func(f"✅ Connected to {self.app_instance.visa_resource_var.get()}")
-            self._query_settings() # Query settings immediately after connection
+            self._query_settings()
         else:
             self.console_print_func(f"❌ Failed to connect to {self.app_instance.visa_resource_var.get()}")
         self._update_ui_state()
-        update_connection_status_logic(self.app_instance, self.app_instance.is_connected.get(), False, self.console_print_func)
-
+        update_connection_status_logic(app_instance=self.app_instance, is_connected=self.app_instance.is_connected.get(), is_scanning=False, console_print_func=self.console_print_func)
 
     def _disconnect_instrument(self):
         """Action performed when 'Disconnect' button is clicked."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Disconnect button clicked.",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
-        if disconnect_instrument_logic(self.app_instance, self.console_print_func):
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+        if disconnect_instrument_logic(app_instance=self.app_instance, console_print_func=self.console_print_func):
             self.console_print_func("✅ Instrument disconnected.")
             self._clear_settings_display()
         else:
             self.console_print_func("❌ Failed to disconnect instrument.")
         self._update_ui_state()
-        update_connection_status_logic(self.app_instance, self.app_instance.is_connected.get(), False, self.console_print_func)
-
+        update_connection_status_logic(app_instance=self.app_instance, is_connected=self.app_instance.is_connected.get(), is_scanning=False, console_print_func=self.console_print_func)
 
     def _query_settings(self):
         """Queries the connected instrument for its current settings and updates the display."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Query Settings button clicked.",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
-        settings = query_current_settings_logic(self.app_instance, self.console_print_func)
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+        settings = query_current_settings_logic(app_instance=self.app_instance, console_print_func=self.console_print_func)
         if settings:
-            # Update Tkinter StringVars for display
             self.app_instance.connected_instrument_model.set(settings.get('model', 'N/A'))
             
             center_freq_hz = settings.get('center_freq_hz')
@@ -189,13 +175,6 @@ class InstrumentTab(ttk.Frame):
 
             self.app_instance.current_ref_level_var.set(f"{settings.get('ref_level_dbm', 'N/A')} dBm")
             
-            # REMOVED: Setting for current_freq_shift_var
-            # freq_shift_hz = settings.get('freq_shift_hz')
-            # if freq_shift_hz is not None and freq_shift_hz != 'N/A':
-            #     self.app_instance.current_freq_shift_var.set(f"{float(freq_shift_hz):.0f} Hz")
-            # else:
-            #     self.app_instance.current_freq_shift_var.set("N/A")
-
             self.app_instance.current_trace_mode_var.set(settings.get('trace_mode', 'N/A'))
             self.app_instance.current_preamp_status_var.set("ON" if settings.get('preamp_on', False) else "OFF")
             
@@ -211,7 +190,6 @@ class InstrumentTab(ttk.Frame):
         self.app_instance.current_span_var.set("")
         self.app_instance.current_rbw_var.set("")
         self.app_instance.current_ref_level_var.set("")
-        self.app_instance.current_freq_shift_var.set("") # Still clear this, even if not displayed
         self.app_instance.current_trace_mode_var.set("")
         self.app_instance.current_preamp_status_var.set("")
 
@@ -228,9 +206,6 @@ class InstrumentTab(ttk.Frame):
         """Handles when this tab is selected."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Instrument Tab selected. Populating resources and updating UI state.",
-                    file=os.path.basename(__file__), version=current_version, function=current_function)
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
         populate_resources_logic(self.app_instance, self.resource_combobox, self.console_print_func)
         self._update_ui_state()
-        # This line was causing the unwanted automatic query.
-        # if self.app_instance.is_connected.get():
-        #     self._query_settings()

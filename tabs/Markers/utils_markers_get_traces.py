@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.130322.1 (FIXED: The publish_traces function now uses more descriptive plot titles that include the device name.)
+# Version 20250811.130322.2 (FIXED: The get_marker_traces function now accepts center and span frequencies directly, eliminating redundant queries to the instrument. This simplifies the function and improves efficiency.)
 
 import inspect
 import os
@@ -26,8 +26,8 @@ from tabs.Instrument.utils_instrument_read_and_write import query_safe
 from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
 
 
-current_version = "20250811.130322.1"
-current_version_hash = 20250811 * 130322 * 1 
+current_version = "20250811.130322.2"
+current_version_hash = 20250811 * 130322 * 2
 
 
 def _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz):
@@ -182,25 +182,30 @@ def publish_traces(app_instance, console_print_func, trace_1_data=None, trace_2_
         console_print_func(f"✅ Successfully updated bottom plot with Trace 3 data.")
 
 
-def get_marker_traces(app_instance, console_print_func, device_name=None):
+def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name=None):
     # Function Description:
-    # Orchestrates the retrieval of trace data from the instrument. It first queries
-    # for the current center frequency and span to define the plot's frequency range,
-    # then calls functions to get data for all three traces and publishes them.
+    # Orchestrates the retrieval of trace data from the instrument. This function
+    # now accepts the center frequency and span directly, removing the need to
+    # query the instrument for these values. It then gets data for all three
+    # traces and publishes them to the display monitor.
     #
     # Inputs:
     #   app_instance (object): A reference to the main application instance.
     #   console_print_func (function): A function for printing to the console.
+    #   center_freq_hz (float): The center frequency of the scan in Hz.
+    #   span_hz (float): The span of the scan in Hz.
     #   device_name (str): The name of the selected device to use in the plot titles.
     #
     # Outputs:
     #   None. Calls other functions to update the display monitors.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Getting marker traces from the instrument. It's go time!",
+    debug_log(f"Getting marker traces with pre-defined center and span frequencies. This is a much better way to do it! 🚀",
               file=f"{os.path.basename(__file__)} - {current_version}",
               version=current_version,
               function=current_function)
 
+    # Let the calling function handle the instrument connection check. This function will proceed
+    # with the assumption that a valid instrument instance is present.
     if not app_instance.inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot get marker traces.")
         debug_log(f"Instrument is not connected. Aborting trace retrieval.",
@@ -209,50 +214,32 @@ def get_marker_traces(app_instance, console_print_func, device_name=None):
                   function=current_function)
         return
 
-    try:
-        center_freq_str = query_safe(app_instance.inst, ":SENSe:FREQuency:CENTer?", app_instance, console_print_func)
-        span_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SPAN?", app_instance, console_print_func)
+    # A wild scientist appears! He says: "By golly! We've been given the sacred numbers!
+    # No need to ask the machine itself for its secrets. We can use these values directly to calculate
+    # the start and end frequencies. It's a much more elegant solution, don't you think?"
 
-        if not center_freq_str or not span_str:
-            console_print_func("❌ Failed to query center frequency or span from instrument.")
-            debug_log(f"Failed to get center frequency or span. Aborting.",
-                      file=f"{os.path.basename(__file__)} - {current_version}",
-                      version=current_version,
-                      function=current_function)
-            return
+    start_freq_hz = center_freq_hz - (span_hz / 2)
+    end_freq_hz = center_freq_hz + (span_hz / 2)
 
-        center_freq_hz = float(center_freq_str)
-        span_hz = float(span_str)
-
-        start_freq_hz = center_freq_hz - (span_hz / 2)
-        end_freq_hz = center_freq_hz + (span_hz / 2)
-
-        # NEW: Define plot titles here based on the device_name
-        if device_name:
-            plot_titles = [f"Live: {device_name}", f"Max Hold: {device_name}", f"Min Hold: {device_name}"]
-        else:
-            plot_titles = ["Live", "Max Hold", "Min Hold"]
+    # Define plot titles here based on the device_name
+    if device_name:
+        plot_titles = [f"Live: {device_name}", f"Max Hold: {device_name}", f"Min Hold: {device_name}"]
+    else:
+        plot_titles = ["Live", "Max Hold", "Min Hold"]
 
 
-        console_print_func(f"✅ Queried instrument. Center Freq: {center_freq_hz} Hz, Span: {span_hz} Hz.")
-        console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz.")
+    console_print_func(f"✅ Queried instrument. Center Freq: {center_freq_hz} Hz, Span: {span_hz} Hz.")
+    console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz.")
 
-        # Get data from each trace
-        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        trace_2_data = get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+    # Get data from each trace
+    trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+    trace_2_data = get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+    trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
 
-        # Convert frequency range to MHz for plotting
-        start_freq_mhz = start_freq_hz / 1000000
-        end_freq_mhz = end_freq_hz / 1000000
+    # Convert frequency range to MHz for plotting
+    start_freq_mhz = start_freq_hz / 1000000
+    end_freq_mhz = end_freq_hz / 1000000
 
-        # Publish the traces to the display module
-        publish_traces(app_instance=app_instance, console_print_func=console_print_func, trace_1_data=trace_1_data, trace_2_data=trace_2_data, trace_3_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_titles=plot_titles)
+    # Publish the traces to the display module
+    publish_traces(app_instance=app_instance, console_print_func=console_print_func, trace_1_data=trace_1_data, trace_2_data=trace_2_data, trace_3_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_titles=plot_titles)
 
-
-    except Exception as e:
-        console_print_func(f"❌ An error occurred while getting marker traces: {e}")
-        debug_log(f"An unexpected error occurred: {e}",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
