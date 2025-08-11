@@ -67,8 +67,10 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         canvas = plot_info['canvas']
         
         ax.clear()
-        frequencies, amplitudes = zip(*data)
-        ax.plot(frequencies, amplitudes, color='cyan')
+        if data:
+            frequencies, amplitudes = zip(*data)
+            # CHANGED: Plot color to yellow and added thin linewidth
+            ax.plot(frequencies, amplitudes, color='yellow', linewidth=1)
         ax.set_title(plot_title, color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
@@ -126,8 +128,10 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         canvas = plot_info['canvas']
         
         ax.clear()
-        frequencies, amplitudes = zip(*data)
-        ax.plot(frequencies, amplitudes, color='yellow')
+        if data:
+            frequencies, amplitudes = zip(*data)
+            # CHANGED: Plot color to green and added thin linewidth
+            ax.plot(frequencies, amplitudes, color='green', linewidth=1)
         ax.set_title(plot_title, color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
@@ -135,7 +139,7 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas.draw()
-        debug_log("Successfully updated the medium plot. A masterpiece in the making! 🎨",
+        debug_log("Successfully updated the medium plot. A masterpiece in the making! �",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -185,8 +189,10 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         canvas = plot_info['canvas']
         
         ax.clear()
-        frequencies, amplitudes = zip(*data)
-        ax.plot(frequencies, amplitudes, color='magenta')
+        if data:
+            frequencies, amplitudes = zip(*data)
+            # CHANGED: Plot color to blue and added thin linewidth
+            ax.plot(frequencies, amplitudes, color='blue', linewidth=1)
         ax.set_title(plot_title, color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits

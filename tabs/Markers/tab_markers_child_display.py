@@ -55,6 +55,7 @@ class MarkersDisplayTab(ttk.Frame):
 
         self.selected_device_unique_id = None
         self.selected_device_name = None # NEW: Store the name of the selected device
+        self.marker_trace_loop_job = None # Add a variable to hold the reference to the scheduled job
 
         # --- State Variables for Controls ---
         # These now reference the main app's variables, ensuring persistence.
@@ -240,6 +241,9 @@ class MarkersDisplayTab(ttk.Frame):
         # Function Description:
         # Handles the selection of a tree item.
         selected_item = self.zone_group_tree.selection()
+        if self.marker_trace_loop_job:
+            self.after_cancel(self.marker_trace_loop_job)
+            self.marker_trace_loop_job = None
         if not selected_item: return
         item = selected_item[0]
         parent_id = self.zone_group_tree.parent(item)
@@ -297,8 +301,19 @@ class MarkersDisplayTab(ttk.Frame):
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
 
-        # NEW LOGIC: Corrected to pass the correct app instance and device name
-        self.after(5000, lambda: get_marker_traces(self.app_instance, console_log, self.selected_device_name))
+        # NEW LOGIC: Stop any existing loop and start a new one.
+        if self.marker_trace_loop_job:
+            self.after_cancel(self.marker_trace_loop_job)
+        self._start_marker_trace_loop()
+
+    def _start_marker_trace_loop(self):
+        # Function Description:
+        # Starts a recurring loop to fetch marker traces.
+        if self.selected_device_name and self.app_instance and self.app_instance.inst:
+            get_marker_traces(self.app_instance, console_log, self.selected_device_name)
+            # Schedule the next call in 5 seconds
+            self.marker_trace_loop_job = self.after(2000, self._start_marker_trace_loop)
+
 
     def get_current_displayed_devices(self):
         # Function Description:
