@@ -31,7 +31,7 @@ import re # For regular expressions to match instrument model
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from tabs.Instrument.utils_instrument_initialize import (
+from tabs.Instrument.utils_instrument_initialization import (
     initialize_instrument_logic # CORRECTED: Changed from initialize_instrument
 )
 from tabs.Instrument.utils_instrument_read_and_write import (

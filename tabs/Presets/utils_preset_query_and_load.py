@@ -35,7 +35,7 @@ from display.console_logic import console_log
 
 # Import read/write safe functions from the new dedicated module
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
-from tabs.Instrument.utils_instrument_initialize import initialize_instrument_logic # CORRECTED: Changed import name
+from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic # CORRECTED: Changed import name
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 

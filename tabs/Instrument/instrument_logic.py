@@ -1,9 +1,10 @@
 # tabs/Instrument/instrument_logic.py
 #
-# This file contains the core logic for interacting with the instrument,
-# including connection, disconnection, applying settings, and querying
-# current instrument states. It abstracts the SCPI commands and handles
-# data flow between the GUI and the hardware.
+# This file contains the core logic for managing the connection to and interaction
+# with a VISA instrument, such as a spectrum analyzer. It provides high-level
+# functions for connecting, disconnecting, and querying the device for its settings.
+# This file serves as an abstraction layer between the GUI and the low-level
+# VISA read/write utilities.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -16,204 +17,215 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.192000.0 (FIXED: Removed unnecessary FREQuency:SHIFt query.)
-# Version 20250803.191800.0 (FIXED: AttributeError by using correct visa_resource_var and removing invalid variable set.)
-# Version 20250803.1115.1 (Fixed ImportError: cannot import name 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
-# Version 20250804.025500.0 (FIXED: populate_resources_logic signature and functionality to accept resource_combobox.)
-# Version 20250804.025800.0 (REMOVED: Query for :SENSe:FREQuency:RFShift? as per user request.)
+# Version 20250811.141000.2 (FIXED: Corrected a NameError by adding `import traceback`. Fixed an AttributeError by updating the `connect_instrument_logic` function to correctly access the Tkinter variables from the app instance.)
 
-current_version = "20250804.025800.0" # Incremented version
+current_version = "20250811.141000.2"
+current_version_hash = 20250811 * 141000 * 2
 
-import tkinter as tk
-import pyvisa
+import inspect
 import os
 import time
 import sys
-import inspect
+import tkinter as tk
+import pyvisa
+import traceback # NEW: Added traceback import to fix NameError
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from tabs.Instrument.utils_instrument_connection import (
-    list_visa_resources,
-    connect_to_instrument,
-    disconnect_instrument
-)
-from tabs.Instrument.utils_instrument_read_and_write import (
-    write_safe,
-    query_safe
-)
-from tabs.Instrument.utils_instrument_initialize import (
-    initialize_instrument_logic
-)
-from tabs.Instrument.utils_instrument_query_settings import (
-    query_current_instrument_settings
-)
+# Import low-level VISA utilities
+from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
+from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
+from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic
+from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
 
-MHZ_TO_HZ_CONVERSION = 1_000_000
-KHZ_TO_HZ_CONVERSION = 1_000
-
-def populate_resources_logic(app_instance, resource_combobox, console_print_func):
-    """Populates the VISA resource combobox with available instruments."""
+def populate_resources_logic(app_instance, combobox_widget, console_print_func):
+    # Function Description:
+    # Populates the `visa_resource_var` Combobox with available VISA instrument addresses.
+    # It first clears the existing list, then calls `list_visa_resources` to find
+    # available devices, and finally populates the combobox with the results.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Populating VISA resources. Let's find those devices! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
                 function=current_function)
-    console_print_func("💬 Searching for VISA instruments...")
     
+    app_instance.visa_resource_var.set("")  # Clear current value
+    combobox_widget['values'] = []  # Clear current list
+
     resources = list_visa_resources(console_print_func)
-    resource_combobox['values'] = resources
-    
     if resources:
-        app_instance.visa_resource_var.set(resources[0])
+        combobox_widget['values'] = resources
+        app_instance.visa_resource_var.set(resources[0])  # Set first resource as default
         debug_log(f"Found VISA resources: {resources}. Success!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
     else:
-        app_instance.visa_resource_var.set("")
-        console_print_func("⚠️ No VISA instruments found. Is the instrument connected and VISA drivers installed?")
-        debug_log("No VISA instruments found. Check connections and drivers!",
+        console_print_func("No VISA instruments found. Check connections.")
+        debug_log("No VISA resources found. Time for some detective work. 🕵️‍♀️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
 
-
 def connect_instrument_logic(app_instance, console_print_func):
-    """Handles the connection process to the selected VISA instrument."""
+    # Function Description:
+    # Handles the full connection sequence to a VISA instrument.
+    # It attempts to establish a connection, queries the instrument's IDN string,
+    # initializes the instrument with a set of default or saved parameters,
+    # and updates the application's state variables accordingly.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to connect to instrument. Let's make this happen! Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
                 function=current_function)
     
     selected_resource = app_instance.visa_resource_var.get()
-    
     if not selected_resource:
-        console_print_func("⚠️ No instrument selected. Please refresh devices and select one.")
+        console_print_func("❌ No instrument selected. Cannot connect.")
+        debug_log("No resource selected. This is a fine mess! 🤦‍♂️",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
         return False
-
-    console_print_func(f"💬 Connecting to {selected_resource}...")
+        
     try:
-        inst = connect_to_instrument(selected_resource, console_print_func)
-        if inst:
-            app_instance.inst = inst
-            app_instance.is_connected.set(True)
-            
-            idn_response = query_safe(inst, "*IDN?", console_print_func)
-            if idn_response:
-                parts = idn_response.strip().split(',')
-                model = parts[1].strip() if len(parts) > 1 else idn_response.strip()
-                app_instance.connected_instrument_model.set(model)
-            else:
-                console_print_func("❌ Failed to query instrument identification. What a pain!")
-                debug_log("Failed to query IDN. Fucking useless!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
-                            function=current_function)
-                disconnect_instrument_logic(app_instance, console_print_func)
-                return False
-
-            console_print_func("✅ Instrument connected and identified successfully.")
-            return True
-        else:
-            console_print_func("❌ Failed to connect to instrument. What a mess!")
-            debug_log("Connection attempt failed. This thing is broken!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
+        # Step 1: Connect to the instrument
+        app_instance.inst = connect_to_instrument(selected_resource, console_print_func)
+        if not app_instance.inst:
             app_instance.is_connected.set(False)
             return False
-    except Exception as e:
-        console_print_func(f"❌ An unexpected error occurred during connection: {e}. This is a disaster!")
-        debug_log(f"Unexpected error during connection: {e}. Fucking hell!",
+
+        # Step 2: Query IDN
+        # We query the IDN here to get the model number for initialization logic.
+        idn_response = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        model_match = "GENERIC"
+        if idn_response:
+            idn_parts = idn_response.split(',')
+            if len(idn_parts) >= 2:
+                model_match = idn_parts[1].strip()
+        else:
+            console_print_func("⚠️ Warning: Could not query instrument IDN. Proceeding with generic settings.")
+
+        # NEW: Retrieve the values from the app_instance's Tkinter variables
+        ref_level_dbm = app_instance.ref_level_dbm_var.get()
+        high_sensitivity_on = app_instance.high_sensitivity_on_var.get()
+        preamp_on = app_instance.preamp_on_var.get()
+        rbw_config_val = app_instance.rbw_hz_var.get()
+        vbw_config_val = app_instance.vbw_hz_var.get()
+
+        # Step 3: Initialize the instrument with defaults from the app_instance
+        if not initialize_instrument_logic(inst=app_instance.inst, 
+                                            model_match=model_match,
+                                            ref_level_dbm=ref_level_dbm,
+                                            high_sensitivity_on=high_sensitivity_on,
+                                            preamp_on=preamp_on,
+                                            rbw_config_val=rbw_config_val,
+                                            vbw_config_val=vbw_config_val,
+                                            app_instance_ref=app_instance,
+                                            console_print_func=console_print_func):
+            disconnect_instrument(app_instance, console_print_func)
+            app_instance.is_connected.set(False)
+            return False
+            
+        app_instance.is_connected.set(True)
+        debug_log("Connection and initialization successful! The instrument is alive! 🥳",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
-        app_instance.inst = None
+        return True
+    
+    except Exception as e:
+        console_print_func(f"❌ Error during connection: {e}")
+        debug_log(f"Connection failed spectacularly! Error: {e}. What a disaster! Traceback: {traceback.format_exc()}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
+        disconnect_instrument(app_instance, console_print_func)
         app_instance.is_connected.set(False)
         return False
 
+
 def disconnect_instrument_logic(app_instance, console_print_func):
-    """Handles the disconnection process from the current VISA instrument."""
+    # Function Description:
+    # Disconnects the application from the currently connected VISA instrument.
+    # It checks if an instrument instance exists and attempts to close the connection.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to disconnect instrument. Cutting ties! Version: {current_version}",
+    debug_log(f"Attempting to disconnect instrument. Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
                 function=current_function)
-
-    if app_instance.inst:
-        console_print_func("💬 Disconnecting instrument...")
-        if disconnect_instrument(app_instance.inst, console_print_func):
-            app_instance.inst = None
-            app_instance.is_connected.set(False)
-            app_instance.connected_instrument_model.set("")
-            console_print_func("✅ Instrument disconnected successfully.")
-            debug_log("Instrument disconnected successfully.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return True
-        else:
-            console_print_func("❌ Failed to disconnect instrument. Still clinging on!")
-            debug_log("Failed to disconnect instrument. What a mess!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
-            return False
-    else:
-        console_print_func("⚠️ No instrument is currently connected to disconnect.")
-        debug_log("No instrument to disconnect. Nothing to see here!",
+    
+    if not app_instance.inst:
+        console_print_func("⚠️ Warning: No instrument connected. Nothing to disconnect.")
+        debug_log("No instrument to disconnect. This is a mess.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
-        return True # Return True as there's nothing to disconnect, it's already in the desired state
-
+        return True
+    
+    result = disconnect_instrument(app_instance.inst, console_print_func)
+    app_instance.inst = None
+    app_instance.is_connected.set(False)
+    
+    if result:
+        debug_log("Successfully disconnected. Until we meet again! 👋",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
+    else:
+        debug_log("Disconnecting failed. This is a catastrophe!",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
+        
+    return result
 
 def query_current_settings_logic(app_instance, console_print_func):
-    """Queries the current settings from the connected instrument."""
+    # Function Description:
+    # Queries the currently connected instrument for its essential settings,
+    # including IDN string, Center Frequency, Span, RBW, Ref Level, Trace Mode,
+    # and Preamp status. It then returns a dictionary containing all these values.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Querying current instrument settings. What's this thing up to? Version: {current_version}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
-                version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
-        console_print_func("❌ No instrument connected to query.")
-        debug_log("No instrument to query. Dead end!",
+        console_print_func("⚠️ Warning: No instrument connected. Cannot query settings. Fix it!")
+        debug_log("No instrument connected. Cannot query settings. Fucking useless!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
         return None
-
+        
+    settings = {}
+    
     try:
-        # Queries for settings using query_safe from utils_instrument_read_and_write
-        center_freq_str = query_safe(app_instance.inst, ":SENSe:FREQuency:CENTer?", console_print_func)
-        span_str = query_safe(app_instance.inst, ":SENSe:FREQuency:SPAN?", console_print_func)
-        rbw_str = query_safe(app_instance.inst, ":SENSe:BANDwidth:RESolution?", console_print_func)
-        ref_level_str = query_safe(app_instance.inst, ":DISPlay:WINDow:TRACe:Y:RLEVel?", console_print_func)
+        # NEW: Query the IDN string first
+        settings['idn_string'] = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
         
-        # REMOVED: query for :SENSe:FREQuency:RFShift? as per user request
-        # freq_shift_str = query_safe(app_instance.inst, ":SENSe:FREQuency:RFShift?", console_print_func)
+        # Query Center Frequency
+        center_freq_str = query_safe(inst=app_instance.inst, command=":SENSe:FREQuency:CENTer?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['center_freq_hz'] = float(center_freq_str) if center_freq_str else "N/A"
         
-        trace_mode_str = query_safe(app_instance.inst, ":TRACe2:MODE?", console_print_func) # Assuming TRACE2 for display
-        preamp_status_str = query_safe(app_instance.inst, ":SENSe:POWer:RF:GAIN?", console_print_func)
+        # Query Span
+        span_str = query_safe(inst=app_instance.inst, command=":SENSe:FREQuency:SPAN?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['span_hz'] = float(span_str) if span_str else "N/A"
+        
+        # Query RBW
+        rbw_str = query_safe(inst=app_instance.inst, command=":SENSe:BANDwidth:RESolution?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['rbw_hz'] = float(rbw_str) if rbw_str else "N/A"
 
-        settings = {
-            'center_freq_hz': float(center_freq_str) if center_freq_str else 'N/A',
-            'span_hz': float(span_str) if span_str else 'N/A',
-            'rbw_hz': float(rbw_str) if rbw_str else 'N/A',
-            'ref_level_dbm': float(ref_level_str) if ref_level_str else 'N/A',
-            # REMOVED: 'freq_shift_hz' from settings dictionary
-            'trace_mode': trace_mode_str.strip() if trace_mode_str else 'N/A',
-            'preamp_on': True if preamp_status_str and "1" in preamp_status_str else False
-        }
-        return settings
-    except Exception as e:
-        console_print_func(f"❌ Error querying settings: {e}. This is a disaster!")
-        debug_log(f"Error querying settings: {e}. What a mess!",
+        # Query Ref Level
+        ref_level_str = query_safe(inst=app_instance.inst, command=":DISPlay:WINDow:TRACe:Y:RLEVel?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['ref_level_dbm'] = float(ref_level_str) if ref_level_str else "N/A"
+        
+        # Query Trace Mode (Assuming we want Trace 2 for Max Hold)
+        trace_mode_str = query_safe(inst=app_instance.inst, command=":TRACe2:MODE?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['trace_mode'] = trace_mode_str if trace_mode_str else "N/A"
+        
+        # Query Preamp Status (GAIN)
+        preamp_on_str = query_safe(inst=app_instance.inst, command=":SENSe:POWer:RF:GAIN?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['preamp_on'] = (preamp_on_str == '1') if preamp_on_str else False
+
+        debug_log("Finished querying instrument settings. A treasure trove of information! 🗺️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
+                    function=current_function)
+        
+        return settings
+    
+    except Exception as e:
+        console_print_func(f"❌ Error querying settings: {e}")
+        debug_log(f"Error querying instrument settings: {e}. What a disaster! Traceback: {traceback.format_exc()}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         return None

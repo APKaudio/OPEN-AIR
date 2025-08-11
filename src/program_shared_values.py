@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.6 (REFACTORED: Added more detailed debug logging to track band variable initialization more closely.)
+# Version 20250811.141200.8 (FIXED: Added Tkinter StringVar definitions for ref_level_dbm_var, high_sensitivity_on_var, preamp_on_var, rbw_hz_var, and vbw_hz_var to resolve the AttributeError in instrument_logic.py.)
 
-current_version = "20250810.220100.6"
-current_version_hash = 20250810 * 220100 * 6 # Example hash, adjust as needed
+current_version = "20250811.141200.8"
+current_version_hash = 20250811 * 141200 * 8
 
 import tkinter as tk
 import inspect
@@ -127,7 +127,10 @@ def setup_tkinter_variables(app_instance):
 
     # --- Handle special, non-config variables, or variables whose values are managed differently ---
     app_instance.is_connected = tk.BooleanVar(app_instance, value=False)
+    app_instance.connected_instrument_manufacturer = tk.StringVar(app_instance, value="")
     app_instance.connected_instrument_model = tk.StringVar(app_instance, value="")
+    app_instance.connected_instrument_serial = tk.StringVar(app_instance, value="")
+    app_instance.connected_instrument_version = tk.StringVar(app_instance, value="")
     app_instance.inst = None # This will hold the PyVISA instrument object
     
     # NEW: Global Tkinter variables for displaying last loaded preset details
@@ -135,6 +138,14 @@ def setup_tkinter_variables(app_instance):
     app_instance.last_loaded_preset_center_freq_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_span_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_rbw_hz_var = tk.StringVar(app_instance, value="N/A")
+    
+    # NEW: Add the variables for instrument initialization that were missing
+    app_instance.ref_level_dbm_var = tk.DoubleVar(app_instance, value=-20.0)
+    app_instance.high_sensitivity_on_var = tk.BooleanVar(app_instance, value=False)
+    app_instance.preamp_on_var = tk.BooleanVar(app_instance, value=False)
+    app_instance.rbw_hz_var = tk.IntVar(app_instance, value=100000)
+    app_instance.vbw_hz_var = tk.IntVar(app_instance, value=100000)
+
 
     # NEW: Tkinter variables for displaying current instrument settings
     app_instance.current_center_freq_var = tk.StringVar(app_instance, value="N/A")
@@ -159,7 +170,7 @@ def setup_tkinter_variables(app_instance):
             # The restore logic will load the real levels from the config file.
             app_instance.band_vars.append({"band": band, "level": 0})
     
-    debug_log(f"Finished setting up {len(app_instance.setting_var_map)} Tkinter variables. The brain is fully operational! Version: {current_version}",
+    debug_log(f"Finished setting up all Tkinter variables. The brain is fully operational! Version: {current_version}",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
