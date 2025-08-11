@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.154005.0 (REFACTORED: Implemented *OPC? check for SET commands to verify completion and handle timeouts, aligning with the DO command logic.)
+# Version 20250811.154845.0 (REFACTORED: Implemented device reset with '*RST' for all command failures to recover from a bad state.)
 
-current_version = "20250811.154005.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250811 * 154005 * 0 # Example hash, adjust as needed
+current_version = "20250811.154845.0" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250811 * 154845 * 0 # Example hash, adjust as needed
 
 import inspect
 import pyvisa
@@ -31,6 +31,47 @@ from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
 
 # Helper functions for instrument communication, using the new logging
+
+def _reset_device(inst, console_print_func):
+    """
+    Function Description:
+    Sends a soft reset command to the instrument to restore a known state after an error.
+    This is a last resort to recover from a bad state. It's a fucking miracle worker!
+
+    Inputs to this function:
+    - inst: The PyVISA instrument instance.
+    - console_print_func: The function to print messages to the GUI console.
+
+    Process of this function:
+    1. Sends the '*RST' command using write_safe.
+    2. Logs the attempt and the result to the debug and console.
+    
+    Outputs of this function:
+    - bool: True if the reset command was sent, False otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    console_print_func("⚠️ Command failed. Attempting to reset the instrument with '*RST'...")
+    debug_log(f"Command failed. Attempting to send reset command '*RST' to the instrument.",
+                file=__file__,
+                version=current_version,
+                function=current_function)
+    # Use the write_safe function to send the reset command
+    reset_success = write_safe(inst, "*RST", console_print_func)
+    if reset_success:
+        console_print_func("✅ Device reset command sent successfully.")
+        debug_log("Reset command sent. Goddamn, that felt good!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+    else:
+        console_print_func("❌ Failed to send reset command.")
+        debug_log("Failed to send reset command. This is a goddamn mess!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+    return reset_success
+
+
 def write_safe(inst, command, console_print_func):
     # Function Description:
     # Safely writes a SCPI command to the instrument.
@@ -73,6 +114,7 @@ def write_safe(inst, command, console_print_func):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        _reset_device(inst, console_print_func)
         return False
 
 def query_safe(inst, command, console_print_func):
@@ -118,6 +160,7 @@ def query_safe(inst, command, console_print_func):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        _reset_device(inst, console_print_func)
         return None
 
 def set_safe(inst, command, value, console_print_func):
@@ -185,6 +228,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
                         file=__file__,
                         version=current_version,
                         function=current_function)
+            _reset_device(inst, console_print_func)
             return "FAILED"
 
     except pyvisa.errors.VisaIOError as e:
@@ -194,6 +238,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        _reset_device(inst, console_print_func)
         return "TIME FAILED"
     except Exception as e:
         inst.timeout = original_timeout # Restore original timeout
@@ -202,6 +247,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
                     file=__file__,
                     version=current_version,
                     function=current_function)
+        _reset_device(inst, console_print_func)
         return "FAILED"
 
 
@@ -211,7 +257,8 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
     Executes a given VISA command based on its action type and variable value.
     This function has been updated to handle a 'GET' action where the '?' is
     passed in the `variable_value` parameter. It also returns the command's
-    response or a boolean indicating success/failure.
+    response or a boolean indicating success/failure. If the command fails for
+    any reason, it will now attempt to soft reset the device with '*RST'.
 
     Inputs to this function:
     - inst: The PyVISA instrument instance.
@@ -240,7 +287,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        return False
+        return "FAILED"
 
     try:
         if action_type == "GET":
@@ -259,7 +306,8 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=__file__,
                             version=current_version,
                             function=current_function)
-                return None
+                _reset_device(inst, console_print_func)
+                return "FAILED"
         elif action_type == "SET":
             if set_safe(inst, visa_command, variable_value, console_print_func):
                 return _wait_for_opc(inst, console_print_func)
@@ -269,6 +317,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=__file__,
                             version=current_version,
                             function=current_function)
+                _reset_device(inst, console_print_func)
                 return "FAILED"
         elif action_type == "DO":
             if write_safe(inst, visa_command, console_print_func):
@@ -279,6 +328,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=__file__,
                             version=current_version,
                             function=current_function)
+                _reset_device(inst, console_print_func)
                 return "FAILED"
         else:
             console_print_func(f"⚠️ Unknown action type '{action_type}'. Cannot execute command.")
@@ -286,11 +336,13 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                         file=__file__,
                         version=current_version,
                         function=current_function)
-            return False
+            _reset_device(inst, console_print_func)
+            return "FAILED"
     except Exception as e:
         console_print_func(f"❌ Error during VISA command execution: {e}")
         debug_log(f"Error executing VISA command '{visa_command}': {e}. This thing is a pain in the ass!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        return False
+        _reset_device(inst, console_print_func)
+        return "FAILED"

@@ -6,7 +6,8 @@
 # selected commands directly on a connected instrument. The layout and data handling have
 # been updated to include a 'Manufacturer' column, as well as new functionality for column
 # sorting and dynamic resizing. The file is also updated to save to the CSV after a
-# 'YAK' response.
+# 'YAK' response. A new 'VALIDATE ALL COMMANDS' button has been added to automate
+# the validation process for the entire table.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -19,16 +20,17 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.153300.0 (RENOVATED: Implemented dynamic column resizing, column sorting by header click, and auto-saving the CSV after each 'YAK' command.)
+# Version 20250811.154530.0 (RENOVATED: Added a 'VALIDATE ALL COMMANDS' button to automate the execution of every command in the table.)
 
-current_version = "20250811.153300.0"
-current_version_hash = 20250811 * 153300 * 0
+current_version = "20250811.154530.0"
+current_version_hash = 20250811 * 154530 * 0
 
 import tkinter as tk
 from tkinter import ttk, filedialog
 import csv
 import os
 import inspect
+import time
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
@@ -121,10 +123,12 @@ class VisaInterpreterTab(ttk.Frame):
         button_frame.grid_columnconfigure(0, weight=1)
         button_frame.grid_columnconfigure(1, weight=1)
         button_frame.grid_columnconfigure(2, weight=1)
+        button_frame.grid_columnconfigure(3, weight=1)
 
         ttk.Button(button_frame, text="Add Row", command=self._add_row, style='Blue.TButton').grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Delete Selected Row", command=self._delete_row, style='Red.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Save Commands", command=self._save_data, style='Green.TButton').grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        ttk.Button(button_frame, text="VALIDATE ALL COMMANDS", command=self._validate_all_rows, style='Green.TButton').grid(row=0, column=3, padx=5, pady=5, sticky="ew")
 
         # Model Selection Dropdown (for filtering/defaulting new rows) - Moved to row 1
         model_frame = ttk.Frame(self, style='Dark.TFrame')
@@ -219,12 +223,12 @@ class VisaInterpreterTab(ttk.Frame):
             self.console_print_func
         )
 
-        # Check if the command was a GET and a response was received
-        if action_type == "GET" and response is not None:
-            # Update the 'Validated' column with the response
+        # Update the 'Validated' column with the response for GET, SET, and DO commands
+        if action_type in ["GET", "SET", "DO"]:
             current_values = list(values)
             validated_column_index = 6
-            current_values[validated_column_index] = response
+            # Use the response directly for GET, SET, and DO
+            current_values[validated_column_index] = str(response) if response is not None else "FAILED"
             self.tree.item(selected_item, values=current_values)
             self.console_print_func(f"✅ Table updated: Validated column now shows '{response}'.")
             debug_log(f"Table updated for item {selected_item}. Validated column now shows '{response}'. Fucking brilliant!",
@@ -232,9 +236,56 @@ class VisaInterpreterTab(ttk.Frame):
                         version=current_version,
                         function=current_function)
 
-        # NEW: Automatically save the data after a YAK command is executed
+        # Automatically save the data after a YAK command is executed
         self._save_data()
 
+
+    def _validate_all_rows(self):
+        """
+        Iterates through all rows in the Treeview and executes the YAK action on each.
+        This is a fucking awesome way to make sure all commands work!
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        # Remind the user to take a deep breath before a potentially long operation
+        self.console_print_func("Please take a deep breath before validation begins.")
+        self.console_print_func("ℹ️ Starting validation of all commands...")
+        debug_log("Starting validation of all commands. Let's see if this whole table works!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+
+        if not self.app_instance.inst:
+            self.console_print_func("❌ No instrument connected. Cannot validate.")
+            debug_log("No instrument connected. Fucking useless!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            return
+
+        all_items = self.tree.get_children()
+        if not all_items:
+            self.console_print_func("⚠️ No commands to validate.")
+            debug_log("No items in the table to validate. What a waste!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        for item in all_items:
+            self.tree.focus(item) # Set focus to the current item
+            self.tree.selection_set(item) # Select the current item
+            self._yak_button_action()
+            self.tree.see(item) # Scroll to the current item
+            self.update_idletasks() # Force GUI update
+            time.sleep(0.5) # A small pause to prevent overwhelming the instrument
+
+        self.console_print_func("✅ Validation of all commands completed.")
+        debug_log("Validation of all commands finished. Fucking awesome!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        
 
     def _load_data(self):
         """
