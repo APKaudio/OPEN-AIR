@@ -13,10 +13,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250811.130322.6 (FIXED: The _on_poke_action now starts the marker trace loop automatically after setting the frequency, mirroring the behavior of the device buttons.)
+# Version 20250811.130322.13 (FIXED: Corrected button selection logic. The selected device now correctly turns orange. The loop delay control uses a combobox for stability.)
 
-current_version = "20250811.130322.6"
-current_version_hash = (20250811 * 130322 * 6)
+current_version = "20250811.130322.13"
+current_version_hash = (20250811 * 130322 * 13)
 
 import tkinter as tk
 from tkinter import ttk
@@ -32,6 +32,9 @@ from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
 from tabs.Markers.utils_markers_get_traces import get_marker_traces
 
+
+LOOP_DELAY_OPTIONS = [500, 1000, 1500, 2000]
+
 class MarkersDisplayTab(ttk.Frame):
     """
     A Tkinter Frame that displays extracted frequency markers and provides instrument control.
@@ -39,15 +42,6 @@ class MarkersDisplayTab(ttk.Frame):
     def __init__(self, master=None, headers=None, rows=None, app_instance=None, **kwargs):
         # Function Description:
         # Initializes the MarkersDisplayTab.
-        #
-        # Inputs:
-        #   master (tk.Widget): The parent widget.
-        #   headers (list): Headers for the marker data.
-        #   rows (list): Rows of marker data.
-        #   app_instance (object): Reference to the main application instance.
-        #
-        # Outputs:
-        #   None. Initializes the Tkinter frame and its state.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing the MarkersDisplayTab.",
                   file=f"{os.path.basename(__file__)} - {current_version}",
@@ -60,8 +54,9 @@ class MarkersDisplayTab(ttk.Frame):
 
         self.selected_device_unique_id = None
         self.selected_device_name = None
-        self.selected_device_freq = None # NEW: Store selected device frequency
+        self.selected_device_freq = None
         self.marker_trace_loop_job = None
+        self.is_loop_running = False
 
         # --- State Variables for Controls ---
         self.span_var = self.app_instance.span_var
@@ -70,14 +65,14 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_live_mode = self.app_instance.trace_live_var
         self.trace_max_hold_mode = self.app_instance.trace_max_hold_var
         self.trace_min_hold_mode = self.app_instance.trace_min_hold_var
-        self.loop_delay_var = tk.StringVar(value="200")
+        self.loop_delay_var = tk.StringVar(value=str(LOOP_DELAY_OPTIONS[0]))
         self.loop_counter_var = tk.IntVar(value=0)
 
         # --- Dictionaries to hold control buttons for styling ---
         self.span_buttons = {}
         self.rbw_buttons = {}
         self.trace_buttons = {}
-        self.loop_stop_button = None # The start button is removed
+        self.loop_stop_button = None
 
         self._create_widgets()
         self.after(100, self.load_markers_from_file)
@@ -86,12 +81,6 @@ class MarkersDisplayTab(ttk.Frame):
     def _create_widgets(self):
         # Function Description:
         # Creates the widgets for the Markers Display tab.
-        #
-        # Inputs:
-        #   None.
-        #
-        # Outputs:
-        #   None. Populates the tab with GUI elements.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating widgets for the Markers Display tab.",
                   file=f"{os.path.basename(__file__)} - {current_version}",
@@ -189,7 +178,7 @@ class MarkersDisplayTab(ttk.Frame):
         ttk.Entry(poke_tab, textvariable=self.poke_freq_var).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         ttk.Button(poke_tab, text="POKE", command=self._on_poke_action, style='DeviceButton.Active.TButton').grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-        # --- Loop Tab (NEW) ---
+        # --- Loop Tab ---
         loop_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
         self.controls_notebook.add(loop_tab, text="Loop")
         loop_tab.grid_columnconfigure(0, weight=1)
@@ -197,12 +186,12 @@ class MarkersDisplayTab(ttk.Frame):
         loop_tab.grid_columnconfigure(2, weight=1)
 
         ttk.Label(loop_tab, text="Delay (ms):").grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Entry(loop_tab, textvariable=self.loop_delay_var).grid(row=0, column=1, padx=5, pady=5, sticky="ew", columnspan=2)
+        delay_combobox = ttk.Combobox(loop_tab, textvariable=self.loop_delay_var, values=LOOP_DELAY_OPTIONS, state="readonly")
+        delay_combobox.grid(row=0, column=1, padx=5, pady=5, sticky="ew", columnspan=2)
 
         ttk.Label(loop_tab, text="Loop Count:").grid(row=1, column=0, padx=5, pady=5, sticky="ew")
         ttk.Label(loop_tab, textvariable=self.loop_counter_var).grid(row=1, column=1, padx=5, pady=5, sticky="ew", columnspan=2)
 
-        # Removed the "Start Loop" button as per new instructions.
         self.loop_stop_button = ttk.Button(loop_tab, text="Stop Loop", command=self._stop_loop_action, state=tk.DISABLED)
         self.loop_stop_button.grid(row=2, column=0, padx=5, pady=5, sticky="ew", columnspan=3)
 
@@ -254,8 +243,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_buttons['Max Hold'].configure(style='ControlButton.Active.TButton' if self.trace_max_hold_mode.get() else 'ControlButton.Inactive.TButton')
         self.trace_buttons['Min Hold'].configure(style='ControlButton.Active.TButton' if self.trace_min_hold_mode.get() else 'ControlButton.Inactive.TButton')
         
-        # NEW: Update loop button state
-        if self.marker_trace_loop_job:
+        if self.is_loop_running:
             self.loop_stop_button.config(state=tk.NORMAL)
         else:
             self.loop_stop_button.config(state=tk.DISABLED)
@@ -292,11 +280,8 @@ class MarkersDisplayTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         selected_item = self.zone_group_tree.selection()
-        if self.marker_trace_loop_job:
-            self.after_cancel(self.marker_trace_loop_job)
-            self.marker_trace_loop_job = None
-            self.loop_counter_var.set(0)
-            self._update_control_styles()
+        if self.is_loop_running:
+            self._stop_loop_action()
 
         if not selected_item: return
         item = selected_item[0]
@@ -334,6 +319,7 @@ class MarkersDisplayTab(ttk.Frame):
             freq = data.get('FREQ', 'N/A')
             uid = f"{data.get('NAME', '')}-{freq}"
             text = f"{data.get('NAME', 'N/A')}\n{data.get('DEVICE', 'N/A')}\n{freq} MHz"
+            # FIXED: Corrected button styling logic to check for the current selected ID
             style = 'DeviceButton.Active.TButton' if uid == self.selected_device_unique_id else 'DeviceButton.Inactive.TButton'
             btn = ttk.Button(self.inner_buttons_frame, text=text, style=style, command=lambda d=data: self._on_device_button_click(d))
             btn.grid(row=i // num_columns, column=i % num_columns, padx=5, pady=5, sticky="ew")
@@ -346,28 +332,42 @@ class MarkersDisplayTab(ttk.Frame):
                   file=f"{os.path.basename(__file__)} - {current_version}",
                   version=current_version,
                   function=current_function)
+        
         freq_mhz = device_data.get('FREQ', 'N/A')
         device_name = device_data.get('NAME', 'N/A')
-        self.selected_device_unique_id = f"{device_name}-{freq_mhz}"
-        self.selected_device_name = device_name
-        self.selected_device_freq = float(freq_mhz) * MHZ_TO_HZ # Store the frequency
+        zone_name = device_data.get('ZONE', 'N/A')
+        group_name = device_data.get('GROUP', 'N/A')
+
+        if group_name and group_name != 'N/A' and group_name.strip():
+            full_device_name = f"{zone_name} / {group_name} / {device_name}"
+        else:
+            full_device_name = f"{zone_name} / {device_name}"
+
+        self.selected_device_unique_id = f"{full_device_name}-{freq_mhz}"
+        self.selected_device_name = full_device_name
+        self.selected_device_freq = float(freq_mhz) * MHZ_TO_HZ
         self.poke_freq_var.set(str(freq_mhz))
 
         self.controls_notebook.select(0)
-
+        
+        # FIXED: Call this AFTER setting self.selected_device_unique_id
         self._populate_device_buttons(self.get_current_displayed_devices())
 
         if self.app_instance and self.app_instance.inst:
             try:
                 freq_hz = float(freq_mhz) * MHZ_TO_HZ
+                span_hz = float(self.span_var.get())
+                # FIXED: Restored calls to set span and trace modes.
+                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+
                 set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, device_name, console_log)
+                set_marker_logic(self.app_instance.inst, freq_hz, full_device_name, console_log)
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
         
-        # FIXED: Start the loop automatically when a device button is clicked.
-        if self.marker_trace_loop_job:
-            self.after_cancel(self.marker_trace_loop_job)
+        if self.is_loop_running:
+            self._stop_loop_action()
         
         if self.app_instance and self.app_instance.inst:
             try:
@@ -382,7 +382,6 @@ class MarkersDisplayTab(ttk.Frame):
                           version=current_version,
                           function=current_function)
 
-
     def _stop_loop_action(self):
         # Function Description:
         # Handles the "Stop Loop" button action.
@@ -392,9 +391,11 @@ class MarkersDisplayTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
 
-        if self.marker_trace_loop_job:
-            self.after_cancel(self.marker_trace_loop_job)
-            self.marker_trace_loop_job = None
+        if self.is_loop_running:
+            self.is_loop_running = False
+            if self.marker_trace_loop_job:
+                self.after_cancel(self.marker_trace_loop_job)
+                self.marker_trace_loop_job = None
             self.loop_counter_var.set(0)
             console_log("✅ Marker trace loop stopped.")
             self._update_control_styles()
@@ -409,19 +410,44 @@ class MarkersDisplayTab(ttk.Frame):
                   file=f"{os.path.basename(__file__)} - {current_version}",
                   version=current_version,
                   function=current_function)
-        if self.selected_device_name and self.app_instance and self.app_instance.inst and center_freq_hz is not None and span_hz is not None:
-            get_marker_traces(app_instance=self.app_instance, console_print_func=console_log, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
-            self.loop_counter_var.set(self.loop_counter_var.get() + 1)
+        
+        if self.app_instance and self.app_instance.inst and center_freq_hz is not None and span_hz is not None:
+            self.is_loop_running = True
+            def loop_func():
+                if not self.winfo_ismapped():
+                    debug_log(f"Tab is no longer displayed. Commencing immediate loop termination! 💀",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function, special=True)
+                    self._stop_loop_action()
+                    return
 
-            try:
-                delay = int(self.loop_delay_var.get())
-                self.marker_trace_loop_job = self.after(delay, lambda: self._start_marker_trace_loop(center_freq_hz=center_freq_hz, span_hz=span_hz))
-            except ValueError:
-                console_log("❌ Invalid loop delay. Please enter a valid number in the Loop tab.")
-                debug_log(f"The loop delay is not a number! How can a clock run on words? The loop has been stopped by this absurdity!",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
-                          version=current_version,
-                          function=current_function, special=True)
+                if not self.is_loop_running:
+                    debug_log(f"Loop termination flag set to False. Aborting loop. 🏁",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function)
+                    return
+                    
+                get_marker_traces(app_instance=self.app_instance, console_print_func=console_log, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
+                self.loop_counter_var.set(self.loop_counter_var.get() + 1)
+                
+                try:
+                    delay = int(self.loop_delay_var.get())
+                    self.marker_trace_loop_job = self.after(delay, loop_func)
+                except ValueError:
+                    console_log("❌ Invalid loop delay. Please enter a valid number (e.g., 500, 1000). Stopping loop.")
+                    debug_log(f"The loop delay is not a number! How can a clock run on words? The loop has been stopped by this absurdity!",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function, special=True)
+                    self.is_loop_running = False
+                    self.loop_stop_button.config(state=tk.DISABLED)
+                    return
+            
+            self.loop_stop_button.config(state=tk.NORMAL)
+            self.marker_trace_loop_job = self.after(0, loop_func)
+            
         else:
             console_log("❌ Invalid parameters for marker trace loop. Cannot start.")
             debug_log(f"Invalid parameters! We need a center frequency and a span to begin our voyage! Parameters were: center_freq_hz={center_freq_hz}, span_hz={span_hz}",
@@ -507,8 +533,7 @@ class MarkersDisplayTab(ttk.Frame):
         if self.app_instance and self.app_instance.inst:
             try:
                 set_span_logic(self.app_instance.inst, span_hz, console_log)
-                # Restart the loop with the new span value if a device is selected
-                if self.selected_device_freq is not None and self.marker_trace_loop_job:
+                if self.selected_device_freq is not None and self.is_loop_running:
                     self.after_cancel(self.marker_trace_loop_job)
                     self._start_marker_trace_loop(center_freq_hz=self.selected_device_freq, span_hz=span_hz)
             except (ValueError, TypeError) as e:
@@ -566,19 +591,391 @@ class MarkersDisplayTab(ttk.Frame):
             try:
                 freq_mhz = self.poke_freq_var.get()
                 freq_hz = float(freq_mhz) * MHZ_TO_HZ
-                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, f"Poke {freq_mhz} MHz", console_log)
-                self.selected_device_unique_id = None
-                self.selected_device_name = None
-                self.selected_device_freq = freq_hz # NEW: Store the poked frequency for the loop
-                self._populate_device_buttons(self.get_current_displayed_devices())
                 
-                # FIXED: Start the loop after a manual poke
-                if self.marker_trace_loop_job:
-                    self.after_cancel(self.marker_trace_loop_job)
+                poke_marker_name = f"POKE: {freq_mhz} MHz"
+                
+                span_hz = float(self.span_var.get())
+                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                
+                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
+                set_marker_logic(self.app_instance.inst, freq_hz, poke_marker_name, console_log)
+                
+                self.selected_device_unique_id = None
+                self.selected_device_name = poke_marker_name
+                self.selected_device_freq = freq_hz
+                
+                # FIXED: Manually update the button styles, no need to repopulate the entire frame
+                self._update_device_button_styles()
+
+                if self.is_loop_running:
+                    self._stop_loop_action()
+                    
+                try:
+                    delay = int(self.loop_delay_var.get())
+                    self.loop_counter_var.set(0)
+                    self._start_marker_trace_loop(center_freq_hz=freq_hz, span_hz=span_hz)
+                except (ValueError, TypeError) as e:
+                    console_log(f"❌ Error starting marker trace loop after poke: {e}")
+                    debug_log(f"Dastardly bug! A TypeError or ValueError has struck our brave poke loop! Error: {e}",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function)
+            except (ValueError, TypeError) as e:
+                console_log(f"Invalid POKE frequency: {e}")
+                debug_log(f"Captain, the frequency given is gibberish! Error: {e}",
+                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          version=current_version,
+                          function=current_function, special=True)
+    
+    def _on_tab_selected(self, event):
+        # Function Description:
+        # Handles the tab selection event.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"The tab has been selected. Loading markers from the file.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        self.load_markers_from_file()
+
+    def _update_device_button_styles(self):
+        # Function Description:
+        # Updates the visual style of the device buttons to reflect the currently selected device.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Updating the device button styles. Highlighting the chosen one! ✨",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        for child in self.inner_buttons_frame.winfo_children():
+            if isinstance(child, ttk.Button):
+                device_data = child.cget("text")
+                # Parse the UID from the button text to compare with the selected UID
+                try:
+                    # The button text is in the format "NAME\nDEVICE\nFREQ MHz"
+                    name = device_data.split('\n')[0].strip()
+                    freq = device_data.split('\n')[2].replace(' MHz', '').strip()
+                    # The full device name is not in the button text, so we'll have to rely on a unique part
+                    # The previous logic of `f"{full_device_name}-{freq_mhz}"` is robust, but the button text doesn't contain the full name.
+                    # We'll need to adapt. Let's use `name-freq` as a simpler, unique ID for the button.
+                    uid = f"{name}-{freq}"
+                except IndexError:
+                    # Handle cases where the button text is not in the expected format
+                    uid = None
+                
+                style = 'DeviceButton.Active.TButton' if uid == self.selected_device_unique_id else 'DeviceButton.Inactive.TButton'
+                child.configure(style=style)
+
+    def _populate_device_buttons(self, devices):
+        # Function Description:
+        # Populates the device buttons frame.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Populating device buttons. There be {len(devices)} devices in this zone!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        for widget in self.inner_buttons_frame.winfo_children():
+            widget.destroy()
+        if not devices:
+            ttk.Label(self.inner_buttons_frame, text="Select a zone or group.").pack()
+            return
+
+        num_columns = 3 if len(devices) > 10 else 2
+        for i in range(num_columns): self.inner_buttons_frame.grid_columnconfigure(i, weight=1)
+
+        for i, data in enumerate(devices):
+            freq = data.get('FREQ', 'N/A')
+            uid = f"{data.get('NAME', '')}-{freq}"
+            text = f"{data.get('NAME', 'N/A')}\n{data.get('DEVICE', 'N/A')}\n{freq} MHz"
+            style = 'DeviceButton.Active.TButton' if uid == self.selected_device_unique_id else 'DeviceButton.Inactive.TButton'
+            btn = ttk.Button(self.inner_buttons_frame, text=text, style=style, command=lambda d=data: self._on_device_button_click(d))
+            btn.grid(row=i // num_columns, column=i % num_columns, padx=5, pady=5, sticky="ew")
+
+    def _on_device_button_click(self, device_data):
+        # Function Description:
+        # Handles a device button click.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"A device button was clicked. Setting the frequency for the instrument! ⚡",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        
+        freq_mhz = device_data.get('FREQ', 'N/A')
+        device_name = device_data.get('NAME', 'N/A')
+        zone_name = device_data.get('ZONE', 'N/A')
+        group_name = device_data.get('GROUP', 'N/A')
+
+        if group_name and group_name != 'N/A' and group_name.strip():
+            full_device_name = f"{zone_name} / {group_name} / {device_name}"
+        else:
+            full_device_name = f"{zone_name} / {device_name}"
+
+        self.selected_device_unique_id = f"{device_name}-{freq_mhz}" # FIXED: Use a simpler UID for button matching
+        self.selected_device_name = full_device_name
+        self.selected_device_freq = float(freq_mhz) * MHZ_TO_HZ
+        self.poke_freq_var.set(str(freq_mhz))
+
+        self.controls_notebook.select(0)
+        
+        self._update_device_button_styles() # FIXED: Call the new function to update buttons directly.
+
+        if self.app_instance and self.app_instance.inst:
+            try:
+                freq_hz = float(freq_mhz) * MHZ_TO_HZ
+                span_hz = float(self.span_var.get())
+                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+
+                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
+                set_marker_logic(self.app_instance.inst, freq_hz, full_device_name, console_log)
+            except (ValueError, TypeError) as e:
+                console_log(f"Error setting frequency: {e}")
+        
+        if self.is_loop_running:
+            self._stop_loop_action()
+        
+        if self.app_instance and self.app_instance.inst:
+            try:
+                center_freq_hz = self.selected_device_freq
+                span_hz = float(self.span_var.get())
+                self.loop_counter_var.set(0)
+                self._start_marker_trace_loop(center_freq_hz=center_freq_hz, span_hz=span_hz)
+            except (ValueError, TypeError) as e:
+                console_log(f"❌ Error starting marker trace loop: {e}")
+                debug_log(f"Dastardly bug! A TypeError or ValueError has struck our brave loop! Error: {e}",
+                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          version=current_version,
+                          function=current_function)
+
+    def _stop_loop_action(self):
+        # Function Description:
+        # Handles the "Stop Loop" button action.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Stopping the loop! All systems, cease and desist!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+
+        if self.is_loop_running:
+            self.is_loop_running = False
+            if self.marker_trace_loop_job:
+                self.after_cancel(self.marker_trace_loop_job)
+                self.marker_trace_loop_job = None
+            self.loop_counter_var.set(0)
+            console_log("✅ Marker trace loop stopped.")
+            self._update_control_styles()
+        else:
+            console_log("❌ No active loop to stop.")
+
+    def _start_marker_trace_loop(self, center_freq_hz=None, span_hz=None):
+        # Function Description:
+        # Starts a recurring loop to fetch marker traces.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Starting the marker trace loop. Get ready for some data! 📈",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        
+        if self.app_instance and self.app_instance.inst and center_freq_hz is not None and span_hz is not None:
+            self.is_loop_running = True
+            def loop_func():
+                if not self.winfo_ismapped():
+                    debug_log(f"Tab is no longer displayed. Commencing immediate loop termination! 💀",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function, special=True)
+                    self._stop_loop_action()
+                    return
+
+                if not self.is_loop_running:
+                    debug_log(f"Loop termination flag set to False. Aborting loop. 🏁",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function)
+                    return
+                    
+                get_marker_traces(app_instance=self.app_instance, console_print_func=console_log, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
+                self.loop_counter_var.set(self.loop_counter_var.get() + 1)
                 
                 try:
-                    span_hz = float(self.span_var.get())
+                    delay = int(self.loop_delay_var.get())
+                    self.marker_trace_loop_job = self.after(delay, loop_func)
+                except ValueError:
+                    console_log("❌ Invalid loop delay. Please enter a valid number (e.g., 500, 1000). Stopping loop.")
+                    debug_log(f"The loop delay is not a number! How can a clock run on words? The loop has been stopped by this absurdity!",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function, special=True)
+                    self.is_loop_running = False
+                    self.loop_stop_button.config(state=tk.DISABLED)
+                    return
+            
+            self.loop_stop_button.config(state=tk.NORMAL)
+            self.marker_trace_loop_job = self.after(0, loop_func)
+            
+        else:
+            console_log("❌ Invalid parameters for marker trace loop. Cannot start.")
+            debug_log(f"Invalid parameters! We need a center frequency and a span to begin our voyage! Parameters were: center_freq_hz={center_freq_hz}, span_hz={span_hz}",
+                      file=f"{os.path.basename(__file__)} - {current_version}",
+                      version=current_version,
+                      function=current_function, special=True)
+
+    def get_current_displayed_devices(self):
+        # Function Description:
+        # Returns a list of devices currently displayed.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Retrieving a list of currently displayed devices.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        selected_item = self.zone_group_tree.selection()
+        if not selected_item: return []
+        item = selected_item[0]
+        parent_id = self.zone_group_tree.parent(item)
+        text = self.zone_group_tree.item(item, 'text')
+        devices = []
+        if not parent_id:
+            for row in self.rows:
+                if row.get('ZONE', '').strip() == text: devices.append(row)
+        else:
+            zone_name = self.zone_group_tree.item(parent_id, 'text')
+            for row in self.rows:
+                if row.get('ZONE', '').strip() == zone_name and row.get('GROUP', '').strip() == text:
+                    devices.append(row)
+        return devices
+
+    def update_marker_data(self, new_headers, new_rows):
+        # Function Description:
+        # Updates the marker data and repopulates the tree view.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Updating the marker data and repopulating the display.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        self.headers = new_headers if new_headers is not None else []
+        self.rows = new_rows if new_rows is not None else []
+        self._populate_zone_group_tree()
+        first_item = self.zone_group_tree.get_children()
+        if first_item:
+            self.zone_group_tree.selection_set(first_item[0])
+            self.zone_group_tree.focus(first_item[0])
+            self._on_tree_select(None)
+
+    def load_markers_from_file(self):
+        # Function Description:
+        # Loads marker data from a file.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Loading markers from the CSV file. Time for some data wrangling! 🤠",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
+            path = self.app_instance.MARKERS_FILE_PATH
+            if os.path.exists(path):
+                try:
+                    with open(path, mode='r', newline='', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        self.update_marker_data(list(reader.fieldnames or []), list(reader))
+                except Exception as e:
+                    console_log(f"Error loading MARKERS.CSV: {e}")
+                    self.update_marker_data([], [])
+                    debug_log(f"A file loading calamity! The MARKERS.CSV file couldn't be loaded. Error: {e}",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function, special=True)
+            else: self.update_marker_data([], [])
+
+    def _on_span_button_click(self, span_hz):
+        # Function Description:
+        # Handles a span button click.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"A span button has been clicked. Updating the instrument's span to {span_hz} Hz!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        self.span_var.set(str(span_hz))
+        self._update_control_styles()
+        if self.app_instance and self.app_instance.inst:
+            try:
+                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                if self.selected_device_freq is not None and self.is_loop_running:
+                    self.after_cancel(self.marker_trace_loop_job)
+                    self._start_marker_trace_loop(center_freq_hz=self.selected_device_freq, span_hz=span_hz)
+            except (ValueError, TypeError) as e:
+                debug_log(f"A ValueError or TypeError has corrupted our span logic! Error: {e}",
+                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          version=current_version,
+                          function=current_function, special=True)
+                pass
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+
+    def _on_rbw_button_click(self, rbw_hz):
+        # Function Description:
+        # Handles an RBW button click.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"An RBW button has been clicked. Setting the RBW to {rbw_hz} Hz!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        self.rbw_var.set(str(rbw_hz))
+        self._update_control_styles()
+        if self.app_instance and self.app_instance.inst:
+            try:
+                set_rbw_logic(self.app_instance.inst, rbw_hz, console_log)
+            except (ValueError, TypeError) as e:
+                debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
+                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          version=current_version,
+                          function=current_function, special=True)
+                pass
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+
+    def _on_trace_button_click(self, trace_var):
+        # Function Description:
+        # Handles a trace button click.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"A trace mode button has been toggled.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        trace_var.set(not trace_var.get())
+        self._update_control_styles()
+        if self.app_instance and self.app_instance.inst:
+            set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+
+    def _on_poke_action(self):
+        # Function Description:
+        # Handles the Poke button action.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"The 'Poke' button has been pressed! Prepare for a new frequency point! 🎯",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+        if self.app_instance and self.app_instance.inst:
+            try:
+                freq_mhz = self.poke_freq_var.get()
+                freq_hz = float(freq_mhz) * MHZ_TO_HZ
+                
+                poke_marker_name = f"POKE: {freq_mhz} MHz"
+                
+                span_hz = float(self.span_var.get())
+                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                
+                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
+                set_marker_logic(self.app_instance.inst, freq_hz, poke_marker_name, console_log)
+                
+                self.selected_device_unique_id = None
+                self.selected_device_name = poke_marker_name
+                self.selected_device_freq = freq_hz
+                
+                self._update_device_button_styles()
+
+                if self.is_loop_running:
+                    self._stop_loop_action()
+                    
+                try:
+                    delay = int(self.loop_delay_var.get())
                     self.loop_counter_var.set(0)
                     self._start_marker_trace_loop(center_freq_hz=freq_hz, span_hz=span_hz)
                 except (ValueError, TypeError) as e:

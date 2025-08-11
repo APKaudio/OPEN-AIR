@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.130322.2 (FIXED: The get_marker_traces function now accepts center and span frequencies directly, eliminating redundant queries to the instrument. This simplifies the function and improves efficiency.)
+# Version 20250811.130322.4 (REFACTORED: The trace update loop is now a cycle of 5:1:5:1 for Live, Max Hold, and Min Hold, respectively. The single publish_traces function has been broken into three separate functions for clarity.)
 
 import inspect
 import os
@@ -26,9 +26,11 @@ from tabs.Instrument.utils_instrument_read_and_write import query_safe
 from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
 
 
-current_version = "20250811.130322.2"
-current_version_hash = 20250811 * 130322 * 2
+current_version = "20250811.130322.4"
+current_version_hash = (20250811 * 130322 * 4)
 
+# A global counter to manage the trace update cycle state.
+_trace_update_cycle_counter = 0
 
 def _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz):
     # Function Description:
@@ -50,14 +52,12 @@ def _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz):
         # Calculate the frequency points using numpy linspace
         frequencies_hz = np.linspace(start_freq_hz, end_freq_hz, num_points)
 
-        # FIXED: Explicitly cast the numpy float to a standard Python float to remove the np.float64 prefix from debug logs
         frequencies_mhz_rounded = [float(round(f / 1000000, 3)) for f in frequencies_hz]
         amplitudes_dbm_rounded = [round(a, 3) for a in amplitudes_dbm]
 
         # Combine the frequencies and rounded amplitudes into a list of tuples
         processed_data = list(zip(frequencies_mhz_rounded, amplitudes_dbm_rounded))
 
-        # NEW: Log the processed data for debugging
         debug_log(f"Successfully processed trace data. First 5 points: {processed_data[:5]}...",
                   file=f"{os.path.basename(__file__)} - {current_version}",
                   version=current_version,
@@ -144,50 +144,57 @@ def get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_h
     return None
 
 
-def publish_traces(app_instance, console_print_func, trace_1_data=None, trace_2_data=None, trace_3_data=None, start_freq_mhz=0, end_freq_mhz=0, plot_titles=[]):
+def publish_top_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
-    # Publishes the processed trace data to the display monitor plots.
-    # This function acts as the single point of contact with the display module.
+    # Publishes trace data to the top display monitor plot (Live).
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Publishing processed trace data to the display plots. The audience is waiting! 🎭",
+    debug_log(f"Publishing top trace data. The audience is waiting! 🎭",
               file=f"{os.path.basename(__file__)} - {current_version}",
               version=current_version,
               function=current_function)
-
-    # Get the instance of the ScanMonitorTab from the app_instance
     scan_monitor_tab_instance = app_instance.scan_monitor_tab
     if not scan_monitor_tab_instance:
         console_print_func("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
-        debug_log(f"The Scan Monitor tab instance is a big fat ZERO. Aborting.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
         return
+    update_top_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    console_print_func(f"✅ Successfully updated top plot with Trace data.")
 
-    # Use the provided plot titles, or default to a descriptive title
-    title_1 = plot_titles[0] if len(plot_titles) > 0 else "Live"
-    title_2 = plot_titles[1] if len(plot_titles) > 1 else "Max Hold"
-    title_3 = plot_titles[2] if len(plot_titles) > 2 else "Min Hold"
+def publish_medium_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title):
+    # Function Description:
+    # Publishes trace data to the middle display monitor plot (Max Hold).
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Publishing medium trace data. The audience is waiting! 🎭",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+    scan_monitor_tab_instance = app_instance.scan_monitor_tab
+    if not scan_monitor_tab_instance:
+        console_print_func("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
+        return
+    update_medium_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    console_print_func(f"✅ Successfully updated medium plot with Trace data.")
 
-    if trace_1_data:
-        update_top_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=title_1)
-        console_print_func(f"✅ Successfully updated top plot with Trace 1 data.")
-
-    if trace_2_data:
-        update_medium_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=title_2)
-        console_print_func(f"✅ Successfully updated medium plot with Trace 2 data.")
-
-    if trace_3_data:
-        update_bottom_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=title_3)
-        console_print_func(f"✅ Successfully updated bottom plot with Trace 3 data.")
+def publish_bottom_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title):
+    # Function Description:
+    # Publishes trace data to the bottom display monitor plot (Min Hold).
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Publishing bottom trace data. The audience is waiting! 🎭",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+    scan_monitor_tab_instance = app_instance.scan_monitor_tab
+    if not scan_monitor_tab_instance:
+        console_print_func("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
+        return
+    update_bottom_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    console_print_func(f"✅ Successfully updated bottom plot with Trace data.")
 
 
 def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name=None):
     # Function Description:
-    # Orchestrates the retrieval of trace data from the instrument. This function
-    # now accepts the center frequency and span directly, removing the need to
-    # query the instrument for these values. It then gets data for all three
-    # traces and publishes them to the display monitor.
+    # Orchestrates the retrieval of trace data from the instrument in a specific cycle.
+    # The cycle is 5 updates for the live trace, then 1 for the max hold, then 5 for the live,
+    # then 1 for the min hold. This prioritizes fresh live data while still updating the hold traces.
     #
     # Inputs:
     #   app_instance (object): A reference to the main application instance.
@@ -198,14 +205,13 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
     #
     # Outputs:
     #   None. Calls other functions to update the display monitors.
+    global _trace_update_cycle_counter
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Getting marker traces with pre-defined center and span frequencies. This is a much better way to do it! 🚀",
               file=f"{os.path.basename(__file__)} - {current_version}",
               version=current_version,
               function=current_function)
 
-    # Let the calling function handle the instrument connection check. This function will proceed
-    # with the assumption that a valid instrument instance is present.
     if not app_instance.inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot get marker traces.")
         debug_log(f"Instrument is not connected. Aborting trace retrieval.",
@@ -214,32 +220,45 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
                   function=current_function)
         return
 
-    # A wild scientist appears! He says: "By golly! We've been given the sacred numbers!
-    # No need to ask the machine itself for its secrets. We can use these values directly to calculate
-    # the start and end frequencies. It's a much more elegant solution, don't you think?"
-
     start_freq_hz = center_freq_hz - (span_hz / 2)
     end_freq_hz = center_freq_hz + (span_hz / 2)
 
-    # Define plot titles here based on the device_name
-    if device_name:
-        plot_titles = [f"Live: {device_name}", f"Max Hold: {device_name}", f"Min Hold: {device_name}"]
-    else:
-        plot_titles = ["Live", "Max Hold", "Min Hold"]
-
-
-    console_print_func(f"✅ Queried instrument. Center Freq: {center_freq_hz} Hz, Span: {span_hz} Hz.")
-    console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz.")
-
-    # Get data from each trace
-    trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-    trace_2_data = get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-    trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-
-    # Convert frequency range to MHz for plotting
     start_freq_mhz = start_freq_hz / 1000000
     end_freq_mhz = end_freq_hz / 1000000
 
-    # Publish the traces to the display module
-    publish_traces(app_instance=app_instance, console_print_func=console_print_func, trace_1_data=trace_1_data, trace_2_data=trace_2_data, trace_3_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_titles=plot_titles)
+    if device_name:
+        plot_title = device_name
+    else:
+        plot_title = "Live"
+        
+    debug_log(f"The current cycle counter is: {_trace_update_cycle_counter}. Let's see what happens!",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
 
+    if _trace_update_cycle_counter < 5:
+        # Update Trace 1 five times
+        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        if trace_1_data:
+            publish_top_trace(app_instance, console_print_func, trace_data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Live: {plot_title}")
+        _trace_update_cycle_counter += 1
+    elif _trace_update_cycle_counter == 5:
+        # Update Trace 2 once
+        trace_2_data = get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        if trace_2_data:
+            publish_medium_trace(app_instance, console_print_func, trace_data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Max Hold: {plot_title}")
+        _trace_update_cycle_counter += 1
+    elif _trace_update_cycle_counter < 11:
+        # Update Trace 1 five more times
+        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        if trace_1_data:
+            publish_top_trace(app_instance, console_print_func, trace_data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Live: {plot_title}")
+        _trace_update_cycle_counter += 1
+    elif _trace_update_cycle_counter == 11:
+        # Update Trace 3 once
+        trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        if trace_3_data:
+            publish_bottom_trace(app_instance, console_print_func, trace_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Min Hold: {plot_title}")
+        _trace_update_cycle_counter = 0 # Reset the cycle
+
+    console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz.")
