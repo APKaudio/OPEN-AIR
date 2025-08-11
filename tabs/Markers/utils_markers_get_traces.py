@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.130322.4 (REFACTORED: The trace update loop is now a cycle of 5:1:5:1 for Live, Max Hold, and Min Hold, respectively. The single publish_traces function has been broken into three separate functions for clarity.)
+# Version 20250811.121800.1 (FIXED: The trace update cycle now correctly adheres to a 10-tick loop, calling Max Hold every 5th tick and Min Hold every 10th, if enabled.)
 
 import inspect
 import os
@@ -26,8 +26,8 @@ from tabs.Instrument.utils_instrument_read_and_write import query_safe
 from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
 
 
-current_version = "20250811.130322.4"
-current_version_hash = (20250811 * 130322 * 4)
+current_version = "20250811.121800.1"
+current_version_hash = (20250811 * 121800 * 1)
 
 # A global counter to manage the trace update cycle state.
 _trace_update_cycle_counter = 0
@@ -85,7 +85,7 @@ def get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_h
         console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 1 data.")
         return None
 
-    trace_data_str = query_safe(app_instance.inst, ":TRAC1:DATA?", app_instance, console_print_func)
+    trace_data_str = query_safe(app_instance.inst, ":TRAC1:DATA?", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:
@@ -109,7 +109,7 @@ def get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_h
         console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 2 data.")
         return None
 
-    trace_data_str = query_safe(app_instance.inst, ":TRAC2:DATA?", app_instance, console_print_func)
+    trace_data_str = query_safe(app_instance.inst, ":TRAC2:DATA?", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:
@@ -133,7 +133,7 @@ def get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_h
         console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 3 data.")
         return None
 
-    trace_data_str = query_safe(app_instance.inst, ":TRAC3:DATA?", app_instance, console_print_func)
+    trace_data_str = query_safe(app_instance.inst, ":TRAC3:DATA?", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:
@@ -159,6 +159,7 @@ def publish_top_trace(app_instance, console_print_func, trace_data, start_freq_m
     update_top_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
     console_print_func(f"✅ Successfully updated top plot with Trace data.")
 
+
 def publish_medium_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
     # Publishes trace data to the middle display monitor plot (Max Hold).
@@ -173,6 +174,7 @@ def publish_medium_trace(app_instance, console_print_func, trace_data, start_fre
         return
     update_medium_plot(scan_monitor_tab_instance=scan_monitor_tab_instance, data=trace_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
     console_print_func(f"✅ Successfully updated medium plot with Trace data.")
+
 
 def publish_bottom_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
@@ -192,9 +194,10 @@ def publish_bottom_trace(app_instance, console_print_func, trace_data, start_fre
 
 def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name=None):
     # Function Description:
-    # Orchestrates the retrieval of trace data from the instrument in a specific cycle.
-    # The cycle is 5 updates for the live trace, then 1 for the max hold, then 5 for the live,
-    # then 1 for the min hold. This prioritizes fresh live data while still updating the hold traces.
+    # Orchestrates the retrieval of trace data from the instrument based on a specific,
+    # user-defined update ratio for Live, Max Hold, and Min Hold traces.
+    # The ratio is 1 Live update every tick, 1 Max Hold update every 5 ticks,
+    # and 1 Min Hold update every 10 ticks. The loop is a 10-tick cycle.
     #
     # Inputs:
     #   app_instance (object): A reference to the main application instance.
@@ -207,7 +210,7 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
     #   None. Calls other functions to update the display monitors.
     global _trace_update_cycle_counter
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Getting marker traces with pre-defined center and span frequencies. This is a much better way to do it! 🚀",
+    debug_log(f"Getting marker traces with a specific update ratio. The timing must be perfect! ⏱️",
               file=f"{os.path.basename(__file__)} - {current_version}",
               version=current_version,
               function=current_function)
@@ -225,40 +228,37 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
 
     start_freq_mhz = start_freq_hz / 1000000
     end_freq_mhz = end_freq_hz / 1000000
-
-    if device_name:
-        plot_title = device_name
+    
+    # --- Live Trace (Trace 1) ---
+    if app_instance.trace_live_var.get():
+        plot_title = f"Live: {device_name}" if device_name else "Live Scan"
+        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        publish_top_trace(app_instance, console_print_func, trace_data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
     else:
-        plot_title = "Live"
-        
-    debug_log(f"The current cycle counter is: {_trace_update_cycle_counter}. Let's see what happens!",
-              file=f"{os.path.basename(__file__)} - {current_version}",
-              version=current_version,
-              function=current_function)
+        plot_title = "Live scan not active"
+        publish_top_trace(app_instance, console_print_func, trace_data=[], start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
 
-    if _trace_update_cycle_counter < 5:
-        # Update Trace 1 five times
-        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        if trace_1_data:
-            publish_top_trace(app_instance, console_print_func, trace_data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Live: {plot_title}")
-        _trace_update_cycle_counter += 1
-    elif _trace_update_cycle_counter == 5:
-        # Update Trace 2 once
+    # --- Max Hold Trace (Trace 2) ---
+    # Update once every 5 live scans, if enabled.
+    if app_instance.trace_max_hold_var.get() and _trace_update_cycle_counter % 5 == 0:
+        plot_title = f"Max Hold: {device_name}" if device_name else "Max Hold Scan"
         trace_2_data = get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        if trace_2_data:
-            publish_medium_trace(app_instance, console_print_func, trace_data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Max Hold: {plot_title}")
-        _trace_update_cycle_counter += 1
-    elif _trace_update_cycle_counter < 11:
-        # Update Trace 1 five more times
-        trace_1_data = get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        if trace_1_data:
-            publish_top_trace(app_instance, console_print_func, trace_data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Live: {plot_title}")
-        _trace_update_cycle_counter += 1
-    elif _trace_update_cycle_counter == 11:
-        # Update Trace 3 once
-        trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-        if trace_3_data:
-            publish_bottom_trace(app_instance, console_print_func, trace_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=f"Min Hold: {plot_title}")
-        _trace_update_cycle_counter = 0 # Reset the cycle
+        publish_medium_trace(app_instance, console_print_func, trace_data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    elif not app_instance.trace_max_hold_var.get():
+        plot_title = "Max Hold not active"
+        publish_medium_trace(app_instance, console_print_func, trace_data=[], start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
 
-    console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz.")
+    # --- Min Hold Trace (Trace 3) ---
+    # Update once every 10 live scans, if enabled.
+    if app_instance.trace_min_hold_var.get() and _trace_update_cycle_counter % 10 == 0:
+        plot_title = f"Min Hold: {device_name}" if device_name else "Min Hold Scan"
+        trace_3_data = get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+        publish_bottom_trace(app_instance, console_print_func, trace_data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    elif not app_instance.trace_min_hold_var.get():
+        plot_title = "Min Hold not active"
+        publish_bottom_trace(app_instance, console_print_func, trace_data=[], start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+
+    # Increment the counter and reset at 10 to maintain the cycle
+    _trace_update_cycle_counter = (_trace_update_cycle_counter + 1) % 10
+    
+    console_print_func(f"📊 Display range set from {start_freq_hz} Hz to {end_freq_hz} Hz. Live update cycle count: {_trace_update_cycle_counter}.")
