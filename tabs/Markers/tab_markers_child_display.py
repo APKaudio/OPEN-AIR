@@ -13,10 +13,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250811.130322.5 (FIXED: The start button for the loop has been removed. The loop now automatically starts when a device button is clicked. The default loop delay has been changed to 200ms.)
+# Version 20250811.130322.6 (FIXED: The _on_poke_action now starts the marker trace loop automatically after setting the frequency, mirroring the behavior of the device buttons.)
 
-current_version = "20250811.130322.5"
-current_version_hash = (20250811 * 130322 * 5)
+current_version = "20250811.130322.6"
+current_version_hash = (20250811 * 130322 * 6)
 
 import tkinter as tk
 from tkinter import ttk
@@ -70,7 +70,7 @@ class MarkersDisplayTab(ttk.Frame):
         self.trace_live_mode = self.app_instance.trace_live_var
         self.trace_max_hold_mode = self.app_instance.trace_max_hold_var
         self.trace_min_hold_mode = self.app_instance.trace_min_hold_var
-        self.loop_delay_var = tk.StringVar(value="200") # FIXED: Default loop delay is now 200ms
+        self.loop_delay_var = tk.StringVar(value="200")
         self.loop_counter_var = tk.IntVar(value=0)
 
         # --- Dictionaries to hold control buttons for styling ---
@@ -570,14 +570,23 @@ class MarkersDisplayTab(ttk.Frame):
                 set_marker_logic(self.app_instance.inst, freq_hz, f"Poke {freq_mhz} MHz", console_log)
                 self.selected_device_unique_id = None
                 self.selected_device_name = None
-                self.selected_device_freq = None
+                self.selected_device_freq = freq_hz # NEW: Store the poked frequency for the loop
                 self._populate_device_buttons(self.get_current_displayed_devices())
-                # NEW: Stop loop after a manual poke
+                
+                # FIXED: Start the loop after a manual poke
                 if self.marker_trace_loop_job:
                     self.after_cancel(self.marker_trace_loop_job)
-                    self.marker_trace_loop_job = None
+                
+                try:
+                    span_hz = float(self.span_var.get())
                     self.loop_counter_var.set(0)
-                    self._update_control_styles()
+                    self._start_marker_trace_loop(center_freq_hz=freq_hz, span_hz=span_hz)
+                except (ValueError, TypeError) as e:
+                    console_log(f"❌ Error starting marker trace loop after poke: {e}")
+                    debug_log(f"Dastardly bug! A TypeError or ValueError has struck our brave poke loop! Error: {e}",
+                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              version=current_version,
+                              function=current_function)
             except (ValueError, TypeError) as e:
                 console_log(f"Invalid POKE frequency: {e}")
                 debug_log(f"Captain, the frequency given is gibberish! Error: {e}",
