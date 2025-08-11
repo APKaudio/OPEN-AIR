@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0149.1 (Explicitly filtered style_obj from kwargs passed to super().__init__.)
+# Version 20250811.141400.2 (REFACTORED: Moved the default VISA command array to ref/ref_visa_commands.py to consolidate data and logic, and updated this file to import from the new module.)
 
-current_version = "20250802.0149.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250801 * 2210 * 1 # Example hash, adjust as needed
+current_version = "20250811.141400.2" # this variable should always be defined below the header to make the debugging better
+current_version_hash = 20250811 * 141400 * 2 # Example hash, adjust as needed
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -30,6 +30,9 @@ import inspect # Import inspect module for debug_log
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+
+# NEW: Import the default commands from the new reference file
+from ref.ref_visa_commands import get_default_commands
 
 from tabs.Instrument.utils_yak_visa import execute_visa_command # Corrected import path for utils_yak_visa
 
@@ -133,7 +136,7 @@ class VisaInterpreterTab(ttk.Frame):
 
         # Treeview for displaying and editing commands - Moved to row 2
         # Updated columns to include "Model" at the beginning
-        columns = ("Model", "Command Type", "Action", "VISA Command", "Variable")
+        columns = ("Model", "Command Type", "Action", "VISA Command", "Variable", "Validated")
         self.tree = ttk.Treeview(self, columns=columns, show="headings", style='Treeview')
         self.tree.grid(row=2, column=0, sticky="nsew", padx=5, pady=5)
 
@@ -143,6 +146,7 @@ class VisaInterpreterTab(ttk.Frame):
         self.tree.heading("Action", text="Action", anchor=tk.W)
         self.tree.heading("VISA Command", text="VISA Command", anchor=tk.W)
         self.tree.heading("Variable", text="Variable", anchor=tk.W)
+        self.tree.heading("Validated", text="Validated", anchor=tk.W)
 
         # Configure column widths (adjust as needed)
         self.tree.column("Model", width=100, minwidth=80, stretch=False) # Fixed width for Model
@@ -150,6 +154,7 @@ class VisaInterpreterTab(ttk.Frame):
         self.tree.column("Action", width=80, minwidth=60, stretch=False)
         self.tree.column("VISA Command", width=250, minwidth=150, stretch=True)
         self.tree.column("Variable", width=100, minwidth=80, stretch=True)
+        self.tree.column("Validated", width=80, minwidth=60, stretch=False)
 
         # Scrollbars
         vsb = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
@@ -171,7 +176,7 @@ class VisaInterpreterTab(ttk.Frame):
 
         self.editor = None # To hold the Entry widget for editing
 
-        debug_log("VisaInterpreterTab widgets created. Ready to serve!",
+        debug_log("VisaInterpreterTab widgets created. Ready to interpret some damn commands!",
                     file=__file__,
                     version=current_version,
                     function=current_function)
@@ -205,8 +210,7 @@ class VisaInterpreterTab(ttk.Frame):
             return
 
         values = self.tree.item(selected_item, 'values')
-        # Columns: (Model, Command Type, Action, VISA Command, Variable)
-        # Note: Model is at index 0, Command Type at 1, Action at 2, VISA Command at 3, Variable at 4
+        # Columns: (Model, Command Type, Action, VISA Command, Variable, Validated)
         action_type = values[2] # "Action" column
         visa_command = values[3] # "VISA Command" column
         variable_value = values[4] # "Variable" column
@@ -288,11 +292,11 @@ class VisaInterpreterTab(ttk.Frame):
             file_needs_defaults = True # Treat as "empty" for default loading purposes
 
         if file_needs_defaults:
-            commands_to_load = self._get_default_commands()
+            commands_to_load = get_default_commands()
             self._save_data() # Save defaults to the file
 
-        for model_name, cmd_type, action, command, variable in commands_to_load:
-            self.tree.insert("", "end", values=(model_name, cmd_type, action, command, variable))
+        for row in commands_to_load:
+            self.tree.insert("", "end", values=row)
         debug_log(f"Displayed {len(commands_to_load)} commands in Treeview. Let's see if they work!",
                     file=__file__,
                     version=current_version,
@@ -323,7 +327,7 @@ class VisaInterpreterTab(ttk.Frame):
             with open(self.data_file, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 # Updated header to include 'Model'
-                writer.writerow(["Model", "Command Type", "Action", "VISA Command", "Variable"])
+                writer.writerow(["Model", "Command Type", "Action", "VISA Command", "Variable", "Validated"])
                 writer.writerows(data_to_save)
             self.console_print_func(f"✅ Saved {len(data_to_save)} commands to {os.path.basename(self.data_file)}.")
             debug_log(f"Saved {len(data_to_save)} commands to {self.data_file}. Fucking brilliant!",
@@ -343,7 +347,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         # New rows will have default model ("N9340B"), "General" type, "SET" action, empty command, empty variable
-        self.tree.insert("", "end", values=("N9340B", "General", "SET", "", ""))
+        self.tree.insert("", "end", values=("N9340B", "General", "SET", "", "", ""))
         self.console_print_func("✅ Added a new empty row.")
         debug_log("Added new row. Another one bites the dust!",
                     file=__file__,
@@ -368,9 +372,9 @@ class VisaInterpreterTab(ttk.Frame):
             self.tree.delete(item)
         self.console_print_func(f"✅ Deleted {len(selected_items)} selected row(s).")
         debug_log(f"Deleted {len(selected_items)} row(s). Goodbye, you useless rows!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
 
     def _on_double_click_edit(self, event):
         """
@@ -478,144 +482,16 @@ class VisaInterpreterTab(ttk.Frame):
 
     def _get_default_commands(self):
         """
-        Returns a list of default VISA commands.
-        Each entry is a tuple: (Model, Category, Action, VISA Command, Default Value for Variable).
+        DEPRECATED: This function is no longer used. Commands are now loaded
+        from ref_visa_commands.py.
         """
-        default_raw_commands = [
-            # System/Identification
-            ("N9340B", "System/ID", "GET", "*IDN?", ""),
-            ("N9340B", "System/Reset", "DO", "*RST", ""),
-            ("N9340B", "System/Errors", "GET", ":SYSTem:ERRor?", ""),
-            ("N9340B", "System/Display Update", "DO", ":SYSTem:DISPlay:UPDate", ""),
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"DEPRECATED function `_get_default_commands` called. Please update the calling code.",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
+        return get_default_commands()
 
-            # Frequency/Span/Sweep
-            ("N9340B", "Frequency/Center", "SET", ":SENSe:FREQuency:CENTer", "1000"),
-            ("N9340B", "Frequency/Center", "GET", ":SENSe:FREQuency:CENTer?", ""),
-            ("N9340B", "Frequency/Span", "SET", ":SENSe:FREQuency:SPAN", "1000"),
-            ("N9340B", "Frequency/Span", "GET", ":SENSe:FREQuency:SPAN?", ""),
-            ("N9340B", "Frequency/Start", "GET", ":FREQuency:STARt?", ""),
-            ("N9340B", "Frequency/Start", "SET", ":FREQuency:STARt", "100000"),
-            ("N9340B", "Frequency/Stop", "GET", ":FREQuency:STOP?", ""),
-            ("N9340B", "Frequency/Stop", "SET", ":FREQuency:STOP", "200000"),
-            ("N9340B", "Frequency/Sweep/Points", "GET", ":SENSe:SWEep:POINts?", ""),
-            ("N9340B", "Frequency/Sweep/Time", "SET", ":SENSe:SWEep:TIME:AUTO", "ON"),
-            ("N9340B", "Frequency/Sweep/Spacing", "SET", ":SENSe:X:SPACing LINear", "LINear"),
-            ("N9340B", "Frequency/Offset", "GET", ":FREQuency:OFFSet?", ""),
-            ("N9340B", "Frequency/Shift", "GET", ":INPut:RFSense:FREQuency:SHIFt?", ""),
-            ("N9340B", "Frequency/Shift", "SET", ":INPut:RFSense:FREQuency:SHIFt", "0"),
-
-
-            # Bandwidth (RBW/VBW)
-            ("N9340B", "Bandwidth/Resolution", "SET", ":SENSe:BANDwidth:RESolution", "1000"),
-            ("N9340B", "Bandwidth/Resolution", "GET", ":SENSe:BANDwidth:RESolution?", ""),
-            ("N9340B", "Bandwidth/Video", "SET", ":SENSe:BANDwidth:VIDeo", "100"),
-            ("N9340B", "Bandwidth/Video", "GET", ":SENSe:BANDwidth:VIDeo?", ""),
-            ("N9340B", "Bandwidth/Resolution/Auto", "SET", ":SENSe:BANDwidth:RESolution:AUTO", "ON"),
-            ("N9340B", "Bandwidth/Video/Auto", "SET", ":SENSe:BANDwidth:VIDeo:AUTO", "ON"),
-
-            # Amplitude/Reference Level/Attenuation/Gain
-            ("N9340B", "Amplitude/Reference Level", "SET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-20"),
-            ("N9340B", "Amplitude/Reference Level", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel?", ""),
-            ("N9340B", "Amplitude/Attenuation/Auto", "SET", ":INPut:ATTenuation:AUTO", "ON"),
-            ("N9340B", "Amplitude/Attenuation/Auto", "GET", ":INPut:ATTenuation:AUTO?", ""),
-            ("N9340B", "Amplitude/Gain/State", "SET", ":INPut:GAIN:STATe", "ON"),
-            ("N9340B", "Amplitude/Gain/State", "GET", ":INPut:GAIN:STATe?", ""),
-            ("N9340B", "Amplitude/Power/Attenuation/Auto", "SET", ":POWer:ATTenuation:AUTO", "ON"),
-            ("N9340B", "Amplitude/Power/Attenuation/0dB", "SET", ":POWer:ATTenuation", "0"),
-            ("N9340B", "Amplitude/Power/Attenuation/10dB", "SET", ":POWer:ATTenuation", "10"),
-            ("N9340B", "Amplitude/Power/Gain/On", "SET", ":POWer:GAIN", "ON"),
-            ("N9340B", "Amplitude/Power/Gain/Off", "SET", ":POWer:GAIN", "OFF"),
-            ("N9340B", "Amplitude/Power/Gain/1", "SET", ":POWer:GAIN", "1"),
-            ("N9340B", "Amplitude/Power/High Sensitive/On", "SET", ":POWer:HSENsitive", "ON"),
-            ("N9340B", "Amplitude/Power/High Sensitive/Off", "SET", ":POWer:HSENsitive", "OFF"),
-
-            # Trace/Display - Expanded for 4 traces
-            # Trace Data Query
-            ("N9342CN", "Trace/1/Data", "GET", ":TRACe:DATA? TRACE1", ""),
-            ("N9342CN", "Trace/2/Data", "GET", ":TRACe:DATA? TRACE2", ""),
-            ("N9342CN", "Trace/3/Data", "GET", ":TRACe:DATA? TRACE3", ""),
-            ("N9342CN", "Trace/4/Data", "GET", ":TRACe:DATA? TRACE4", ""),
-
-
-                   # Trace/Display - Expanded for 4 traces
-            # Trace Data Query
-            ("N9340B", "Trace/1/Data", "GET", ":TRAC1:DATA?", ""),
-            ("N9340B", "Trace/2/Data", "GET", ":TRAC2:DATA?", ""),
-            ("N9340B", "Trace/3/Data", "GET", ":TRAC3:DATA?", ""),
-            ("N9340B", "Trace/4/Data", "GET", ":TRAC4:DATA?", ""),
-
-            # Trace Mode Write
-            ("N9340B", "Trace/1/Mode/Write", "SET", ":TRAC1:MODE", "WRITe"),
-            ("N9340B", "Trace/2/Mode/Write", "SET", ":TRAC2:MODE", "WRITe"),
-            ("N9340B", "Trace/3/Mode/Write", "SET", ":TRAC3:MODE", "WRITe"),
-            ("N9340B", "Trace/4/Mode/Write", "SET", ":TRAC4:MODE", "WRITe"),
-
-            # Trace Mode MaxHold
-            ("N940B", "Trace/1/Mode/MaxHold", "SET", ":TRAC1:MODE", "MAXHold"),
-            ("N9340B", "Trace/2/Mode/MaxHold", "SET", ":TRAC2:MODE", "MAXHold"),
-            ("N9340B", "Trace/3/Mode/MaxHold", "SET", ":TRAC3:MODE", "MAXHold"),
-            ("N9340B", "Trace/4/Mode/MaxHold", "SET", ":TRAC4:MODE", "MAXHold"),
-
-            # Trace Mode Average
-            ("N9340B", "Trace/1/Mode/Average", "SET", ":TRAC1:MODE", "AVERage"),
-            ("N9340B", "Trace/2/Mode/Average", "SET", ":TRAC2:MODE", "AVERage"),
-            ("N9340B", "Trace/3/Mode/Average", "SET", ":TRAC3:MODE", "AVERage"),
-            ("N9340B", "Trace/4/Mode/Average", "SET", ":TRAC4:MODE", "AVERage"),
-
-            # Trace Mode MinHold
-            ("N9340B", "Trace/1/Mode/MinHold", "SET", ":TRAC1:MODE", "MINHold"),
-            ("N9340B", "Trace/2/Mode/MinHold", "SET", ":TRAC2:MODE", "MINHold"),
-            ("N9340B", "Trace/3/Mode/MinHold", "SET", ":TRAC3:MODE", "MINHold"),
-            ("N9340B", "Trace/4/Mode/MinHold", "SET", ":TRAC4:MODE", "MINHold"),
-
-            ("N9340B", "Trace/Display/Type", "GET", ":DISPlay:WINDow:TRACe:TYPE?", ""),
-            ("N9340B", "Trace/Display/Y Scale/Spacing", "SET", ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing", "LOGarithmic"),
-            ("N9342CN", "Trace/Format/Data/ASCII (N9340B)", "SET", ":TRACe:FORMat:DATA", "ASCii"), # For N9340B
-            ("N9340B", "Trace/Format/Data/ASCII (General)", "SET", ":FORMat:DATA", "ASCii"), # General
-
-            # Marker - Expanded for 6 markers
-            # Marker Calculate Max
-            ("N9340B", "Marker/1/Calculate/Max", "DO", ":CALCulate:MARKer1:MAX", ""),
-            ("N9340B", "Marker/2/Calculate/Max", "DO", ":CALCulate:MARKer2:MAX", ""),
-            ("N9340B", "Marker/3/Calculate/Max", "DO", ":CALCulate:MARKer3:MAX", ""),
-            ("N9340B", "Marker/4/Calculate/Max", "DO", ":CALCulate:MARKer4:MAX", ""),
-            ("N9340B", "Marker/5/Calculate/Max", "DO", ":CALCulate:MARKer5:MAX", ""),
-            ("N9340B", "Marker/6/Calculate/Max", "DO", ":CALCulate:MARKer6:MAX", ""),
-
-            # Marker Calculate State
-            ("N9340B", "Marker/1/Calculate/State", "SET", ":CALCulate:MARKer1:STATe", "ON"),
-            ("N9340B", "Marker/2/Calculate/State", "SET", ":CALCulate:MARKer2:STATe", "ON"),
-            ("N940B", "Marker/3/Calculate/State", "SET", ":CALCulate:MARKer3:STATe", "ON"),
-            ("N9340B", "Marker/4/Calculate/State", "SET", ":CALCulate:MARKer4:STATe", "ON"),
-            ("N9340B", "Marker/5/Calculate/State", "SET", ":CALCulate:MARKer5:STATe", "ON"),
-            ("N9340B", "Marker/6/Calculate/State", "SET", ":CALCulate:MARKer6:STATe", "ON"),
-
-            # Marker Calculate X (Frequency)
-            ("N9340B", "Marker/1/Calculate/X", "GET", ":CALCulate:MARKer1:X?", ""),
-            ("N9340B", "Marker/2/Calculate/X", "GET", ":CALCulate:MARKer2:X?", ""),
-            ("N9340B", "Marker/3/Calculate/X", "GET", ":CALCulate:MARKer3:X?", ""),
-            ("N9340B", "Marker/4/Calculate/X", "GET", ":CALCulate:MARKer4:X?", ""),
-            ("N9340B", "Marker/5/Calculate/X", "GET", ":CALCulate:MARKer5:X?", ""),
-            ("N9340B", "Marker/6/Calculate/X", "GET", ":CALCulate:MARKer6:X?", ""),
-
-            # Marker Calculate Y (Amplitude)
-            ("N9340B", "Marker/1/Calculate/Y", "GET", ":CALCulate:MARKer1:Y?", ""),
-            ("N9340B", "Marker/2/Calculate/Y", "GET", ":CALCulate:MARKer2:Y?", ""),
-            ("N9340B", "Marker/3/Calculate/Y", "GET", ":CALCulate:MARKer3:Y?", ""),
-            ("N9340B", "Marker/4/Calculate/Y", "GET", ":CALCulate:MARKer4:Y?", ""),
-            ("N9340B", "Marker/5/Calculate/Y", "GET", ":CALCulate:MARKer5:Y?", ""),
-            ("N9340B", "Marker/6/Calculate/Y", "GET", ":CALCulate:MARKer6:Y?", ""),
-
-            # Memory/Preset
-            ("N9340B", "Memory/Preset/Catalog", "GET", ":MMEMory:CATalog:STATe?", ""),
-            ("N9340B", "Memory/Preset/Load", "SET", ":MMEMory:LOAD:STATe", "0"),
-            ("N9340B", "Memory/Preset/Store", "SET", ":MMEMory:STORe:STATe", "0"),
-        ]
-
-        processed_commands = []
-        for model, category, action, cmd, default_var_value in default_raw_commands:
-            processed_commands.append((model, category, action, cmd, default_var_value))
-        return processed_commands
 
     def _on_tab_selected(self, event):
         """
@@ -629,4 +505,3 @@ class VisaInterpreterTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         self._load_data() # Reload data to ensure it's up-to-date
-
