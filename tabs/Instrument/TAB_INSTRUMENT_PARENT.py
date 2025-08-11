@@ -14,16 +14,17 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.2300.0 (REFACTORED: Applied color-coded child notebook style.)
-# Version 20250803.2210.0 (REFACTORED: Removed ASCII art logic to break circular import.)
+# Version 20250811.184455.1
 
-current_version = "20250803.2300.0"
+current_version = "20250811.184455.1"
+current_version_hash = 20250811 * 184455 * 1
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
+from tabs.Instrument.tab_instrument_child_settings import SettingsTab # NEW: Import the new settings tab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -43,6 +44,10 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
 
         self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.instrument_settings_tab, text="Connection & Settings")
+
+        # NEW: Add the SettingsTab here as the second tab
+        self.settings_tab = SettingsTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.child_notebook.add(self.settings_tab, text="Settings")
 
         self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")

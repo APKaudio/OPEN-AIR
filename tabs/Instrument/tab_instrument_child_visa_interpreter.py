@@ -20,10 +20,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.154530.0 (RENOVATED: Added a 'VALIDATE ALL COMMANDS' button to automate the execution of every command in the table.)
+# Version 20250811.183422.0
 
-current_version = "20250811.154530.0"
-current_version_hash = 20250811 * 154530 * 0
+current_version = "20250811.183422.0"
+current_version_hash = 20250811 * 183422 * 0
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -39,7 +39,8 @@ from display.console_logic import console_log
 # NEW: Import the default commands from the new reference file
 from ref.ref_visa_commands import get_default_commands
 
-from tabs.Instrument.utils_yak_visa import execute_visa_command # Corrected import path for utils_yak_visa
+# NEW: Import the new high-level Yak functions from Yakety_Yak
+from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo
 
 class VisaInterpreterTab(ttk.Frame):
     """
@@ -50,7 +51,7 @@ class VisaInterpreterTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs): # Added style_obj
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing VisaInterpreterTab...",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -67,14 +68,14 @@ class VisaInterpreterTab(ttk.Frame):
         if self.app_instance and hasattr(self.app_instance, 'VISA_COMMANDS_FILE_PATH'):
             self.data_file = self.app_instance.VISA_COMMANDS_FILE_PATH
             debug_log(f"Using VISA commands file from app_instance: {self.data_file}",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
         else:
             # Fallback if app_instance or path is not available (should not happen if main_app is set up correctly)
             self.data_file = os.path.join(os.getcwd(), "visa_commands.csv")
             debug_log(f"WARNING: app_instance.VISA_COMMANDS_FILE_PATH not found. Falling back to default: {self.data_file}. This is a bit of a mess!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
 
@@ -95,7 +96,7 @@ class VisaInterpreterTab(ttk.Frame):
         self.tree.bind("<Escape>", self._on_escape_edit)
 
         debug_log("VisaInterpreterTab initialized. Ready to interpret some damn commands!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
 
@@ -105,7 +106,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Creating VisaInterpreterTab widgets...",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -176,18 +177,18 @@ class VisaInterpreterTab(ttk.Frame):
         self.editor = None # To hold the Entry widget for editing
 
         debug_log("VisaInterpreterTab widgets created. Ready to interpret some damn commands!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
     def _yak_button_action(self):
         """
         Action to perform when the YAK button is clicked.
-        Queries or sets the VISA command of the selected row using the utility function.
+        Queries or sets the VISA command of the selected row using the new Yak functions.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("YAK button clicked. Attempting to execute selected VISA command. Let's send this command to the instrument!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -195,7 +196,7 @@ class VisaInterpreterTab(ttk.Frame):
         if not selected_item:
             self.console_print_func("⚠️ No row selected to execute.")
             debug_log("No row selected for YAK action. Fucking useless!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
@@ -203,38 +204,41 @@ class VisaInterpreterTab(ttk.Frame):
         if not self.app_instance.inst:
             self.console_print_func("❌ No instrument connected. Cannot execute VISA command.")
             debug_log("No instrument connected for YAK action. This thing is disconnected!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
 
         values = self.tree.item(selected_item, 'values')
         # Columns: (Manufacturer, Model, Command Type, Action, VISA Command, Variable, Validated)
+        command_type = values[2] # "Command Type" column
         action_type = values[3] # "Action" column
-        visa_command = values[4] # "VISA Command" column
         variable_value = values[5] # "Variable" column
 
-        # Call the new utility function to execute the VISA command
-        response = execute_visa_command(
-            self.app_instance.inst,
-            action_type,
-            visa_command,
-            variable_value,
-            self.console_print_func
-        )
-
-        # Update the 'Validated' column with the response for GET, SET, and DO commands
-        if action_type in ["GET", "SET", "DO"]:
-            current_values = list(values)
-            validated_column_index = 6
-            # Use the response directly for GET, SET, and DO
-            current_values[validated_column_index] = str(response) if response is not None else "FAILED"
-            self.tree.item(selected_item, values=current_values)
-            self.console_print_func(f"✅ Table updated: Validated column now shows '{response}'.")
-            debug_log(f"Table updated for item {selected_item}. Validated column now shows '{response}'. Fucking brilliant!",
-                        file=__file__,
+        response = "FAILED"
+        if action_type == "GET":
+            response = YakGet(self.app_instance, command_type, self.console_print_func)
+        elif action_type == "SET":
+            response = YakSet(self.app_instance, command_type, variable_value, self.console_print_func)
+        elif action_type == "DO":
+            response = YakDo(self.app_instance, command_type, self.console_print_func)
+        else:
+            self.console_print_func(f"⚠️ Unknown action type '{action_type}'. Cannot execute command.")
+            debug_log(f"Unknown action type '{action_type}' for command type: {command_type}. This is a goddamn mess!",
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
+
+        # Update the 'Validated' column with the response
+        current_values = list(values)
+        validated_column_index = 6
+        current_values[validated_column_index] = str(response) if response is not None else "FAILED"
+        self.tree.item(selected_item, values=current_values)
+        self.console_print_func(f"✅ Table updated: Validated column now shows '{response}'.")
+        debug_log(f"Table updated for item {selected_item}. Validated column now shows '{response}'. Fucking brilliant!",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
 
         # Automatically save the data after a YAK command is executed
         self._save_data()
@@ -251,14 +255,14 @@ class VisaInterpreterTab(ttk.Frame):
         self.console_print_func("Please take a deep breath before validation begins.")
         self.console_print_func("ℹ️ Starting validation of all commands...")
         debug_log("Starting validation of all commands. Let's see if this whole table works!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
         if not self.app_instance.inst:
             self.console_print_func("❌ No instrument connected. Cannot validate.")
             debug_log("No instrument connected. Fucking useless!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
@@ -267,7 +271,7 @@ class VisaInterpreterTab(ttk.Frame):
         if not all_items:
             self.console_print_func("⚠️ No commands to validate.")
             debug_log("No items in the table to validate. What a waste!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
@@ -282,7 +286,7 @@ class VisaInterpreterTab(ttk.Frame):
 
         self.console_print_func("✅ Validation of all commands completed.")
         debug_log("Validation of all commands finished. Fucking awesome!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -294,7 +298,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading data from {self.data_file}...",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -313,7 +317,7 @@ class VisaInterpreterTab(ttk.Frame):
                         header = next(reader)
                     except StopIteration:
                         debug_log(f"CSV file '{self.data_file}' is empty (no header). Fucking empty!",
-                                    file=__file__,
+                                    file=os.path.basename(__file__),
                                     version=current_version,
                                     function=current_function)
                         file_needs_defaults = True
@@ -328,27 +332,27 @@ class VisaInterpreterTab(ttk.Frame):
                     file_needs_defaults = True
                     self.console_print_func(f"ℹ️ {os.path.basename(self.data_file)} found but contains no commands. Loading default commands.")
                     debug_log(f"CSV file '{self.data_file}' found but no data rows. Loading defaults. What a waste of a file!",
-                                file=__file__,
+                                file=os.path.basename(__file__),
                                 version=current_version,
                                 function=current_function)
                 else:
                     self.console_print_func(f"✅ Loaded {len(commands_to_load)} commands from {os.path.basename(self.data_file)}.")
                     debug_log(f"Loaded {len(commands_to_load)} commands from {self.data_file}. Fucking awesome!",
-                                file=__file__,
+                                file=os.path.basename(__file__),
                                 version=current_version,
                                 function=current_function)
 
             except Exception as e:
                 self.console_print_func(f"❌ Error loading commands from {os.path.basename(self.data_file)}: {e}. Loading default commands.")
                 debug_log(f"Error loading {self.data_file}: {e}. This CSV is a stubborn bastard! Loading default commands.",
-                            file=__file__,
+                            file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
                 file_needs_defaults = True # Treat as "empty" for default loading purposes
         else: # File does not exist
             self.console_print_func(f"ℹ️ {os.path.basename(self.data_file)} not found. Loading default commands and saving them.")
             debug_log(f"{self.data_file} not found. Loading default commands. Where the hell is it?!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             file_needs_defaults = True # Treat as "empty" for default loading purposes
@@ -362,7 +366,7 @@ class VisaInterpreterTab(ttk.Frame):
 
         self._resize_columns_to_fit_content()
         debug_log(f"Displayed {len(commands_to_load)} commands in Treeview. Let's see if they work!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -374,7 +378,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Saving data to {self.data_file}...",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -395,13 +399,13 @@ class VisaInterpreterTab(ttk.Frame):
                 writer.writerows(data_to_save)
             self.console_print_func(f"✅ Saved {len(data_to_save)} commands to {os.path.basename(self.data_file)}.")
             debug_log(f"Saved {len(data_to_save)} commands to {self.data_file}. Fucking brilliant!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
         except Exception as e:
             self.console_print_func(f"❌ Error saving commands to {os.path.basename(self.data_file)}: {e}")
             debug_log(f"Error saving {self.data_file}: {e}. This saving process is a pain in the ass!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
@@ -414,7 +418,7 @@ class VisaInterpreterTab(ttk.Frame):
         self.tree.insert("", "end", values=("Agilent/Keysight", "N9340B", "General", "SET", "", "", ""))
         self.console_print_func("✅ Added a new empty row.")
         debug_log("Added new row. Another one bites the dust!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -427,7 +431,7 @@ class VisaInterpreterTab(ttk.Frame):
         if not selected_items:
             self.console_print_func("⚠️ No row selected to delete.")
             debug_log("No row selected for deletion. Fucking useless!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
@@ -436,7 +440,7 @@ class VisaInterpreterTab(ttk.Frame):
             self.tree.delete(item)
         self.console_print_func(f"✅ Deleted {len(selected_items)} selected row(s).")
         debug_log(f"Deleted {len(selected_items)} row(s). Goodbye, you useless rows!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
@@ -446,7 +450,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Double-click detected for editing. Time to make some changes!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -458,7 +462,7 @@ class VisaInterpreterTab(ttk.Frame):
 
         if not item or not column:
             debug_log("No item or column identified for editing. Fucking useless click!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return
@@ -483,7 +487,7 @@ class VisaInterpreterTab(ttk.Frame):
         self.editor.item = item
         self.editor.column = col_idx
         debug_log(f"Editor created for item {item}, column {col_idx} with value '{current_value}'. Let's get this fixed!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -514,7 +518,7 @@ class VisaInterpreterTab(ttk.Frame):
             self.editor = None
             self.console_print_func(f"✅ Cell updated: {current_values}")
             debug_log(f"Editor destroyed. Cell updated to: '{new_value}'. Another bug squashed!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             
@@ -527,7 +531,7 @@ class VisaInterpreterTab(ttk.Frame):
         """Handles Enter key press to save and destroy editor."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Enter key pressed in editor. Saving changes!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         self._save_and_destroy_editor()
@@ -536,7 +540,7 @@ class VisaInterpreterTab(ttk.Frame):
         """Handles Escape key press to destroy editor without saving."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Escape key pressed in editor. Cancelling changes!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         if self.editor:
@@ -544,7 +548,7 @@ class VisaInterpreterTab(ttk.Frame):
             self.editor = None
             self.console_print_func("ℹ️ Cell edit cancelled.")
             debug_log("Editor destroyed without saving. Fucking pointless to keep it!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
@@ -555,7 +559,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"DEPRECATED function `_get_default_commands` called. Please update the calling code.",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         return get_default_commands()
@@ -569,7 +573,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("VISA Interpreter Tab selected. Reloading data. Let's make sure everything is up to date!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         self._load_data() # Reload data to ensure it's up-to-date
@@ -581,7 +585,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Resizing Treeview columns to fit content. What a goddamn good idea!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
 
@@ -601,7 +605,7 @@ class VisaInterpreterTab(ttk.Frame):
 
             self.tree.column(col, width=max_width, stretch=tk.FALSE)
             debug_log(f"Column '{col}' resized to width {max_width}.",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
 
@@ -614,7 +618,7 @@ class VisaInterpreterTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Sorting Treeview by column '{col}'. Let's get this organized!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         
@@ -661,6 +665,6 @@ class VisaInterpreterTab(ttk.Frame):
         
         tv.heading(col, text=f"{col} ({'▲' if not reverse else '▼'})")
         debug_log(f"Treeview sorted by '{col}' in {'descending' if reverse else 'ascending'} order. Fucking marvelous!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)

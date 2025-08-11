@@ -3,8 +3,9 @@
 # This file provides utility functions for safe and standardized execution of
 # VISA commands (GET, SET, DO) on connected instruments. It wraps PyVISA operations
 # with error handling and integrates with the application's debug logging.
-# This version has been updated to handle 'GET' commands where the '?' terminator
-# is provided as a variable, and now returns a response value to the caller.
+# NOTE: The high-level command execution logic (e.g., `execute_visa_command`) has been
+# moved to the new `Yakety_Yak.py` file to separate concerns and improve modularity.
+# This file now focuses exclusively on low-level, safe read/write operations.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -17,20 +18,21 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.154845.0 (REFACTORED: Implemented device reset with '*RST' for all command failures to recover from a bad state.)
+# Version 20250811.183037.0
 
-current_version = "20250811.154845.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250811 * 154845 * 0 # Example hash, adjust as needed
+current_version = "20250811.183037.0"
+current_version_hash = 20250811 * 183037 * 0
 
 import inspect
 import pyvisa
 import time
+import os
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
 
-# Helper functions for instrument communication, using the new logging
+# Helper function for instrument communication, using the new logging
 
 def _reset_device(inst, console_print_func):
     """
@@ -52,7 +54,7 @@ def _reset_device(inst, console_print_func):
     current_function = inspect.currentframe().f_code.co_name
     console_print_func("⚠️ Command failed. Attempting to reset the instrument with '*RST'...")
     debug_log(f"Command failed. Attempting to send reset command '*RST' to the instrument.",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
     # Use the write_safe function to send the reset command
@@ -60,13 +62,13 @@ def _reset_device(inst, console_print_func):
     if reset_success:
         console_print_func("✅ Device reset command sent successfully.")
         debug_log("Reset command sent. Goddamn, that felt good!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
     else:
         console_print_func("❌ Failed to send reset command.")
         debug_log("Failed to send reset command. This is a goddamn mess!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
     return reset_success
@@ -94,13 +96,13 @@ def write_safe(inst, command, console_print_func):
     # (2025-08-11) Change: No changes.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to write command: {command}",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot write command.")
         debug_log("Instrument not connected. Fucking useless!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         return False
@@ -111,7 +113,7 @@ def write_safe(inst, command, console_print_func):
     except Exception as e:
         console_print_func(f"❌ Error writing command '{command}': {e}")
         debug_log(f"Error writing command '{command}': {e}. This thing is a pain in the ass!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -139,13 +141,13 @@ def query_safe(inst, command, console_print_func):
     # (2025-08-11) Change: No changes.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to query command: {command}",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot query command.")
         debug_log("Instrument not connected. Fucking useless!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         return None
@@ -157,7 +159,7 @@ def query_safe(inst, command, console_print_func):
     except Exception as e:
         console_print_func(f"❌ Error querying command '{command}': {e}")
         debug_log(f"Error querying command '{command}': {e}. This goddamn thing is broken!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -184,7 +186,7 @@ def set_safe(inst, command, value, console_print_func):
     current_function = inspect.currentframe().f_code.co_name
     full_command = f"{command} {value}"
     debug_log(f"Attempting to SET: {full_command}",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
     return write_safe(inst, full_command, console_print_func)
@@ -206,7 +208,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Waiting for Operation Complete (*OPC?) with a timeout of {timeout} seconds. Let's see if this thing is done!",
-                file=__file__,
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
@@ -225,7 +227,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
         else:
             console_print_func("❌ Operation failed to complete or returned an unexpected value.")
             debug_log(f"OPC query returned '{response}', not '1'. What the hell?!",
-                        file=__file__,
+                        file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             _reset_device(inst, console_print_func)
@@ -235,7 +237,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
         inst.timeout = original_timeout # Restore original timeout
         console_print_func(f"❌ Operation Complete query timed out after {timeout} seconds.")
         debug_log(f"OPC query failed with a timeout: {e}. This thing is a stubborn bastard!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -244,104 +246,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
         inst.timeout = original_timeout # Restore original timeout
         console_print_func(f"❌ Error during Operation Complete query: {e}")
         debug_log(f"Error during OPC query: {e}. This bugger is being problematic!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        _reset_device(inst, console_print_func)
-        return "FAILED"
-
-
-def execute_visa_command(inst, action_type, visa_command, variable_value, console_print_func):
-    """
-    Function Description:
-    Executes a given VISA command based on its action type and variable value.
-    This function has been updated to handle a 'GET' action where the '?' is
-    passed in the `variable_value` parameter. It also returns the command's
-    response or a boolean indicating success/failure. If the command fails for
-    any reason, it will now attempt to soft reset the device with '*RST'.
-
-    Inputs to this function:
-    - inst: The PyVISA instrument instance.
-    - action_type (str): The type of action ("GET", "SET", "DO").
-    - visa_command (str): The base VISA command string.
-    - variable_value (str): The variable value to append for "SET" commands,
-      or the "?" terminator for "GET" commands.
-    - console_print_func (function): Function to print messages to the GUI console.
-
-    Process of this function:
-    1. Checks for a connected instrument.
-    2. Constructs the full command based on `action_type`.
-    3. Calls the appropriate helper function (`query_safe`, `set_safe`, `write_safe`).
-    4. Logs the result and returns the response or a boolean.
-
-    Outputs of this function:
-    - str or None: The instrument's response if the action was a successful "GET".
-    - str: "PASSED", "TIME FAILED", or "FAILED" for a "DO" command.
-    - str: "PASSED", "TIME FAILED", or "FAILED" for a "SET" command.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-
-    if not inst:
-        console_print_func("❌ No instrument connected. Cannot execute VISA command.")
-        debug_log("No instrument connected for execute_visa_command. Fucking useless!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
-        return "FAILED"
-
-    try:
-        if action_type == "GET":
-            full_command = f"{visa_command}{variable_value}" if variable_value.startswith("?") else visa_command
-            response = query_safe(inst, full_command, console_print_func)
-            if response is not None:
-                console_print_func(f"✅ Response: {response}")
-                debug_log(f"Query response: {response}. Fucking finally!",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                return response
-            else:
-                console_print_func("❌ No response received or query failed.")
-                debug_log("Query failed or no response. What the hell happened?!",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                _reset_device(inst, console_print_func)
-                return "FAILED"
-        elif action_type == "SET":
-            if set_safe(inst, visa_command, variable_value, console_print_func):
-                return _wait_for_opc(inst, console_print_func)
-            else:
-                console_print_func("❌ Command execution failed.")
-                debug_log("SET command execution failed. This bugger is being problematic!",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                _reset_device(inst, console_print_func)
-                return "FAILED"
-        elif action_type == "DO":
-            if write_safe(inst, visa_command, console_print_func):
-                return _wait_for_opc(inst, console_print_func)
-            else:
-                console_print_func("❌ Command execution failed.")
-                debug_log("DO command execution failed. What the hell went wrong?!",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
-                _reset_device(inst, console_print_func)
-                return "FAILED"
-        else:
-            console_print_func(f"⚠️ Unknown action type '{action_type}'. Cannot execute command.")
-            debug_log(f"Unknown action type '{action_type}' for command: {visa_command}. This is a goddamn mess!",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
-            _reset_device(inst, console_print_func)
-            return "FAILED"
-    except Exception as e:
-        console_print_func(f"❌ Error during VISA command execution: {e}")
-        debug_log(f"Error executing VISA command '{visa_command}': {e}. This thing is a pain in the ass!",
-                    file=__file__,
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
