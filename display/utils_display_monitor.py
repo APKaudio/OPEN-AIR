@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220500.50 (REFACTORED: All plotting logic has been moved from display_child_scan_monitor.py to this file for improved modularity and to avoid circular dependencies.)
+# Version 20250810.220500.53 (FIXED: Removed the redundant x-axis labels from all plotting and clearing functions for a cleaner display.)
 
 import inspect
 import os
@@ -26,8 +26,8 @@ from display.console_logic import console_log
 from display.display_child_scan_monitor import ScanMonitorTab
 
 
-current_version = "20250810.220500.50"
-current_version_hash = 20250810 * 220500 * 50
+current_version = "20250810.220500.53"
+current_version_hash = 20250810 * 220500 * 53
 
 
 def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
@@ -70,9 +70,11 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         frequencies, amplitudes = zip(*data)
         ax.plot(frequencies, amplitudes, color='cyan')
         ax.set_title(plot_title, color='white')
-        ax.set_xlabel("Frequency (MHz)", color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
+        ax.set_ylim(-120, 0) # Set y-axis limits
+        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas.draw()
         debug_log("Successfully updated the top plot. A true triumph! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -127,9 +129,11 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         frequencies, amplitudes = zip(*data)
         ax.plot(frequencies, amplitudes, color='yellow')
         ax.set_title(plot_title, color='white')
-        ax.set_xlabel("Frequency (MHz)", color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
+        ax.set_ylim(-120, 0) # Set y-axis limits
+        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas.draw()
         debug_log("Successfully updated the medium plot. A masterpiece in the making! 🎨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -184,9 +188,11 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         frequencies, amplitudes = zip(*data)
         ax.plot(frequencies, amplitudes, color='magenta')
         ax.set_title(plot_title, color='white')
-        ax.set_xlabel("Frequency (MHz)", color='white')
         ax.set_ylabel("Amplitude (dBm)", color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
+        ax.set_ylim(-120, 0) # Set y-axis limits
+        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas.draw()
         debug_log("Successfully updated the bottom plot. A true scientific marvel! ✨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -229,15 +235,41 @@ def clear_monitor_plots(scan_monitor_tab_instance):
         return
         
     try:
-        for i, (name, plot_info) in enumerate(scan_monitor_tab_instance.plots.items()):
-            ax = plot_info['ax']
-            canvas = plot_info['canvas']
-            ax.clear()
-            ax.set_facecolor('#1e1e1e')
-            ax.set_title(f"Plot {i+1} Placeholder", color='white')
-            ax.set_xlabel("Frequency (MHz)", color='white')
-            ax.set_ylabel("Amplitude (dBm)", color='white')
-            canvas.draw()
+        plot_info_top = scan_monitor_tab_instance.plots['top']
+        ax_top = plot_info_top['ax']
+        canvas_top = plot_info_top['canvas']
+        ax_top.clear()
+        ax_top.set_facecolor('#1e1e1e')
+        ax_top.set_title("Plot 1 Placeholder", color='white')
+        ax_top.set_ylabel("Amplitude (dBm)", color='white')
+        ax_top.set_ylim(-120, 0) # Set y-axis limits
+        ax_top.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax_top.grid(True, linestyle='--', color='gray', alpha=0.5)
+        canvas_top.draw()
+
+        plot_info_middle = scan_monitor_tab_instance.plots['middle']
+        ax_middle = plot_info_middle['ax']
+        canvas_middle = plot_info_middle['canvas']
+        ax_middle.clear()
+        ax_middle.set_facecolor('#1e1e1e')
+        ax_middle.set_title("Plot 2 Placeholder", color='white')
+        ax_middle.set_ylabel("Amplitude (dBm)", color='white')
+        ax_middle.set_ylim(-120, 0) # Set y-axis limits
+        ax_middle.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax_middle.grid(True, linestyle='--', color='gray', alpha=0.5)
+        canvas_middle.draw()
+        
+        plot_info_bottom = scan_monitor_tab_instance.plots['bottom']
+        ax_bottom = plot_info_bottom['ax']
+        canvas_bottom = plot_info_bottom['canvas']
+        ax_bottom.clear()
+        ax_bottom.set_facecolor('#1e1e1e')
+        ax_bottom.set_title("Plot 3 Placeholder", color='white')
+        ax_bottom.set_ylabel("Amplitude (dBm)", color='white')
+        ax_bottom.set_ylim(-120, 0) # Set y-axis limits
+        ax_bottom.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        ax_bottom.grid(True, linestyle='--', color='gray', alpha=0.5)
+        canvas_bottom.draw()
         
         console_log("✅ All plots cleared.", function=current_function)
         debug_log("Successfully called clear_monitor_plots. A clean slate for new discoveries! ✨",

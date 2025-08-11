@@ -15,16 +15,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.0152.6 (FINAL FIX: Added missing set_debug_file_hooks and refined global variable handling.)
-# Version 20250803.0146.1 (Added clear_console function and mechanism to register the actual clear function.)
+# Version 20250811.002800.1 (FIXED: Removed circular dependency with debug_logic by using a global function reference instead of a direct import.)
 
-current_version = "20250803.0146.1" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 152 * 6 # Example hash, adjust as needed
+current_version = "20250811.002800.1"
+current_version_hash = 20250811 * 2800 * 1
 
 import sys
 from datetime import datetime
-import inspect # Import inspect for debug_log
-import tkinter as tk # Import tkinter for tk.NORMAL/tk.DISABLED
+import inspect
+import tkinter as tk
 
 # NEW: Global references to debug_logic components, to be set by debug_logic
 # These are internal to console_logic and will be set by external calls.
