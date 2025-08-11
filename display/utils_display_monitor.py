@@ -14,35 +14,26 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220500.53 (FIXED: Removed the redundant x-axis labels from all plotting and clearing functions for a cleaner display.)
+# Version 20250811.130322.54 (CHANGED: Removed y-axis labels for a cleaner display and added a mouseover feature to display data values.)
 
 import inspect
 import os
 import traceback 
 import numpy as np
+from matplotlib.offsetbox import AnchoredText # Import this for the annotation box
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from display.display_child_scan_monitor import ScanMonitorTab
 
 
-current_version = "20250810.220500.53"
-current_version_hash = 20250810 * 220500 * 53
+current_version = "20250810.220500.54"
+current_version_hash = 20250810 * 220500 * 54
 
 
 def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
     # Updates the top plot in the Scan Monitor tab with new data.
-    #
-    # Inputs to this function:
-    #   scan_monitor_tab_instance (object): A reference to the ScanMonitorTab instance.
-    #   data (list): A list of (frequency, amplitude) tuples to plot.
-    #   start_freq_mhz (float): The start frequency for the x-axis.
-    #   end_freq_mhz (float): The end frequency for the x-axis.
-    #   plot_title (str): The title for the plot.
-    #
-    # Outputs of this function:
-    #   None. Triggers a plot update.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_top_plot. Let's see what we've got here! 🧐",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -55,7 +46,7 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
     
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
-        debug_log("The scan_monitor_tab_instance is None. The plot is doomed! 💀",
+        debug_log("The scan_monitor_tab_instance is None. The plot is doomed! �",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function, special=True)
@@ -69,15 +60,44 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         ax.clear()
         if data:
             frequencies, amplitudes = zip(*data)
-            # CHANGED: Plot color to yellow and added thin linewidth
             ax.plot(frequencies, amplitudes, color='yellow', linewidth=1)
         ax.set_title(plot_title, color='white')
-        ax.set_ylabel("Amplitude (dBm)", color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
-        ax.set_ylim(-120, 0) # Set y-axis limits
-        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        
+        # CHANGED: Removed the y-axis label
+        # ax.set_ylabel("Amplitude (dBm)", color='white')
+        
+        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_ylim(-120, 0)
+        ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
+
+        # NEW: Mouseover functionality
+        annot = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
+                            bbox=dict(boxstyle="round", fc="white", ec="black", lw=1),
+                            arrowprops=dict(arrowstyle="wedge,tail_width=0.5", fc="white", ec="black"))
+        annot.set_visible(False)
+
+        def update_annot(event):
+            if event.xdata and event.ydata:
+                # Find the nearest data point
+                x_data = np.array(data)[:, 0]
+                y_data = np.array(data)[:, 1]
+                idx = np.abs(x_data - event.xdata).argmin()
+                x_val = x_data[idx]
+                y_val = y_data[idx]
+                
+                annot.xy = (x_val, y_val)
+                text = f"Freq: {x_val:.3f} MHz\nAmp: {y_val:.2f} dBm"
+                annot.set_text(text)
+                annot.set_visible(True)
+                canvas.draw_idle()
+            else:
+                annot.set_visible(False)
+                canvas.draw_idle()
+
+        canvas.mpl_connect("motion_notify_event", update_annot)
         canvas.draw()
+        
         debug_log("Successfully updated the top plot. A true triumph! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -94,16 +114,6 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
 def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
     # Updates the medium plot in the Scan Monitor tab with new data.
-    #
-    # Inputs to this function:
-    #   scan_monitor_tab_instance (object): A reference to the ScanMonitorTab instance.
-    #   data (list): A list of (frequency, amplitude) tuples to plot.
-    #   start_freq_mhz (float): The start frequency for the x-axis.
-    #   end_freq_mhz (float): The end frequency for the x-axis.
-    #   plot_title (str): The title for the plot.
-    #
-    # Outputs of this function:
-    #   None. Triggers a plot update.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_medium_plot. Let's inspect the payload. 🕵️‍♂️",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -130,16 +140,44 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         ax.clear()
         if data:
             frequencies, amplitudes = zip(*data)
-            # CHANGED: Plot color to green and added thin linewidth
             ax.plot(frequencies, amplitudes, color='green', linewidth=1)
         ax.set_title(plot_title, color='white')
-        ax.set_ylabel("Amplitude (dBm)", color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
-        ax.set_ylim(-120, 0) # Set y-axis limits
-        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        
+        # CHANGED: Removed the y-axis label
+        # ax.set_ylabel("Amplitude (dBm)", color='white')
+        
+        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_ylim(-120, 0)
+        ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
+
+        # NEW: Mouseover functionality
+        annot = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
+                            bbox=dict(boxstyle="round", fc="white", ec="black", lw=1),
+                            arrowprops=dict(arrowstyle="wedge,tail_width=0.5", fc="white", ec="black"))
+        annot.set_visible(False)
+
+        def update_annot(event):
+            if event.xdata and event.ydata:
+                x_data = np.array(data)[:, 0]
+                y_data = np.array(data)[:, 1]
+                idx = np.abs(x_data - event.xdata).argmin()
+                x_val = x_data[idx]
+                y_val = y_data[idx]
+                
+                annot.xy = (x_val, y_val)
+                text = f"Freq: {x_val:.3f} MHz\nAmp: {y_val:.2f} dBm"
+                annot.set_text(text)
+                annot.set_visible(True)
+                canvas.draw_idle()
+            else:
+                annot.set_visible(False)
+                canvas.draw_idle()
+
+        canvas.mpl_connect("motion_notify_event", update_annot)
         canvas.draw()
-        debug_log("Successfully updated the medium plot. A masterpiece in the making! �",
+        
+        debug_log("Successfully updated the medium plot. A masterpiece in the making! ",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -155,16 +193,6 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
 def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
     # Function Description:
     # Updates the bottom plot in the Scan Monitor tab with new data.
-    #
-    # Inputs to this function:
-    #   scan_monitor_tab_instance (object): A reference to the ScanMonitorTab instance.
-    #   data (list): A list of (frequency, amplitude) tuples to plot.
-    #   start_freq_mhz (float): The start frequency for the x-axis.
-    #   end_freq_mhz (float): The end frequency for the x-axis.
-    #   plot_title (str): The title for the plot.
-    #
-    # Outputs of this function:
-    #   None. Triggers a plot update.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_bottom_plot. Let's get this done. 🚀",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -191,15 +219,43 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         ax.clear()
         if data:
             frequencies, amplitudes = zip(*data)
-            # CHANGED: Plot color to blue and added thin linewidth
             ax.plot(frequencies, amplitudes, color='blue', linewidth=1)
         ax.set_title(plot_title, color='white')
-        ax.set_ylabel("Amplitude (dBm)", color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz) # Set x-axis limits
-        ax.set_ylim(-120, 0) # Set y-axis limits
-        ax.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        
+        # CHANGED: Removed the y-axis label
+        # ax.set_ylabel("Amplitude (dBm)", color='white')
+        
+        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_ylim(-120, 0)
+        ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
+
+        # NEW: Mouseover functionality
+        annot = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
+                            bbox=dict(boxstyle="round", fc="white", ec="black", lw=1),
+                            arrowprops=dict(arrowstyle="wedge,tail_width=0.5", fc="white", ec="black"))
+        annot.set_visible(False)
+
+        def update_annot(event):
+            if event.xdata and event.ydata:
+                x_data = np.array(data)[:, 0]
+                y_data = np.array(data)[:, 1]
+                idx = np.abs(x_data - event.xdata).argmin()
+                x_val = x_data[idx]
+                y_val = y_data[idx]
+                
+                annot.xy = (x_val, y_val)
+                text = f"Freq: {x_val:.3f} MHz\nAmp: {y_val:.2f} dBm"
+                annot.set_text(text)
+                annot.set_visible(True)
+                canvas.draw_idle()
+            else:
+                annot.set_visible(False)
+                canvas.draw_idle()
+
+        canvas.mpl_connect("motion_notify_event", update_annot)
         canvas.draw()
+
         debug_log("Successfully updated the bottom plot. A true scientific marvel! ✨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -216,12 +272,6 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
 def clear_monitor_plots(scan_monitor_tab_instance):
     # Function Description:
     # Clears all three plots in the Scan Monitor tab.
-    #
-    # Inputs to this function:
-    #   scan_monitor_tab_instance (object): A reference to the ScanMonitorTab instance.
-    #
-    # Outputs of this function:
-    #   None. Triggers the plot clearing.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering clear_monitor_plots. Let's clean up this mess! 🧹",
                 file=f"{os.path.basename(__file__)} - {current_version}",
@@ -234,7 +284,7 @@ def clear_monitor_plots(scan_monitor_tab_instance):
                 
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
-        debug_log("The scan_monitor_tab_instance is None. Aborting plot clear. The universe is in chaos! 💥",
+        debug_log("The scan_monitor_tab_instance is None. The plot is lost in the void. 🌌",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function, special=True)
@@ -247,9 +297,10 @@ def clear_monitor_plots(scan_monitor_tab_instance):
         ax_top.clear()
         ax_top.set_facecolor('#1e1e1e')
         ax_top.set_title("Plot 1 Placeholder", color='white')
-        ax_top.set_ylabel("Amplitude (dBm)", color='white')
-        ax_top.set_ylim(-120, 0) # Set y-axis limits
-        ax_top.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        # CHANGED: Removed the y-axis label
+        # ax_top.set_ylabel("Amplitude (dBm)", color='white')
+        ax_top.set_ylim(-120, 0)
+        ax_top.set_yticks(np.arange(-120, 1, 20))
         ax_top.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas_top.draw()
 
@@ -259,9 +310,10 @@ def clear_monitor_plots(scan_monitor_tab_instance):
         ax_middle.clear()
         ax_middle.set_facecolor('#1e1e1e')
         ax_middle.set_title("Plot 2 Placeholder", color='white')
-        ax_middle.set_ylabel("Amplitude (dBm)", color='white')
-        ax_middle.set_ylim(-120, 0) # Set y-axis limits
-        ax_middle.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        # CHANGED: Removed the y-axis label
+        # ax_middle.set_ylabel("Amplitude (dBm)", color='white')
+        ax_middle.set_ylim(-120, 0)
+        ax_middle.set_yticks(np.arange(-120, 1, 20))
         ax_middle.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas_middle.draw()
         
@@ -271,9 +323,10 @@ def clear_monitor_plots(scan_monitor_tab_instance):
         ax_bottom.clear()
         ax_bottom.set_facecolor('#1e1e1e')
         ax_bottom.set_title("Plot 3 Placeholder", color='white')
-        ax_bottom.set_ylabel("Amplitude (dBm)", color='white')
-        ax_bottom.set_ylim(-120, 0) # Set y-axis limits
-        ax_bottom.set_yticks(np.arange(-120, 1, 20)) # Add grid lines every 20dBm
+        # CHANGED: Removed the y-axis label
+        # ax_bottom.set_ylabel("Amplitude (dBm)", color='white')
+        ax_bottom.set_ylim(-120, 0)
+        ax_bottom.set_yticks(np.arange(-120, 1, 20))
         ax_bottom.grid(True, linestyle='--', color='gray', alpha=0.5)
         canvas_bottom.draw()
         
