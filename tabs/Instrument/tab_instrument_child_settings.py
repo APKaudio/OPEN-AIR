@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.215000.3
+# Version 20250811.215000.4 (UPDATED: Restructured the marker settings frame into two separate sections and added a 'Peak search' button.)
 
-current_version = "20250811.215000.3"
-current_version_hash = 20250811 * 215000 * 3
+current_version = "20250811.215000.4"
+current_version_hash = 20250811 * 215000 * 4
 
 import tkinter as tk
 from tkinter import ttk
@@ -216,24 +216,39 @@ class SettingsTab(ttk.Frame):
         marker_frame.grid_columnconfigure(0, weight=1)
         marker_frame.grid_columnconfigure(1, weight=1)
 
-        self.turn_all_markers_on_button = ttk.Button(marker_frame, text="Turn All Markers On", command=self._on_turn_all_markers_on_click)
-        self.turn_all_markers_on_button.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        # --- NEW: Frame for "Turn On All Markers" and "Peak search" ---
+        turn_on_markers_frame = ttk.Frame(marker_frame, style='Dark.TFrame')
+        turn_on_markers_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
+        turn_on_markers_frame.grid_columnconfigure(0, weight=1)
+        turn_on_markers_frame.grid_columnconfigure(1, weight=1)
 
+        self.turn_all_markers_on_button = ttk.Button(turn_on_markers_frame, text="Turn All Markers On", command=self._on_turn_all_markers_on_click)
+        self.turn_all_markers_on_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        # NEW: Peak search button
+        self.peak_search_button = ttk.Button(turn_on_markers_frame, text="Peak search", command=self._on_peak_search_click, style='Blue.TButton')
+        self.peak_search_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+
+        # --- NEW: Frame for "Read All Markers" ---
+        read_markers_frame = ttk.Frame(marker_frame, style='Dark.TFrame')
+        read_markers_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
+        read_markers_frame.grid_columnconfigure(1, weight=1)
+        read_markers_frame.grid_rowconfigure(7, weight=1)
+        
+        ttk.Label(read_markers_frame, text="Marker Values:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
+        
         # Marker On/Off checkboxes
         for i in range(6):
-            cb = ttk.Checkbutton(marker_frame, text=f"Marker {i+1} On", variable=self.marker_vars[i], command=lambda marker=i+1, var=self.marker_vars[i]: self._on_marker_state_toggle(marker, var))
+            cb = ttk.Checkbutton(read_markers_frame, text=f"Marker {i+1} On", variable=self.marker_vars[i], command=lambda marker=i+1, var=self.marker_vars[i]: self._on_marker_state_toggle(marker, var))
             cb.grid(row=i+1, column=0, padx=5, pady=2, sticky="w")
         
-        # Placeholder for Marker X/Y display
-        ttk.Label(marker_frame, text="Marker Values:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
-        # I'll create a list of labels to hold the values
-        for i in range(6):
-            label = ttk.Label(marker_frame, text="X: N/A, Y: N/A", style='Dark.TLabel.Value')
+            # Placeholder for Marker X/Y display
+            label = ttk.Label(read_markers_frame, text="X: N/A, Y: N/A", style='Dark.TLabel.Value')
             label.grid(row=i+1, column=1, padx=5, pady=2, sticky="ew")
             self.marker_value_labels.append(label)
 
         # Read marker values button
-        self.read_markers_button = ttk.Button(marker_frame, text="Read All Markers", command=self._on_read_all_markers_click)
+        self.read_markers_button = ttk.Button(read_markers_frame, text="Read All Markers", command=self._on_read_all_markers_click)
         self.read_markers_button.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
         
         debug_log(f"Widgets for Settings Tab created. The GUI is alive! 🥳",
@@ -582,8 +597,8 @@ class SettingsTab(ttk.Frame):
         
         for i in range(6):
             marker_number = i + 1
-            command_type = f"MARKER/{marker_number}/CALCULATE/STATE"
-            YakSet(self.app_instance, command_type.upper(), "ON", self.console_print_func)
+            command_type = f"MARKER/{marker_number}/CALCULATE/STATE/ON"
+            YakDo(self.app_instance, command_type.upper(),  self.console_print_func)
             self.marker_vars[i].set(True)
         self.console_print_func("✅ All markers turned on.")
         debug_log("All markers turned on. Fucking brilliant!",
@@ -611,8 +626,8 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
         
-        command_type = f"MARKER/{marker_number}/CALCULATE/STATE"
-        YakSet(self.app_instance, command_type.upper(), state, self.console_print_func)
+        command_type = f"MARKER/{marker_number}/CALCULATE/STATE/{state}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
 
 
     def _on_read_all_markers_click(self):
@@ -655,9 +670,41 @@ class SettingsTab(ttk.Frame):
                     self.marker_value_labels[i].config(text=f"X: {x_value}, Y: {y_value}")
                     self.console_print_func(f"⚠️ Could not parse marker {marker_number} values: X:{x_value}, Y:{y_value}")
                     debug_log(f"Failed to parse marker values for Marker {marker_number}. What a disaster!",
-                                file=os.path.basename(__file__),
-                                version=current_version,
-                                function=current_function)
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+
+
+    def _on_peak_search_click(self):
+        # NEW: Function to handle the Peak search button click
+        # This function will send the `MARKER/PEAK/SEARCH` command.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Peak search button clicked. Initiating marker peak search.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot perform peak search.")
+            debug_log("Cannot perform peak search. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+
+        command_type = "MARKER/PEAK/SEARCH"
+        if YakDo(self.app_instance, command_type.upper(), self.console_print_func) == "PASSED":
+            self.console_print_func("✅ Peak search command sent successfully.")
+            debug_log("Peak search command sent successfully. Fucking brilliant!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+        else:
+            self.console_print_func("❌ Failed to send peak search command.")
+            debug_log("Failed to send peak search command. What a disaster!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
 
 
     def _on_reset_button_click(self):

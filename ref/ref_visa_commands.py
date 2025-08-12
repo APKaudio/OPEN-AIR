@@ -304,13 +304,36 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/5/CALCULATE/MAX", "DO", ":CALCulate:MARKer5:MAX", "", ""),
         ("Keysight Technologies", "*", "MARKER/6/CALCULATE/MAX", "DO", ":CALCulate:MARKer6:MAX", "", ""),
 
+
+        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/NEXT", "DO", ":CALCulate:MARKer1:NEXT", "", ""),
+        ("Keysight Technologies", "*", "MARKER/2/CALCULATE/NEXT", "DO", ":CALCulate:MARKer2:NEXT", "", ""),
+        ("Keysight Technologies", "*", "MARKER/3/CALCULATE/NEXT", "DO", ":CALCulate:MARKer3:NEXT", "", ""),
+        ("Keysight Technologies", "*", "MARKER/4/CALCULATE/NEXT", "DO", ":CALCulate:MARKer4:NEXT", "", ""),
+        ("Keysight Technologies", "*", "MARKER/5/CALCULATE/NEXT", "DO", ":CALCulate:MARKer5:NEXT", "", ""),
+        ("Keysight Technologies", "*", "MARKER/6/CALCULATE/NEXT", "DO", ":CALCulate:MARKer6:NEXT", "", ""),
+
+        ("Keysight Technologies", "*", "MARKER/PEAK/SEARCH", "DO", "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT", "", ""),
+
+
+
+
         # Marker Calculate State
-        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/STATE", "DO", ":CALCulate:MARKer1:STATe", "ON", ""),
-        ("Keysight Technologies", "*", "MARKER/2/CALCULATE/STATE", "DO", ":CALCulate:MARKer2:STATe", "ON", ""),
-        ("Keysight Technologies", "*", "MARKER/3/CALCULATE/STATE", "DO", ":CALCulate:MARKer3:STATe", "ON", ""),
-        ("Keysight Technologies", "*", "MARKER/4/CALCULATE/STATE", "DO", ":CALCulate:MARKer4:STATe", "ON", ""),
-        ("Keysight Technologies", "*", "MARKER/5/CALCULATE/STATE", "DO", ":CALCulate:MARKer5:STATe", "ON", ""),
-        ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE", "DO", ":CALCulate:MARKer6:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer1:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/2/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer2:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/3/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer3:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/4/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer4:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/5/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer5:STATe", "ON", ""),
+        ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer6:STATe", "ON", ""),
+
+        # Marker Calculate State
+        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer1:STATe", "OFF", ""),
+        ("Keysight Technologies", "*", "MARKER/2/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer2:STATe", "OFF", ""),
+        ("Keysight Technologies", "*", "MARKER/3/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer3:STATe", "OFF", ""),
+        ("Keysight Technologies", "*", "MARKER/4/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer4:STATe", "OFF", ""),
+        ("Keysight Technologies", "*", "MARKER/5/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer5:STATe", "OFF", ""),
+        ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer6:STATe", "OFF", ""),
+
+
 
         # Marker Calculate X (Frequency)
         ("Keysight Technologies", "*", "MARKER/1/CALCULATE/X", "GET", ":CALCulate:MARKer1:X", "?", ""),
