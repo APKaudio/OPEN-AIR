@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.203204.0
+# Version 20250811.213200.0
 
-current_version = "20250811.203204.0"
-current_version_hash = 20250811 * 203204 * 0
+current_version = "20250811.213200.0"
+current_version_hash = 20250811 * 213200 * 0
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,7 +30,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import the new high-level Yak functions
-from tabs.Instrument.Yakety_Yak import YakSet, YakDo
+from tabs.Instrument.Yakety_Yak import YakSet, YakDo, YakGet
 
 
 class SettingsTab(ttk.Frame):
@@ -43,7 +43,23 @@ class SettingsTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
 
+        # Tkinter variables for various settings
+        self.center_freq_var = tk.StringVar(self)
+        self.span_freq_var = tk.StringVar(self)
+        self.start_freq_var = tk.StringVar(self)
+        self.stop_freq_var = tk.StringVar(self)
+        self.power_attenuation_var = tk.StringVar(self)
+
+        # Local variables to hold the state of the toggle buttons
+        self.preamp_state_var = tk.StringVar(self, value="OFF")
+        self.high_sensitivity_state_var = tk.StringVar(self, value="OFF")
+
+        # Marker variables
+        self.marker_vars = [tk.BooleanVar(self, False) for _ in range(6)]
+        self.marker_value_labels = []  # Initialize here to be accessible
+
         self._create_widgets()
+        self._set_ui_initial_state()
 
     def _create_widgets(self):
         """
@@ -56,7 +72,7 @@ class SettingsTab(ttk.Frame):
                     function=current_function)
         
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(5, weight=1)
 
         # --- Instrument Info Frame ---
         info_frame = ttk.LabelFrame(self, text="Connected Instrument", style='Dark.TLabelframe')
@@ -73,10 +89,37 @@ class SettingsTab(ttk.Frame):
         self.reset_button = ttk.Button(info_frame, text="RESET (*RST)", command=self._on_reset_button_click, style='Red.TButton')
         self.reset_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
+        # --- Frequency Settings Frame ---
+        freq_frame = ttk.LabelFrame(self, text="Frequency Settings", style='Dark.TLabelframe')
+        freq_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        freq_frame.grid_columnconfigure(1, weight=1)
+        
+        ttk.Label(freq_frame, text="Center Frequency (Hz):").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.center_freq_entry = ttk.Entry(freq_frame, textvariable=self.center_freq_var, style='TEntry')
+        self.center_freq_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.center_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("CENTER", self.center_freq_var.get()))
+        
+        ttk.Label(freq_frame, text="Span (Hz):").grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        self.span_freq_entry = ttk.Entry(freq_frame, textvariable=self.span_freq_var, style='TEntry')
+        self.span_freq_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.span_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("SPAN", self.span_freq_var.get()))
+        
+        ttk.Label(freq_frame, text="Start Frequency (Hz):").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        self.start_freq_entry = ttk.Entry(freq_frame, textvariable=self.start_freq_var, style='TEntry')
+        self.start_freq_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        self.start_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("START", self.start_freq_var.get()))
+        
+        ttk.Label(freq_frame, text="Stop Frequency (Hz):").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        self.stop_freq_entry = ttk.Entry(freq_frame, textvariable=self.stop_freq_var, style='TEntry')
+        self.stop_freq_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+        self.stop_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("STOP", self.stop_freq_var.get()))
+        
+        self.get_freq_button = ttk.Button(freq_frame, text="Get Current Frequencies", command=self._on_get_freq_click)
+        self.get_freq_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         # --- Amplitude/Ref Level Frame ---
         amplitude_frame = ttk.LabelFrame(self, text="Amplitude Settings", style='Dark.TLabelframe')
-        amplitude_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        amplitude_frame.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
         amplitude_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(amplitude_frame, text="Reference Level:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
@@ -86,31 +129,140 @@ class SettingsTab(ttk.Frame):
         self.ref_level_dropdown.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
         self.ref_level_dropdown.bind("<<ComboboxSelected>>", self._on_ref_level_select)
         
-        # Preamp Gain buttons
+        # Preamp Gain toggle button
         ttk.Label(amplitude_frame, text="Preamp Gain:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        gain_button_frame = ttk.Frame(amplitude_frame)
-        gain_button_frame.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Button(gain_button_frame, text="On", command=lambda: self._on_gain_toggle("on"), style='Green.TButton').pack(side="left", fill="both", expand=True, padx=(0, 2))
-        ttk.Button(gain_button_frame, text="Off", command=lambda: self._on_gain_toggle("off"), style='Red.TButton').pack(side="left", fill="both", expand=True, padx=(2, 0))
-        
+        self.preamp_toggle_button = ttk.Button(amplitude_frame, textvariable=self.preamp_state_var, command=self._on_preamp_toggle_click)
+        self.preamp_toggle_button.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+
+        # Attenuation Level dropdown
+        ttk.Label(amplitude_frame, text="Power Attenuation:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        self.power_attenuation_var = tk.StringVar(self)
+        att_levels = ["0", "10", "20", "30", "40", "50", "60", "70"]
+        self.power_attenuation_dropdown = ttk.Combobox(amplitude_frame, textvariable=self.power_attenuation_var, values=att_levels, state='readonly')
+        self.power_attenuation_dropdown.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        self.power_attenuation_dropdown.bind("<<ComboboxSelected>>", self._on_power_attenuation_select)
+
+        # High Sensitivity toggle button
+        ttk.Label(amplitude_frame, text="High Sensitivity:", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        self.hs_toggle_button = ttk.Button(amplitude_frame, textvariable=self.high_sensitivity_state_var, command=self._on_hs_toggle_click)
+        self.hs_toggle_button.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+
         # --- Trace Settings Frame ---
         trace_frame = ttk.LabelFrame(self, text="Trace Settings", style='Dark.TLabelframe')
-        trace_frame.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+        trace_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
         trace_frame.grid_columnconfigure(1, weight=1)
 
-        trace_modes = ["view", "write", "blank", "maxhold", "minhold"]
+        trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
+        self.trace_vars = [tk.StringVar(self) for _ in range(4)]
+        
+        for i in range(4):
+            ttk.Label(trace_frame, text=f"Trace {i+1} Mode:").grid(row=i, column=0, padx=5, pady=2, sticky="w")
+            trace_dropdown = ttk.Combobox(trace_frame, textvariable=self.trace_vars[i], values=trace_modes, state='readonly')
+            trace_dropdown.grid(row=i, column=1, padx=5, pady=2, sticky="ew")
+            trace_dropdown.bind("<<ComboboxSelected>>", lambda event, trace=i+1, var=self.trace_vars[i]: self._on_trace_mode_select(event, trace, var))
 
-        for i in range(1, 5):
-            ttk.Label(trace_frame, text=f"Trace {i} Mode:").grid(row=i-1, column=0, padx=5, pady=2, sticky="w")
-            trace_var = tk.StringVar(self)
-            trace_dropdown = ttk.Combobox(trace_frame, textvariable=trace_var, values=trace_modes, state='readonly')
-            trace_dropdown.grid(row=i-1, column=1, padx=5, pady=2, sticky="ew")
-            trace_dropdown.bind("<<ComboboxSelected>>", lambda event, trace=i, var=trace_var: self._on_trace_mode_select(event, trace, var))
+        self.get_trace_button = ttk.Button(trace_frame, text="Get Trace Data", command=self._on_get_trace_data_click)
+        self.get_trace_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
+        # --- Marker Settings Frame ---
+        marker_frame = ttk.LabelFrame(self, text="Marker Settings", style='Dark.TLabelframe')
+        marker_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+        marker_frame.grid_columnconfigure(0, weight=1)
+        marker_frame.grid_columnconfigure(1, weight=1)
+
+        self.turn_all_markers_on_button = ttk.Button(marker_frame, text="Turn All Markers On", command=self._on_turn_all_markers_on_click)
+        self.turn_all_markers_on_button.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        # Marker On/Off checkboxes
+        for i in range(6):
+            cb = ttk.Checkbutton(marker_frame, text=f"Marker {i+1} On", variable=self.marker_vars[i], command=lambda marker=i+1, var=self.marker_vars[i]: self._on_marker_state_toggle(marker, var))
+            cb.grid(row=i+1, column=0, padx=5, pady=2, sticky="w")
+        
+        # Placeholder for Marker X/Y display
+        ttk.Label(marker_frame, text="Marker Values:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
+        # I'll create a list of labels to hold the values
+        for i in range(6):
+            label = ttk.Label(marker_frame, text="X: N/A, Y: N/A", style='Dark.TLabel.Value')
+            label.grid(row=i+1, column=1, padx=5, pady=2, sticky="ew")
+            self.marker_value_labels.append(label)
+
+        # Read marker values button
+        self.read_markers_button = ttk.Button(marker_frame, text="Read All Markers", command=self._on_read_all_markers_click)
+        self.read_markers_button.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
+        
         debug_log(f"Widgets for Settings Tab created. The GUI is alive! 🥳",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
+
+    def _set_ui_initial_state(self):
+        """Sets the initial state of the UI elements."""
+        self._update_toggle_button_style(self.preamp_toggle_button, self.preamp_state_var.get() == "ON")
+        self._update_toggle_button_style(self.hs_toggle_button, self.high_sensitivity_state_var.get() == "ON")
+
+    def _update_toggle_button_style(self, button, state):
+        """Updates the style of a toggle button based on its state."""
+        if state:
+            button.config(style='Orange.TButton')
+        else:
+            button.config(style='Dark.TButton')
+
+    def _on_get_freq_click(self):
+        """
+        Handles the button click for getting current frequency settings.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Get Current Frequencies button clicked. Querying instrument.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot get frequency settings.")
+            debug_log("Cannot get frequency settings. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+
+        # Query and update GUI
+        center_freq = YakGet(self.app_instance, "FREQUENCY/CENTER", self.console_print_func)
+        if center_freq is not None:
+            self.center_freq_var.set(center_freq)
+        
+        span_freq = YakGet(self.app_instance, "FREQUENCY/SPAN", self.console_print_func)
+        if span_freq is not None:
+            self.span_freq_var.set(span_freq)
+
+        start_freq = YakGet(self.app_instance, "FREQUENCY/START", self.console_print_func)
+        if start_freq is not None:
+            self.start_freq_var.set(start_freq)
+        
+        stop_freq = YakGet(self.app_instance, "FREQUENCY/STOP", self.console_print_func)
+        if stop_freq is not None:
+            self.stop_freq_var.set(stop_freq)
+
+
+    def _on_freq_set(self, command_part, value):
+        """
+        Handles setting a frequency value when a text box loses focus.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"{command_part} Frequency set to: {value}.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set frequency.")
+            debug_log("Cannot set frequency. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+
+        command_type = f"FREQUENCY/{command_part}"
+        YakSet(self.app_instance, command_type.upper(), value, self.console_print_func)
 
     def _on_ref_level_select(self, event):
         """
@@ -131,18 +283,12 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
 
-        command_type = f"Amplitude/Reference Level/{ref_level}"
+        command_type = f"AMPLITUDE/REFERENCE LEVEL/{ref_level}".upper()
         YakDo(self.app_instance, command_type, self.console_print_func)
 
-    def _on_gain_toggle(self, state):
-        """
-        Handles the ON/OFF buttons for Preamp Gain.
-        """
+    def _on_preamp_toggle_click(self):
+        """Toggles the preamp on/off."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Preamp Gain toggle to: {state}.",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
         
         if not self.app_instance.is_connected.get():
             self.console_print_func("❌ Not connected to an instrument. Cannot set preamp gain.")
@@ -152,9 +298,56 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
         
-        command_type = f"Amplitude/Power/Gain/{state}"
+        current_state = self.preamp_state_var.get()
+        new_state = "OFF" if current_state == "ON" else "ON"
+        
+        command_type = f"AMPLITUDE/POWER/GAIN/{new_state}"
         YakDo(self.app_instance, command_type, self.console_print_func)
-    
+        self.preamp_state_var.set(new_state)
+
+
+    def _on_power_attenuation_select(self, event):
+        """
+        Handles the selection of a new power attenuation from the dropdown.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        attenuation_level = self.power_attenuation_var.get()
+        debug_log(f"Power Attenuation selected: {attenuation_level} dB.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set power attenuation.")
+            debug_log("Cannot set power attenuation. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+
+        command_type = f"AMPLITUDE/POWER/ATTENUATION/{attenuation_level}DB"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+
+    def _on_hs_toggle_click(self):
+        """Toggles the high sensitivity on/off."""
+        current_function = inspect.currentframe().f_code.co_name
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set high sensitivity.")
+            debug_log("Cannot set high sensitivity. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        current_state = self.high_sensitivity_state_var.get()
+        new_state = "OFF" if current_state == "ON" else "ON"
+
+        command_type = f"AMPLITUDE/POWER/HIGH SENSITIVE/{new_state}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+        self.high_sensitivity_state_var.set(new_state)
+
+
     def _on_trace_mode_select(self, event, trace_number, trace_var):
         """
         Handles the selection of a new trace mode from a dropdown.
@@ -174,8 +367,131 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
         
-        command_type = f"Trace/Mode/{trace_number}/{mode}"
-        YakDo(self.app_instance, command_type, self.console_print_func)
+        command_type = f"TRACE/{trace_number}/MODE/{mode}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+
+    def _on_get_trace_data_click(self):
+        """
+        Handles the button click to get trace data for all traces.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Get Trace Data button clicked. Querying all trace data.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot get trace data.")
+            debug_log("Cannot get trace data. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        for i in range(4):
+            trace_number = i + 1
+            command_type = f"TRACE/{trace_number}/DATA"
+            trace_data = YakGet(self.app_instance, command_type.upper(), self.console_print_func)
+            if trace_data is not None:
+                self.console_print_func(f"✅ Trace {trace_number} data received: {trace_data[:50]}...")
+                debug_log(f"Received data for Trace {trace_number}. Fucking awesome!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+            else:
+                self.console_print_func(f"❌ Failed to get data for Trace {trace_number}.")
+                debug_log(f"Failed to get data for Trace {trace_number}. What a disaster!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+
+    def _on_turn_all_markers_on_click(self):
+        """
+        Handles the button click to turn on all markers.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Turn All Markers On button clicked. Toggling all markers.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot turn on markers.")
+            debug_log("Cannot turn on markers. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        for i in range(6):
+            marker_number = i + 1
+            command_type = f"MARKER/{marker_number}/CALCULATE/STATE"
+            YakSet(self.app_instance, command_type.upper(), "ON", self.console_print_func)
+            self.marker_vars[i].set(True)
+        self.console_print_func("✅ All markers turned on.")
+        debug_log("All markers turned on. Fucking brilliant!",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+
+
+    def _on_marker_state_toggle(self, marker_number, var):
+        """
+        Handles the state change of a marker checkbox.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        state = "ON" if var.get() else "OFF"
+        debug_log(f"Marker {marker_number} state toggled to: {state}.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set marker state.")
+            debug_log("Cannot set marker state. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        command_type = f"MARKER/{marker_number}/CALCULATE/STATE"
+        YakSet(self.app_instance, command_type.upper(), state, self.console_print_func)
+
+
+    def _on_read_all_markers_click(self):
+        """
+        Handles the button click for reading all marker values.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Read All Markers button clicked. Querying all markers.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot read markers.")
+            debug_log("Cannot read markers. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        for i in range(6):
+            if self.marker_vars[i].get():
+                marker_number = i + 1
+                x_command = f"MARKER/{marker_number}/CALCULATE/X"
+                y_command = f"MARKER/{marker_number}/CALCULATE/Y"
+                
+                x_value = YakGet(self.app_instance, x_command.upper(), self.console_print_func)
+                y_value = YakGet(self.app_instance, y_command.upper(), self.console_print_func)
+
+                self.marker_value_labels[i].config(text=f"X: {x_value}, Y: {y_value}")
+                self.console_print_func(f"✅ Marker {marker_number} values: X:{x_value}, Y:{y_value}")
+                debug_log(f"Read values for Marker {marker_number}: X:{x_value}, Y:{y_value}. Fucking awesome!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+
 
     def _on_reset_button_click(self):
         """
@@ -195,7 +511,7 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
         
-        command_type = "System/Reset"
+        command_type = "SYSTEM/RESET".upper()
         YakDo(self.app_instance, command_type, self.console_print_func)
     
     def _on_tab_selected(self, event=None):
@@ -204,7 +520,7 @@ class SettingsTab(ttk.Frame):
         instrument settings and update the dropdowns and buttons to reflect them.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Settings Tab selected. Checking connection status. What's the instrument doing? 🧐",
+        debug_log(f"Settings Tab selected. Checking connection status. What's the instrument doing? �",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)

@@ -14,14 +14,15 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.220100.15 (FIXED: Added missing styles for control buttons in the Markers tab to enable orange active/inactive colors.)
+# Version 20250811.213200.0
 
-current_version = "20250810.220100.15"
-current_version_hash = 20250810 * 220100 * 15 # Example hash, adjust as needed
+current_version = "20250811.213200.0"
+current_version_hash = 20250811 * 213200 * 0
 
 import tkinter as tk
 from tkinter import ttk, TclError
 import inspect
+import os
 
 from display.debug_logic import debug_log
 
@@ -77,8 +78,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     # --- General Styles ---
     style.configure('TFrame', background=COLOR_PALETTE['background'])
     style.configure('Dark.TFrame', background=COLOR_PALETTE['background'])
-    style.configure('TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
-    style.configure('Dark.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'))
+    # Updated TLabelframe font and foreground to make it more translucent
+    style.configure('TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 12, 'bold'))
+    style.configure('Dark.TLabelframe', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 12, 'bold'))
     style.configure('TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
     
     try:
@@ -89,10 +91,11 @@ def apply_styles(style, debug_log_func, current_app_version):
     except TclError as e:
         debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=os.path.basename(__file__), version=current_app_version, function="apply_styles")
 
-    style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 9, 'bold'))
-    style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
+    style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 11, 'bold'))
+    style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 11, 'bold'))
     
-    style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['input_fg'], borderwidth=1, relief="solid")
+    # Updated TEntry style
+    style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground='white', borderwidth=1, relief="solid", font=('Helvetica', 11))
     style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
     
     # --- Custom Tab Button Styles (Parents) & Child Notebook Styles ---
@@ -295,3 +298,4 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map("Treeview", background=[('selected', COLOR_PALETTE['select_bg'])], foreground=[('selected', COLOR_PALETTE['select_fg'])])
     style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
     style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])
+

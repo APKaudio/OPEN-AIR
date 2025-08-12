@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.200000.0
+# Version 20250811.205730.0
 
-current_version = "20250811.200000.0"
-current_version_hash = 20250811 * 200000 * 0
+current_version = "20250811.205730.0"
+current_version_hash = 20250811 * 205730 * 0
 
 import csv
 import os
@@ -250,8 +250,15 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                 _reset_device(inst, console_print_func)
                 return "FAILED"
         elif action_type == "DO":
-            if write_safe(inst, visa_command, console_print_func):
-                return _wait_for_opc(inst, console_print_func)
+            # Modified DO logic to append the variable if it exists
+            if variable_value and variable_value != '':
+                full_command = f"{visa_command} {variable_value}"
+            else:
+                full_command = visa_command
+            
+            if write_safe(inst, full_command, console_print_func):
+                console_print_func("✅ Command executed successfully.")
+                return "PASSED"
             else:
                 console_print_func("❌ Command execution failed.")
                 debug_log("DO command execution failed. What the hell went wrong?!",
@@ -327,18 +334,39 @@ def _load_commands_from_file(file_path):
         _visa_commands_data = [] # Clear data on error
         return False
 
-def _find_command(command_type, manufacturer, model):
+def _find_command(command_type, action_type, model):
     """
-    Finds the correct VISA command and action type from the loaded data
-    based on command type, manufacturer, and model. It prioritizes specific
-    matches over generic ones.
+    Function Description:
+    Finds the correct VISA command from the loaded data based on the command type,
+    action type, and instrument model. It prioritizes specific matches over generic ones.
+
+    Inputs:
+        command_type (str): The logical name of the command (e.g., "SYSTEM/RESET").
+        action_type (str): The type of action ("GET", "SET", "DO").
+        model (str): The instrument model (e.g., "N9340B").
+
+    Process:
+        1. Converts the incoming command_type and action_type to uppercase.
+        2. Iterates through the global command data.
+        3. Looks for an exact match for command_type, action_type, and model.
+        4. If no exact match is found, it falls back to looking for a wildcard match
+           on the model column.
+        5. If a match is found, it returns the action, visa command, and variable.
+
+    Outputs:
+        tuple: (action, command, variable) or (None, None, None) if no match is found.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Searching for command. Type: '{command_type}', Manufacturer: '{manufacturer}', Model: '{model}'. Let's find it! 🕵️‍♀️",
+    debug_log(f"Searching for command. Type: '{command_type}', Action: '{action_type}', Model: '{model}'. Let's find it! 🕵️‍♀️",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
 
+    # Convert incoming parameters to uppercase for consistent comparison
+    upper_command_type = command_type.upper()
+    upper_action_type = action_type.upper()
+    upper_model = model.upper()
+    
     if not _visa_commands_data:
         debug_log("No command data loaded. What a disaster!",
                     file=os.path.basename(__file__),
@@ -346,27 +374,25 @@ def _find_command(command_type, manufacturer, model):
                     function=current_function)
         return None, None, None
 
-    # Prioritize exact matches (Manufacturer and Model)
+    # Search for an exact match first (Command Type, Action, Model)
     for row in _visa_commands_data:
-        # Columns: Manufacturer (0), Model (1), Command Type (2), Action (3), VISA Command (4), Variable (5), Validated (6)
-        if row[2] == command_type and row[0] == manufacturer and row[1] == model:
-            debug_log("Found an exact match! This is fucking brilliant! ✅",
+        if row[2].upper() == upper_command_type and row[3].upper() == upper_action_type and row[1].upper() == upper_model:
+            debug_log(f"Found an exact match! Command: '{upper_command_type}', Action: '{upper_action_type}', Model: '{upper_model}'. This is fucking brilliant! ✅",
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return row[3], row[4], row[5]
 
-    # Fallback to wildcard matches
+    # If no exact match, try a wildcard model match (Command Type, Action, '*')
     for row in _visa_commands_data:
-        # Match any manufacturer/model if a wildcard is used
-        if row[2] == command_type and (row[0] == '*' or row[1] == '*'):
-            debug_log("Found a wildcard match. Not perfect, but it'll do. 😉",
+        if row[2].upper() == upper_command_type and row[3].upper() == upper_action_type and row[1] == '*':
+            debug_log(f"Found a wildcard match! Command: '{upper_command_type}', Action: '{upper_action_type}', Model: '*'. Not perfect, but it'll do. 😉",
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             return row[3], row[4], row[5]
 
-    debug_log("No matching command found. This is a fucking waste of time! 💥",
+    debug_log(f"No matching command found for Type: '{upper_command_type}', Action: '{upper_action_type}', Model: '{upper_model}'. This is a fucking waste of time! 💥",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
@@ -398,7 +424,7 @@ def YakGet(app_instance, command_type, console_print_func):
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
     
-    action, command, variable = _find_command(command_type, manufacturer, model)
+    action, command, variable = _find_command(command_type, "GET", model)
     
     if action == "GET" and command:
         return execute_visa_command(app_instance.inst, action, command, variable, console_print_func)
@@ -436,7 +462,7 @@ def YakSet(app_instance, command_type, variable_value, console_print_func):
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
     
-    action, command, _ = _find_command(command_type, manufacturer, model)
+    action, command, _ = _find_command(command_type, "SET", model)
     
     if action == "SET" and command:
         return execute_visa_command(app_instance.inst, action, command, variable_value, console_print_func)
@@ -473,10 +499,10 @@ def YakDo(app_instance, command_type, console_print_func):
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
     
-    action, command, _ = _find_command(command_type, manufacturer, model)
+    action, command, variable = _find_command(command_type, "DO", model)
     
     if action == "DO" and command:
-        return execute_visa_command(app_instance.inst, action, command, "", console_print_func)
+        return execute_visa_command(app_instance.inst, action, command, variable, console_print_func)
     else:
         console_print_func(f"❌ Could not find a matching DO command for '{command_type}'.")
         debug_log(f"No matching DO command found for '{command_type}'. Fucking useless!",
