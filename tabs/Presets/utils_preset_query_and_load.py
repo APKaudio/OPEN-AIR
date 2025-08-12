@@ -52,14 +52,14 @@ def query_device_presets_logic(app_instance, console_print_func):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Querying device presets from instrument...",
-                file=f"{os.path.basename(__file__)} - {current_version}",
+                file=f"{os.path.basename(__file__)}",
                 version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
         console_print_func("❌ No instrument connected. Cannot query device presets.")
         debug_log("No instrument connected. Aborting device preset query.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         return []
@@ -69,7 +69,7 @@ def query_device_presets_logic(app_instance, console_print_func):
        app_instance.connected_instrument_model.get() != "N9342CN":
         console_print_func("⚠️ Device is not N9342CN. Cannot query device presets (feature limited to N9342CN).")
         debug_log("Device is not N9342CN. Aborting device preset query.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         return []
@@ -82,21 +82,21 @@ def query_device_presets_logic(app_instance, console_print_func):
             preset_names = [name.strip().strip('"') for name in response.split(',') if name.strip()]
             console_print_func(f"✅ Found {len(preset_names)} device presets.")
             debug_log(f"Device presets found: {preset_names}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return preset_names
         else:
             console_print_func("ℹ️ No device presets found or query failed.")
             debug_log("No device presets found or query returned empty response.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return []
     except Exception as e:
         console_print_func(f"❌ Error querying device presets: {e}. This is a disaster!")
         debug_log(f"Error querying device presets: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         return []
@@ -121,7 +121,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to load preset: '{selected_preset_name}'. Is Device Preset: {is_device_preset}.",
-                file=f"{os.path.basename(__file__)} - {current_version}",
+                file=f"{os.path.basename(__file__)}",
                 version=current_version,
                 function=current_function)
 
@@ -134,7 +134,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
             if not app_instance.inst:
                 console_print_func("❌ No instrument connected. Cannot load device preset.")
                 debug_log("No instrument connected. Aborting device preset load.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -144,7 +144,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
                app_instance.connected_instrument_model.get() != "N9342CN":
                 console_print_func("⚠️ Device is not N9342CN. Cannot load device presets (feature limited to N9342CN).")
                 debug_log("Device is not N9342CN. Aborting device preset load.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -155,7 +155,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
             if write_safe(app_instance.inst, load_command, app_instance, console_print_func):
                 console_print_func(f"✅ Device preset '{selected_preset_name}' loaded to instrument.")
                 debug_log(f"Device preset '{selected_preset_name}' loaded to instrument.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 
@@ -177,21 +177,21 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
 
                     console_print_func(f"GUI settings updated from device preset: Center Freq={center_freq_hz / app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz / 1000:.1f} kHz. Looking good!")
                     debug_log(f"GUI settings updated from loaded device preset.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return True, center_freq_hz, span_hz, rbw_hz
                 else:
                     console_print_func("❌ Failed to query settings after loading device preset. This is frustrating!")
                     debug_log("Failed to query settings after loading device preset. What a pain!",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return False, 0.0, 0.0, 0.0
             else:
                 console_print_func(f"❌ Failed to load device preset '{selected_preset_name}'. This is frustrating!")
                 debug_log(f"Failed to load device preset '{selected_preset_name}'. What a pain!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -208,14 +208,14 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
 
                 console_print_func(f"GUI settings updated from preset: Center Freq={center_freq_hz / app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz:.0f} Hz. Looking good!")
                 debug_log(f"GUI settings updated from loaded local preset.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return True, center_freq_hz, span_hz, rbw_hz
             else:
                 console_print_func(f"❌ Failed to load local preset '{selected_preset_name}'. Preset data not provided.")
                 debug_log(f"Failed to load local preset '{selected_preset_name}'. Preset data dictionary is missing.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -223,7 +223,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred in load_selected_preset_logic: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred in load_selected_preset_logic: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         return False, 0.0, 0.0, 0.0
@@ -244,13 +244,13 @@ def query_current_instrument_settings_for_preset(inst, console_print_func=None):
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Querying current instrument settings... Let's see what's happening!",
-                file=f"{os.path.basename(__file__)} - {current_version}",
+                file=f"{os.path.basename(__file__)}",
                 version=current_version,
                 function=current_function)
 
     if not inst:
         debug_log("No instrument connected to query settings. Fucking useless!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         console_print_func("⚠️ Warning: No instrument connected. Cannot query settings. Connect the damn thing first!")
@@ -280,7 +280,7 @@ def query_current_instrument_settings_for_preset(inst, console_print_func=None):
         span_mhz = span_hz / 1_000_000 if span_hz is not None else None
 
         debug_log(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -290,7 +290,7 @@ def query_current_instrument_settings_for_preset(inst, console_print_func=None):
 
     except Exception as e:
         debug_log(f"❌ Error querying current instrument settings: {e}. What a mess!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         console_print_func(f"❌ Error querying current instrument settings: {e}. This is a disaster!")

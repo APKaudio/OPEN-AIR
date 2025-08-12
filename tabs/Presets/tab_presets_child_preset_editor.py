@@ -64,14 +64,14 @@ class PresetEditorTab(ttk.Frame):
 
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing PresetEditorTab. Version: {current_version}. Get ready to edit presets!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         # Load presets initially from CSV. This is the primary load point.
         self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
         debug_log(f"Initial load of presets_data in PresetEditorTab __init__: {len(self.presets_data)} entries.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -88,7 +88,7 @@ class PresetEditorTab(ttk.Frame):
 
 
         debug_log(f"PresetEditorTab initialized. Version: {current_version}. Preset editor is live!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -100,7 +100,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Creating PresetEditorTab widgets...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -207,7 +207,7 @@ class PresetEditorTab(ttk.Frame):
 
 
         debug_log("PresetEditorTab widgets created. Treeview and buttons are ready for action!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -219,7 +219,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Populating local presets table from internal data...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -230,7 +230,7 @@ class PresetEditorTab(ttk.Frame):
         if not self.presets_data:
             self.console_print_func("ℹ️ No user presets in memory to display in editor.")
             debug_log("No user presets in memory for editor.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -253,7 +253,7 @@ class PresetEditorTab(ttk.Frame):
         
         self.console_print_func(f"✅ Displayed {len(self.presets_data)} user presets in the editor.")
         debug_log(f"Local presets table populated with {len(self.presets_data)} entries from internal data.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -265,14 +265,14 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Adding current instrument settings to presets...")
         debug_log("Attempting to add current settings.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         if not self.app_instance.inst:
             self.console_print_func("❌ No instrument connected. Cannot get current settings. Connect first!")
             debug_log("No instrument connected to get current settings.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -283,7 +283,7 @@ class PresetEditorTab(ttk.Frame):
            isinstance(self.app_instance.connected_instrument_model, tk.StringVar):
             instrument_model = self.app_instance.connected_instrument_model.get()
         debug_log(f"Instrument model for query: '{instrument_model}'.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -336,13 +336,13 @@ class PresetEditorTab(ttk.Frame):
             self.has_unsaved_changes = True # Mark as unsaved
             self.console_print_func("✅ Current instrument settings added as a new preset. Remember to save your changes!")
             debug_log(f"Current settings added as new preset. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
         else:
             self.console_print_func("❌ Failed to query all current settings from instrument. Some values were missing.")
             debug_log("Failed to query all current settings. Some values were None.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -354,7 +354,7 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Adding a new empty row to the presets table...")
         debug_log("Adding new empty row.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -371,7 +371,7 @@ class PresetEditorTab(ttk.Frame):
         self.has_unsaved_changes = True # Mark as unsaved
         self.console_print_func("✅ New empty row added. Remember to save your changes!")
         debug_log(f"New empty row added. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -385,7 +385,7 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Saving all presets to PRESETS.CSV...")
         debug_log("Saving presets to CSV.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -399,7 +399,7 @@ class PresetEditorTab(ttk.Frame):
         if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, self.presets_data, self.console_print_func, fieldnames=fieldnames_for_save):
             self.console_print_func(f"✅ Presets saved successfully to: {presets_csv_full_path}")
             debug_log(f"Presets saved to CSV successfully. Total entries: {len(self.presets_data)}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             self.has_unsaved_changes = False # No unsaved changes after saving
@@ -410,14 +410,14 @@ class PresetEditorTab(ttk.Frame):
                hasattr(self.app_instance.presets_parent_tab.local_presets_tab, 'populate_local_presets_list'):
                 self.app_instance.presets_parent_tab.local_presets_tab.populate_local_presets_list()
                 debug_log("Refreshed Local Presets tab after saving.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
             return True # Indicate success
         else:
             self.console_print_func("❌ Failed to save presets to PRESETS.CSV.")
             debug_log("Failed to save presets to CSV.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return False # Indicate failure
@@ -432,7 +432,7 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Initiating preset import...")
         debug_log("Initiating preset import...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -445,7 +445,7 @@ class PresetEditorTab(ttk.Frame):
         if not file_path:
             self.console_print_func("ℹ️ Preset import cancelled.")
             debug_log("Preset import cancelled.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -476,7 +476,7 @@ class PresetEditorTab(ttk.Frame):
 
             self.console_print_func(f"✅ Successfully imported {len(imported_presets)} presets from {os.path.basename(file_path)}. Existing data replaced. Automatically saving changes...")
             debug_log(f"Imported {len(imported_presets)} presets from {file_path}. Existing data replaced. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -486,7 +486,7 @@ class PresetEditorTab(ttk.Frame):
         except Exception as e:
             self.console_print_func(f"❌ Error importing presets: {e}. Check file format.")
             debug_log(f"Error importing presets from {file_path}: {e}. This is a disaster!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -499,14 +499,14 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         self.console_print_func("💬 Exporting presets to CSV...")
         debug_log(f"Exporting presets. Current presets_data count: {len(self.presets_data)}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         if not self.presets_data:
             self.console_print_func("⚠️ No presets to export. Add some first!")
             debug_log("No presets to export.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -525,7 +525,7 @@ class PresetEditorTab(ttk.Frame):
         if not file_path:
             self.console_print_func("ℹ️ Preset export cancelled.")
             debug_log("Preset export cancelled.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -538,7 +538,7 @@ class PresetEditorTab(ttk.Frame):
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 debug_log("Export - Header written successfully. Attempting to write rows...",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 for preset in self.presets_data:
@@ -555,20 +555,20 @@ class PresetEditorTab(ttk.Frame):
                             row_to_write[field] = str(value) # Ensure all values are strings
                     writer.writerow(row_to_write)
                 debug_log("Export - Rows written successfully.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
 
             self.console_print_func(f"✅ Successfully exported {len(self.presets_data)} presets to {os.path.basename(file_path)}.")
             debug_log(f"Exported {len(self.presets_data)} presets to {file_path}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
         except Exception as e:
             self.console_print_func(f"❌ Error exporting presets: {e}. This is a disaster!")
             debug_log(f"Error exporting presets to {file_path}: {e}. Fucking hell!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -583,7 +583,7 @@ class PresetEditorTab(ttk.Frame):
         if not selected_items:
             self.console_print_func("⚠️ No preset selected for deletion. Pick one, genius!")
             debug_log("No preset selected for deletion.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -591,7 +591,7 @@ class PresetEditorTab(ttk.Frame):
         # No confirmation dialog, proceed directly with deletion
         self.console_print_func("💬 Deleting selected preset(s)...")
         debug_log("Proceeding with deletion of selected presets.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -602,7 +602,7 @@ class PresetEditorTab(ttk.Frame):
             if self.is_editing_cell and self.current_edit_cell and self.current_edit_cell[0] == item_id:
                 self._end_edit() # Gracefully end the edit before deleting the item
                 debug_log(f"Ending active edit on item {item_id} before deletion.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
 
@@ -619,19 +619,19 @@ class PresetEditorTab(ttk.Frame):
                     # Only increment deleted_count if an item was actually removed from the list
                     deleted_count += 1
                     debug_log(f"Removed preset with Filename: {filename_to_delete} from internal data.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                 else:
                     debug_log(f"Preset with Filename: {filename_to_delete} not found in internal data for deletion.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                 
                 # Delete from Treeview
                 self.presets_tree.delete(item_id)
                 debug_log(f"Deleted item {item_id} from Treeview.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
 
@@ -639,7 +639,7 @@ class PresetEditorTab(ttk.Frame):
             self.has_unsaved_changes = True # Mark as unsaved
             self.console_print_func(f"✅ Deleted {deleted_count} preset(s). Automatically saving changes...")
             debug_log(f"Deleted {deleted_count} presets. Current presets_data count: {len(self.presets_data)}. Unsaved changes: {self.has_unsaved_changes}. Automatically saving.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -648,7 +648,7 @@ class PresetEditorTab(ttk.Frame):
         else:
             self.console_print_func("ℹ️ No presets were deleted.")
             debug_log("No presets deleted.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -662,7 +662,7 @@ class PresetEditorTab(ttk.Frame):
 
         if region == "heading":
             debug_log("Double-clicked on heading. Skipping edit.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return # Do not edit headings
@@ -673,7 +673,7 @@ class PresetEditorTab(ttk.Frame):
 
             if not item:
                 debug_log("Double-clicked on empty row. Skipping edit.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return # Do not edit empty rows
@@ -685,7 +685,7 @@ class PresetEditorTab(ttk.Frame):
             if column_name == 'Filename':
                 self.console_print_func("⚠️ Filename column cannot be edited directly.")
                 debug_log("Attempted to edit 'Filename' column, which is disallowed.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return
@@ -693,7 +693,7 @@ class PresetEditorTab(ttk.Frame):
             self._start_edit(item, col_index)
         else:
             debug_log(f"Double-clicked on region: {region}. Skipping edit.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -706,7 +706,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Starting edit for item_id: {item_id}, col_index: {col_index}. Setting is_editing_cell=True.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -746,7 +746,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Enter key pressed during edit. Ending edit.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         
@@ -760,7 +760,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Tab key pressed during edit. Ending edit.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         
@@ -774,7 +774,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Shift-Tab key pressed during edit. Ending edit.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         
@@ -785,7 +785,7 @@ class PresetEditorTab(ttk.Frame):
         """Handles Escape key press during editing to cancel the edit."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Escape key pressed during edit. Cancelling edit.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         # Just destroy the entry without saving changes
@@ -804,13 +804,13 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Ending edit...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         if not hasattr(self, 'edit_entry') or not self.edit_entry.winfo_exists():
             debug_log("No active edit entry found. Skipping _end_edit.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             self.is_editing_cell = False # Ensure flag is reset if no entry exists
@@ -833,7 +833,7 @@ class PresetEditorTab(ttk.Frame):
                         preset[original_col_name] = new_value
                         self.console_print_func(f"✅ Updated '{original_col_name}' for '{preset.get('NickName', filename_of_edited_row)}' to '{new_value}'. Automatically saving changes!")
                         debug_log(f"Internal data updated for {filename_of_edited_row}: {original_col_name} = {new_value}. Unsaved changes: True. Triggering auto-save.",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    file=f"{os.path.basename(__file__)}",
                                     version=current_version,
                                     function=current_function)
                         self.has_unsaved_changes = True # Mark as unsaved
@@ -841,7 +841,7 @@ class PresetEditorTab(ttk.Frame):
                         self._save_presets_to_csv()
                     else:
                         debug_log("Value unchanged. No update to internal data or unsaved changes flag.",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    file=f"{os.path.basename(__file__)}",
                                     version=current_version,
                                     function=current_function)
                     break
@@ -865,7 +865,7 @@ class PresetEditorTab(ttk.Frame):
                         updated_values_for_treeview[col_index] = new_value # Apply new value directly
                     except tk.TclError:
                         debug_log(f"Could not retrieve values from Treeview for item {item_id_from_edit}. Skipping Treeview update.",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    file=f"{os.path.basename(__file__)}",
                                     version=current_version,
                                     function=current_function)
                         updated_values_for_treeview = None # Indicate failure to get values
@@ -873,12 +873,12 @@ class PresetEditorTab(ttk.Frame):
                 if updated_values_for_treeview is not None:
                     self.presets_tree.item(item_id_from_edit, values=updated_values_for_treeview)
                     debug_log(f"Treeview item {item_id_from_edit} updated with new values: {updated_values_for_treeview}.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
             else:
                 debug_log(f"Treeview item {item_id_from_edit} no longer exists. Skipping Treeview visual update.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 # The data is already saved to self.presets_data and CSV by this point.
@@ -889,7 +889,7 @@ class PresetEditorTab(ttk.Frame):
         self.edit_entry.destroy()
         self.is_editing_cell = False # Reset the flag after destroying the entry
         debug_log("Edit ended. Entry widget destroyed. is_editing_cell set to False.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -902,14 +902,14 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("PresetEditorTab selected. Checking for unsaved changes before refreshing...",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         # First, ensure any active edit is committed (without saving to CSV yet)
         if hasattr(self, 'edit_entry') and self.edit_entry.winfo_exists():
             debug_log("Active edit detected on tab selection. Ending edit before reload.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             self._end_edit() # This will update internal data and set has_unsaved_changes if needed
@@ -917,7 +917,7 @@ class PresetEditorTab(ttk.Frame):
         if self.has_unsaved_changes:
             self.console_print_func("💬 Unsaved changes detected. Attempting to auto-save before reloading presets from file.")
             debug_log("Unsaved changes detected. Attempting auto-save.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             self._save_presets_to_csv() # Attempt to save automatically
@@ -926,7 +926,7 @@ class PresetEditorTab(ttk.Frame):
         self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
         self.populate_presets_table()
         debug_log(f"PresetEditorTab refreshed from CSV. Current presets_data count: {len(self.presets_data)}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -939,7 +939,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Main window gained focus. Checking if PresetEditorTab is active.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         
@@ -948,7 +948,7 @@ class PresetEditorTab(ttk.Frame):
             # Only proceed if not currently in an active cell edit
             if self.is_editing_cell:
                 debug_log("Window focused, but a cell is currently being edited. Skipping auto-save/reload to avoid interruption.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return # Skip everything if an edit is active
@@ -957,7 +957,7 @@ class PresetEditorTab(ttk.Frame):
             if self.has_unsaved_changes:
                 self.console_print_func("💬 Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.")
                 debug_log("Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 self._save_presets_to_csv() # Attempt to save automatically
@@ -965,12 +965,12 @@ class PresetEditorTab(ttk.Frame):
                 # The _on_tab_selected will handle the refresh when the tab is explicitly selected.
             else:
                 debug_log("Window focused, Preset Editor tab active, but no unsaved changes. Skipping auto-save.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
         else:
             debug_log("Window focused, but PresetEditorTab is not the active tab. Skipping auto-save.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -984,12 +984,12 @@ class PresetEditorTab(ttk.Frame):
             # For debugging, log the filenames of selected items
             selected_filenames = [self.presets_tree.item(item, 'values')[0] for item in selected_items]
             debug_log(f"Treeview selection changed. Selected items: {selected_filenames}",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
         else:
             debug_log("Treeview selection cleared (no items selected).",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -1001,14 +1001,14 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         selected_items = self.presets_tree.selection()
         debug_log(f"Move Preset UP clicked. Selected items: {selected_items}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         if not selected_items:
             self.console_print_func("⚠️ No preset selected to move up. Select one, genius!")
             debug_log("No preset selected for move up.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -1043,18 +1043,18 @@ class PresetEditorTab(ttk.Frame):
                     self.presets_data.insert(current_index - 1, preset_to_move)
                     moved_count += 1
                     debug_log(f"Moved preset '{filename_to_move}' from index {current_index} to {current_index - 1} in internal data.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                 else:
                     debug_log(f"Preset with filename '{filename_to_move}' not found in internal data for move up.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
             else:
                 self.console_print_func(f"⚠️ Preset '{self.presets_tree.item(item_id, 'values')[1]}' is already at the top. Cannot move up.")
                 debug_log(f"Attempted to move top preset '{self.presets_tree.item(item_id, 'values')[1]}' up.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
 
@@ -1086,14 +1086,14 @@ class PresetEditorTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         selected_items = self.presets_tree.selection()
         debug_log(f"Move Preset DOWN clicked. Selected items: {selected_items}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
         if not selected_items:
             self.console_print_func("⚠️ No preset selected to move down. Select one, buddy!")
             debug_log("No preset selected for move down.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -1128,18 +1128,18 @@ class PresetEditorTab(ttk.Frame):
                     self.presets_data.insert(current_index + 1, preset_to_move)
                     moved_count += 1
                     debug_log(f"Moved preset '{filename_to_move}' from index {current_index} to {current_index + 1} in internal data.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                 else:
                     debug_log(f"Preset with filename '{filename_to_move}' not found in internal data for move down.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
             else:
                 self.console_print_func(f"⚠️ Preset '{self.presets_tree.item(item_id, 'values')[1]}' is already at the bottom. Cannot move down.")
                 debug_log(f"Attempted to move bottom preset '{self.presets_tree.item(item_id, 'values')[1]}' down.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
 

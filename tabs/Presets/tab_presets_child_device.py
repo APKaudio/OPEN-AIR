@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250811.223500.1 (FIXED: Corrected an AttributeError by changing the call to the private method `_on_connection_status_changed` in the __init__ method and event handler.)
+# Version 20250812.002000.1 (FIXED: The circular import was resolved in this file by moving the import of push_preset_logic into the function that uses it.)
 
-current_version = "20250811.223500.1"
-current_version_hash = 20250811 * 223500 * 1
+current_version = "20250812.002000.1"
+current_version_hash = 20250812 * 2000 * 1
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -34,7 +34,7 @@ from src.program_style import COLOR_PALETTE
 
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv, overwrite_user_presets_csv
-from tabs.Presets.utils_push_preset import push_preset_logic
+# Removed: from tabs.Presets.utils_push_preset import push_preset_logic
 # Import instrument-related utilities
 from tabs.Instrument.instrument_logic import query_current_settings_logic
 from tabs.Instrument.utils_instrument_read_and_write import write_safe, query_safe
@@ -57,7 +57,7 @@ class DevicePresetsTab(ttk.Frame):
         self._on_connection_status_changed(is_connected, instrument_model)
 
         debug_log(f"DevicePresetsTab initialized. Version: {current_version}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
 
@@ -146,7 +146,7 @@ class DevicePresetsTab(ttk.Frame):
     def _on_connection_status_changed(self, is_connected, instrument_model):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Connection status changed event received in DevicePresetsTab: Connected={is_connected}, Model={instrument_model}. Updating UI state.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -167,7 +167,7 @@ class DevicePresetsTab(ttk.Frame):
     def _query_and_populate_device_presets(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Querying device presets. Getting the list of presets from the instrument. Version: {current_version}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         if self.app_instance.inst:
@@ -180,28 +180,28 @@ class DevicePresetsTab(ttk.Frame):
         else:
             self.console_print_func("❌ Instrument not connected. Cannot query device presets.")
             debug_log("Instrument not connected. Cannot query device presets. What a mess!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
     def _populate_device_preset_listboxes(self, presets):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Populating device preset listbox with {len(presets)} entries. Filling up the display!",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         self.device_preset_listbox.delete(0, tk.END)
         for preset in presets:
             self.device_preset_listbox.insert(tk.END, preset)
         debug_log("Device preset listbox populated.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
     def _on_device_preset_select(self, event):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Device preset selected event triggered. Let's see what's chosen! Version: {current_version}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         # Enable/disable Load button based on selection
@@ -210,14 +210,14 @@ class DevicePresetsTab(ttk.Frame):
         else:
             self.load_device_preset_button.config(state=tk.DISABLED)
         debug_log("Device preset selection handled.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
     def _load_selected_device_preset(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading selected device preset. Applying the magic! Version: {current_version}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         selected_index = self.device_preset_listbox.curselection()
@@ -232,26 +232,26 @@ class DevicePresetsTab(ttk.Frame):
             if success:
                 self.console_print_func(f"✅ Successfully loaded device preset: {selected_preset_name}.")
                 debug_log(f"Device preset '{selected_preset_name}' loaded successfully. Good job!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
             else:
                 self.console_print_func(f"❌ Failed to load device preset: {selected_preset_name}. Something went wrong!")
                 debug_log(f"Failed to load device preset '{selected_preset_name}'. This is a disaster!",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
         else:
             self.console_print_func("⚠️ No device preset selected to load. Pick one!")
             debug_log("No device preset selected to load.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
     def save_current_settings_as_user_preset(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Saving current settings as user preset. Getting all the goodies! Version: {current_version}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
 
@@ -261,20 +261,23 @@ class DevicePresetsTab(ttk.Frame):
         if not filename:
             self.console_print_func("❌ Filename cannot be empty. Please enter a filename.")
             debug_log("Filename for new preset was empty. User needs to provide one.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
 
         if not filename.endswith(".STA"):
             filename += ".STA"
+        
+        # CRITICAL FIX: The import of push_preset_logic is moved here to resolve the circular dependency.
+        from tabs.Presets.utils_push_preset import push_preset_logic
 
         # Query current instrument settings
         current_settings = query_current_settings_logic(self.app_instance, self.console_print_func)
         if not current_settings:
             self.console_print_func("❌ Could not retrieve current instrument settings to save.")
             debug_log("Failed to retrieve current instrument settings. Cannot save preset.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return
@@ -321,13 +324,13 @@ class DevicePresetsTab(ttk.Frame):
                 all_presets[existing_index] = new_preset
                 self.console_print_func(f"ℹ️ Overwriting existing preset: {filename}.")
                 debug_log(f"User confirmed overwrite for preset: {filename}",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
             else:
                 self.console_print_func("ℹ️ Preset save cancelled by user.")
                 debug_log("User cancelled preset overwrite.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 return
@@ -335,7 +338,7 @@ class DevicePresetsTab(ttk.Frame):
             all_presets.append(new_preset)
             self.console_print_func(f"ℹ️ Adding new preset: {filename}.")
             debug_log(f"Adding new preset: {filename}",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -343,7 +346,7 @@ class DevicePresetsTab(ttk.Frame):
         if overwrite_user_presets_csv(self.app_instance.CONFIG_FILE_PATH, all_presets, self.console_print_func):
             self.console_print_func(f"✅ Preset '{filename}' saved successfully to PRESETS.CSV!")
             debug_log(f"Preset '{filename}' saved to CSV. All good!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             # Clear the entry fields after successful save
@@ -352,7 +355,7 @@ class DevicePresetsTab(ttk.Frame):
         else:
             self.console_print_func(f"❌ Failed to save preset '{filename}'. Check console for errors.")
             debug_log(f"Failed to save preset '{filename}'. This is a nightmare!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
 
@@ -365,7 +368,7 @@ class DevicePresetsTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Attempting to load preset: '{selected_preset_name}'. Is Device Preset: {is_device_preset}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         
@@ -374,7 +377,7 @@ class DevicePresetsTab(ttk.Frame):
                 if not self.app_instance.inst:
                     self.console_print_func("❌ No instrument connected. Cannot load device preset.")
                     debug_log("No instrument connected. Aborting device preset load.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return False
@@ -384,7 +387,7 @@ class DevicePresetsTab(ttk.Frame):
                    self.app_instance.connected_instrument_model.get() != "N9342CN":
                     self.console_print_func("⚠️ Device is not N9342CN. Cannot load device presets (feature limited to N9342CN).")
                     debug_log("Device is not N9342CN. Aborting device preset load.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return False
@@ -393,7 +396,7 @@ class DevicePresetsTab(ttk.Frame):
                 if write_safe(self.app_instance.inst, load_command, self.app_instance, self.console_print_func):
                     self.console_print_func(f"✅ Device preset '{selected_preset_name}' loaded to instrument.")
                     debug_log(f"Device preset '{selected_preset_name}' loaded to instrument.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     
@@ -415,21 +418,21 @@ class DevicePresetsTab(ttk.Frame):
 
                         self.console_print_func(f"GUI settings updated from device preset: Center Freq={center_freq_hz / self.app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / self.app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz / 1000:.1f} kHz. Looking good!")
                         debug_log(f"GUI settings updated from loaded device preset.",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    file=f"{os.path.basename(__file__)}",
                                     version=current_version,
                                     function=current_function)
                         return True
                     else:
                         self.console_print_func("❌ Failed to query settings after loading device preset. This is frustrating!")
                         debug_log("Failed to query settings after loading device preset. What a pain!",
-                                    file=f"{os.path.basename(__file__)} - {current_version}",
+                                    file=f"{os.path.basename(__file__)}",
                                     version=current_version,
                                     function=current_function)
                         return False
                 else:
                     self.console_print_func(f"❌ Failed to load device preset '{selected_preset_name}'. This is frustrating!")
                     debug_log(f"Failed to load device preset '{selected_preset_name}'. What a pain!",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return False
@@ -446,14 +449,14 @@ class DevicePresetsTab(ttk.Frame):
 
                     self.console_print_func(f"GUI settings updated from preset: Center Freq={center_freq_hz / self.app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / self.app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz:.0f} Hz. Looking good!")
                     debug_log(f"GUI settings updated from loaded local preset.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return True
                 else:
                     self.console_print_func(f"❌ Failed to load local preset '{selected_preset_name}'. Preset data not provided.")
                     debug_log(f"Failed to load local preset '{selected_preset_name}'. Preset data dictionary is missing.",
-                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
                     return False
@@ -461,7 +464,7 @@ class DevicePresetsTab(ttk.Frame):
         except Exception as e:
             self.console_print_func(f"❌ An unexpected error occurred in __load_selected_preset_logic: {e}. This is a disaster!")
             debug_log(f"An unexpected error occurred in __load_selected_preset_logic: {e}. Fucking hell!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
             return False
