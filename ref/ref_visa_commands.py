@@ -175,8 +175,14 @@ def get_default_commands():
         ("Keysight Technologies", "*", "AMPLITUDE/POWER/GAIN", "GET", ":POWer:GAIN", "?", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/POWER/GAIN/OFF", "DO", ":POWer:GAIN", "OFF", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/POWER/GAIN", "GET", ":POWer:GAIN", "?", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":POWer:HSENsitive", "ON", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":POWer:HSENsitive", "OFF", ""),
+        
+        ("Keysight Technologies", "N9342CN", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":POWer:HSENsitive", "ON", ""),
+        ("Keysight Technologies", "N9342CN", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":POWer:HSENsitive", "OFF", ""),
+
+        ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON", "", ""),
+        ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF", "", ""),
+
+
 
         # Trace Mode Write
         ("Keysight Technologies", "*", "TRACE/1/MODE/WRITE", "DO", ":TRAC1:MODE", "WRITe", ""),
@@ -288,8 +294,8 @@ def get_default_commands():
 
         ("Keysight Technologies", "*", "TRACE/DISPLAY/TYPE", "GET", ":DISPlay:WINDow:TRACe:TYPE", "?", ""),
         ("Keysight Technologies", "*", "TRACE/DISPLAY/Y SCALE/SPACING", "SET", ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing", "LOGarithmic", ""),
-        ("Keysight Technologies", "N9342CN", "TRACE/FORMAT/DATA/ASCII (*)", "DO", ":TRACe:FORMat:DATA", "ASCii", ""), # For *
-        ("Keysight Technologies", "N9342CN", "TRACE/FORMAT/DATA/ASCII (GENERAL)", "DO", ":FORMat:DATA", "ASCii", ""), # General
+        ("Keysight Technologies", "N9342CN", "TRACE/FORMAT/DATA/ASCII", "DO", ":TRACe:FORMat:DATA", "ASCii", ""), # For *
+        ("Keysight Technologies", "N9340B", "TRACE/FORMAT/DATA/ASCII", "DO", ":FORMat:DATA", "ASCii", ""), # General
 
         # Marker - Expanded for 6 markers
         # Marker Calculate Max
