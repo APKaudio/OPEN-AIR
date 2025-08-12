@@ -579,6 +579,7 @@
 #                |   -> Function: _on_hs_toggle_click(self)
 #                |   -> Function: _on_immediate_initiate_click(self)
 #                |   -> Function: _on_marker_state_toggle(self, marker_number, var)
+#                |   -> Function: _on_peak_search_click(self)
 #                |   -> Function: _on_power_attenuation_select(self, event)
 #                |   -> Function: _on_preamp_toggle_click(self)
 #                |   -> Function: _on_read_all_markers_click(self)
