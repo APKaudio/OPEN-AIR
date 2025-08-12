@@ -13,6 +13,7 @@ MHZ_TO_HZ_CONVERSION = 1_000_000
 current_version = "20250803.1700.0" # Example version
 current_version_hash = 20250803 * 1700 * 0
 
+'''
 def apply_instrument_settings_logic(inst, center_freq_mhz, span_mhz, rbw_hz, ref_level_dbm, preamp_on, high_sensitivity_on, console_print_func=None):
     """
     Function Description:
@@ -94,4 +95,5 @@ def apply_instrument_settings_logic(inst, center_freq_mhz, span_mhz, rbw_hz, ref
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
-        return False
+        return False 
+    '''

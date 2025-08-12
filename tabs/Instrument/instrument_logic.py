@@ -37,7 +37,7 @@ from display.console_logic import console_log
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
-from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
+
 
 # Removed the import for initialize_instrument_logic.
 

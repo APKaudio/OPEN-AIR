@@ -15,67 +15,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1900.0 (Added Trace Mode columns and reordered NickName column.)
-# Version 20250802.2215.0 (Implemented flexible column matching for import, new export filename,
-#                         added 'Add New Empty Row' button, excluded SweepTime and FreqShift.)
-# Version 20250802.2225.0 (Handled 'nan' values, refined UI grouping for buttons.)
-# Version 20250802.2230.0 (Added debug logging to _export_presets for header/blank file issue.)
-# Version 20250803.0030.0 (Updated Treeview column headers to include units for Center, Span, RBW, VBW.)
-# Version 20250803.0050.0 (FIXED: populate_presets_table to only refresh Treeview from internal data.
-#                         FIXED: _add_new_empty_row to use default values for Center, Span, RBW.)
-# Version 20250803.0055.0 (Added window focus event to reload presets; clarified tab change save behavior.)
-# Version 20250803.0100.0 (FIXED: AttributeError: '_tkinter.tkapp' object has no attribute 'root' by binding to app_instance directly.)
-# Version 20250803.0115.0 (FIXED: Delete bug by adding existence check and explicit _end_edit call.
-#                         FIXED: UI layout for Add buttons.
-#                         CLARIFIED: Save/Load behavior on tab/window changes.)
-# Version 20250803.0130.0 (CRITICAL FIX: Removed automatic CSV reload on tab select/window focus to prevent data loss.
-#                         Ensured Save/Export/Delete operate on in-memory data.
-#                         Added more debug logging for data consistency.)
-# Version 20250803.0145.0 (FIXED: PresetEditorTab not displaying CSV content by re-introducing CSV load on tab select/window focus,
-#                         with a prompt for unsaved changes. Added self.has_unsaved_changes flag.)
-# Version 20250803.0200.0 (CRITICAL FIX: Removed all messagebox calls, replaced with simpledialog for confirmation where needed.
-#                         CRITICAL FIX: Changed _import_presets to REPLACE existing data, not extend.
-#                         Modified tab/window focus logic to auto-save unsaved changes before reloading.)
-# Version 20250803.0215.0 (CRITICAL FIX: Removed all simpledialog prompts for save/delete confirmations.
-#                         Auto-saves after import and delete. Console messages provide feedback.)
-# Version 20250803.0230.0 (FIXED: _end_edit to ensure Treeview update.
-#                         UPDATED: _add_current_settings to use query_current_instrument_settings_for_preset and populate all columns.
-#                         UPDATED: Nickname and Filename format for 'Add Current Settings'.
-#                         CLARIFIED: Save button message.)
-# Version 20250803.0245.0 (IMPLEMENTED: Instant save on cell edit.
-#                         IMPLEMENTED: Enter/Tab/Shift+Tab navigation in edit mode.
-#                         REMOVED: Redundant 'Save Changes' button.
-#                         MOVED: 'Delete Selected' button to top right.
-#                         FIXED: AttributeError in _add_current_settings by safely accessing instrument model.)
-# Version 20250803.0940.0 (FIXED: Data not saving on cell edit due to race condition with window/tab focus.
-#                         Ensured _end_edit completes and saves before table repopulation on focus/tab change.
-#                         Refined focus/tab change logic to prevent unnecessary saves.)
-# Version 20250803.0945.0 (FIXED: Double-clicking cell causes table to go blank due to Treeview item_id invalidation.
-#                         Modified _start_edit to store filename for robust data update.
-#                         Modified _end_edit to update internal data first, then Treeview if item_id still valid.)
-# Version 20250803.0948.0 (FIXED: CSV being cleared on double click due to save logic.
-#                         Changed _end_edit to NOT trigger immediate save.
-#                         Modified _on_tab_selected and _on_window_focus_in to only save if has_unsaved_changes is True.)
-# Version 20250803.1000.0 (REBUILD: Cell editing logic.
-#                         _end_edit now triggers immediate save to CSV.
-#                         _on_edit_return, _on_edit_tab, _on_edit_shift_tab, _on_edit_escape all call _end_edit or destroy entry.
-#                         Removed automatic cell navigation on Enter/Tab. Only Enter saves and exits.)
-# Version 20250803.1005.0 (FIXED: "Kicking out" of edit mode due to _on_window_focus_in.
-#                         Introduced self.is_editing_cell flag to suppress focus-in events during active edit.
-#                         Added more debug logging for focus and edit states.)
-# Version 20250803.1006.0 (FIXED: TclError: unknown option "-xyscrollcommand" by changing to xscrollcommand.)
-# Version 20250803.1012.0 (ADDED: Move Preset UP/DOWN buttons and functionality.)
-# Version 20250803.1018.0 (REFINED: _on_window_focus_in to prevent unnecessary table reloads and preserve selection.
-#                         ADDED: Debug logging for selection state in move functions.)
-# Version 20250803.1020.0 (REFINED: _on_window_focus_in to be less disruptive.
-#                         ADDED: _on_tree_select method and bind to <<TreeviewSelect>> for selection debugging.
-#                         ADDED: Explicit console message for save path in _save_presets_to_csv.)
-# Version 20250803.1028.0 (ADDED: Keyboard shortcuts (Ctrl+Up/Down) to move selected presets in the Treeview.)
-# Version 20250803.1032.0 (IMPROVED: _move_preset_up and _move_preset_down to maintain selection on moved items.
-#                         UPDATED: Move button text to include keyboard shortcuts.)
+# Version 20250811.223000.1 (REFACTORED: Updated the logic for querying current settings to use a single, reliable source from instrument_logic.py.)
 
-current_version = "20250803.1032.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1032 * 0 # Example hash, adjust as needed.
+current_version = "20250811.223000.1"
+current_version_hash = 20250811 * 223000 * 1
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -97,11 +40,10 @@ from tabs.Presets.utils_preset_process import (
     load_user_presets_from_csv,
     overwrite_user_presets_csv # NEW: For saving changes back to CSV
 )
-# Specific import for querying instrument settings
-from tabs.Presets.utils_preset_query_and_load import query_current_instrument_settings_for_preset
-from tabs.Instrument.utils_instrument_read_and_write import query_safe # For additional queries
 
+from tabs.Instrument.instrument_logic import query_current_settings_logic # NEW: Import the single source of truth for querying settings
 from src.program_style import COLOR_PALETTE # For styling
+
 
 class PresetEditorTab(ttk.Frame):
     """
@@ -113,13 +55,6 @@ class PresetEditorTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
         """
         Initializes the PresetEditorTab.
-
-        Inputs:
-            master (tk.Widget): The parent widget.
-            app_instance (App): The main application instance.
-            console_print_func (function): Function to print messages to the GUI console.
-            style_obj (ttk.Style): The ttk.Style object for applying custom styles.
-            **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         """
         filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
         super().__init__(master, **filtered_kwargs)
@@ -411,7 +346,6 @@ class PresetEditorTab(ttk.Frame):
                         version=current_version,
                         function=current_function)
 
-
     def _add_new_empty_row(self):
         """
         Adds a new empty row to the Treeview and the internal presets_data list.
@@ -615,7 +549,7 @@ class PresetEditorTab(ttk.Frame):
                         value = preset.get(field, '')
                         if isinstance(value, float) and np.isnan(value):
                             row_to_write[field] = '' # Replace NaN with empty string
-                        elif isinstance(value, (float, np.float64)) and value.is_integer(): # Use np.float64
+                        elif isinstance(value, (float, np.float64)) and value.is_integer():
                             row_to_write[field] = str(int(value))
                         else:
                             row_to_write[field] = str(value) # Ensure all values are strings
@@ -665,7 +599,7 @@ class PresetEditorTab(ttk.Frame):
         # Iterate in reverse to avoid issues with index changes during deletion
         for item_id in reversed(selected_items):
             # Check if the item being deleted is currently being edited
-            if self.current_edit_cell and self.current_edit_cell[0] == item_id:
+            if self.is_editing_cell and self.current_edit_cell and self.current_edit_cell[0] == item_id:
                 self._end_edit() # Gracefully end the edit before deleting the item
                 debug_log(f"Ending active edit on item {item_id} before deletion.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
@@ -1228,4 +1162,3 @@ class PresetEditorTab(ttk.Frame):
             self._save_presets_to_csv()
         else:
             self.console_print_func("ℹ️ No presets were moved down.")
-
