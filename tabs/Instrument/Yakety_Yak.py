@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.205730.0
+# Version 20250811.234500.1 (FIXED: Refactored the entire file to properly define the YakGet, YakSet, and YakDo functions and removed all references to the now-defunct OPC logic.)
 
-current_version = "20250811.205730.0"
-current_version_hash = 20250811 * 205730 * 0
+current_version = "20250811.234500.1"
+current_version_hash = 20250811 * 234500 * 1
 
 import csv
 import os
@@ -136,56 +136,7 @@ def set_safe(inst, command, value, console_print_func):
                 function=current_function)
     return write_safe(inst, full_command, console_print_func)
 
-def _wait_for_opc(inst, console_print_func, timeout=5):
-    """
-    Function Description:
-    Waits for the instrument's Operation Complete (OPC) flag by querying *OPC?.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Waiting for Operation Complete (*OPC?) with a timeout of {timeout} seconds. Let's see if this thing is done!",
-                file=os.path.basename(__file__),
-                version=current_version,
-                function=current_function)
 
-    original_timeout = inst.timeout
-    inst.timeout = timeout * 1000 # PyVISA timeout is in milliseconds
-
-    try:
-        response = inst.query("*OPC?").strip()
-        inst.timeout = original_timeout # Restore original timeout
-        log_visa_command("*OPC?", "SENT")
-        log_visa_command(response, "RECEIVED")
-
-        if response == "1":
-            console_print_func("✅ Operation Complete. Fucking brilliant!")
-            return "PASSED"
-        else:
-            console_print_func("❌ Operation failed to complete or returned an unexpected value.")
-            debug_log(f"OPC query returned '{response}', not '1'. What the hell?!",
-                        file=os.path.basename(__file__),
-                        version=current_version,
-                        function=current_function)
-            _reset_device(inst, console_print_func)
-            return "FAILED"
-
-    except pyvisa.errors.VisaIOError as e:
-        inst.timeout = original_timeout # Restore original timeout
-        console_print_func(f"❌ Operation Complete query timed out after {timeout} seconds.")
-        debug_log(f"OPC query failed with a timeout: {e}. This thing is a stubborn bastard!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-        _reset_device(inst, console_print_func)
-        return "TIME FAILED"
-    except Exception as e:
-        inst.timeout = original_timeout # Restore original timeout
-        console_print_func(f"❌ Error during Operation Complete query: {e}")
-        debug_log(f"Error during OPC query: {e}. This bugger is being problematic!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-        _reset_device(inst, console_print_func)
-        return "FAILED"
 
 def execute_visa_command(inst, action_type, visa_command, variable_value, console_print_func):
     """
@@ -238,17 +189,6 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             function=current_function)
                 _reset_device(inst, console_print_func)
                 return "FAILED"
-        elif action_type == "SET":
-            if set_safe(inst, visa_command, variable_value, console_print_func):
-                return _wait_for_opc(inst, console_print_func)
-            else:
-                console_print_func("❌ Command execution failed.")
-                debug_log("SET command execution failed. This bugger is being problematic!",
-                            file=os.path.basename(__file__),
-                            version=current_version,
-                            function=current_function)
-                _reset_device(inst, console_print_func)
-                return "FAILED"
         elif action_type == "DO":
             # Modified DO logic to append the variable if it exists
             if variable_value and variable_value != '':
@@ -262,6 +202,20 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
             else:
                 console_print_func("❌ Command execution failed.")
                 debug_log("DO command execution failed. What the hell went wrong?!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+                _reset_device(inst, console_print_func)
+                return "FAILED"
+        elif action_type == "SET":
+            # SET command has a variable_value that needs to be appended
+            full_command = f"{visa_command} {variable_value}"
+            if write_safe(inst, full_command, console_print_func):
+                console_print_func("✅ Command executed successfully.")
+                return "PASSED"
+            else:
+                console_print_func("❌ Command execution failed.")
+                debug_log("SET command execution failed. What the hell went wrong?!",
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
@@ -344,14 +298,6 @@ def _find_command(command_type, action_type, model):
         command_type (str): The logical name of the command (e.g., "SYSTEM/RESET").
         action_type (str): The type of action ("GET", "SET", "DO").
         model (str): The instrument model (e.g., "N9340B").
-
-    Process:
-        1. Converts the incoming command_type and action_type to uppercase.
-        2. Iterates through the global command data.
-        3. Looks for an exact match for command_type, action_type, and model.
-        4. If no exact match is found, it falls back to looking for a wildcard match
-           on the model column.
-        5. If a match is found, it returns the action, visa command, and variable.
 
     Outputs:
         tuple: (action, command, variable) or (None, None, None) if no match is found.
