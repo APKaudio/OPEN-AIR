@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.002500.1 (REFACTORED: Updated to include all preset variables and trace configurations from PRESETS.CSV using Yak commands.)
+# Version 20250812.004000.1 (FIXED: The push_preset_logic now correctly uses YakSet and YakDo with proper command types and includes all missing preset variables and trace configurations.)
 
-current_version = "20250812.002500.1"
-current_version_hash = 20250812 * 2500 * 1
+current_version = "20250812.004000.1"
+current_version_hash = 20250812 * 4000 * 1
 
 import os
 import inspect # Import inspect module
@@ -86,7 +86,7 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
         vbw_hz = float(vbw_hz_str) if vbw_hz_str else None
 
         ref_level_str = preset_data.get('RefLevel', '').strip()
-        reference_level_dbm = float(ref_level_str) if ref_level_str else None
+        reference_level_dbm = ref_level_str if ref_level_str else None
 
         attenuation_str = preset_data.get('Attenuation', '').strip()
         attenuation_db = int(attenuation_str) if attenuation_str else None
@@ -135,57 +135,50 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
 
         # Apply Reference Level
         if reference_level_dbm is not None:
-            if YakSet(app_instance, "AMPLITUDE/REFERENCE LEVEL", str(reference_level_dbm), console_print_func) == "FAILED": success = False
+            if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{reference_level_dbm}", console_print_func) == "FAILED": success = False
             debug_log(f"Applied Reference Level: {reference_level_dbm} dBm.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
-        # Apply High Sensitivity (N9340B specific)
-        model_match = app_instance.connected_instrument_model.get()
-        if model_match and re.match(r"N9340B|N9342CN", model_match, re.IGNORECASE):
-            if high_sensitivity_on is not None:
-                if YakSet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", 'ON' if high_sensitivity_on else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied High Sensitivity: {'ON' if high_sensitivity_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if preamp_on is not None:
-                if YakSet(app_instance, "AMPLITUDE/POWER/GAIN", 'ON' if preamp_on else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Preamp: {'ON' if preamp_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            
-            # Apply Trace Modes (N9340B specific)
-            if trace1_mode:
-                if YakSet(app_instance, "TRACE/1/MODE", trace1_mode, console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Trace 1 Mode: {trace1_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if trace2_mode:
-                if YakSet(app_instance, "TRACE/2/MODE", trace2_mode, console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Trace 2 Mode: {trace2_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if trace3_mode:
-                if YakSet(app_instance, "TRACE/3/MODE", trace3_mode, console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Trace 3 Mode: {trace3_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if trace4_mode:
-                if YakSet(app_instance, "TRACE/4/MODE", trace4_mode, console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Trace 4 Mode: {trace4_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if high_sensitivity_on is not None:
+            if YakSet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", 'ON' if high_sensitivity_on else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied High Sensitivity: {'ON' if high_sensitivity_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if preamp_on is not None:
+            if YakSet(app_instance, "AMPLITUDE/POWER/GAIN", 'ON' if preamp_on else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Preamp: {'ON' if preamp_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        
+        # Apply Trace Modes (N9340B specific)
+        if trace1_mode:
+            if YakDo(app_instance, f"TRACE/1/MODE/{trace1_mode}", console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Trace 1 Mode: {trace1_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if trace2_mode:
+            if YakDo(app_instance, f"TRACE/2/MODE/{trace2_mode}", console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Trace 2 Mode: {trace2_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if trace3_mode:
+            if YakDo(app_instance, f"TRACE/3/MODE/{trace3_mode}", console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Trace 3 Mode: {trace3_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if trace4_mode:
+            if YakDo(app_instance, f"TRACE/4/MODE/{trace4_mode}", console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Trace 4 Mode: {trace4_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
-            # Apply Marker Max settings (N9340B specific)
-            if marker1_max:
-                if YakSet(app_instance, "MARKER/1/CALCULATE/MAX", 'ON' if marker1_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 1 Max: {marker1_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if marker2_max:
-                if YakSet(app_instance, "MARKER/2/CALCULATE/MAX", 'ON' if marker2_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 2 Max: {marker2_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if marker3_max:
-                if YakSet(app_instance, "MARKER/3/CALCULATE/MAX", 'ON' if marker3_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 3 Max: {marker3_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if marker4_max:
-                if YakSet(app_instance, "MARKER/4/CALCULATE/MAX", 'ON' if marker4_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 4 Max: {marker4_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if marker5_max:
-                if YakSet(app_instance, "MARKER/5/CALCULATE/MAX", 'ON' if marker5_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 5 Max: {marker5_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            if marker6_max:
-                if YakSet(app_instance, "MARKER/6/CALCULATE/MAX", 'ON' if marker6_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-                debug_log(f"Applied Marker 6 Max: {marker6_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-        else:
-            debug_log(f"Skipping N9340B specific settings for instrument model: {model_match}. This is not an N9340B or N9342CN.",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_version,
-                        function=current_function)
+        # Apply Marker Max settings (N9340B specific)
+        if marker1_max:
+            if YakSet(app_instance, "MARKER/1/CALCULATE/MAX", 'ON' if marker1_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 1 Max: {marker1_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if marker2_max:
+            if YakSet(app_instance, "MARKER/2/CALCULATE/MAX", 'ON' if marker2_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 2 Max: {marker2_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if marker3_max:
+            if YakSet(app_instance, "MARKER/3/CALCULATE/MAX", 'ON' if marker3_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 3 Max: {marker3_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if marker4_max:
+            if YakSet(app_instance, "MARKER/4/CALCULATE/MAX", 'ON' if marker4_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 4 Max: {marker4_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if marker5_max:
+            if YakSet(app_instance, "MARKER/5/CALCULATE/MAX", 'ON' if marker5_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 5 Max: {marker5_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        if marker6_max:
+            if YakSet(app_instance, "MARKER/6/CALCULATE/MAX", 'ON' if marker6_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Marker 6 Max: {marker6_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
 
         if success:
             console_print_func("✅ All settings applied successfully. Boom!")

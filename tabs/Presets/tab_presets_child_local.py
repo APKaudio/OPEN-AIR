@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.002500.1 (FIXED: Updated to display all preset variables and resolved a circular import issue with lazy loading.)
+# Version 20250812.010000.1 (FIXED: Corrected variable names in _update_gui_from_preset_data to resolve AttributeError and ensure all preset data is applied to the application's state.)
 
-current_version = "20250812.002500.1"
-current_version_hash = 20250812 * 2500 * 1
+current_version = "20250812.010000.1"
+current_version_hash = 20250812 * 10000 * 1
 
 import tkinter as tk
 from tkinter import ttk
