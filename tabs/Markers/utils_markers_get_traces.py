@@ -14,7 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.121800.1 (FIXED: The trace update cycle now correctly adheres to a 10-tick loop, calling Max Hold every 5th tick and Min Hold every 10th, if enabled.)
+# Version 20250811.232000.1 (REFACTORED: Converted all direct instrument calls from query_safe to use the high-level YakGet command for protocol compliance.)
+
+current_version = "20250811.232000.1"
+current_version_hash = 20250811 * 232000 * 1
 
 import inspect
 import os
@@ -22,12 +25,8 @@ import numpy as np
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from tabs.Instrument.utils_instrument_read_and_write import query_safe
 from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
-
-
-current_version = "20250811.121800.1"
-current_version_hash = (20250811 * 121800 * 1)
+from tabs.Instrument.Yakety_Yak import YakGet # NEW: Import YakGet
 
 # A global counter to manage the trace update cycle state.
 _trace_update_cycle_counter = 0
@@ -81,11 +80,7 @@ def get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_h
               version=current_version,
               function=current_function)
 
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 1 data.")
-        return None
-
-    trace_data_str = query_safe(app_instance.inst, ":TRAC1:DATA?", console_print_func)
+    trace_data_str = YakGet(app_instance, "TRACE/1/DATA", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:
@@ -105,11 +100,7 @@ def get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_h
               version=current_version,
               function=current_function)
 
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 2 data.")
-        return None
-
-    trace_data_str = query_safe(app_instance.inst, ":TRAC2:DATA?", console_print_func)
+    trace_data_str = YakGet(app_instance, "TRACE/2/DATA", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:
@@ -129,11 +120,7 @@ def get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_h
               version=current_version,
               function=current_function)
 
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot get Trace 3 data.")
-        return None
-
-    trace_data_str = query_safe(app_instance.inst, ":TRAC3:DATA?", console_print_func)
+    trace_data_str = YakGet(app_instance, "TRACE/3/DATA", console_print_func)
     if trace_data_str:
         processed_data = _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
         if processed_data:

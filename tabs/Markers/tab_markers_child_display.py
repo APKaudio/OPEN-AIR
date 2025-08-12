@@ -13,16 +13,19 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250811.130322.13 (FIXED: Corrected button selection logic. The selected device now correctly turns orange. The loop delay control uses a combobox for stability.)
+# Version 20250811.230000.1 (FIXED: Corrected an AttributeError by removing '.inst' from calls to utility functions that no longer require it.)
 
-current_version = "20250811.130322.13"
-current_version_hash = (20250811 * 130322 * 13)
+current_version = "20250811.230000.1"
+current_version_hash = 20250811 * 230000 * 1
 
 import tkinter as tk
 from tkinter import ttk
 import os
 import csv
 import inspect
+import threading
+import time
+import math
 
 from tabs.Markers.utils_markers import SPAN_OPTIONS, RBW_OPTIONS, set_span_logic, set_frequency_logic, set_trace_modes_logic, set_marker_logic, set_rbw_logic
 from display.debug_logic import debug_log
@@ -343,26 +346,25 @@ class MarkersDisplayTab(ttk.Frame):
         else:
             full_device_name = f"{zone_name} / {device_name}"
 
-        self.selected_device_unique_id = f"{full_device_name}-{freq_mhz}"
+        self.selected_device_unique_id = f"{device_name}-{freq_mhz}" # FIXED: Use a simpler UID for button matching
         self.selected_device_name = full_device_name
         self.selected_device_freq = float(freq_mhz) * MHZ_TO_HZ
         self.poke_freq_var.set(str(freq_mhz))
 
         self.controls_notebook.select(0)
         
-        # FIXED: Call this AFTER setting self.selected_device_unique_id
-        self._populate_device_buttons(self.get_current_displayed_devices())
+        self._update_device_button_styles() # FIXED: Call the new function to update buttons directly.
 
         if self.app_instance and self.app_instance.inst:
             try:
                 freq_hz = float(freq_mhz) * MHZ_TO_HZ
                 span_hz = float(self.span_var.get())
                 # FIXED: Restored calls to set span and trace modes.
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
-                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
 
-                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, full_device_name, console_log)
+                set_frequency_logic(self.app_instance, freq_hz, console_log)
+                set_marker_logic(self.app_instance, freq_hz, full_device_name, console_log)
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
         
@@ -532,7 +534,7 @@ class MarkersDisplayTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
                 if self.selected_device_freq is not None and self.is_loop_running:
                     self.after_cancel(self.marker_trace_loop_job)
                     self._start_marker_trace_loop(center_freq_hz=self.selected_device_freq, span_hz=span_hz)
@@ -556,7 +558,7 @@ class MarkersDisplayTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_rbw_logic(self.app_instance.inst, rbw_hz, console_log)
+                set_rbw_logic(self.app_instance, rbw_hz, console_log)
             except (ValueError, TypeError) as e:
                 debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
                           file=f"{os.path.basename(__file__)} - {current_version}",
@@ -576,7 +578,7 @@ class MarkersDisplayTab(ttk.Frame):
         trace_var.set(not trace_var.get())
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
-            set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+            set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_poke_action(self):
@@ -595,19 +597,18 @@ class MarkersDisplayTab(ttk.Frame):
                 poke_marker_name = f"POKE: {freq_mhz} MHz"
                 
                 span_hz = float(self.span_var.get())
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
-                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
                 
-                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, poke_marker_name, console_log)
+                set_frequency_logic(self.app_instance, freq_hz, console_log)
+                set_marker_logic(self.app_instance, freq_hz, poke_marker_name, console_log)
                 
                 self.selected_device_unique_id = None
                 self.selected_device_name = poke_marker_name
                 self.selected_device_freq = freq_hz
                 
-                # FIXED: Manually update the button styles, no need to repopulate the entire frame
                 self._update_device_button_styles()
-
+                
                 if self.is_loop_running:
                     self._stop_loop_action()
                     
@@ -722,11 +723,11 @@ class MarkersDisplayTab(ttk.Frame):
             try:
                 freq_hz = float(freq_mhz) * MHZ_TO_HZ
                 span_hz = float(self.span_var.get())
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
-                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
 
-                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, full_device_name, console_log)
+                set_frequency_logic(self.app_instance, freq_hz, console_log)
+                set_marker_logic(self.app_instance, freq_hz, full_device_name, console_log)
             except (ValueError, TypeError) as e:
                 console_log(f"Error setting frequency: {e}")
         
@@ -896,7 +897,7 @@ class MarkersDisplayTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
                 if self.selected_device_freq is not None and self.is_loop_running:
                     self.after_cancel(self.marker_trace_loop_job)
                     self._start_marker_trace_loop(center_freq_hz=self.selected_device_freq, span_hz=span_hz)
@@ -920,7 +921,7 @@ class MarkersDisplayTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_rbw_logic(self.app_instance.inst, rbw_hz, console_log)
+                set_rbw_logic(self.app_instance, rbw_hz, console_log)
             except (ValueError, TypeError) as e:
                 debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
                           file=f"{os.path.basename(__file__)} - {current_version}",
@@ -940,7 +941,7 @@ class MarkersDisplayTab(ttk.Frame):
         trace_var.set(not trace_var.get())
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
-            set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+            set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
         save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
     def _on_poke_action(self):
@@ -959,18 +960,18 @@ class MarkersDisplayTab(ttk.Frame):
                 poke_marker_name = f"POKE: {freq_mhz} MHz"
                 
                 span_hz = float(self.span_var.get())
-                set_span_logic(self.app_instance.inst, span_hz, console_log)
-                set_trace_modes_logic(self.app_instance.inst, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                set_span_logic(self.app_instance, span_hz, console_log)
+                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
                 
-                set_frequency_logic(self.app_instance.inst, freq_hz, console_log)
-                set_marker_logic(self.app_instance.inst, freq_hz, poke_marker_name, console_log)
+                set_frequency_logic(self.app_instance, freq_hz, console_log)
+                set_marker_logic(self.app_instance, freq_hz, poke_marker_name, console_log)
                 
                 self.selected_device_unique_id = None
                 self.selected_device_name = poke_marker_name
                 self.selected_device_freq = freq_hz
                 
                 self._update_device_button_styles()
-
+                
                 if self.is_loop_running:
                     self._stop_loop_action()
                     

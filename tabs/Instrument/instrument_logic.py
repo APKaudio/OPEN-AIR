@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.222000.1 (REMOVED: The call to initialize_instrument_logic has been completely removed to streamline the connection process and prevent redundant or conflicting settings on connect.)
+# Version 20250811.233000.1 (FIXED: The IDN query logic was re-introduced to correctly populate the instrument model, resolving the issue where YakGet failed to find model-specific commands.)
 
-current_version = "20250811.222000.1"
-current_version_hash = 20250811 * 222000 * 1
+current_version = "20250811.233000.1"
+current_version_hash = 20250811 * 233000 * 1
 
 import inspect
 import os
@@ -38,8 +38,6 @@ from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_sa
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
 
-
-# Removed the import for initialize_instrument_logic.
 
 def populate_resources_logic(app_instance, combobox_widget, console_print_func):
     # Function Description:
@@ -92,19 +90,22 @@ def connect_instrument_logic(app_instance, console_print_func):
             app_instance.is_connected.set(False)
             return False
 
-        # Step 2: Query IDN
+        # Step 2: Query IDN and populate model
         idn_response = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
         if idn_response:
             idn_parts = idn_response.split(',')
             if len(idn_parts) >= 2:
-                model_match = idn_parts[1].strip()
+                app_instance.connected_instrument_manufacturer.set(idn_parts[0].strip())
+                app_instance.connected_instrument_model.set(idn_parts[1].strip())
             else:
-                model_match = "GENERIC"
+                console_print_func("⚠️ Warning: Could not parse instrument IDN. Proceeding with generic model.")
+                app_instance.connected_instrument_manufacturer.set("N/A")
+                app_instance.connected_instrument_model.set("GENERIC")
         else:
             console_print_func("⚠️ Warning: Could not query instrument IDN. Proceeding with generic settings.")
-            model_match = "GENERIC"
+            app_instance.connected_instrument_manufacturer.set("N/A")
+            app_instance.connected_instrument_model.set("GENERIC")
         
-        # We no longer initialize the instrument here. The user will do it via the Settings tab.
         app_instance.is_connected.set(True)
         debug_log("Connection successful! The instrument is alive! 🥳",
                     file=f"{os.path.basename(__file__)} - {current_version}",
