@@ -67,6 +67,7 @@
 #            |   -> Function: _start_crawl(self)
 #            |   -> Function: console_log(message)
 #            |   -> Function: debug_log(message, file, function)
+#    ├── SCANS/
 #    ├── DEBUG_SOFTWARE.log
 #    ├── DEBUG_VISA_COMMANDS.log
 #    ├── MARKERS.CSV
@@ -75,6 +76,7 @@
 #    ├── PRESETS.CSV
 #    ├── config.ini
 #    └── visa_commands.csv
+#        └── MyScan_3D_Scans_Over_Time_20250812_135706.html
 #    ├── DISPLAY_PARENT.py
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
@@ -614,7 +616,7 @@
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _resize_columns_to_fit_content(self)
 #                |   -> Function: _save_and_destroy_editor(self)
-#                |   -> Function: _save_data(self)
+#                |   -> Function: _save_data(self, commands_to_save)
 #                |   -> Function: _sort_treeview_column(self, tv, col)
 #                |   -> Function: _validate_all_rows(self)
 #                |   -> Function: _yak_button_action(self)
@@ -664,6 +666,7 @@
 #                |   -> Import: inspect
 #                |   -> Import: tabs.Markers.tab_markers_child_display
 #                |   -> Import: tabs.Markers.tab_markers_child_import_and_edit
+#                |   -> Import: tabs.Markers.tab_markers_child_showtime
 #                |   -> Import: tkinter
 #                |   -> Class: TAB_MARKERS_PARENT
 #                |   -> Function: __init__(self, parent, app_instance, console_print_func)
@@ -756,6 +759,36 @@
 #                |   -> Function: _update_markers_display_tab_data(self)
 #                |   -> Function: get_sort_key(item)
 #                |   -> Function: on_edit_complete_and_navigate(event, navigate_direction)
+#        ├── tab_markers_child_showtime.py
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tkinter
+#                |   -> Class: ShowtimeTab
+#                |   -> Function: __init__(self, master, app_instance)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _group_by_zone(self, data)
+#                |   -> Function: _load_markers_data(self)
+#                |   -> Function: _on_device_button_click(self, device_data)
+#                |   -> Function: _on_get_show_details(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_zone_button_click(self, zone_name)
+#                |   -> Function: _populate_device_buttons(self)
+#                |   -> Function: _populate_zone_buttons(self)
+#                |   -> Function: _update_zone_button_styles(self)
+#        ├── utils_marker_peaks.py
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: ref.frequency_bands
+#                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Function: get_peak_values_and_update_csv(app_instance, zone_name, console_print_func)
 #        ├── utils_markers.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic

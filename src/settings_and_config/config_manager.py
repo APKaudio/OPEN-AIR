@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.20 (FIXED: The save_config function now removes the trailing decimal from integer-like float values for cleaner config files.)
+# Version 20250812.165100.1 (FIXED: The load_config function now correctly handles empty or non-existent config files by defaulting to the internal configuration.)
 
-current_version = "20250810.220100.20"
-current_version_hash = 20250810 * 220100 * 20 # Example hash, adjust as needed
+current_version = "20250812.165100.1"
+current_version_hash = (20250812 * 165100 * 1)
 
 import configparser
 import os
@@ -35,17 +35,27 @@ from src.program_default_values import DEFAULT_CONFIG
 
 def load_config(file_path, console_print_func):
     """
-    Loads the configuration from the specified INI file. If the file doesn't exist,
-    it creates it with default settings.
+    Loads the configuration from the specified INI file. If the file doesn't exist
+    or is empty, it creates it with default settings.
     """
     current_function = inspect.currentframe().f_code.co_name
     config = configparser.ConfigParser(interpolation=None)
-    if not os.path.exists(file_path):
-        console_print_func(f"Configuration file not found at '{file_path}'. Creating with default settings.")
-        debug_log(f"Config file not found: {file_path}. Initializing with defaults.",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
+    
+    # Check if file doesn't exist OR if it exists but is empty
+    if not os.path.exists(file_path) or os.path.getsize(file_path) == 0:
+        if not os.path.exists(file_path):
+            console_print_func(f"Configuration file not found at '{file_path}'. Creating with default settings.")
+            debug_log(f"Config file not found: {file_path}. Initializing with defaults.",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+        else: # File exists but is empty
+            console_print_func(f"Configuration file at '{file_path}' is empty. Overwriting with default settings.")
+            debug_log(f"Config file is empty: {file_path}. Overwriting with defaults.",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            
         config.read_dict(DEFAULT_CONFIG)
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
         try:
@@ -94,20 +104,29 @@ def save_config(config, file_path, console_print_func, app_instance):
     # List of keys that are handled explicitly (not via setting_var_map iteration)
     EXPLICITLY_HANDLED_KEYS = [
         'geometry',
+        'window_state',
         'last_config_save_time',
-        'paned_window_sash_position',
+        'paned_window_sash_position_percentage',
         'last_scan_configuration__selected_bands',
         'last_scan_configuration__selected_bands_levels',
     ]
 
     try:
-        # --- Explicitly handle geometry and last_config_save_time ---
+        # --- Explicitly handle geometry and window_state ---
         app_geometry = app_instance.geometry()
         config.set('Application', 'geometry', app_geometry)
         debug_log(f"Config object: Set 'geometry' to '{app_geometry}'.",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
+
+        window_state = 'zoomed' if app_instance.state() == 'zoomed' else 'normal'
+        config.set('Application', 'window_state', window_state)
+        debug_log(f"Config object: Set 'window_state' to '{window_state}'.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+
 
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         config.set('Application', 'last_config_save_time', current_time)
@@ -118,12 +137,14 @@ def save_config(config, file_path, console_print_func, app_instance):
         if hasattr(app_instance, 'last_config_save_time_var'):
             app_instance.last_config_save_time_var.set(current_time)
 
-        # --- Explicitly handle paned_window_sash_position ---
-        if hasattr(app_instance, 'paned_window') and app_instance.paned_window:
+        # --- Explicitly handle paned_window_sash_position_percentage ---
+        if hasattr(app_instance, 'paned_window') and app_instance.paned_window and app_instance.winfo_width() > 0:
             try:
                 sash_pos = app_instance.paned_window.sashpos(0)
-                config.set('Application', 'paned_window_sash_position', str(sash_pos))
-                debug_log(f"Config object: SUCCESSFULLY SET 'paned_window_sash_position' to '{sash_pos}'. This should be the correct value!",
+                # Calculate percentage and convert to string for config file
+                sash_pos_percentage = int((sash_pos / app_instance.winfo_width()) * 100)
+                config.set('Application', 'paned_window_sash_position_percentage', str(sash_pos_percentage))
+                debug_log(f"Config object: SUCCESSFULLY SET 'paned_window_sash_position_percentage' to '{sash_pos_percentage}%' from pixel value '{sash_pos}'. This is a goddamn good idea!",
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function, special=True)
@@ -133,7 +154,7 @@ def save_config(config, file_path, console_print_func, app_instance):
                             version=current_version,
                             function=current_function, special=True)
         else:
-            debug_log("Config object: 'app_instance.paned_window' attribute does NOT exist. Skipping sash position save.",
+            debug_log("Config object: 'app_instance.paned_window' attribute does NOT exist, or window width is zero. Skipping sash position percentage save.",
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
@@ -185,8 +206,8 @@ def save_config(config, file_path, console_print_func, app_instance):
                         version=current_version,
                         function=current_function)
 
-        final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position', fallback='NOT SET IN CONFIG OBJECT')
-        debug_log(f"Config object reports 'paned_window_sash_position' as '{final_sash_pos_in_config}' just before file write. Is this the right value? This better work!",
+        final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position_percentage', fallback='NOT SET IN CONFIG OBJECT')
+        debug_log(f"Config object reports 'paned_window_sash_position_percentage' as '{final_sash_pos_in_config}' just before file write. Is this the right value? This better work!",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function, special=True)
@@ -224,8 +245,9 @@ def save_config_as_new_file(app_instance, new_file_path):
     # List of keys that are handled explicitly (not via setting_var_map iteration)
     EXPLICITLY_HANDLED_KEYS_FOR_NEW_FILE = [
         'geometry',
+        'window_state',
         'last_config_save_time',
-        'paned_window_sash_position',
+        'paned_window_sash_position_percentage',
         'last_scan_configuration__selected_bands',
         'last_scan_configuration__selected_bands_levels',
     ]
@@ -246,11 +268,14 @@ def save_config_as_new_file(app_instance, new_file_path):
         if not new_config.has_section('Application'):
             new_config.add_section('Application')
         new_config.set('Application', 'geometry', app_instance.geometry())
+        new_config.set('Application', 'window_state', 'zoomed' if app_instance.state() == 'zoomed' else 'normal')
         new_config.set('Application', 'last_config_save_time', datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         
-        if hasattr(app_instance, 'paned_window') and app_instance.paned_window:
-             sash_pos = app_instance.paned_window.sashpos(0)
-             new_config.set('Application', 'paned_window_sash_position', str(sash_pos))
+        # FIXED: Calculate and save sash position as a percentage
+        if hasattr(app_instance, 'paned_window') and app_instance.paned_window and app_instance.winfo_width() > 0:
+            sash_pos = app_instance.paned_window.sashpos(0)
+            sash_pos_percentage = int((sash_pos / app_instance.winfo_width()) * 100)
+            new_config.set('Application', 'paned_window_sash_position_percentage', str(sash_pos_percentage))
         
         # Explicitly save selected bands from app_instance.band_vars for new file save
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:

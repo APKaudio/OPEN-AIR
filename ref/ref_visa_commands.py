@@ -15,17 +15,18 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.204600.0
+# Version 20250812.215500.1 (FIXED: The get_default_commands function now correctly returns a list of tuples instead of a single tuple to properly populate the CSV file.)
 
-current_version = "20250811.204600.0"
-current_version_hash = 20250811 * 204600 * 0
+current_version = "20250812.215500.1"
+current_version_hash = 20250812 * 215500 * 1
 
 def get_default_commands():
     """
     Returns a list of default VISA commands.
     Each entry is a tuple: (Manufacturer, Model, Command Type, Action, VISA Command, Default Value for Variable, Validated).
     """
-    default_raw_commands = [
+    # CORRECTED: The return value is now wrapped in a list.
+    return [
         # System/Identification
         ("Keysight Technologies", "*", "SYSTEM/ID", "GET", "*IDN", "?", ""),
         ("Keysight Technologies", "*", "SYSTEM/RESET", "DO", "*RST", "", ""),
@@ -334,6 +335,13 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer6:STATe", "OFF", ""),
 
 
+        # Marker Calculate X (Frequency)
+        ("Keysight Technologies", "*", "MARKER/1/PLACE/X", "SET", ":CALCulate:MARKer1:X", "111111", ""),
+        ("Keysight Technologies", "*", "MARKER/2/PLACE/X", "SET", ":CALCulate:MARKer2:X", "222222", ""),
+        ("Keysight Technologies", "*", "MARKER/3/PLACE/X", "SET", ":CALCulate:MARKer3:X", "333333", ""),
+        ("Keysight Technologies", "*", "MARKER/4/PLACE/X", "SET", ":CALCulate:MARKer4:X", "444444", ""),
+        ("Keysight Technologies", "*", "MARKER/5/PLACE/X", "SET", ":CALCulate:MARKer5:X", "555555", ""),
+        ("Keysight Technologies", "*", "MARKER/6/PLACE/X", "SET", ":CALCulate:MARKer6:X", "666666", ""),
 
         # Marker Calculate X (Frequency)
         ("Keysight Technologies", "*", "MARKER/1/CALCULATE/X", "GET", ":CALCulate:MARKer1:X", "?", ""),
@@ -342,6 +350,10 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/4/CALCULATE/X", "GET", ":CALCulate:MARKer4:X", "?", ""),
         ("Keysight Technologies", "*", "MARKER/5/CALCULATE/X", "GET", ":CALCulate:MARKer5:X", "?", ""),
         ("Keysight Technologies", "*", "MARKER/6/CALCULATE/X", "GET", ":CALCulate:MARKer6:X", "?", ""),
+
+
+
+
 
         # Marker Calculate Y (Amplitude)
         ("Keysight Technologies", "*", "MARKER/1/CALCULATE/Y", "GET", ":CALCulate:MARKer1:Y", "?", ""),
@@ -358,4 +370,3 @@ def get_default_commands():
         
         ("Keysight Technologies", "*", "POWER/RESET", "DO", "SYSTem:POWer:RESet", "", ""),
     ]
-    return default_raw_commands

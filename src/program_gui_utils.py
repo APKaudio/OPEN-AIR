@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220500.9 (FIXED: Refactored the create_main_layout_and_widgets function to correctly create the TAB_DISPLAY_PARENT and remove redundant child tab retrieval logic.)
+# Version 20250812.103100.1 (FIXED: The sash position is now restored based on a percentage of the window width, ensuring the layout remains consistent on startup regardless of the window's previous size.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -37,8 +37,8 @@ from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT
 from display.console_logic import console_log
 from display.debug_logic import debug_log
 
-current_version = "20250810.220500.9"
-current_version_hash = 20250810 * 220500 * 9
+current_version = "20250812.103100.1"
+current_version_hash = (20250812 * 103100 * 1)
 
 def apply_saved_geometry(app_instance):
     # Function Description:
@@ -152,7 +152,7 @@ def create_main_layout_and_widgets(app_instance):
     
     # Try to set sash position based on a percentage of the window's width
     try:
-        sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position', fallback='50'))
+        sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position_percentage', fallback='50'))
         if app_instance.winfo_width() > 1: # Avoid division by zero on startup
              initial_sash_position = int((sash_position_percentage / 100) * app_instance.winfo_width())
              main_paned_window.sashpos(0, initial_sash_position)

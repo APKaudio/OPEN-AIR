@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.141200.8 (FIXED: Added Tkinter StringVar definitions for ref_level_dbm_var, high_sensitivity_on_var, preamp_on_var, rbw_hz_var, and vbw_hz_var to resolve the AttributeError in instrument_logic.py.)
+# Version 20250812.102600.1 (FIXED: Updated the variable key for paned window sash position to store the value as a percentage instead of a pixel value.)
 
-current_version = "20250811.141200.8"
-current_version_hash = 20250811 * 141200 * 8
+current_version = "20250812.102600.1"
+current_version_hash = (20250812 * 102600 * 1)
 
 import tkinter as tk
 import inspect
@@ -97,7 +97,7 @@ def setup_tkinter_variables(app_instance):
             # Determine variable type and create Tkinter variable
             if value_str.lower() in ['true', 'false']:
                 tk_var_instance = tk.BooleanVar(app_instance, value=(value_str.lower() == 'true'))
-            elif key == 'paned_window_sash_position': # Explicitly handle sash position as an IntVar
+            elif key == 'paned_window_sash_position_percentage': # NEW: Handle as IntVar
                 try:
                     tk_var_instance = tk.IntVar(app_instance, value=int(float(value_str)))
                 except ValueError:

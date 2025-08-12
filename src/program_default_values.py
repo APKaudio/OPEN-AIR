@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.180100.8 (FIXED: Dynamically generated default band importance levels to prevent hard-coding and potential errors.)
+# Version 20250812.102500.1 (FIXED: The paned_window_sash_position value will now be stored as a percentage of the window width for consistent layout on all screen sizes.)
 
-current_version = "20250810.180100.8"
-current_version_hash = 20250810 * 180100 * 8 # Example hash, adjust as needed
+current_version = "20250812.102500.1"
+current_version_hash = (20250812 * 102500 * 1)
 
 import os
 
@@ -40,7 +40,7 @@ DEFAULT_CONFIG = {
     'Application': {
         'geometry': '1000x1000+0+0',
         'window_state': 'normal',
-        'paned_window_sash_position': '50', # UPDATED: Sash position as a percentage of the window width
+        'paned_window_sash_position_percentage': '50', # NEW: Sash position as a percentage of the window width
         'last_config_save_time': 'Never',
     },
     'Debug': {

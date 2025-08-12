@@ -1,7 +1,7 @@
 # tabs/Markers/TAB_MARKERS_PARENT.py
 #
 # This file defines the parent tab for Marker-related functionalities.
-# It acts as a container for child tabs such as "Markers Display" and "Report Converter".
+# It acts as a container for child tabs such as "Showtime", "Markers Display" and "Report Converter".
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,10 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.2300.1 (REFACTORED: Applied color-coded child notebook style.)
-# Version 20250803.2210.1 (REFACTORED: Removed ASCII art logic to break circular import.)
+# Version 20250812.161100.1 (UPDATED: Added the new 'Showtime' tab and placed it as the first tab in the notebook.)
 
-current_version = "20250803.2300.1"
+current_version = "20250812.161100.1"
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,6 +24,7 @@ import inspect
 
 from tabs.Markers.tab_markers_child_display import MarkersDisplayTab
 from tabs.Markers.tab_markers_child_import_and_edit import ReportConverterTab
+from tabs.Markers.tab_markers_child_showtime import ShowtimeTab # NEW: Import the new ShowtimeTab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -40,6 +40,10 @@ class TAB_MARKERS_PARENT(ttk.Frame):
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
+
+        # NEW: Add the ShowtimeTab as the first tab
+        self.showtime_tab = ShowtimeTab(self.child_notebook, self.app_instance)
+        self.child_notebook.add(self.showtime_tab, text="Showtime")
 
         self.marker_display_tab = MarkersDisplayTab(self.child_notebook, headers=None, rows=None, app_instance=self.app_instance)
         self.child_notebook.add(self.marker_display_tab, text="Markers Display")

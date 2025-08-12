@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.15 (FIXED: Improved the get_tab_instance function to correctly retrieve child tab instances, fixing the AttributeError.)
+# Version 20250812.104500.1 (FIXED: The is_initial_resize flag is no longer reset in __init__ to prevent a premature autosave. The flag will be reset after the sash is successfully positioned.)
 
-current_version = "20250810.220100.15"
-current_version_hash = 20250810 * 220100 * 15 # Placeholder, will be set during runtime or in a dedicated versioning module.
+current_version = "20250812.104500.1"
+current_version_hash = (20250812 * 104500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -77,6 +77,9 @@ class App(tk.Tk):
         self.inst = None # Initialize inst here, it will be updated by connection logic
         self.paned_window = None # Initialize paned_window attribute here
 
+        # NEW: Flag to prevent immediate save on startup resize
+        self.is_initial_resize = True
+
         self.tab_art_map = {
             "Instruments": _print_inst_ascii,
             "Markers": _print_marks_ascii,
@@ -109,6 +112,9 @@ class App(tk.Tk):
         # After config is loaded, apply any saved geometry
         apply_saved_geometry(self)
         apply_styles(self.style, debug_log, self.current_version)
+
+        # The is_initial_resize flag must be reset AFTER the sash is positioned.
+        # So, the line that resets it here is REMOVED.
         
         # This function now correctly creates the tab instances and assigns them.
         # It also sets up self.tab_content_frames which contain the references.
@@ -191,7 +197,7 @@ class App(tk.Tk):
         # This event is triggered for every pixel change. We only want to save once after the user is done.
         # We use a deferred save with `after_idle` to accomplish this.
         # This event also includes widget configure events, so we must filter for the root window.
-        if event.widget is self:
+        if event.widget is self and not self.is_initial_resize:
             if self.defer_config_save_id:
                 self.after_cancel(self.defer_config_save_id)
             
@@ -209,6 +215,13 @@ class App(tk.Tk):
         Event handler for when the sash of the PanedWindow is moved.
         It updates the stored sash position and calls save_config.
         """
+        # CRITICAL FIX: Add a check for the initialization flag to prevent premature saves.
+        if self.is_initial_resize:
+            debug_log("Ignoring sash move event during initial setup.",
+                        file=f"{os.path.basename(__file__)} - {self.current_version}",
+                        function="_on_sash_moved", special=True)
+            return
+
         if self.defer_config_save_id:
             self.after_cancel(self.defer_config_save_id)
             
