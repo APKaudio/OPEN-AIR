@@ -14,12 +14,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250803.194500.1 (FIXED: Incorrect call to scan_bands with wrong number of arguments.)
-# Version 20250803.194000.1 (Verified all scan parameters are correctly passed to scan_bands.)
-# Version 20250802.1701.16 (Initial creation of scan control logic module.)
-# Version 20250804.031800.0 (FIXED: Passed initialize_instrument_logic to scan_bands to break circular dependency.)
+#
+# Version 20250811.221000.1 (FIXED: Removed the defunct import of 'initialize_instrument_logic' to resolve ModuleNotFoundError and streamline scan initiation.)
 
-current_version = "20250804.031800.0"
+current_version = "20250811.221000.1"
+current_version_hash = 20250811 * 221000 * 1
 
 import threading
 import time
@@ -35,8 +34,7 @@ from tabs.Scanning.utils_scan_instrument import scan_bands
 from process_math.scan_stitch import stitch_and_save_scan_data
 from src.connection_status_logic import update_connection_status_logic
 
-# NEW: Import initialize_instrument_logic here, as it's needed for scan_bands
-from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic
+# REMOVED: Import initialize_instrument_logic here, as it's no longer used.
 
 def start_scan_logic(app_instance, console_print_func, stop_event, pause_event, update_progress_func):
     """Initiates the spectrum scan in a separate thread."""
@@ -90,7 +88,6 @@ def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, c
     """The main function executed in the scanning thread."""
     console_print_func("--- Initiating Spectrum Scan ---")
     try:
-        # Pass initialize_instrument_logic explicitly to scan_bands
         raw_scan_data, markers_data = scan_bands(
             app_instance_ref=app_instance,
             inst=app_instance.inst,
@@ -110,7 +107,7 @@ def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, c
             log_visa_commands_enabled=app_instance.log_visa_commands_enabled_var.get(),
             general_debug_enabled=app_instance.general_debug_enabled_var.get(),
             app_console_update_func=console_print_func,
-            initialize_instrument_func=initialize_instrument_logic # NEW: Pass the function itself
+            # Removed the call to initialize_instrument_func
         )
 
         if not stop_event.is_set():

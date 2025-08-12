@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.141000.2 (FIXED: Corrected a NameError by adding `import traceback`. Fixed an AttributeError by updating the `connect_instrument_logic` function to correctly access the Tkinter variables from the app instance.)
+# Version 20250811.222000.1 (REMOVED: The call to initialize_instrument_logic has been completely removed to streamline the connection process and prevent redundant or conflicting settings on connect.)
 
-current_version = "20250811.141000.2"
-current_version_hash = 20250811 * 141000 * 2
+current_version = "20250811.222000.1"
+current_version_hash = 20250811 * 222000 * 1
 
 import inspect
 import os
@@ -28,7 +28,7 @@ import time
 import sys
 import tkinter as tk
 import pyvisa
-import traceback # NEW: Added traceback import to fix NameError
+import traceback
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -36,8 +36,10 @@ from display.console_logic import console_log
 # Import low-level VISA utilities
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
-from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic
+
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
+
+# Removed the import for initialize_instrument_logic.
 
 def populate_resources_logic(app_instance, combobox_widget, console_print_func):
     # Function Description:
@@ -69,7 +71,6 @@ def connect_instrument_logic(app_instance, console_print_func):
     # Function Description:
     # Handles the full connection sequence to a VISA instrument.
     # It attempts to establish a connection, queries the instrument's IDN string,
-    # initializes the instrument with a set of default or saved parameters,
     # and updates the application's state variables accordingly.
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to connect to instrument. Let's make this happen! Version: {current_version}",
@@ -92,39 +93,20 @@ def connect_instrument_logic(app_instance, console_print_func):
             return False
 
         # Step 2: Query IDN
-        # We query the IDN here to get the model number for initialization logic.
         idn_response = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        model_match = "GENERIC"
         if idn_response:
             idn_parts = idn_response.split(',')
             if len(idn_parts) >= 2:
                 model_match = idn_parts[1].strip()
+            else:
+                model_match = "GENERIC"
         else:
             console_print_func("⚠️ Warning: Could not query instrument IDN. Proceeding with generic settings.")
-
-        # NEW: Retrieve the values from the app_instance's Tkinter variables
-        ref_level_dbm = app_instance.ref_level_dbm_var.get()
-        high_sensitivity_on = app_instance.high_sensitivity_on_var.get()
-        preamp_on = app_instance.preamp_on_var.get()
-        rbw_config_val = app_instance.rbw_hz_var.get()
-        vbw_config_val = app_instance.vbw_hz_var.get()
-
-        # Step 3: Initialize the instrument with defaults from the app_instance
-        if not initialize_instrument_logic(inst=app_instance.inst, 
-                                            model_match=model_match,
-                                            ref_level_dbm=ref_level_dbm,
-                                            high_sensitivity_on=high_sensitivity_on,
-                                            preamp_on=preamp_on,
-                                            rbw_config_val=rbw_config_val,
-                                            vbw_config_val=vbw_config_val,
-                                            app_instance_ref=app_instance,
-                                            console_print_func=console_print_func):
-            disconnect_instrument(app_instance, console_print_func)
-            app_instance.is_connected.set(False)
-            return False
-            
+            model_match = "GENERIC"
+        
+        # We no longer initialize the instrument here. The user will do it via the Settings tab.
         app_instance.is_connected.set(True)
-        debug_log("Connection and initialization successful! The instrument is alive! 🥳",
+        debug_log("Connection successful! The instrument is alive! 🥳",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         return True
@@ -190,7 +172,7 @@ def query_current_settings_logic(app_instance, console_print_func):
     settings = {}
     
     try:
-        # NEW: Query the IDN string first
+        # Query the IDN string first
         settings['idn_string'] = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
         
         # Query Center Frequency

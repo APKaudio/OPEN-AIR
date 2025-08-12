@@ -14,16 +14,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.184455.1
+# Version 20250811.221500.1 (FIXED: Corrected the instantiation order in __init__ to prevent an AttributeError.)
 
-current_version = "20250811.184455.1"
-current_version_hash = 20250811 * 184455 * 1
+current_version = "20250811.221500.1"
+current_version_hash = 20250811 * 221500 * 1
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 
-from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
+from tabs.Instrument.tab_instrument_child_connection import InstrumentTab # NEW: Import the connection tab
 from tabs.Instrument.tab_instrument_child_settings import SettingsTab # NEW: Import the new settings tab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
 from display.debug_logic import debug_log
@@ -41,15 +41,14 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Instruments.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
-
+        
+        # Instantiate the tabs before adding them to the notebook
         self.instrument_settings_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func)
-        self.child_notebook.add(self.instrument_settings_tab, text="Connection & Settings")
-
-        # NEW: Add the SettingsTab here as the second tab
         self.settings_tab = SettingsTab(self.child_notebook, self.app_instance, self.console_print_func)
-        self.child_notebook.add(self.settings_tab, text="Settings")
-
         self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func)
+
+        self.child_notebook.add(self.instrument_settings_tab, text="Connection & Settings")
+        self.child_notebook.add(self.settings_tab, text="Settings")
         self.child_notebook.add(self.visa_interpreter_tab, text="VISA Interpreter")
 
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_child_tab_selected)

@@ -116,9 +116,7 @@ def get_default_commands():
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
 
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-10", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-10", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-        
-               
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),              
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-20", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-20", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-30", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-30", ""),

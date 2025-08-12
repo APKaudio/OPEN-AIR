@@ -15,12 +15,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1701.10 (Refactored from utils_preset.py to handle query and load logic.)
-# Version 20250802.1800.8 (Updated load_selected_preset_logic to handle local presets via dict.)
-# Version 20250803.1740.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
+#
+# Version 20250811.220500.1 (FIXED: Removed the defunct import of 'initialize_instrument_logic' to resolve ModuleNotFoundError.)
 
-current_version = "20250802.1800.8" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1800 * 8 # Example hash, adjust as needed
+current_version = "20250811.220500.1"
+current_version_hash = 20250811 * 220500 * 1
 
 import pyvisa
 import time
@@ -35,7 +34,6 @@ from display.console_logic import console_log
 
 # Import read/write safe functions from the new dedicated module
 from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
-from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic # CORRECTED: Changed import name
 from tabs.Instrument.utils_instrument_query_settings import query_current_instrument_settings
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
@@ -54,14 +52,14 @@ def query_device_presets_logic(app_instance, console_print_func):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Querying device presets from instrument...",
-                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
         console_print_func("❌ No instrument connected. Cannot query device presets.")
         debug_log("No instrument connected. Aborting device preset query.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return []
@@ -84,21 +82,21 @@ def query_device_presets_logic(app_instance, console_print_func):
             preset_names = [name.strip().strip('"') for name in response.split(',') if name.strip()]
             console_print_func(f"✅ Found {len(preset_names)} device presets.")
             debug_log(f"Device presets found: {preset_names}.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return preset_names
         else:
             console_print_func("ℹ️ No device presets found or query failed.")
             debug_log("No device presets found or query returned empty response.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                        file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
             return []
     except Exception as e:
         console_print_func(f"❌ Error querying device presets: {e}. This is a disaster!")
         debug_log(f"Error querying device presets: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return []
@@ -123,7 +121,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to load preset: '{selected_preset_name}'. Is Device Preset: {is_device_preset}.",
-                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 version=current_version,
                 function=current_function)
 
@@ -136,7 +134,7 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
             if not app_instance.inst:
                 console_print_func("❌ No instrument connected. Cannot load device preset.")
                 debug_log("No instrument connected. Aborting device preset load.",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -154,39 +152,46 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
             # Load the preset from the instrument's memory
             # The command might vary, typically it's MMEMory:LOAD:STATe "<preset_name>"
             load_command = f":MMEMory:LOAD:STATe \"{selected_preset_name}\""
-            if write_safe(app_instance.inst, load_command, console_print_func):
+            if write_safe(app_instance.inst, load_command, app_instance, console_print_func):
                 console_print_func(f"✅ Device preset '{selected_preset_name}' loaded to instrument.")
                 debug_log(f"Device preset '{selected_preset_name}' loaded to instrument.",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 
                 # After loading, query the instrument for its current settings to update GUI
-                center_freq_mhz, span_mhz, rbw_hz_val, ref_level_dbm, preamp_on, high_sensitivity = \
-                    query_current_instrument_settings(app_instance.inst, console_print_func)
+                settings = query_current_instrument_settings(app_instance, console_print_func)
                 
-                center_freq_hz = center_freq_mhz * app_instance.MHZ_TO_HZ if center_freq_mhz is not None else 0.0
-                span_hz = span_mhz * app_instance.MHZ_TO_HZ if span_mhz is not None else 0.0
-                rbw_hz = rbw_hz_val if rbw_hz_val is not None else 0.0
+                if settings:
+                    center_freq_hz = settings.get('center_freq_hz') if settings.get('center_freq_hz') is not None else 0.0
+                    span_hz = settings.get('span_hz') if settings.get('span_hz') is not None else 0.0
+                    rbw_hz = settings.get('rbw_hz') if settings.get('rbw_hz') is not None else 0.0
 
-                # Update Tkinter variables in the app instance
-                app_instance.center_freq_hz_var.set(center_freq_hz)
-                app_instance.span_hz_var.set(span_hz)
-                app_instance.rbw_hz_var.set(rbw_hz)
-                app_instance.reference_level_dbm_var.set(ref_level_dbm)
-                app_instance.preamp_on_var.set(preamp_on)
-                app_instance.high_sensitivity_var.set(high_sensitivity)
+                    # Update Tkinter variables in the app instance
+                    app_instance.center_freq_hz_var.set(center_freq_hz)
+                    app_instance.span_hz_var.set(span_hz)
+                    app_instance.rbw_hz_var.set(rbw_hz)
+                    app_instance.reference_level_dbm_var.set(settings.get('ref_level_dbm'))
+                    app_instance.preamp_on_var.set(settings.get('preamp_on'))
+                    app_instance.high_sensitivity_var.set(settings.get('high_sensitivity_on'))
 
-                console_print_func(f"GUI settings updated from device preset: Center Freq={center_freq_mhz:.3f} MHz, Span={span_mhz:.3f} MHz, RBW={rbw_hz / 1000:.1f} kHz. Looking good!")
-                debug_log(f"GUI settings updated from loaded device preset.",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                            version=current_version,
-                            function=current_function)
-                return True, center_freq_hz, span_hz, rbw_hz
+                    console_print_func(f"GUI settings updated from device preset: Center Freq={center_freq_hz / app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz / 1000:.1f} kHz. Looking good!")
+                    debug_log(f"GUI settings updated from loaded device preset.",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+                    return True, center_freq_hz, span_hz, rbw_hz
+                else:
+                    console_print_func("❌ Failed to query settings after loading device preset. This is frustrating!")
+                    debug_log("Failed to query settings after loading device preset. What a pain!",
+                                file=f"{os.path.basename(__file__)} - {current_version}",
+                                version=current_version,
+                                function=current_function)
+                    return False, 0.0, 0.0, 0.0
             else:
                 console_print_func(f"❌ Failed to load device preset '{selected_preset_name}'. This is frustrating!")
                 debug_log(f"Failed to load device preset '{selected_preset_name}'. What a pain!",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -196,29 +201,21 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
                 center_freq_hz = float(preset_data_dict.get('Center', 0.0))
                 span_hz = float(preset_data_dict.get('Span', 0.0))
                 rbw_hz = float(preset_data_dict.get('RBW', 0.0))
-                # Markers data is in preset_data_dict['Markers'] but not directly mapped to a Tkinter var for instrument control
 
                 app_instance.center_freq_hz_var.set(center_freq_hz)
                 app_instance.span_hz_var.set(span_hz)
                 app_instance.rbw_hz_var.set(rbw_hz)
 
-                # For other settings like RefLevel, Preamp, High Sensitivity,
-                # you would need to store them in the CSV and retrieve them here.
-                # For now, they are not part of the basic CSV structure, so they won't be updated.
-                # If the instrument is connected, you might want to apply these settings.
-                # This is usually handled by the _update_gui_from_preset_data in LocalPresetsTab
-                pass # Handled by the _update_gui_from_preset_data in LocalPresetsTab
-
                 console_print_func(f"GUI settings updated from preset: Center Freq={center_freq_hz / app_instance.MHZ_TO_HZ:.3f} MHz, Span={span_hz / app_instance.MHZ_TO_HZ:.3f} MHz, RBW={rbw_hz:.0f} Hz. Looking good!")
                 debug_log(f"GUI settings updated from loaded local preset.",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 return True, center_freq_hz, span_hz, rbw_hz
             else:
                 console_print_func(f"❌ Failed to load local preset '{selected_preset_name}'. Preset data not provided.")
                 debug_log(f"Failed to load local preset '{selected_preset_name}'. Preset data dictionary is missing.",
-                            file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                            file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
                 return False, 0.0, 0.0, 0.0
@@ -226,22 +223,19 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred in load_selected_preset_logic: {e}. This is a disaster!")
         debug_log(f"An unexpected error occurred in load_selected_preset_logic: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
         return False, 0.0, 0.0, 0.0
 
 
-
-
-def query_current_instrument_settings_for_preset(inst, MHZ_TO_HZ_CONVERSION, console_print_func=None):
+def query_current_instrument_settings_for_preset(inst, console_print_func=None):
     """
     Function Description:
     Queries and returns the current Center Frequency, Span, and RBW from the instrument.
 
     Inputs:
         inst (pyvisa.resources.Resource): The connected VISA instrument object.
-        MHZ_TO_HZ_CONVERSION (float): The conversion factor from MHz to Hz.
         console_print_func (function, optional): Function to print to the GUI console.
                                                Defaults to console_log if None.
     Outputs:
@@ -282,8 +276,8 @@ def query_current_instrument_settings_for_preset(inst, MHZ_TO_HZ_CONVERSION, con
         if rbw_str:
             rbw_hz = float(rbw_str)
 
-        center_freq_mhz = center_freq_hz / MHZ_TO_HZ_CONVERSION if center_freq_hz is not None else None
-        span_mhz = span_hz / MHZ_TO_HZ_CONVERSION if span_hz is not None else None
+        center_freq_mhz = center_freq_hz / 1_000_000 if center_freq_hz is not None else None
+        span_mhz = span_hz / 1_000_000 if span_hz is not None else None
 
         debug_log(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
                     file=f"{os.path.basename(__file__)} - {current_version}",

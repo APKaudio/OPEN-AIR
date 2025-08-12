@@ -14,14 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250802.1702.1 (Added trace mode and marker calculation settings to push preset logic for N9340B.)
-# Version 20250802.2300.0 (Modified push_preset_logic to accept preset_data dict and handle empty/BLANK values.)
-# Version 20250803.0040.0 (FIXED: Corrected Center/Span frequency conversion from MHz to Hz for SCPI commands.)
-# Version 20250803.0045.0 (FIXED: Removed unused 'read_safe' import to resolve ImportError.)
-# Version 20250803.1730.0 (FIXED: ImportError for 'initialize_instrument' by correcting import to 'initialize_instrument_logic'.)
+# Version 20250811.220500.1 (FIXED: Removed the defunct import of 'initialize_instrument_logic' to resolve ModuleNotFoundError.)
 
-current_version = "20250803.0045.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 45 * 0 # Example hash, adjust as needed.
+current_version = "20250811.220500.1"
+current_version_hash = 20250811 * 220500 * 1
 
 import os
 import inspect # Import inspect module
@@ -31,9 +27,6 @@ import re # For regular expressions to match instrument model
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from tabs.Instrument.utils_instrument_initialization import (
-    initialize_instrument_logic # CORRECTED: Changed from initialize_instrument
-)
 from tabs.Instrument.utils_instrument_read_and_write import (
     write_safe,
     # read_safe # Removed as it's not used in this module and causing ImportError
@@ -129,22 +122,22 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
 
         # Apply Center, Span, Attenuation if their values are present (not empty strings)
         if center_freq_hz is not None:
-            write_safe(app_instance.inst, f":SENSe:FREQuency:CENTer {center_freq_hz}", console_print_func)
-            debug_log(f"Applied Center Frequency: {center_freq_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            write_safe(app_instance.inst, f":SENSe:FREQuency:CENTer {int(center_freq_hz)}", console_print_func)
+            debug_log(f"Applied Center Frequency: {int(center_freq_hz)} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
         if span_hz is not None:
-            write_safe(app_instance.inst, f":SENSe:FREQuency:SPAN {span_hz}", console_print_func)
-            debug_log(f"Applied Span Frequency: {span_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            write_safe(app_instance.inst, f":SENSe:FREQuency:SPAN {int(span_hz)}", console_print_func)
+            debug_log(f"Applied Span Frequency: {int(span_hz)} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
         if attenuation_db is not None:
             write_safe(app_instance.inst, f":POWer:ATTenuation {attenuation_db}", console_print_func)
             debug_log(f"Applied Attenuation: {attenuation_db} dB.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
 
         # Apply RBW and VBW
         if rbw_hz is not None:
-            write_safe(app_instance.inst, f":SENSe:BANDwidth:RESolution {rbw_hz}", console_print_func)
-            debug_log(f"Applied RBW: {rbw_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            write_safe(app_instance.inst, f":SENSe:BANDwidth:RESolution {int(rbw_hz)}", console_print_func)
+            debug_log(f"Applied RBW: {int(rbw_hz)} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
         if vbw_hz is not None:
-            write_safe(app_instance.inst, f":SENSe:BANDwidth:VIDeo {vbw_hz}", console_print_func)
-            debug_log(f"Applied VBW: {vbw_hz} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+            write_safe(app_instance.inst, f":SENSe:BANDwidth:VIDeo {int(vbw_hz)}", console_print_func)
+            debug_log(f"Applied VBW: {int(vbw_hz)} Hz.", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
 
         # Apply Reference Level
         if reference_level_dbm is not None:

@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.140500.1 (IMPROVED: The _query_settings function was updated to parse the full IDN string into its constituent parts (manufacturer, model, serial, version) and display them individually.)
+# Version 20250811.215500.2 (REMOVED: The initialize_instrument_logic call has been removed from the connection process to streamline the workflow and reduce potential issues. The reset command is now called directly.)
 
-current_version = "20250811.140500.1"
-current_version_hash = 20250811 * 140500 * 1
+current_version = "20250811.215500.2"
+current_version_hash = 20250811 * 215500 * 2
 
 import tkinter as tk
 from tkinter import ttk
@@ -32,6 +32,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.connection_status_logic import update_connection_status_logic
 from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ
+from tabs.Instrument.utils_instrument_read_and_write import write_safe
 
 class InstrumentTab(ttk.Frame):
     """
@@ -141,6 +142,7 @@ class InstrumentTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
         if connect_instrument_logic(app_instance=self.app_instance, console_print_func=self.console_print_func):
             self.console_print_func(f"✅ Connected to {self.app_instance.visa_resource_var.get()}")
+            write_safe(self.app_instance.inst, "*RST", self.app_instance, self.console_print_func)
             self._query_settings()
         else:
             self.console_print_func(f"❌ Failed to connect to {self.app_instance.visa_resource_var.get()}")

@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.213200.0
+# Version 20250811.215000.3
 
-current_version = "20250811.213200.0"
-current_version_hash = 20250811 * 213200 * 0
+current_version = "20250811.215000.3"
+current_version_hash = 20250811 * 215000 * 3
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,6 +31,9 @@ from display.console_logic import console_log
 
 # Import the new high-level Yak functions
 from tabs.Instrument.Yakety_Yak import YakSet, YakDo, YakGet
+
+# Conversion constant for Megahertz to Hertz
+MHZ_TO_HZ_CONVERSION = 1_000_000
 
 
 class SettingsTab(ttk.Frame):
@@ -49,10 +52,18 @@ class SettingsTab(ttk.Frame):
         self.start_freq_var = tk.StringVar(self)
         self.stop_freq_var = tk.StringVar(self)
         self.power_attenuation_var = tk.StringVar(self)
+        
+        # New variables for Bandwidth settings
+        self.rbw_var = tk.StringVar(self)
+        self.vbw_var = tk.StringVar(self)
+        
+        # New variable for Continuous Initiate state
+        self.initiate_continuous_var = tk.StringVar(self)
 
         # Local variables to hold the state of the toggle buttons
         self.preamp_state_var = tk.StringVar(self, value="OFF")
         self.high_sensitivity_state_var = tk.StringVar(self, value="OFF")
+        self.vbw_auto_state_var = tk.StringVar(self, value="OFF")
 
         # Marker variables
         self.marker_vars = [tk.BooleanVar(self, False) for _ in range(6)]
@@ -72,11 +83,12 @@ class SettingsTab(ttk.Frame):
                     function=current_function)
         
         self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(5, weight=1)
 
         # --- Instrument Info Frame ---
         info_frame = ttk.LabelFrame(self, text="Connected Instrument", style='Dark.TLabelframe')
-        info_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        info_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         info_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(info_frame, text="Manufacturer:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
@@ -94,28 +106,62 @@ class SettingsTab(ttk.Frame):
         freq_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
         freq_frame.grid_columnconfigure(1, weight=1)
         
-        ttk.Label(freq_frame, text="Center Frequency (Hz):").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(freq_frame, text="Center Frequency (MHz):").grid(row=0, column=0, padx=5, pady=2, sticky="w")
         self.center_freq_entry = ttk.Entry(freq_frame, textvariable=self.center_freq_var, style='TEntry')
         self.center_freq_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
         self.center_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("CENTER", self.center_freq_var.get()))
         
-        ttk.Label(freq_frame, text="Span (Hz):").grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(freq_frame, text="Span (MHz):").grid(row=1, column=0, padx=5, pady=2, sticky="w")
         self.span_freq_entry = ttk.Entry(freq_frame, textvariable=self.span_freq_var, style='TEntry')
         self.span_freq_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
         self.span_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("SPAN", self.span_freq_var.get()))
         
-        ttk.Label(freq_frame, text="Start Frequency (Hz):").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(freq_frame, text="Start Frequency (MHz):").grid(row=2, column=0, padx=5, pady=2, sticky="w")
         self.start_freq_entry = ttk.Entry(freq_frame, textvariable=self.start_freq_var, style='TEntry')
         self.start_freq_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
         self.start_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("START", self.start_freq_var.get()))
         
-        ttk.Label(freq_frame, text="Stop Frequency (Hz):").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(freq_frame, text="Stop Frequency (MHz):").grid(row=3, column=0, padx=5, pady=2, sticky="w")
         self.stop_freq_entry = ttk.Entry(freq_frame, textvariable=self.stop_freq_var, style='TEntry')
         self.stop_freq_entry.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
         self.stop_freq_entry.bind("<FocusOut>", lambda e: self._on_freq_set("STOP", self.stop_freq_var.get()))
         
         self.get_freq_button = ttk.Button(freq_frame, text="Get Current Frequencies", command=self._on_get_freq_click)
         self.get_freq_button.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        
+        # --- Bandwidth Settings Frame (NEW) ---
+        bandwidth_frame = ttk.LabelFrame(self, text="Bandwidth Settings", style='Dark.TLabelframe')
+        bandwidth_frame.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+        bandwidth_frame.grid_columnconfigure(1, weight=1)
+
+        ttk.Label(bandwidth_frame, text="Resolution BW (MHz):").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.rbw_entry = ttk.Entry(bandwidth_frame, textvariable=self.rbw_var, style='TEntry')
+        self.rbw_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.rbw_entry.bind("<FocusOut>", lambda e: self._on_bandwidth_set("RESOLUTION", self.rbw_var.get()))
+        
+        ttk.Label(bandwidth_frame, text="Video BW (MHz):").grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        self.vbw_entry = ttk.Entry(bandwidth_frame, textvariable=self.vbw_var, style='TEntry')
+        self.vbw_entry.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.vbw_entry.bind("<FocusOut>", lambda e: self._on_bandwidth_set("VIDEO", self.vbw_var.get()))
+
+        ttk.Label(bandwidth_frame, text="VBW Auto:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        self.vbw_auto_toggle_button = ttk.Button(bandwidth_frame, textvariable=self.vbw_auto_state_var, command=self._on_vbw_auto_toggle_click)
+        self.vbw_auto_toggle_button.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        
+        # --- Initiate Settings Frame (NEW) ---
+        initiate_frame = ttk.LabelFrame(self, text="Initiate Settings", style='Dark.TLabelframe')
+        initiate_frame.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
+        initiate_frame.grid_columnconfigure(1, weight=1)
+        
+        ttk.Label(initiate_frame, text="Continuous Mode:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        initiate_modes = ["ON", "OFF"]
+        self.initiate_continuous_dropdown = ttk.Combobox(initiate_frame, textvariable=self.initiate_continuous_var, values=initiate_modes, state='readonly')
+        self.initiate_continuous_dropdown.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        self.initiate_continuous_dropdown.bind("<<ComboboxSelected>>", self._on_continuous_initiate_select)
+        
+        self.initiate_immediate_button = ttk.Button(initiate_frame, text="Initiate Immediate", command=self._on_immediate_initiate_click)
+        self.initiate_immediate_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
 
         # --- Amplitude/Ref Level Frame ---
         amplitude_frame = ttk.LabelFrame(self, text="Amplitude Settings", style='Dark.TLabelframe')
@@ -149,7 +195,7 @@ class SettingsTab(ttk.Frame):
 
         # --- Trace Settings Frame ---
         trace_frame = ttk.LabelFrame(self, text="Trace Settings", style='Dark.TLabelframe')
-        trace_frame.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+        trace_frame.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
         trace_frame.grid_columnconfigure(1, weight=1)
 
         trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
@@ -166,7 +212,7 @@ class SettingsTab(ttk.Frame):
 
         # --- Marker Settings Frame ---
         marker_frame = ttk.LabelFrame(self, text="Marker Settings", style='Dark.TLabelframe')
-        marker_frame.grid(row=4, column=0, padx=10, pady=10, sticky="nsew")
+        marker_frame.grid(row=4, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
         marker_frame.grid_columnconfigure(0, weight=1)
         marker_frame.grid_columnconfigure(1, weight=1)
 
@@ -199,6 +245,7 @@ class SettingsTab(ttk.Frame):
         """Sets the initial state of the UI elements."""
         self._update_toggle_button_style(self.preamp_toggle_button, self.preamp_state_var.get() == "ON")
         self._update_toggle_button_style(self.hs_toggle_button, self.high_sensitivity_state_var.get() == "ON")
+        self._update_toggle_button_style(self.vbw_auto_toggle_button, self.vbw_auto_state_var.get() == "ON")
 
     def _update_toggle_button_style(self, button, state):
         """Updates the style of a toggle button based on its state."""
@@ -228,30 +275,27 @@ class SettingsTab(ttk.Frame):
         # Query and update GUI
         center_freq = YakGet(self.app_instance, "FREQUENCY/CENTER", self.console_print_func)
         if center_freq is not None:
-            self.center_freq_var.set(center_freq)
+            self.center_freq_var.set(f"{float(center_freq) / MHZ_TO_HZ_CONVERSION:.3f}")
         
         span_freq = YakGet(self.app_instance, "FREQUENCY/SPAN", self.console_print_func)
         if span_freq is not None:
-            self.span_freq_var.set(span_freq)
+            self.span_freq_var.set(f"{float(span_freq) / MHZ_TO_HZ_CONVERSION:.3f}")
 
         start_freq = YakGet(self.app_instance, "FREQUENCY/START", self.console_print_func)
         if start_freq is not None:
-            self.start_freq_var.set(start_freq)
+            self.start_freq_var.set(f"{float(start_freq) / MHZ_TO_HZ_CONVERSION:.3f}")
         
         stop_freq = YakGet(self.app_instance, "FREQUENCY/STOP", self.console_print_func)
         if stop_freq is not None:
-            self.stop_freq_var.set(stop_freq)
+            self.stop_freq_var.set(f"{float(stop_freq) / MHZ_TO_HZ_CONVERSION:.3f}")
 
 
     def _on_freq_set(self, command_part, value):
         """
         Handles setting a frequency value when a text box loses focus.
+        Converts the UI value from MHz to an integer Hz before sending.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"{command_part} Frequency set to: {value}.",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
         
         if not self.app_instance.is_connected.get():
             self.console_print_func("❌ Not connected to an instrument. Cannot set frequency.")
@@ -261,8 +305,119 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
 
-        command_type = f"FREQUENCY/{command_part}"
-        YakSet(self.app_instance, command_type.upper(), value, self.console_print_func)
+        try:
+            # Convert user input to float MHz, then to integer Hz
+            hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
+            debug_log(f"{command_part} Frequency set to: {value} MHz, converted to {hz_value} Hz for the instrument.",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            
+            command_type = f"FREQUENCY/{command_part}"
+            YakSet(self.app_instance, command_type.upper(), str(hz_value), self.console_print_func)
+        except ValueError:
+            self.console_print_func(f"❌ Invalid frequency value: '{value}'. Please enter a number.")
+            debug_log(f"Invalid frequency value entered: '{value}'. What a disaster!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+
+    def _on_bandwidth_set(self, command_part, value):
+        """
+        Handles setting a bandwidth value when a text box loses focus.
+        Converts the UI value from MHz to an integer Hz before sending.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set bandwidth.")
+            debug_log("Cannot set bandwidth. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        try:
+            # Convert user input to float MHz, then to integer Hz
+            hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
+            debug_log(f"{command_part} Bandwidth set to: {value} MHz, converted to {hz_value} Hz for the instrument.",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            
+            command_type = f"BANDWIDTH/{command_part}"
+            YakSet(self.app_instance, command_type.upper(), str(hz_value), self.console_print_func)
+        except ValueError:
+            self.console_print_func(f"❌ Invalid bandwidth value: '{value}'. Please enter a number.")
+            debug_log(f"Invalid bandwidth value entered: '{value}'. What a disaster!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+
+
+    def _on_vbw_auto_toggle_click(self):
+        """Toggles VBW auto on/off."""
+        current_function = inspect.currentframe().f_code.co_name
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set VBW Auto.")
+            debug_log("Cannot set VBW Auto. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        current_state = self.vbw_auto_state_var.get()
+        new_state = "OFF" if current_state == "ON" else "ON"
+        
+        command_type = f"BANDWIDTH/VIDEO/AUTO/{new_state}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+        self.vbw_auto_state_var.set(new_state)
+        self._update_toggle_button_style(self.vbw_auto_toggle_button, new_state == "ON")
+
+    def _on_continuous_initiate_select(self, event):
+        """
+        Handles the selection of Continuous Initiate mode.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        mode = self.initiate_continuous_var.get()
+        debug_log(f"Initiate Continuous mode selected: {mode}.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot set continuous initiate mode.")
+            debug_log("Cannot set continuous initiate mode. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+        
+        command_type = f"INITIATE/CONTINUOUS/{mode}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+        
+    def _on_immediate_initiate_click(self):
+        """
+        Handles the button click for the Initiate Immediate command.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initiate Immediate button clicked. Sending command.",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        if not self.app_instance.is_connected.get():
+            self.console_print_func("❌ Not connected to an instrument. Cannot initiate immediate scan.")
+            debug_log("Cannot initiate immediate scan. Fucking useless!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return
+            
+        command_type = "INITIATE/IMMEDIATE"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
+
 
     def _on_ref_level_select(self, event):
         """
@@ -283,8 +438,8 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
 
-        command_type = f"AMPLITUDE/REFERENCE LEVEL/{ref_level}".upper()
-        YakDo(self.app_instance, command_type, self.console_print_func)
+        command_type = f"AMPLITUDE/REFERENCE LEVEL/{ref_level}"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
 
     def _on_preamp_toggle_click(self):
         """Toggles the preamp on/off."""
@@ -302,8 +457,9 @@ class SettingsTab(ttk.Frame):
         new_state = "OFF" if current_state == "ON" else "ON"
         
         command_type = f"AMPLITUDE/POWER/GAIN/{new_state}"
-        YakDo(self.app_instance, command_type, self.console_print_func)
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
         self.preamp_state_var.set(new_state)
+        self._update_toggle_button_style(self.preamp_toggle_button, new_state == "ON")
 
 
     def _on_power_attenuation_select(self, event):
@@ -346,6 +502,7 @@ class SettingsTab(ttk.Frame):
         command_type = f"AMPLITUDE/POWER/HIGH SENSITIVE/{new_state}"
         YakDo(self.app_instance, command_type.upper(), self.console_print_func)
         self.high_sensitivity_state_var.set(new_state)
+        self._update_toggle_button_style(self.hs_toggle_button, new_state == "ON")
 
 
     def _on_trace_mode_select(self, event, trace_number, trace_var):
@@ -485,12 +642,22 @@ class SettingsTab(ttk.Frame):
                 x_value = YakGet(self.app_instance, x_command.upper(), self.console_print_func)
                 y_value = YakGet(self.app_instance, y_command.upper(), self.console_print_func)
 
-                self.marker_value_labels[i].config(text=f"X: {x_value}, Y: {y_value}")
-                self.console_print_func(f"✅ Marker {marker_number} values: X:{x_value}, Y:{y_value}")
-                debug_log(f"Read values for Marker {marker_number}: X:{x_value}, Y:{y_value}. Fucking awesome!",
-                            file=os.path.basename(__file__),
-                            version=current_version,
-                            function=current_function)
+                # Assuming X values are in Hz and Y values are in dBm
+                try:
+                    x_value_mhz = float(x_value) / MHZ_TO_HZ_CONVERSION
+                    self.marker_value_labels[i].config(text=f"X: {x_value_mhz:.3f} MHz, Y: {y_value} dBm")
+                    self.console_print_func(f"✅ Marker {marker_number} values: X:{x_value_mhz:.3f} MHz, Y:{y_value} dBm")
+                    debug_log(f"Read values for Marker {marker_number}: X:{x_value_mhz:.3f} MHz, Y:{y_value} dBm. Fucking awesome!",
+                                file=os.path.basename(__file__),
+                                version=current_version,
+                                function=current_function)
+                except (ValueError, TypeError):
+                    self.marker_value_labels[i].config(text=f"X: {x_value}, Y: {y_value}")
+                    self.console_print_func(f"⚠️ Could not parse marker {marker_number} values: X:{x_value}, Y:{y_value}")
+                    debug_log(f"Failed to parse marker values for Marker {marker_number}. What a disaster!",
+                                file=os.path.basename(__file__),
+                                version=current_version,
+                                function=current_function)
 
 
     def _on_reset_button_click(self):
@@ -511,8 +678,8 @@ class SettingsTab(ttk.Frame):
                         function=current_function)
             return
         
-        command_type = "SYSTEM/RESET".upper()
-        YakDo(self.app_instance, command_type, self.console_print_func)
+        command_type = "SYSTEM/RESET"
+        YakDo(self.app_instance, command_type.upper(), self.console_print_func)
     
     def _on_tab_selected(self, event=None):
         """
@@ -520,7 +687,7 @@ class SettingsTab(ttk.Frame):
         instrument settings and update the dropdowns and buttons to reflect them.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Settings Tab selected. Checking connection status. What's the instrument doing? �",
+        debug_log(f"Settings Tab selected. Checking connection status. What's the instrument doing? 🤔",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -528,7 +695,28 @@ class SettingsTab(ttk.Frame):
         is_connected = self.app_instance.is_connected.get()
         if is_connected:
             self.console_print_func("✅ Instrument is connected. You can now change settings.")
-            # Here you would typically query the current settings and update the UI
-            # For now, we will just log that we are ready.
+            
+            # Query and update frequency settings
+            self._on_get_freq_click()
+            
+            # Query and update bandwidth settings
+            rbw_value = YakGet(self.app_instance, "BANDWIDTH/RESOLUTION", self.console_print_func)
+            if rbw_value is not None:
+                self.rbw_var.set(f"{float(rbw_value) / MHZ_TO_HZ_CONVERSION:.3f}")
+            
+            vbw_value = YakGet(self.app_instance, "BANDWIDTH/VIDEO", self.console_print_func)
+            if vbw_value is not None:
+                self.vbw_var.set(f"{float(vbw_value) / MHZ_TO_HZ_CONVERSION:.3f}")
+
+            vbw_auto_state = YakGet(self.app_instance, "BANDWIDTH/VIDEO/AUTO", self.console_print_func)
+            if vbw_auto_state is not None:
+                self.vbw_auto_state_var.set("ON" if vbw_auto_state.upper() == "ON" else "OFF")
+                self._update_toggle_button_style(self.vbw_auto_toggle_button, vbw_auto_state.upper() == "ON")
+            
+            # Query and update continuous initiate state
+            continuous_state = YakGet(self.app_instance, "INITIATE/CONTINUOUS", self.console_print_func)
+            if continuous_state is not None:
+                self.initiate_continuous_var.set("ON" if continuous_state.upper() == "ON" else "OFF")
+            
         else:
             self.console_print_func("❌ Instrument is not connected. Connect first to change settings.")

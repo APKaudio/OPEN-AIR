@@ -16,17 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.1110.0 (FIXED: Reverted import path for push_preset_logic to original correct path.)
-# Version 20250803.235902.0 (MODIFIED: Applied 3-column layout and new button styles for local presets. Added explicit online check.)
-# Version 20250804.000003.0 (FIXED: Mapped preset CSV keys to correct app_instance attribute names (e.g., 'Center' -> 'center_freq_hz_var').)
-# Version 20250804.000006.0 (MODIFIED: Confirmed 3-column layout and ensured consistent behavior.)
-# Version 20250804.000007.0 (MODIFIED: Changed preset button layout to 4 columns and enabled mouse scroll wheel for canvas.)
-# Version 20250804.000008.0 (MODIFIED: Changed preset button layout to 5 columns as requested.)
-# Version 20250804.000009.0 (ADDED: _on_tab_selected and _on_window_focus_in to ensure instant button refresh.)
-# Version 20250804.000010.0 (FIXED: AttributeError by moving _on_window_focus_in definition before __init__ bind.)
+# Version 20250811.220500.1 (FIXED: The module now correctly imports push_preset_logic from its new home in tabs/Presets, addressing the ModuleNotFoundError.)
 
-current_version = "20250804.000010.0" # Incremented version
-current_version_hash = 20250803 * 1110 * 0 # Example hash, adjust as needed.
+current_version = "20250811.220500.1"
+current_version_hash = 20250811 * 220500 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -39,7 +32,6 @@ from display.console_logic import console_log
 
 # Import functions from preset utility modules
 from tabs.Presets.utils_preset_process import load_user_presets_from_csv
-# Reverted Import push_preset_logic to original correct path
 from tabs.Presets.utils_push_preset import push_preset_logic
 from src.program_style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
 from src.settings_and_config.config_manager import save_config # Explicit import of save_config
@@ -280,13 +272,13 @@ class LocalPresetsTab(ttk.Frame):
             button_text = f"{nickname}\nC: {center_freq_mhz_display} MHz\nSP: {span_mhz_display} MHz"
 
             # Use lambda to capture the current preset_data for each button
+            # This is a common pattern for Tkinter buttons in loops
             preset_button = ttk.Button(self.scrollable_frame,
                                        text=button_text,
-                                       command=lambda p=preset, b=None: self._on_preset_button_click(p, b), # Pass button reference
+                                       command=lambda p=preset, b=None: self._on_preset_button_click(p, b),
                                        style='LocalPreset.TButton') # Use the new style
             
             # Update the lambda to pass the button itself once it's created
-            # This is a common pattern for Tkinter buttons in loops
             preset_button.configure(command=lambda p=preset, b=preset_button: self._on_preset_button_click(p, b))
 
             preset_button.grid(row=row_idx, column=col_idx, padx=5, pady=5, sticky="nsew")
@@ -448,7 +440,7 @@ class LocalPresetsTab(ttk.Frame):
                 tk_var.set("Error")
                 debug_log(f"Unexpected error processing preset '{key}' value '{value_str}': {e}. Displaying 'Error'. 🤯",
                             file=f"{os.path.basename(__file__)} - {current_version}",
-                            version=current_version,
+                            version=current_function,
                             function=current_function)
 
         set_display_var(self.selected_preset_center_var, 'Center', "{:.3f}", float)
@@ -488,12 +480,12 @@ class LocalPresetsTab(ttk.Frame):
                             version=current_version,
                             function=current_function)
             except ValueError as e:
-                debug_log(f"Error converting preset '{preset_key}' value '{value_str}' to {conversion_func.__name__} for app_instance.{app_attr_name}: {e}. Skipping update. 💥",
+                debug_log(f"Error converting preset '{preset_key}' value '{value_str}' to {conversion_func.__name__}: {e}. Skipping update. 💥",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
             except Exception as e:
-                debug_log(f"Unexpected error processing preset '{preset_key}' value '{value_str}' for app_instance.{app_attr_name}: {e}. Skipping update. 🤯",
+                debug_log(f"Unexpected error processing preset '{preset_key}' value '{value_str}': {e}. Skipping update. 🤯",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
