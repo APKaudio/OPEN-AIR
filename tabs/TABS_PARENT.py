@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.234100.1
+# Version 20250813.001200.2
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,21 +25,13 @@ import inspect
 import os
 from datetime import datetime
 
-# Import all the parent tabs it will contain
-from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
-from tabs.Markers.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
-from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
-from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
-from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
-from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
-
 # Import logging
 from display.console_logic import console_log
 from display.debug_logic import debug_log
 
 # --- Version Information ---
-current_version = "20250812.234100.1"
-current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
+current_version = "20250813.001200.2"
+current_version_hash = (20250813 * 1200 * 2)
 
 
 class TABS_PARENT(ttk.Frame):
@@ -53,7 +45,15 @@ class TABS_PARENT(ttk.Frame):
         # that will hold all the main functional tabs like Instruments, Markers, etc.
         super().__init__(parent)
         self.app_instance = app_instance
-        self.console_print_func = console_log # Use the global console_log
+        self.console_print_func = console_log
+
+        # FIXED: Move imports inside __init__ to prevent circular dependency on startup.
+        from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
+        from tabs.Markers.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
+        from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
+        from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
+        from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
+        from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
 
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name

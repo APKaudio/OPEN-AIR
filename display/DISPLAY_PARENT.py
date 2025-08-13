@@ -14,123 +14,104 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220500.33 (FIXED: The parent tab now correctly stores a direct reference to the ScanMonitorTab instance on the app_instance, and includes a debug log to confirm the assignment.)
-
-current_version = "20250810.220500.33"
-current_version_hash = 20250810 * 220500 * 33
+# Version 20250812.235500.34
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 import os
-
+from datetime import datetime
 
 # Import the child tabs that will be created next
 from display.display_child_console import ConsoleTab
 from display.display_child_debug import DebugTab
-from display.display_child_scan_monitor import ScanMonitorTab # NEW: Import the new scan monitor tab
+from display.display_child_scan_monitor import ScanMonitorTab
 
 # Import logging functions for debugging
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+
+# --- Version Information ---
+current_version = "20250812.235500.34"
+current_version_hash = (20250812 * 235500 * 34)
 
 class TAB_DISPLAY_PARENT(ttk.Frame):
     """
     A parent tab for all display-related functionalities, including console and debug settings.
     """
     def __init__(self, parent, app_instance, console_print_func):
-        # This function description tells me what this function does
+        # Function Description
         # Initializes the TAB_DISPLAY_PARENT frame and its internal components.
-        # It sets up a new Notebook widget to host the child tabs, and creates instances
-        # of the ConsoleTab and DebugTab classes, adding them to the notebook.
-        #
-        # Inputs to this function
-        #   parent (tk.Widget): The parent widget, typically a ttk.Notebook.
-        #   app_instance (object): A reference to the main application instance.
-        #   console_print_func (function): A function to use for console output.
-        #
-        # Process of this function
-        #   1. Calls the parent class's __init__ method.
-        #   2. Stores references to the main app instance and console function.
-        #   3. Creates a new `ttk.Notebook` instance.
-        #   4. Creates an instance of `ConsoleTab` and adds it to the notebook.
-        #   5. Creates an instance of `DebugTab` and adds it to the notebook.
-        #   6. Binds the notebook's `<<NotebookTabChanged>>` event to a handler.
-        #
-        # Outputs of this function
-        #   None. Initializes the parent tab and its child tabs.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing TAB_DISPLAY_PARENT. Let's get this tab set up!",
+        debug_log(f"Initializing TAB_DISPLAY_PARENT.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
         
         super().__init__(parent)
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
-        # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Display.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
         
-        # NEW LOGIC: Create a dictionary to hold references to child tabs
         self.child_tabs = {}
 
-        # NEW: Create and add the Scan Monitor tab first
+        # Create and add the Scan Monitor tab
         self.scan_monitor_tab = ScanMonitorTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.scan_monitor_tab, text="Monitor")
         self.child_tabs["ScanMonitorTab"] = self.scan_monitor_tab
-        # CRITICAL FIX: Assign the instance directly to app_instance here.
-        # This solves the main problem from the `utils_markers_get_traces.py` file.
         self.app_instance.scan_monitor_tab = self.scan_monitor_tab
-        debug_log(f"ScanMonitorTab instance assigned to app_instance successfully! Hallelujah!",
+        debug_log(f"ScanMonitorTab instance assigned to app_instance successfully!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function, special=True)
 
-
-        # CORRECTED: No longer passing console_print_func to child tabs
+        # Create and add the Console tab
         self.console_tab = ConsoleTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.console_tab, text="Console")
         self.child_tabs["ConsoleTab"] = self.console_tab
-        # CRITICAL FIX: The console_tab's __init__ method now handles the assignment
-        # to app_instance.console_text, so this line is removed.
 
-
-        # CORRECTED: No longer passing console_print_func to child tabs
+        # Create and add the Debug tab
         self.debug_tab = DebugTab(self.child_notebook, self.app_instance)
         self.child_notebook.add(self.debug_tab, text="Debug")
         self.child_tabs["DebugTab"] = self.debug_tab
+
+        # NEW: Create a map for easy tab switching by name
+        self.tab_name_to_widget_map = {
+            "Monitor": self.scan_monitor_tab,
+            "Console": self.console_tab,
+            "Debug": self.debug_tab
+        }
 
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_child_tab_selected)
         
         debug_log(f"TAB_DISPLAY_PARENT initialized. The new display tabs are ready for action!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
 
+    def change_display_tab(self, new_tab_name):
+        # Function Description
+        # Programmatically selects a child tab by its name ("Monitor", "Console", or "Debug").
+        current_file = os.path.basename(__file__)
+        current_function = inspect.currentframe().f_code.co_name
+        
+        target_widget = self.tab_name_to_widget_map.get(new_tab_name)
+        if target_widget:
+            self.child_notebook.select(target_widget)
+            debug_log(f"Programmatically switched display tab to '{new_tab_name}'.",
+                      file=f"{current_file} - {current_version}",
+                      function=current_function)
+        else:
+            self.console_print_func(f"❌ Error: Invalid display tab name '{new_tab_name}'.")
+            debug_log(f"Attempted to switch to an invalid display tab: '{new_tab_name}'. This is a foul-up!",
+                      file=f"{current_file} - {current_version}",
+                      function=current_function)
+
     def _on_child_tab_selected(self, event):
-        # This function description tells me what this function does
+        # Function Description
         # Handles tab change events within this parent's child notebook.
-        # It gets the currently selected tab and calls a specific handler
-        # on that child tab if it has one.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object that triggered the tab change.
-        #
-        # Process of this function
-        #   1. Retrieves the ID of the currently selected tab.
-        #   2. Converts the ID to its corresponding widget instance.
-        #   3. Checks if the widget has an `_on_tab_selected` method.
-        #   4. If the method exists, it is called to allow the child tab to
-        #      update its state.
-        #
-        # Outputs of this function
-        #   None. Triggers a method call on a child tab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Child tab selected in Display Parent. Checking for tab handler.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
 
         selected_child_tab_id = self.child_notebook.select()
@@ -140,23 +121,10 @@ class TAB_DISPLAY_PARENT(ttk.Frame):
                 selected_child_tab_widget._on_tab_selected(event)
 
     def _on_parent_tab_selected(self, event):
-        # This function description tells me what this function does
+        # Function Description
         # Handles the event when this parent tab is selected.
-        # It delegates the event to the currently active child tab to ensure
-        # that it is properly refreshed.
-        #
-        # Inputs to this function
-        #   event (tkinter.Event): The event object from the parent notebook.
-        #
-        # Process of this function
-        #   1. Calls `_on_child_tab_selected` to trigger the handler for the
-        #      currently active child tab.
-        #
-        # Outputs of this function
-        #   None.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Display Parent tab selected. Initializing child tab handlers.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
                     function=current_function)
         self._on_child_tab_selected(event)

@@ -65,7 +65,7 @@ class ThresholdsTab(ttk.Frame):
         # Initializes the ThresholdsTab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing ThresholdsTab. A blank canvas for future brilliance! 🎨",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         super().__init__(master, **kwargs)
@@ -77,7 +77,7 @@ class ThresholdsTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"The Thresholds tab has been selected. It is currently a blank slate.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
 
@@ -91,7 +91,7 @@ class ShowtimeTab(ttk.Frame):
         # Initializes the ShowtimeTab, setting up the UI frame and internal state.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing ShowtimeTab...",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -143,7 +143,7 @@ class ShowtimeTab(ttk.Frame):
         # Creates and arranges the widgets for the Showtime tab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating ShowtimeTab widgets.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
 
@@ -282,7 +282,7 @@ class ShowtimeTab(ttk.Frame):
         # Loads marker data from the internal MARKERS.CSV file.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Loading markers from the CSV file. 🤠",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -295,7 +295,7 @@ class ShowtimeTab(ttk.Frame):
                 try:
                     self.markers_data = pd.read_csv(path)
                     debug_log(f"Successfully read MARKERS.CSV. Shape: {self.markers_data.shape}. Columns: {self.markers_data.columns.tolist()}",
-                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              file=f"{os.path.basename(__file__)}",
                               version=current_version,
                               function=current_function, special=True)
                     self.zones = self._group_by_zone_and_group(self.markers_data)
@@ -303,13 +303,13 @@ class ShowtimeTab(ttk.Frame):
                 except Exception as e:
                     self.console_print_func(f"❌ Error loading MARKERS.CSV: {e}")
                     debug_log(f"A file loading calamity! The MARKERS.CSV file couldn't be loaded. Error: {e}",
-                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              file=f"{os.path.basename(__file__)}",
                               version=current_version,
                               function=current_function, special=True)
             else:
                 self.console_print_func("ℹ️ MARKERS.CSV not found. Please create one.")
                 debug_log(f"MARKERS.CSV file not found at path: {path}",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          file=f"{os.path.basename(__file__)}",
                           version=current_version,
                           function=current_function)
 
@@ -319,13 +319,13 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         if data.empty:
             debug_log(f"DataFrame is empty, cannot group by zone.",
-                      file=f"{os.path.basename(__file__)} - {current_version}",
+                      file=f"{os.path.basename(__file__)}",
                       version=current_version,
                       function=current_function)
             return {}
         
         debug_log(f"Grouping data by ZONE and GROUP. Data shape: {data.shape}",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -337,7 +337,7 @@ class ShowtimeTab(ttk.Frame):
             zones[zone] = groups
         
         debug_log(f"Grouping complete. Found {len(zones)} zones.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         return zones
@@ -410,7 +410,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles a click on a zone button.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Zone button '{zone_name}' clicked. Initiating peak search for the entire zone.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -439,7 +439,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles a click on a group button.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Group button '{group_name}' clicked. Initiating peak search for the group.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
 
@@ -462,7 +462,7 @@ class ShowtimeTab(ttk.Frame):
         # Performs a batch peak search and then gets the trace for the full span of the devices.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering _peak_search_and_get_trace for {name}. Processing {len(devices)} devices.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -477,7 +477,7 @@ class ShowtimeTab(ttk.Frame):
         """Worker function for the peak search task."""
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Starting background task for peak search on {name}.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -533,7 +533,7 @@ class ShowtimeTab(ttk.Frame):
         # Updates the styles of the zone buttons to show which is active.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"Entering {current_function}. Updating zone button styles.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         for zone_name, btn in self.zone_buttons.items():
@@ -548,7 +548,7 @@ class ShowtimeTab(ttk.Frame):
         # Updates the styles of the group buttons to show which is active.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"Entering {current_function}. Updating group button styles.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         for group_name, btn in self.group_buttons.items():
@@ -563,7 +563,7 @@ class ShowtimeTab(ttk.Frame):
         # Creates buttons for each device in the selected zone or group.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"Entering {current_function}. Populating device buttons.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -626,7 +626,7 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         device_name = device_data.get('NAME', 'N/A')
         debug_log(f"Device button clicked: {device_name}",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -673,7 +673,7 @@ class ShowtimeTab(ttk.Frame):
         except (ValueError, TypeError) as e:
             self.console_print_func(f"❌ Error setting frequency and starting trace loop: {e}")
             debug_log(f"Dastardly bug! A TypeError or ValueError has struck our brave loop! Error: {e}",
-                      file=f"{os.path.basename(__file__)} - {current_version}",
+                      file=f"{os.path.basename(__file__)}",
                       version=current_version,
                       function=current_function, special=True)
     
@@ -682,7 +682,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles the "Stop Loop" button action.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Stopping the loop! All systems, cease and desist!",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
 
@@ -710,7 +710,7 @@ class ShowtimeTab(ttk.Frame):
         # Starts a recurring loop to fetch marker traces for a specific device, limited to 10 cycles.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Starting the device trace loop. Get ready for some data! 📈",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         
@@ -744,7 +744,7 @@ class ShowtimeTab(ttk.Frame):
         else:
             self.console_print_func("❌ Invalid parameters for marker trace loop. Cannot start.")
             debug_log(f"Invalid parameters! We need a center frequency and a span to begin our voyage! Parameters were: center_freq_hz={center_freq_hz}, span_hz={span_hz}",
-                      file=f"{os.path.basename(__file__)} - {current_version}",
+                      file=f"{os.path.basename(__file__)}",
                       version=current_version,
                       function=current_function, special=True)
                       
@@ -786,7 +786,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles the tab selection event.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"The tab has been selected. Loading markers from the file.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         self._load_markers_data()
@@ -820,7 +820,7 @@ class ShowtimeTab(ttk.Frame):
         # Updates the style of control buttons to reflect the current state.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Updating control button styles.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         current_span_str = self.span_var.get()
@@ -853,7 +853,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles a span button click.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"A span button has been clicked. Updating the instrument's span to {span_hz} Hz!",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         self.span_var.set(str(span_hz))
@@ -868,7 +868,7 @@ class ShowtimeTab(ttk.Frame):
                     self._start_device_trace_loop(center_freq_hz=self.selected_device_freq, span_hz=float(span_hz), button_to_blink=self.currently_blinking_button)
             except (ValueError, TypeError) as e:
                 debug_log(f"A ValueError or TypeError has corrupted our span logic! Error: {e}",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          file=f"{os.path.basename(__file__)}",
                           version=current_version,
                           function=current_function, special=True)
                 pass
@@ -879,7 +879,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles an RBW button click.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"An RBW button has been clicked. Setting the RBW to {rbw_hz} Hz!",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         self.rbw_var.set(str(rbw_hz))
@@ -889,7 +889,7 @@ class ShowtimeTab(ttk.Frame):
                 set_rbw_logic(app_instance=self.app_instance, rbw_hz=float(rbw_hz), console_print_func=self.console_print_func)
             except (ValueError, TypeError) as e:
                 debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          file=f"{os.path.basename(__file__)}",
                           version=current_version,
                           function=current_function, special=True)
                 pass
@@ -900,7 +900,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles a trace button click.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"A trace mode button has been toggled.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         trace_var.set(not trace_var.get())
@@ -914,7 +914,7 @@ class ShowtimeTab(ttk.Frame):
         # Handles the Poke button action.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"The 'Poke' button has been pressed! Prepare for a new frequency point! 🎯",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
         if self.app_instance and self.app_instance.inst:
@@ -948,12 +948,12 @@ class ShowtimeTab(ttk.Frame):
                 except (ValueError, TypeError) as e:
                     console_log(f"❌ Error starting marker trace loop after poke: {e}")
                     debug_log(f"Dastardly bug! A TypeError or ValueError has struck our brave poke loop! Error: {e}",
-                              file=f"{os.path.basename(__file__)} - {current_version}",
+                              file=f"{os.path.basename(__file__)}",
                               version=current_version,
                               function=current_function)
             except (ValueError, TypeError) as e:
                 console_log(f"Invalid POKE frequency: {e}")
                 debug_log(f"Captain, the frequency given is gibberish! Error: {e}",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          file=f"{os.path.basename(__file__)}",
                           version=current_version,
                           function=current_function, special=True)

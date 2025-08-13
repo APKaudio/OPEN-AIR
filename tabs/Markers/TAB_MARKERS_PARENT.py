@@ -14,19 +14,23 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.230000.1 (FIXED: Passed the `console_print_func` to the ShowtimeTab to resolve the AttributeError in the child tab.)
-
-current_version = "20250812.230000.1"
+# Version 20250812.235700.2
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import os
+from datetime import datetime
 
 from tabs.Markers.tab_markers_child_display import MarkersDisplayTab
 from tabs.Markers.tab_markers_child_import_and_edit import ReportConverterTab
 from tabs.Markers.tab_markers_child_showtime import ShowtimeTab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+
+# --- Version Information ---
+current_version = "20250812.235700.2"
+current_version_hash = (20250812 * 235700 * 2)
 
 class TAB_MARKERS_PARENT(ttk.Frame):
     """
@@ -41,7 +45,7 @@ class TAB_MARKERS_PARENT(ttk.Frame):
         self.child_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
-        # NEW: Add the ShowtimeTab as the first tab
+        # Add the ShowtimeTab as the first tab
         self.showtime_tab = ShowtimeTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.showtime_tab, text="Showtime")
 
@@ -62,9 +66,19 @@ class TAB_MARKERS_PARENT(ttk.Frame):
                 selected_child_tab_widget._on_tab_selected(event)
 
     def _on_parent_tab_selected(self, event):
-        """
-        Handles the event when this parent tab is selected.
-        """
+        # Function Description
+        # Handles the event when this parent tab is selected. It automatically switches the
+        # display pane to the "Monitor" tab and then selects the first child tab within this parent.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Markers Parent tab selected. Forcing display view to Monitor.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  function=current_function)
+
+        # Switch the display parent to the Monitor tab
+        if hasattr(self.app_instance, 'display_parent_tab'):
+            self.app_instance.display_parent_tab.change_display_tab("Monitor")
+
+        # Original logic to select the first child tab and refresh it
         child_tab_ids = self.child_notebook.tabs()
         if child_tab_ids:
             self.child_notebook.select(child_tab_ids[0])

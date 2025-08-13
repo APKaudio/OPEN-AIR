@@ -14,14 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.2300.5 (REFACTORED: Applied color-coded child notebook style.)
-# Version 20250803.2210.5 (REFACTORED: Removed ASCII art logic to break circular import.)
-
-current_version = "20250803.2300.5"
+# Version 20250812.235800.6
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import os
+from datetime import datetime
 
 # Import the child tabs
 from tabs.Experiments.tab_experiments_child_intermod import InterModTab
@@ -32,6 +31,10 @@ from tabs.Experiments.tab_experiments_child_initial_configuration import Initial
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+
+# --- Version Information ---
+current_version = "20250812.235800.6"
+current_version_hash = (20250812 * 235800 * 6)
 
 class TAB_EXPERIMENTS_PARENT(ttk.Frame):
     """
@@ -69,7 +72,17 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
                 selected_child_tab_widget._on_tab_selected(event)
 
     def _on_parent_tab_selected(self, event):
-        """
-        Handles the event when this parent tab is selected.
-        """
+        # Function Description
+        # Handles the event when this parent tab is selected. It now also switches the display
+        # pane to the "Debug" tab automatically.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Experiments Parent tab selected. Forcing display view to Debug.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  function=current_function)
+
+        # Switch the display parent to the Debug tab
+        if hasattr(self.app_instance, 'display_parent_tab'):
+            self.app_instance.display_parent_tab.change_display_tab("Debug")
+
+        # Original logic to refresh the active child tab
         self._on_child_tab_selected(event)
