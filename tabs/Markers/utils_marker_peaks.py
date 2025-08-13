@@ -16,10 +16,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250816.200000.1 (FIXED: The main loop now correctly iterates through all devices in the selected zone in batches, dynamically assigning them to markers 1 through 6.)
+# Version 20250816.233000.1 (FIXED: The marker on/off logic was moved outside the main loop to be more efficient, turning all markers on once at the start and off once at the end.)
 
-current_version = "20250816.200000.1"
-current_version_hash = 20250816 * 200000 * 1
+current_version = "20250816.233000.1"
+current_version_hash = 20250816 * 233000 * 1
 
 import os
 import csv
@@ -30,7 +30,7 @@ import time
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from tabs.Instrument.Yakety_Yak import YakSet, YakGet, YakDo
+from tabs.Instrument.Yakety_Yak import YakSet, YakDo, YakNab
 from ref.frequency_bands import MHZ_TO_HZ
 
 def _set_multiple_markers_x(app_instance, device_chunk, console_print_func):
@@ -71,12 +71,7 @@ def _set_multiple_markers_x(app_instance, device_chunk, console_print_func):
         marker_x_command_type = f"MARKER/{marker_number}/PLACE/X"
         marker_x_value_hz = int(device_freq_mhz * MHZ_TO_HZ)
         
-        # Turn on the marker and place it
-        if YakDo(app_instance=app_instance, command_type=f"MARKER/{marker_number}/CALCULATE/STATE/ON", console_print_func=console_print_func) == "FAILED":
-            console_print_func(f"❌ Failed to turn on Marker {marker_number} for '{device_name}'. Aborting set for this device.")
-            success = False
-            continue
-            
+        # This function only places the markers.
         if YakSet(app_instance=app_instance, command_type=marker_x_command_type, variable_value=str(marker_x_value_hz), console_print_func=console_print_func) == "FAILED":
             console_print_func(f"❌ Failed to place Marker {marker_number} on device '{device_name}'.")
             success = False
@@ -107,7 +102,7 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
     3. Calculates the min and max frequencies of the selection and adds a buffer.
     4. Sets the instrument's frequency range to this buffered range using YakSet.
     5. For each batch of 6 devices, it sets a marker on each one using the new utility function.
-    6. Queries the amplitude (Y-value) of each marker using YakGet.
+    6. Queries the amplitude (Y-value) of all markers at once using `YakNab`.
     7. Stores these values.
     8. Updates the "Peak" column in the DataFrame.
     9. Saves the updated DataFrame back to MARKERS.CSV.
@@ -173,6 +168,12 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
             df.loc[devices_to_process.index, 'Peak'] = np.nan
             
         peak_values = {}
+
+        # FIX: Turn all markers ON once before the loop
+        if YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/ON", console_print_func=console_print_func) == "FAILED":
+            console_print_func("❌ Failed to turn on all markers in batch. Aborting peak retrieval.")
+            return None
+        
         # Iterate through devices in chunks of 6
         for chunk_start_index in range(0, len(devices_to_process), 6):
             # Process a maximum of 6 devices at a time
@@ -182,29 +183,39 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
             # Use the new helper function to set all markers in the chunk
             if not _set_multiple_markers_x(app_instance, devices_in_chunk_list, console_print_func):
                 console_print_func("❌ Failed to set one or more markers in batch. Aborting peak retrieval.")
-                break # Exit the main loop if a batch fails
-
-            # Now query all active markers for their Y values
-            for i, device in enumerate(devices_in_chunk_list):
-                marker_number = i + 1
-                device_name = device.get('NAME')
-
-                marker_y_command_type = f"MARKER/{marker_number}/CALCULATE/Y"
-                y_value = YakGet(app_instance=app_instance, command_type=marker_y_command_type, console_print_func=console_print_func)
-                
-                if y_value is not None:
-                    try:
-                        peak_values[device_name] = float(y_value)
-                        console_print_func(f"✅ Retrieved Y-value for marker {marker_number} on '{device_name}': {y_value} dBm.")
-                    except ValueError:
-                        console_print_func(f"❌ Failed to parse Y-value for marker {marker_number} on '{device_name}'.")
+                # FIX: Turn off markers on failure
+                YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
+                return None
+            
+            # Now query all active markers for their Y values in one call using YakNab
+            # YakNab returns a formatted string with "|||" separators
+            y_values_str = YakNab(app_instance=app_instance, command_type="MARKER/NAB/ALL/Y", console_print_func=console_print_func)
+            
+            if y_values_str and y_values_str != "FAILED":
+                # Split the formatted string to get individual values
+                y_values = y_values_str.split("|||")
+                for i, device in enumerate(devices_in_chunk_list):
+                    device_name = device.get('NAME')
+                    if i < len(y_values):
+                        try:
+                            peak_values[device_name] = float(y_values[i])
+                            console_print_func(f"✅ Retrieved Y-value for marker {i+1} on '{device_name}': {y_values[i]} dBm.")
+                        except (ValueError, TypeError):
+                            console_print_func(f"❌ Failed to parse Y-value for marker {i+1} on '{device_name}'.")
+                            peak_values[device_name] = np.nan
+                    else:
                         peak_values[device_name] = np.nan
-                else:
-                    peak_values[device_name] = np.nan
-
-        # After processing all chunks, turn all markers off
-        for i in range(1, 7):
-            YakDo(app_instance=app_instance, command_type=f"MARKER/{i}/CALCULATE/STATE/OFF", console_print_func=console_print_func)
+            else:
+                console_print_func("❌ Failed to retrieve Y-values for all markers in batch.")
+                # Fallback to single calls or break
+                # For this implementation, we'll just log and continue to the next chunk
+                debug_log("YakNab failed to return a valid response. Y-values for this chunk are missing.",
+                          file=f"{os.path.basename(__file__)} - {current_version}",
+                          version=current_version,
+                          function=current_function)
+        
+        # FIX: Turn all markers OFF once after the loop
+        YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
 
         # Update the CSV
         for index, row in df.iterrows():

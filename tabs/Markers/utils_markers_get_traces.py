@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.200000.6 (FIXED: The _process_trace_data function now handles cases where the instrument returns insufficient data points, preventing a ValueError and gracefully handling the data.)
+# Version 20250812.225701.1 (FIXED: Added 'showtime_tab_instance' parameter to correctly access trace mode variables.)
 
-current_version = "20250815.200000.6"
-current_version_hash = 20250815 * 200000 * 6
+current_version = "20250812.225701.1"
+current_version_hash = (20250812 * 225701 * 1)
 
 import inspect
 import os
@@ -26,13 +26,13 @@ import numpy as np
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
-from tabs.Instrument.Yakety_Yak import YakGet # NEW: Import YakGet
+from tabs.Instrument.Yakety_Yak import YakGet 
 from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ
 
 # A global counter to manage the trace update cycle state.
 _trace_update_cycle_counter = 0
 
-def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name=None):
+def get_marker_traces(app_instance, showtime_tab_instance, console_print_func, center_freq_hz, span_hz, device_name=None):
     """
     Function Description:
     Retrieves and displays the live, max hold, and min hold traces from the instrument.
@@ -41,6 +41,7 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
 
     Inputs:
     - app_instance (object): A reference to the main application instance.
+    - showtime_tab_instance (object): A reference to the ShowtimeTab instance to access its state variables.
     - console_print_func (function): A function to print to the GUI console.
     - center_freq_hz (int): The center frequency for the scan in Hz.
     - span_hz (int): The span for the scan in Hz.
@@ -62,35 +63,44 @@ def get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz,
     global _trace_update_cycle_counter
     _trace_update_cycle_counter += 1
 
+    scan_monitor_tab = app_instance.scan_monitor_tab
+    if not scan_monitor_tab:
+        console_print_func("❌ Error: Scan Monitor tab not found. Cannot update plots.")
+        debug_log("CRITICAL ERROR: app_instance.scan_monitor_tab is None. The plots are lost at sea!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function, special=True)
+        return
+
     # --- Live Trace (Trace 1) ---
     plot_title = f"Live: {device_name}" if device_name else "Live Scan"
     
-    # NEW: Check if live trace is enabled
-    if app_instance.trace_live_mode.get():
+    # CORRECTED: Access trace mode variables from the showtime_tab_instance
+    if showtime_tab_instance.trace_live_mode.get():
         trace_1_data = get_trace_1_data(app_instance=app_instance, console_print_func=console_print_func, start_freq_hz=start_freq_hz, end_freq_hz=end_freq_hz)
-        update_top_plot(app_instance, data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+        update_top_plot(scan_monitor_tab, data=trace_1_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
     else:
-        update_top_plot(app_instance, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Live Scan not active")
+        update_top_plot(scan_monitor_tab, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Live Scan not active")
 
     # --- Max Hold Trace (Trace 2) ---
     plot_title = f"Max Hold: {device_name}" if device_name else "Max Hold Scan"
     
-    # NEW: Check if max hold trace is enabled
-    if app_instance.trace_max_hold_mode.get():
+    # CORRECTED: Access trace mode variables from the showtime_tab_instance
+    if showtime_tab_instance.trace_max_hold_mode.get():
         trace_2_data = get_trace_2_data(app_instance=app_instance, console_print_func=console_print_func, start_freq_hz=start_freq_hz, end_freq_hz=end_freq_hz)
-        update_medium_plot(app_instance, data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+        update_medium_plot(scan_monitor_tab, data=trace_2_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
     else:
-        update_medium_plot(app_instance, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Max Hold not active")
+        update_medium_plot(scan_monitor_tab, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Max Hold not active")
 
     # --- Min Hold Trace (Trace 3) ---
     plot_title = f"Min Hold: {device_name}" if device_name else "Min Hold Scan"
 
-    # NEW: Check if min hold trace is enabled and only update every 10 cycles
-    if app_instance.trace_min_hold_mode.get() and _trace_update_cycle_counter % 10 == 0:
+    # CORRECTED: Access trace mode variables from the showtime_tab_instance
+    if showtime_tab_instance.trace_min_hold_mode.get() and _trace_update_cycle_counter % 10 == 0:
         trace_3_data = get_trace_3_data(app_instance=app_instance, console_print_func=console_print_func, start_freq_hz=start_freq_hz, end_freq_hz=end_freq_hz)
-        update_bottom_plot(app_instance, data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
-    elif not app_instance.trace_min_hold_mode.get():
-        update_bottom_plot(app_instance, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Min Hold not active")
+        update_bottom_plot(scan_monitor_tab, data=trace_3_data, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title=plot_title)
+    elif not showtime_tab_instance.trace_min_hold_mode.get():
+        update_bottom_plot(scan_monitor_tab, data=None, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz, plot_title="Min Hold not active")
 
 def get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz):
     """
@@ -103,7 +113,6 @@ def get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_h
               version=current_version,
               function=current_function)
 
-    # YakGet now returns None on failure, so we need to check for that
     raw_data_string = YakGet(app_instance=app_instance, command_type="TRACE/1/DATA", console_print_func=console_print_func)
     
     if raw_data_string is None or raw_data_string == "FAILED":
@@ -171,7 +180,6 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
               version=current_version,
               function=current_function)
 
-    # NEW: Check if data is valid before attempting to parse
     if not raw_data_string or "FAILED" in raw_data_string:
         console_print_func("❌ Received invalid data from the instrument. Cannot process trace.")
         debug_log(f"Received invalid data from the instrument: '{raw_data_string}'. Aborting processing.",
@@ -181,7 +189,6 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
         return None
 
     try:
-        # Split the string by commas and convert each value to a float
         amplitudes_dbm = [float(val) for val in raw_data_string.split(',')]
         
         num_points = len(amplitudes_dbm)
@@ -218,4 +225,3 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
                   version=current_version,
                   function=current_function, special=True)
         return None
-
