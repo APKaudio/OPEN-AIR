@@ -16,113 +16,68 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.102600.1 (FIXED: Updated the variable key for paned window sash position to store the value as a percentage instead of a pixel value.)
+# Version 20250813.005800.1
+#
+#
+# Version 20250813.001600.3
 
-current_version = "20250812.102600.1"
-current_version_hash = (20250812 * 102600 * 1)
 
 import tkinter as tk
 import inspect
 import os
+from datetime import datetime
+
 from display.debug_logic import debug_log
 from src.program_default_values import DEFAULT_CONFIG
 from ref.frequency_bands import SCAN_BAND_RANGES
 
+# --- Version Information ---
+current_version = "20250813.005800.1"
+current_version_hash = (20250813 * 5800 * 1)
+
 
 def setup_tkinter_variables(app_instance):
-    # This function description tells me what this function does
+    # Function Description
     # Initializes all Tkinter variables for the application by reading from the
-    # DEFAULT_CONFIG dictionary. It creates `tk.StringVar`, `tk.BooleanVar`,
-    # `tk.IntVar`, or `tk.DoubleVar` instances as appropriate for each setting
-    # and attaches them as attributes to the `app_instance` (e.g., `app_instance.scan_name_var`).
-    # Crucially, it also populates `app_instance.setting_var_map` with a mapping
-    # of each config key to its Tkinter variable instance and its corresponding
-    # section in the configuration file. This map is used by `config_manager`
-    # to save and load settings persistently. It also initializes special
-    # application-wide variables like `is_connected` and `band_vars`.
-    #
-    # Inputs to this function
-    #   app_instance (object): The main application instance (an instance of `App`),
-    #                          to which all Tkinter variables will be attached as attributes.
-    #
-    # Process of this function
-    #   1. Logs entry with debug information.
-    #   2. Initializes `app_instance.setting_var_map` as an empty dictionary.
-    #   3. Iterates through each `section` and `key-value` pair in `DEFAULT_CONFIG`.
-    #   4. For each `key-value` pair, it determines the appropriate Tkinter variable type:
-    #      - `tk.BooleanVar` if the value is 'true' or 'false' (case-insensitive).
-    #      - `tk.IntVar` if the key contains 'Hz', 'cycles', or 'seconds' AND the value is numeric.
-    #      - `tk.DoubleVar` if the value contains a decimal point.
-    #      - `tk.StringVar` for all other cases.
-    #   5. Creates the Tkinter variable instance with the `app_instance` as master
-    #      and assigns the default `value`.
-    #   6. Dynamically sets an attribute on `app_instance` using a convention
-    #      (e.g., `app_instance.scan_name_var = tk.StringVar(...)`).
-    #   7. Adds an entry to `app_instance.setting_var_map` in the format
-    #      `{'config_key': (tk_var_instance, 'ConfigSection')}`.
-    #   8. Initializes additional non-config-backed Tkinter variables like
-    #      `is_connected`, `connected_instrument_model`, `inst`, and display variables
-    #      for the last loaded preset.
-    #   9. Populates `app_instance.band_vars` with dictionaries containing the band data
-    #      and a default importance level of 0.
-    #   10. Logs exit with debug information and the total count of variables set.
-    #
-    # Outputs of this function
-    #   None. Modifies the `app_instance` by adding Tkinter variable attributes and populating `setting_var_map`.
-    #
+    # DEFAULT_CONFIG dictionary and maps them for the config manager.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Setting up all application Tkinter variables from default config. Getting the gears in motion! Version: {current_version}",
-                file=os.path.basename(__file__),
-                version=current_version,
+    debug_log(f"Setting up all application Tkinter variables from default config. Getting the gears in motion!",
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 function=current_function)
 
-    # Initialize the setting_var_map for use by config_manager.py
-    # Format: {'config_key': (tk_var_instance, 'ConfigSection')}
     app_instance.setting_var_map = {}
 
-    # Iterate through the nested default config dictionary to create variables
     for section, settings in DEFAULT_CONFIG.items():
         for key, value_str in settings.items():
             
-            # Skip the band levels, as they are handled manually in the `band_vars` section below.
-            if key == 'last_scan_configuration__selected_bands_levels':
+            if key == 'last_scan_configuration__selected_bands_levels' or key == 'geometry':
                 continue
 
             tk_var_instance = None
             
-            # Special handling for 'geometry' as it's set directly on the root window
-            if key == 'geometry':
-                continue
-
-            # Determine variable type and create Tkinter variable
-            if value_str.lower() in ['true', 'false']:
-                tk_var_instance = tk.BooleanVar(app_instance, value=(value_str.lower() == 'true'))
-            elif key == 'paned_window_sash_position_percentage': # NEW: Handle as IntVar
+            # IMPROVED: Detect boolean values from 'true'/'false' as well as 'on'/'off'
+            if value_str.lower() in ['true', 'false', 'on', 'off']:
+                tk_var_instance = tk.BooleanVar(app_instance, value=(value_str.lower() in ['true', 'on']))
+            elif key == 'paned_window_sash_position_percentage':
                 try:
                     tk_var_instance = tk.IntVar(app_instance, value=int(float(value_str)))
                 except ValueError:
-                    tk_var_instance = tk.StringVar(app_instance, value=value_str) # Fallback
-            elif ('hz' in key or 'cycles' in key or 'seconds' in key or 'dbm' in key or key == 'span' or key == 'rbw' or 'width' in key or key == 'freq_shift') and value_str.replace('.', '', 1).replace('-', '', 1).isdigit(): # Added freq_shift, handle negative for dbm
+                    tk_var_instance = tk.StringVar(app_instance, value=value_str)
+            elif ('hz' in key or 'mhz' in key or 'db' in key or 'dbm' in key or 'cycles' in key or 'seconds' in key or key == 'span' or key == 'rbw' or 'width' in key or key == 'freq_shift') and value_str.replace('.', '', 1).replace('-', '', 1).isdigit():
                 if '.' in value_str:
                     try:
                         tk_var_instance = tk.DoubleVar(app_instance, value=float(value_str))
                     except ValueError:
-                        tk_var_instance = tk.StringVar(app_instance, value=value_str) # Fallback
+                        tk_var_instance = tk.StringVar(app_instance, value=value_str)
                 else:
                     try:
-                        tk_var_instance = tk.IntVar(app_instance, value=int(float(value_str))) # Use float then int to handle "20.0"
+                        tk_var_instance = tk.IntVar(app_instance, value=int(value_str))
                     except ValueError:
-                        tk_var_instance = tk.StringVar(app_instance, value=value_str) # Fallback
-            else: # Default to StringVar for everything else
+                        tk_var_instance = tk.StringVar(app_instance, value=value_str)
+            else:
                 tk_var_instance = tk.StringVar(app_instance, value=value_str)
             
-            # Dynamically set attribute on app_instance
-            # Convention: config_key -> config_key_var (e.g., scan_name -> scan_name_var)
             setattr(app_instance, f"{key}_var", tk_var_instance)
-            
-            # Add to the setting_var_map for config saving/loading
-            # Note: For 'last_config_save_time', we want it to be part of the map for loading,
-            # but it's updated dynamically in save_config, not via UI input.
             app_instance.setting_var_map[key] = {'var': tk_var_instance, 'section': section, 'key': key}
 
     # --- Handle special, non-config variables, or variables whose values are managed differently ---
@@ -131,23 +86,23 @@ def setup_tkinter_variables(app_instance):
     app_instance.connected_instrument_model = tk.StringVar(app_instance, value="")
     app_instance.connected_instrument_serial = tk.StringVar(app_instance, value="")
     app_instance.connected_instrument_version = tk.StringVar(app_instance, value="")
-    app_instance.inst = None # This will hold the PyVISA instrument object
+    app_instance.inst = None
     
-    # NEW: Global Tkinter variables for displaying last loaded preset details
+    # Global Tkinter variables for displaying last loaded preset details
     app_instance.last_selected_preset_name_var = tk.StringVar(app_instance, value="None")
     app_instance.last_loaded_preset_center_freq_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_span_mhz_var = tk.StringVar(app_instance, value="N/A")
     app_instance.last_loaded_preset_rbw_hz_var = tk.StringVar(app_instance, value="N/A")
     
-    # NEW: Add the variables for instrument initialization that were missing
+    # Variables for instrument initialization that might not be in the config map
     app_instance.ref_level_dbm_var = tk.DoubleVar(app_instance, value=-20.0)
     app_instance.high_sensitivity_on_var = tk.BooleanVar(app_instance, value=False)
     app_instance.preamp_on_var = tk.BooleanVar(app_instance, value=False)
-    app_instance.rbw_hz_var = tk.IntVar(app_instance, value=100000)
-    app_instance.vbw_hz_var = tk.IntVar(app_instance, value=100000)
+    # The following variables were causing a conflict. They should be created from the config file now.
+    # app_instance.rbw_hz_var = tk.IntVar(app_instance, value=100000)
+    # app_instance.vbw_hz_var = tk.IntVar(app_instance, value=100000)
 
-
-    # NEW: Tkinter variables for displaying current instrument settings
+    # Tkinter variables for displaying current instrument settings
     app_instance.current_center_freq_var = tk.StringVar(app_instance, value="N/A")
     app_instance.current_span_var = tk.StringVar(app_instance, value="N/A")
     app_instance.current_rbw_var = tk.StringVar(app_instance, value="N/A")
@@ -156,21 +111,11 @@ def setup_tkinter_variables(app_instance):
     app_instance.current_preamp_status_var = tk.StringVar(app_instance, value="N/A")
 
     # --- Band Selection Variables ---
-    # We will now initialize band_vars with a default level of 0.
-    # The restore_last_used_settings_logic function will then populate this list
-    # with the correct values from the config file. This is much cleaner.
-    debug_log(f"Initializing app_instance.band_vars with default values (level 0) before config is loaded. This is a critical step to prevent race conditions!",
-                file=os.path.basename(__file__),
-                version=current_version,
-                function=current_function)
     app_instance.band_vars = []
     if SCAN_BAND_RANGES:
         for band in SCAN_BAND_RANGES:
-            # We add the band with an initial level of 0.
-            # The restore logic will load the real levels from the config file.
             app_instance.band_vars.append({"band": band, "level": 0})
     
-    debug_log(f"Finished setting up all Tkinter variables. The brain is fully operational! Version: {current_version}",
-                file=os.path.basename(__file__),
-                version=current_version,
+    debug_log(f"Finished setting up all Tkinter variables. The application's brain is now fully wired! ✅",
+                file=f"{os.path.basename(__file__)} - {current_version}",
                 function=current_function)

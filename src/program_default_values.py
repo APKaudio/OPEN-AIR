@@ -15,15 +15,17 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.102500.1 (FIXED: The paned_window_sash_position value will now be stored as a percentage of the window width for consistent layout on all screen sizes.)
-
-current_version = "20250812.102500.1"
-current_version_hash = (20250812 * 102500 * 1)
+# Version 20250813.001500.1
 
 import os
+from datetime import datetime
 
 # Import the main frequency bands data
 from ref.frequency_bands import SCAN_BAND_RANGES
+
+# --- Version Information ---
+current_version = "20250813.001500.1"
+current_version_hash = (20250813 * 1500 * 1)
 
 # --- Path Constants ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -31,7 +33,7 @@ DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
 CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
 PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'presets.csv')
 MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
-VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.csv') # CORRECTED: Changed to .csv
+VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.csv')
 DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
 
 
@@ -40,7 +42,7 @@ DEFAULT_CONFIG = {
     'Application': {
         'geometry': '1000x1000+0+0',
         'window_state': 'normal',
-        'paned_window_sash_position_percentage': '50', # NEW: Sash position as a percentage of the window width
+        'paned_window_sash_position_percentage': '50',
         'last_config_save_time': 'Never',
     },
     'Debug': {
@@ -52,10 +54,31 @@ DEFAULT_CONFIG = {
         'log_visa_commands_enabled': 'False',
     },
     'Instrument': {
-        'visa_resource': 'TCPIP0::192.168.1.100::INSTR',
+        'visa_resource': '',
+    },
+    'InstrumentSettings': {
+        'center_freq_mhz': '550.0',
+        'span_freq_mhz': '100.0',
+        'start_freq_mhz': '500.0',
+        'stop_freq_mhz': '600.0',
+        'rbw_mhz': '0.1',
+        'vbw_mhz': '0.03',
+        'vbw_auto_on': 'True',
+        'initiate_continuous_on': 'True',
+        'ref_level_dbm': '-30',
         'preamp_on': 'False',
-        'reference_level_dbm': '-20.0',
-        'high_sensitivity': 'False',
+        'power_attenuation_db': '10',
+        'high_sensitivity_on': 'False',
+        'trace1_mode': 'WRITE',
+        'trace2_mode': 'MAXHOLD',
+        'trace3_mode': 'BLANK',
+        'trace4_mode': 'BLANK',
+        'marker1_on': 'False',
+        'marker2_on': 'False',
+        'marker3_on': 'False',
+        'marker4_on': 'False',
+        'marker5_on': 'False',
+        'marker6_on': 'False',
     },
     'MarkerTabDefaults': {
         'span': '1000000',
@@ -67,9 +90,6 @@ DEFAULT_CONFIG = {
     'Scan': {
         'output_folder': os.path.join(DATA_FOLDER_PATH, 'SCANS'),
         'scan_name': 'DefaultScan',
-        'scan_mode': 'Standard',
-        'scan_rbw_hz': '10000',
-        'scan_rbw_segmentation': 'True',
         'rbw_step_size_hz': '20000',
         'num_scan_cycles': '1',
         'cycle_wait_time_seconds': '0',
@@ -88,7 +108,6 @@ DEFAULT_CONFIG = {
         'math_standard_deviation': 'True',
         'math_range': 'True',
         'math_psd': 'True',
-        # Dynamically generate default band importance levels
         'last_scan_configuration__selected_bands_levels': ','.join(
             [f"{band['Band Name']}=1" for band in SCAN_BAND_RANGES]
         ),
@@ -117,7 +136,7 @@ DEFAULT_CONFIG = {
         'freq_shift': '0.0',
         'scanner_type': 'Generic RF Scanner',
     },
-    'Plotting': { # NEW SECTION FOR PLOTTING SPECIFIC MARKER FLAGS
+    'Plotting': {
         'avg_include_tv_markers': 'True',
         'avg_include_gov_markers': 'True',
         'avg_include_markers': 'True',

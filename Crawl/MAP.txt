@@ -41,7 +41,6 @@
 #        |   -> Function: _save_config_on_idle(self, message)
 #        |   -> Function: _set_console_redirectors(self)
 #        |   -> Function: get_tab_instance(self, parent_tab_name, child_tab_name)
-#        |   -> Function: switch_tab(self, new_tab_name)
 #    ├── Crawl.log
 #    ├── EVERYTHING.py.LOG
 #    ├── MAP.txt
@@ -77,6 +76,7 @@
 #    └── visa_commands.csv
 #        └── MyScan_3D_Scans_Over_Time_20250812_135706.html
 #    ├── DISPLAY_PARENT.py
+#            |   -> Import: datetime
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: display.display_child_console
@@ -89,6 +89,7 @@
 #            |   -> Function: __init__(self, parent, app_instance, console_print_func)
 #            |   -> Function: _on_child_tab_selected(self, event)
 #            |   -> Function: _on_parent_tab_selected(self, event)
+#            |   -> Function: change_display_tab(self, new_tab_name)
 #    ├── __init__.py
 #    ├── console_logic.py
 #            |   -> Import: datetime
@@ -321,23 +322,20 @@
 #            |   -> Import: sys
 #            |   -> Function: check_and_install_dependencies(current_app_version)
 #    ├── program_default_values.py
+#            |   -> Import: datetime
 #            |   -> Import: os
 #            |   -> Import: ref.frequency_bands
 #    ├── program_gui_utils.py
+#            |   -> Import: datetime
 #            |   -> Import: display.DISPLAY_PARENT
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
-#            |   -> Import: functools
 #            |   -> Import: inspect
 #            |   -> Import: os
-#            |   -> Import: tabs.Experiments.TAB_EXPERIMENTS_PARENT
-#            |   -> Import: tabs.Instrument.TAB_INSTRUMENT_PARENT
-#            |   -> Import: tabs.Markers.TAB_MARKERS_PARENT
-#            |   -> Import: tabs.Plotting.TAB_PLOTTING_PARENT
-#            |   -> Import: tabs.Presets.TAB_PRESETS_PARENT
-#            |   -> Import: tabs.Scanning.TAB_SCANNING_PARENT
 #            |   -> Import: tabs.Start_Pause_Stop.tab_scan_controler_button_logic
+#            |   -> Import: tabs.TABS_PARENT
 #            |   -> Import: tkinter
+#            |   -> Function: _set_sash_position(app_instance, paned_window, percentage)
 #            |   -> Function: apply_saved_geometry(app_instance)
 #            |   -> Function: create_main_layout_and_widgets(app_instance)
 #    ├── program_initialization.py
@@ -350,6 +348,7 @@
 #            |   -> Import: src.settings_and_config.restore_settings_logic
 #            |   -> Function: initialize_program_environment(app_instance)
 #    ├── program_shared_values.py
+#            |   -> Import: datetime
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
 #            |   -> Import: os
@@ -393,11 +392,30 @@
 #    ├── Presets/
 #    ├── Scanning/
 #    ├── Start_Pause_Stop/
+#    ├── TABS_PARENT.py
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: functools
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tabs.Experiments.TAB_EXPERIMENTS_PARENT
+#            |   -> Import: tabs.Instrument.TAB_INSTRUMENT_PARENT
+#            |   -> Import: tabs.Markers.TAB_MARKERS_PARENT
+#            |   -> Import: tabs.Plotting.TAB_PLOTTING_PARENT
+#            |   -> Import: tabs.Presets.TAB_PRESETS_PARENT
+#            |   -> Import: tabs.Scanning.TAB_SCANNING_PARENT
+#            |   -> Import: tkinter
+#            |   -> Class: TABS_PARENT
+#            |   -> Function: __init__(self, parent, app_instance)
+#            |   -> Function: switch_tab(self, new_tab_name)
 #    └── __init__.py
 #        ├── TAB_EXPERIMENTS_PARENT.py
+#                |   -> Import: datetime
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
+#                |   -> Import: os
 #                |   -> Import: tabs.Experiments.tab_experiments_child_JSON_api
 #                |   -> Import: tabs.Experiments.tab_experiments_child_initial_configuration
 #                |   -> Import: tabs.Experiments.tab_experiments_child_intermod
@@ -498,9 +516,11 @@
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _populate_content(self)
 #        ├── TAB_INSTRUMENT_PARENT.py
+#                |   -> Import: datetime
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
+#                |   -> Import: os
 #                |   -> Import: tabs.Instrument.tab_instrument_child_connection
 #                |   -> Import: tabs.Instrument.tab_instrument_child_settings
 #                |   -> Import: tabs.Instrument.tab_instrument_child_visa_interpreter
@@ -509,6 +529,13 @@
 #                |   -> Function: __init__(self, parent, app_instance, console_print_func)
 #                |   -> Function: _on_child_tab_selected(self, event)
 #                |   -> Function: _on_parent_tab_selected(self, event)
+#                |   -> Function: switch_to_settings_tab(self)
+#        ├── XXXXutils_instrument_apply_settings.py
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #        ├── Yakety_Yak.py
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
@@ -547,6 +574,7 @@
 #                |   -> Function: populate_resources_logic(app_instance, combobox_widget, console_print_func)
 #                |   -> Function: query_current_settings_logic(app_instance, console_print_func)
 #        ├── tab_instrument_child_connection.py
+#                |   -> Import: datetime
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -556,7 +584,7 @@
 #                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #                |   -> Import: tkinter
 #                |   -> Class: InstrumentTab
-#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, parent_notebook_ref)
 #                |   -> Function: _connect_instrument(self)
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _disconnect_instrument(self)
@@ -624,12 +652,6 @@
 #                |   -> Function: _validate_all_rows(self)
 #                |   -> Function: _yak_button_action(self)
 #                |   -> Function: numeric_sort_key(x)
-#        ├── utils_instrument_apply_settings.py
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: os
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #        ├── utils_instrument_connection.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
@@ -662,9 +684,11 @@
 #                |   -> Function: set_safe(inst, command, value, console_print_func)
 #                |   -> Function: write_safe(inst, command, console_print_func)
 #        ├── TAB_MARKERS_PARENT.py
+#                |   -> Import: datetime
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
+#                |   -> Import: os
 #                |   -> Import: tabs.Markers.tab_markers_child_display
 #                |   -> Import: tabs.Markers.tab_markers_child_import_and_edit
 #                |   -> Import: tabs.Markers.tab_markers_child_showtime

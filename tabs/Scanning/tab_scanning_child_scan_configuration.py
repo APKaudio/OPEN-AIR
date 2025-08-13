@@ -14,6 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250813.010030.1
+#
+#
 # Version 20250810.160100.2 (REFACTORED: Extracted all band selection UI and logic into a new tab.)
 
 
@@ -40,8 +43,9 @@ from ref.ref_scanner_setting_lists import (
     rbw_presets
 )
 
-current_version = "20250810.160100.2"
-current_version_hash = 20250810 * 160100 * 2 # Example hash, adjust as needed
+current_version = "20250813.010030.1"
+current_version_hash = 20250813 * 10030 * 1
+
 
 class ScanTab(ttk.Frame):
     """
@@ -120,30 +124,30 @@ class ScanTab(ttk.Frame):
         settings_frame.grid_columnconfigure(2, weight=1)
 
         row_idx = 0
-        self._create_setting_row(settings_frame, row_idx, "graph_quality", "Graph Quality:", self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, "Hz"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "dwell_time", "DWELL (s):", self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, "s"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "max_hold_time", "Max Hold Time (s):", self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, "s"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "scan_rbw", "Scan RBW (Hz):", self.app_instance.scan_rbw_hz_var, rbw_presets, "Hz"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dbm_var, reference_level_drop_down, "dBm"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "frequency_shift", "Frequency Shift (Hz):", self.app_instance.freq_shift_var, frequency_shift_presets, "Hz"); row_idx += 1
-        self._create_setting_row(settings_frame, row_idx, "num_scan_cycles", "Number of Scan Cycles:", self.app_instance.num_scan_cycles_var, number_of_scans_presets, "cycles"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "graph_quality", "Graph Quality:", self.app_instance.rbw_step_size_hz_var, graph_quality_drop_down, "Hz"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "dwell_time", "DWELL (s):", self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, "s"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "max_hold_time", "Max Hold Time (s):", self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, "s"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "scan_rbw", "Scan RBW (Hz):", self.app_instance.scan_rbw_hz_var, rbw_presets, "Hz"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dbm_var, reference_level_drop_down, "dBm"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "frequency_shift", "Frequency Shift (Hz):", self.app_instance.freq_shift_var, frequency_shift_presets, "Hz"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "num_scan_cycles", "Number of Scan Cycles:", self.app_instance.num_scan_cycles_var, number_of_scans_presets, "cycles"); row_idx += 1
 
-        # Boolean settings
-        ttk.Label(settings_frame, text="High Sensitivity:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
-        hs_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); hs_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        hs_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.high_sensitivity_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['high_sensitivity'] = {'widget': hs_combo, 'var': self.app_instance.high_sensitivity_var}; row_idx += 1
-
-        ttk.Label(settings_frame, text="Preamplifier ON:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
-        pa_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); pa_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
-        pa_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.preamp_on_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['preamp_on'] = {'widget': pa_combo, 'var': self.app_instance.preamp_on_var}; row_idx += 1
-        
-        # --- ADDED BACK: Simple Entry fields ---
-        ttk.Label(settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
-        row_idx += 1
-        ttk.Label(settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
-        row_idx += 1
+        # # Boolean settings
+        # ttk.Label(settings_frame, text="High Sensitivity:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
+        # hs_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); hs_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
+        # hs_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.high_sensitivity_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['high_sensitivity'] = {'widget': hs_combo, 'var': self.app_instance.high_sensitivity_var}; row_idx += 1
+        #
+        # ttk.Label(settings_frame, text="Preamplifier ON:").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w");
+        # pa_combo = ttk.Combobox(settings_frame, values=["Yes", "No"], state="readonly", width=35); pa_combo.grid(row=row_idx, column=1, padx=5, pady=2, sticky="w")
+        # pa_combo.bind("<<ComboboxSelected>>", lambda e, v=self.app_instance.preamp_on_var: self._on_boolean_combobox_select(e, v)); self.setting_widgets['preamp_on'] = {'widget': pa_combo, 'var': self.app_instance.preamp_on_var}; row_idx += 1
+        #
+        # # --- ADDED BACK: Simple Entry fields ---
+        # ttk.Label(settings_frame, text="Scan RBW Segmentation (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        # ttk.Entry(settings_frame, textvariable=self.app_instance.scan_rbw_segmentation_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
+        # row_idx += 1
+        # ttk.Label(settings_frame, text="Default Focus Width (Hz):").grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        # ttk.Entry(settings_frame, textvariable=self.app_instance.desired_default_focus_width_var).grid(row=row_idx, column=1, sticky="ew", columnspan=2, padx=5, pady=2)
+        # row_idx += 1
 
         debug_log(f"ScanTab widgets created.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -253,7 +257,7 @@ class ScanTab(ttk.Frame):
         # Outputs of this function
         #   None. Updates a Tkinter variable and saves the config.
         current_function = inspect.currentframe().f_code.co_name
-        console_log("Browsing for output folder...", function=current_function)
+        console_log("Browse for output folder...", function=current_function)
         debug_log(f"Opening file dialog to select output folder.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,

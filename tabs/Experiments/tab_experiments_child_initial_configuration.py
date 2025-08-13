@@ -16,23 +16,26 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250813.011205.1
+#
 # Version 20250802.1701.20 (Removed style_obj from kwargs passed to super().__init__.)
 
-current_version = "20250802.1701.20" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250802 * 1701 * 20 # Example hash, adjust as needed
+current_version = "20250813.011205.1"
+current_version_hash = 20250813 * 11205 * 1
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
 import inspect
 import os
 import configparser
+import datetime
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.settings_and_config.config_manager import save_config_as_new_file # Will be added in config_manager.py
+from src.settings_and_config.config_manager import save_config_as_new_file, save_config
 
 class InitialConfigurationTab(ttk.Frame):
     """
@@ -94,10 +97,12 @@ class InitialConfigurationTab(ttk.Frame):
         button_frame.grid_columnconfigure(0, weight=1)
         button_frame.grid_columnconfigure(1, weight=1)
         button_frame.grid_columnconfigure(2, weight=1)
+        button_frame.grid_columnconfigure(3, weight=1)
 
         ttk.Button(button_frame, text="Load Default Configuration", command=self._load_default_config).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         ttk.Button(button_frame, text="Load Previous Configuration", command=self._load_previous_config).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-        ttk.Button(button_frame, text="Save Current Config as New File", command=self._save_current_config_as_new_file).grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        ttk.Button(button_frame, text="Save Running Configuration", command=self._save_running_config).grid(row=0, column=2, padx=5, pady=5, sticky="ew")
+        ttk.Button(button_frame, text="Save Current Config as New File", command=self._save_current_config_as_new_file).grid(row=0, column=3, padx=5, pady=5, sticky="ew")
 
         # --- Config Table Frame ---
         config_table_frame = ttk.LabelFrame(self, text="Current config.ini Contents (Editable)")
@@ -234,10 +239,14 @@ class InitialConfigurationTab(ttk.Frame):
 
                     # Trigger a save to the main config.ini file immediately
                     # This ensures the changes are persistent
-                    self.app_instance.save_config(self.app_instance) # Call save_config from main_app
+                    save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
                     # Attempt to update the corresponding Tkinter variable if mapped
                     self._update_tkinter_var_from_config(section_name, key, new_value)
+                    
+                    # New behavior: If the event was a return key, automatically move to the next row
+                    if event and event.keysym == 'Return':
+                        self._navigate_cells(item_id, column, "down_and_edit")
 
                 except Exception as e:
                     self.console_print_func(f"❌ Error updating config: {e}. This is a disaster!")
@@ -251,6 +260,31 @@ class InitialConfigurationTab(ttk.Frame):
 
         editor.bind("<Return>", on_edit_complete)
         editor.bind("<FocusOut>", on_edit_complete)
+        editor.bind("<Escape>", lambda e: editor.destroy())
+        
+    def _navigate_cells(self, current_item, current_col_index_str, direction):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Navigating cells from item: {current_item}, column: {current_col_index_str}, direction: {direction}", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+        
+        items = self.config_tree.get_children()
+        current_row_index = items.index(current_item)
+        current_col_index = int(current_col_index_str.replace('#', '')) - 1
+        num_rows = len(items)
+
+        next_item = None
+        next_col_index = current_col_index
+        
+        if direction == "down_and_edit":
+            next_row_index = current_row_index + 1
+            if next_row_index < num_rows:
+                next_item = items[next_row_index]
+        
+        if next_item:
+            self.config_tree.selection_set(next_item)
+            self.config_tree.focus(next_item)
+            next_col_id_str = f"#{next_col_index + 1}"
+            self._start_edit(next_item, next_col_index)
+
 
     def _update_tkinter_var_from_config(self, section_name, key, new_value_str):
         """
@@ -259,17 +293,12 @@ class InitialConfigurationTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
 
-        # Iterate through the setting_var_map to find a match
-        for tk_var_name, (last_key, default_key, tk_var_instance) in self.app_instance.setting_var_map.items():
-            # Check if the key matches either the last_key or default_key
-            # We need to map config keys to the variable names.
-            # This logic is a bit complex as setting_var_map uses both last_key and default_key.
-            # A better approach might be to have a reverse map or a clearer naming convention.
-
-            # Simple approach: Check if the key is present in either last_key or default_key
-            # This is a heuristic and might need refinement if keys are not unique.
-            if last_key == key or default_key == key:
+        found_match = False
+        for var_key, var_info in self.app_instance.setting_var_map.items():
+            if var_info['section'] == section_name and var_info['key'] == key:
+                found_match = True
                 try:
+                    tk_var_instance = var_info['var']
                     if isinstance(tk_var_instance, tk.BooleanVar):
                         tk_var_instance.set(new_value_str.lower() == 'true')
                     elif isinstance(tk_var_instance, tk.IntVar):
@@ -278,41 +307,41 @@ class InitialConfigurationTab(ttk.Frame):
                         tk_var_instance.set(float(new_value_str))
                     elif isinstance(tk_var_instance, tk.StringVar):
                         tk_var_instance.set(new_value_str)
-                    self.console_print_func(f"✅ Synced Tkinter var '{tk_var_name}' with new config value. Perfect sync!")
-                    debug_log(f"Synced Tkinter var '{tk_var_name}' to '{new_value_str}'. GUI updated!",
-                                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                version=current_function)
-
-                    # Special handling for notes_var if it's a ScrolledText
-                    if tk_var_name == 'notes_var' and hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_meta_data_tab') and hasattr(self.app_instance.scanning_parent_tab.scan_meta_data_tab, 'notes_text_widget'):
-                        self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.delete("1.0", tk.END)
-                        self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text_widget.insert("1.0", new_value_str)
-                        debug_log("Updated notes_text_widget from config edit. Looking good!",
-                                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                    version=current_function)
-
-                    # For band selections, if the key is 'last_selected_bands' or 'default_selected_bands'
-                    # This needs to be handled via the ScanConfigurationTab
-                    if (key == 'last_scan_configuration__selected_bands' or
-                        key == 'default_scan_configuration__selected_bands'):
-                        if hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_configuration_tab'):
-                            self.app_instance.scanning_parent_tab.scan_configuration_tab._load_band_selections_from_config() # Reload checkboxes
-                            debug_log("Reloaded band selections in Scan Configuration Tab after config edit. All bands accounted for!",
-                                        file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                        version=current_function)
-
-                    break # Found and updated the variable
-                except ValueError as e:
-                    self.console_print_func(f"❌ Error syncing Tkinter var '{tk_var_name}': {e}. Invalid value!")
-                    debug_log(f"Error syncing Tkinter var '{tk_var_name}': {e}. What a pain!",
+                    self.console_print_func(f"✅ Synced Tkinter var '{var_key}' with new config value. Perfect sync!")
+                    debug_log(f"Synced Tkinter var '{var_key}' to '{new_value_str}'. GUI updated!",
                                 file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
                                 version=current_version,
                                 function=current_function)
-                except Exception as e:
-                    self.console_print_func(f"❌ Unexpected error syncing Tkinter var '{tk_var_name}': {e}. This is a disaster!")
-                    debug_log(f"Unexpected error syncing Tkinter var '{tk_var_name}': {e}. Fucking hell!",
+
+                    # Special handling for notes_var if it's a ScrolledText
+                    if var_key == 'notes_var' and hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_meta_data_tab'):
+                        notes_widget = self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text
+                        notes_widget.delete("1.0", tk.END)
+                        notes_widget.insert("1.0", new_value_str)
+                        debug_log("Updated notes_text_widget from config edit. Looking good!",
+                                    file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                                    version=current_version,
+                                    function=current_function)
+                    
+                    break # Exit the loop after finding the match
+
+                except ValueError as e:
+                    self.console_print_func(f"❌ Error syncing Tkinter var '{var_key}': {e}. Invalid value!")
+                    debug_log(f"Error syncing Tkinter var '{var_key}': {e}. What a pain!",
                                 file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                                version=current_function)
+                                version=current_version,
+                                function=current_function)
+                    
+                except Exception as e:
+                    self.console_print_func(f"❌ Unexpected error syncing Tkinter var '{var_key}': {e}. This is a disaster!")
+                    debug_log(f"Unexpected error syncing Tkinter var '{var_key}': {e}. Fucking hell!",
+                                file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
+                                version=current_version,
+                                function=current_function)
+        
+        if not found_match:
+            debug_log(f"No corresponding Tkinter variable found in setting_var_map for key '{key}' in section '{section_name}'. Skipping sync. 🤷‍♀️", file=f"{os.path.basename(__file__)} - {current_version}", version=current_version, function=current_function)
+
 
     def _load_default_config(self):
         """
@@ -399,8 +428,7 @@ class InitialConfigurationTab(ttk.Frame):
                 self.console_print_func(f"❌ Error saving configuration to new file: {e}. This is a disaster!")
                 debug_log(f"Error saving configuration to new file '{file_path}': {e}. Fucking hell!",
                             file=f"{os.path.basename(__file__)} - {current_version}", # Updated debug file name
-                            version=current_version,
-                            function=current_function)
+                            version=current_function)
         else:
             self.console_print_func("ℹ️ Configuration save cancelled. Fine, be that way!")
             debug_log("Configuration save cancelled. What a waste!",
@@ -419,3 +447,18 @@ class InitialConfigurationTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         self._populate_config_table()
+
+    def _save_running_config(self):
+        """
+        Saves the current application settings to the default config.ini file.
+        This function is an alias for the direct call to the save_config method.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Manual save of running configuration requested. Triggering immediate save. 💾",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        self.console_print_func("✅ Running configuration saved successfully.")
+        self._populate_config_table() # Refresh table to show changes from current state
