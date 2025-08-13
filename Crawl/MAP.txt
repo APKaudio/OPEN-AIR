@@ -845,10 +845,56 @@
 #                |   -> Import: ref.frequency_bands
 #                |   -> Import: tabs.Instrument.Yakety_Yak
 #                |   -> Function: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func)
-#                |   -> Function: get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name)
+#                |   -> Function: get_marker_traces(app_instance, showtime_tab_instance, console_print_func, center_freq_hz, span_hz, device_name)
 #                |   -> Function: get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
 #                |   -> Function: get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
 #                |   -> Function: get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
+#        ├── utils_markers_showtime.py
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: display.utils_display_monitor
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: ref.frequency_bands
+#                |   -> Import: src.program_style
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: tabs.Markers.utils_marker_peaks
+#                |   -> Import: tabs.Markers.utils_markers
+#                |   -> Import: tabs.Markers.utils_markers_get_traces
+#                |   -> Import: tabs.Markers.utils_markers_showtime
+#                |   -> Import: threading
+#                |   -> Import: time
+#                |   -> Import: tkinter
+#                |   -> Class: ShowtimeTab
+#                |   -> Class: ThresholdsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _blink_device_button(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_device_button_click(self, device_data)
+#                |   -> Function: _on_group_button_click(self, group_name)
+#                |   -> Function: _on_poke_action(self)
+#                |   -> Function: _on_rbw_button_click(self, rbw_hz)
+#                |   -> Function: _on_span_button_click(self, span_hz)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_trace_button_click(self, trace_var)
+#                |   -> Function: _on_zone_button_click(self, zone_name)
+#                |   -> Function: _peak_search_and_get_trace(self, devices, name)
+#                |   -> Function: _perform_peak_search_task(self, devices, name)
+#                |   -> Function: _populate_device_buttons(self)
+#                |   -> Function: _populate_group_buttons(self)
+#                |   -> Function: _populate_zone_buttons(self)
+#                |   -> Function: _start_device_trace_loop(self, center_freq_hz, span_hz, button_to_blink)
+#                |   -> Function: _stop_loop_action(self)
+#                |   -> Function: _update_control_styles(self)
+#                |   -> Function: _update_group_button_styles(self)
+#                |   -> Function: _update_zone_button_styles(self)
+#                |   -> Function: loop_func()
 #        └── utils_report_converter.py
 #                |   -> Import: bs4
 #                |   -> Import: csv

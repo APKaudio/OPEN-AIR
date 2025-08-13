@@ -1,8 +1,9 @@
 # src/program_gui_utils.py
 #
+# This is the description of what comes below
 # This module is responsible for constructing the main graphical user interface (GUI)
 # for the RF Spectrum Analyzer Controller application. It creates the main window layout,
-# including the paned window, and populates it with all the parent and child tabs.
+# including the paned window, and populates it with the main tab container and the display/control panes.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,57 +16,34 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.103100.1 (FIXED: The sash position is now restored based on a percentage of the window width, ensuring the layout remains consistent on startup regardless of the window's previous size.)
+# Version 20250812.234200.2
 
 import tkinter as tk
 from tkinter import ttk
-from functools import partial
 import inspect
 import os
+from datetime import datetime
 
 # --- Import all Parent and Child Tab classes ---
-from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
-from tabs.Markers.TAB_MARKERS_PARENT import TAB_MARKERS_PARENT
-from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
-from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
-from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
-from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
+from tabs.TABS_PARENT import TABS_PARENT # REFACTORED: Import the new master tab container
 from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
 from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT 
-# The old ConsoleTab is no longer imported here as it is now a child of TAB_DISPLAY_PARENT.
 
 from display.console_logic import console_log
 from display.debug_logic import debug_log
 
-current_version = "20250812.103100.1"
-current_version_hash = (20250812 * 103100 * 1)
+# --- Version Information ---
+current_version = "20250812.234200.2"
+current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
+
 
 def apply_saved_geometry(app_instance):
-    # Function Description:
+    # Function Description
     # Applies the last saved window geometry and state to the application's main window.
-    # It retrieves the geometry and state strings from the application's configuration
-    # and sets them on the Tkinter root window.
-    #
-    # Inputs to this function:
-    #   app_instance (object): The main application instance (an instance of `App`).
-    #
-    # Process of this function:
-    #   1. Retrieves the 'geometry' setting from the 'Application' section of
-    #      `app_instance.config`. It falls back to a default if not found.
-    #   2. Retrieves the 'window_state' setting and applies it.
-    #   3. Logs the retrieved geometry for debugging.
-    #   4. Applies the geometry string to the `app_instance` (Tkinter root window).
-    #
-    # Outputs of this function:
-    #   None. Modifies the application's window size and position.
-    #
-    # (2025-08-04.021433.0) Change: Corrected config key from 'last_GLOBAL__window_geometry' to 'geometry'.
-    # (2025-08-10.145500.2) Change: Added logic to restore window state (maximized).
     current_function = inspect.currentframe().f_code.co_name
     debug_log("Applying saved window geometry and state.",
-                file=os.path.basename(__file__), function=current_function, version=current_version)
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
-    # CORRECTED: Load 'geometry' from 'Application' section
     last_geometry = app_instance.config.get('Application', 'geometry', fallback='1000x1000+0+0')
     last_state = app_instance.config.get('Application', 'window_state', fallback='normal')
 
@@ -73,144 +51,87 @@ def apply_saved_geometry(app_instance):
     app_instance.state(last_state)
 
     debug_log(f"Applied geometry: {last_geometry}, State: {last_state}",
-                file=os.path.basename(__file__), function=current_function, version=current_version)
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
 
 def create_main_layout_and_widgets(app_instance):
-    # Function Description:
-    # Constructs the main GUI layout of the application. This includes creating
-    # a horizontal `ttk.PanedWindow` to divide the interface into a left pane
-    # (for main tabs) and a right pane (for scan controls and console).
-    # It dynamically creates tab buttons and their corresponding content frames,
-    # and populates the right pane with the scan control and console widgets.
-    # It also stores references to key GUI elements on the `app_instance` for
-    # easy access and configuration saving.
-    #
-    # Inputs to this function:
-    #   app_instance (object): The main application instance (an instance of `App`),
-    #                          to which GUI elements will be attached and which provides
-    #                          access to shared application state.
-    #
-    # Process of this function:
-    #   1. Logs entry with debug information.
-    #   2. Creates the main horizontal `ttk.PanedWindow` and packs it.
-    #   3. Assigns the `main_paned_window` to `app_instance.paned_window` for external access.
-    #   4. Creates and adds the left and right frames to the paned window.
-    #   5. Attempts to set the sash position using `app_instance.paned_window_sash_position_var`.
-    #   6. Creates a custom tab button bar at the top of the left pane.
-    #   7. Creates a content frame within the left pane to hold the actual tab content.
-    #   8. Defines a list of tab names and their corresponding class constructors.
-    #   9. Iterates through the tab definitions:
-    #      a. Creates a `ttk.Button` for each tab and links it to `app_instance.switch_tab`.
-    #      b. Creates an instance of the tab's content class, passing `app_instance` and `console_log`.
-    #      c. Grids the content frame and stores references to buttons and content frames
-    #         on `app_instance.tab_buttons` and `app_instance.tab_content_frames` respectively.
-    #   10. Populates the right pane with `ScanControlTab` and the `TAB_DISPLAY_PARENT` instances.
-    #       It relies on `TAB_DISPLAY_PARENT` to set the `scan_monitor_tab` and `console_text`
-    #       attributes on the `app_instance`.
-    #
-    # Outputs of this function:
-    #   None. Configures the application's main window and populates it with widgets.
-    #   Sets `app_instance.paned_window`, `app_instance.tab_buttons`,
-    #   `app_instance.tab_content_frames`, and `app_instance.console_tab`.
-    #
+    # Function Description
+    # Constructs the main GUI layout. Creates a horizontal PanedWindow dividing the interface
+    # into a left pane (for main tabs via TABS_PARENT) and a right pane (for scan controls and console).
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Creating main layout and widgets. Laying out the foundation!",
-                file=os.path.basename(__file__), function=current_function, version=current_version)
+    debug_log("Creating main layout and widgets. Laying out the new two-column foundation!",
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
     main_paned_window = ttk.PanedWindow(app_instance, orient=tk.HORIZONTAL)
     main_paned_window.pack(expand=True, fill='both')
     
-    # EXPOSED: Assign the paned window to the app_instance
     app_instance.paned_window = main_paned_window
 
-    # Bind the sash moved event to the new handler in main_app
     main_paned_window.bind('<<PanedWindowSashMoved>>', 
                            lambda e: app_instance._on_sash_moved())
-    debug_log("Bound <<PanedWindowSashMoved>> event to update paned_window_sash_position_var.",
-                file=os.path.basename(__file__), function=current_function, version=current_version)
+    debug_log("Bound <<PanedWindowSashMoved>> event.",
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
-
-    # --- Left Pane ---
+    # --- Left Pane (Now contains the master TABS_PARENT) ---
     left_frame = ttk.Frame(main_paned_window, style='TFrame')
     main_paned_window.add(left_frame, weight=1)
 
-    # --- NEW: Custom Tab Button Bar ---
-    tab_button_frame = ttk.Frame(left_frame, style='TFrame')
-    tab_button_frame.pack(side='top', fill='x', padx=5, pady=(5, 0))
-    tab_button_frame.grid_columnconfigure(tuple(range(6)), weight=1) # Make buttons expand
-
-    # --- NEW: Content Frame for Tab Content ---
-    content_frame = ttk.Frame(left_frame, style='TFrame')
-    content_frame.pack(side='top', expand=True, fill='both', padx=5, pady=(0, 5))
-    content_frame.grid_rowconfigure(0, weight=1)
-    content_frame.grid_columnconfigure(0, weight=1)
-
-    # --- Right Pane (Scan Controls and Console) ---
+    # --- Right Pane (Scan Controls and Display) ---
     right_frame = ttk.Frame(main_paned_window, style='TFrame')
     main_paned_window.add(right_frame, weight=1)
     
-    # Try to set sash position based on a percentage of the window's width
+    # Restore sash position after frames are added
     try:
         sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position_percentage', fallback='50'))
-        if app_instance.winfo_width() > 1: # Avoid division by zero on startup
-             initial_sash_position = int((sash_position_percentage / 100) * app_instance.winfo_width())
-             main_paned_window.sashpos(0, initial_sash_position)
-             debug_log(f"Set sash position to: {initial_sash_position} ({sash_position_percentage}%)",
-                        file=os.path.basename(__file__), function=current_function, version=current_version)
+        # Use after() to ensure the main window has had a chance to render and get its size
+        app_instance.after(100, lambda: _set_sash_position(app_instance, main_paned_window, sash_position_percentage))
     except Exception as e:
-        debug_log(f"Error setting sash position from config: {e}. Skipping sash position restore.",
-                    file=os.path.basename(__file__), function=current_function, version=current_version)
+        debug_log(f"Ahoy! A scallywag error be found whilst settin' the sash position: {e}. We'll be proceedin' without it, but keep a weather eye open!",
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
     
+    # --- Populate Left Pane ---
+    app_instance.tabs_parent = TABS_PARENT(left_frame, app_instance)
+    app_instance.tabs_parent.pack(expand=True, fill='both')
+
+    # --- Populate Right Pane ---
     right_top_frame = ttk.Frame(right_frame, style='TFrame')
     right_top_frame.pack(side='top', fill='x', padx=5, pady=(5,0))
     right_bottom_frame = ttk.Frame(right_frame, style='TFrame')
     right_bottom_frame.pack(side='top', expand=True, fill='both', padx=5, pady=5)
 
-    # --- Store references on the app instance ---
-    app_instance.tab_buttons = {}
-    app_instance.tab_content_frames = {}
-    
-    tab_names = ["Instruments", "Markers", "Presets", "Scanning", "Plotting", "Experiments"]
-    tab_classes = [
-        TAB_INSTRUMENT_PARENT, TAB_MARKERS_PARENT, TAB_PRESETS_PARENT,
-        TAB_SCANNING_PARENT, TAB_PLOTTING_PARENT, TAB_EXPERIMENTS_PARENT
-    ]
-
-    for i, (name, content_class) in enumerate(zip(tab_names, tab_classes)):
-        # Create the tab button
-        button = ttk.Button(
-            tab_button_frame,
-            text=name,
-            style=f'{name}.Inactive.TButton',
-            command=partial(app_instance.switch_tab, name)
-        )
-        button.grid(row=0, column=i, sticky='ew')
-        app_instance.tab_buttons[name] = button
-
-        # Create the content frame
-        content = content_class(content_frame, app_instance, console_log)
-        content.grid(row=0, column=0, sticky='nsew')
-        app_instance.tab_content_frames[name] = content
-
-    # --- Populate Right Pane ---
     scan_controls = ScanControlTab(right_top_frame, app_instance)
     scan_controls.pack(expand=True, fill='both')
     app_instance.scan_control_tab = scan_controls
     
-    # NEW: The console tab is now a child of the display parent
     app_instance.display_parent_tab = TAB_DISPLAY_PARENT(right_bottom_frame, app_instance, console_log)
     app_instance.display_parent_tab.pack(expand=True, fill='both')
     
-    # FIX: We now trust the TAB_DISPLAY_PARENT's __init__ to correctly set the child references.
-    # We will now check if the references were successfully set after initialization.
+    # Check if the references were successfully set after initialization.
     if not hasattr(app_instance, 'scan_monitor_tab') or not app_instance.scan_monitor_tab:
-         debug_log("ERROR: `ScanMonitorTab` instance not found on app_instance after display parent creation. This is a critical error!",
-                    file=os.path.basename(__file__), function=current_function, version=current_version, special=True)
+         debug_log("❌ ERROR: `ScanMonitorTab` instance not found on app_instance after display parent creation. This is a critical error!",
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
     if not hasattr(app_instance, 'console_text') or not app_instance.console_text:
-        debug_log("ERROR: Console text widget not found on app_instance after display parent creation. This is a critical error!",
-                    file=os.path.basename(__file__), function=current_function, version=current_version, special=True)
-
+        debug_log("❌ ERROR: Console text widget not found on app_instance after display parent creation. This is a critical error!",
+                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
 
     debug_log("Main layout and widgets created. UI ready!",
-                file=os.path.basename(__file__), function=current_function, version=current_version)
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+
+def _set_sash_position(app_instance, paned_window, percentage):
+    # Function Description
+    # Helper function to set the sash position after the main window is drawn.
+    # This prevents issues where winfo_width() returns 1 on startup.
+    current_function = inspect.currentframe().f_code.co_name
+    try:
+        window_width = app_instance.winfo_width()
+        if window_width > 1:
+            sash_pos = int((percentage / 100) * window_width)
+            paned_window.sashpos(0, sash_pos)
+            debug_log(f"Sash position restored to {sash_pos}px ({percentage}%)",
+                      file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+        else:
+            # If the window is still not drawn, try again shortly.
+            app_instance.after(100, lambda: _set_sash_position(app_instance, paned_window, percentage))
+    except Exception as e:
+        debug_log(f"By thunder! The contraption failed to set the sash position! Error: {e}",
+                  file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
