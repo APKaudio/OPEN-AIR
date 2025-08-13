@@ -16,10 +16,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250816.233000.1 (FIXED: The marker on/off logic was moved outside the main loop to be more efficient, turning all markers on once at the start and off once at the end.)
+# Version 20250816.233000.3 (FIXED: The multi-threaded bug was fixed with a threading lock.)
 
-current_version = "20250816.233000.1"
-current_version_hash = 20250816 * 233000 * 1
+current_version = "20250816.233000.3"
+current_version_hash = 20250816 * 233000 * 3
 
 import os
 import csv
@@ -27,11 +27,15 @@ import pandas as pd
 import inspect
 import numpy as np
 import time
+import threading
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from tabs.Instrument.Yakety_Yak import YakSet, YakDo, YakNab
 from ref.frequency_bands import MHZ_TO_HZ
+
+# Global lock for instrument access
+_instrument_lock = threading.Lock()
 
 def _set_multiple_markers_x(app_instance, device_chunk, console_print_func):
     """
@@ -156,10 +160,11 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
         console_print_func(f"💬 Setting instrument range to: {start_freq_mhz:.3f} MHz - {end_freq_mhz:.3f} MHz")
 
         # Set instrument frequency range
-        if YakSet(app_instance=app_instance, command_type="FREQUENCY/START", variable_value=str(start_freq_hz), console_print_func=console_print_func) == "FAILED":
-            return None
-        if YakSet(app_instance=app_instance, command_type="FREQUENCY/STOP", variable_value=str(end_freq_hz), console_print_func=console_print_func) == "FAILED":
-            return None
+        with _instrument_lock:
+            if YakSet(app_instance=app_instance, command_type="FREQUENCY/START", variable_value=str(start_freq_hz), console_print_func=console_print_func) == "FAILED":
+                return None
+            if YakSet(app_instance=app_instance, command_type="FREQUENCY/STOP", variable_value=str(end_freq_hz), console_print_func=console_print_func) == "FAILED":
+                return None
             
         # Add a "Peak" column if it doesn't exist, and reset existing peaks for the selected devices
         if 'Peak' not in df.columns:
@@ -170,9 +175,10 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
         peak_values = {}
 
         # FIX: Turn all markers ON once before the loop
-        if YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/ON", console_print_func=console_print_func) == "FAILED":
-            console_print_func("❌ Failed to turn on all markers in batch. Aborting peak retrieval.")
-            return None
+        with _instrument_lock:
+            if YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/ON", console_print_func=console_print_func) == "FAILED":
+                console_print_func("❌ Failed to turn on all markers in batch. Aborting peak retrieval.")
+                return None
         
         # Iterate through devices in chunks of 6
         for chunk_start_index in range(0, len(devices_to_process), 6):
@@ -181,15 +187,17 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
             devices_in_chunk_list = devices_in_chunk.to_dict('records')
             
             # Use the new helper function to set all markers in the chunk
-            if not _set_multiple_markers_x(app_instance, devices_in_chunk_list, console_print_func):
-                console_print_func("❌ Failed to set one or more markers in batch. Aborting peak retrieval.")
-                # FIX: Turn off markers on failure
-                YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
-                return None
+            with _instrument_lock:
+                if not _set_multiple_markers_x(app_instance, devices_in_chunk_list, console_print_func):
+                    console_print_func("❌ Failed to set one or more markers in batch. Aborting peak retrieval.")
+                    # FIX: Turn off markers on failure
+                    YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
+                    return None
             
             # Now query all active markers for their Y values in one call using YakNab
             # YakNab returns a formatted string with "|||" separators
-            y_values_str = YakNab(app_instance=app_instance, command_type="MARKER/NAB/ALL/Y", console_print_func=console_print_func)
+            with _instrument_lock:
+                y_values_str = YakNab(app_instance=app_instance, command_type="MARKER/NAB/ALL/Y", console_print_func=console_print_func)
             
             if y_values_str and y_values_str != "FAILED":
                 # Split the formatted string to get individual values
@@ -215,7 +223,8 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
                           function=current_function)
         
         # FIX: Turn all markers OFF once after the loop
-        YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
+        with _instrument_lock:
+            YakDo(app_instance=app_instance, command_type=f"MARKER/All/CALCULATE/STATE/OFF", console_print_func=console_print_func)
 
         # Update the CSV
         for index, row in df.iterrows():

@@ -454,9 +454,11 @@
 #                |   -> Function: fetch_and_display()
 #        ├── tab_experiments_child_initial_configuration.py
 #                |   -> Import: configparser
+#                |   -> Import: datetime
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
+#                |   -> Import: numpy
 #                |   -> Import: os
 #                |   -> Import: src.settings_and_config.config_manager
 #                |   -> Import: src.settings_and_config.restore_settings_logic
@@ -464,14 +466,23 @@
 #                |   -> Class: InitialConfigurationTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
 #                |   -> Function: _create_widgets(self)
+#                |   -> Function: _end_edit(self)
 #                |   -> Function: _load_default_config(self)
 #                |   -> Function: _load_previous_config(self)
+#                |   -> Function: _navigate_and_edit(self, current_item_id, current_col_id, direction)
 #                |   -> Function: _on_double_click_edit(self, event)
+#                |   -> Function: _on_edit_escape(self, event)
+#                |   -> Function: _on_edit_return(self, event)
+#                |   -> Function: _on_focus_out(self, event)
+#                |   -> Function: _on_focus_out_editor(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _populate_config_table(self)
+#                |   -> Function: _push_edits_to_file(self)
 #                |   -> Function: _save_current_config_as_new_file(self)
+#                |   -> Function: _save_edit(self, item_id, column_id, new_value)
+#                |   -> Function: _save_running_config(self)
+#                |   -> Function: _start_edit(self, item_id, column_id)
 #                |   -> Function: _update_tkinter_var_from_config(self, section_name, key, new_value_str)
-#                |   -> Function: on_edit_complete(event)
 #        ├── tab_experiments_child_intermod.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic

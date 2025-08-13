@@ -17,10 +17,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250812.231000.1 (FIXED: Corrected misspelled function call from _start_marker_trace_loop to _start_device_trace_loop.)
+# Version 20250813.072500.5 (FIXED: The Showtime tab now initializes without any pre-selected zones or groups. Peak finding is now only initiated after a user selects a zone or group.)
 
-current_version = "20250812.231000.1"
-current_version_hash = (20250812 * 231000 * 1)
+current_version = "20250813.072500.5"
+current_version_hash = (20250813 * 72500 * 5)
 
 import tkinter as tk
 from tkinter import ttk
@@ -134,6 +134,9 @@ class ShowtimeTab(ttk.Frame):
         self.rbw_buttons = {}
         self.trace_buttons = {}
         self.loop_stop_button = None
+        
+        # NEW: A lock to prevent multiple threads from accessing the instrument at once
+        self.instrument_lock = threading.Lock()
 
         self._create_widgets()
         self.after(100, self._on_tab_selected)
@@ -143,7 +146,7 @@ class ShowtimeTab(ttk.Frame):
         # Creates and arranges the widgets for the Showtime tab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Creating ShowtimeTab widgets.",
-                  file=f"{os.path.basename(__file__)}",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
                   version=current_version,
                   function=current_function)
 
@@ -481,52 +484,56 @@ class ShowtimeTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         
-        # Get peak values and update CSV
-        updated_markers_df = get_peak_values_and_update_csv(app_instance=self.app_instance, devices_to_process=devices, console_print_func=self.console_print_func)
-        
-        if updated_markers_df is None:
-            self.app_instance.after(0, lambda: self.console_print_func("❌ Peak search failed. See console for details."))
-            return
+        # NEW: Acquire the thread lock before accessing the instrument
+        with self.instrument_lock:
+            # Get peak values and update CSV
+            updated_markers_df = get_peak_values_and_update_csv(app_instance=self.app_instance, devices_to_process=devices, console_print_func=self.console_print_func)
             
-        self.app_instance.after(0, self._load_markers_data) # Reload data to get fresh peak values
-        
-        # Get min and max frequencies for the entire zone/group for the trace
-        all_freqs_mhz = devices['FREQ'].dropna().tolist()
-        if not all_freqs_mhz:
-            self.app_instance.after(0, lambda: self.console_print_func(f"⚠️ No valid frequencies found in {name}. Cannot get a trace."))
-            return
+            if updated_markers_df is None:
+                self.app_instance.after(0, lambda: self.console_print_func("❌ Peak search failed. See console for details."))
+                return
+                
+            self.app_instance.after(0, self._load_markers_data) # Reload data to get fresh peak values
             
-        min_freq_mhz = min(all_freqs_mhz)
-        max_freq_mhz = max(all_freqs_mhz)
-        
-        span_mhz = max_freq_mhz - min_freq_mhz
-        
-        # FIX: Implement a minimum span for single frequencies to prevent plotting errors
-        MIN_SPAN_KHZ = 100
-        
-        if span_mhz == 0:
-            trace_center_freq_mhz = min_freq_mhz
-            trace_span_mhz = MIN_SPAN_KHZ / 1e3
-            start_freq_mhz = trace_center_freq_mhz - trace_span_mhz / 2
-            end_freq_mhz = trace_center_freq_mhz + trace_span_mhz / 2
+            # Get min and max frequencies for the entire zone/group for the trace
+            all_freqs_mhz = devices['FREQ'].dropna().tolist()
+            if not all_freqs_mhz:
+                self.app_instance.after(0, lambda: self.console_print_func(f"⚠️ No valid frequencies found in {name}. Cannot get a trace."))
+                return
+                
+            min_freq_mhz = min(all_freqs_mhz)
+            max_freq_mhz = max(all_freqs_mhz)
             
-        else:
-            buffer_mhz = span_mhz * 0.1
-            trace_start_freq_mhz = max(0, min_freq_mhz - buffer_mhz)
-            trace_end_freq_mhz = max_freq_mhz + buffer_mhz
-            trace_center_freq_mhz = (trace_start_freq_mhz + trace_end_freq_mhz) / 2
-            trace_span_mhz = trace_end_freq_mhz - trace_start_freq_mhz
+            span_mhz = max_freq_mhz - min_freq_mhz
             
-        trace_center_freq_hz = int(trace_center_freq_mhz * MHZ_TO_HZ)
-        trace_span_hz = int(trace_span_mhz * MHZ_TO_HZ)
-        
-        self.app_instance.after(0, lambda: self.console_print_func(f"📊 Displaying trace for {name} over a buffered span of {trace_span_mhz:.3f} MHz."))
-        
-        # Get trace for the entire span
-        # CORRECTED: Pass self as showtime_tab_instance
-        self.app_instance.after(0, lambda: get_marker_traces(app_instance=self.app_instance, showtime_tab_instance=self, console_print_func=self.console_print_func, center_freq_hz=trace_center_freq_hz, span_hz=trace_span_hz, device_name=name))
-        
-        self.app_instance.after(0, self._populate_device_buttons)
+            # FIX: Implement a minimum span for single frequencies to prevent plotting errors
+            MIN_SPAN_KHZ = 100
+            
+            if span_mhz == 0:
+                trace_center_freq_mhz = min_freq_mhz
+                trace_span_mhz = MIN_SPAN_KHZ / 1e3
+                start_freq_mhz = trace_center_freq_mhz - trace_span_mhz / 2
+                end_freq_mhz = trace_center_freq_mhz + trace_span_mhz / 2
+                
+            else:
+                buffer_mhz = span_mhz * 0.1
+                trace_start_freq_mhz = max(0, min_freq_mhz - buffer_mhz)
+                trace_end_freq_mhz = max_freq_mhz + buffer_mhz
+                trace_center_freq_mhz = (trace_start_freq_mhz + trace_end_freq_mhz) / 2
+                trace_span_mhz = trace_end_freq_mhz - trace_start_freq_mhz
+                
+            trace_center_freq_hz = int(trace_center_freq_mhz * MHZ_TO_HZ)
+            trace_span_hz = int(trace_span_mhz * MHZ_TO_HZ)
+            
+            self.app_instance.after(0, lambda: self.console_print_func(f"📊 Displaying trace for {name} over a buffered span of {trace_span_mhz:.3f} MHz."))
+            
+            # Get trace for the entire span
+            # CORRECTED: Pass self as showtime_tab_instance
+            # NEW: Acquire the thread lock here for the instrument call
+            with self.instrument_lock:
+                self.app_instance.after(0, lambda: get_marker_traces(app_instance=self.app_instance, showtime_tab_instance=self, console_print_func=self.console_print_func, center_freq_hz=trace_center_freq_hz, span_hz=trace_span_hz, device_name=name))
+            
+            self.app_instance.after(0, self._populate_device_buttons)
 
     def _update_zone_button_styles(self):
         # Function Description:
@@ -606,7 +613,8 @@ class ShowtimeTab(ttk.Frame):
             else:
                 style = 'LocalPreset.TButton'
 
-            text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: {peak_value:.2f} dBm" if pd.notna(peak_value) else f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: N/A"
+            progress_bar = self._create_progress_bar_text(peak_value)
+            text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: {peak_value:.2f} dBm\n{progress_bar}" if pd.notna(peak_value) else f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: N/A"
             
             btn = ttk.Button(self.device_buttons_frame, text=text, style=style,
                              command=lambda d=device: self._on_device_button_click(d))
@@ -618,6 +626,45 @@ class ShowtimeTab(ttk.Frame):
             if col_idx > 3:
                 col_idx = 0
                 row_idx += 1
+
+
+    def _create_progress_bar_text(self, peak_value):
+        # Function Description:
+        # Creates a text-based progress bar for display on a button.
+        #
+        # Inputs to this function:
+        #   peak_value (float): The peak amplitude in dBm.
+        #
+        # Outputs of this function:
+        #   str: A string representing a progress bar.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating progress bar text for peak value: {peak_value}.",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+                  
+        if pd.isna(peak_value):
+            return "[                        ]"
+        
+        min_dbm = -120.0
+        max_dbm = 0.0
+        
+        # Clamp the value to the defined range
+        clamped_value = max(min_dbm, min(max_dbm, peak_value))
+        
+        # Normalize the value from [-120, 0] to [0, 1]
+        # The scale is inverted as requested: -120 is empty, 0 is full.
+        # This is a linear mapping where the filled portion represents the distance from -120 dBm.
+        num_filled_chars = int((clamped_value - min_dbm) / (max_dbm - min_dbm) * 24)
+        num_empty_chars = 24 - num_filled_chars
+        
+        # The bar is inverted and flipped as requested: characters are on the right, spaces on the left.
+        # We need to swap the characters and the order to achieve the desired effect.
+        # The "filled" part should be spaces, and the "empty" part should be blocks.
+        spaces_part = "█" * num_filled_chars
+        blocks_part = " " * num_empty_chars
+        
+        return f"[{spaces_part}{blocks_part}]"
 
 
     def _on_device_button_click(self, device_data):
@@ -653,11 +700,12 @@ class ShowtimeTab(ttk.Frame):
                 freq_hz = self.selected_device_freq
                 span_hz = float(self.span_var.get())
                 
-                # Set frequency, span, traces and marker
-                set_span_logic(app_instance=self.app_instance, span_hz=span_hz, console_print_func=self.console_print_func)
-                set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
-                set_frequency_logic(app_instance=self.app_instance, frequency_hz=freq_hz, console_print_func=self.console_print_func)
-                set_marker_logic(app_instance=self.app_instance, frequency_hz=freq_hz, marker_name=self.selected_device_name, console_print_func=self.console_print_func)
+                # NEW: Acquire lock for this instrument call
+                with self.instrument_lock:
+                    set_span_logic(app_instance=self.app_instance, span_hz=span_hz, console_print_func=self.console_print_func)
+                    set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
+                    set_frequency_logic(app_instance=self.app_instance, frequency_hz=freq_hz, console_print_func=self.console_print_func)
+                    set_marker_logic(app_instance=self.app_instance, frequency_hz=freq_hz, marker_name=self.selected_device_name, console_print_func=self.console_print_func)
                 
                 # Start the trace update loop
                 self.loop_counter_var.set(0)
@@ -725,7 +773,10 @@ class ShowtimeTab(ttk.Frame):
                     return
                     
                 # CORRECTED: Pass self as showtime_tab_instance
-                get_marker_traces(app_instance=self.app_instance, showtime_tab_instance=self, console_print_func=self.console_print_func, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
+                # NEW: Acquire the thread lock here for the instrument call
+                with self.instrument_lock:
+                    get_marker_traces(app_instance=self.app_instance, showtime_tab_instance=self, console_print_func=self.console_print_func, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
+                
                 self.loop_counter_var.set(self.loop_counter_var.get() + 1)
                 self.loop_run_count += 1
                 
@@ -860,7 +911,9 @@ class ShowtimeTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_span_logic(app_instance=self.app_instance, span_hz=float(span_hz), console_print_func=self.console_print_func)
+                # NEW: Acquire lock for this instrument call
+                with self.instrument_lock:
+                    set_span_logic(app_instance=self.app_instance, span_hz=float(span_hz), console_print_func=self.console_print_func)
                 # Restart the loop with the new span
                 if self.selected_device_freq is not None and self.is_loop_running:
                     self.after_cancel(self.marker_trace_loop_job)
@@ -886,7 +939,9 @@ class ShowtimeTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_rbw_logic(app_instance=self.app_instance, rbw_hz=float(rbw_hz), console_print_func=self.console_print_func)
+                # NEW: Acquire lock for this instrument call
+                with self.instrument_lock:
+                    set_rbw_logic(app_instance=self.app_instance, rbw_hz=float(rbw_hz), console_print_func=self.console_print_func)
             except (ValueError, TypeError) as e:
                 debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
                           file=f"{os.path.basename(__file__)}",
@@ -906,7 +961,9 @@ class ShowtimeTab(ttk.Frame):
         trace_var.set(not trace_var.get())
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
-            set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
+            # NEW: Acquire lock for this instrument call
+            with self.instrument_lock:
+                set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
         save_config(config=self.app_instance.config, file_path=self.app_instance.CONFIG_FILE_PATH, console_print_func=self.console_print_func, app_instance=self.app_instance)
 
     def _on_poke_action(self):
@@ -925,11 +982,12 @@ class ShowtimeTab(ttk.Frame):
                 poke_marker_name = f"POKE: {freq_mhz} MHz"
                 
                 span_hz = float(self.span_var.get())
-                set_span_logic(self.app_instance, span_hz, console_log)
-                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
-                
-                set_frequency_logic(self.app_instance, freq_hz, console_log)
-                set_marker_logic(self.app_instance, freq_hz, poke_marker_name, console_log)
+                # NEW: Acquire lock for this instrument call
+                with self.instrument_lock:
+                    set_span_logic(self.app_instance, span_hz, console_log)
+                    set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), console_log)
+                    set_frequency_logic(self.app_instance, freq_hz, console_log)
+                    set_marker_logic(self.app_instance, freq_hz, poke_marker_name, console_log)
                 
                 self.selected_device_unique_id = None
                 self.selected_device_name = poke_marker_name
