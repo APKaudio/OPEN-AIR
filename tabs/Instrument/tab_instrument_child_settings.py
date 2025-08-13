@@ -16,10 +16,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
+# Version 20250813.013900.1
+#
 # Version 20250811.215000.4 (UPDATED: Restructured the marker settings frame into two separate sections and added a 'Peak search' button.)
 
-current_version = "20250811.215000.4"
-current_version_hash = 20250811 * 215000 * 4
+current_version = "20250813.013900.1"
+current_version_hash = 20250813 * 13900 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -46,20 +48,12 @@ class SettingsTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
 
-        # Removed local variables and now use the main app_instance variables directly.
-        # This ensures the tab's settings are synchronized with the application's state.
-
-        # Local variables to hold the state of the toggle buttons
-        # Note: These are still local variables, but they are now a direct copy of the state, not the source of truth.
-        # The main app_instance variables are the source of truth.
         self.preamp_state_var = self.app_instance.preamp_on_var
         self.high_sensitivity_state_var = self.app_instance.high_sensitivity_on_var
         self.vbw_auto_state_var = self.app_instance.vbw_auto_on_var
         
         self.trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
         
-        # Marker variables
-        # Using the app_instance's marker variables for persistence
         self.marker_vars = [
             self.app_instance.marker1_on_var,
             self.app_instance.marker2_on_var,
@@ -68,7 +62,7 @@ class SettingsTab(ttk.Frame):
             self.app_instance.marker5_on_var,
             self.app_instance.marker6_on_var,
         ]
-        self.marker_value_labels = []  # Initialize here to be accessible
+        self.marker_value_labels = []
 
         self._create_widgets()
         self._set_ui_initial_state()
@@ -146,7 +140,8 @@ class SettingsTab(ttk.Frame):
         self.vbw_entry.bind("<FocusOut>", lambda e: self._on_bandwidth_set("VIDEO", self.app_instance.vbw_mhz_var.get()))
 
         ttk.Label(bandwidth_frame, text="VBW Auto:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        self.vbw_auto_toggle_button = ttk.Button(bandwidth_frame, textvariable=self.app_instance.vbw_auto_on_var, command=self._on_vbw_auto_toggle_click)
+        # CHANGED: Removed textvariable, will manually update text
+        self.vbw_auto_toggle_button = ttk.Button(bandwidth_frame, command=self._on_vbw_auto_toggle_click)
         self.vbw_auto_toggle_button.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
         
         # --- Initiate Settings Frame ---
@@ -177,12 +172,13 @@ class SettingsTab(ttk.Frame):
         
         # Preamp Gain toggle button
         ttk.Label(amplitude_frame, text="Preamp Gain:", style='TLabel').grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_toggle_button = ttk.Button(amplitude_frame, textvariable=self.app_instance.preamp_on_var, command=self._on_preamp_toggle_click)
+        # CHANGED: Removed textvariable, will manually update text
+        self.preamp_toggle_button = ttk.Button(amplitude_frame, command=self._on_preamp_toggle_click)
         self.preamp_toggle_button.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
 
         # Attenuation Level dropdown
         ttk.Label(amplitude_frame, text="Power Attenuation:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        self.power_attenuation_var = tk.StringVar(self) # Still a local var as its not in config.ini
+        self.power_attenuation_var = tk.StringVar(self)
         att_levels = ["0", "10", "20", "30", "40", "50", "60", "70"]
         self.power_attenuation_dropdown = ttk.Combobox(amplitude_frame, textvariable=self.power_attenuation_var, values=att_levels, state='readonly')
         self.power_attenuation_dropdown.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
@@ -190,7 +186,8 @@ class SettingsTab(ttk.Frame):
 
         # High Sensitivity toggle button
         ttk.Label(amplitude_frame, text="High Sensitivity:", style='TLabel').grid(row=3, column=0, padx=5, pady=2, sticky="w")
-        self.hs_toggle_button = ttk.Button(amplitude_frame, textvariable=self.app_instance.high_sensitivity_on_var, command=self._on_hs_toggle_click)
+        # CHANGED: Removed textvariable, will manually update text
+        self.hs_toggle_button = ttk.Button(amplitude_frame, command=self._on_hs_toggle_click)
         self.hs_toggle_button.grid(row=3, column=1, padx=5, pady=2, sticky="ew")
 
         # --- Trace Settings Frame ---
@@ -267,11 +264,11 @@ class SettingsTab(ttk.Frame):
         self._update_toggle_button_style(self.vbw_auto_toggle_button, self.vbw_auto_state_var.get())
 
     def _update_toggle_button_style(self, button, state):
-        """Updates the style of a toggle button based on its state."""
+        """Updates the style and text of a toggle button based on its state."""
         if state:
-            button.config(style='Orange.TButton')
+            button.config(style='Orange.TButton', text="ON")
         else:
-            button.config(style='Dark.TButton')
+            button.config(style='Dark.TButton', text="OFF")
 
     def _on_get_freq_click(self):
         """
@@ -761,13 +758,13 @@ class SettingsTab(ttk.Frame):
 
             vbw_auto_state = YakGet(self.app_instance, "BANDWIDTH/VIDEO/AUTO", self.console_print_func)
             if vbw_auto_state is not None:
-                self.app_instance.vbw_auto_on_var.set("ON" if vbw_auto_state.upper() == "ON" else "OFF")
-                self._update_toggle_button_style(self.vbw_auto_toggle_button, vbw_auto_state.upper() == "ON")
+                self.app_instance.vbw_auto_on_var.set(vbw_auto_state == "1" or vbw_auto_state.upper() == "ON")
+                self._update_toggle_button_style(self.vbw_auto_toggle_button, vbw_auto_state == "1" or vbw_auto_state.upper() == "ON")
             
             # Query and update continuous initiate state
             continuous_state = YakGet(self.app_instance, "INITIATE/CONTINUOUS", self.console_print_func)
             if continuous_state is not None:
-                self.app_instance.initiate_continuous_on_var.set("ON" if continuous_state.upper() == "ON" else "OFF")
+                self.app_instance.initiate_continuous_on_var.set(continuous_state == "1" or continuous_state.upper() == "ON")
             
         else:
             self.console_print_func("❌ Instrument is not connected. Connect first to change settings.")

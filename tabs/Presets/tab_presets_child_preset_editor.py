@@ -15,10 +15,13 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
+#
+# Version 20250813.014022.1
+#
 # Version 20250811.223000.1 (REFACTORED: Updated the logic for querying current settings to use a single, reliable source from instrument_logic.py.)
 
-current_version = "20250811.223000.1"
-current_version_hash = 20250811 * 223000 * 1
+current_version = "20250813.014022.1"
+current_version_hash = 20250813 * 14022 * 1
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog # simpledialog kept only for nickname input
@@ -64,14 +67,14 @@ class PresetEditorTab(ttk.Frame):
 
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Initializing PresetEditorTab. Version: {current_version}. Get ready to edit presets!",
-                    file=f"{os.path.basename(__file__)}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
         # Load presets initially from CSV. This is the primary load point.
         self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
         debug_log(f"Initial load of presets_data in PresetEditorTab __init__: {len(self.presets_data)} entries.",
-                    file=f"{os.path.basename(__file__)}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -88,7 +91,7 @@ class PresetEditorTab(ttk.Frame):
 
 
         debug_log(f"PresetEditorTab initialized. Version: {current_version}. Preset editor is live!",
-                    file=f"{os.path.basename(__file__)}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -100,7 +103,7 @@ class PresetEditorTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Creating PresetEditorTab widgets...",
-                    file=f"{os.path.basename(__file__)}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -155,8 +158,7 @@ class PresetEditorTab(ttk.Frame):
             'Marker1Max', 'Marker2Max', 'Marker3Max', 'Marker4Max',
             'Marker5Max', 'Marker6Max'
         ]
-        self.column_widths = {
-            'Filename': 120, 'NickName': 120, 'Center (MHz)': 100, 'Span (MHz)': 100, 'RBW (Hz)': 80, 'VBW (Hz)': 80,
+        self.column_widths = {'Filename': 120, 'NickName': 120, 'Center (MHz)': 100, 'Span (MHz)': 100, 'RBW (Hz)': 80, 'VBW (Hz)': 80,
             'RefLevel': 80, 'Attenuation': 90, 'MaxHold': 80, 'HighSens': 80, 'PreAmp': 80,
             'Trace1Mode': 90, 'Trace2Mode': 90, 'Trace3Mode': 90, 'Trace4Mode': 90,
             'Marker1Max': 90, 'Marker2Max': 90, 'Marker3Max': 90, 'Marker4Max': 90,
@@ -294,7 +296,7 @@ class PresetEditorTab(ttk.Frame):
          trace1_mode, trace2_mode, trace3_mode, trace4_mode,
          marker1_calc_max, marker2_calc_max, marker3_calc_max,
          marker4_calc_max, marker5_calc_max, marker6_calc_max) = \
-            query_current_instrument_settings_for_preset(self.app_instance.inst, self.console_print_func, instrument_model)
+            query_current_settings_logic(self.app_instance.inst, self.console_print_func, instrument_model)
 
         # Check if all critical values were successfully retrieved
         if all(x is not None for x in [center_freq_mhz, span_mhz, rbw_hz_val, vbw_hz_val,
@@ -623,7 +625,7 @@ class PresetEditorTab(ttk.Frame):
                                 version=current_version,
                                 function=current_function)
                 else:
-                    debug_log(f"Preset with Filename: {filename_to_delete} not found in internal data for deletion.",
+                    debug_log(f"Preset with filename '{filename_to_delete}' not found in internal data for deletion.",
                                 file=f"{os.path.basename(__file__)}",
                                 version=current_version,
                                 function=current_function)
