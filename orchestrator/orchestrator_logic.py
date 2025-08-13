@@ -1,8 +1,7 @@
-# tabs/Start_Pause_Stop/scan_control_logic.py
+# Orchestrator/orchestrator_logic.py
 #
-# This file contains the core logic for controlling spectrum scans,
-# including starting, pausing, stopping, and executing the scan process.
-# It abstracts the instrument communication and data processing from the GUI.
+# This file contains the core signaling logic for controlling a running process,
+# including pausing and stopping. It manipulates threading events passed to it from the GUI.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,155 +14,67 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.164500.1 (REFACTORED: Converted scan control to a flagging system to decouple the UI from the core logic, fixing the KeyError.)
-
-current_version = "20250814.164500.1"
-current_version_hash = 20250814 * 164500 * 1
+# Version 20250813.165000.1
 
 import threading
-import time
 import os
-from datetime import datetime
-import pandas as pd
 import inspect
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-# The main scan_bands function
-from tabs.Scanning.utils_scan_instrument import scan_bands
-from process_math.scan_stitch import stitch_and_save_scan_data
-from src.connection_status_logic import update_connection_status_logic
 
-# REMOVED: Import initialize_instrument_logic here, as it's no longer used.
+# --- Version Information ---
+current_version = "20250813.165000.1"
+current_version_hash = (20250813 * 165000 * 1)
 
-def start_scan_logic(app_instance, console_print_func, stop_event, pause_event, update_progress_func):
-    """
-    Function Description:
-    Initiates the spectrum scan in a separate thread based on the `is_scanning` flag.
-    This function now acts as the trigger for the background thread.
-    
-    Inputs:
-        app_instance (object): A reference to the main application instance.
-        console_print_func (function): The function to print messages to the GUI console.
-        stop_event (threading.Event): The event to signal the scan thread to stop.
-        pause_event (threading.Event): The event to signal the scan thread to pause.
-        update_progress_func (function): The function to update the progress bar.
-    
-    Outputs:
-        bool: True if the scan thread was successfully started, False otherwise.
-    """
+
+def toggle_pause_resume(app_instance, console_print_func, pause_event):
+    """Toggles the pause/resume state of the running process by manipulating the pause_event."""
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}", file=os.path.basename(__file__), version=current_version, function=current_function)
-    
-    # Check if a scan is already running
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        console_print_func("⚠️ Scan already in progress.")
-        debug_log(f"Scan already in progress. Aborting start request.", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
-
-    if not app_instance.is_connected.get():
-        console_print_func("❌ Instrument not connected. Cannot start scan.")
-        debug_log(f"Instrument not connected. Aborting scan.", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
-
-    # FIX: Get selected bands using the 'level' attribute, which is now the correct flag.
-    selected_bands = [band_item["band"] for band_item in app_instance.band_vars if band_item["level"] > 0]
-
-    if not selected_bands:
-        console_print_func("⚠️ No bands selected for scan.")
-        debug_log(f"No bands selected. Aborting scan.", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
-
-    stop_event.clear()
-    pause_event.clear()
-    app_instance.is_paused_by_user = False
-
-    app_instance.scan_thread = threading.Thread(
-        target=_scan_thread_target,
-        args=(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func)
-    )
-    app_instance.scan_thread.daemon = True
-    app_instance.scan_thread.start()
-    debug_log(f"Scan thread started successfully.", file=os.path.basename(__file__), version=current_version, function=current_function)
-    return True
-
-def toggle_pause_resume_logic(app_instance, console_print_func, pause_event):
-    """Toggles the pause/resume state of the scan."""
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        if pause_event.is_set():
-            pause_event.clear()
-            app_instance.is_paused_by_user = False
-            console_print_func("▶️ Scan resumed.")
-        else:
-            pause_event.set()
-            app_instance.is_paused_by_user = True
-            console_print_func("⏸️ Scan paused.")
-
-def stop_scan_logic(app_instance, console_print_func, stop_event, pause_event):
-    """Stops the currently running scan."""
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        stop_event.set()
+    debug_log(f"Entering {current_function}. Toggling pause state.",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+              
+    if pause_event.is_set():
         pause_event.clear()
         app_instance.is_paused_by_user = False
-        console_print_func("⏹️ Stopping scan...")
+        console_print_func("▶️ Process resumed. ✅")
+        debug_log(f"Process resumed successfully. 👍",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+    else:
+        pause_event.set()
+        app_instance.is_paused_by_user = True
+        console_print_func("⏸️ Process paused.")
+        debug_log(f"Process paused successfully. 👍",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
 
-def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func):
-    """
-    Function Description:
-    The main function executed in the scanning thread. It orchestrates the scan process,
-    handling the main loop for scanning cycles and calling other utility functions.
-    
-    Inputs:
-        app_instance (object): A reference to the main application instance.
-        selected_bands (list): A list of dictionaries for the bands to scan.
-        stop_event (threading.Event): The event to signal the scan thread to stop.
-        pause_event (threading.Event): The event to signal the scan thread to pause.
-        console_print_func (function): The function to print messages to the GUI console.
-        update_progress_func (function): The function to update the progress bar.
-    
-    Outputs:
-        None. Modifies the GUI state and saves files.
-    """
+def stop_logic(app_instance, console_print_func, stop_event, pause_event):
+    """Stops the currently running process by setting the stop_event."""
     current_function = inspect.currentframe().f_code.co_name
-    console_print_func("--- Initiating Spectrum Scan ---")
-    try:
-        # Pass the initialize_instrument_logic function from its correct location
-        from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic
-        
-        raw_scan_data, markers_data = scan_bands(
-            app_instance_ref=app_instance,
-            inst=app_instance.inst,
-            selected_bands=selected_bands,
-            rbw_hz=float(app_instance.scan_rbw_hz_var.get()),
-            ref_level_dbm=float(app_instance.reference_level_dbm_var.get()),
-            freq_shift_hz=float(app_instance.freq_shift_hz_var.get()),
-            maxhold_enabled=bool(app_instance.maxhold_enabled_var.get()),
-            high_sensitivity=app_instance.high_sensitivity_var.get(),
-            preamp_on=app_instance.preamp_on_var.get(),
-            rbw_step_size_hz=float(app_instance.rbw_step_size_hz_var.get()),
-            max_hold_time_seconds=float(app_instance.maxhold_time_seconds_var.get()),
-            scan_name=app_instance.scan_name_var.get(),
-            output_folder=app_instance.output_folder_var.get(),
-            stop_event=stop_event,
-            pause_event=pause_event,
-            log_visa_commands_enabled=app_instance.log_visa_commands_enabled_var.get(),
-            general_debug_enabled=app_instance.general_debug_enabled_var.get(),
-            app_console_update_func=console_print_func,
-            initialize_instrument_func=initialize_instrument_logic
-        )
-
-        if not stop_event.is_set():
-            console_print_func("\n--- Stitching and saving scan data ---")
-            # This is a placeholder for where you would call stitching and saving logic
-            # stitch_and_save_scan_data(...)
-            console_print_func("--- Scan process finished. ---")
-        else:
-            console_print_func("--- Scan process stopped by user. ---")
-
-    except Exception as e:
-        console_print_func(f"❌ An error occurred during scan: {e}")
-        debug_log(f"Error in scan thread target: {e}",
-                    file=os.path.basename(__file__), function="_scan_thread_target")
-    finally:
-        app_instance.after(0, lambda: app_instance.scan_control_tab._update_button_states())
-        app_instance.after(0, lambda: update_connection_status_logic(app_instance, app_instance.is_connected.get(), False, console_print_func))
+    debug_log(f"Entering {current_function}. Stop signal requested.",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+    
+    # The main application thread is stored in 'scan_thread' on the app_instance
+    # FIXED: Changed app_instance.run_thread to app_instance.scan_thread to match the actual attribute.
+    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
+        stop_event.set()
+        pause_event.clear() # Ensure it's not paused if we are stopping
+        app_instance.is_paused_by_user = False
+        console_print_func("⏹️ Signaling process to stop...")
+        debug_log(f"Stop signal sent to the scan thread. ✅",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)
+    else:
+        # This case handles if the stop button is somehow enabled when no thread is running.
+        debug_log(f"Stop logic called, but no active thread found to stop. Fucking useless!",
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  version=current_version,
+                  function=current_function)

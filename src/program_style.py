@@ -10,16 +10,14 @@
 # Professional services for customizing and tailoring this software to your specific
 # application can be negotiated. There is no change to use, modify, or fork this software.
 #
-# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Build Log: https://like.audio/category/software/spectrum-runner/
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250813.015900.1
-#
-# Version 20250814.233000.1 (FIXED: Reduced the font size for buttons and labels to prevent visual clutter and improve layout, also added blinking style for device buttons)
+# Version 20250813.163200.4
 
-current_version = "20250813.015900.1"
-current_version_hash = 20250813 * 15900 * 1
+current_version = "20250813.163200.4"
+current_version_hash = 20250813 * 163200 * 4
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -76,6 +74,12 @@ def _get_dark_color(hex_color):
 def apply_styles(style, debug_log_func, current_app_version):
     """Applies custom Tkinter ttk styles for a consistent dark theme."""
     style.theme_use('clam')
+
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log_func(f"Entering {current_function}. Fixing run control button styles to match orchestrator GUI. 🐛",
+                   file=f"{os.path.basename(__file__)} - {current_version}",
+                   version=current_version,
+                   function=current_function, special=True)
 
     # --- General Styles ---
     style.configure('TFrame', background=COLOR_PALETTE['background'])
@@ -192,7 +196,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('ControlButton.Active.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
-    # --- Styles for Band Selection Buttons (Scanning Tab) ---
+    # --- Styles for Band Selection Buttons (Running Tab) ---
     # Unselected
     style.configure('Band.TButton',
                     background=COLOR_PALETTE['grey_btn'],
@@ -245,38 +249,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Band.High.TButton',
               background=[('active', COLOR_PALETTE['red_btn_active'])])
 
-    # --- Styles for Local Preset Buttons ---
-    # Base for unselected preset buttons
-    style.configure('LocalPreset.TButton',
-                    background=COLOR_PALETTE['active_bg'],
-                    foreground=COLOR_PALETTE['foreground'],
-                    font=('Helvetica', 12),
-                    padding=[10, 8],
-                    anchor='center',
-                    justify='center',
-                    relief='flat',
-                    borderwidth=1,
-                    focusthickness=0)
-    style.map('LocalPreset.TButton',
-              background=[('active', COLOR_PALETTE['select_bg'])],
-              foreground=[('active', COLOR_PALETTE['select_fg'])])
-
-    # Style for selected preset button
-    style.configure('SelectedPreset.Orange.TButton',
-                    background=COLOR_PALETTE['orange_btn'],
-                    foreground='black',
-                    font=('Helvetica', 12, 'bold'),
-                    padding=[10, 8],
-                    anchor='center',
-                    justify='center',
-                    relief='raised',
-                    borderwidth=2,
-                    focusthickness=0)
-    style.map('SelectedPreset.Orange.TButton',
-              background=[('active', COLOR_PALETTE['orange_btn_active'])],
-              foreground=[('active', 'black')])
-
-    # --- Scan Control Buttons (Start, Pause, Stop) ---
+    # --- Run Control Buttons (Start, Pause, Stop) ---
     style.configure('StartScan.TButton',
                     background=COLOR_PALETTE['green_btn'],
                     foreground=COLOR_PALETTE['white'],

@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.132100.6
+# Version 20250813.154539.3
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,16 +25,17 @@ import os
 from datetime import datetime
 
 # --- Import all Parent and Child Tab classes ---
-from tabs.TABS_PARENT import TABS_PARENT # REFACTORED: Import the new master tab container
-from Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
+from tabs.TABS_PARENT import TABS_PARENT
+# CHANGED: Import the new OrchestratorGUI from its new location
+from orchestrator.orchestrator_gui import OrchestratorGUI
 from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT 
 
 from display.console_logic import console_log
 from display.debug_logic import debug_log
 
 # --- Version Information ---
-current_version = "20250813.132100.6"
-current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
+current_version = "20250813.154539.3"
+current_version_hash = (20250813 * 154539 * 3)
 
 
 def apply_saved_geometry(app_instance):
@@ -91,9 +92,11 @@ def create_main_layout_and_widgets(app_instance):
     right_bottom_frame = ttk.Frame(right_frame, style='TFrame')
     right_bottom_frame.pack(side='top', expand=True, fill='both', padx=5, pady=5)
 
-    scan_controls = ScanControlTab(right_top_frame, app_instance)
-    scan_controls.pack(expand=True, fill='both')
-    app_instance.scan_control_tab = scan_controls
+    # CHANGED: Instantiate the OrchestratorGUI instead of ScanControlTab
+    orchestrator = OrchestratorGUI(right_top_frame, app_instance)
+    orchestrator.pack(expand=True, fill='both')
+    # CHANGED: Update the attribute on the app instance
+    app_instance.orchestrator_gui = orchestrator
     
     app_instance.display_parent_tab = TAB_DISPLAY_PARENT(right_bottom_frame, app_instance, console_log)
     app_instance.display_parent_tab.pack(expand=True, fill='both')
@@ -108,4 +111,3 @@ def create_main_layout_and_widgets(app_instance):
 
     debug_log("Main layout and widgets created. UI ready!",
                 file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
-

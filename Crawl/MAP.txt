@@ -5,8 +5,8 @@
 # └── OPEN-AIR/
 #├── Crawl/
 #├── DATA/
-#├── Start_Pause_Stop/
 #├── display/
+#├── orchestrator/
 #├── process_math/
 #├── ref/
 #├── scan_data/
@@ -193,6 +193,30 @@
 #            |   -> Function: update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
 #            |   -> Function: update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
 #            |   -> Function: update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+#    ├── __init__.py
+#    ├── orchestrator_gui.py
+#            |   -> Import: display.console_logic
+#            |   -> Import: orchestrator_logic
+#            |   -> Import: tabs.Scanning.utils_scan_instrument
+#            |   -> Import: threading
+#            |   -> Import: tkinter
+#            |   -> Class: OrchestratorGUI
+#            |   -> Function: __init__(self, parent, app_instance)
+#            |   -> Function: _blink_resume_button(self)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: _start_action(self)
+#            |   -> Function: _stop_action(self)
+#            |   -> Function: _toggle_pause_resume_action(self)
+#            |   -> Function: _update_button_states(self)
+#            |   -> Function: _update_progress(self, current, total, a, b, c)
+#    └── orchestrator_logic.py
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: threading
+#            |   -> Function: stop_logic(app_instance, console_print_func, stop_event, pause_event)
+#            |   -> Function: toggle_pause_resume(app_instance, console_print_func, pause_event)
 #    ├── __init__ .py
 #            - No functions, classes, or imports found.
 #    ├── averaging_utils.py
@@ -302,7 +326,7 @@
 #            |   -> Import: inspect
 #            |   -> Import: os
 #            |   -> Import: tkinter
-#            |   -> Function: update_connection_status_logic(app_instance, is_connected, is_scanning, console_print_func)
+#            |   -> Function: update_connection_status_logic(app_instance, is_connected, is_running, console_print_func)
 #    ├── gui_elements.py
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
@@ -335,12 +359,12 @@
 #            |   -> Import: os
 #            |   -> Import: ref.frequency_bands
 #    ├── program_gui_utils.py
-#            |   -> Import: Start_Pause_Stop.tab_scan_controler_button_logic
 #            |   -> Import: datetime
 #            |   -> Import: display.DISPLAY_PARENT
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
+#            |   -> Import: orchestrator.orchestrator_gui
 #            |   -> Import: os
 #            |   -> Import: tabs.TABS_PARENT
 #            |   -> Import: tkinter
@@ -393,38 +417,6 @@
 #                |   -> Import: tkinter
 #                |   -> Function: restore_default_settings_logic(app_instance, console_print_func)
 #                |   -> Function: restore_last_used_settings_logic(app_instance, console_print_func)
-#    ├── __init__.py
-#    ├── scan_control_logic.py
-#            |   -> Import: datetime
-#            |   -> Import: display.console_logic
-#            |   -> Import: display.debug_logic
-#            |   -> Import: inspect
-#            |   -> Import: os
-#            |   -> Import: pandas
-#            |   -> Import: process_math.scan_stitch
-#            |   -> Import: src.connection_status_logic
-#            |   -> Import: tabs.Instrument.utils_instrument_initialization
-#            |   -> Import: tabs.Scanning.utils_scan_instrument
-#            |   -> Import: threading
-#            |   -> Import: time
-#            |   -> Function: _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func)
-#            |   -> Function: start_scan_logic(app_instance, console_print_func, stop_event, pause_event, update_progress_func)
-#            |   -> Function: stop_scan_logic(app_instance, console_print_func, stop_event, pause_event)
-#            |   -> Function: toggle_pause_resume_logic(app_instance, console_print_func, pause_event)
-#    └── tab_scan_controler_button_logic.py
-#            |   -> Import: display.console_logic
-#            |   -> Import: scan_control_logic
-#            |   -> Import: threading
-#            |   -> Import: tkinter
-#            |   -> Class: ScanControlTab
-#            |   -> Function: __init__(self, parent, app_instance)
-#            |   -> Function: _blink_resume_button(self)
-#            |   -> Function: _create_widgets(self)
-#            |   -> Function: _start_scan_action(self)
-#            |   -> Function: _stop_scan_action(self)
-#            |   -> Function: _toggle_pause_resume_action(self)
-#            |   -> Function: _update_button_states(self)
-#            |   -> Function: _update_progress(self, current, total, a, b, c)
 #    ├── Experiments/
 #    ├── Instrument/
 #    ├── Markers/
@@ -827,31 +819,21 @@
 #                |   -> Function: get_sort_key(item)
 #                |   -> Function: on_edit_complete_and_navigate(event, navigate_direction)
 #        ├── tab_markers_child_showtime.py
-#                |   -> Import: csv
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
-#                |   -> Import: display.utils_display_monitor
 #                |   -> Import: inspect
-#                |   -> Import: numpy
 #                |   -> Import: os
 #                |   -> Import: pandas
 #                |   -> Import: ref.frequency_bands
 #                |   -> Import: src.program_style
-#                |   -> Import: src.settings_and_config.config_manager
-#                |   -> Import: tabs.Markers.utils_marker_peaks
 #                |   -> Import: tabs.Markers.utils_markers
-#                |   -> Import: tabs.Markers.utils_markers_get_traces
 #                |   -> Import: tabs.Markers.utils_markers_showtime
 #                |   -> Import: threading
-#                |   -> Import: time
 #                |   -> Import: tkinter
 #                |   -> Class: ShowtimeTab
-#                |   -> Class: ThresholdsTab
-#                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _on_child_tab_selected(self, event)
-#                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
 #        ├── utils_marker_peaks.py
 #                |   -> Import: csv
@@ -913,7 +895,6 @@
 #                |   -> Import: threading
 #                |   -> Import: time
 #                |   -> Import: tkinter
-#                |   -> Function: _blink_device_button(showtime_tab_instance)
 #                |   -> Function: _create_progress_bar_text(peak_value)
 #                |   -> Function: _group_by_zone_and_group(data)
 #                |   -> Function: _peak_search_and_get_trace(showtime_tab_instance, devices, name)
@@ -923,7 +904,6 @@
 #                |   -> Function: _update_zone_button_styles(showtime_tab_instance)
 #                |   -> Function: format_hz(hz_val)
 #                |   -> Function: load_markers_data(showtime_tab_instance)
-#                |   -> Function: loop_func()
 #                |   -> Function: on_device_button_click(showtime_tab_instance, device_data)
 #                |   -> Function: on_group_button_click(showtime_tab_instance, group_name)
 #                |   -> Function: on_poke_action(showtime_tab_instance)
@@ -931,11 +911,10 @@
 #                |   -> Function: on_span_button_click(showtime_tab_instance, span_hz)
 #                |   -> Function: on_trace_button_click(showtime_tab_instance, trace_var)
 #                |   -> Function: on_zone_button_click(showtime_tab_instance, zone_name)
+#                |   -> Function: orchestrated_update_loop(showtime_tab_instance)
 #                |   -> Function: populate_device_buttons(showtime_tab_instance)
 #                |   -> Function: populate_group_buttons(showtime_tab_instance)
 #                |   -> Function: populate_zone_buttons(showtime_tab_instance)
-#                |   -> Function: start_device_trace_loop(showtime_tab_instance, center_freq_hz, span_hz, button_to_blink)
-#                |   -> Function: stop_loop_action(showtime_tab_instance)
 #        └── utils_report_converter.py
 #                |   -> Import: bs4
 #                |   -> Import: csv
@@ -1309,13 +1288,20 @@
 #                |   -> Import: inspect
 #                |   -> Import: numpy
 #                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: process_math.scan_stitch
 #                |   -> Import: pyvisa
 #                |   -> Import: re
 #                |   -> Import: ref.frequency_bands
+#                |   -> Import: src.connection_status_logic
+#                |   -> Import: tabs.Instrument.utils_instrument_initialization
+#                |   -> Import: threading
 #                |   -> Import: time
 #                |   -> Import: utils.utils_csv_writer
+#                |   -> Function: _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func)
 #                |   -> Function: configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity_on, preamp_on, app_instance_ref, app_console_update_func)
-#                |   -> Function: perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, maxhold_enabled, max_hold_time, app_instance_ref, pause_event, stop_event, segment_counter, total_segments_in_band, band_name, app_console_update_func)
+#                |   -> Function: initiate_scan_thread(app_instance, console_print_func, stop_event, pause_event, update_progress_func)
+#                |   -> Function: perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, maxhold_enabled, max_hold_time, app_instance_ref, pause_event, stop_event, segment_counter, total_segments_in_band, band_name, app_console_update_func, current_segment_start_freq_hz)
 #                |   -> Function: perform_single_sweep(inst, app_instance_ref, app_console_update_func)
 #                |   -> Function: query_safe(inst, command, app_instance_ref, app_console_update_func)
 #                |   -> Function: scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func)
