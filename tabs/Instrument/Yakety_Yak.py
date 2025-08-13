@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.103000.1 (FIXED: The UnboundLocalError in _load_commands_from_file was fixed, and low-level functions are now imported from utils_instrument_read_and_write.py.)
+# Version 20250817.181500.3 (FIXED: Corrected the `execute_visa_command` and `YakDo` functions to pass the correct number of arguments to the low-level functions.)
 
-current_version = "20250813.103000.1"
-current_version_hash = (20250813 * 103000 * 1)
+current_version = "20250817.181500.3"
+current_version_hash = (20250817 * 181500 * 3)
 
 import csv
 import os
@@ -31,8 +31,8 @@ from tkinter import messagebox
 from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
 
-# NEW: Import the low-level read/write functions from their correct location
-from tabs.Instrument.utils_instrument_read_and_write import write_safe, query_safe
+# FIXED: Import the low-level read/write functions from the correct location
+from tabs.Instrument.utils_yak_visa import write_safe, query_safe
 
 # --- User-configurable variables ---
 VISA_COMMAND_DELAY_SECONDS = 0.05
@@ -75,7 +75,7 @@ def _load_commands_from_file(file_path):
             _visa_commands_data = [row for row in reader]
 
         _last_file_modification_time = current_mod_time
-        debug_log(f"Successfully loaded {len(_visa_commands_data)} commands from file. 🚀",
+        debug_log(f"Successfully loaded {len(_visa_commands_data)} commands from file. �",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -238,32 +238,6 @@ def YakDo(app_instance, command_type, console_print_func):
                     function=current_function)
         return "FAILED"
 
-def _reset_device(app_instance, console_print_func):
-    # Function Description:
-    # Sends a soft reset command to the instrument to restore a known state after an error.
-    current_function = inspect.currentframe().f_code.co_name
-    console_print_func("⚠️ Command failed. Attempting to reset the instrument with '*RST'...")
-    debug_log(f"Command failed. Attempting to send reset command '*RST' to the instrument.",
-                file=os.path.basename(__file__),
-                version=current_version,
-                function=current_function)
-    # Use the local write_safe function
-    reset_success = write_safe(inst=app_instance.inst, command="*RST", app_instance_ref=app_instance, console_print_func=console_print_func, retries=0)
-    if reset_success:
-        console_print_func("✅ Device reset command sent successfully.")
-        debug_log("Reset command sent. Goddamn, that felt good!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-    else:
-        console_print_func("❌ Failed to send reset command.")
-        debug_log("Failed to send reset command. This is a goddamn mess!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-    return reset_success
-
-
 def execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func):
     # Function Description:
     # Executes a given VISA command based on its action type and variable value.
@@ -281,7 +255,7 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
     try:
         if action_type == "GET":
             full_command = f"{visa_command}{variable_value}" if variable_value and variable_value.strip() == "?" else visa_command
-            response = query_safe(inst, full_command, app_instance, console_print_func)
+            response = query_safe(inst, full_command, console_print_func)
             if response is not None:
                 console_print_func(f"✅ Response: {response}")
                 debug_log(f"Query response: {response}. Fucking finally!",
@@ -298,7 +272,7 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return "FAILED"
         elif action_type == "NAB":
             full_command = visa_command
-            response_string = query_safe(inst, full_command, app_instance, console_print_func)
+            response_string = query_safe(inst, full_command, console_print_func)
             
             if response_string is not None:
                 try:
@@ -325,7 +299,7 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
             else:
                 full_command = visa_command
             
-            if write_safe(inst, full_command, app_instance, console_print_func):
+            if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Command executed successfully.")
                 return "PASSED"
             else:
@@ -337,17 +311,19 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return "FAILED"
         elif action_type == "SET":
             try:
-                int_value = int(float(variable_value))
-                full_command = f"{visa_command} {int_value}"
-            except (ValueError, TypeError) as e:
-                console_print_func(f"❌ Invalid value for SET command. Expected an integer. Error: {e}")
-                debug_log(f"Invalid value for SET command. Expected an integer, but got: '{variable_value}'. Error: {e}",
-                            file=os.path.basename(__file__),
-                            version=current_version,
-                            function=current_function, special=True)
-                return "FAILED"
+                # The value could be a float, so handle that first before int conversion
+                float_value = float(variable_value)
+                int_value = int(float_value)
+                # Check if it's an integer before formatting as int
+                if float_value == int_value:
+                    full_command = f"{visa_command} {int_value}"
+                else:
+                    full_command = f"{visa_command} {float_value}"
+            except (ValueError, TypeError):
+                # If not a number, send as a string (e.g., "ON", "OFF")
+                full_command = f"{visa_command} {variable_value}"
 
-            if write_safe(inst, full_command, app_instance, console_print_func):
+            if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Command executed successfully.")
                 return "PASSED"
             else:

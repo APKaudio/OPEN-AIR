@@ -1,6 +1,5 @@
-# OPEN-AIR/main_app.py
+# FolderName/main_app.py
 #
-# This is the description of what comes below
 # This is the main entry point for the RF Spectrum Analyzer Controller application.
 # It handles initial setup, checks for dependencies, and launches the main GUI.
 # This refactored version uses a cleaner, two-pane layout managed by dedicated parent components.
@@ -16,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.131800.6
+# Version 20250813.181500.3 (version change)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,7 +32,6 @@ from src.program_style import apply_styles
 from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_geometry
 from src.settings_and_config.config_manager import save_config
 
-
 from display.debug_logic import debug_log, set_debug_redirectors, set_console_log_func
 from display.console_logic import console_log, set_gui_console_redirector, set_clear_console_func
 
@@ -48,8 +46,8 @@ from src.program_default_values import (
 from ref.frequency_bands import MHZ_TO_HZ
 
 # --- Version Information ---
-current_version = "20250813.131800.6"
-current_version_hash = (20250813 * 131800 * 6)
+current_version = "20250813.181500.3"
+current_version_hash = (20250813 * 181500 * 3)
 
 
 class App(tk.Tk):
@@ -89,17 +87,21 @@ class App(tk.Tk):
             "Experiments": _print_xxx_ascii,
         }
         
-        self.title(f"OPEN-AIR - Zone Awareness Processor   (v{self.current_version})")
+        self.title(f"OPEN-AIR - Zone Awareness Processor (v{self.current_version})")
         self.protocol("WM_DELETE_WINDOW", self._on_closing)
         self.bind("<Configure>", self._on_app_resize_or_move)
         
         self.style = ttk.Style(self)
         self.setting_var_map = {}
 
+        # FIXED: Call apply_styles immediately after creating the Style object.
+        apply_styles(self.style, debug_log, self.current_version)
+        
         setup_tkinter_variables(self) 
         initialize_program_environment(self) 
         apply_saved_geometry(self)
-        apply_styles(self.style, debug_log, self.current_version)
+        
+        # FIXED: Removed duplicate apply_styles call.
         create_main_layout_and_widgets(self)
         self._set_console_redirectors()
 
@@ -121,7 +123,7 @@ class App(tk.Tk):
 
         # Unlock saving geometry after initial setup is complete.
         self.is_initial_resize = False
-        debug_log("Initial resize flag set to False. Geometry saving is now enabled. �",
+        debug_log("Initial resize flag set to False. Geometry saving is now enabled. ",
                   file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
         
         debug_log("Post-GUI setup complete.",

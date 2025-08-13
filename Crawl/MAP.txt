@@ -196,8 +196,10 @@
 #    ├── __init__.py
 #    ├── orchestrator_gui.py
 #            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
 #            |   -> Import: orchestrator_logic
-#            |   -> Import: tabs.Scanning.utils_scan_instrument
+#            |   -> Import: os
 #            |   -> Import: threading
 #            |   -> Import: tkinter
 #            |   -> Class: OrchestratorGUI
@@ -579,7 +581,7 @@
 #                |   -> Import: inspect
 #                |   -> Import: os
 #                |   -> Import: pyvisa
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
+#                |   -> Import: tabs.Instrument.utils_yak_visa
 #                |   -> Import: time
 #                |   -> Import: tkinter
 #                |   -> Function: YakDo(app_instance, command_type, console_print_func)
@@ -588,7 +590,6 @@
 #                |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
 #                |   -> Function: _find_command(command_type, action_type, model)
 #                |   -> Function: _load_commands_from_file(file_path)
-#                |   -> Function: _reset_device(app_instance, console_print_func)
 #                |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func)
 #        ├── __init__.py
 #        ├── instrument_logic.py
@@ -613,47 +614,32 @@
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
-#                |   -> Import: src.connection_status_logic
-#                |   -> Import: tabs.Instrument.Yakety_Yak
 #                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Import: threading
 #                |   -> Import: tkinter
 #                |   -> Class: InstrumentTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func, parent_notebook_ref)
 #                |   -> Function: _connect_instrument(self)
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _disconnect_instrument(self)
-#                |   -> Function: _find_instruments_action(self)
-#                |   -> Function: _on_resource_selected(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _update_ui_state(self)
+#                |   -> Function: _populate_resources(self)
+#                |   -> Function: _update_connection_status(self)
 #        ├── tab_instrument_child_settings.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
-#                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Import: tabs.Instrument.utils_instrument_setting_handler
 #                |   -> Import: tkinter
 #                |   -> Class: SettingsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
-#                |   -> Function: _on_bandwidth_set(self, command_part, value)
-#                |   -> Function: _on_continuous_initiate_select(self, event)
-#                |   -> Function: _on_freq_set(self, command_part, value)
 #                |   -> Function: _on_get_freq_click(self)
-#                |   -> Function: _on_get_trace_data_click(self)
-#                |   -> Function: _on_hs_toggle_click(self)
-#                |   -> Function: _on_immediate_initiate_click(self)
-#                |   -> Function: _on_marker_state_toggle(self, marker_number, var)
-#                |   -> Function: _on_peak_search_click(self)
-#                |   -> Function: _on_power_attenuation_select(self, event)
-#                |   -> Function: _on_preamp_toggle_click(self)
 #                |   -> Function: _on_read_all_markers_click(self)
-#                |   -> Function: _on_ref_level_select(self, event)
 #                |   -> Function: _on_reset_button_click(self)
 #                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _on_trace_mode_select(self, event, trace_number, trace_var)
-#                |   -> Function: _on_turn_all_markers_on_click(self)
-#                |   -> Function: _on_vbw_auto_toggle_click(self)
+#                |   -> Function: _refresh_all_from_instrument(self)
 #                |   -> Function: _set_ui_initial_state(self)
 #                |   -> Function: _update_toggle_button_style(self, button, state)
 #        ├── tab_instrument_child_visa_interpreter.py
@@ -695,16 +681,35 @@
 #                |   -> Function: connect_to_instrument(resource_name, console_print_func)
 #                |   -> Function: disconnect_instrument(inst, console_print_func)
 #                |   -> Function: list_visa_resources(console_print_func)
-#        ├── utils_instrument_read_and_write.py
-#                |   -> Import: datetime
+#        ├── utils_instrument_setting_handler.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
-#                |   -> Import: pyvisa
-#                |   -> Import: time
-#                |   -> Function: query_safe(inst, command, app_instance_ref, console_print_func)
-#                |   -> Function: write_safe(inst, command, app_instance_ref, console_print_func)
+#                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Function: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func)
+#                |   -> Function: do_immediate_initiate(app_instance, console_print_func)
+#                |   -> Function: do_peak_search(app_instance, console_print_func)
+#                |   -> Function: do_turn_all_markers_on(app_instance, console_print_func)
+#                |   -> Function: get_all_marker_values_logic(app_instance, console_print_func)
+#                |   -> Function: get_trace_data_logic(app_instance, console_print_func)
+#                |   -> Function: refresh_all_from_instrument(app_instance, console_print_func)
+#                |   -> Function: reset_device(app_instance, console_print_func)
+#                |   -> Function: set_center_frequency(app_instance, value, console_print_func)
+#                |   -> Function: set_continuous_initiate_mode(app_instance, mode, console_print_func)
+#                |   -> Function: set_power_attenuation(app_instance, value, console_print_func)
+#                |   -> Function: set_reference_level(app_instance, value, console_print_func)
+#                |   -> Function: set_resolution_bandwidth(app_instance, value, console_print_func)
+#                |   -> Function: set_span_frequency(app_instance, value, console_print_func)
+#                |   -> Function: set_start_frequency(app_instance, value, console_print_func)
+#                |   -> Function: set_stop_frequency(app_instance, value, console_print_func)
+#                |   -> Function: set_trace_mode(app_instance, trace_number, mode, console_print_func)
+#                |   -> Function: set_video_bandwidth(app_instance, value, console_print_func)
+#                |   -> Function: toggle_high_sensitivity(app_instance, console_print_func)
+#                |   -> Function: toggle_marker_state(app_instance, marker_number, state, console_print_func)
+#                |   -> Function: toggle_preamp(app_instance, console_print_func)
+#                |   -> Function: toggle_vbw_auto(app_instance, console_print_func)
 #        └── utils_yak_visa.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic

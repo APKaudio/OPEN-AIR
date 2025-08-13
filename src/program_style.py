@@ -14,10 +14,7 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250813.163200.4
-
-current_version = "20250813.163200.4"
-current_version_hash = 20250813 * 163200 * 4
+# Version 20250813.182000.1 (version change)
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -76,9 +73,9 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.theme_use('clam')
 
     current_function = inspect.currentframe().f_code.co_name
-    debug_log_func(f"Entering {current_function}. Fixing run control button styles to match orchestrator GUI. 🐛",
-                   file=f"{os.path.basename(__file__)} - {current_version}",
-                   version=current_version,
+    debug_log_func(f"Entering {current_function}. Fixing run control button styles to match orchestrator GUI. 👍",
+                   file=f"{os.path.basename(__file__)} - {current_app_version}",
+                   version=current_app_version,
                    function=current_function, special=True)
 
     # --- General Styles ---
@@ -106,6 +103,13 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 10, 'bold'))
     style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
     
+    # NEW: Styles for the status labels in the connection tab
+    # FIXED: The previous file defined both of these, but this code is more robust.
+    style.configure('Dark.TLabel.Success', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['green_btn'], font=('Helvetica', 10, 'bold'))
+    style.configure('Dark.TLabel.Error', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
+    # NEW STYLE: Dedicated style for disconnected status
+    style.configure('Disconnected.TLabel', background=COLOR_PALETTE['red_btn'], foreground=COLOR_PALETTE['white'], font=('Helvetica', 10, 'bold'))
+
     # Updated TEntry style
     style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground='white', borderwidth=1, relief="solid", font=('Helvetica', 10))
     style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
@@ -188,7 +192,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     
     style.configure('ControlButton.Active.TButton',
                     background=COLOR_PALETTE['orange_btn'],
-                    foreground=COLOR_PALETTE['black'],
+                    foreground='black',
                     font=('Helvetica', 9, 'bold'),
                     padding=[5, 5],
                     anchor='center',
