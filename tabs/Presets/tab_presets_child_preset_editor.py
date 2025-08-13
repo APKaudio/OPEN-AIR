@@ -87,7 +87,7 @@ class PresetEditorTab(ttk.Frame):
 
         # Bind to the main application window's FocusIn event
         # This ensures that if the window loses and gains focus, presets are reloaded
-        self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
+        
 
 
         debug_log(f"PresetEditorTab initialized. Version: {current_version}. Preset editor is live!",
@@ -933,49 +933,7 @@ class PresetEditorTab(ttk.Frame):
                     function=current_function)
 
 
-    def _on_window_focus_in(self, event):
-        """
-        Called when the main application window gains focus.
-        Performs an auto-save if unsaved changes exist and no cell is being edited.
-        Does NOT automatically reload the table to preserve selection.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Main window gained focus. Checking if PresetEditorTab is active.",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-        
-        # Check if this tab is currently the selected tab in the notebook
-        if hasattr(self.master, 'select') and self.master.select() == str(self):
-            # Only proceed if not currently in an active cell edit
-            if self.is_editing_cell:
-                debug_log("Window focused, but a cell is currently being edited. Skipping auto-save/reload to avoid interruption.",
-                            file=f"{os.path.basename(__file__)}",
-                            version=current_version,
-                            function=current_function)
-                return # Skip everything if an edit is active
-
-            # If there are unsaved changes, attempt to auto-save
-            if self.has_unsaved_changes:
-                self.console_print_func("💬 Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.")
-                debug_log("Window focused and Preset Editor tab active. Unsaved changes detected. Attempting auto-save.",
-                            file=f"{os.path.basename(__file__)}",
-                            version=current_version,
-                            function=current_function)
-                self._save_presets_to_csv() # Attempt to save automatically
-                # NOTE: We do NOT call populate_presets_table() here to preserve selection.
-                # The _on_tab_selected will handle the refresh when the tab is explicitly selected.
-            else:
-                debug_log("Window focused, Preset Editor tab active, but no unsaved changes. Skipping auto-save.",
-                            file=f"{os.path.basename(__file__)}",
-                            version=current_version,
-                            function=current_function)
-        else:
-            debug_log("Window focused, but PresetEditorTab is not the active tab. Skipping auto-save.",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_version,
-                        function=current_function)
-
+   
     def _on_tree_select(self, event):
         """
         Handles selection events on the Treeview. Logs the selected items.

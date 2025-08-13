@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.234200.2
+# Version 20250813.132100.5
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,7 +33,7 @@ from display.console_logic import console_log
 from display.debug_logic import debug_log
 
 # --- Version Information ---
-current_version = "20250812.234200.2"
+current_version = "20250813.132100.5"
 current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
 
 
@@ -67,10 +67,9 @@ def create_main_layout_and_widgets(app_instance):
     
     app_instance.paned_window = main_paned_window
 
-    main_paned_window.bind('<<PanedWindowSashMoved>>', 
-                           lambda e: app_instance._on_sash_moved())
-    debug_log("Bound <<PanedWindowSashMoved>> event.",
-                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+    # The binding is now moved to main_app.py to ensure the connection is properly established.
+    debug_log("Binding for <<PanedWindowSashMoved>> moved to main_app.py for better reliability.",
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
 
     # --- Left Pane (Now contains the master TABS_PARENT) ---
     left_frame = ttk.Frame(main_paned_window, style='TFrame')
@@ -127,11 +126,15 @@ def _set_sash_position(app_instance, paned_window, percentage):
         if window_width > 1:
             sash_pos = int((percentage / 100) * window_width)
             paned_window.sashpos(0, sash_pos)
-            debug_log(f"Sash position restored to {sash_pos}px ({percentage}%)",
-                      file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+            debug_log(message=f"Sash position restored to {sash_pos}px ({percentage}%)",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
         else:
             # If the window is still not drawn, try again shortly.
             app_instance.after(100, lambda: _set_sash_position(app_instance, paned_window, percentage))
     except Exception as e:
-        debug_log(f"By thunder! The contraption failed to set the sash position! Error: {e}",
-                  file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+        debug_log(message=f"By thunder! The contraption failed to set the sash position! Error: {e}",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)

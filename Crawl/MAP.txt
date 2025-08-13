@@ -67,14 +67,20 @@
 #            |   -> Function: console_log(message)
 #            |   -> Function: debug_log(message, file, function)
 #    ├── SCANS/
+#    ├── trash/
 #    ├── DEBUG_SOFTWARE.log
 #    ├── MARKERS.CSV
-#    ├── MMVA - Open_Air_Markers - DefaultScan - 20250811_2302.csv
-#    ├── Open_Air_Markers - DefaultScan - 20250811_1227.csv
 #    ├── PRESETS.CSV
 #    ├── config.ini
 #    └── visa_commands.csv
 #        └── MyScan_3D_Scans_Over_Time_20250812_135706.html
+#        ├── DEBUG_SOFTWARE.log
+#        ├── MARKERS.CSV
+#        ├── MMVA - Open_Air_Markers - DefaultScan - 20250811_2302.csv
+#        ├── Open_Air_Markers - DefaultScan - 20250811_1227.csv
+#        ├── PRESETS.CSV
+#        ├── config.ini
+#        └── visa_commands.csv
 #    ├── DISPLAY_PARENT.py
 #            |   -> Import: datetime
 #            |   -> Import: display.console_logic
@@ -541,12 +547,6 @@
 #                |   -> Function: _on_child_tab_selected(self, event)
 #                |   -> Function: _on_parent_tab_selected(self, event)
 #                |   -> Function: switch_to_settings_tab(self)
-#        ├── XXXXutils_instrument_apply_settings.py
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: os
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #        ├── Yakety_Yak.py
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
@@ -554,6 +554,7 @@
 #                |   -> Import: inspect
 #                |   -> Import: os
 #                |   -> Import: pyvisa
+#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #                |   -> Import: time
 #                |   -> Import: tkinter
 #                |   -> Function: YakDo(app_instance, command_type, console_print_func)
@@ -562,11 +563,8 @@
 #                |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
 #                |   -> Function: _find_command(command_type, action_type, model)
 #                |   -> Function: _load_commands_from_file(file_path)
-#                |   -> Function: _reset_device(inst, console_print_func)
-#                |   -> Function: execute_visa_command(inst, action_type, visa_command, variable_value, console_print_func)
-#                |   -> Function: query_safe(inst, command, console_print_func, retries)
-#                |   -> Function: set_safe(inst, command, value, console_print_func)
-#                |   -> Function: write_safe(inst, command, console_print_func, retries)
+#                |   -> Function: _reset_device(app_instance, console_print_func)
+#                |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func)
 #        ├── __init__.py
 #        ├── instrument_logic.py
 #                |   -> Import: display.console_logic
@@ -575,8 +573,8 @@
 #                |   -> Import: os
 #                |   -> Import: pyvisa
 #                |   -> Import: sys
+#                |   -> Import: tabs.Instrument.Yakety_Yak
 #                |   -> Import: tabs.Instrument.utils_instrument_connection
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #                |   -> Import: time
 #                |   -> Import: tkinter
 #                |   -> Import: traceback
@@ -591,8 +589,8 @@
 #                |   -> Import: inspect
 #                |   -> Import: os
 #                |   -> Import: src.connection_status_logic
+#                |   -> Import: tabs.Instrument.Yakety_Yak
 #                |   -> Import: tabs.Instrument.instrument_logic
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #                |   -> Import: tkinter
 #                |   -> Class: InstrumentTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func, parent_notebook_ref)
@@ -810,6 +808,7 @@
 #                |   -> Import: tabs.Markers.utils_marker_peaks
 #                |   -> Import: tabs.Markers.utils_markers
 #                |   -> Import: tabs.Markers.utils_markers_get_traces
+#                |   -> Import: tabs.Markers.utils_markers_showtime
 #                |   -> Import: threading
 #                |   -> Import: time
 #                |   -> Import: tkinter
@@ -817,33 +816,10 @@
 #                |   -> Class: ThresholdsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
-#                |   -> Function: _blink_device_button(self)
-#                |   -> Function: _create_progress_bar_text(self, peak_value)
 #                |   -> Function: _create_widgets(self)
-#                |   -> Function: _format_hz(self, hz_val)
-#                |   -> Function: _group_by_zone_and_group(self, data)
-#                |   -> Function: _load_markers_data(self)
 #                |   -> Function: _on_child_tab_selected(self, event)
-#                |   -> Function: _on_device_button_click(self, device_data)
-#                |   -> Function: _on_group_button_click(self, group_name)
-#                |   -> Function: _on_poke_action(self)
-#                |   -> Function: _on_rbw_button_click(self, rbw_hz)
-#                |   -> Function: _on_span_button_click(self, span_hz)
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _on_trace_button_click(self, trace_var)
-#                |   -> Function: _on_zone_button_click(self, zone_name)
-#                |   -> Function: _peak_search_and_get_trace(self, devices, name)
-#                |   -> Function: _perform_peak_search_task(self, devices, name)
-#                |   -> Function: _populate_device_buttons(self)
-#                |   -> Function: _populate_group_buttons(self)
-#                |   -> Function: _populate_zone_buttons(self)
-#                |   -> Function: _start_device_trace_loop(self, center_freq_hz, span_hz, button_to_blink)
-#                |   -> Function: _stop_loop_action(self)
-#                |   -> Function: _update_control_styles(self)
-#                |   -> Function: _update_group_button_styles(self)
-#                |   -> Function: _update_zone_button_styles(self)
-#                |   -> Function: loop_func()
 #        ├── utils_marker_peaks.py
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
@@ -901,37 +877,32 @@
 #                |   -> Import: tabs.Markers.utils_marker_peaks
 #                |   -> Import: tabs.Markers.utils_markers
 #                |   -> Import: tabs.Markers.utils_markers_get_traces
-#                |   -> Import: tabs.Markers.utils_markers_showtime
 #                |   -> Import: threading
 #                |   -> Import: time
 #                |   -> Import: tkinter
-#                |   -> Class: ShowtimeTab
-#                |   -> Class: ThresholdsTab
-#                |   -> Function: __init__(self, master, app_instance, console_print_func)
-#                |   -> Function: __init__(self, master, app_instance, console_print_func)
-#                |   -> Function: _blink_device_button(self)
-#                |   -> Function: _create_widgets(self)
-#                |   -> Function: _on_child_tab_selected(self, event)
-#                |   -> Function: _on_device_button_click(self, device_data)
-#                |   -> Function: _on_group_button_click(self, group_name)
-#                |   -> Function: _on_poke_action(self)
-#                |   -> Function: _on_rbw_button_click(self, rbw_hz)
-#                |   -> Function: _on_span_button_click(self, span_hz)
-#                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _on_trace_button_click(self, trace_var)
-#                |   -> Function: _on_zone_button_click(self, zone_name)
-#                |   -> Function: _peak_search_and_get_trace(self, devices, name)
-#                |   -> Function: _perform_peak_search_task(self, devices, name)
-#                |   -> Function: _populate_device_buttons(self)
-#                |   -> Function: _populate_group_buttons(self)
-#                |   -> Function: _populate_zone_buttons(self)
-#                |   -> Function: _start_device_trace_loop(self, center_freq_hz, span_hz, button_to_blink)
-#                |   -> Function: _stop_loop_action(self)
-#                |   -> Function: _update_control_styles(self)
-#                |   -> Function: _update_group_button_styles(self)
-#                |   -> Function: _update_zone_button_styles(self)
+#                |   -> Function: _blink_device_button(showtime_tab_instance)
+#                |   -> Function: _create_progress_bar_text(peak_value)
+#                |   -> Function: _group_by_zone_and_group(data)
+#                |   -> Function: _peak_search_and_get_trace(showtime_tab_instance, devices, name)
+#                |   -> Function: _perform_peak_search_task(showtime_tab_instance, devices, name)
+#                |   -> Function: _update_control_styles(showtime_tab_instance)
+#                |   -> Function: _update_group_button_styles(showtime_tab_instance)
+#                |   -> Function: _update_zone_button_styles(showtime_tab_instance)
+#                |   -> Function: format_hz(hz_val)
+#                |   -> Function: load_markers_data(showtime_tab_instance)
 #                |   -> Function: loop_func()
+#                |   -> Function: on_device_button_click(showtime_tab_instance, device_data)
+#                |   -> Function: on_group_button_click(showtime_tab_instance, group_name)
+#                |   -> Function: on_poke_action(showtime_tab_instance)
+#                |   -> Function: on_rbw_button_click(showtime_tab_instance, rbw_hz)
+#                |   -> Function: on_span_button_click(showtime_tab_instance, span_hz)
+#                |   -> Function: on_trace_button_click(showtime_tab_instance, trace_var)
+#                |   -> Function: on_zone_button_click(showtime_tab_instance, zone_name)
+#                |   -> Function: populate_device_buttons(showtime_tab_instance)
+#                |   -> Function: populate_group_buttons(showtime_tab_instance)
+#                |   -> Function: populate_zone_buttons(showtime_tab_instance)
+#                |   -> Function: start_device_trace_loop(showtime_tab_instance, center_freq_hz, span_hz, button_to_blink)
+#                |   -> Function: stop_loop_action(showtime_tab_instance)
 #        └── utils_report_converter.py
 #                |   -> Import: bs4
 #                |   -> Import: csv
@@ -1093,7 +1064,6 @@
 #                |   -> Import: os
 #                |   -> Import: src.program_style
 #                |   -> Import: tabs.Instrument.instrument_logic
-#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
 #                |   -> Import: tabs.Presets.utils_preset_process
 #                |   -> Import: tabs.Presets.utils_push_preset
 #                |   -> Import: tkinter
