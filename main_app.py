@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.131800.4
+# Version 20250813.131800.6
 
 import tkinter as tk
 from tkinter import ttk
@@ -48,8 +48,8 @@ from src.program_default_values import (
 from ref.frequency_bands import MHZ_TO_HZ
 
 # --- Version Information ---
-current_version = "20250813.131800.4"
-current_version_hash = (20250813 * 131800 * 4)
+current_version = "20250813.131800.6"
+current_version_hash = (20250813 * 131800 * 6)
 
 
 class App(tk.Tk):
@@ -105,15 +105,6 @@ class App(tk.Tk):
 
         self.after(100, self._post_gui_setup)
 
-        # Re-bind the PanedWindowSashMoved event directly to the App instance after it is created.
-        if self.paned_window:
-            self.paned_window.bind('<<PanedWindowSashMoved>>', self._on_sash_moved)
-            debug_log("Binding for <<PanedWindowSashMoved>> re-established in App.__init__.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", function="__init__", special=True)
-        else:
-            debug_log("ERROR: self.paned_window was not created. Binding failed.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", function="__init__", special=True)
-
         debug_log(f"App initialized. Version: {self.current_version}.",
                     file=f"{os.path.basename(__file__)} - {current_version}", function="__init__", special=True)
 
@@ -121,7 +112,6 @@ class App(tk.Tk):
         """
         Function Description
         Performs setup tasks that must happen after the main GUI is fully initialized.
-        This now also resets the initial resize flag to enable config saving for sash/window moves.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Post-GUI setup tasks starting.",
@@ -129,9 +119,9 @@ class App(tk.Tk):
         
         display_splash_screen()
 
-        # Unlock saving geometry/sash position after initial setup is complete.
+        # Unlock saving geometry after initial setup is complete.
         self.is_initial_resize = False
-        debug_log("Initial resize flag set to False. Sash and geometry saving is now enabled. 👍",
+        debug_log("Initial resize flag set to False. Geometry saving is now enabled. �",
                   file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
         
         debug_log("Post-GUI setup complete.",
@@ -175,44 +165,6 @@ class App(tk.Tk):
                 lambda: self._save_config_on_idle(f"Geometry updated to: {self.geometry()}")
             )
 
-    def _on_sash_moved(self):
-        """
-        Function Description
-        Event handler for when the main sash is moved.
-        It updates the sash position immediately in the config object and then defers a save.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        
-        if self.is_initial_resize:
-            return
-            
-        sash_pos = self.paned_window.sashpos(0)
-        
-        # NEW: Log the raw sash position every time the function is called.
-        debug_log(f"Sash moved to position: {sash_pos}px. Updating config and deferring save.",
-                    file=f"{os.path.basename(__file__)} - {self.current_version}", function=current_function)
-        
-        # Immediately update the config object with the new sash position percentage.
-        try:
-            window_width = self.winfo_width()
-            if window_width > 0:
-                sash_pos_percentage = int((sash_pos / window_width) * 100)
-                self.config.set('Application', 'paned_window_sash_position_percentage', str(sash_pos_percentage))
-                debug_log(f"Config object updated. New sash percentage: {sash_pos_percentage}%.",
-                            file=f"{os.path.basename(__file__)} - {self.current_version}", function=current_function, special=True)
-        except Exception as e:
-            debug_log(f"Ahoy! A scallywag error be found whilst settin' the sash position: {e}. We'll be proceedin' without it, but keep a weather eye open!",
-                        file=f"{os.path.basename(__file__)} - {self.current_version}", function=current_function)
-
-        # Cancel any pending save from a previous rapid movement.
-        if self.defer_config_save_id:
-            self.after_cancel(self.defer_config_save_id)
-            
-        # Defer the actual disk write to avoid saving on every single pixel change.
-        self.defer_config_save_id = self.after_idle(
-            lambda: self._save_config_on_idle(f"Sash position updated to: {sash_pos}")
-        )
-        
     def _save_config_on_idle(self, message):
         """Helper function to save config after a delay and log the action."""
         self.defer_config_save_id = None

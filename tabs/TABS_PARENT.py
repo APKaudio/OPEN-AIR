@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.001200.2
+# Version 20250813.134000.2
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,8 +30,8 @@ from display.console_logic import console_log
 from display.debug_logic import debug_log
 
 # --- Version Information ---
-current_version = "20250813.001200.2"
-current_version_hash = (20250813 * 1200 * 2)
+current_version = "20250813.134000.2"
+current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
 
 
 class TABS_PARENT(ttk.Frame):

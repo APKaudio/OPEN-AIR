@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.132100.5
+# Version 20250813.132100.6
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,7 +33,7 @@ from display.console_logic import console_log
 from display.debug_logic import debug_log
 
 # --- Version Information ---
-current_version = "20250813.132100.5"
+current_version = "20250813.132100.6"
 current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
 
 
@@ -67,10 +67,6 @@ def create_main_layout_and_widgets(app_instance):
     
     app_instance.paned_window = main_paned_window
 
-    # The binding is now moved to main_app.py to ensure the connection is properly established.
-    debug_log("Binding for <<PanedWindowSashMoved>> moved to main_app.py for better reliability.",
-                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
-
     # --- Left Pane (Now contains the master TABS_PARENT) ---
     left_frame = ttk.Frame(main_paned_window, style='TFrame')
     main_paned_window.add(left_frame, weight=1)
@@ -79,14 +75,11 @@ def create_main_layout_and_widgets(app_instance):
     right_frame = ttk.Frame(main_paned_window, style='TFrame')
     main_paned_window.add(right_frame, weight=1)
     
-    # Restore sash position after frames are added
-    try:
-        sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position_percentage', fallback='50'))
-        # Use after() to ensure the main window has had a chance to render and get its size
-        app_instance.after(100, lambda: _set_sash_position(app_instance, main_paned_window, sash_position_percentage))
-    except Exception as e:
-        debug_log(f"Ahoy! A scallywag error be found whilst settin' the sash position: {e}. We'll be proceedin' without it, but keep a weather eye open!",
-                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+    # Set default sash position manually.
+    initial_sash_pos = int((50 / 100) * app_instance.winfo_screenwidth())
+    main_paned_window.sashpos(0, initial_sash_pos)
+    debug_log(f"Sash position set manually to 50% on startup.",
+                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
     
     # --- Populate Left Pane ---
     app_instance.tabs_parent = TABS_PARENT(left_frame, app_instance)
@@ -116,25 +109,3 @@ def create_main_layout_and_widgets(app_instance):
     debug_log("Main layout and widgets created. UI ready!",
                 file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
-def _set_sash_position(app_instance, paned_window, percentage):
-    # Function Description
-    # Helper function to set the sash position after the main window is drawn.
-    # This prevents issues where winfo_width() returns 1 on startup.
-    current_function = inspect.currentframe().f_code.co_name
-    try:
-        window_width = app_instance.winfo_width()
-        if window_width > 1:
-            sash_pos = int((percentage / 100) * window_width)
-            paned_window.sashpos(0, sash_pos)
-            debug_log(message=f"Sash position restored to {sash_pos}px ({percentage}%)",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function)
-        else:
-            # If the window is still not drawn, try again shortly.
-            app_instance.after(100, lambda: _set_sash_position(app_instance, paned_window, percentage))
-    except Exception as e:
-        debug_log(message=f"By thunder! The contraption failed to set the sash position! Error: {e}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function)

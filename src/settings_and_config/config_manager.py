@@ -206,7 +206,7 @@ def save_config(config, file_path, console_print_func, app_instance):
                         version=current_version,
                         function=current_function)
 
-        final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position_percentage', fallback='NOT SET IN CONFIG OBJECT')
+        final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position_percentage', fallback=50)
         debug_log(f"Config object reports 'paned_window_sash_position_percentage' as '{final_sash_pos_in_config}' just before file write. Is this the right value? This better work!",
                     file=os.path.basename(__file__),
                     version=current_version,
