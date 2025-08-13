@@ -192,6 +192,7 @@ def set_safe(inst, command, value, console_print_func):
     return write_safe(inst, full_command, console_print_func)
 
 def _wait_for_opc(inst, console_print_func, timeout=5):
+
     """
     Function Description:
     Waits for the instrument's Operation Complete (OPC) flag by querying *OPC?.
@@ -251,3 +252,7 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
                     function=current_function)
         _reset_device(inst, console_print_func)
         return "FAILED"
+    
+
+
+    ''''''

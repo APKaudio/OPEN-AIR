@@ -14,7 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.001000.3
+# Version 20250813.102600.1 (FIXED: The write_safe function was updated to accept the app_instance_ref argument, resolving the TypeError.)
+
+current_version = "20250813.102600.1"
+current_version_hash = (20250813 * 102600 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -27,11 +30,12 @@ from tabs.Instrument.instrument_logic import connect_instrument_logic, disconnec
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.connection_status_logic import update_connection_status_logic
-from tabs.Instrument.utils_instrument_read_and_write import write_safe
+# FIXED: The write_safe function has been moved to Yakety_Yak.py, so we import it from there.
+from tabs.Instrument.Yakety_Yak import write_safe
 
 # --- Version Information ---
-current_version = "20250813.001000.3"
-current_version_hash = (20250813 * 1000 * 3)
+current_version = "20250813.102600.1"
+current_version_hash = (20250813 * 102600 * 1)
 
 class InstrumentTab(ttk.Frame):
     """
@@ -40,6 +44,11 @@ class InstrumentTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, console_print_func=None, parent_notebook_ref=None, **kwargs):
         # Function Description
         # Initializes the Instrument Connection Tab.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Initializing InstrumentTab. Version: {current_version}",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
+                  function=current_function)
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
@@ -104,7 +113,8 @@ class InstrumentTab(ttk.Frame):
         
         if connect_instrument_logic(app_instance=self.app_instance, console_print_func=self.console_print_func):
             self.console_print_func(f"✅ Connected to {self.app_instance.visa_resource_var.get()}")
-            write_safe(self.app_instance.inst, "*RST", self.app_instance, self.console_print_func)
+            # FIXED: Pass app_instance_ref to write_safe, which now expects it.
+            write_safe(inst=self.app_instance.inst, command="*RST", console_print_func=self.console_print_func, app_instance_ref=self.app_instance)
             # Switch to settings tab on successful connection
             if self.parent_notebook_ref:
                 self.parent_notebook_ref.switch_to_settings_tab()

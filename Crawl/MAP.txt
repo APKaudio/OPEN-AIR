@@ -818,6 +818,7 @@
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _blink_device_button(self)
+#                |   -> Function: _create_progress_bar_text(self, peak_value)
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _format_hz(self, hz_val)
 #                |   -> Function: _group_by_zone_and_group(self, data)
@@ -853,6 +854,7 @@
 #                |   -> Import: pandas
 #                |   -> Import: ref.frequency_bands
 #                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Import: threading
 #                |   -> Import: time
 #                |   -> Function: _set_multiple_markers_x(app_instance, device_chunk, console_print_func)
 #                |   -> Function: get_peak_values_and_update_csv(app_instance, devices_to_process, console_print_func)

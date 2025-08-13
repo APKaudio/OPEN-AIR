@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.140200.8 (IMPROVED: Added double-click functionality to reset zoom. Changed peak marker color to orange and bottom plot color to cyan for better visual distinction.)
+# Version 20250813.100900.1 (FIXED: Added a check for empty data in update_annot to prevent IndexError.)
 
-current_version = "20250811.140200.8"
-current_version_hash = 20250811 * 140200 * 8
+current_version = "20250813.100900.1"
+current_version_hash = (20250813 * 100900 * 1)
 
 import inspect
 import os
@@ -37,11 +37,13 @@ def _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz):
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Scanning for peaks, with a magnifying glass! 🔎",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
 
     if not data:
         debug_log("No data to search for peaks, moving on! 🚶‍♂️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
         return
 
@@ -101,11 +103,13 @@ def _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz):
         
         debug_log(f"Found and plotted {len(top_10_peaks)} peaks. A job well done! ✨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
 
     except Exception as e:
         debug_log(f"Bug Expletives! The peak finder has failed us! 💥 Error: {e}. What a terrible turn of events! Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
 
 def _setup_zoom_events(ax, canvas, original_xlim):
@@ -114,6 +118,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Setting up zoom event handlers for the plot. Prepare for a closer look! 🔬",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
     
     drag_start_x = None
@@ -127,6 +132,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
             drag_start_x = event.xdata
             debug_log(f"Mouse press detected. Zoom drag started at {drag_start_x:.3f} MHz. 🖱️",
                         file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
                         function=current_function)
 
     def on_release(event):
@@ -141,6 +147,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
                 console_log(f"Zooming in on range: {min_x:.3f} MHz to {max_x:.3f} MHz.", function=current_function)
                 debug_log(f"Zoom drag ended at {drag_end_x:.3f} MHz. New x-limits set. 🖼️",
                             file=f"{os.path.basename(__file__)} - {current_version}",
+                            version=current_version,
                             function=current_function)
             drag_start_x = None
 
@@ -150,6 +157,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
             console_log("Double-click detected. Zoom reset.", function=current_function)
             debug_log(f"Double-click detected on plot. Resetting zoom to original limits. ✨",
                         file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
                         function=current_function)
 
     canvas.mpl_connect('button_press_event', on_press)
@@ -159,6 +167,7 @@ def _setup_zoom_events(ax, canvas, original_xlim):
     
     debug_log(f"Zoom event listeners connected. The canvas is ready for action! ✅",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
 
 
@@ -168,6 +177,7 @@ def reset_zoom(ax, canvas):
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Resetting the plot view. Back to the big picture! 🖼️",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
 
     if hasattr(ax, 'original_xlim'):
@@ -176,10 +186,12 @@ def reset_zoom(ax, canvas):
         console_log("Plot zoom reset to full view.", function=current_function)
         debug_log(f"Zoom successfully reset to original limits: {ax.original_xlim}.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
     else:
         debug_log(f"Cannot reset zoom, original limits not found on axis object. 🤷‍♂️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
 
 
@@ -189,15 +201,18 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_top_plot. Let's see what we've got here! 🧐",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
     debug_log(f"Received: scan_monitor_tab_instance (Type: {type(scan_monitor_tab_instance)}), data (Length: {len(data) if data is not None else 'None'}), start_freq_mhz: {start_freq_mhz}, end_freq_mhz: {end_freq_mhz}, plot_title: {plot_title}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function, special=True)
     
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
         debug_log("The scan_monitor_tab_instance is None. The plot is doomed! 👻",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
         return
         
@@ -228,7 +243,8 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         annot.set_visible(False)
 
         def update_annot(event):
-            if event.xdata and event.ydata:
+            # FIX: Check if data is not empty before attempting to index it
+            if data and event.xdata and event.ydata:
                 # Find the nearest data point
                 x_data = np.array(data)[:, 0]
                 y_data = np.array(data)[:, 1]
@@ -256,12 +272,14 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         
         debug_log("Successfully updated the top plot. A true triumph! ✅",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
     except Exception as e:
         error_message = f"ERROR: Failed to update top plot: {e}"
         console_log(error_message, function=current_function)
         debug_log(f"Unexpected error: {e}. Plot update failed. What a disaster! 💥 Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
 
 
@@ -271,15 +289,18 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_medium_plot. Let's inspect the payload. 🕵️‍♂️",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
     debug_log(f"Received: scan_monitor_tab_instance (Type: {type(scan_monitor_tab_instance)}), data (Length: {len(data) if data is not None else 'None'}), start_freq_mhz: {start_freq_mhz}, end_freq_mhz: {end_freq_mhz}, plot_title: {plot_title}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function, special=True)
 
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
         debug_log("The scan_monitor_tab_instance is None. The plot is in a state of existential dread! 😱",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
         return
 
@@ -309,7 +330,8 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         annot.set_visible(False)
 
         def update_annot(event):
-            if event.xdata and event.ydata:
+            # FIX: Check if data is not empty before attempting to index it
+            if data and event.xdata and event.ydata:
                 x_data = np.array(data)[:, 0]
                 y_data = np.array(data)[:, 1]
                 idx = np.abs(x_data - event.xdata).argmin()
@@ -336,12 +358,14 @@ def update_medium_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         
         debug_log("Successfully updated the medium plot. A masterpiece in the making! 🖼️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
     except Exception as e:
         error_message = f"ERROR: Failed to update medium plot: {e}"
         console_log(error_message, function=current_function)
         debug_log(f"Unexpected error: {e}. Plot update failed. This is a tragedy! 😭 Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
 
 
@@ -351,15 +375,18 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering update_bottom_plot. Let's get this done. 🚀",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
     debug_log(f"Received: scan_monitor_tab_instance (Type: {type(scan_monitor_tab_instance)}), data (Length: {len(data) if data is not None else 'None'}), start_freq_mhz: {start_freq_mhz}, end_freq_mhz: {end_freq_mhz}, plot_title: {plot_title}",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function, special=True)
     
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
         debug_log("The scan_monitor_tab_instance is None. The plot is lost in the void. 🌌",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
         return
 
@@ -390,7 +417,8 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         annot.set_visible(False)
 
         def update_annot(event):
-            if event.xdata and event.ydata:
+            # FIX: Check if data is not empty before attempting to index it
+            if data and event.xdata and event.ydata:
                 x_data = np.array(data)[:, 0]
                 y_data = np.array(data)[:, 1]
                 idx = np.abs(x_data - event.xdata).argmin()
@@ -417,12 +445,14 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
 
         debug_log("Successfully updated the bottom plot. A true scientific marvel! ✨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
     except Exception as e:
         error_message = f"ERROR: Failed to update bottom plot: {e}"
         console_log(error_message, function=current_function)
         debug_log(f"Unexpected error: {e}. Plot update failed. This is a tragedy! 😭 Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
 
 
@@ -432,15 +462,18 @@ def clear_monitor_plots(scan_monitor_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering clear_monitor_plots. Let's clean up this mess! 🧹",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function)
     debug_log(f"Received: scan_monitor_tab_instance (Type: {type(scan_monitor_tab_instance)})",
                 file=f"{os.path.basename(__file__)} - {current_version}",
+                version=current_version,
                 function=current_function, special=True)
                 
     if not scan_monitor_tab_instance:
         console_log("❌ The Scan Monitor tab instance could not be found. Display updates aborted.")
         debug_log("The scan_monitor_tab_instance is None. The plot is lost in the void. 🌌",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)
         return
         
@@ -487,10 +520,12 @@ def clear_monitor_plots(scan_monitor_tab_instance):
         console_log("✅ All plots cleared.", function=current_function)
         debug_log("Successfully called clear_monitor_plots. A clean slate for new discoveries! ✨",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function)
     except Exception as e:
         error_message = f"ERROR: Failed to clear plots: {e}"
         console_log(error_message, function=current_function)
         debug_log(f"Unexpected error: {e}. Plot clear failed. This experiment has failed! 🧪 Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
                     function=current_function, special=True)

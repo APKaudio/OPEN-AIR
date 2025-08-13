@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.233000.1 (FIXED: The IDN query logic was re-introduced to correctly populate the instrument model, resolving the issue where YakGet failed to find model-specific commands.)
+# Version 20250813.101300.1 (REFACTORED: Rewrote query_current_settings_logic to use high-level YakGet calls to eliminate redundancy and simplify the code.)
 
-current_version = "20250811.233000.1"
-current_version_hash = 20250811 * 233000 * 1
+current_version = "20250813.101300.1"
+current_version_hash = 20250813 * 101300 * 1
 
 import inspect
 import os
@@ -34,9 +34,8 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import low-level VISA utilities
-from tabs.Instrument.utils_instrument_read_and_write import query_safe, write_safe
+from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo, query_safe, write_safe
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
-
 
 
 def populate_resources_logic(app_instance, combobox_widget, console_print_func):
@@ -49,13 +48,13 @@ def populate_resources_logic(app_instance, combobox_widget, console_print_func):
                 file=f"{os.path.basename(__file__)} - {current_version}",
                 function=current_function)
     
-    app_instance.visa_resource_var.set("")  # Clear current value
-    combobox_widget['values'] = []  # Clear current list
+    app_instance.visa_resource_var.set("")
+    combobox_widget['values'] = []
 
     resources = list_visa_resources(console_print_func)
     if resources:
         combobox_widget['values'] = resources
-        app_instance.visa_resource_var.set(resources[0])  # Set first resource as default
+        app_instance.visa_resource_var.set(resources[0])
         debug_log(f"Found VISA resources: {resources}. Success!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
@@ -90,9 +89,9 @@ def connect_instrument_logic(app_instance, console_print_func):
             app_instance.is_connected.set(False)
             return False
 
-        # Step 2: Query IDN and populate model
-        idn_response = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        if idn_response:
+        # Step 2: Query IDN using YakGet and populate model
+        idn_response = YakGet(app_instance, "SYSTEM/ID", console_print_func)
+        if idn_response and idn_response != "FAILED":
             idn_parts = idn_response.split(',')
             if len(idn_parts) >= 2:
                 app_instance.connected_instrument_manufacturer.set(idn_parts[0].strip())
@@ -143,7 +142,7 @@ def disconnect_instrument_logic(app_instance, console_print_func):
     app_instance.is_connected.set(False)
     
     if result:
-        debug_log("Successfully disconnected. Until we meet again! 👋",
+        debug_log("Successfully disconnected. Until we meet again! �",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
     else:
@@ -174,31 +173,31 @@ def query_current_settings_logic(app_instance, console_print_func):
     
     try:
         # Query the IDN string first
-        settings['idn_string'] = query_safe(inst=app_instance.inst, command="*IDN?", app_instance_ref=app_instance, console_print_func=console_print_func)
+        settings['idn_string'] = YakGet(app_instance, "SYSTEM/ID", console_print_func)
         
         # Query Center Frequency
-        center_freq_str = query_safe(inst=app_instance.inst, command=":SENSe:FREQuency:CENTer?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['center_freq_hz'] = float(center_freq_str) if center_freq_str else "N/A"
+        center_freq_str = YakGet(app_instance, "FREQUENCY/CENTER", console_print_func)
+        settings['center_freq_hz'] = float(center_freq_str) if center_freq_str and center_freq_str != 'FAILED' else "N/A"
         
         # Query Span
-        span_str = query_safe(inst=app_instance.inst, command=":SENSe:FREQuency:SPAN?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['span_hz'] = float(span_str) if span_str else "N/A"
+        span_str = YakGet(app_instance, "FREQUENCY/SPAN", console_print_func)
+        settings['span_hz'] = float(span_str) if span_str and span_str != 'FAILED' else "N/A"
         
         # Query RBW
-        rbw_str = query_safe(inst=app_instance.inst, command=":SENSe:BANDwidth:RESolution?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['rbw_hz'] = float(rbw_str) if rbw_str else "N/A"
+        rbw_str = YakGet(app_instance, "BANDWIDTH/RESOLUTION", console_print_func)
+        settings['rbw_hz'] = float(rbw_str) if rbw_str and rbw_str != 'FAILED' else "N/A"
 
         # Query Ref Level
-        ref_level_str = query_safe(inst=app_instance.inst, command=":DISPlay:WINDow:TRACe:Y:RLEVel?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['ref_level_dbm'] = float(ref_level_str) if ref_level_str else "N/A"
+        ref_level_str = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
+        settings['ref_level_dbm'] = float(ref_level_str) if ref_level_str and ref_level_str != 'FAILED' else "N/A"
         
         # Query Trace Mode (Assuming we want Trace 2 for Max Hold)
-        trace_mode_str = query_safe(inst=app_instance.inst, command=":TRACe2:MODE?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['trace_mode'] = trace_mode_str if trace_mode_str else "N/A"
+        trace_mode_str = YakGet(app_instance, "TRACE/2/MODE", console_print_func)
+        settings['trace_mode'] = trace_mode_str if trace_mode_str and trace_mode_str != 'FAILED' else "N/A"
         
         # Query Preamp Status (GAIN)
-        preamp_on_str = query_safe(inst=app_instance.inst, command=":SENSe:POWer:RF:GAIN?", app_instance_ref=app_instance, console_print_func=console_print_func)
-        settings['preamp_on'] = (preamp_on_str == '1') if preamp_on_str else False
+        preamp_on_str = YakGet(app_instance, "AMPLITUDE/POWER/GAIN", console_print_func)
+        settings['preamp_on'] = (preamp_on_str == '1' or preamp_on_str == 'ON') if preamp_on_str and preamp_on_str != 'FAILED' else False
 
         debug_log("Finished querying instrument settings. A treasure trove of information! 🗺️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
