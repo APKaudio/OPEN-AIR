@@ -16,12 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250817.184500.1
-#
-# Version 20250811.215000.4 (UPDATED: Restructured the marker settings frame into two separate sections and added a 'Peak search' button.)
+# Version 20250817.184500.2 (REFACTORED: The _on_tab_selected method now loads settings from the config.ini file first, and then refreshes from the instrument if it is connected.)
 
-current_version = "20250817.184500.1"
-current_version_hash = 20250817 * 184500 * 1
+current_version = "20250817.184500.2"
+current_version_hash = 20250817 * 184500 * 2
 
 import tkinter as tk
 from tkinter import ttk
@@ -361,10 +359,37 @@ class SettingsTab(ttk.Frame):
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-
+        
+        # FIXED: This function will now load the settings from the config.ini file first.
+        # This ensures the UI reflects the last saved state.
+        self._load_settings_from_config()
+        
         is_connected = self.app_instance.is_connected.get()
         if is_connected:
             self.console_print_func("✅ Instrument is connected. You can now change settings.")
             self._refresh_all_from_instrument()
         else:
             self.console_print_func("❌ Instrument is not connected. Connect first to change settings.")
+
+    def _load_settings_from_config(self):
+        """
+        Loads the settings from the config.ini file and populates the UI.
+        This is a new method to centralize the logic for loading settings.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Loading settings from config.ini.", file=os.path.basename(__file__), version=current_version, function=current_function)
+
+        try:
+            # Load the configuration from file into the app_instance.config object
+            # This function handles the case where the file doesn't exist
+            self.app_instance.config = self.app_instance.config_manager.load_config(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+            
+            # Use the restore_last_used_settings_logic function to apply the settings to the Tkinter variables
+            from src.settings_and_config.restore_settings_logic import restore_last_used_settings_logic
+            restore_last_used_settings_logic(self.app_instance, self.console_print_func)
+            
+            self.console_print_func("✅ UI settings loaded from config.ini.")
+            
+        except Exception as e:
+            self.console_print_func(f"❌ Error loading settings from config.ini: {e}. This is a disaster!")
+            debug_log(f"Error loading settings from config.ini: {e}", file=os.path.basename(__file__), version=current_version, function=current_function)
