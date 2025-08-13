@@ -14,9 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.161100.1 (UPDATED: Added the new 'Showtime' tab and placed it as the first tab in the notebook.)
+# Version 20250812.230000.1 (FIXED: Passed the `console_print_func` to the ShowtimeTab to resolve the AttributeError in the child tab.)
 
-current_version = "20250812.161100.1"
+current_version = "20250812.230000.1"
 
 import tkinter as tk
 from tkinter import ttk
@@ -24,7 +24,7 @@ import inspect
 
 from tabs.Markers.tab_markers_child_display import MarkersDisplayTab
 from tabs.Markers.tab_markers_child_import_and_edit import ReportConverterTab
-from tabs.Markers.tab_markers_child_showtime import ShowtimeTab # NEW: Import the new ShowtimeTab
+from tabs.Markers.tab_markers_child_showtime import ShowtimeTab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -42,7 +42,7 @@ class TAB_MARKERS_PARENT(ttk.Frame):
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
 
         # NEW: Add the ShowtimeTab as the first tab
-        self.showtime_tab = ShowtimeTab(self.child_notebook, self.app_instance)
+        self.showtime_tab = ShowtimeTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.showtime_tab, text="Showtime")
 
         self.marker_display_tab = MarkersDisplayTab(self.child_notebook, headers=None, rows=None, app_instance=self.app_instance)

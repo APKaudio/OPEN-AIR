@@ -15,7 +15,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250803.0935.0 (Restored logic from old_report_converter_utils.py and adapted to new logging.)
+# Version 20250815.200000.3 (FIXED: The headers for CSV conversions now include a "Peak" column with a placeholder value to prevent data loss.)
 
 import csv
 import subprocess
@@ -26,6 +26,7 @@ import re
 from bs4 import BeautifulSoup
 import pdfplumber
 import inspect
+import numpy as np
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
@@ -64,7 +65,8 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
         "GROUP",
         "DEVICE",
         "NAME",
-        "FREQ"
+        "FREQ",
+        "Peak" # NEW: Added Peak header
     ]
     
     data_rows = []
@@ -167,7 +169,8 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
                                 "GROUP": current_group_name,
                                 "DEVICE": band_type,
                                 "NAME": channel_name,
-                                "FREQ": freq_mhz # Store in MHz
+                                "FREQ": freq_mhz, # Store in MHz
+                                "Peak": np.nan # NEW: Added Peak column
                             }
                             if band_type or channel_frequency_str or channel_name:
                                 data_rows.append(row_data)
@@ -217,7 +220,8 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
                             "GROUP": current_group_name,
                             "DEVICE": band_type,
                             "NAME": channel_name,
-                            "FREQ": freq_mhz # Store in MHz
+                            "FREQ": freq_mhz, # Store in MHz
+                            "Peak": np.nan # NEW: Added Peak column
                         }
                         if band_type or channel_frequency_str or channel_name:
                             data_rows.append(row_data)
@@ -255,7 +259,7 @@ def generate_csv_from_shw(xml_file_path, console_print_func=None):
     _print(f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'...")
     debug_log(f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.", file=current_file, function=current_function)
 
-    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ"]
+    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ", "Peak"] # NEW: Added Peak header
     csv_data = []
 
     try:
@@ -310,7 +314,8 @@ def generate_csv_from_shw(xml_file_path, console_print_func=None):
                 "GROUP": group,
                 "DEVICE": device,
                 "NAME": name,
-                "FREQ": freq_mhz # Store in MHz
+                "FREQ": freq_mhz, # Store in MHz
+                "Peak": np.nan # NEW: Added Peak column
             })
         _print(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.")
         debug_log(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.", file=current_file, function=current_function)
@@ -360,7 +365,7 @@ def convert_pdf_report_to_csv(pdf_file_path, console_print_func=None):
     _print(f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'...")
     debug_log(f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.", file=current_file, function=current_function)
 
-    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ"]
+    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ", "Peak"] # NEW: Added Peak header
     csv_data = []
 
     try:
@@ -439,7 +444,8 @@ def convert_pdf_report_to_csv(pdf_file_path, console_print_func=None):
                             "GROUP": group_csv,
                             "DEVICE": device_csv,
                             "NAME": name_csv,
-                            "FREQ": freq_mhz_csv
+                            "FREQ": freq_mhz_csv,
+                            "Peak": np.nan # NEW: Added Peak column
                         })
                         debug_log(f"Added PDF row: {csv_data[-1]}", file=current_file, function=current_function)
         _print(f"Finished PDF report conversion. Extracted {len(csv_data)} rows.")
