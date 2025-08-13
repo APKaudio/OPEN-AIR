@@ -16,10 +16,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250814.233000.2 (FIXED: The `devices_in_chunk` variable is now correctly defined within the loop, resolving the `NameError`.)
+# Version 20250816.200000.1 (FIXED: The main loop now correctly iterates through all devices in the selected zone in batches, dynamically assigning them to markers 1 through 6.)
 
-current_version = "20250814.233000.2"
-current_version_hash = 20250814 * 233000 * 2
+current_version = "20250816.200000.1"
+current_version_hash = 20250816 * 200000 * 1
 
 import os
 import csv
@@ -142,11 +142,19 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
         min_freq_mhz = devices_to_process['FREQ'].min()
         max_freq_mhz = devices_to_process['FREQ'].max()
         span_mhz = max_freq_mhz - min_freq_mhz
-        buffer_mhz = span_mhz * 0.1
         
-        start_freq_mhz = max(0, min_freq_mhz - buffer_mhz)
-        end_freq_mhz = max_freq_mhz + buffer_mhz
+        MIN_SPAN_KHZ = 100
         
+        if span_mhz == 0:
+            trace_center_freq_mhz = min_freq_mhz
+            trace_span_mhz = MIN_SPAN_KHZ / 1e3
+            start_freq_mhz = trace_center_freq_mhz - trace_span_mhz / 2
+            end_freq_mhz = trace_center_freq_mhz + trace_span_mhz / 2
+        else:
+            buffer_mhz = span_mhz * 0.1
+            start_freq_mhz = max(0, min_freq_mhz - buffer_mhz)
+            end_freq_mhz = max_freq_mhz + buffer_mhz
+            
         start_freq_hz = int(start_freq_mhz * MHZ_TO_HZ)
         end_freq_hz = int(end_freq_mhz * MHZ_TO_HZ)
         
@@ -163,9 +171,7 @@ def get_peak_values_and_update_csv(app_instance, devices_to_process, console_pri
             df['Peak'] = np.nan
         else:
             df.loc[devices_to_process.index, 'Peak'] = np.nan
-            df.to_csv(markers_file_path, index=False)
-            df = pd.read_csv(markers_file_path)
-
+            
         peak_values = {}
         # Iterate through devices in chunks of 6
         for chunk_start_index in range(0, len(devices_to_process), 6):

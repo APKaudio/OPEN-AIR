@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.234500.1 (FIXED: Refactored the entire file to properly define the YakGet, YakSet, and YakDo functions and removed all references to the now-defunct OPC logic.)
+# Version 20250816.200000.15 (FIXED: A new `YakNab` function and `NAB` action type were implemented to handle multi-query commands, separating this logic from the existing `YakGet` function.)
 
-current_version = "20250811.234500.1"
-current_version_hash = 20250811 * 234500 * 1
+current_version = "20250816.200000.15"
+current_version_hash = 20250816 * 200000 * 15
 
 import csv
 import os
@@ -30,6 +30,10 @@ import time
 from tkinter import messagebox
 from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
+
+# --- User-configurable variables ---
+VISA_COMMAND_DELAY_SECONDS = 0.05
+MAX_RETRY_ATTEMPTS = 3
 
 # Global variable to store loaded commands to avoid re-reading the file
 _visa_commands_data = []
@@ -47,7 +51,7 @@ def _reset_device(inst, console_print_func):
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
-    reset_success = write_safe(inst, "*RST", console_print_func)
+    reset_success = write_safe(inst, "*RST", console_print_func, retries=0) # Do not retry a reset
     if reset_success:
         console_print_func("✅ Device reset command sent successfully.")
         debug_log("Reset command sent. Goddamn, that felt good!",
@@ -62,10 +66,10 @@ def _reset_device(inst, console_print_func):
                     function=current_function)
     return reset_success
 
-def write_safe(inst, command, console_print_func):
+def write_safe(inst, command, console_print_func, retries=MAX_RETRY_ATTEMPTS):
     """
     Function Description:
-    Safely writes a SCPI command to the instrument.
+    Safely writes a SCPI command to the instrument with a retry mechanism.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to write command: {command}",
@@ -79,23 +83,42 @@ def write_safe(inst, command, console_print_func):
                     version=current_version,
                     function=current_function)
         return False
-    try:
-        inst.write(command)
-        log_visa_command(command, "SENT")
-        return True
-    except Exception as e:
-        console_print_func(f"❌ Error writing command '{command}': {e}")
-        debug_log(f"Error writing command '{command}': {e}. This thing is a pain in the ass!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-        _reset_device(inst, console_print_func)
-        return False
+    
+    for attempt in range(retries + 1):
+        try:
+            inst.write(command)
+            log_visa_command(command, "SENT")
+            time.sleep(VISA_COMMAND_DELAY_SECONDS) # Wait for instrument to process
+            return True
+        except pyvisa.errors.VisaIOError as e:
+            if attempt < retries:
+                debug_log(f"VI_ERROR_TMO on attempt {attempt+1}/{retries+1} for command '{command}': {e}. Retrying...",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function, special=True)
+                time.sleep(1) # Fixed delay between retries
+            else:
+                console_print_func(f"❌ Error writing command '{command}': {e}. Retries exhausted.")
+                debug_log(f"Error writing command '{command}': {e}. Retries exhausted. This thing is a pain in the ass!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+                _reset_device(inst, console_print_func)
+                return False
+        except Exception as e:
+            console_print_func(f"❌ Error writing command '{command}': {e}")
+            debug_log(f"Error writing command '{command}': {e}. This thing is a pain in the ass!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            _reset_device(inst, console_print_func)
+            return False
+    return False
 
-def query_safe(inst, command, console_print_func):
+def query_safe(inst, command, console_print_func, retries=MAX_RETRY_ATTEMPTS):
     """
     Function Description:
-    Safely queries the instrument with a SCPI command and returns the response.
+    Safely queries the instrument with a SCPI command and returns the response with a retry mechanism.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Attempting to query command: {command}",
@@ -109,19 +132,38 @@ def query_safe(inst, command, console_print_func):
                     version=current_version,
                     function=current_function)
         return None
-    try:
-        response = inst.query(command).strip()
-        log_visa_command(command, "SENT")
-        log_visa_command(response, "RECEIVED")
-        return response
-    except Exception as e:
-        console_print_func(f"❌ Error querying command '{command}': {e}")
-        debug_log(f"Error querying command '{command}': {e}. This goddamn thing is broken!",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-        _reset_device(inst, console_print_func)
-        return None
+    
+    for attempt in range(retries + 1):
+        try:
+            response = inst.query(command).strip()
+            log_visa_command(command, "SENT")
+            log_visa_command(response, "RECEIVED")
+            time.sleep(VISA_COMMAND_DELAY_SECONDS) # Wait for instrument to process
+            return response
+        except pyvisa.errors.VisaIOError as e:
+            if attempt < retries:
+                debug_log(f"VI_ERROR_TMO on attempt {attempt+1}/{retries+1} for command '{command}': {e}. Retrying...",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function, special=True)
+                time.sleep(1) # Fixed delay between retries
+            else:
+                console_print_func(f"❌ Error querying command '{command}': {e}. Retries exhausted.")
+                debug_log(f"Error querying command '{command}': {e}. Retries exhausted. This goddamn thing is broken!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+                _reset_device(inst, console_print_func)
+                return None
+        except Exception as e:
+            console_print_func(f"❌ Error querying command '{command}': {e}")
+            debug_log(f"Error querying command '{command}': {e}. This goddamn thing is broken!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            _reset_device(inst, console_print_func)
+            return None
+    return None
 
 def set_safe(inst, command, value, console_print_func):
     """
@@ -137,7 +179,6 @@ def set_safe(inst, command, value, console_print_func):
     return write_safe(inst, full_command, console_print_func)
 
 
-
 def execute_visa_command(inst, action_type, visa_command, variable_value, console_print_func):
     """
     Function Description:
@@ -149,7 +190,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
 
     Inputs to this function:
     - inst: The PyVISA instrument instance.
-    - action_type (str): The type of action ("GET", "SET", "DO").
+    - action_type (str): The type of action ("GET", "SET", "DO", "NAB").
     - visa_command (str): The base VISA command string.
     - variable_value (str): The variable value to append for "SET" commands,
       or the "?" terminator for "GET" commands.
@@ -157,6 +198,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
 
     Outputs of this function:
     - str or None: The instrument's response if the action was a successful "GET".
+    - list of floats or None: The instrument's response as a list of floats if the action was a successful "NAB".
     - str: "PASSED", "TIME FAILED", or "FAILED" for a "DO" command.
     - str: "PASSED", "TIME FAILED", or "FAILED" for a "SET" command.
     """
@@ -172,7 +214,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
 
     try:
         if action_type == "GET":
-            full_command = f"{visa_command}{variable_value}" if variable_value.startswith("?") else visa_command
+            full_command = f"{visa_command}{variable_value}" if variable_value and variable_value.strip() == "?" else visa_command
             response = query_safe(inst, full_command, console_print_func)
             if response is not None:
                 console_print_func(f"✅ Response: {response}")
@@ -187,11 +229,34 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
-                _reset_device(inst, console_print_func)
                 return "FAILED"
+        elif action_type == "NAB":
+            # NAB is a special GET command that returns multiple values
+            full_command = visa_command
+            response_string = query_safe(inst, full_command, console_print_func)
+            
+            if response_string is not None:
+                try:
+                    # Parse the comma-separated string into a list of floats
+                    values = [float(val) for val in response_string.split(',')]
+                    console_print_func(f"✅ NAB Response: {values}")
+                    debug_log(f"NAB Query response: {response_string}. Fucking finally!",
+                                file=os.path.basename(__file__),
+                                version=current_version,
+                                function=current_function)
+                    return values
+                except ValueError as e:
+                    console_print_func(f"❌ Failed to parse NAB response: {e}")
+                    debug_log(f"Failed to parse NAB response: {e}. What a disaster!",
+                                file=os.path.basename(__file__),
+                                version=current_version,
+                                function=current_function)
+                    return None
+            else:
+                return None
         elif action_type == "DO":
             # Modified DO logic to append the variable if it exists
-            if variable_value and variable_value != '':
+            if variable_value and variable_value.strip():
                 full_command = f"{visa_command} {variable_value}"
             else:
                 full_command = visa_command
@@ -205,11 +270,23 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
-                _reset_device(inst, console_print_func)
                 return "FAILED"
         elif action_type == "SET":
             # SET command has a variable_value that needs to be appended
-            full_command = f"{visa_command} {variable_value}"
+            # USER FIX: Ensure the value is an integer for this type of command
+            # This is a key refactoring to prevent the float issue.
+            try:
+                # Cast the value to an integer
+                int_value = int(float(variable_value))
+                full_command = f"{visa_command} {int_value}"
+            except (ValueError, TypeError) as e:
+                console_print_func(f"❌ Invalid value for SET command. Expected an integer. Error: {e}")
+                debug_log(f"Invalid value for SET command. Expected an integer, but got: '{variable_value}'. Error: {e}",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function, special=True)
+                return "FAILED"
+
             if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Command executed successfully.")
                 return "PASSED"
@@ -219,7 +296,6 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
-                _reset_device(inst, console_print_func)
                 return "FAILED"
         else:
             console_print_func(f"⚠️ Unknown action type '{action_type}'. Cannot execute command.")
@@ -227,7 +303,6 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
-            _reset_device(inst, console_print_func)
             return "FAILED"
     except Exception as e:
         console_print_func(f"❌ Error during VISA command execution: {e}")
@@ -235,7 +310,6 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-        _reset_device(inst, console_print_func)
         return "FAILED"
 
 def _load_commands_from_file(file_path):
@@ -296,7 +370,7 @@ def _find_command(command_type, action_type, model):
 
     Inputs:
         command_type (str): The logical name of the command (e.g., "SYSTEM/RESET").
-        action_type (str): The type of action ("GET", "SET", "DO").
+        action_type (str): The type of action ("GET", "SET", "DO", "NAB").
         model (str): The instrument model (e.g., "N9340B").
 
     Outputs:
@@ -347,7 +421,7 @@ def _find_command(command_type, action_type, model):
 def YakGet(app_instance, command_type, console_print_func):
     """
     Function Description:
-    Executes a 'GET' VISA command for a given command type.
+    Executes a 'GET' or a new 'NAB' VISA command for a given command type.
     It automatically finds the correct command from the loaded data based on
     the connected instrument's manufacturer and model.
 
@@ -371,12 +445,53 @@ def YakGet(app_instance, command_type, console_print_func):
     model = app_instance.connected_instrument_model.get()
     
     action, command, variable = _find_command(command_type, "GET", model)
+    # Check for the new NAB command action type as well
+    if not action:
+        action, command, variable = _find_command(command_type, "NAB", model)
     
-    if action == "GET" and command:
+    if action and command:
         return execute_visa_command(app_instance.inst, action, command, variable, console_print_func)
     else:
-        console_print_func(f"❌ Could not find a matching GET command for '{command_type}'.")
-        debug_log(f"No matching GET command found for '{command_type}'. Fucking useless!",
+        console_print_func(f"❌ Could not find a matching GET or NAB command for '{command_type}'.")
+        debug_log(f"No matching GET or NAB command found for '{command_type}'. Fucking useless!",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        return None
+
+def YakNab(app_instance, command_type, console_print_func):
+    """
+    Function Description:
+    Executes a 'NAB' (multi-query) VISA command for a given command type.
+    This function has been designed to handle a unique command that is made up of several
+    queries in one string and returns an array of floating-point values.
+
+    Inputs:
+        app_instance (object): Reference to the main application instance to get the instrument and its details.
+        command_type (str): The logical name of the command to execute (e.g., "GET/MARKER/PEAKS").
+        console_print_func (function): Function to print messages to the GUI console.
+
+    Outputs:
+        list of floats or None: The response from the instrument as a list of floats, or None on failure.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering YakNab. command_type: {command_type}",
+                file=os.path.basename(__file__),
+                version=current_version,
+                function=current_function)
+
+    _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
+
+    manufacturer = app_instance.connected_instrument_manufacturer.get()
+    model = app_instance.connected_instrument_model.get()
+
+    action, command, variable = _find_command(command_type, "NAB", model)
+
+    if action == "NAB" and command:
+        return execute_visa_command(app_instance.inst, action, command, variable, console_print_func)
+    else:
+        console_print_func(f"❌ Could not find a matching NAB command for '{command_type}'.")
+        debug_log(f"No matching NAB command found for '{command_type}'. Fucking useless!",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)

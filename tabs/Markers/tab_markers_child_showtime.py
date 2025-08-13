@@ -17,10 +17,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250815.200000.2 (FIXED: The `_perform_peak_search_task` function now correctly handles single-frequency groups by enforcing a minimum span of 100 kHz to prevent plotting errors.)
+# Version 20250816.200000.9 (FIXED: The `app_instance` reference is now correctly passed to child functions and threads, resolving the AttributeError when accessing UI state variables. The `save_config` function call now uses the correct keyword arguments to prevent a TypeError. The device button layout has been updated to use 4 columns.)
 
-current_version = "20250815.200000.2"
-current_version_hash = 20250815 * 200000 * 2
+current_version = "20250816.200000.9"
+current_version_hash = 20250816 * 200000 * 9
 
 import tkinter as tk
 from tkinter import ttk
@@ -50,7 +50,7 @@ from tabs.Markers.utils_markers import (
 )
 from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
-from ref.frequency_bands import MHZ_TO_HZ
+from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ
 
 
 class ThresholdsTab(ttk.Frame):
@@ -190,68 +190,9 @@ class ShowtimeTab(ttk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         
-        self.device_buttons_frame.grid_columnconfigure(0, weight=1)
-        self.device_buttons_frame.grid_columnconfigure(1, weight=1)
-
-
-        # --- Controls Notebook (New) ---
-        self.controls_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
-        self.controls_notebook.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
-        
-        # --- NEW: Thresholds tab ---
-        self.thresholds_tab = ThresholdsTab(self.controls_notebook, self.app_instance, self.console_print_func)
-        self.controls_notebook.add(self.thresholds_tab, text="Thresholds")
-
-        # --- Span Tab ---
-        span_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
-        self.controls_notebook.add(span_tab, text="Span")
-        for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
-            val_text = f"{float(span_hz) / 1e6:.1f} MHz" if float(span_hz) >= 1e6 else f"{float(span_hz) / 1e3:.0f} kHz"
-            btn_text = f"{name}\n{val_text}"
-            btn = ttk.Button(span_tab, text=btn_text, command=lambda s=span_hz: self._on_span_button_click(s))
-            btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
-            self.span_buttons[str(span_hz)] = btn
-            span_tab.grid_columnconfigure(i, weight=1)
-
-        # --- RBW Tab ---
-        rbw_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
-        self.controls_notebook.add(rbw_tab, text="RBW")
-        for i, (name, rbw_hz) in enumerate(RBW_OPTIONS.items()):
-            val_text = f"{float(rbw_hz) / 1e3:.0f} kHz"
-            btn_text = f"{name}\n{val_text}"
-            btn = ttk.Button(rbw_tab, text=btn_text, command=lambda r=rbw_hz: self._on_rbw_button_click(r))
-            btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
-            self.rbw_buttons[str(rbw_hz)] = btn
-            rbw_tab.grid_columnconfigure(i, weight=1)
-
-        # --- Trace Tab ---
-        trace_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
-        self.controls_notebook.add(trace_tab, text="Trace")
-        trace_modes = [("Live", self.trace_live_mode), ("Max Hold", self.trace_max_hold_mode), ("Min Hold", self.trace_min_hold_mode)]
-        for i, (name, var) in enumerate(trace_modes):
-            btn = ttk.Button(trace_tab, text=name, command=lambda v=var: self._on_trace_button_click(v))
-            btn.grid(row=0, column=i, padx=5, pady=5, sticky="ew")
-            self.trace_buttons[name] = btn
-            trace_tab.grid_columnconfigure(i, weight=1)
-
-        # --- Loop Tab ---
-        loop_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
-        self.controls_notebook.add(loop_tab, text="Loop")
-        loop_tab.grid_columnconfigure(0, weight=1)
-        loop_tab.grid_columnconfigure(1, weight=1)
-        
-        ttk.Label(loop_tab, text="Delay (ms):").grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        delay_options = [500, 1000, 1500, 2000]
-        delay_combobox = ttk.Combobox(loop_tab, textvariable=self.loop_delay_var, values=delay_options, state="readonly")
-        delay_combobox.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-        ttk.Label(loop_tab, text="Loop Count:").grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Label(loop_tab, textvariable=self.loop_counter_var).grid(row=1, column=1, padx=5, pady=5, sticky="ew")
-
-        self.loop_stop_button = ttk.Button(loop_tab, text="Stop Loop", command=self._stop_loop_action, state=tk.DISABLED)
-        self.loop_stop_button.grid(row=2, column=0, padx=5, pady=5, sticky="ew", columnspan=2)
-        
-        self.controls_notebook.bind("<<NotebookTabChanged>>", self._on_child_tab_selected)
+        # NEW: Changed device button layout to 4 columns for better display
+        for i in range(4):
+            self.device_buttons_frame.grid_columnconfigure(i, weight=1)
 
     def _load_markers_data(self):
         # Function Description:
@@ -435,7 +376,7 @@ class ShowtimeTab(ttk.Frame):
                   function=current_function)
         
         # Get peak values and update CSV
-        updated_markers_df = get_peak_values_and_update_csv(self.app_instance, devices, self.console_print_func)
+        updated_markers_df = get_peak_values_and_update_csv(app_instance=self.app_instance, devices_to_process=devices, console_print_func=self.console_print_func)
         
         if updated_markers_df is None:
             self.app_instance.after(0, lambda: self.console_print_func("❌ Peak search failed. See console for details."))
@@ -460,6 +401,9 @@ class ShowtimeTab(ttk.Frame):
         if span_mhz == 0:
             trace_center_freq_mhz = min_freq_mhz
             trace_span_mhz = MIN_SPAN_KHZ / 1e3
+            start_freq_mhz = trace_center_freq_mhz - trace_span_mhz / 2
+            end_freq_mhz = trace_center_freq_mhz + trace_span_mhz / 2
+            
         else:
             buffer_mhz = span_mhz * 0.1
             trace_start_freq_mhz = max(0, min_freq_mhz - buffer_mhz)
@@ -467,13 +411,13 @@ class ShowtimeTab(ttk.Frame):
             trace_center_freq_mhz = (trace_start_freq_mhz + trace_end_freq_mhz) / 2
             trace_span_mhz = trace_end_freq_mhz - trace_start_freq_mhz
             
-        trace_center_freq_hz = trace_center_freq_mhz * MHZ_TO_HZ
-        trace_span_hz = trace_span_mhz * MHZ_TO_HZ
+        trace_center_freq_hz = int(trace_center_freq_mhz * MHZ_TO_HZ)
+        trace_span_hz = int(trace_span_mhz * MHZ_TO_HZ)
         
         self.app_instance.after(0, lambda: self.console_print_func(f"📊 Displaying trace for {name} over a buffered span of {trace_span_mhz:.3f} MHz."))
         
         # Get trace for the entire span
-        self.app_instance.after(0, lambda: get_marker_traces(app_instance=self.app_instance, console_print_func=self.console_print_func, center_freq_hz=trace_center_freq_hz, span_hz=trace_span_hz, device_name=name))
+        self.app_instance.after(0, lambda: get_marker_traces(showtime_tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func, center_freq_hz=trace_center_freq_hz, span_hz=trace_span_hz, device_name=name))
         
         self.app_instance.after(0, self._populate_device_buttons)
 
@@ -522,7 +466,7 @@ class ShowtimeTab(ttk.Frame):
         self.device_buttons = {} # Clear the dictionary
 
         if not self.selected_zone:
-            ttk.Label(self.device_buttons_frame, text="Select a zone and a group to view devices.").grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+            ttk.Label(self.device_buttons_frame, text="Select a zone and a group to view devices.").grid(row=0, column=0, columnspan=4, padx=10, pady=10) # FIX: Changed columnspan to 4
             return
 
         devices = []
@@ -533,7 +477,7 @@ class ShowtimeTab(ttk.Frame):
                 devices.extend(group)
 
         if not devices:
-            ttk.Label(self.device_buttons_frame, text="No devices found in this selection.").grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+            ttk.Label(self.device_buttons_frame, text="No devices found in this selection.").grid(row=0, column=0, columnspan=4, padx=10, pady=10) # FIX: Changed columnspan to 4
             return
 
         row_idx = 0
@@ -563,7 +507,8 @@ class ShowtimeTab(ttk.Frame):
             self.device_buttons[device_name] = btn # Store the button reference in the dictionary
 
             col_idx += 1
-            if col_idx > 1:
+            # FIX: Change column wrap to 4 from 2
+            if col_idx > 3:
                 col_idx = 0
                 row_idx += 1
 
@@ -602,10 +547,10 @@ class ShowtimeTab(ttk.Frame):
                 span_hz = float(self.span_var.get())
                 
                 # Set frequency, span, traces and marker
-                set_span_logic(self.app_instance, span_hz, self.console_print_func)
-                set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), self.console_print_func)
-                set_frequency_logic(self.app_instance, freq_hz, self.console_print_func)
-                set_marker_logic(self.app_instance, freq_hz, self.selected_device_name, self.console_print_func)
+                set_span_logic(app_instance=self.app_instance, span_hz=span_hz, console_print_func=self.console_print_func)
+                set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
+                set_frequency_logic(app_instance=self.app_instance, frequency_hz=freq_hz, console_print_func=self.console_print_func)
+                set_marker_logic(app_instance=self.app_instance, frequency_hz=freq_hz, marker_name=self.selected_device_name, console_print_func=self.console_print_func)
                 
                 # Start the trace update loop
                 self.loop_counter_var.set(0)
@@ -672,7 +617,8 @@ class ShowtimeTab(ttk.Frame):
                     self._stop_loop_action()
                     return
                     
-                get_marker_traces(app_instance=self.app_instance, console_print_func=self.console_print_func, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
+                # FIX: Pass the ShowtimeTab instance ('self') to the utility function
+                get_marker_traces(showtime_tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func, center_freq_hz=center_freq_hz, span_hz=span_hz, device_name=self.selected_device_name)
                 self.loop_counter_var.set(self.loop_counter_var.get() + 1)
                 self.loop_run_count += 1
                 
@@ -806,7 +752,7 @@ class ShowtimeTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_span_logic(self.app_instance, float(span_hz), self.console_print_func)
+                set_span_logic(app_instance=self.app_instance, span_hz=float(span_hz), console_print_func=self.console_print_func)
                 # Restart the loop with the new span
                 if self.selected_device_freq is not None and self.is_loop_running:
                     self.after_cancel(self.marker_trace_loop_job)
@@ -817,7 +763,7 @@ class ShowtimeTab(ttk.Frame):
                           version=current_version,
                           function=current_function, special=True)
                 pass
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_config(config=self.app_instance.config, file_path=self.app_instance.CONFIG_FILE_PATH, console_print_func=self.console_print_func, app_instance=self.app_instance)
 
     def _on_rbw_button_click(self, rbw_hz):
         # Function Description:
@@ -831,14 +777,14 @@ class ShowtimeTab(ttk.Frame):
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
             try:
-                set_rbw_logic(self.app_instance, float(rbw_hz), self.console_print_func)
+                set_rbw_logic(app_instance=self.app_instance, rbw_hz=float(rbw_hz), console_print_func=self.console_print_func)
             except (ValueError, TypeError) as e:
                 debug_log(f"An RBW ValueError or TypeError! It's a disaster! Error: {e}",
                           file=f"{os.path.basename(__file__)} - {current_version}",
                           version=current_version,
                           function=current_function, special=True)
                 pass
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_config(config=self.app_instance.config, file_path=self.app_instance.CONFIG_FILE_PATH, console_print_func=self.console_print_func, app_instance=self.app_instance)
 
     def _on_trace_button_click(self, trace_var):
         # Function Description:
@@ -851,5 +797,5 @@ class ShowtimeTab(ttk.Frame):
         trace_var.set(not trace_var.get())
         self._update_control_styles()
         if self.app_instance and self.app_instance.inst:
-            set_trace_modes_logic(self.app_instance, self.trace_live_mode.get(), self.trace_max_hold_mode.get(), self.trace_min_hold_mode.get(), self.console_print_func)
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            set_trace_modes_logic(app_instance=self.app_instance, live_mode=self.trace_live_mode.get(), max_hold_mode=self.trace_max_hold_mode.get(), min_hold_mode=self.trace_min_hold_mode.get(), console_print_func=self.console_print_func)
+        save_config(config=self.app_instance.config, file_path=self.app_instance.CONFIG_FILE_PATH, console_print_func=self.console_print_func, app_instance=self.app_instance)

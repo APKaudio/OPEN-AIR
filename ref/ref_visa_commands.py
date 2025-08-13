@@ -316,7 +316,8 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/PEAK/SEARCH", "DO", "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT", "", ""),
 
 
-
+        ("Keysight Technologies", "*", "MARKER/All/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON; ", "", ""),
+        ("Keysight Technologies", "*", "MARKER/All/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF; ", "", ""),
 
         # Marker Calculate State
         ("Keysight Technologies", "*", "MARKER/1/CALCULATE/STATE/ON", "DO", ":CALCulate:MARKer1:STATe", "ON", ""),
@@ -352,7 +353,7 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/6/CALCULATE/X", "GET", ":CALCulate:MARKer6:X", "?", ""),
 
 
-
+        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/Y", "NAB", ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer1:Y?", "6", ""),
 
 
         # Marker Calculate Y (Amplitude)

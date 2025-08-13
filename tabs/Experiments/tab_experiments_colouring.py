@@ -12,24 +12,21 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250803.0805.0 (Initial creation to display style.py colors.)
-# Version 20250803.0815.0 (Added sections for font sizes and common UI element styles.)
-# Version 20250803.0820.0 (Enhanced UI element style display to render actual buttons for button styles.)
-# Version 20250803.0825.0 (Reorganized color palette into horizontal groups: Defaults/Globals, Buttons, Parent Tabs.)
-# Version 20250803.0830.0 (Added LargeYAK.TButton style example to UI Elements.)
-# Version 20250803.0835.0 (Removed "Example Text" from font size display.)
+#
+# Version 20250816.200000.11 (FIXED: The tab now dynamically reads and displays all colors and styles from `program_style.py`, with clear labels and live previews of buttons.)
 
-current_version = "20250803.0835.0" # this variable should always be defined below the header to make the debugging better
+current_version = "20250816.200000.11"
+current_version_hash = 20250816 * 200000 * 11
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, TclError
 import inspect
 import os
+import re
 
-# Import the COLOR_PALETTE from style.py
-from src.program_style import COLOR_PALETTE
+# Import the COLOR_PALETTE and other styles from style.py
+from src.program_style import COLOR_PALETTE, COLOR_PALETTE_TABS, _get_dark_color
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -52,7 +49,7 @@ class ColouringTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Initializing ColouringTab...",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -63,7 +60,7 @@ class ColouringTab(ttk.Frame):
         self._create_widgets()
 
         debug_log(f"ColouringTab initialized. Ready to display colors and styles!",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -75,7 +72,7 @@ class ColouringTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Creating ColouringTab widgets...",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -119,7 +116,7 @@ class ColouringTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"Populating ColouringTab content...",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -161,24 +158,29 @@ class ColouringTab(ttk.Frame):
         parent_tab_row_idx = 0
 
         for color_name, color_value in COLOR_PALETTE.items():
-            if color_name == 'parent_tabs':
-                # Handle parent_tabs separately
-                ttk.Label(parent_tabs_color_frame, text=f"--- {color_name.replace('_', ' ').title()} ---",
-                          style='Dark.TLabel.Value', font=('Helvetica', 11, 'bold')).grid(row=parent_tab_row_idx, column=0, columnspan=2, pady=(10, 2), sticky="w", padx=5)
-                parent_tab_row_idx += 1
-                for tab_name, tab_colors in color_value.items():
-                    ttk.Label(parent_tabs_color_frame, text=f"--- {tab_name.replace('_', ' ').title()} ---",
-                              style='Dark.TLabel.Value', font=('Helvetica', 10, 'bold')).grid(row=parent_tab_row_idx, column=0, columnspan=2, pady=(5, 1), sticky="w", padx=10)
-                    parent_tab_row_idx += 1
-                    for state_name, hex_code in tab_colors.items():
-                        self._add_color_display_row(parent_tabs_color_frame, f"{state_name}: {hex_code}", hex_code, parent_tab_row_idx, indent=1)
-                        parent_tab_row_idx += 1
-            elif '_btn' in color_name: # Simple check for button related colors
+            if '_btn' in color_name: # Simple check for button related colors
                 self._add_color_display_row(buttons_color_frame, f"{color_name}: {color_value}", color_value, button_row_idx)
                 button_row_idx += 1
+            elif color_name in ['white', 'black']:
+                self._add_color_display_row(defaults_frame, f"{color_name}: {color_value}", color_value, default_row_idx)
+                default_row_idx += 1
             else: # Defaults/Globals
                 self._add_color_display_row(defaults_frame, f"{color_name}: {color_value}", color_value, default_row_idx)
                 default_row_idx += 1
+        
+        # New loop for COLOR_PALETTE_TABS
+        for tab_name, tab_colors in COLOR_PALETTE_TABS.items():
+            ttk.Label(parent_tabs_color_frame, text=f"--- {tab_name.replace('_', ' ').title()} ---",
+                      style='Dark.TLabel.Value', font=('Helvetica', 11, 'bold')).grid(row=parent_tab_row_idx, column=0, columnspan=2, pady=(10, 2), sticky="w", padx=5)
+            parent_tab_row_idx += 1
+            for state_name, hex_code in tab_colors.items():
+                self._add_color_display_row(parent_tabs_color_frame, f"{state_name}: {hex_code}", hex_code, parent_tab_row_idx, indent=1)
+                parent_tab_row_idx += 1
+                if state_name == 'active':
+                    # Add inactive color as well for clarity
+                    inactive_color = _get_dark_color(hex_code)
+                    self._add_color_display_row(parent_tabs_color_frame, f"inactive: {inactive_color}", inactive_color, parent_tab_row_idx, indent=1)
+                    parent_tab_row_idx += 1
 
 
         # --- Section 2: Font Sizes ---
@@ -205,135 +207,60 @@ class ColouringTab(ttk.Frame):
 
         # Define some conceptual styles based on style.py
         common_ui_styles = {
-            "TLabel (Default)": {
-                "widget_type": "label",
-                "background": COLOR_PALETTE['background'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 9)
-            },
-            "Dark.TLabel.Value": {
-                "widget_type": "label",
-                "background": COLOR_PALETTE['background'],
-                "foreground": COLOR_PALETTE['value_fg'],
-                "font": ('Helvetica', 9, 'bold')
-            },
-            "Green.TLabel": {
-                "widget_type": "label",
-                "background": COLOR_PALETTE['background'],
-                "foreground": COLOR_PALETTE['green_btn'],
-                "font": ('Helvetica', 10, 'bold')
-            },
-            "TButton (Default)": {
-                "widget_type": "button",
-                "style_name": "TButton", # Explicitly refer to the ttk style
-                "background": COLOR_PALETTE['active_bg'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 9, 'bold')
-            },
-            "Green.TButton": {
-                "widget_type": "button",
-                "style_name": "Green.TButton",
-                "background": COLOR_PALETTE['green_btn'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 9, 'bold')
-            },
-            "Markers.Device.Default.TButton": {
-                "widget_type": "button",
-                "style_name": "Markers.Device.Default.TButton",
-                "background": COLOR_PALETTE['active_bg'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 13, 'bold')
-            },
-            "Markers.Device.Selected.TButton": {
-                "widget_type": "button",
-                "style_name": "Markers.Device.Selected.TButton",
-                "background": COLOR_PALETTE['orange_btn'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 13, 'bold')
-            },
-            "Markers.Device.Scanning.TButton": {
-                "widget_type": "button",
-                "style_name": "Markers.Device.Scanning.TButton",
-                "background": COLOR_PALETTE['green_btn'],
-                "foreground": 'black', # Specific black foreground for contrast
-                "font": ('Helvetica', 13, 'bold')
-            },
-            "Markers.Config.Default.TButton": {
-                "widget_type": "button",
-                "style_name": "Markers.Config.Default.TButton",
-                "background": COLOR_PALETTE['active_bg'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 14, 'bold')
-            },
-            "Markers.Config.Selected.TButton": {
-                "widget_type": "button",
-                "style_name": "Markers.Config.Selected.TButton",
-                "background": COLOR_PALETTE['orange_btn'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 14, 'bold')
-            },
-            "LargePreset.TButton": {
-                "widget_type": "button",
-                "style_name": "LargePreset.TButton",
-                "background": COLOR_PALETTE['active_bg'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 25, 'bold')
-            },
-            "SelectedPreset.Orange.TButton": {
-                "widget_type": "button",
-                "style_name": "SelectedPreset.Orange.TButton",
-                "background": COLOR_PALETTE['orange_btn'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 25, 'bold')
-            },
-            "LargeYAK.TButton": { # Added YAK style
-                "widget_type": "button",
-                "style_name": "LargeYAK.TButton",
-                "background": COLOR_PALETTE['orange_btn'],
-                "foreground": COLOR_PALETTE['foreground'],
-                "font": ('Helvetica', 100, 'bold')
-            }
-            # Add more as needed based on common styles in style.py
+            "TLabel (Default)": {"widget_type": "label", "style_name": "TLabel"},
+            "Dark.TLabel.Value": {"widget_type": "label", "style_name": "Dark.TLabel.Value"},
+            "Red.TLabel.Value": {"widget_type": "label", "style_name": "Red.TLabel.Value"},
+            "TEntry (Default)": {"widget_type": "entry", "style_name": "TEntry"},
+            "TButton (Default)": {"widget_type": "button", "style_name": "TButton"},
+            "Green.TButton": {"widget_type": "button", "style_name": "Green.TButton"},
+            "Red.TButton": {"widget_type": "button", "style_name": "Red.TButton"},
+            "Orange.TButton": {"widget_type": "button", "style_name": "Orange.TButton"},
+            "Blue.TButton": {"widget_type": "button", "style_name": "Blue.TButton"},
+            "Purple.TButton": {"widget_type": "button", "style_name": "Purple.TButton"},
+            "StartScan.TButton": {"widget_type": "button", "style_name": "StartScan.TButton"},
+            "PauseScan.TButton": {"widget_type": "button", "style_name": "PauseScan.TButton"},
+            "StopScan.TButton": {"widget_type": "button", "style_name": "StopScan.TButton"},
+            "LocalPreset.TButton": {"widget_type": "button", "style_name": "LocalPreset.TButton"},
+            "SelectedPreset.Orange.TButton": {"widget_type": "button", "style_name": "SelectedPreset.Orange.TButton"},
+            "DeviceButton.Blinking.TButton": {"widget_type": "button", "style_name": "DeviceButton.Blinking.TButton"},
+            "ControlButton.Active.TButton": {"widget_type": "button", "style_name": "ControlButton.Active.TButton"},
+            "Band.Low.TButton": {"widget_type": "button", "style_name": "Band.Low.TButton"},
+            "Band.Medium.TButton": {"widget_type": "button", "style_name": "Band.Medium.TButton"},
+            "Band.High.TButton": {"widget_type": "button", "style_name": "Band.High.TButton"},
         }
-
+        
         current_ui_row = 0
         for display_name, properties in common_ui_styles.items():
+            try:
+                style_name = properties['style_name']
+                style_spec = self.app_instance.style.lookup(style_name, 'font')
+                if style_spec:
+                    style_font = style_spec
+                else:
+                    style_font = ("Helvetica", 9)
+            except TclError:
+                style_font = ("Helvetica", 9)
+
             style_box = ttk.Frame(ui_styles_frame, style='Dark.TFrame', relief="solid", borderwidth=1)
             style_box.grid(row=current_ui_row, column=0, columnspan=2, sticky="ew", padx=5, pady=5)
             style_box.grid_columnconfigure(0, weight=1) # For the label/button inside the box
 
-            # Display style name
-            ttk.Label(style_box, text=f"Style: {display_name}",
+            # Display style name and font
+            ttk.Label(style_box, text=f"Style: {display_name} (Font: {style_font})",
                       background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'],
                       font=('Helvetica', 10, 'bold')).grid(row=0, column=0, sticky="w", padx=5, pady=2)
 
-            example_text = "Example Text"
+            example_text = display_name
+            
             if properties.get("widget_type") == "button":
-                # Create a ttk.Button with the specified style
-                example_widget = ttk.Button(style_box, text=example_text,
-                                            style=properties.get("style_name"))
-                # Note: ttk.Button styles handle background/foreground/font directly
-                # so we don't need to pass them as separate args here.
-            else:
-                # Create a ttk.Label for non-button styles
-                example_widget = ttk.Label(style_box, text=example_text,
-                                           background=properties.get('background', COLOR_PALETTE['background']),
-                                           foreground=properties.get('foreground', COLOR_PALETTE['foreground']),
-                                           font=properties.get('font', ('Helvetica', 9)))
+                example_widget = ttk.Button(style_box, text=example_text, style=style_name)
+            elif properties.get("widget_type") == "entry":
+                example_widget = ttk.Entry(style_box, style=style_name)
+                example_widget.insert(0, example_text)
+            else: # label
+                example_widget = ttk.Label(style_box, text=example_text, style=style_name)
+                
             example_widget.grid(row=1, column=0, sticky="w", padx=5, pady=2)
-
-            # Display color boxes for background and foreground (still useful for clarity)
-            bg_color = properties.get('background', COLOR_PALETTE['background'])
-            fg_color = properties.get('foreground', COLOR_PALETTE['foreground'])
-
-            bg_box = tk.Frame(style_box, width=15, height=15, relief="solid", borderwidth=1, background=bg_color)
-            bg_box.grid(row=0, column=1, sticky="e", padx=(0, 2), pady=2)
-            ttk.Label(style_box, text="BG", background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 7)).grid(row=0, column=2, sticky="w", padx=(0, 5))
-
-            fg_box = tk.Frame(style_box, width=15, height=15, relief="solid", borderwidth=1, background=fg_color)
-            fg_box.grid(row=1, column=1, sticky="e", padx=(0, 2), pady=2)
-            ttk.Label(style_box, text="FG", background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 7)).grid(row=1, column=2, sticky="w", padx=(0, 5))
-
 
             current_ui_row += 1
 
@@ -359,7 +286,7 @@ class ColouringTab(ttk.Frame):
         color_box.grid(row=row_idx, column=1, sticky="e", padx=5, pady=2)
 
         debug_log(f"Displayed color: {text} with hex: {hex_color}",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
 
@@ -372,7 +299,7 @@ class ColouringTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
         debug_log(f"ColouringTab selected. Refreshing color and style display.",
-                    file=current_file,
+                    file=f"{current_file} - {current_version}",
                     version=current_version,
                     function=current_function)
         self._populate_content()
