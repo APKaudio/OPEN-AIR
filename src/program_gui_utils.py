@@ -26,7 +26,7 @@ from datetime import datetime
 
 # --- Import all Parent and Child Tab classes ---
 from tabs.TABS_PARENT import TABS_PARENT # REFACTORED: Import the new master tab container
-from tabs.Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
+from Start_Pause_Stop.tab_scan_controler_button_logic import ScanControlTab
 from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT 
 
 from display.console_logic import console_log

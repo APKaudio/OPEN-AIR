@@ -36,7 +36,6 @@
 #        |   -> Function: __init__(self)
 #        |   -> Function: _on_app_resize_or_move(self, event)
 #        |   -> Function: _on_closing(self)
-#        |   -> Function: _on_sash_moved(self)
 #        |   -> Function: _post_gui_setup(self)
 #        |   -> Function: _save_config_on_idle(self, message)
 #        |   -> Function: _set_console_redirectors(self)
@@ -341,7 +340,6 @@
 #            |   -> Import: tabs.Start_Pause_Stop.tab_scan_controler_button_logic
 #            |   -> Import: tabs.TABS_PARENT
 #            |   -> Import: tkinter
-#            |   -> Function: _set_sash_position(app_instance, paned_window, percentage)
 #            |   -> Function: apply_saved_geometry(app_instance)
 #            |   -> Function: create_main_layout_and_widgets(app_instance)
 #    ├── program_initialization.py
@@ -1134,7 +1132,6 @@
 #                |   -> Function: _on_edit_tab(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _on_tree_select(self, event)
-#                |   -> Function: _on_window_focus_in(self, event)
 #                |   -> Function: _save_presets_to_csv(self)
 #                |   -> Function: _start_edit(self, item_id, col_index)
 #                |   -> Function: populate_presets_table(self)

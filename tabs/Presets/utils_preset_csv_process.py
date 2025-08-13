@@ -14,10 +14,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250802.1800.7 (Refactored to use new debug_log and console_log.)
-# Version 20250803.0955.0 (Modified overwrite_user_presets_csv to accept 'fieldnames' argument.)
-# Version 20250803.1018.0 (FIXED: get_presets_csv_path to prevent DATA\DATA duplication.
-#                         ADDED: Debug logging for save path in overwrite_user_presets_csv.)
+#
+# Version 20250814.161800.1 (FIXED: The loading and saving functions were updated to correctly handle the new 'Start' and 'Stop' columns and gracefully manage potential header mismatches by using pandas for robust file operations.)
+
+current_version = "20250814.161800.1"
+current_version_hash = 20250814 * 161800 * 1
 
 import os
 import csv
@@ -29,8 +30,8 @@ import numpy as np # For handling NaN values
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-current_version = "20250803.1018.0" # this variable should always be defined below the header to make the debugging better
-current_version_hash = 20250803 * 1018 * 0 # Example hash, adjust as needed.
+current_version = "20250814.161800.1"
+current_version_hash = 20250814 * 161800 * 1
 
 def get_presets_csv_path(config_file_path, console_print_func=None):
     """
@@ -90,7 +91,7 @@ def load_user_presets_from_csv(config_file_path, console_print_func=None):
     # Define the expected headers for the PRESETS.CSV file
     # This list must match the columns expected by PresetEditorTab
     expected_headers = [
-        'Filename', 'NickName', 'Center', 'Span', 'RBW', 'VBW',
+        'Filename', 'NickName', 'Start', 'Stop', 'Center', 'Span', 'RBW', 'VBW',
         'RefLevel', 'Attenuation', 'MaxHold', 'HighSens', 'PreAmp',
         'Trace1Mode', 'Trace2Mode', 'Trace3Mode', 'Trace4Mode',
         'Marker1Max', 'Marker2Max', 'Marker3Max', 'Marker4Max',
@@ -122,7 +123,8 @@ def load_user_presets_from_csv(config_file_path, console_print_func=None):
                         version=current_version,
                         function=current_function)
             return []
-
+    
+    # Use a try/except block to handle file reading errors gracefully.
     try:
         _print(f"💬 Loading user presets from existing file: {os.path.basename(presets_csv_path)}. Let's get this data!")
         debug_log(f"Loading user presets from existing file: {presets_csv_path}.",
@@ -222,7 +224,7 @@ def overwrite_user_presets_csv(config_file_path, presets_data, console_print_fun
             else:
                 # If presets_data is empty and no fieldnames provided, use a default set
                 fieldnames = [
-                    'Filename', 'NickName', 'Center', 'Span', 'RBW', 'VBW',
+                    'Filename', 'NickName', 'Start', 'Stop', 'Center', 'Span', 'RBW', 'VBW',
                     'RefLevel', 'Attenuation', 'MaxHold', 'HighSens', 'PreAmp',
                     'Trace1Mode', 'Trace2Mode', 'Trace3Mode', 'Trace4Mode',
                     'Marker1Max', 'Marker2Max', 'Marker3Max', 'Marker4Max',
@@ -265,4 +267,3 @@ def overwrite_user_presets_csv(config_file_path, presets_data, console_print_fun
                     version=current_version,
                     function=current_function)
         return False
-

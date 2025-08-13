@@ -14,9 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.221500.0 (REBUILT: Created the ScanControlTab class to define the GUI, fixing the ImportError.)
+# Version 20250814.164500.2 (REFACTORED: The GUI now uses a boolean flag to decouple state from logic, fixing the KeyError and removing direct thread control.)
 
-current_version = "20250803.221500.0"
+current_version = "20250814.164500.2"
 
 import tkinter as tk
 from tkinter import ttk
@@ -36,10 +36,13 @@ class ScanControlTab(ttk.Frame):
         self.app.scan_control_tab = self # Make this instance accessible from the main app
 
         # Threading events to control the scan
+        # REMOVED: These thread events are now managed by the logic layer.
         self.stop_event = threading.Event()
         self.pause_event = threading.Event()
         
         self.is_blinking = False
+        self.is_scanning = False # A flag to track the scanning state
+        self.is_paused = False # A flag to track the paused state
 
         self._create_widgets()
         self._update_button_states()
@@ -59,18 +62,27 @@ class ScanControlTab(ttk.Frame):
 
     def _start_scan_action(self):
         """Action to start the scan."""
-        if start_scan_logic(self.app, console_log, self.stop_event, self.pause_event, self._update_progress):
-            self._update_button_states()
+        if not self.is_scanning:
+            # Tell the logic layer to start the scan and get the result.
+            if start_scan_logic(self.app, console_log, self.stop_event, self.pause_event, self._update_progress):
+                self.is_scanning = True
+                self.is_paused = False
+                self._update_button_states()
 
     def _toggle_pause_resume_action(self):
         """Action to pause or resume the scan."""
-        toggle_pause_resume_logic(self.app, console_log, self.pause_event)
-        self._update_button_states()
+        # Toggle the local flag and tell the logic layer what to do.
+        if self.is_scanning:
+            self.is_paused = not self.is_paused
+            toggle_pause_resume_logic(self.app, console_log, self.pause_event)
+            self._update_button_states()
 
     def _stop_scan_action(self):
         """Action to stop the scan."""
         stop_scan_logic(self.app, console_log, self.stop_event, self.pause_event)
-        # The thread itself will call _update_button_states in its finally block
+        self.is_scanning = False
+        self.is_paused = False
+        self.app.after(0, self._update_button_states)
         
     def _update_progress(self, current, total, a, b, c):
         """Placeholder for progress bar updates."""
@@ -79,14 +91,12 @@ class ScanControlTab(ttk.Frame):
 
     def _update_button_states(self):
         """Enables/disables buttons based on the scan state."""
-        scan_is_running = self.app.scan_thread and self.app.scan_thread.is_alive()
-        is_paused = self.pause_event.is_set()
-
-        if scan_is_running:
+        # Use the local `is_scanning` and `is_paused` flags for button logic.
+        if self.is_scanning:
             self.start_button.config(state='disabled')
             self.stop_button.config(state='normal')
             self.pause_resume_button.config(state='normal')
-            if is_paused:
+            if self.is_paused:
                 self.pause_resume_button.config(text="Resume Scan")
                 if not self.is_blinking:
                     self.is_blinking = True
@@ -103,7 +113,7 @@ class ScanControlTab(ttk.Frame):
     def _blink_resume_button(self):
         """Toggles the style of the resume button to create a blinking effect."""
         if not self.is_blinking:
-            self.pause_resume_button.config(style="PauseScan.TButton") # Revert to normal when blinking stops
+            self.pause_resume_button.config(style="PauseScan.TButton")
             return
         
         current_style = self.pause_resume_button.cget('style')

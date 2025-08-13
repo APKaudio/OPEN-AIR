@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.010000.1 (FIXED: Corrected variable names in _update_gui_from_preset_data to resolve AttributeError and ensure all preset data is applied to the application's state.)
+# Version 20250814.163200.1 (FIXED: The Selected Preset Details section was reorganized into logical groups.)
 
-current_version = "20250812.010000.1"
-current_version_hash = 20250812 * 10000 * 1
+current_version = "20250814.163200.1"
+current_version_hash = 20250814 * 163200 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,7 +31,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import functions from preset utility modules
-from tabs.Presets.utils_preset_process import load_user_presets_from_csv
+from tabs.Presets.utils_preset_csv_process import load_user_presets_from_csv
 from src.program_style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
 from src.settings_and_config.config_manager import save_config # Explicit import of save_config
 
@@ -68,7 +68,7 @@ class LocalPresetsTab(ttk.Frame):
         Ensures the presets are reloaded and buttons are refreshed instantly.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Local Presets tab selected. Refreshing buttons instantly. 🚀", file=f"{os.path.basename(__file__)}",
+        debug_log(f"Local Presets tab selected. Refreshing buttons instantly. �", file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         self.populate_local_presets_list()
@@ -103,6 +103,8 @@ class LocalPresetsTab(ttk.Frame):
 
         # Tkinter StringVars for displaying selected preset details
         self.selected_preset_nickname_var = tk.StringVar(self, value="N/A")
+        self.selected_preset_start_var = tk.StringVar(self, value="N/A")
+        self.selected_preset_stop_var = tk.StringVar(self, value="N/A")
         self.selected_preset_center_var = tk.StringVar(self, value="N/A")
         self.selected_preset_span_var = tk.StringVar(self, value="N/A")
         self.selected_preset_rbw_var = tk.StringVar(self, value="N/A")
@@ -125,6 +127,8 @@ class LocalPresetsTab(ttk.Frame):
         
         self.display_variables_map = {
             'NickName': self.selected_preset_nickname_var,
+            'Start': self.selected_preset_start_var,
+            'Stop': self.selected_preset_stop_var,
             'Center': self.selected_preset_center_var,
             'Span': self.selected_preset_span_var,
             'RBW': self.selected_preset_rbw_var,
@@ -215,21 +219,46 @@ class LocalPresetsTab(ttk.Frame):
         details_grid_frame.grid_columnconfigure(2, weight=1)
         details_grid_frame.grid_columnconfigure(3, weight=1)
 
+        # Nickname
         row_idx = 0
         ttk.Label(details_grid_frame, text="Nickname:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_nickname_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew", columnspan=3)
 
+        # Frequency Settings Group
+        row_idx += 1
+        ttk.Separator(details_grid_frame, orient=tk.HORIZONTAL).grid(row=row_idx, column=0, columnspan=4, sticky="ew", pady=5)
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Frequency Settings", style='Dark.TLabel.Value').grid(row=row_idx, column=0, columnspan=4, sticky="ew")
+
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Start (MHz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_start_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="Stop (MHz):", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_stop_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+        
         row_idx += 1
         ttk.Label(details_grid_frame, text="Center (MHz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_center_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
         ttk.Label(details_grid_frame, text="Span (MHz):", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_span_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
         
+        # Bandwidth Settings Group
+        row_idx += 1
+        ttk.Separator(details_grid_frame, orient=tk.HORIZONTAL).grid(row=row_idx, column=0, columnspan=4, sticky="ew", pady=5)
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Bandwidth Settings", style='Dark.TLabel.Value').grid(row=row_idx, column=0, columnspan=4, sticky="ew")
+
         row_idx += 1
         ttk.Label(details_grid_frame, text="RBW (Hz):", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_rbw_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
         ttk.Label(details_grid_frame, text="VBW (Hz):", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_vbw_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+
+        # Amplitude Settings Group
+        row_idx += 1
+        ttk.Separator(details_grid_frame, orient=tk.HORIZONTAL).grid(row=row_idx, column=0, columnspan=4, sticky="ew", pady=5)
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Amplitude Settings", style='Dark.TLabel.Value').grid(row=row_idx, column=0, columnspan=4, sticky="ew")
 
         row_idx += 1
         ttk.Label(details_grid_frame, text="Ref Level:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
@@ -246,36 +275,48 @@ class LocalPresetsTab(ttk.Frame):
         row_idx += 1
         ttk.Label(details_grid_frame, text="PreAmp:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
         ttk.Label(details_grid_frame, textvariable=self.selected_preset_preamp_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Label(details_grid_frame, text="T1 Mode:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace1_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+        
+        # Trace Modes Group
+        row_idx += 1
+        ttk.Separator(details_grid_frame, orient=tk.HORIZONTAL).grid(row=row_idx, column=0, columnspan=4, sticky="ew", pady=5)
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Trace Modes", style='Dark.TLabel.Value').grid(row=row_idx, column=0, columnspan=4, sticky="ew")
         
         row_idx += 1
-        ttk.Label(details_grid_frame, text="T2 Mode:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace2_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Label(details_grid_frame, text="T3 Mode:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace3_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="T1 Mode:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace1_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="T2 Mode:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace2_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+        
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="T3 Mode:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace3_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="T4 Mode:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace4_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+
+        # Marker Settings Group
+        row_idx += 1
+        ttk.Separator(details_grid_frame, orient=tk.HORIZONTAL).grid(row=row_idx, column=0, columnspan=4, sticky="ew", pady=5)
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="Marker Settings", style='Dark.TLabel.Value').grid(row=row_idx, column=0, columnspan=4, sticky="ew")
+        
+        row_idx += 1
+        ttk.Label(details_grid_frame, text="M1 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker1_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="M2 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker2_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
 
         row_idx += 1
-        ttk.Label(details_grid_frame, text="T4 Mode:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_trace4_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Label(details_grid_frame, text="M1 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker1_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="M3 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker3_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="M4 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker4_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
 
         row_idx += 1
-        ttk.Label(details_grid_frame, text="M2 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker2_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Label(details_grid_frame, text="M3 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker3_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
-
-        row_idx += 1
-        ttk.Label(details_grid_frame, text="M4 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker4_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
-        ttk.Label(details_grid_frame, text="M5 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker5_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
-
-        row_idx += 1
-        ttk.Label(details_grid_frame, text="M6 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker6_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="M5 Max:", style='TLabel').grid(row=row_idx, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker5_var, style='Dark.TLabel.Value').grid(row=row_idx, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(details_grid_frame, text="M6 Max:", style='TLabel').grid(row=row_idx, column=2, padx=5, pady=2, sticky="w")
+        ttk.Label(details_grid_frame, textvariable=self.selected_preset_marker6_var, style='Dark.TLabel.Value').grid(row=row_idx, column=3, padx=5, pady=2, sticky="ew")
 
         debug_log("LocalPresetsTab widgets created. Scrollable button container and details box ready! 🖼️", file=f"{os.path.basename(__file__)}",
                     version=current_version,
@@ -325,25 +366,24 @@ class LocalPresetsTab(ttk.Frame):
         for preset in self.user_presets_data:
             nickname = preset.get('NickName', preset.get('Filename', 'Unnamed Preset'))
             
-            # Safely get and format Center and Span for button display
-            center_freq_mhz_display = "N/A"
-            span_mhz_display = "N/A"
+            # Safely get and format Start and Stop for button display
+            start_freq_mhz_display = "N/A"
+            stop_freq_mhz_display = "N/A"
             try:
-                if preset.get('Center', '').strip():
-                    center_freq_mhz_display = f"{float(preset.get('Center')):.3f}"
-                if preset.get('Span', '').strip():
-                    span_mhz_display = f"{float(preset.get('Span')):.3f}"
+                if preset.get('Start', '').strip():
+                    start_freq_mhz_display = f"{float(preset.get('Start')):.3f}"
+                if preset.get('Stop', '').strip():
+                    stop_freq_mhz_display = f"{float(preset.get('Stop')):.3f}"
             except ValueError:
-                debug_log(f"Warning: Could not convert Center/Span for button text for preset '{nickname}'. What a mess!", file=f"{os.path.basename(__file__)}",
+                debug_log(f"Warning: Could not convert Start/Stop for button text for preset '{nickname}'. What a mess!", file=f"{os.path.basename(__file__)}",
                             version=current_version,
                             function=current_function)
                 # Keep "N/A" or previous value if conversion fails
 
-            # Removed "Nickname: " from the button text
-            button_text = f"{nickname}\nC: {center_freq_mhz_display} MHz\nSP: {span_mhz_display} MHz"
+            # Now use Start and Stop for button text
+            button_text = f"{nickname}\nStart: {start_freq_mhz_display} MHz\nStop: {stop_freq_mhz_display} MHz"
 
             # Use lambda to capture the current preset_data for each button
-            # This is a common pattern for Tkinter buttons in loops
             preset_button = ttk.Button(self.scrollable_frame,
                                        text=button_text,
                                        command=lambda p=preset, b=None: self._on_preset_button_click(p, b),
@@ -507,6 +547,8 @@ class LocalPresetsTab(ttk.Frame):
                             function=current_function)
 
         # Apply preset values to the display variables
+        set_display_var(self.selected_preset_start_var, 'Start', "{:.3f}", float)
+        set_display_var(self.selected_preset_stop_var, 'Stop', "{:.3f}", float)
         set_display_var(self.selected_preset_center_var, 'Center', "{:.3f}", float)
         set_display_var(self.selected_preset_span_var, 'Span', "{:.3f}", float)
         set_display_var(self.selected_preset_rbw_var, 'RBW', "{:.0f}", float)

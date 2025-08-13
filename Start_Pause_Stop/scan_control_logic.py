@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.221000.1 (FIXED: Removed the defunct import of 'initialize_instrument_logic' to resolve ModuleNotFoundError and streamline scan initiation.)
+# Version 20250814.164500.1 (REFACTORED: Converted scan control to a flagging system to decouple the UI from the core logic, fixing the KeyError.)
 
-current_version = "20250811.221000.1"
-current_version_hash = 20250811 * 221000 * 1
+current_version = "20250814.164500.1"
+current_version_hash = 20250814 * 164500 * 1
 
 import threading
 import time
@@ -37,19 +37,41 @@ from src.connection_status_logic import update_connection_status_logic
 # REMOVED: Import initialize_instrument_logic here, as it's no longer used.
 
 def start_scan_logic(app_instance, console_print_func, stop_event, pause_event, update_progress_func):
-    """Initiates the spectrum scan in a separate thread."""
+    """
+    Function Description:
+    Initiates the spectrum scan in a separate thread based on the `is_scanning` flag.
+    This function now acts as the trigger for the background thread.
+    
+    Inputs:
+        app_instance (object): A reference to the main application instance.
+        console_print_func (function): The function to print messages to the GUI console.
+        stop_event (threading.Event): The event to signal the scan thread to stop.
+        pause_event (threading.Event): The event to signal the scan thread to pause.
+        update_progress_func (function): The function to update the progress bar.
+    
+    Outputs:
+        bool: True if the scan thread was successfully started, False otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}", file=os.path.basename(__file__), version=current_version, function=current_function)
+    
+    # Check if a scan is already running
     if app_instance.scan_thread and app_instance.scan_thread.is_alive():
         console_print_func("⚠️ Scan already in progress.")
+        debug_log(f"Scan already in progress. Aborting start request.", file=os.path.basename(__file__), version=current_version, function=current_function)
         return False
 
     if not app_instance.is_connected.get():
         console_print_func("❌ Instrument not connected. Cannot start scan.")
+        debug_log(f"Instrument not connected. Aborting scan.", file=os.path.basename(__file__), version=current_version, function=current_function)
         return False
 
-    selected_bands = [band_item["band"] for band_item in app_instance.band_vars if band_item["var"].get()]
+    # FIX: Get selected bands using the 'level' attribute, which is now the correct flag.
+    selected_bands = [band_item["band"] for band_item in app_instance.band_vars if band_item["level"] > 0]
 
     if not selected_bands:
         console_print_func("⚠️ No bands selected for scan.")
+        debug_log(f"No bands selected. Aborting scan.", file=os.path.basename(__file__), version=current_version, function=current_function)
         return False
 
     stop_event.clear()
@@ -62,6 +84,7 @@ def start_scan_logic(app_instance, console_print_func, stop_event, pause_event, 
     )
     app_instance.scan_thread.daemon = True
     app_instance.scan_thread.start()
+    debug_log(f"Scan thread started successfully.", file=os.path.basename(__file__), version=current_version, function=current_function)
     return True
 
 def toggle_pause_resume_logic(app_instance, console_print_func, pause_event):
@@ -85,16 +108,35 @@ def stop_scan_logic(app_instance, console_print_func, stop_event, pause_event):
         console_print_func("⏹️ Stopping scan...")
 
 def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func):
-    """The main function executed in the scanning thread."""
+    """
+    Function Description:
+    The main function executed in the scanning thread. It orchestrates the scan process,
+    handling the main loop for scanning cycles and calling other utility functions.
+    
+    Inputs:
+        app_instance (object): A reference to the main application instance.
+        selected_bands (list): A list of dictionaries for the bands to scan.
+        stop_event (threading.Event): The event to signal the scan thread to stop.
+        pause_event (threading.Event): The event to signal the scan thread to pause.
+        console_print_func (function): The function to print messages to the GUI console.
+        update_progress_func (function): The function to update the progress bar.
+    
+    Outputs:
+        None. Modifies the GUI state and saves files.
+    """
+    current_function = inspect.currentframe().f_code.co_name
     console_print_func("--- Initiating Spectrum Scan ---")
     try:
+        # Pass the initialize_instrument_logic function from its correct location
+        from tabs.Instrument.utils_instrument_initialization import initialize_instrument_logic
+        
         raw_scan_data, markers_data = scan_bands(
             app_instance_ref=app_instance,
             inst=app_instance.inst,
             selected_bands=selected_bands,
             rbw_hz=float(app_instance.scan_rbw_hz_var.get()),
             ref_level_dbm=float(app_instance.reference_level_dbm_var.get()),
-            freq_shift_hz=float(app_instance.freq_shift_var.get()),
+            freq_shift_hz=float(app_instance.freq_shift_hz_var.get()),
             maxhold_enabled=bool(app_instance.maxhold_enabled_var.get()),
             high_sensitivity=app_instance.high_sensitivity_var.get(),
             preamp_on=app_instance.preamp_on_var.get(),
@@ -107,7 +149,7 @@ def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, c
             log_visa_commands_enabled=app_instance.log_visa_commands_enabled_var.get(),
             general_debug_enabled=app_instance.general_debug_enabled_var.get(),
             app_console_update_func=console_print_func,
-            # Removed the call to initialize_instrument_func
+            initialize_instrument_func=initialize_instrument_logic
         )
 
         if not stop_event.is_set():
