@@ -17,10 +17,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250812.231000.1 (FIXED: Corrected misspelled function call from _start_marker_trace_loop to _start_device_trace_loop.)
+# Version 20250812.232900.2 (REFACTORED: Moved data loading and formatting logic to utils_showtime.py.)
 
-current_version = "20250812.231000.1"
-current_version_hash = (20250812 * 231000 * 1)
+current_version = "20250812.232900.2"
+current_version_hash = (20250812 * 232900 * 2)
 
 import tkinter as tk
 from tkinter import ttk
@@ -48,6 +48,9 @@ from tabs.Markers.utils_markers import (
     set_marker_logic,
     set_rbw_logic
 )
+# NEW: Import the refactored utility functions
+from tabs.Markers.utils_markers_showtime import format_hz, load_markers_data
+
 from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
 from ref.frequency_bands import MHZ_TO_HZ, KHZ_TO_HZ
@@ -122,12 +125,12 @@ class ShowtimeTab(ttk.Frame):
         # State Variables for Controls (from MarkersDisplayTab)
         self.span_var = tk.StringVar(value="1000000.0") # Default to 1 MHz span
         self.rbw_var = tk.StringVar(value="30000.0")   # Default to 30 kHz RBW
-        self.poke_freq_var = tk.StringVar() # FIXED: This was missing and caused the AttributeError
+        self.poke_freq_var = tk.StringVar() 
         self.trace_live_mode = tk.BooleanVar(value=True)
         self.trace_max_hold_mode = tk.BooleanVar(value=True)
         self.trace_min_hold_mode = tk.BooleanVar(value=False)
-        self.loop_delay_var = tk.StringVar(value="500") # FIXED: This was also missing
-        self.loop_counter_var = tk.IntVar(value=0) # FIXED: This was also missing
+        self.loop_delay_var = tk.StringVar(value="500") 
+        self.loop_counter_var = tk.IntVar(value=0) 
         
         # Dictionaries to hold control buttons for styling
         self.span_buttons = {}
@@ -161,7 +164,6 @@ class ShowtimeTab(ttk.Frame):
         self.zone_button_subframe = ttk.Frame(self.zone_buttons_frame, style='Dark.TFrame')
         self.zone_button_subframe.pack(fill="x", expand=False)
         
-        # Changed max columns to 8 from 10
         for i in range(8):
             self.zone_button_subframe.grid_columnconfigure(i, weight=1)
 
@@ -173,7 +175,6 @@ class ShowtimeTab(ttk.Frame):
         self.group_button_subframe = ttk.Frame(self.group_buttons_frame, style='Dark.TFrame')
         self.group_button_subframe.pack(fill="x", expand=False)
         
-        # Changed max columns to 8 from 10
         for i in range(8):
             self.group_button_subframe.grid_columnconfigure(i, weight=1)
 
@@ -194,12 +195,10 @@ class ShowtimeTab(ttk.Frame):
         canvas.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
         
-        # NEW: Changed device button layout to 4 columns for better display
         for i in range(4):
             self.device_buttons_frame.grid_columnconfigure(i, weight=1)
         
         # --- Controls Notebook (Bottom Right) ---
-        # This whole block was missing. It has been added back.
         self.controls_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
         self.controls_notebook.grid(row=3, column=0, sticky="ew", padx=5, pady=5)
 
@@ -207,7 +206,7 @@ class ShowtimeTab(ttk.Frame):
         span_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=10)
         self.controls_notebook.add(span_tab, text="Span")
         for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
-            val_text = self._format_hz(span_hz)
+            val_text = format_hz(span_hz)
             btn_text = f"{name}\n{val_text}"
 
             btn = ttk.Button(span_tab, text=btn_text, command=lambda s=span_hz: self._on_span_button_click(s))
@@ -260,87 +259,6 @@ class ShowtimeTab(ttk.Frame):
 
         self.loop_stop_button = ttk.Button(loop_tab, text="Stop Loop", command=self._stop_loop_action, state=tk.DISABLED)
         self.loop_stop_button.grid(row=2, column=0, padx=5, pady=5, sticky="ew", columnspan=3)
-
-    def _format_hz(self, hz_val):
-        # Function Description:
-        # Formats a frequency in Hz to a human-readable string in MHz or kHz.
-        # This function was missing and has been added back.
-        try:
-            hz = float(hz_val)
-            if hz == 100 * MHZ_TO_HZ: return "100 MHz"
-            if hz >= MHZ_TO_HZ:
-                return f"{hz / MHZ_TO_HZ:.1f}".replace('.0', '') + " MHz"
-            elif hz >= 1000:
-                return f"{hz / 1000:.1f}".replace('.0', '') + " kHz"
-            else:
-                return f"{hz} Hz"
-        except (ValueError, TypeError):
-            return "N/A"
-
-    def _load_markers_data(self):
-        # Function Description:
-        # Loads marker data from the internal MARKERS.CSV file.
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Loading markers from the CSV file. 🤠",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
-        
-        self.markers_data = pd.DataFrame()
-        self.zones = {}
-        
-        if self.app_instance and hasattr(self.app_instance, 'MARKERS_FILE_PATH'):
-            path = self.app_instance.MARKERS_FILE_PATH
-            if os.path.exists(path):
-                try:
-                    self.markers_data = pd.read_csv(path)
-                    debug_log(f"Successfully read MARKERS.CSV. Shape: {self.markers_data.shape}. Columns: {self.markers_data.columns.tolist()}",
-                              file=f"{os.path.basename(__file__)} - {current_version}",
-                              version=current_version,
-                              function=current_function, special=True)
-                    self.zones = self._group_by_zone_and_group(self.markers_data)
-                    self.console_print_func(f"✅ Loaded {len(self.markers_data)} markers from MARKERS.CSV.")
-                except Exception as e:
-                    self.console_print_func(f"❌ Error loading MARKERS.CSV: {e}")
-                    debug_log(f"A file loading calamity! The MARKERS.CSV file couldn't be loaded. Error: {e}",
-                              file=f"{os.path.basename(__file__)} - {current_version}",
-                              version=current_version,
-                              function=current_function, special=True)
-            else:
-                self.console_print_func("ℹ️ MARKERS.CSV not found. Please create one.")
-                debug_log(f"MARKERS.CSV file not found at path: {path}",
-                          file=f"{os.path.basename(__file__)} - {current_version}",
-                          version=current_version,
-                          function=current_function)
-
-    def _group_by_zone_and_group(self, data):
-        # Function Description:
-        # Groups marker data by zone and then by group.
-        current_function = inspect.currentframe().f_code.co_name
-        if data.empty:
-            debug_log(f"DataFrame is empty, cannot group by zone.",
-                      file=f"{os.path.basename(__file__)} - {current_version}",
-                      version=current_version,
-                      function=current_function)
-            return {}
-        
-        debug_log(f"Grouping data by ZONE and GROUP. Data shape: {data.shape}",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
-        
-        data['GROUP'] = data['GROUP'].fillna('No Group')
-        
-        zones = {}
-        for zone, zone_data in data.groupby('ZONE'):
-            groups = {group: group_data.to_dict('records') for group, group_data in zone_data.groupby('GROUP')}
-            zones[zone] = groups
-        
-        debug_log(f"Grouping complete. Found {len(zones)} zones.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
-        return zones
 
     def _populate_zone_buttons(self):
         # Function Description:
@@ -488,7 +406,7 @@ class ShowtimeTab(ttk.Frame):
             self.app_instance.after(0, lambda: self.console_print_func("❌ Peak search failed. See console for details."))
             return
             
-        self.app_instance.after(0, self._load_markers_data) # Reload data to get fresh peak values
+        self.app_instance.after(0, self.load_markers_data) # Reload data to get fresh peak values
         
         # Get min and max frequencies for the entire zone/group for the trace
         all_freqs_mhz = devices['FREQ'].dropna().tolist()
@@ -523,7 +441,6 @@ class ShowtimeTab(ttk.Frame):
         self.app_instance.after(0, lambda: self.console_print_func(f"📊 Displaying trace for {name} over a buffered span of {trace_span_mhz:.3f} MHz."))
         
         # Get trace for the entire span
-        # CORRECTED: Pass self as showtime_tab_instance
         self.app_instance.after(0, lambda: get_marker_traces(app_instance=self.app_instance, showtime_tab_instance=self, console_print_func=self.console_print_func, center_freq_hz=trace_center_freq_hz, span_hz=trace_span_hz, device_name=name))
         
         self.app_instance.after(0, self._populate_device_buttons)
@@ -789,7 +706,7 @@ class ShowtimeTab(ttk.Frame):
                   file=f"{os.path.basename(__file__)} - {current_version}",
                   version=current_version,
                   function=current_function)
-        self._load_markers_data()
+        self.load_markers_data()
         
         # FIX: Check if a zone is already selected, otherwise select the first one.
         if not self.selected_zone and not self.markers_data.empty:
