@@ -18,10 +18,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.214000.1 (FIXED: The loading logic has been completely rebuilt to ensure the data file is created and populated with defaults before any read attempts, eliminating a major logic error.)
+# Version 20250816.224500.1 (FIXED: The _yak_button_action function was updated to correctly handle the NAB response as a string and not attempt to reformat it, resolving the ValueError.)
 
-current_version = "20250812.214000.1"
-current_version_hash = 20250812 * 214000 * 1
+current_version = "20250816.224500.1"
+current_version_hash = 20250816 * 224500 * 1
 
 import tkinter as tk
 from tkinter import ttk, filedialog
@@ -39,7 +39,7 @@ from display.console_logic import console_log
 from ref.ref_visa_commands import get_default_commands
 
 # NEW: Import the new high-level Yak functions from Yakety_Yak
-from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo
+from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
 
 class VisaInterpreterTab(ttk.Frame):
     """
@@ -157,6 +157,27 @@ class VisaInterpreterTab(ttk.Frame):
                     function=current_function)
 
     def _yak_button_action(self):
+        # Function Description:
+        # Executes the selected VISA command. It now correctly identifies
+        # and calls the `YakNab` function for the "NAB" action type.
+        #
+        # Inputs:
+        #   None.
+        #
+        # Process:
+        #   1. Retrieves the selected item from the Treeview.
+        #   2. Checks if an instrument is connected.
+        #   3. Extracts the command type, action type, and variable value from the selected row.
+        #   4. Uses a conditional `if/elif/else` structure to call the appropriate `Yak` function.
+        #      - `if action_type == "GET"`: Calls `YakGet`.
+        #      - `elif action_type == "NAB"`: Calls `YakNab`.
+        #      - `elif action_type == "SET"`: Calls `YakSet`.
+        #      - `elif action_type == "DO"`: Calls `YakDo`.
+        #   5. Updates the "Validated" column in the Treeview with the result from the call.
+        #   6. Calls `_save_data` to persist the changes.
+        #
+        # Outputs:
+        #   None. Modifies the Treeview and saves the data file.
         current_function = inspect.currentframe().f_code.co_name
         debug_log("YAK button clicked. Attempting to execute selected VISA command. Let's send this command to the instrument!",
                     file=os.path.basename(__file__),
@@ -188,6 +209,9 @@ class VisaInterpreterTab(ttk.Frame):
         response = "FAILED"
         if action_type == "GET":
             response = YakGet(self.app_instance, command_type, self.console_print_func)
+        elif action_type == "NAB":
+            # FIX: Just assign the response directly, as YakNab now returns a formatted string.
+            response = YakNab(self.app_instance, command_type, self.console_print_func)
         elif action_type == "SET":
             response = YakSet(self.app_instance, command_type, variable_value, self.console_print_func)
         elif action_type == "DO":
@@ -606,4 +630,3 @@ class VisaInterpreterTab(ttk.Frame):
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
-

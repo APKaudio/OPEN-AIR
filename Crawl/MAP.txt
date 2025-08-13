@@ -69,7 +69,6 @@
 #            |   -> Function: debug_log(message, file, function)
 #    ├── SCANS/
 #    ├── DEBUG_SOFTWARE.log
-#    ├── DEBUG_VISA_COMMANDS.log
 #    ├── MARKERS.CSV
 #    ├── MMVA - Open_Air_Markers - DefaultScan - 20250811_2302.csv
 #    ├── Open_Air_Markers - DefaultScan - 20250811_1227.csv
@@ -488,6 +487,7 @@
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
+#                |   -> Import: re
 #                |   -> Import: src.program_style
 #                |   -> Import: tkinter
 #                |   -> Class: ColouringTab
@@ -520,14 +520,15 @@
 #                |   -> Import: tkinter
 #                |   -> Function: YakDo(app_instance, command_type, console_print_func)
 #                |   -> Function: YakGet(app_instance, command_type, console_print_func)
+#                |   -> Function: YakNab(app_instance, command_type, console_print_func)
 #                |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
 #                |   -> Function: _find_command(command_type, action_type, model)
 #                |   -> Function: _load_commands_from_file(file_path)
 #                |   -> Function: _reset_device(inst, console_print_func)
 #                |   -> Function: execute_visa_command(inst, action_type, visa_command, variable_value, console_print_func)
-#                |   -> Function: query_safe(inst, command, console_print_func)
+#                |   -> Function: query_safe(inst, command, console_print_func, retries)
 #                |   -> Function: set_safe(inst, command, value, console_print_func)
-#                |   -> Function: write_safe(inst, command, console_print_func)
+#                |   -> Function: write_safe(inst, command, console_print_func, retries)
 #        ├── __init__.py
 #        ├── instrument_logic.py
 #                |   -> Import: display.console_logic
@@ -648,8 +649,6 @@
 #                |   -> Import: time
 #                |   -> Function: query_safe(inst, command, app_instance_ref, console_print_func)
 #                |   -> Function: write_safe(inst, command, app_instance_ref, console_print_func)
-#        ├── utils_visa_qualify.py
-#                - No functions, classes, or imports found.
 #        └── utils_yak_visa.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
@@ -765,7 +764,9 @@
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
+#                |   -> Import: display.utils_display_monitor
 #                |   -> Import: inspect
+#                |   -> Import: numpy
 #                |   -> Import: os
 #                |   -> Import: pandas
 #                |   -> Import: ref.frequency_bands
@@ -778,11 +779,14 @@
 #                |   -> Import: time
 #                |   -> Import: tkinter
 #                |   -> Class: ShowtimeTab
+#                |   -> Class: ThresholdsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _blink_device_button(self)
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _group_by_zone_and_group(self, data)
 #                |   -> Function: _load_markers_data(self)
-#                |   -> Function: _on_device_button_click(self, device_data)
+#                |   -> Function: _on_child_tab_selected(self, event)
 #                |   -> Function: _on_device_button_click(self, device_data)
 #                |   -> Function: _on_group_button_click(self, group_name)
 #                |   -> Function: _on_rbw_button_click(self, rbw_hz)
@@ -791,17 +795,16 @@
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _on_trace_button_click(self, trace_var)
 #                |   -> Function: _on_zone_button_click(self, zone_name)
+#                |   -> Function: _peak_search_and_get_trace(self, devices, name)
+#                |   -> Function: _perform_peak_search_task(self, devices, name)
 #                |   -> Function: _populate_device_buttons(self)
 #                |   -> Function: _populate_group_buttons(self)
 #                |   -> Function: _populate_zone_buttons(self)
-#                |   -> Function: _start_marker_trace_loop(self, center_freq_hz, span_hz)
-#                |   -> Function: _start_marker_trace_loop(self, center_freq_hz, span_hz)
-#                |   -> Function: _stop_loop_action(self)
+#                |   -> Function: _start_device_trace_loop(self, center_freq_hz, span_hz, button_to_blink)
 #                |   -> Function: _stop_loop_action(self)
 #                |   -> Function: _update_control_styles(self)
 #                |   -> Function: _update_group_button_styles(self)
 #                |   -> Function: _update_zone_button_styles(self)
-#                |   -> Function: loop_func()
 #                |   -> Function: loop_func()
 #        ├── utils_marker_peaks.py
 #                |   -> Import: csv
@@ -813,7 +816,9 @@
 #                |   -> Import: pandas
 #                |   -> Import: ref.frequency_bands
 #                |   -> Import: tabs.Instrument.Yakety_Yak
-#                |   -> Function: get_peak_values_and_update_csv(app_instance, zone_name, console_print_func)
+#                |   -> Import: time
+#                |   -> Function: _set_multiple_markers_x(app_instance, device_chunk, console_print_func)
+#                |   -> Function: get_peak_values_and_update_csv(app_instance, devices_to_process, console_print_func)
 #        ├── utils_markers.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
@@ -835,21 +840,20 @@
 #                |   -> Import: inspect
 #                |   -> Import: numpy
 #                |   -> Import: os
+#                |   -> Import: ref.frequency_bands
 #                |   -> Import: tabs.Instrument.Yakety_Yak
-#                |   -> Function: _process_trace_data(trace_data_str, start_freq_hz, end_freq_hz)
+#                |   -> Function: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func)
 #                |   -> Function: get_marker_traces(app_instance, console_print_func, center_freq_hz, span_hz, device_name)
 #                |   -> Function: get_trace_1_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
 #                |   -> Function: get_trace_2_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
 #                |   -> Function: get_trace_3_data(app_instance, console_print_func, start_freq_hz, end_freq_hz)
-#                |   -> Function: publish_bottom_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title)
-#                |   -> Function: publish_medium_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title)
-#                |   -> Function: publish_top_trace(app_instance, console_print_func, trace_data, start_freq_mhz, end_freq_mhz, plot_title)
 #        └── utils_report_converter.py
 #                |   -> Import: bs4
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
+#                |   -> Import: numpy
 #                |   -> Import: os
 #                |   -> Import: pdfplumber
 #                |   -> Import: re

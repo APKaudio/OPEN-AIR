@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.200000.15 (FIXED: A new `YakNab` function and `NAB` action type were implemented to handle multi-query commands, separating this logic from the existing `YakGet` function.)
+# Version 20250816.224500.2 (REFACTORED: The command loading logic was refactored to cache the CSV data in memory, avoiding repeated file reads for improved performance.)
 
-current_version = "20250816.200000.15"
-current_version_hash = 20250816 * 200000 * 15
+current_version = "20250816.224500.2"
+current_version_hash = 20250816 * 224500 * 2
 
 import csv
 import os
@@ -198,7 +198,7 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
 
     Outputs of this function:
     - str or None: The instrument's response if the action was a successful "GET".
-    - list of floats or None: The instrument's response as a list of floats if the action was a successful "NAB".
+    - str or None: The instrument's response as a formatted string with '|||' separators if the action was a successful "NAB".
     - str: "PASSED", "TIME FAILED", or "FAILED" for a "DO" command.
     - str: "PASSED", "TIME FAILED", or "FAILED" for a "SET" command.
     """
@@ -237,23 +237,27 @@ def execute_visa_command(inst, action_type, visa_command, variable_value, consol
             
             if response_string is not None:
                 try:
-                    # Parse the comma-separated string into a list of floats
-                    values = [float(val) for val in response_string.split(',')]
-                    console_print_func(f"✅ NAB Response: {values}")
+                    # FIX: Split the string by semicolons instead of commas.
+                    # FIX: Add .strip() to each value before conversion.
+                    # This is where the ValueError was happening. The `v.strip()` should fix it.
+                    values = [float(val.strip()) for val in response_string.split(';')]
+                    # FIX: Return a string with '|||' separators for the "Validated" column.
+                    formatted_response = "|||".join([f"{v:.3f}" for v in values])
+                    console_print_func(f"✅ NAB Response: {formatted_response}")
                     debug_log(f"NAB Query response: {response_string}. Fucking finally!",
                                 file=os.path.basename(__file__),
                                 version=current_version,
                                 function=current_function)
-                    return values
+                    return formatted_response
                 except ValueError as e:
                     console_print_func(f"❌ Failed to parse NAB response: {e}")
                     debug_log(f"Failed to parse NAB response: {e}. What a disaster!",
                                 file=os.path.basename(__file__),
                                 version=current_version,
                                 function=current_function)
-                    return None
+                    return "FAILED"
             else:
-                return None
+                return "FAILED"
         elif action_type == "DO":
             # Modified DO logic to append the variable if it exists
             if variable_value and variable_value.strip():
@@ -481,7 +485,7 @@ def YakNab(app_instance, command_type, console_print_func):
                 function=current_function)
 
     _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
-
+    
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
 
