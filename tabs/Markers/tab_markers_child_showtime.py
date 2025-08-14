@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250814.004100.1 (FIXED: Restored the deleted ShowtimeTab class and all its methods, resolving the ImportError. Corrected all utility function calls to pass the necessary 'console_print_func' argument.)
+# Version 20250814.005950.1
 
-current_version = "20250814.004100.1"
+current_version = "20250814.005950.1"
 
 import tkinter as tk
 from tkinter import ttk
@@ -454,18 +454,20 @@ class ShowtimeTab(ttk.Frame):
         span_mhz = max_freq_mhz - min_freq_mhz
         
         trace_center_freq_mhz = (min_freq_mhz + max_freq_mhz) / 2
-        trace_span_mhz = span_mhz if span_mhz > 0 else 0.1
+        trace_span_mhz = span_mhz if span_mhz > 0 else 0.1 # Min span of 100 kHz
             
         trace_center_freq_hz = int(trace_center_freq_mhz * MHZ_TO_HZ)
         trace_span_hz = int(trace_span_mhz * MHZ_TO_HZ)
         
         with self.instrument_lock:
+            # Set the span before getting the trace only if in "Follow Zone" mode
             if self.follow_zone_span_var.get():
                 status, message = set_span_logic(app_instance=self.app_instance, span_hz=trace_span_hz, console_print_func=self.console_print_func)
                 self.app_instance.after(0, lambda: self.console_print_func(message))
                 status, message = set_frequency_logic(app_instance=self.app_instance, frequency_hz=trace_center_freq_hz, console_print_func=self.console_print_func)
                 self.app_instance.after(0, lambda: self.console_print_func(message))
-            
+
+            # Now get the traces for the full view
             self.app_instance.after(0, lambda: get_marker_traces(
                 app_instance=self.app_instance, 
                 showtime_tab_instance=self, 
@@ -511,19 +513,24 @@ class ShowtimeTab(ttk.Frame):
             device_name = device.get('NAME', 'N/A')
             peak_value = device.get('Peak', None)
             style = 'LocalPreset.TButton'
-            if pd.notna(peak_value):
+            
+            # FIXED: Check if peak_value is not an empty string before converting to float
+            if pd.notna(peak_value) and peak_value != '':
                 peak_value = float(peak_value)
                 if -80 > peak_value >= -130: style = 'Red.TButton'
                 elif -50 > peak_value >= -80: style = 'Orange.TButton'
                 elif peak_value >= -50: style = 'Green.TButton'
-            
-            progress_bar = self._create_progress_bar_text(peak_value)
-            text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: {peak_value:.2f} dBm\n{progress_bar}" if pd.notna(peak_value) else f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: N/A"
+                
+                progress_bar = self._create_progress_bar_text(peak_value)
+                text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: {peak_value:.2f} dBm\n{progress_bar}"
+            else:
+                text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: N/A"
             
             btn = ttk.Button(self.device_buttons_frame, text=text, style=style,
                              command=lambda d=device: self.on_device_button_click(d))
             btn.grid(row=i // 4, column=i % 4, padx=5, pady=5, sticky="nsew")
             self.device_buttons[device_name] = btn
+
 
     def _create_progress_bar_text(self, peak_value):
         if pd.isna(peak_value): return "[                        ]"
@@ -634,9 +641,9 @@ class ShowtimeTab(ttk.Frame):
                     self.console_print_func(message_trace)
                     status_freq, message_freq = set_frequency_logic(self.app_instance, freq_hz, self.console_print_func)
                     self.console_print_func(message_freq)
-                    status_marker, message_marker = set_marker_logic(app_instance=self.app_instance, frequency_hz=freq_hz, console_print_func=self.console_print_func)
+                    status_marker, message_marker = set_marker_logic(app_instance=self.app_instance, frequency_hz=self.selected_device_freq, console_print_func=self.console_print_func)
                     self.console_print_func(message_marker)
-                
+
                 self.selected_device_name = poke_marker_name
                 self.selected_device_freq = freq_hz
 

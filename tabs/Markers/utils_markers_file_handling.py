@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.003600.1 (NEW: Created a new file to centralize CSV file handling logic, separating it from the GUI and instrument control.)
+# Version 20250814.005950.2
 
-current_version = "20250814.003600.1"
-current_version_hash = (20250814 * 3600 * 1)
+current_version = "20250814.005950.2"
+current_version_hash = (20250814 * 5950 * 2)
 
 import os
 import inspect
@@ -51,7 +51,8 @@ def load_markers_data(app_instance, console_print_func):
         if os.path.exists(path):
             try:
                 markers_data = pd.read_csv(path)
-                markers_data.fillna('', inplace=True)
+                # FIXED: Do NOT fill NaN with empty strings. Let pandas handle missing data correctly.
+                # markers_data.fillna('', inplace=True) 
                 debug_log(f"✅ Successfully read {len(markers_data)} markers from file.",
                           file=f"{os.path.basename(__file__)} & {current_version}",
                           version=current_version,
