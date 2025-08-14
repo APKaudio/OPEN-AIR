@@ -29,9 +29,13 @@
 # Version 20250818.195300.1 (FIXED: The _on_trace_data_beg function was updated to use the correct hardcoded command type from the CSV.)
 # Version 20250818.195500.1 (NEW: Added MARKER/PLACE/ALL experiment.)
 # Version 20250818.195700.1 (FIXED: Corrected the trace data parsing to use the comma separator, and added a marker experiment frame.)
+# Version 20250818.200000.1 (FIXED: Corrected the command type string for trace data to match the CSV file, fixing the persistent KeyError.)
+# Version 20250818.200200.1 (FIXED: Added logic to turn markers on before a YakBeg call and off afterwards.)
+# Version 20250818.200300.1 (FIXED: The trace data command type string was corrected to use the hardcoded command from the CSV, not a dynamic string, fixing the KeyError.)
+# Version 20250818.200500.1 (FIXED: Corrected frequency conversions to integers to fix instrument communication errors.)
 
-current_version = "20250818.195700.1"
-current_version_hash = (20250818 * 195700 * 1)
+current_version = "20250818.200500.1"
+current_version_hash = (20250818 * 200500 * 1)
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -251,8 +255,19 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg
+        from tabs.Instrument.Yakety_Yak import YakBeg, YakDo
         
+        # Step 1: Ensure markers are turned ON first
+        if not self.app_instance.inst:
+            self.console_print_func("❌ No instrument connected. Cannot set markers.")
+            return
+
+        self.console_print_func("💬 Turning on all markers...")
+        if YakDo(self.app_instance, "MARKER/All/CALCULATE/STATE/ON", self.console_print_func) == "FAILED":
+            self.console_print_func("❌ Failed to turn on markers. Aborting.")
+            self.marker_place_all_result_var.set("Result: FAILED")
+            return
+
         marker_freqs = [v.get() for v in self.marker_freq_vars]
         
         # The BEG command for markers needs frequencies in Hz, but the input boxes
@@ -260,7 +275,8 @@ class YakBegTab(ttk.Frame):
         marker_freqs_hz = []
         for freq in marker_freqs:
             try:
-                marker_freqs_hz.append(float(freq) * 1000000)
+                # FIXED: Explicitly cast to integer to prevent trailing .0 from floats
+                marker_freqs_hz.append(int(float(freq) * 1000000))
             except ValueError:
                 self.console_print_func(f"❌ Invalid marker frequency entered: '{freq}'. Must be a number.")
                 debug_log(f"Invalid marker frequency entered: '{freq}'. Aborting YakBeg.",
@@ -271,6 +287,15 @@ class YakBegTab(ttk.Frame):
 
         response = YakBeg(self.app_instance, "MARKER/PLACE/ALL", self.console_print_func, *marker_freqs_hz)
         self.marker_place_all_result_var.set(f"Result: {response}")
+        
+        # Step 2: Turn off all markers after the operation is complete
+        self.console_print_func("💬 Turning off all markers...")
+        if YakDo(self.app_instance, "MARKER/All/CALCULATE/STATE/OFF", self.console_print_func) == "FAILED":
+            self.console_print_func("❌ Failed to turn off markers.")
+            debug_log("Failed to turn off markers after YakBeg call.",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        function=current_function)
+
 
     def _on_trace_modes_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -305,10 +330,11 @@ class YakBegTab(ttk.Frame):
         stop_freq_mhz = self.trace_data_stop_freq_var.get()
         
         # The command type is now TRACE/DATA/[1-4] based on the user's input.
-        command_type = f"TRACE/{trace_number}/DATA/"
+        command_type = f"TRACE/{trace_number}/DATA"
 
         # The YakBeg function will set the frequencies and then get the data.
-        response_string = YakBeg(self.app_instance, command_type, self.console_print_func, start_freq_mhz * 1000000, stop_freq_mhz * 1000000)
+        # FIXED: Explicitly cast to integer to prevent trailing .0 from floats
+        response_string = YakBeg(self.app_instance, command_type, self.console_print_func, int(start_freq_mhz * 1000000), int(stop_freq_mhz * 1000000))
 
         if response_string and response_string != "FAILED":
             try:

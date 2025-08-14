@@ -3,6 +3,6 @@
 #3 functions
 # 1  Start/Stop
 # 2  Center/SPAN
-# 3 - Trace Modes
-# 4 - Trace Data
-# 
+# 3 Marker Place ALL
+# 4 - Trace Modes
+# 5 - Trace Data

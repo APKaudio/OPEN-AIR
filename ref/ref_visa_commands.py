@@ -389,8 +389,8 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/5/PLACE/X", "SET", ":CALCulate:MARKer5:X", "555555", ""),
         ("Keysight Technologies", "*", "MARKER/6/PLACE/X", "SET", ":CALCulate:MARKer6:X", "666666", ""),
 
-        ("Keysight Technologies", "*", "MARKER/PLACE/ALL", "RIG", ":CALCulate:MARKer1:X 111,:CALCulate:MARKer2:X 222,:CALCulate:MARKer3:X 333,:CALCulate:MARKer4:X 444,:CALCulate:MARKer1:X 555,:CALCulate:MARKer6:X 666 ", "6", ""),
-        ("Keysight Technologies", "*", "MARKER/PLACE/ALL", "BEG", ":CALCulate:MARKer1:X 111,:CALCulate:MARKer2:X 222,:CALCulate:MARKer3:X 333,:CALCulate:MARKer4:X 444,:CALCulate:MARKer1:X 555,:CALCulate:MARKer6:X 666;:CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer1:Y? ", "6", ""),
+        ("Keysight Technologies", "*", "MARKER/PLACE/ALL", "RIG", ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111,:CALCulate:MARKer2:X 222,:CALCulate:MARKer3:X 333;:CALCulate:MARKer4:X 444;:CALCulate:MARKer1:X 555;:CALCulate:MARKer6:X 666", "6", ""),
+        ("Keysight Technologies", "*", "MARKER/PLACE/ALL", "BEG", ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111;:CALCulate:MARKer2:X 222;:CALCulate:MARKer3:X 333;:CALCulate:MARKer4:X 444;:CALCulate:MARKer5:X 555;:CALCulate:MARKer6:X 666;:CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?", "6", ""),
 
 
 
