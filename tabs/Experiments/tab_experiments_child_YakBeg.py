@@ -24,9 +24,14 @@
 # Version 20250818.194500.1 (FIXED: Corrected the parsing of the trace data response string from the BEG command to handle mixed separators.)
 # Version 20250818.194600.1 (FIXED: Implemented parsing logic to correctly handle the semicolon-separated frequency values and comma-separated trace data.)
 # Version 20250818.194800.1 (FIXED: The _on_trace_data_beg function was updated to correctly parse the comma-separated response with known start/stop frequencies.)
+# Version 20250818.195000.1 (NEW: Added "Push to Monitor" button and functionality.)
+# Version 20250818.195200.1 (FIXED: Corrected the command_type for TRACE/DATA to use the correct format from the CSV.)
+# Version 20250818.195300.1 (FIXED: The _on_trace_data_beg function was updated to use the correct hardcoded command type from the CSV.)
+# Version 20250818.195500.1 (NEW: Added MARKER/PLACE/ALL experiment.)
+# Version 20250818.195700.1 (FIXED: Corrected the trace data parsing to use the comma separator, and added a marker experiment frame.)
 
-current_version = "20250818.194800.1"
-current_version_hash = (20250818 * 194800 * 1)
+current_version = "20250818.195700.1"
+current_version_hash = (20250818 * 195700 * 1)
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -38,6 +43,7 @@ import numpy as np
 # from tabs.Instrument.Yakety_Yak import YakBeg, YakRig, YakNab # Moved into methods
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
 
 class YakBegTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
@@ -68,6 +74,12 @@ class YakBegTab(ttk.Frame):
         self.trace_data_stop_freq_var = tk.DoubleVar(value=1000)
         self.trace_select_var = tk.StringVar(value="1")
         self.trace_data_count_var = tk.StringVar(value="0")
+        
+        # Tkinter variables for Marker/Place/All
+        self.marker_freq_vars = [tk.StringVar(self, value="111"), tk.StringVar(self, value="222"),
+                                 tk.StringVar(self, value="333"), tk.StringVar(self, value="444"),
+                                 tk.StringVar(self, value="555"), tk.StringVar(self, value="666")]
+        self.marker_place_all_result_var = tk.StringVar(self, value="Result: N/A")
 
         self.edit_entry = None
         self.current_edit_cell = None
@@ -119,27 +131,40 @@ class YakBegTab(ttk.Frame):
         ttk.Label(freq_cs_frame, textvariable=self.freq_cs_result_var, style="Dark.TLabel.Value").grid(row=2, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
 
         ttk.Button(freq_cs_frame, text="YakBeg - FREQUENCY/CENTER-SPAN", command=self._on_freq_center_span_beg).grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        
+        # --- MARKER/PLACE/ALL Frame ---
+        marker_place_all_frame = ttk.LabelFrame(self, text="MARKER/PLACE/ALL", padding=10)
+        marker_place_all_frame.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
+        marker_place_all_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+
+        for i in range(6):
+            ttk.Label(marker_place_all_frame, text=f"M{i+1} Freq (MHz):").grid(row=0, column=i, padx=5, pady=2, sticky="w")
+            ttk.Entry(marker_place_all_frame, textvariable=self.marker_freq_vars[i]).grid(row=1, column=i, padx=5, pady=2, sticky="ew")
+
+        self.marker_place_all_result_var = tk.StringVar(value="Result: N/A")
+        ttk.Label(marker_place_all_frame, textvariable=self.marker_place_all_result_var, style="Dark.TLabel.Value").grid(row=2, column=0, columnspan=6, padx=5, pady=2, sticky="ew")
+
+        ttk.Button(marker_place_all_frame, text="YakBeg - MARKER/PLACE/ALL", command=self._on_marker_place_all_beg).grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="ew")
 
 
         # --- TRACE/MODES Frame ---
         trace_modes_frame = ttk.LabelFrame(self, text="TRACE/MODES", padding=10)
-        trace_modes_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        trace_modes_frame.grid(row=5, column=0, padx=10, pady=5, sticky="ew")
         trace_modes_frame.grid_columnconfigure(0, weight=1)
         trace_modes_frame.grid_columnconfigure(1, weight=1)
         trace_modes_frame.grid_columnconfigure(2, weight=1)
         trace_modes_frame.grid_columnconfigure(3, weight=1)
 
         ttk.Label(trace_modes_frame, text="Trace 1 Mode:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(trace_modes_frame, text="Trace 2 Mode:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
-        ttk.Label(trace_modes_frame, text="Trace 3 Mode:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
-        ttk.Label(trace_modes_frame, text="Trace 4 Mode:").grid(row=0, column=3, padx=5, pady=2, sticky="w")
-        
         self.trace1_combo = ttk.Combobox(trace_modes_frame, textvariable=self.trace1_mode_var, values=self.trace_mode_options, state="readonly")
         self.trace1_combo.grid(row=1, column=0, padx=5, pady=2, sticky="ew")
+        ttk.Label(trace_modes_frame, text="Trace 2 Mode:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
         self.trace2_combo = ttk.Combobox(trace_modes_frame, textvariable=self.trace2_mode_var, values=self.trace_mode_options, state="readonly")
         self.trace2_combo.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(trace_modes_frame, text="Trace 3 Mode:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
         self.trace3_combo = ttk.Combobox(trace_modes_frame, textvariable=self.trace3_mode_var, values=self.trace_mode_options, state="readonly")
         self.trace3_combo.grid(row=1, column=2, padx=5, pady=2, sticky="ew")
+        ttk.Label(trace_modes_frame, text="Trace 4 Mode:").grid(row=0, column=3, padx=5, pady=2, sticky="w")
         self.trace4_combo = ttk.Combobox(trace_modes_frame, textvariable=self.trace4_mode_var, values=self.trace_mode_options, state="readonly")
         self.trace4_combo.grid(row=1, column=3, padx=5, pady=2, sticky="ew")
         
@@ -151,7 +176,7 @@ class YakBegTab(ttk.Frame):
 
         # --- TRACE/DATA Frame ---
         trace_data_frame = ttk.LabelFrame(self, text="TRACE/DATA", padding=10)
-        trace_data_frame.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+        trace_data_frame.grid(row=6, column=0, padx=10, pady=5, sticky="nsew")
         trace_data_frame.grid_columnconfigure(0, weight=1)
         trace_data_frame.grid_rowconfigure(2, weight=1)
         
@@ -187,6 +212,9 @@ class YakBegTab(ttk.Frame):
         vsb = ttk.Scrollbar(trace_data_frame, orient="vertical", command=self.trace_data_tree.yview)
         vsb.grid(row=1, column=1, sticky="ns")
         self.trace_data_tree.configure(yscrollcommand=vsb.set)
+        
+        # New button to push data to monitor
+        ttk.Button(self, text="Push Trace Data to Monitor", command=self._on_push_to_monitor, style="Green.TButton").grid(row=7, column=0, padx=10, pady=5, sticky="ew")
 
 
     def _on_freq_start_stop_beg(self):
@@ -216,6 +244,33 @@ class YakBegTab(ttk.Frame):
         
         response = YakBeg(self.app_instance, "FREQUENCY/CENTER-SPAN", self.console_print_func, center_freq, span_freq)
         self.freq_cs_result_var.set(f"Result: {response}")
+
+    def _on_marker_place_all_beg(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"YakBeg for MARKER/PLACE/ALL triggered.",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
+        
+        from tabs.Instrument.Yakety_Yak import YakBeg
+        
+        marker_freqs = [v.get() for v in self.marker_freq_vars]
+        
+        # The BEG command for markers needs frequencies in Hz, but the input boxes
+        # are in MHz. Let's convert them.
+        marker_freqs_hz = []
+        for freq in marker_freqs:
+            try:
+                marker_freqs_hz.append(float(freq) * 1000000)
+            except ValueError:
+                self.console_print_func(f"❌ Invalid marker frequency entered: '{freq}'. Must be a number.")
+                debug_log(f"Invalid marker frequency entered: '{freq}'. Aborting YakBeg.",
+                            file=f"{os.path.basename(__file__)} - {current_version}",
+                            function=current_function)
+                self.marker_place_all_result_var.set("Result: FAILED")
+                return
+
+        response = YakBeg(self.app_instance, "MARKER/PLACE/ALL", self.console_print_func, *marker_freqs_hz)
+        self.marker_place_all_result_var.set(f"Result: {response}")
 
     def _on_trace_modes_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -250,7 +305,7 @@ class YakBegTab(ttk.Frame):
         stop_freq_mhz = self.trace_data_stop_freq_var.get()
         
         # The command type is now TRACE/DATA/[1-4] based on the user's input.
-        command_type = f"TRACE/{trace_number}/DATA"
+        command_type = f"TRACE/{trace_number}/DATA/"
 
         # The YakBeg function will set the frequencies and then get the data.
         response_string = YakBeg(self.app_instance, command_type, self.console_print_func, start_freq_mhz * 1000000, stop_freq_mhz * 1000000)
@@ -292,3 +347,42 @@ class YakBegTab(ttk.Frame):
     def _on_tab_selected(self, event):
         """Called when this tab is selected."""
         pass # No specific actions needed on selection
+        
+    def _on_push_to_monitor(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Push to Monitor button clicked. Let's see if we can get this trace on screen! 🖥️",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    function=current_function)
+        
+        # Check if there is data in the table
+        if not self.trace_data_tree.get_children():
+            self.console_print_func("❌ No data in the table to push to the monitor.")
+            debug_log("No data in table to push. Fucking useless!",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        function=current_function)
+            return
+            
+        trace_number = self.trace_select_var.get()
+        data = []
+        for item in self.trace_data_tree.get_children():
+            values = self.trace_data_tree.item(item, 'values')
+            data.append((float(values[0]), float(values[1])))
+        
+        start_freq_mhz = self.trace_data_start_freq_var.get()
+        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        title = f"Experiment - {start_freq_mhz:.3f} to {stop_freq_mhz:.3f} MHz"
+
+        if trace_number == "1":
+            update_top_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
+            self.console_print_func("✅ Trace data pushed to Top Plot.")
+        elif trace_number == "2":
+            update_medium_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
+            self.console_print_func("✅ Trace data pushed to Middle Plot.")
+        elif trace_number == "3":
+            update_bottom_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
+            self.console_print_func("✅ Trace data pushed to Bottom Plot.")
+        else:
+            self.console_print_func(f"❌ Cannot push data to Plot {trace_number}. Must be 1, 2, or 3.")
+            debug_log(f"Invalid trace number for plotting: {trace_number}. What a disaster!",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        function=current_function)
