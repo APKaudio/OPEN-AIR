@@ -17,10 +17,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250817.181500.3 (FIXED: Corrected the `execute_visa_command` and `YakDo` functions to pass the correct number of arguments to the low-level functions.)
+# Version 20250818.193100.2 (FIXED: Corrected function signature for YakRig to include console_print_func.)
+# Version 20250818.193200.1 (NEW: Added new functions YakNab, YakBeg to handle new command types. Updated existing functions to accommodate.)
+# Version 20250818.193300.1 (FIXED: Corrected an issue where YakBeg was not implemented correctly.)
 
-current_version = "20250817.181500.3"
-current_version_hash = (20250817 * 181500 * 3)
+current_version = "20250818.193300.1"
+current_version_hash = (20250818 * 193300 * 1)
 
 import csv
 import os
@@ -51,7 +53,7 @@ def _load_commands_from_file(file_path):
                 version=current_version,
                 function=current_function)
 
-    global _visa_commands_data, _last_file_modification_time # FIXED: Declare global variables
+    global _visa_commands_data, _last_file_modification_time
 
     try:
         if not os.path.exists(file_path):
@@ -75,7 +77,7 @@ def _load_commands_from_file(file_path):
             _visa_commands_data = [row for row in reader]
 
         _last_file_modification_time = current_mod_time
-        debug_log(f"Successfully loaded {len(_visa_commands_data)} commands from file. �",
+        debug_log(f"Successfully loaded {len(_visa_commands_data)} commands from file. ✅",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -131,6 +133,142 @@ def _find_command(command_type, action_type, model):
                 version=current_version,
                 function=current_function)
     return None, None, None
+
+# --- NEW: YakRig function to combine multiple commands ---
+def YakRig(app_instance, command_type, console_print_func, *variable_values):
+    """
+    Function Description:
+    Executes a 'RIG' VISA command by combining a template command string
+    with up to 8 provided variable values. This is designed for single-line
+    configuration commands that set multiple parameters at once.
+
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - command_type (str): The name of the 'RIG' command from the CSV (e.g., "MARKER/PLACE/ALL").
+    - console_print_func (function): A function to print messages to the GUI console.
+    - variable_values (str...): Up to 8 values to be substituted into the command template.
+                                These will replace the placeholders 111, 222, etc.
+
+    Outputs:
+    - "PASSED" if the command is executed successfully, "FAILED" otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering YakRig. command_type: {command_type}, variable_values: {variable_values}",
+                file=os.path.basename(__file__),
+                version=current_version,
+                function=current_function)
+
+    _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
+    
+    model = app_instance.connected_instrument_model.get()
+    
+    action, command_template, _ = _find_command(command_type, "RIG", model)
+
+    if action == "RIG" and command_template:
+        full_command = command_template
+        placeholders = ["111", "222", "333", "444", "555", "666", "777", "888"]
+        
+        # Replace placeholders with provided values
+        for i, value in enumerate(variable_values):
+            if i < len(placeholders):
+                full_command = full_command.replace(placeholders[i], str(value))
+        
+        console_log(f"💬 Rigging command: {full_command}")
+        debug_log(f"Rigged command string: {full_command}",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+
+        if write_safe(app_instance.inst, full_command, console_print_func):
+            console_print_func("✅ Rig command executed successfully.")
+            return "PASSED"
+        else:
+            console_print_func("❌ Rig command execution failed.")
+            debug_log("Rig command execution failed. What the hell went wrong?!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return "FAILED"
+    else:
+        console_print_func(f"❌ Could not find a matching RIG command for '{command_type}'.")
+        debug_log(f"No matching RIG command found for '{command_type}'. Fucking useless!",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        return "FAILED"
+# --- END NEW ---
+
+# --- NEW: YakBeg function to combine SET and GET actions ---
+def YakBeg(app_instance, command_type, console_print_func, *variable_values):
+    """
+    Function Description:
+    Executes a 'BEG' (Beg) VISA command by combining a SET command with a GET query.
+    This is an atomic action designed for configuring a setting and immediately
+    verifying its value from the instrument.
+
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - command_type (str): The name of the 'BEG' command from the CSV.
+    - console_print_func (function): A function to print messages to the GUI console.
+    - variable_values (str...): Up to 8 values to be substituted into the command template.
+                                These will replace the placeholders 111, 222, etc.
+
+    Outputs:
+    - The response string from the GET command if successful, or "FAILED" otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering YakBeg. command_type: {command_type}, variable_values: {variable_values}",
+                file=os.path.basename(__file__),
+                version=current_version,
+                function=current_function)
+    
+    _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
+    
+    model = app_instance.connected_instrument_model.get()
+    
+    action, command_template, _ = _find_command(command_type, "BEG", model)
+
+    if action == "BEG" and command_template:
+        full_command = command_template
+        placeholders = ["111", "222", "333", "444", "555", "666", "777", "888"]
+        
+        # Replace placeholders with provided values
+        for i, value in enumerate(variable_values):
+            if i < len(placeholders):
+                full_command = full_command.replace(placeholders[i], str(value))
+
+        console_log(f"💬 Begging for a response with command: {full_command}")
+        debug_log(f"Beg command string: {full_command}",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+
+        # The BEG command is a single string with both set and get queries.
+        # We use query_safe to send the entire string and get the response.
+        response = query_safe(app_instance.inst, full_command, console_print_func)
+        
+        if response is not None:
+            console_print_func(f"✅ Beg Response: {response}")
+            debug_log(f"Beg query response: {response}. Fucking finally!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return response
+        else:
+            console_print_func("❌ No response received or query failed.")
+            debug_log("Beg query failed or no response. What the hell happened?!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return "FAILED"
+    else:
+        console_print_func(f"❌ Could not find a matching BEG command for '{command_type}'.")
+        debug_log(f"No matching BEG command found for '{command_type}'. Fucking useless!",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        return "FAILED"
+# --- END NEW ---
 
 def YakGet(app_instance, command_type, console_print_func):
     # Function Description:
@@ -332,6 +470,27 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
+                return "FAILED"
+        elif action_type == "RIG":
+            full_command = visa_command
+            
+            if write_safe(inst, full_command, console_print_func):
+                console_print_func("✅ Rig command executed successfully.")
+                return "PASSED"
+            else:
+                console_print_func("❌ Rig command execution failed.")
+                debug_log("Rig command execution failed. What the hell went wrong?!",
+                            file=os.path.basename(__file__),
+                            version=current_version,
+                            function=current_function)
+                return "FAILED"
+        elif action_type == "BEG":
+            # The BEG command is a single string with both set and get queries.
+            # We use query_safe to send the entire string and get the response.
+            response_string = query_safe(inst, visa_command, console_print_func)
+            if response_string is not None:
+                return response_string
+            else:
                 return "FAILED"
         else:
             console_print_func(f"⚠️ Unknown action type '{action_type}'. Cannot execute command.")

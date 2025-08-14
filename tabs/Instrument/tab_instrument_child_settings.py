@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250817.184500.2 (REFACTORED: The _on_tab_selected method now loads settings from the config.ini file first, and then refreshes from the instrument if it is connected.)
+# Version 20250817.184500.3 (FIXED: The _on_tab_selected method now loads settings from the config.ini file first, and then refreshes from the instrument if it is connected. The AttributeError in utils_instrument_setting_handler.py has been resolved.)
 
-current_version = "20250817.184500.2"
-current_version_hash = 20250817 * 184500 * 2
+current_version = "20250817.184500.3"
+current_version_hash = 20250817 * 184500 * 3
 
 import tkinter as tk
 from tkinter import ttk
@@ -382,7 +382,9 @@ class SettingsTab(ttk.Frame):
         try:
             # Load the configuration from file into the app_instance.config object
             # This function handles the case where the file doesn't exist
-            self.app_instance.config = self.app_instance.config_manager.load_config(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+            # Fixed the call to load_config
+            from src.settings_and_config.config_manager import load_config
+            self.app_instance.config = load_config(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
             
             # Use the restore_last_used_settings_logic function to apply the settings to the Tkinter variables
             from src.settings_and_config.restore_settings_logic import restore_last_used_settings_logic

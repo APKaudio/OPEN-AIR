@@ -41,10 +41,24 @@ def get_default_commands():
         ("Keysight Technologies", "*", "FREQUENCY/CENTER", "GET", ":SENSe:FREQuency:CENTer", "?", ""),
         ("Keysight Technologies", "*", "FREQUENCY/SPAN", "SET", ":SENSe:FREQuency:SPAN", "1000", ""),
         ("Keysight Technologies", "*", "FREQUENCY/SPAN", "GET", ":SENSe:FREQuency:SPAN", "?", ""),
+
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "RIG", ":SENSe:FREQuency:SPAN 111;:SENSe:FREQuency:CENTer 222 ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "NAB", ":SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "BEG", ":SENSe:FREQuency:SPAN 111;:SENSe:FREQuency:CENTer 222;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
+        
+
+
+
         ("Keysight Technologies", "*", "FREQUENCY/START", "GET", ":FREQuency:STARt", "?", ""),
         ("Keysight Technologies", "*", "FREQUENCY/START", "SET", ":FREQuency:STARt", "1000", ""),
         ("Keysight Technologies", "*", "FREQUENCY/STOP", "GET", ":FREQuency:STOP", "?", ""),
         ("Keysight Technologies", "*", "FREQUENCY/STOP", "SET", ":FREQuency:STOP", "2000", ""),
+        
+        ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "RIG", ":FREQuency:STARt 111;:FREQuency:STOP 222 ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "NAB", ":FREQuency:STARt?;:FREQuency:STOP? ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:FREQuency:STARt?;:FREQuency:STOP? ", "2", ""),
+        
+
         ("Keysight Technologies", "*", "FREQUENCY/SWEEP/POINTS", "GET", ":SENSe:SWEep:POINts", "?", ""),
         
         ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", "::SENSe:SWEep:TIME", "?", ""),
@@ -181,7 +195,9 @@ def get_default_commands():
         ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON", "", ""),
         ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF", "", ""),
 
-
+        ("Keysight Technologies", "*", "TRACE/MODES", "NAB", ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?", "4", ""),
+        ("Keysight Technologies", "*", "TRACE/MODES", "RIG", ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444", "4", ""),
+        ("Keysight Technologies", "*", "TRACE/MODES", "BEG", ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?", "4", ""),
 
         # Trace Mode Write
         ("Keysight Technologies", "*", "TRACE/1/MODE/WRITE", "DO", ":TRAC1:MODE", "WRITe", ""),
@@ -201,6 +217,28 @@ def get_default_commands():
         ("Keysight Technologies", "N9340B", "TRACE/3/DATA", "GET", ":TRACe3:DATA", "?", ""),
         ("Keysight Technologies", "N9340B", "TRACE/4/DATA", "GET", ":TRACe4:DATA", "?", ""),
 
+
+        # Trace/Display - Expanded for 4 traces
+        # Trace Data Query
+        ("Keysight Technologies", "N9342CN", "TRACE/1/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE1", "3", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/2/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE2", "3", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/3/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE3", "3", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/4/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE4", "3", ""),
+
+        ("Keysight Technologies", "N9340B", "TRACE/1/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:DATA?", "3", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/2/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe2:DATA?", "3", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/3/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe3:DATA?", "3", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/4/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe4:DATA?", "3", ""),
+
+
+        ("Keysight Technologies", "N9342CN", "TRACE/1/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE1", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/2/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE2", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/3/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE3", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/4/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE4", "2", ""),
+
+
+
+
         # Averaging
         ("Keysight Technologies", "*", "TRACE/1/AVERAGE/ON", "DO", ":SENS:AVER:TRAC1:STAT", "ON", ""),
         ("Keysight Technologies", "*", "TRACE/2/AVERAGE/ON", "DO", ":SENS:AVER:TRAC2:STAT", "ON", ""),
@@ -213,11 +251,8 @@ def get_default_commands():
         ("Keysight Technologies", "*", "TRACE/3/MODE/WRITE", "DO", ":TRAC3:MODE", "WRITe", ""),
         ("Keysight Technologies", "*", "TRACE/4/MODE/WRITE", "DO", ":TRAC4:MODE", "WRITe", ""),
         
-        ("Keysight Technologies", "*", "TRACE/1/MODE", "GET", ":TRAC1:MODE", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/2/MODE", "GET", ":TRAC2:MODE", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/3/MODE", "GET", ":TRAC3:MODE", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/4/MODE", "GET", ":TRAC4:MODE", "?", ""),
-
+        ("Keysight Technologies", "*", "TRACE/MODES", "NAB", ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?", "4", ""),
+        
         ("Keysight Technologies", "*", "TRACE/1/MODE/WRITE", "DO", ":TRAC1:MODE", "WRITe", ""),
         ("Keysight Technologies", "*", "TRACE/1/MODE/BLANK", "DO", ":TRAC1:MODE", "BLANk", ""),
         ("Keysight Technologies", "*", "TRACE/2/MODE/WRITE", "DO", ":TRAC2:MODE", "WRITe", ""),
@@ -346,6 +381,10 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/4/PLACE/X", "SET", ":CALCulate:MARKer4:X", "444444", ""),
         ("Keysight Technologies", "*", "MARKER/5/PLACE/X", "SET", ":CALCulate:MARKer5:X", "555555", ""),
         ("Keysight Technologies", "*", "MARKER/6/PLACE/X", "SET", ":CALCulate:MARKer6:X", "666666", ""),
+
+        ("Keysight Technologies", "*", "MARKER/PLACE/ALL", "RIG", ":CALCulate:MARKer1:X 111,:CALCulate:MARKer2:X 222,:CALCulate:MARKer3:X 333,:CALCulate:MARKer4:X 444,:CALCulate:MARKer1:X 555,:CALCulate:MARKer6:X 666 ", "6", ""),
+
+
 
         # Marker Calculate X (Frequency)
         ("Keysight Technologies", "*", "MARKER/1/CALCULATE/X", "GET", ":CALCulate:MARKer1:X", "?", ""),

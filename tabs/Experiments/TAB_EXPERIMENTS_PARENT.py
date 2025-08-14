@@ -14,7 +14,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.235800.6
+# Version 20250818.193400.1 (UPDATED: Added a new child tab for YakBeg functionality.)
+# Version 20250818.193500.1 (FIXED: Moved YakBegTab import inside __init__ to resolve circular import error.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -27,14 +28,15 @@ from tabs.Experiments.tab_experiments_child_intermod import InterModTab
 from tabs.Experiments.tab_experiments_child_JSON_api import JsonApiTab
 from tabs.Experiments.tab_experiments_colouring import ColouringTab
 from tabs.Experiments.tab_experiments_child_initial_configuration import InitialConfigurationTab
+# Removed: from tabs.Experiments.tab_experiments_child_YakBeg import YakBegTab # Removed from top-level imports
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # --- Version Information ---
-current_version = "20250812.235800.6"
-current_version_hash = (20250812 * 235800 * 6)
+current_version = "20250818.193500.1"
+current_version_hash = (20250818 * 193500 * 1)
 
 class TAB_EXPERIMENTS_PARENT(ttk.Frame):
     """
@@ -45,6 +47,9 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
 
+        # NEW: Import the child tab inside the __init__ method to break the circular dependency
+        from tabs.Experiments.tab_experiments_child_YakBeg import YakBegTab
+        
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Experiments.Child.TNotebook')
         self.child_notebook.pack(expand=True, fill="both", padx=5, pady=5)
@@ -60,6 +65,9 @@ class TAB_EXPERIMENTS_PARENT(ttk.Frame):
 
         self.intermod_tab = InterModTab(self.child_notebook, self.app_instance, self.console_print_func)
         self.child_notebook.add(self.intermod_tab, text="Intermod")
+
+        self.yakbeg_tab = YakBegTab(self.child_notebook, self.app_instance, self.console_print_func)
+        self.child_notebook.add(self.yakbeg_tab, text="YakBeg") # NEW: Add the YakBegTab
 
         self.child_notebook.bind("<<NotebookTabChanged>>", self._on_child_tab_selected)
 

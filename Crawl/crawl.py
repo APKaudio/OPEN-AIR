@@ -2,6 +2,7 @@
 #
 # This script recursively traverses the directory it is run from,
 # listing all files and subdirectories in a Tkinter GUI window.
+# It now also deletes all '__pycache__' directories and their contents as it crawls.
 # For any Python (.py) files encountered, it will also parse the
 # file to extract and display the names of all defined functions
 # and classes, as well as imported modules. All output is also saved to a 'Crawl.log' file.
@@ -9,6 +10,7 @@
 # of the discovered files and functions, with each line commented out.
 # Additionally, it creates an 'EVERYTHING.py.LOG' file containing the
 # concatenated content of all Python files found.
+# The script now starts by prompting the user for a directory to crawl.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -21,21 +23,22 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.231030.1 (version change)
+# Version 20250813.195049.2 (version change)
 
 
 import tkinter as tk
-from tkinter import ttk, scrolledtext, filedialog
+from tkinter import ttk, scrolledtext, filedialog, messagebox
 import os
 import ast # Module to parse Python code into an Abstract Syntax Tree
 import inspect # For getting current function name for logging (optional, but good practice)
 import threading
 import datetime # For timestamping the log file
 import subprocess # For opening files
+import shutil # For deleting directories
 
 # --- Global Version Information ---
-current_version = "20250811.231030.1"
-current_version_hash = (20250811 * 231030 * 1)
+current_version = "20250813.195049.2"
+current_version_hash = (20250813 * 195049 * 2)
 
 # --- Logging and Console Output Functions (Simplified for standalone script) ---
 def debug_log(message, file, function, **kwargs):
@@ -57,18 +60,20 @@ class FolderCrawlerApp:
     It now also generates a 'MAP.txt' file with a tree-like structure
     of the discovered files and functions, with each line commented out.
     A third file, 'EVERYTHING.py.LOG', is created with the content of all found Python files.
-
+    
     Inputs:
         root (tk.Tk): The root Tkinter window.
+        start_directory (str): The initial directory to crawl, provided by the user.
 
     Process:
         1. Initializes the main application window and widgets.
         2. Sets up a scrolled text area for displaying results.
-        3. Provides buttons to start the crawling process and open log/map files.
+        3. Provides buttons to start the crawling process and open log/map/crawl folder files.
         4. Opens a log file ('Crawl.log'), a map file ('MAP.txt'), and an
-           everything log file ('EVERYTHING.py.LOG') for writing.
+           everything log file ('EVERYTHING.py.LOG') for writing, with a timestamp.
         5. Implements the `_crawl_directory` method to recursively scan folders,
-           ignoring '__pycache__' directories and those starting with a dot.
+           now deleting '__pycache__' directories on the fly and ignoring others
+           starting with a dot.
         6. Implements the `_analyze_python_file` method to parse Python files
            and extract function and class definitions and imports using the `ast` module,
            ignoring '__init__.py' files.
@@ -79,10 +84,10 @@ class FolderCrawlerApp:
            with a separator.
 
     Outputs:
-        A Tkinter GUI application, a 'Crawl.log' file, a 'MAP.txt' file, and an
-        'EVERYTHING.py.LOG' file.
+        A Tkinter GUI application, a timestamped 'Crawl.log' file, a timestamped 'MAP.txt' file,
+        and a timestamped 'EVERYTHING.py.LOG' file.
     """
-    def __init__(self, root):
+    def __init__(self, root, start_directory):
         self.root = root
         self.root.title("Folder and Python File Analyzer - crawl.py")
         self.root.geometry("800x600")
@@ -92,6 +97,7 @@ class FolderCrawlerApp:
         self.current_file = os.path.basename(__file__)
         self.current_version = current_version
 
+        self.directory_path_var = tk.StringVar(value=start_directory)
         self.log_file = None # Initialize log file handle
         self.map_file = None # Initialize map file handle
         self.everything_log_file = None # New file handle
@@ -101,26 +107,25 @@ class FolderCrawlerApp:
         control_frame.grid(row=0, column=0, sticky="ew")
         control_frame.grid_columnconfigure(1, weight=1) # Makes the entry field stretch
 
-        ttk.Label(control_frame, text="Directory to crawl:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
-        self.directory_path_var = tk.StringVar(value=os.getcwd()) # Default to current working directory
-        self.directory_entry = ttk.Entry(control_frame, textvariable=self.directory_path_var, width=60)
-        self.directory_entry.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-        self.browse_button = ttk.Button(control_frame, text="Browse...", command=self._browse_directory)
-        self.browse_button.grid(row=0, column=2, padx=5, pady=5)
+        ttk.Label(control_frame, text=f"Crawling: {start_directory}").grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
 
         self.crawl_button = ttk.Button(control_frame, text="Start Crawl", command=self._start_crawl)
-        self.crawl_button.grid(row=0, column=3, padx=5, pady=5)
+        self.crawl_button.grid(row=0, column=2, padx=5, pady=5)
 
         self.open_log_button = ttk.Button(control_frame, text="Open Log", command=self._open_log_file)
-        self.open_log_button.grid(row=0, column=4, padx=5, pady=5)
+        self.open_log_button.grid(row=0, column=3, padx=5, pady=5)
 
         self.open_map_button = ttk.Button(control_frame, text="Open Map", command=self._open_map_file)
-        self.open_map_button.grid(row=0, column=5, padx=5, pady=5)
+        self.open_map_button.grid(row=0, column=4, padx=5, pady=5)
 
         # New button for EVERYTHING.py.LOG
         self.open_everything_log_button = ttk.Button(control_frame, text="Open All Code", command=self._open_everything_log_file)
-        self.open_everything_log_button.grid(row=0, column=6, padx=5, pady=5)
+        self.open_everything_log_button.grid(row=0, column=5, padx=5, pady=5)
+        
+        # New button to open the folder where crawl.py is
+        self.open_crawl_folder_button = ttk.Button(control_frame, text="Open Crawl Folder", command=self._open_crawl_folder)
+        self.open_crawl_folder_button.grid(row=0, column=6, padx=5, pady=5)
+
 
         self.text_area = scrolledtext.ScrolledText(self.root, wrap=tk.WORD, width=80, height=25,
                                                    font=("Consolas", 10), bg="#1e1e1e", fg="#d4d4d4",
@@ -156,61 +161,60 @@ class FolderCrawlerApp:
             debug_log(f"EVERYTHING.py.LOG closed.",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         self.root.destroy()
-
-    def _browse_directory(self):
+        
+    def _open_crawl_folder(self):
         # Function Description:
-        # Opens a directory selection dialog and updates the directory path variable.
+        # Opens the directory where the crawl.py script is located.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Browse for directory. ",
+        crawl_dir = os.path.dirname(os.path.abspath(__file__))
+        debug_log(f"Ahoy there, matey! I'll be openin' the folder where we keep the treasure map! 🏴‍☠️",
                     file=f"{self.current_file} - {self.current_version}", function=current_function)
-
-        selected_directory = filedialog.askdirectory(initialdir=self.directory_path_var.get())
-        if selected_directory:
-            self.directory_path_var.set(selected_directory)
-            debug_log(f"Selected directory: {selected_directory}.",
-                        file=f"{self.current_file} - {self.current_version}", function=current_function)
+        self._open_file(crawl_dir, "Crawl Folder")
 
     def _start_crawl(self):
         # Function Description:
         # Initiates the crawling process in a separate thread to keep the GUI responsive.
-        # Opens both 'Crawl.log', 'MAP.txt', and 'EVERYTHING.py.LOG' files.
+        # Opens both 'Crawl.log', 'MAP.txt', and 'EVERYTHING.py.LOG' files with timestamps.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Starting crawl. Let's explore!",
+        debug_log(f"Starting crawl. Let's explore! 🧭",
                     file=f"{self.current_file} - {self.current_version}", function=current_function)
 
         self.text_area.delete(1.0, tk.END) # Clear previous output
-
-        log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Crawl.log")
-        map_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MAP.txt")
-        everything_log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "EVERYTHING.py.LOG")
+        
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"Crawl_{timestamp}.log")
+        map_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"MAP_{timestamp}.txt")
+        everything_log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), f"EVERYTHING__{timestamp}.py.LOG")
 
         # Open the log file
         try:
             self.log_file = open(log_file_path, "w", encoding="utf-8")
             self._append_to_text_area(f"--- Crawl Log Started: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---\n", "header")
             self.log_file.write(f"--- Crawl Log Started: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---\n\n")
-            debug_log(f"Crawl.log opened at {log_file_path}. ",
+            debug_log(f"Crawl.log opened at {log_file_path}. ✅",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         except Exception as e:
-            self._append_to_text_area(f"Error opening Crawl.log: {e}\n", "header")
-            debug_log(f"Error opening Crawl.log: {e}. ",
+            self._append_to_text_area(f"❌ Error opening Crawl.log: {e}\n", "header")
+            debug_log(f"Error opening Crawl.log: {e}. ❌",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
             self.log_file = None # Ensure log_file is None if opening fails
 
         # Open the MAP.txt file and write its header
         try:
             self.map_file = open(map_file_path, "w", encoding="utf-8")
-            map_header = """# Program Map:
+            map_header = f"""# Program Map:
 # This section outlines the directory and file structure of the OPEN-AIR RF Spectrum Analyzer Controller application,
 # providing a brief explanation for each component.
 #
+# Created: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+#
 """
             self.map_file.write(map_header)
-            debug_log(f"MAP.txt opened at {map_file_path}. ",
+            debug_log(f"MAP.txt opened at {map_file_path}. ✅",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         except Exception as e:
-            self._append_to_text_area(f"Error opening MAP.txt: {e}\n", "header")
-            debug_log(f"Error opening MAP.txt: {e}. ",
+            self._append_to_text_area(f"❌ Error opening MAP.txt: {e}\n", "header")
+            debug_log(f"Error opening MAP.txt: {e}. ❌",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
             self.map_file = None # Ensure map_file is None if opening fails
 
@@ -225,11 +229,11 @@ class FolderCrawlerApp:
 # Log started at: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 # ====================================================================================\n\n"""
             self.everything_log_file.write(everything_header)
-            debug_log(f"EVERYTHING.py.LOG opened at {everything_log_file_path}. ",
+            debug_log(f"EVERYTHING.py.LOG opened at {everything_log_file_path}. ✅",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         except Exception as e:
-            self._append_to_text_area(f"Error opening EVERYTHING.py.LOG: {e}\n", "header")
-            debug_log(f"Error opening EVERYTHING.py.LOG: {e}. ",
+            self._append_to_text_area(f"❌ Error opening EVERYTHING.py.LOG: {e}\n", "header")
+            debug_log(f"Error opening EVERYTHING.py.LOG: {e}. ❌",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
             self.everything_log_file = None
 
@@ -241,15 +245,16 @@ class FolderCrawlerApp:
     def _crawl_directory_thread(self):
         # Function Description:
         # Worker function for `_start_crawl`. Performs the actual directory traversal
-        # and Python file analysis. Updates the GUI on the main thread and writes to log file.
+        # and Python file analysis. Deletes __pycache__ folders. Updates the GUI
+        # on the main thread and writes to log file.
         # Also builds the tree structure for MAP.txt and concatenates files for EVERYTHING.py.LOG.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Running crawl thread. Digging deep!",
+        debug_log(f"Wild scientist here! The crawler is a-rumblin' and a-roarin', diving deep into the filesystem! We're about to make some discoveries! 🧪",
                     file=f"{self.current_file} - {self.current_version}", function=current_function)
 
         target_directory = self.directory_path_var.get()
         if not os.path.isdir(target_directory):
-            self._append_to_text_area(f"Error: '{target_directory}' is not a valid directory.", "header")
+            self._append_to_text_area(f"❌ Error: '{target_directory}' is not a valid directory.", "header")
             self.root.after(0, lambda: self.crawl_button.config(state=tk.NORMAL))
             if self.log_file:
                 self.log_file.write(f"Error: '{target_directory}' is not a valid directory.\n")
@@ -276,9 +281,23 @@ class FolderCrawlerApp:
             root_dir_name = os.path.basename(target_directory)
             map_output_lines.append(f"# └── {root_dir_name}/\n")
 
-            for root, dirs, files in os.walk(target_directory):
-                # Ignore __pycache__ folders and folders starting with a dot
-                dirs[:] = [d for d in dirs if d != '__pycache__' and not d.startswith('.')]
+            for root, dirs, files in os.walk(target_directory, topdown=True):
+                # Delete __pycache__ folders as they are encountered
+                if '__pycache__' in dirs:
+                    cache_path = os.path.join(root, '__pycache__')
+                    try:
+                        self._append_to_text_area(f"  [DELETING] Found and deleted __pycache__ directory: {cache_path}", "header")
+                        shutil.rmtree(cache_path)
+                        dirs.remove('__pycache__') # Remove from the list to prevent walking into it
+                        debug_log(f"Arr, matey! Found the cursed treasure of the __pycache__ and sent it to Davy Jones' Locker! ☠️",
+                                    file=f"{self.current_file} - {self.current_version}", function=current_function)
+                    except Exception as e:
+                        self._append_to_text_area(f"  ❌ Error deleting __pycache__ at {cache_path}: {e}", "header")
+                        debug_log(f"Aaargh! Couldn't sink the __pycache__ ship! The error be: {e}",
+                                    file=f"{self.current_file} - {self.current_version}", function=current_function)
+
+                # Ignore folders starting with a dot
+                dirs[:] = [d for d in dirs if not d.startswith('.')]
 
                 relative_root = os.path.relpath(root, target_directory)
                 if relative_root == ".":
@@ -331,10 +350,10 @@ class FolderCrawlerApp:
                                         f"#####################################\n"
                                         f"{py_content}\n\n"
                                     )
-                                    debug_log(f"Wrote content of {item} to EVERYTHING.py.LOG.",
+                                    debug_log(f"Wrote content of {item} to EVERYTHING.py.LOG. ✅",
                                                 file=f"{self.current_file} - {self.current_version}", function=current_function)
                                 except Exception as e:
-                                    debug_log(f"Wild scientist here! I tried to read that Python file but it seems the data got lost in transit! The error says: {e}",
+                                    debug_log(f"Wild scientist here! I tried to read that Python file but it seems the data got lost in transit! The error says: {e} ❌",
                                                 file=f"{self.current_file} - {self.current_version}", function=current_function)
 
                         elif item.lower() == "__init__.py":
@@ -346,7 +365,7 @@ class FolderCrawlerApp:
 
 
         except Exception as e:
-            error_message = f"\nAn error occurred during crawling: {e}"
+            error_message = f"\n❌ An error occurred during crawling: {e}"
             self._append_to_text_area(error_message, "header")
             if self.log_file:
                 self.log_file.write(error_message + "\n")
@@ -354,10 +373,10 @@ class FolderCrawlerApp:
                 self.map_file.write(error_message + "\n")
             if self.everything_log_file:
                 self.everything_log_file.write(error_message + "\n")
-            debug_log(f"Error during crawl: {e}. ",
+            debug_log(f"Error during crawl: {e}. ❌",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         finally:
-            final_message = f"\n--- Crawl complete for {target_directory}. ---"
+            final_message = f"\n--- Crawl complete for {target_directory}. 👍 ---"
             self._append_to_text_area(final_message, "header")
             if self.log_file:
                 self.log_file.write(final_message + "\n")
@@ -376,7 +395,7 @@ class FolderCrawlerApp:
                 self.everything_log_file = None # Reset file handle after closing
 
             self.root.after(0, lambda: self.crawl_button.config(state=tk.NORMAL))
-            debug_log(f"Crawl finished. ",
+            debug_log(f"Crawl finished. ✅",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
 
 
@@ -385,7 +404,7 @@ class FolderCrawlerApp:
         # Parses a Python file and extracts function, class, import, and now, function parameter definitions.
         # Returns a list of formatted strings for MAP.txt and also updates the GUI log.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Analyzing Python file: {file_path}. Parsing!",
+        debug_log(f"Analyzing Python file: {file_path}. Parsing! 🧐",
                     file=f"{self.current_file} - {self.current_version}", function=current_function)
 
         analysis_lines = []
@@ -460,20 +479,20 @@ class FolderCrawlerApp:
                 analysis_lines.append(f"#{indent_str}    - No functions, classes, or imports found.")
 
         except SyntaxError as e:
-            syntax_error_line = f"    [PY] Syntax Error in {os.path.basename(file_path)}: {e}"
+            syntax_error_line = f"    ❌ [PY] Syntax Error in {os.path.basename(file_path)}: {e}"
             self._append_to_text_area(syntax_error_line, "python_file")
             if self.log_file:
                 self.log_file.write(syntax_error_line + "\n")
             analysis_lines.append(f"#{indent_str}    - Syntax Error: {e}")
-            debug_log(f"Syntax Error in {file_path}: {e}.",
+            debug_log(f"Error! The syntax is all jumbled! It's an unholy mess! My instruments are screaming! 😵‍💫 Error in {file_path}: {e}.",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         except Exception as e:
-            general_error_line = f"    [PY] Error analyzing {os.path.basename(file_path)}: {e}"
+            general_error_line = f"    ❌ [PY] Error analyzing {os.path.basename(file_path)}: {e}"
             self._append_to_text_area(general_error_line, "python_file")
             if self.log_file:
                 self.log_file.write(general_error_line + "\n")
             analysis_lines.append(f"#{indent_str}    - Error analyzing: {e}")
-            debug_log(f"Error analyzing {file_path}: {e}.",
+            debug_log(f"Error analyzing {file_path}: {e}. ❌",
                         file=f"{self.current_file} - {self.current_version}", function=current_function)
         return analysis_lines
 
@@ -491,18 +510,18 @@ class FolderCrawlerApp:
                 self.log_file.write(text + "\n")
             except Exception as e:
                 # This error handling is for the log file writing itself
-                debug_log(f"Error writing to Crawl.log: {e}.",
+                debug_log(f"Error writing to Crawl.log: {e}. ❌",
                             file=f"{self.current_file} - {self.current_version}", function=inspect.currentframe().f_code.co_name)
 
     def _open_file(self, file_path, file_description):
         # Function Description:
-        # Opens a specified file using the default system application.
+        # Opens a specified file or directory using the default system application.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Attempting to open {file_description}: {file_path}.",
+        debug_log(f"Attempting to open {file_description}: {file_path}. 📁",
                     file=f"{self.current_file} - {self.current_version}", function=current_function)
 
         if not os.path.exists(file_path):
-            message = f"Error: {file_description} not found at {file_path}"
+            message = f"❌ Error: {file_description} not found at {file_path}"
             self._append_to_text_area(message, "header")
             debug_log(message, file=f"{self.current_file} - {self.current_version}", function=current_function)
             return
@@ -514,36 +533,63 @@ class FolderCrawlerApp:
                 subprocess.run(['open', file_path], check=True)
             else:  # Linux and other Unix-like
                 subprocess.run(['xdg-open', file_path], check=True)
-            self._append_to_text_area(f"Opened {file_description}: {file_path}", "header")
+            self._append_to_text_area(f"✅ Opened {file_description}: {file_path}", "header")
         except FileNotFoundError:
-            message = f"Error: Could not find application to open {file_description}."
+            message = f"❌ Error: Could not find application to open {file_description}."
             self._append_to_text_area(message, "header")
             debug_log(message, file=f"{self.current_file} - {self.current_version}", function=current_function)
         except Exception as e:
-            message = f"Error opening {file_description}: {e}"
+            message = f"❌ Error opening {file_description}: {e}"
             self._append_to_text_area(message, "header")
             debug_log(message, file=f"{self.current_file} - {self.current_version}", function=current_function)
 
     def _open_log_file(self):
         # Function Description:
-        # Command for the "Open Log" button. Opens the Crawl.log file.
-        log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Crawl.log")
-        self._open_file(log_file_path, "Crawl Log")
+        # Command for the "Open Log" button. Opens the most recent Crawl.log file.
+        crawl_dir = os.path.dirname(os.path.abspath(__file__))
+        log_files = sorted([f for f in os.listdir(crawl_dir) if f.startswith("Crawl_") and f.endswith(".log")], reverse=True)
+        if log_files:
+            log_file_path = os.path.join(crawl_dir, log_files[0])
+            self._open_file(log_file_path, "Crawl Log")
+        else:
+            messagebox.showinfo("File Not Found", "No crawl log file found.")
 
     def _open_map_file(self):
         # Function Description:
-        # Command for the "Open Map" button. Opens the MAP.txt file.
-        map_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "MAP.txt")
-        self._open_file(map_file_path, "Program Map")
+        # Command for the "Open Map" button. Opens the most recent MAP.txt file.
+        crawl_dir = os.path.dirname(os.path.abspath(__file__))
+        map_files = sorted([f for f in os.listdir(crawl_dir) if f.startswith("MAP_") and f.endswith(".txt")], reverse=True)
+        if map_files:
+            map_file_path = os.path.join(crawl_dir, map_files[0])
+            self._open_file(map_file_path, "Program Map")
+        else:
+            messagebox.showinfo("File Not Found", "No map file found.")
     
     def _open_everything_log_file(self):
         # Function Description:
-        # Command for the "Open All Code" button. Opens the EVERYTHING.py.LOG file.
-        everything_log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "EVERYTHING.py.LOG")
-        self._open_file(everything_log_file_path, "Everything Log")
+        # Command for the "Open All Code" button. Opens the most recent EVERYTHING.py.LOG file.
+        crawl_dir = os.path.dirname(os.path.abspath(__file__))
+        everything_files = sorted([f for f in os.listdir(crawl_dir) if f.startswith("EVERYTHING__") and f.endswith(".py.LOG")], reverse=True)
+        if everything_files:
+            everything_log_file_path = os.path.join(crawl_dir, everything_files[0])
+            self._open_file(everything_log_file_path, "Everything Log")
+        else:
+            messagebox.showinfo("File Not Found", "No everything log file found.")
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = FolderCrawlerApp(root)
-    root.mainloop()
+    root.withdraw() # Hide the main window initially
+    
+    selected_directory = filedialog.askdirectory(title="What directory do you want to crawl?")
+    
+    if selected_directory:
+        # Destroy the temporary root window and create a new one for the app
+        root.destroy()
+        root = tk.Tk()
+        app = FolderCrawlerApp(root, selected_directory)
+        app._start_crawl() # Automatically start the crawl with the selected directory
+        root.mainloop()
+    else:
+        print("No directory selected, exiting.")
+        root.destroy()
