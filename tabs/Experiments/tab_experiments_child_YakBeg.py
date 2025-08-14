@@ -17,9 +17,16 @@
 #
 #
 # Version 20250818.193300.1 (NEW: Initial version to test the YakBeg function.)
+# Version 20250818.193600.1 (FIXED: Moved YakBeg import inside methods to resolve circular import error.)
+# Version 20250818.194000.1 (FIXED: Corrected _on_trace_data_beg to use YakBeg with correct command type from CSV.)
+# Version 20250818.194100.1 (FIXED: Corrected the parsing of the trace data response string from the BEG command.)
+# Version 20250818.194200.1 (FIXED: The _on_trace_data_beg function was updated to correctly parse the mixed separator response.)
+# Version 20250818.194500.1 (FIXED: Corrected the parsing of the trace data response string from the BEG command to handle mixed separators.)
+# Version 20250818.194600.1 (FIXED: Implemented parsing logic to correctly handle the semicolon-separated frequency values and comma-separated trace data.)
+# Version 20250818.194800.1 (FIXED: The _on_trace_data_beg function was updated to correctly parse the comma-separated response with known start/stop frequencies.)
 
-current_version = "20250818.193300.1"
-current_version_hash = (20250818 * 193300 * 1)
+current_version = "20250818.194800.1"
+current_version_hash = (20250818 * 194800 * 1)
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -28,7 +35,7 @@ import os
 import numpy as np
 
 # Import Yak commands from the library
-from tabs.Instrument.Yakety_Yak import YakBeg, YakRig, YakNab
+# from tabs.Instrument.Yakety_Yak import YakBeg, YakRig, YakNab # Moved into methods
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -188,6 +195,8 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
+        from tabs.Instrument.Yakety_Yak import YakBeg
+        
         start_freq = self.freq_start_var.get()
         stop_freq = self.freq_stop_var.get()
         
@@ -200,6 +209,8 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
+        from tabs.Instrument.Yakety_Yak import YakBeg
+        
         center_freq = self.freq_center_var.get()
         span_freq = self.freq_span_var.get()
         
@@ -211,6 +222,8 @@ class YakBegTab(ttk.Frame):
         debug_log(f"YakBeg for TRACE/MODES triggered.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
+        
+        from tabs.Instrument.Yakety_Yak import YakBeg
         
         trace_modes = [
             self.trace1_mode_var.get(),
@@ -228,33 +241,41 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        trace_number = self.trace_select_var.get()
-        start_freq = self.trace_data_start_freq_var.get() * 1000000
-        stop_freq = self.trace_data_stop_freq_var.get() * 1000000
+        from tabs.Instrument.Yakety_Yak import YakBeg
         
-        # This is a complex command string that needs to be manually constructed
-        # as it combines different commands in a specific order.
-        full_command = f":FREQuency:STARt {int(start_freq)};:FREQuency:STOP {int(stop_freq)};:TRACe:DATA? TRACE{trace_number}"
+        trace_number = self.trace_select_var.get()
+        
+        # Get start/stop from the UI. These were set by a previous command and are known.
+        start_freq_mhz = self.trace_data_start_freq_var.get()
+        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        
+        # The command type is now TRACE/DATA/[1-4] based on the user's input.
+        command_type = f"TRACE/{trace_number}/DATA"
 
-        # We'll use YakNab here because we are asking for a single, long query response
-        # after a SET command. The `BEG` action type in `visa_commands.csv` will be
-        # replaced by this full command.
-        response_string = YakNab(self.app_instance, f"TRACE/DATA/{trace_number}", self.console_print_func)
+        # The YakBeg function will set the frequencies and then get the data.
+        response_string = YakBeg(self.app_instance, command_type, self.console_print_func, start_freq_mhz * 1000000, stop_freq_mhz * 1000000)
 
         if response_string and response_string != "FAILED":
             try:
-                values = [float(val.strip()) for val in response_string.split(',')]
+                # The response is ONLY a comma-separated list of values.
+                # No need to split by semicolon.
+                values = [float(val.strip()) for val in response_string.split(',') if val.strip()]
+
                 self.trace_data_count_var.set(str(len(values)))
                 
                 # Clear existing data
                 self.trace_data_tree.delete(*self.trace_data_tree.get_children())
                 
                 num_points = len(values)
-                frequencies = np.linspace(start_freq, stop_freq, num_points)
+                if num_points > 0:
+                    # Use the known start/stop frequencies (in Hz) from the UI to generate the frequency axis.
+                    start_freq_hz = start_freq_mhz * 1000000
+                    stop_freq_hz = stop_freq_mhz * 1000000
+                    frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
                 
-                for i, value in enumerate(values):
-                    freq_mhz = frequencies[i] / 1000000
-                    self.trace_data_tree.insert("", "end", values=(f"{freq_mhz:.3f}", f"{value:.2f}"))
+                    for i, value in enumerate(values):
+                        freq_mhz = frequencies[i] / 1000000
+                        self.trace_data_tree.insert("", "end", values=(f"{freq_mhz:.3f}", f"{value:.2f}"))
                 
                 self.console_print_func(f"✅ Received and displayed {len(values)} data points.")
             except (ValueError, IndexError, TypeError) as e:
@@ -271,5 +292,3 @@ class YakBegTab(ttk.Frame):
     def _on_tab_selected(self, event):
         """Called when this tab is selected."""
         pass # No specific actions needed on selection
-
-

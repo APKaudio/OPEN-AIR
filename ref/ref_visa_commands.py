@@ -225,16 +225,23 @@ def get_default_commands():
         ("Keysight Technologies", "N9342CN", "TRACE/3/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE3", "3", ""),
         ("Keysight Technologies", "N9342CN", "TRACE/4/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE4", "3", ""),
 
+        ("Keysight Technologies", "N9342CN", "TRACE/1/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE1", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/2/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE2", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/3/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE3", "2", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/4/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE4", "2", ""),
+
+
+
         ("Keysight Technologies", "N9340B", "TRACE/1/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:DATA?", "3", ""),
         ("Keysight Technologies", "N9340B", "TRACE/2/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe2:DATA?", "3", ""),
         ("Keysight Technologies", "N9340B", "TRACE/3/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe3:DATA?", "3", ""),
         ("Keysight Technologies", "N9340B", "TRACE/4/DATA", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe4:DATA?", "3", ""),
 
 
-        ("Keysight Technologies", "N9342CN", "TRACE/1/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE1", "2", ""),
-        ("Keysight Technologies", "N9342CN", "TRACE/2/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE2", "2", ""),
-        ("Keysight Technologies", "N9342CN", "TRACE/3/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE3", "2", ""),
-        ("Keysight Technologies", "N9342CN", "TRACE/4/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE4", "2", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/1/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe1:DATA?", "2", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/2/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe2:DATA?", "2", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/3/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe3:DATA?", "2", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/4/DATA", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe4:DATA?", "2", ""),
 
 
 
