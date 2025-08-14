@@ -30,7 +30,7 @@ import numpy as np
 from tabs.Instrument.Yakety_Yak import YakBeg
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
+
 
 # Helper conversion function
 MHZ_TO_HZ = 1000000

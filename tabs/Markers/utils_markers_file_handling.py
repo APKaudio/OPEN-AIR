@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.005950.2
+# Version 20250814.153000.1
 
-current_version = "20250814.005950.2"
-current_version_hash = (20250814 * 5950 * 2)
+current_version = "20250814.153000.1"
+current_version_hash = (20250814 * 153000 * 1)
 
 import os
 import inspect
@@ -26,16 +26,58 @@ import pandas as pd
 import numpy as np
 
 from display.debug_logic import debug_log
-from display.console_logic import console_log
+
+def load_and_process_markers(app_instance, console_print_func):
+    # [A brief, one-sentence description of the function's purpose.]
+    # This is the main orchestrator function that loads the CSV and processes it
+    # into the two data structures required by the Showtime tab.
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}. Orchestrating the loading and processing of MARKERS.CSV.",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+
+    df, success, message = load_markers_data(app_instance, console_print_func)
+    console_print_func(message)
+
+    if not success or df.empty:
+        return {}, {} # Return empty dicts on failure
+
+    # 1. Create the markers_data dictionary (keyed by unique name)
+    markers_data_dict = {}
+    df['NAME'] = df['NAME'].fillna(pd.Series([f"Unnamed_{i}" for i in range(len(df))]))
+
+    for index, row in df.iterrows():
+        unique_name = row['NAME']
+        try:
+            freq_mhz = float(row.get('FREQ', 0))
+        except (ValueError, TypeError):
+            freq_mhz = 0
+        
+        markers_data_dict[unique_name] = {
+            'frequency_mhz': freq_mhz,
+            'zone': row.get('ZONE', 'Unknown'),
+            'group': row.get('GROUP', 'Ungrouped'),
+            'device': row.get('DEVICE', ''),
+            'peak': row.get('Peak', None)
+        }
+
+    # 2. Create the zones dictionary using the helper function
+    zones_dict = _group_by_zone_and_group(df)
+
+    debug_log(f"✅ Successfully parsed CSV into {len(markers_data_dict)} devices and {len(zones_dict)} zones.",
+              file=f"{os.path.basename(__file__)} - {current_version}",
+              version=current_version,
+              function=current_function)
+              
+    return markers_data_dict, zones_dict
 
 
 def load_markers_data(app_instance, console_print_func):
-    # Function Description:
-    # Loads marker data from the internal MARKERS.CSV file. This function is
-    # now completely decoupled from the GUI. It returns the loaded DataFrame and
-    # a status message.
+    # [A brief, one-sentence description of the function's purpose.]
+    # Loads marker data from the internal MARKERS.CSV file.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Loading markers data from CSV. It's time to get some data!",
+    debug_log(f"Entering {current_function}. Loading markers data from CSV. Let's see what we've got!",
               file=f"{os.path.basename(__file__)} & {current_version}",
               version=current_version,
               function=current_function)
@@ -51,62 +93,44 @@ def load_markers_data(app_instance, console_print_func):
         if os.path.exists(path):
             try:
                 markers_data = pd.read_csv(path)
-                # FIXED: Do NOT fill NaN with empty strings. Let pandas handle missing data correctly.
-                # markers_data.fillna('', inplace=True) 
-                debug_log(f"✅ Successfully read {len(markers_data)} markers from file.",
-                          file=f"{os.path.basename(__file__)} & {current_version}",
-                          version=current_version,
-                          function=current_function)
                 return markers_data, True, f"✅ Loaded {len(markers_data)} markers from MARKERS.CSV."
             except pd.errors.EmptyDataError:
-                debug_log(f"⚠️ The CSV file is empty.",
-                          file=f"{os.path.basename(__file__)} & {current_version}",
-                          version=current_version,
-                          function=current_function)
                 return pd.DataFrame(), False, "⚠️ MARKERS.CSV is empty. No marker data to display."
             except Exception as e:
-                debug_log(f"❌ An unexpected error occurred while loading the CSV: {e}",
-                          file=f"{os.path.basename(__file__)} & {current_version}",
-                          version=current_version,
-                          function=current_function)
                 return pd.DataFrame(), False, f"❌ Error loading MARKERS.CSV: {e}"
         else:
-            debug_log(f"ℹ️ File not found at path: {path}",
-                      file=f"{os.path.basename(__file__)} & {current_version}",
-                      version=current_version,
-                      function=current_function)
             return pd.DataFrame(), False, "ℹ️ MARKERS.CSV not found. Please create one."
     
-    debug_log(f"❌ Application instance or file path not available.",
-              file=f"{os.path.basename(__file__)} & {current_version}",
-              version=current_version,
-              function=current_function)
     return pd.DataFrame(), False, "❌ Application instance or file path not available."
 
 
 def _group_by_zone_and_group(data):
-    # Function Description:
-    # Groups marker data by zone and then by group. This is a pure data processing
-    # function with no ties to the GUI.
+    # [A brief, one-sentence description of the function's purpose.]
+    # Groups marker data by zone and then by group.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Grouping marker data by zone and group. The data is a mess, let's clean it up!",
+    debug_log(f"Entering {current_function}. Grouping marker data by zone and group.",
               file=f"{os.path.basename(__file__)} & {current_version}",
               version=current_version,
               function=current_function)
 
     if data.empty:
-        debug_log(f"No data to group. Returning an empty dictionary.",
-                  file=f"{os.path.basename(__file__)} & {current_version}",
-                  version=current_version,
-                  function=current_function)
         return {}
 
-    # Fill any empty 'GROUP' cells with a placeholder
     data['GROUP'] = data['GROUP'].fillna('No Group')
+    data['ZONE'] = data['ZONE'].fillna('No Zone')
 
     zones = {}
     for zone, zone_data in data.groupby('ZONE'):
-        groups = {group: group_data.to_dict('records') for group, group_data in zone_data.groupby('GROUP')}
+        groups = {group: group_data['NAME'].tolist() for group, group_data in zone_data.groupby('GROUP')}
+        
+        min_freq = zone_data['FREQ'].min()
+        max_freq = zone_data['FREQ'].max()
+        if pd.notna(min_freq) and pd.notna(max_freq) and max_freq > min_freq:
+            span_hz = (max_freq - min_freq) * 1_000_000 
+        else:
+            span_hz = 1_000_000 # Default span
+        
+        groups['span_hz'] = span_hz
         zones[zone] = groups
     
     debug_log(f"✅ Successfully grouped data into {len(zones)} zones.",

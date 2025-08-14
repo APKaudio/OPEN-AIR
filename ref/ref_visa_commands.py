@@ -42,9 +42,9 @@ def get_default_commands():
         ("Keysight Technologies", "*", "FREQUENCY/SPAN", "SET", ":SENSe:FREQuency:SPAN", "1000", ""),
         ("Keysight Technologies", "*", "FREQUENCY/SPAN", "GET", ":SENSe:FREQuency:SPAN", "?", ""),
 
-        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "RIG", ":SENSe:FREQuency:SPAN 111;:SENSe:FREQuency:CENTer 222 ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "RIG", ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222; ", "2", ""),
         ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "NAB", ":SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
-        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "BEG", ":SENSe:FREQuency:SPAN 111;:SENSe:FREQuency:CENTer 222;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "BEG", ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
         
 
 

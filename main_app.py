@@ -15,7 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.181500.3 (version change)
+# Version 20250814.113000.1
+
+current_version = "20250814.113000.1"
+current_version_hash = (20250814 * 113000 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -37,18 +40,14 @@ from display.console_logic import console_log, set_gui_console_redirector, set_c
 
 from src.gui_elements import (_print_inst_ascii, _print_marks_ascii, _print_presets_ascii,
                               _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii, display_splash_screen,
-                              TextRedirector) # FIXED: Import TextRedirector
+                              TextRedirector)
 
 from src.program_default_values import (
     CONFIG_FILE_PATH, DATA_FOLDER_PATH, PRESETS_FILE_PATH,
     MARKERS_FILE_PATH, VISA_COMMANDS_FILE_PATH, DEBUG_COMMANDS_FILE_PATH
 )
 from ref.frequency_bands import MHZ_TO_HZ
-
-# --- Version Information ---
-current_version = "20250813.181500.3"
-current_version_hash = (20250813 * 181500 * 3)
-
+from orchestrator.orchestrator_logic import OrchestratorLogic # NEW: Import OrchestratorLogic
 
 class App(tk.Tk):
     """
@@ -77,7 +76,6 @@ class App(tk.Tk):
         self.paned_window = None
         self.is_initial_resize = True
 
-        # This map is now passed to and used by TABS_PARENT
         self.tab_art_map = {
             "Instruments": _print_inst_ascii,
             "Markers": _print_marks_ascii,
@@ -94,52 +92,49 @@ class App(tk.Tk):
         self.style = ttk.Style(self)
         self.setting_var_map = {}
 
-        # FIXED: Call apply_styles immediately after creating the Style object.
         apply_styles(self.style, debug_log, self.current_version)
         
         setup_tkinter_variables(self) 
         initialize_program_environment(self) 
         apply_saved_geometry(self)
         
-        # FIXED: Removed duplicate apply_styles call.
-        create_main_layout_and_widgets(self)
+        # --- NEW: Instantiate Orchestrator Logic ---
+        self.orchestrator_logic = OrchestratorLogic(app_instance=self, gui=None)
+        
+        # --- Create GUI and pass the logic to it ---
+        create_main_layout_and_widgets(self, self.orchestrator_logic)
+        
         self._set_console_redirectors()
 
         self.after(100, self._post_gui_setup)
 
         debug_log(f"App initialized. Version: {self.current_version}.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", function="__init__", special=True)
+                  file=f"{os.path.basename(__file__)} - {current_version}", function="__init__", special=True)
 
     def _post_gui_setup(self):
         """
-        Function Description
         Performs setup tasks that must happen after the main GUI is fully initialized.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log("Post-GUI setup tasks starting.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+                  file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
         
         display_splash_screen()
-
-        # Unlock saving geometry after initial setup is complete.
         self.is_initial_resize = False
         debug_log("Initial resize flag set to False. Geometry saving is now enabled. ",
                   file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
         
         debug_log("Post-GUI setup complete.",
-                    file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
+                  file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
 
     def _set_console_redirectors(self):
         """
-        Function Description
-        Sets up the console redirection to the GUI and registers the console functions
-        with the debug logic.
+        Sets up the console redirection to the GUI and registers the console functions.
         """
         current_function = inspect.currentframe().f_code.co_name
         
         if hasattr(self, 'display_parent_tab') and hasattr(self.display_parent_tab, 'console_tab'):
             console_tab = self.display_parent_tab.console_tab
-            # FIXED: Pass two TextRedirector instances as required by the function signature.
             set_gui_console_redirector(
                 TextRedirector(console_tab.console_text, "stdout"),
                 TextRedirector(console_tab.console_text, "stderr")
@@ -147,17 +142,15 @@ class App(tk.Tk):
             set_debug_redirectors(console_tab.console_text, sys.stderr)
             set_console_log_func(console_log)
             set_clear_console_func(console_tab._clear_applications_console_action)
-            debug_log("GUI console redirectors set up successfully. All logging should now go to the GUI!",
-                        file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
+            debug_log("GUI console redirectors set up successfully.",
+                      file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
         else:
-            debug_log("Console text widget not found. GUI console redirection is not available.",
-                        file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
+            debug_log("Console text widget not found. GUI console redirection not available.",
+                      file=f"{os.path.basename(__file__)} - {current_version}", function=current_function, special=True)
 
     def _on_app_resize_or_move(self, event):
         """
-        Function Description
         Event handler for when the main window is resized or moved.
-        It defers a call to save the configuration to avoid saving on every pixel change.
         """
         if event.widget is self and not self.is_initial_resize:
             if self.defer_config_save_id:
@@ -168,15 +161,15 @@ class App(tk.Tk):
             )
 
     def _save_config_on_idle(self, message):
-        """Helper function to save config after a delay and log the action."""
+        """Helper function to save config after a delay."""
         self.defer_config_save_id = None
         save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
         debug_log(f"Deferred config save triggered. {message}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    function="_save_config_on_idle", special=True)
+                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  function="_save_config_on_idle", special=True)
         
     def _on_closing(self):
-        """Handles application shutdown, including saving configuration."""
+        """Handles application shutdown."""
         if hasattr(self, 'config') and self.config:
             console_log("Saving configuration on shutdown...")
             save_config(self.config, self.CONFIG_FILE_PATH, console_log, self)
@@ -185,8 +178,7 @@ class App(tk.Tk):
 
     def get_tab_instance(self, parent_tab_name, child_tab_name=None):
         """
-        Function Description
-        Retrieves a reference to a parent or child tab instance from the main functional tab area.
+        Retrieves a reference to a parent or child tab instance.
         """
         current_function = inspect.currentframe().f_code.co_name
         

@@ -1,7 +1,7 @@
-# Orchestrator/orchestrator_logic.py
+# orchestrator/orchestrator_logic.py
 #
-# This file contains the core signaling logic for controlling a running process,
-# including pausing and stopping. It manipulates threading events passed to it from the GUI.
+# This file contains the core logic for the application's orchestrator,
+# managing the main operational state (running, paused, stopped).
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,67 +14,77 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.165000.1
+# Version 20250814.121000.1
 
-import threading
-import os
+current_version = "20250814.121000.1"
+current_version_hash = (20250814 * 121000 * 1)
+
 import inspect
-
-from display.debug_logic import debug_log
+import os
 from display.console_logic import console_log
+from display.debug_logic import debug_log
 
-# --- Version Information ---
-current_version = "20250813.165000.1"
-current_version_hash = (20250813 * 165000 * 1)
+class OrchestratorLogic:
+    def __init__(self, app_instance, gui):
+        self.app_instance = app_instance
+        self.gui = gui
+        self.is_running = False
+        self.is_paused = False
 
+    def start_orchestrator(self):
+        # Starts the main application orchestrator.
+        if self.is_running:
+            console_log("✅ Orchestrator is already running.")
+            return
 
-def toggle_pause_resume(app_instance, console_print_func, pause_event):
-    """Toggles the pause/resume state of the running process by manipulating the pause_event."""
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Toggling pause state.",
-              file=f"{os.path.basename(__file__)} - {current_version}",
-              version=current_version,
-              function=current_function)
-              
-    if pause_event.is_set():
-        pause_event.clear()
-        app_instance.is_paused_by_user = False
-        console_print_func("▶️ Process resumed. ✅")
-        debug_log(f"Process resumed successfully. 👍",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
-    else:
-        pause_event.set()
-        app_instance.is_paused_by_user = True
-        console_print_func("⏸️ Process paused.")
-        debug_log(f"Process paused successfully. 👍",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
+        self.is_running = True
+        self.is_paused = False
+        self.gui.update_button_states()
+        console_log("✅ Orchestrator started. The symphony begins! 🎶")
+        
+        if self.app_instance.orchestrator_tasks_tab:
+            self.app_instance.orchestrator_tasks_tab.update_status_display(self.is_running, self.is_paused)
+            self.log_task_event(source_file=__file__, event="Orchestrator Started")
 
-def stop_logic(app_instance, console_print_func, stop_event, pause_event):
-    """Stops the currently running process by setting the stop_event."""
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Stop signal requested.",
-              file=f"{os.path.basename(__file__)} - {current_version}",
-              version=current_version,
-              function=current_function)
-    
-    # The main application thread is stored in 'scan_thread' on the app_instance
-    # FIXED: Changed app_instance.run_thread to app_instance.scan_thread to match the actual attribute.
-    if app_instance.scan_thread and app_instance.scan_thread.is_alive():
-        stop_event.set()
-        pause_event.clear() # Ensure it's not paused if we are stopping
-        app_instance.is_paused_by_user = False
-        console_print_func("⏹️ Signaling process to stop...")
-        debug_log(f"Stop signal sent to the scan thread. ✅",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
-    else:
-        # This case handles if the stop button is somehow enabled when no thread is running.
-        debug_log(f"Stop logic called, but no active thread found to stop. Fucking useless!",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
-                  version=current_version,
-                  function=current_function)
+    def stop_orchestrator(self):
+        # Stops the main application orchestrator.
+        if not self.is_running:
+            console_log("✅ Orchestrator is already stopped.")
+            return
+
+        self.is_running = False
+        self.gui.update_button_states()
+        console_log("✅ Orchestrator stopped. The music fades... 🤫")
+        
+        if self.app_instance.orchestrator_tasks_tab:
+            self.app_instance.orchestrator_tasks_tab.update_status_display(self.is_running, self.is_paused)
+            self.log_task_event(source_file=__file__, event="Orchestrator Stopped")
+
+    def toggle_pause(self):
+        # Toggles the paused state of the orchestrator.
+        if not self.is_running:
+            console_log("ℹ️ Cannot pause, orchestrator is not running.")
+            return
+
+        self.is_paused = not self.is_paused
+        self.gui.update_button_states()
+        state = "paused" if self.is_paused else "resumed"
+        console_log(f"✅ Orchestrator {state}. A brief intermission. ⏸️")
+
+        if self.app_instance.orchestrator_tasks_tab:
+            self.app_instance.orchestrator_tasks_tab.update_status_display(self.is_running, self.is_paused)
+            self.log_task_event(source_file=__file__, event=f"Orchestrator {state.capitalize()}")
+
+    def log_check_in(self, source_file):
+        # Allows other modules to log that they have checked the orchestrator status.
+        self.log_task_event(source_file=source_file, event="Checked In")
+
+    def log_task_event(self, source_file, event):
+        # [A brief, one-sentence description of the function's purpose.]
+        # Logs a specific event from a source module to the orchestrator tasks tab.
+        try:
+            if self.app_instance.orchestrator_tasks_tab:
+                self.app_instance.orchestrator_tasks_tab.log_event(source=source_file, event=event)
+        except Exception as e:
+            # Avoid a logging loop by printing directly
+            print(f"ERROR: Could not log task event from {source_file}: {e}")

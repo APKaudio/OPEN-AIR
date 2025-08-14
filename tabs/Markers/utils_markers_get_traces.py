@@ -27,7 +27,7 @@ import numpy as np
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from display.utils_display_monitor import update_bottom_plot, update_medium_plot, update_top_plot
+from display.utils_display_monitor import update_bottom_plot, update_middle_plot, update_top_plot
 from ref.frequency_bands import MHZ_TO_HZ
 
 # NEW: Import the centralized YakGet command from the instrument utility
