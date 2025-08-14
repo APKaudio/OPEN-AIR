@@ -33,9 +33,12 @@
 # Version 20250818.200200.1 (FIXED: Added logic to turn markers on before a YakBeg call and off afterwards.)
 # Version 20250818.200300.1 (FIXED: The trace data command type string was corrected to use the hardcoded command from the CSV, not a dynamic string, fixing the KeyError.)
 # Version 20250818.200500.1 (FIXED: Corrected frequency conversions to integers to fix instrument communication errors.)
+# Version 20250818.201500.1 (REFACTORED: Moved all core logic to utils_yakbeg_handler.py to decouple UI from business logic.)
+# Version 20250818.202500.1 (REFACTORED: Updated UI layer to call new handler functions and correctly process their return values.)
+# Version 20250818.202800.1 (FIXED: Corrected the _on_marker_place_all_beg function to extract string values from StringVar objects before passing to handler.)
 
-current_version = "20250818.200500.1"
-current_version_hash = (20250818 * 200500 * 1)
+current_version = "20250818.202800.1"
+current_version_hash = (20250818 * 202800 * 1)
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -43,11 +46,15 @@ import inspect
 import os
 import numpy as np
 
-# Import Yak commands from the library
-# from tabs.Instrument.Yakety_Yak import YakBeg, YakRig, YakNab # Moved into methods
+# Import the new handler module
+from tabs.Instrument.utils_yakbeg_handler import (
+    handle_freq_start_stop_beg,
+    handle_freq_center_span_beg,
+    handle_marker_place_all_beg,
+    handle_trace_modes_beg,
+    handle_trace_data_beg)
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from display.utils_display_monitor import update_top_plot, update_medium_plot, update_bottom_plot
 
 class YakBegTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
@@ -227,13 +234,18 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg
-        
         start_freq = self.freq_start_var.get()
         stop_freq = self.freq_stop_var.get()
         
-        response = YakBeg(self.app_instance, "FREQUENCY/START-STOP", self.console_print_func, start_freq, stop_freq)
-        self.freq_ss_result_var.set(f"Result: {response}")
+        start_resp, stop_resp = handle_freq_start_stop_beg(self.app_instance, start_freq, stop_freq, self.console_print_func)
+        
+        if start_resp is not None and stop_resp is not None:
+            self.freq_start_var.set(start_resp)
+            self.freq_stop_var.set(stop_resp)
+            self.freq_ss_result_var.set(f"Result: {start_resp} Hz; {stop_resp} Hz")
+        else:
+            self.freq_ss_result_var.set("Result: FAILED")
+
 
     def _on_freq_center_span_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -241,13 +253,18 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg
-        
         center_freq = self.freq_center_var.get()
         span_freq = self.freq_span_var.get()
         
-        response = YakBeg(self.app_instance, "FREQUENCY/CENTER-SPAN", self.console_print_func, center_freq, span_freq)
-        self.freq_cs_result_var.set(f"Result: {response}")
+        center_resp, span_resp = handle_freq_center_span_beg(self.app_instance, center_freq, span_freq, self.console_print_func)
+
+        if center_resp is not None and span_resp is not None:
+            self.freq_center_var.set(center_resp)
+            self.freq_span_var.set(span_resp)
+            self.freq_cs_result_var.set(f"Result: {center_resp} Hz; {span_resp} Hz")
+        else:
+            self.freq_cs_result_var.set("Result: FAILED")
+
 
     def _on_marker_place_all_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -255,46 +272,11 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg, YakDo
+        # FIXED: Get the string value from each StringVar before passing to the handler.
+        marker_freqs_mhz = [v.get() for v in self.marker_freq_vars]
         
-        # Step 1: Ensure markers are turned ON first
-        if not self.app_instance.inst:
-            self.console_print_func("❌ No instrument connected. Cannot set markers.")
-            return
-
-        self.console_print_func("💬 Turning on all markers...")
-        if YakDo(self.app_instance, "MARKER/All/CALCULATE/STATE/ON", self.console_print_func) == "FAILED":
-            self.console_print_func("❌ Failed to turn on markers. Aborting.")
-            self.marker_place_all_result_var.set("Result: FAILED")
-            return
-
-        marker_freqs = [v.get() for v in self.marker_freq_vars]
-        
-        # The BEG command for markers needs frequencies in Hz, but the input boxes
-        # are in MHz. Let's convert them.
-        marker_freqs_hz = []
-        for freq in marker_freqs:
-            try:
-                # FIXED: Explicitly cast to integer to prevent trailing .0 from floats
-                marker_freqs_hz.append(int(float(freq) * 1000000))
-            except ValueError:
-                self.console_print_func(f"❌ Invalid marker frequency entered: '{freq}'. Must be a number.")
-                debug_log(f"Invalid marker frequency entered: '{freq}'. Aborting YakBeg.",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            function=current_function)
-                self.marker_place_all_result_var.set("Result: FAILED")
-                return
-
-        response = YakBeg(self.app_instance, "MARKER/PLACE/ALL", self.console_print_func, *marker_freqs_hz)
+        response = handle_marker_place_all_beg(self.app_instance, marker_freqs_mhz, self.console_print_func)
         self.marker_place_all_result_var.set(f"Result: {response}")
-        
-        # Step 2: Turn off all markers after the operation is complete
-        self.console_print_func("💬 Turning off all markers...")
-        if YakDo(self.app_instance, "MARKER/All/CALCULATE/STATE/OFF", self.console_print_func) == "FAILED":
-            self.console_print_func("❌ Failed to turn off markers.")
-            debug_log("Failed to turn off markers after YakBeg call.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        function=current_function)
 
 
     def _on_trace_modes_beg(self):
@@ -303,8 +285,6 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg
-        
         trace_modes = [
             self.trace1_mode_var.get(),
             self.trace2_mode_var.get(),
@@ -312,8 +292,9 @@ class YakBegTab(ttk.Frame):
             self.trace4_mode_var.get()
         ]
         
-        response = YakBeg(self.app_instance, "TRACE/MODES", self.console_print_func, *trace_modes)
+        response = handle_trace_modes_beg(self.app_instance, trace_modes, self.console_print_func)
         self.trace_modes_result_var.set(f"Result: {response}")
+
 
     def _on_trace_data_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -321,55 +302,25 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        from tabs.Instrument.Yakety_Yak import YakBeg
-        
         trace_number = self.trace_select_var.get()
-        
-        # Get start/stop from the UI. These were set by a previous command and are known.
         start_freq_mhz = self.trace_data_start_freq_var.get()
         stop_freq_mhz = self.trace_data_stop_freq_var.get()
         
-        # The command type is now TRACE/DATA/[1-4] based on the user's input.
-        command_type = f"TRACE/{trace_number}/DATA"
+        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_mhz, stop_freq_mhz, self.console_print_func)
 
-        # The YakBeg function will set the frequencies and then get the data.
-        # FIXED: Explicitly cast to integer to prevent trailing .0 from floats
-        response_string = YakBeg(self.app_instance, command_type, self.console_print_func, int(start_freq_mhz * 1000000), int(stop_freq_mhz * 1000000))
-
-        if response_string and response_string != "FAILED":
-            try:
-                # The response is ONLY a comma-separated list of values.
-                # No need to split by semicolon.
-                values = [float(val.strip()) for val in response_string.split(',') if val.strip()]
-
-                self.trace_data_count_var.set(str(len(values)))
-                
-                # Clear existing data
-                self.trace_data_tree.delete(*self.trace_data_tree.get_children())
-                
-                num_points = len(values)
-                if num_points > 0:
-                    # Use the known start/stop frequencies (in Hz) from the UI to generate the frequency axis.
-                    start_freq_hz = start_freq_mhz * 1000000
-                    stop_freq_hz = stop_freq_mhz * 1000000
-                    frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
-                
-                    for i, value in enumerate(values):
-                        freq_mhz = frequencies[i] / 1000000
-                        self.trace_data_tree.insert("", "end", values=(f"{freq_mhz:.3f}", f"{value:.2f}"))
-                
-                self.console_print_func(f"✅ Received and displayed {len(values)} data points.")
-            except (ValueError, IndexError, TypeError) as e:
-                self.console_print_func(f"❌ Failed to parse trace data: {e}. What a disaster!")
-                debug_log(f"Failed to parse trace data string: {response_string}. Error: {e}",
-                            file=f"{os.path.basename(__file__)} - {current_version}",
-                            function=current_function)
-                self.trace_data_count_var.set("0")
+        if processed_data:
+            self.trace_data_count_var.set(str(len(processed_data)))
+            self.trace_data_tree.delete(*self.trace_data_tree.get_children())
+            
+            for freq, value in processed_data:
+                self.trace_data_tree.insert("", "end", values=(f"{freq:.3f}", f"{value:.2f}"))
+            
+            self.console_print_func(f"✅ Received and displayed {len(processed_data)} data points.")
         else:
             self.trace_data_count_var.set("0")
             self.trace_data_tree.delete(*self.trace_data_tree.get_children())
             self.console_print_func("❌ Trace data retrieval failed.")
-        
+
     def _on_tab_selected(self, event):
         """Called when this tab is selected."""
         pass # No specific actions needed on selection
@@ -380,14 +331,6 @@ class YakBegTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         
-        # Check if there is data in the table
-        if not self.trace_data_tree.get_children():
-            self.console_print_func("❌ No data in the table to push to the monitor.")
-            debug_log("No data in table to push. Fucking useless!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        function=current_function)
-            return
-            
         trace_number = self.trace_select_var.get()
         data = []
         for item in self.trace_data_tree.get_children():
@@ -396,19 +339,5 @@ class YakBegTab(ttk.Frame):
         
         start_freq_mhz = self.trace_data_start_freq_var.get()
         stop_freq_mhz = self.trace_data_stop_freq_var.get()
-        title = f"Experiment - {start_freq_mhz:.3f} to {stop_freq_mhz:.3f} MHz"
-
-        if trace_number == "1":
-            update_top_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
-            self.console_print_func("✅ Trace data pushed to Top Plot.")
-        elif trace_number == "2":
-            update_medium_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
-            self.console_print_func("✅ Trace data pushed to Middle Plot.")
-        elif trace_number == "3":
-            update_bottom_plot(self.app_instance.scan_monitor_tab, data, start_freq_mhz, stop_freq_mhz, title)
-            self.console_print_func("✅ Trace data pushed to Bottom Plot.")
-        else:
-            self.console_print_func(f"❌ Cannot push data to Plot {trace_number}. Must be 1, 2, or 3.")
-            debug_log(f"Invalid trace number for plotting: {trace_number}. What a disaster!",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        function=current_function)
+        
+        handle_push_to_monitor(self.app_instance, self.trace_select_var, self.trace_data_tree, start_freq_mhz, stop_freq_mhz, self.console_print_func)

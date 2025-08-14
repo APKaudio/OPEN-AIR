@@ -2,6 +2,8 @@
 # This section outlines the directory and file structure of the OPEN-AIR RF Spectrum Analyzer Controller application,
 # providing a brief explanation for each component.
 #
+# Created: 2025-08-13 23:40:43
+#
 # └── OPEN-AIR/
 #├── Crawl/
 #├── DATA/
@@ -41,24 +43,29 @@
 #        |   -> Function: _save_config_on_idle(self, message)
 #        |   -> Function: _set_console_redirectors(self)
 #        |   -> Function: get_tab_instance(self, parent_tab_name, child_tab_name)
+#    ├── 20250813234043/
 #    ├── Crawl.log
+#    ├── Crawl_20250813_195206.log
 #    ├── EVERYTHING.py.LOG
+#    ├── EVERYTHING__20250813_195206.py.LOG
 #    ├── MAP.txt
+#    ├── MAP_20250813_195206.txt
 #    └── crawl.py
 #            |   -> Import: ast
 #            |   -> Import: datetime
 #            |   -> Import: inspect
 #            |   -> Import: os
+#            |   -> Import: shutil
 #            |   -> Import: subprocess
 #            |   -> Import: threading
 #            |   -> Import: tkinter
 #            |   -> Class: FolderCrawlerApp
-#            |   -> Function: __init__(self, root)
+#            |   -> Function: __init__(self, root, start_directory)
 #            |   -> Function: _analyze_python_file(self, file_path, indent_level)
 #            |   -> Function: _append_to_text_area(self, text, tag)
-#            |   -> Function: _browse_directory(self)
 #            |   -> Function: _crawl_directory_thread(self)
 #            |   -> Function: _on_closing(self)
+#            |   -> Function: _open_crawl_folder(self)
 #            |   -> Function: _open_everything_log_file(self)
 #            |   -> Function: _open_file(self, file_path, file_description)
 #            |   -> Function: _open_log_file(self)
@@ -66,6 +73,9 @@
 #            |   -> Function: _start_crawl(self)
 #            |   -> Function: console_log(message)
 #            |   -> Function: debug_log(message, file, function)
+#        ├── Crawl.log
+#        ├── EVERYTHING.py.LOG
+#        └── MAP.txt
 #    ├── SCANS/
 #    ├── trash/
 #    ├── DEBUG_SOFTWARE.log
@@ -450,6 +460,7 @@
 #                |   -> Import: inspect
 #                |   -> Import: os
 #                |   -> Import: tabs.Experiments.tab_experiments_child_JSON_api
+#                |   -> Import: tabs.Experiments.tab_experiments_child_YakBeg
 #                |   -> Import: tabs.Experiments.tab_experiments_child_initial_configuration
 #                |   -> Import: tabs.Experiments.tab_experiments_child_intermod
 #                |   -> Import: tabs.Experiments.tab_experiments_colouring
@@ -485,6 +496,24 @@
 #                |   -> Function: _stop_json_api(self)
 #                |   -> Function: _update_api_button_states(self)
 #                |   -> Function: fetch_and_display()
+#        ├── tab_experiments_child_YakBeg.py
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: tabs.Instrument.utils_yakbeg_handler
+#                |   -> Import: tkinter
+#                |   -> Class: YakBegTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_freq_center_span_beg(self)
+#                |   -> Function: _on_freq_start_stop_beg(self)
+#                |   -> Function: _on_marker_place_all_beg(self)
+#                |   -> Function: _on_push_to_monitor(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_trace_data_beg(self)
+#                |   -> Function: _on_trace_modes_beg(self)
 #        ├── tab_experiments_child_initial_configuration.py
 #                |   -> Import: configparser
 #                |   -> Import: datetime
@@ -584,9 +613,11 @@
 #                |   -> Import: tabs.Instrument.utils_yak_visa
 #                |   -> Import: time
 #                |   -> Import: tkinter
+#                |   -> Function: YakBeg(app_instance, command_type, console_print_func)
 #                |   -> Function: YakDo(app_instance, command_type, console_print_func)
 #                |   -> Function: YakGet(app_instance, command_type, console_print_func)
 #                |   -> Function: YakNab(app_instance, command_type, console_print_func)
+#                |   -> Function: YakRig(app_instance, command_type, console_print_func)
 #                |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
 #                |   -> Function: _find_command(command_type, action_type, model)
 #                |   -> Function: _load_commands_from_file(file_path)
@@ -624,17 +655,21 @@
 #                |   -> Function: _disconnect_instrument(self)
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _populate_resources(self)
+#                |   -> Function: _toggle_connection(self)
 #                |   -> Function: _update_connection_status(self)
 #        ├── tab_instrument_child_settings.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: src.settings_and_config.restore_settings_logic
 #                |   -> Import: tabs.Instrument.utils_instrument_setting_handler
 #                |   -> Import: tkinter
 #                |   -> Class: SettingsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
+#                |   -> Function: _load_settings_from_config(self)
 #                |   -> Function: _on_get_freq_click(self)
 #                |   -> Function: _on_read_all_markers_click(self)
 #                |   -> Function: _on_reset_button_click(self)
@@ -710,7 +745,7 @@
 #                |   -> Function: toggle_marker_state(app_instance, marker_number, state, console_print_func)
 #                |   -> Function: toggle_preamp(app_instance, console_print_func)
 #                |   -> Function: toggle_vbw_auto(app_instance, console_print_func)
-#        └── utils_yak_visa.py
+#        ├── utils_yak_visa.py
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -722,6 +757,19 @@
 #                |   -> Function: query_safe(inst, command, console_print_func)
 #                |   -> Function: set_safe(inst, command, value, console_print_func)
 #                |   -> Function: write_safe(inst, command, console_print_func)
+#        └── utils_yakbeg_handler.py
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: display.utils_display_monitor
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Function: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func)
+#                |   -> Function: handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func)
+#                |   -> Function: handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func)
+#                |   -> Function: handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func)
+#                |   -> Function: handle_trace_modes_beg(app_instance, trace_modes, console_print_func)
 #        ├── TAB_MARKERS_PARENT.py
 #                |   -> Import: datetime
 #                |   -> Import: display.console_logic
