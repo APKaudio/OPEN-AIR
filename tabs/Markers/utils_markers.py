@@ -1,8 +1,9 @@
-# utils/utils_markers.py
+# tabs/Markers/utils_markers.py
 #
-# This file contains utility functions for controlling spectrum analyzer markers,
-# span, and trace modes. It provides a clean interface for sending SCPI commands
-# to the instrument, ensuring commands are sent safely and debug information is logged.
+# This file contains utility functions for controlling the instrument, specifically
+# for setting frequency, span, RBW, and trace modes. It provides a clean interface
+# for sending SCPI commands and returning the status of the operation. The functions
+# in this file DO NOT communicate with the GUI directly.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -12,148 +13,148 @@
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.225500.2 (REFACTORED: Converted all direct instrument calls from write_safe/query_safe to use the high-level YakSet and YakDo commands.)
+# Version 20250814.002800.2 (FIXED: Added missing 'console_print_func' argument to all YakSet calls to resolve a TypeError.)
 
-current_version = "20250811.225500.2" 
-current_version_hash = 20250811 * 225500 * 2
+current_version = "20250814.002800.2"
+current_version_hash = (20250814 * 2800 * 2)
 
-import inspect
 import os
-import time # Import time for potential small delays
+import inspect
+import time
 
-# Updated imports for new logging functions
 from display.debug_logic import debug_log
-from display.console_logic import console_log
 from ref.frequency_bands import MHZ_TO_HZ
 
-# New Imports for high-level Yak commands
-from tabs.Instrument.Yakety_Yak import YakSet, YakDo
+from tabs.Instrument.Yakety_Yak import YakSet
 
-# Constants for Span Options (used in MarkersDisplayTab)
+# Predefined options for common controls
 SPAN_OPTIONS = {
-    "Ultra Wide": 100 * MHZ_TO_HZ, # This would typically be a special value for full span
-    "Wide": 10 * MHZ_TO_HZ, # Example: 10 MHz
-    "Normal": 1 * MHZ_TO_HZ,  # Example: 1 MHz
-    "Tight": 100 * 1000,    # Example: 100 KHz
-    "Microscope": 10 * 1000,     # Example: 10 KHz
+    "10 kHz": 10000.0,
+    "100 kHz": 100000.0,
+    "1 MHz": 1000000.0,
+    "10 MHz": 10000000.0,
+    "100 MHz": 100000000.0,
+    "1000 MHz": 1000000000.0,
+    "5000 MHz": 5000000000.0
 }
 
-# --- UPDATED: Constants for Resolution Bandwidth (RBW) Options ---
 RBW_OPTIONS = {
-    "Fast": 1 * MHZ_TO_HZ,
-    "Brisk": 300 * 1000,
-    "Deliberate": 100 * 1000,
-    "Steady": 30 * 1000,
-    "Leisurely": 10 * 1000,
-    "Unhurried": 3 * 1000,
-    "Slothlike": 1 * 1000,
+    "1 Hz": 1.0,
+    "10 Hz": 10.0,
+    "100 Hz": 100.0,
+    "1 kHz": 1000.0,
+    "3 kHz": 3000.0,
+    "10 kHz": 10000.0,
+    "30 kHz": 30000.0,
+    "100 kHz": 100000.0,
+    "300 kHz": 300000.0,
+    "1 MHz": 1000000.0,
 }
-# --- END UPDATED ---
+
 
 def set_frequency_logic(app_instance, frequency_hz, console_print_func):
+    # Function Description:
+    # Sets the instrument's center frequency using the YakSet command.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to set instrument frequency to {frequency_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-    
-    # Use YakSet to set the frequency
-    if YakSet(app_instance, "FREQUENCY/CENTER", str(int(frequency_hz)), console_print_func) == "PASSED":
-        console_print_func(f"✅ Frequency set to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-        debug_log(f"Frequency set successfully to {frequency_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return True
+    debug_log(message=f"Setting center frequency to {frequency_hz} Hz using YakSet.",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
+
+    status = YakSet(app_instance=app_instance, command_type="FREQUENCY/CENTER", variable_value=str(frequency_hz), console_print_func=console_print_func)
+    if status == "PASSED":
+        return True, f"✅ Instrument center frequency set to {frequency_hz / MHZ_TO_HZ:.3f} MHz."
     else:
-        console_print_func(f"❌ Failed to set frequency to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-        debug_log(f"Failed to set frequency to {frequency_hz} Hz. What the hell went wrong?!", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
+        return False, f"❌ Failed to set center frequency."
+
 
 def set_span_logic(app_instance, span_hz, console_print_func):
+    # Function Description:
+    # Sets the instrument's span frequency using the YakSet command.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to set instrument span to {span_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot set span.")
-        debug_log("Instrument not connected for set_span_logic. Fucking useless!", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
+    debug_log(message=f"Setting span frequency to {span_hz} Hz using YakSet.",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
 
-    # Use YakSet for span. Assuming 0 means MAX span, otherwise send the value.
-    if span_hz == 0.0:
-        if YakDo(app_instance, "FREQUENCY/SPAN/MAX", console_print_func) == "PASSED":
-            console_print_func("✅ Span applied (MAX).")
-            return True
-        else:
-            console_print_func("❌ Failed to apply span (MAX).")
-            return False
+    status = YakSet(app_instance=app_instance, command_type="FREQUENCY/SPAN", variable_value=str(span_hz), console_print_func=console_print_func)
+    if status == "PASSED":
+        return True, f"✅ Instrument span set to {span_hz / MHZ_TO_HZ:.3f} MHz."
     else:
-        if YakSet(app_instance, "FREQUENCY/SPAN", str(int(span_hz)), console_print_func) == "PASSED":
-            console_print_func(f"✅ Span set to {span_hz / MHZ_TO_HZ:.3f} MHz.")
-            debug_log(f"Span set to {span_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-            return True
-        else:
-            console_print_func(f"❌ Failed to set span to {span_hz / MHZ_TO_HZ:.3f} MHz.")
-            debug_log(f"Failed to set span to {span_hz} Hz. What the hell went wrong?!", file=os.path.basename(__file__), version=current_version, function=current_function)
-            return False
+        return False, f"❌ Failed to set span frequency."
+
 
 def set_rbw_logic(app_instance, rbw_hz, console_print_func):
+    # Function Description:
+    # Sets the instrument's Resolution Bandwidth (RBW) using the YakSet command.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to set instrument RBW to {rbw_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot set RBW.")
-        debug_log("Instrument not connected for set_rbw_logic. Fucking useless!", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
+    debug_log(message=f"Setting RBW to {rbw_hz} Hz using YakSet. That's a good RBW!",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
 
-    # Use YakSet to set the resolution bandwidth
-    if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(int(rbw_hz)), console_print_func) == "PASSED":
-        console_print_func(f"✅ RBW set to {rbw_hz / (MHZ_TO_HZ if rbw_hz >= MHZ_TO_HZ else 1000):.3f} {'MHz' if rbw_hz >= MHZ_TO_HZ else 'kHz'}.")
-        debug_log(f"RBW set successfully to {rbw_hz} Hz.", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return True
+    status = YakSet(app_instance=app_instance, command_type="RBW/MANUAL", variable_value=str(rbw_hz), console_print_func=console_print_func)
+    if status == "PASSED":
+        return True, f"✅ Instrument RBW set to {rbw_hz / 1000:.0f} kHz."
     else:
-        console_print_func(f"❌ Failed to set RBW.")
-        debug_log(f"Failed to set RBW. What the hell went wrong?!", file=os.path.basename(__file__), version=current_version, function=current_function)
-        return False
+        return False, f"❌ Failed to set RBW."
+
 
 def set_trace_modes_logic(app_instance, live_mode, max_hold_mode, min_hold_mode, console_print_func):
+    # Function Description:
+    # Sets the trace modes (live, max hold, min hold) using individual YakSet commands.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Applying trace modes: Live: {live_mode}, MaxHold: {max_hold_mode}, MinHold: {min_hold_mode}", file=os.path.basename(__file__), version=current_version, function=current_function)
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot set trace modes.")
-        return False
-    
-    success = True
-    if YakDo(app_instance, f"TRACE/1/MODE/{'WRITe' if live_mode else 'BLANK'}", console_print_func) != "PASSED": success = False
-    if YakDo(app_instance, f"TRACE/2/MODE/{'MAXHOLD' if max_hold_mode else 'BLANK'}", console_print_func) != "PASSED": success = False
-    if YakDo(app_instance, f"TRACE/3/MODE/{'MINHOLD' if min_hold_mode else 'BLANK'}", console_print_func) != "PASSED": success = False
-    
-    if success:
-        console_print_func("✅ Trace modes applied.")
-        debug_log("Trace modes set successfully. All systems, go!", file=os.path.basename(__file__), version=current_version, function=current_function)
+    debug_log(message=f"Setting trace modes: Live={live_mode}, MaxHold={max_hold_mode}, MinHold={min_hold_mode}.",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
+
+    status_live = YakSet(app_instance=app_instance, command_type="TRACE/MODE", variable_value=f"{'LIVE' if live_mode else 'OFF'}", console_print_func=console_print_func)
+    status_max = YakSet(app_instance=app_instance, command_type="TRACE/MODE/MAX", variable_value=f"{'MAX HOLD' if max_hold_mode else 'OFF'}", console_print_func=console_print_func)
+    status_min = YakSet(app_instance=app_instance, command_type="TRACE/MODE/MIN", variable_value=f"{'MIN HOLD' if min_hold_mode else 'OFF'}", console_print_func=console_print_func)
+
+    if status_live == "PASSED" and status_max == "PASSED" and status_min == "PASSED":
+        return True, f"✅ Trace modes updated."
     else:
-        console_print_func("❌ Failed to apply all trace modes.")
-        debug_log("Failed to apply all trace modes. What a pain!", file=os.path.basename(__file__), version=current_version, function=current_function)
-    return success
+        return False, f"❌ Failed to update trace modes."
+
+
+def set_marker_logic(app_instance, frequency_hz, console_print_func):
+    # Function Description:
+    # Places a single marker at the specified frequency using the YakSet command.
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"Setting marker to {frequency_hz} Hz. This is going to be good!",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
+
+    # We set the marker state and then the frequency
+    status_state = YakSet(app_instance=app_instance, command_type="MARKER/1/STATE", variable_value="ON", console_print_func=console_print_func)
+    status_freq = YakSet(app_instance=app_instance, command_type="MARKER/1/X", variable_value=str(frequency_hz), console_print_func=console_print_func)
+
+    if status_state == "PASSED" and status_freq == "PASSED":
+        return True, f"✅ Marker 1 set to {frequency_hz / MHZ_TO_HZ:.3f} MHz."
+    else:
+        return False, f"❌ Failed to set marker 1."
+
 
 def blank_hold_traces_logic(app_instance, console_print_func):
+    """
+    Blanks the Max Hold and Min Hold traces.
+    """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Blanking hold traces.", file=os.path.basename(__file__), version=current_version, function=current_function)
-    return set_trace_modes_logic(app_instance, True, False, False, console_print_func)
+    debug_log(message=f"Blanks Max Hold and Min Hold traces. This should clear out old data for a fresh start.",
+              file=f"{os.path.basename(__file__)} & {current_version}",
+              version=current_version,
+              function=current_function)
 
-def set_marker_logic(app_instance, frequency_hz, marker_name, console_print_func):
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Setting marker to {frequency_hz} Hz for '{marker_name}'...", file=os.path.basename(__file__), version=current_version, function=current_function)
-    if not app_instance.inst:
-        console_print_func("⚠️ Warning: Instrument not connected. Cannot set marker.")
-        return False
+    status_max = YakSet(app_instance=app_instance, command_type="TRACE/MODE/MAX", variable_value="CLEAR", console_print_func=console_print_func)
+    status_min = YakSet(app_instance=app_instance, command_type="TRACE/MODE/MIN", variable_value="CLEAR", console_print_func=console_print_func)
     
-    success = True
-    # The Yakety_Yak function for setting markers is MARKER/1/CALCULATE/STATE
-    if YakDo(app_instance, "MARKER/1/CALCULATE/STATE", console_print_func) != "PASSED":
-        success = False
-    
-    if YakSet(app_instance, "MARKER/1/CALCULATE/X", str(int(frequency_hz)), console_print_func) != "PASSED":
-        success = False
-        
-    if success:
-        console_print_func(f"✅ Marker set to {frequency_hz / MHZ_TO_HZ:.3f} MHz.")
-        debug_log(f"Marker set successfully. We've tagged our quarry!", file=os.path.basename(__file__), version=current_version, function=current_function)
+    if status_max == "PASSED" and status_min == "PASSED":
+        return True, f"✅ Hold traces cleared."
     else:
-        console_print_func(f"❌ Failed to set marker for {marker_name}.")
-        debug_log(f"Failed to set marker. What a disaster!", file=os.path.basename(__file__), version=current_version, function=current_function)
-    return success
+        return False, f"❌ Failed to clear hold traces."

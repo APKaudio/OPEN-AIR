@@ -16,7 +16,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-current_version = "20250813.161500.1"
+# Version 20250814.003500.1 (FIXED: Corrected the call to 'load_markers_data_wrapper' to pass the missing 'console_print_func' argument, resolving the TypeError.)
+
+current_version = "20250814.003500.1"
 
 import tkinter as tk
 from tkinter import ttk
@@ -44,6 +46,9 @@ from tabs.Markers.utils_markers import (
     set_marker_logic,
     set_rbw_logic
 )
+# NEW: Import the new file handling utility functions
+from tabs.Markers.utils_markers_file_handling import load_markers_data, _group_by_zone_and_group
+
 from src.program_style import COLOR_PALETTE
 from src.settings_and_config.config_manager import save_config
 from ref.frequency_bands import MHZ_TO_HZ
@@ -73,13 +78,13 @@ def orchestrated_update_loop(showtime_tab_instance):
         center_freq_hz = showtime_tab_instance.selected_device_freq
         span_hz = float(showtime_tab_instance.span_var.get())
         device_name = showtime_tab_instance.selected_device_name
-        
+
         with showtime_tab_instance.instrument_lock:
-            get_marker_traces(app_instance=showtime_tab_instance.app_instance, 
-                              showtime_tab_instance=showtime_tab_instance, 
-                              console_print_func=console_log, 
-                              center_freq_hz=center_freq_hz, 
-                              span_hz=span_hz, 
+            get_marker_traces(app_instance=showtime_tab_instance.app_instance,
+                              showtime_tab_instance=showtime_tab_instance,
+                              console_print_func=showtime_tab_instance.console_print_func,
+                              center_freq_hz=center_freq_hz,
+                              span_hz=span_hz,
                               device_name=device_name)
 
     elif showtime_tab_instance.selected_zone is not None:
@@ -91,7 +96,7 @@ def orchestrated_update_loop(showtime_tab_instance):
             # Group is selected
             name = f"Group: {showtime_tab_instance.selected_group}"
             devices_to_process = showtime_tab_instance.markers_data[
-                (showtime_tab_instance.markers_data['ZONE'] == showtime_tab_instance.selected_zone) & 
+                (showtime_tab_instance.markers_data['ZONE'] == showtime_tab_instance.selected_zone) &
                 (showtime_tab_instance.markers_data['GROUP'] == showtime_tab_instance.selected_group)
             ]
         else:
@@ -100,10 +105,10 @@ def orchestrated_update_loop(showtime_tab_instance):
             devices_to_process = showtime_tab_instance.markers_data[
                 showtime_tab_instance.markers_data['ZONE'] == showtime_tab_instance.selected_zone
             ]
-        
+
         if not devices_to_process.empty:
             _peak_search_and_get_trace(showtime_tab_instance, devices=devices_to_process, name=name)
-    
+
     # Schedule the next iteration of the loop
     showtime_tab_instance.after(500, lambda: orchestrated_update_loop(showtime_tab_instance))
 
@@ -121,35 +126,28 @@ def format_hz(hz_val):
     except (ValueError, TypeError):
         return "N/A"
 
-def load_markers_data(showtime_tab_instance):
-    """Loads marker data from the internal MARKERS.CSV file."""
-    showtime_tab_instance.markers_data = pd.DataFrame()
-    showtime_tab_instance.zones = {}
-    
-    if showtime_tab_instance.app_instance and hasattr(showtime_tab_instance.app_instance, 'MARKERS_FILE_PATH'):
-        path = showtime_tab_instance.app_instance.MARKERS_FILE_PATH
-        if os.path.exists(path):
-            try:
-                showtime_tab_instance.markers_data = pd.read_csv(path)
-                showtime_tab_instance.zones = _group_by_zone_and_group(showtime_tab_instance.markers_data)
-                showtime_tab_instance.console_print_func(f"✅ Loaded {len(showtime_tab_instance.markers_data)} markers from MARKERS.CSV.")
-            except Exception as e:
-                showtime_tab_instance.console_print_func(f"❌ Error loading MARKERS.CSV: {e}")
-        else:
-            showtime_tab_instance.console_print_func("ℹ️ MARKERS.CSV not found. Please create one.")
+def load_markers_data_wrapper(showtime_tab_instance):
+    """
+    Wrapper function to call the new utility function and handle the GUI update.
+    """
+    markers_data, status, message = load_markers_data(showtime_tab_instance.app_instance, showtime_tab_instance.console_print_func)
+    showtime_tab_instance.console_print_func(message)
+    showtime_tab_instance.markers_data = markers_data
+    showtime_tab_instance.zones = _group_by_zone_and_group(markers_data)
+
 
 def _group_by_zone_and_group(data):
     """Groups marker data by zone and then by group."""
     if data.empty:
         return {}
-    
+
     data['GROUP'] = data['GROUP'].fillna('No Group')
-    
+
     zones = {}
     for zone, zone_data in data.groupby('ZONE'):
         groups = {group: group_data.to_dict('records') for group, group_data in zone_data.groupby('GROUP')}
         zones[zone] = groups
-    
+
     return zones
 
 def populate_zone_buttons(showtime_tab_instance):
@@ -158,54 +156,54 @@ def populate_zone_buttons(showtime_tab_instance):
         widget.destroy()
 
     showtime_tab_instance.zone_buttons = {}
-    
+
     if not isinstance(showtime_tab_instance.zones, dict) or not showtime_tab_instance.zones:
         ttk.Label(showtime_tab_instance.zone_button_subframe, text="No zones found in MARKERS.CSV.").grid(row=0, column=0, columnspan=8)
         return
-        
+
     max_cols = 8
     for i, zone_name in enumerate(sorted(showtime_tab_instance.zones.keys())):
         row = i // max_cols
         col = i % max_cols
         device_count = sum(len(group) for group in showtime_tab_instance.zones[zone_name].values())
-        btn = ttk.Button(showtime_tab_instance.zone_button_subframe, 
+        btn = ttk.Button(showtime_tab_instance.zone_button_subframe,
                          text=f"{zone_name} ({device_count})",
                          command=lambda z=zone_name: on_zone_button_click(showtime_tab_instance, z))
         btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
         showtime_tab_instance.zone_buttons[zone_name] = btn
-    
+
     _update_zone_button_styles(showtime_tab_instance)
 
 def populate_group_buttons(showtime_tab_instance):
     """Creates buttons for each group in the selected zone."""
     for widget in showtime_tab_instance.group_button_subframe.winfo_children():
         widget.destroy()
-    
+
     showtime_tab_instance.group_buttons = {}
-    
+
     if not showtime_tab_instance.selected_zone or showtime_tab_instance.selected_zone not in showtime_tab_instance.zones:
         showtime_tab_instance.group_buttons_frame.grid_remove()
         return
-    
+
     groups = showtime_tab_instance.zones[showtime_tab_instance.selected_zone]
-    
+
     if not groups:
         showtime_tab_instance.group_buttons_frame.grid_remove()
         return
-    
+
     showtime_tab_instance.group_buttons_frame.grid()
-    
+
     max_cols = 8
     for i, group_name in enumerate(sorted(groups.keys())):
         row = i // max_cols
         col = i % max_cols
         device_count = len(groups[group_name])
-        btn = ttk.Button(showtime_tab_instance.group_button_subframe, 
+        btn = ttk.Button(showtime_tab_instance.group_button_subframe,
                          text=f"{group_name} ({device_count})",
                          command=lambda g=group_name: on_group_button_click(showtime_tab_instance, g))
         btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
         showtime_tab_instance.group_buttons[group_name] = btn
-        
+
     _update_group_button_styles(showtime_tab_instance)
 
 
@@ -215,7 +213,7 @@ def on_zone_button_click(showtime_tab_instance, zone_name):
     showtime_tab_instance.selected_group = None
     showtime_tab_instance.selected_device_freq = None # Deselect any specific device
     _update_zone_button_styles(showtime_tab_instance)
-    
+
     # Activate "Follow Zone" span mode
     showtime_tab_instance.follow_zone_span_var.set(True)
     _update_control_styles(showtime_tab_instance)
@@ -229,7 +227,7 @@ def on_group_button_click(showtime_tab_instance, group_name):
     showtime_tab_instance.selected_group = group_name
     showtime_tab_instance.selected_device_freq = None # Deselect any specific device
     _update_group_button_styles(showtime_tab_instance)
-    
+
     # Activate "Follow Zone" span mode
     showtime_tab_instance.follow_zone_span_var.set(True)
     _update_control_styles(showtime_tab_instance)
@@ -248,43 +246,45 @@ def _perform_peak_search_task(showtime_tab_instance, devices, name):
     """Worker function for the peak search task."""
     with showtime_tab_instance.instrument_lock:
         updated_markers_df = get_peak_values_and_update_csv(app_instance=showtime_tab_instance.app_instance, devices_to_process=devices, console_print_func=showtime_tab_instance.console_print_func)
-    
+
     if updated_markers_df is None:
         showtime_tab_instance.app_instance.after(0, lambda: showtime_tab_instance.console_print_func("❌ Peak search failed."))
         return
-        
-    showtime_tab_instance.app_instance.after(0, lambda: load_markers_data(showtime_tab_instance))
-    
+
+    showtime_tab_instance.app_instance.after(0, lambda: load_markers_data_wrapper(showtime_tab_instance))
+
     all_freqs_mhz = devices['FREQ'].dropna().tolist()
     if not all_freqs_mhz:
         return
-        
+
     min_freq_mhz = min(all_freqs_mhz)
     max_freq_mhz = max(all_freqs_mhz)
     span_mhz = max_freq_mhz - min_freq_mhz
-    
+
     trace_center_freq_mhz = (min_freq_mhz + max_freq_mhz) / 2
     trace_span_mhz = span_mhz if span_mhz > 0 else 0.1 # Min span of 100 kHz
-        
+
     trace_center_freq_hz = int(trace_center_freq_mhz * MHZ_TO_HZ)
     trace_span_hz = int(trace_span_mhz * MHZ_TO_HZ)
-    
+
     with showtime_tab_instance.instrument_lock:
         # Set the span before getting the trace only if in "Follow Zone" mode
         if showtime_tab_instance.follow_zone_span_var.get():
-            set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=trace_span_hz, console_print_func=console_log)
-            set_frequency_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=trace_center_freq_hz, console_print_func=console_log)
-        
+            status, message = set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=trace_span_hz, console_print_func=showtime_tab_instance.console_print_func)
+            showtime_tab_instance.app_instance.after(0, lambda: showtime_tab_instance.console_print_func(message))
+            status, message = set_frequency_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=trace_center_freq_hz, console_print_func=showtime_tab_instance.console_print_func)
+            showtime_tab_instance.app_instance.after(0, lambda: showtime_tab_instance.console_print_func(message))
+
         # Now get the traces for the full view
         showtime_tab_instance.app_instance.after(0, lambda: get_marker_traces(
-            app_instance=showtime_tab_instance.app_instance, 
-            showtime_tab_instance=showtime_tab_instance, 
-            console_print_func=showtime_tab_instance.console_print_func, 
-            center_freq_hz=trace_center_freq_hz, 
-            span_hz=trace_span_hz, 
+            app_instance=showtime_tab_instance.app_instance,
+            showtime_tab_instance=showtime_tab_instance,
+            console_print_func=showtime_tab_instance.console_print_func,
+            center_freq_hz=trace_center_freq_hz,
+            span_hz=trace_span_hz,
             device_name=name
         ))
-    
+
     showtime_tab_instance.app_instance.after(0, lambda: populate_device_buttons(showtime_tab_instance))
 
 def _update_zone_button_styles(showtime_tab_instance):
@@ -329,10 +329,10 @@ def populate_device_buttons(showtime_tab_instance):
             if -80 > peak_value >= -130: style = 'Red.TButton'
             elif -50 > peak_value >= -80: style = 'Orange.TButton'
             elif peak_value >= -50: style = 'Green.TButton'
-        
+
         progress_bar = _create_progress_bar_text(peak_value)
         text = f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: {peak_value:.2f} dBm\n{progress_bar}" if pd.notna(peak_value) else f"{device_name}\n{device.get('FREQ', 'N/A')} MHz\nPeak: N/A"
-        
+
         btn = ttk.Button(showtime_tab_instance.device_buttons_frame, text=text, style=style,
                          command=lambda d=device: on_device_button_click(showtime_tab_instance, d))
         btn.grid(row=i // 4, column=i % 4, padx=5, pady=5, sticky="nsew")
@@ -353,20 +353,23 @@ def on_device_button_click(showtime_tab_instance, device_data):
         device_name = device_data.get('NAME', 'N/A')
         zone_name = device_data.get('ZONE', 'N/A')
         group_name = device_data.get('GROUP', 'N/A')
-        
+
         showtime_tab_instance.selected_device_name = f"{zone_name}/{group_name}/{device_name}" if group_name and group_name != 'No Group' else f"{zone_name}/{device_name}"
         showtime_tab_instance.selected_device_freq = float(freq_mhz) * MHZ_TO_HZ
-        
+
         showtime_tab_instance.follow_zone_span_var.set(False)
         _update_control_styles(showtime_tab_instance)
 
         if showtime_tab_instance.app_instance.inst:
             with showtime_tab_instance.instrument_lock:
-                set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=float(showtime_tab_instance.span_var.get()), console_print_func=console_log)
-                set_frequency_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=showtime_tab_instance.selected_device_freq, console_print_func=console_log)
-                set_marker_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=showtime_tab_instance.selected_device_freq, marker_name=showtime_tab_instance.selected_device_name, console_print_func=console_log)
+                status_span, message_span = set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=float(showtime_tab_instance.span_var.get()), console_print_func=showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_span)
+                status_freq, message_freq = set_frequency_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=showtime_tab_instance.selected_device_freq, console_print_func=showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_freq)
+                status_marker, message_marker = set_marker_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=showtime_tab_instance.selected_device_freq, console_print_func=showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_marker)
     except (ValueError, TypeError) as e:
-        console_log(f"❌ Error setting frequency on device click: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error setting frequency on device click: {e}")
 
 def _update_control_styles(showtime_tab_instance):
     """Updates the styles of control buttons."""
@@ -388,7 +391,7 @@ def _update_control_styles(showtime_tab_instance):
     for rbw_val, button in showtime_tab_instance.rbw_buttons.items():
         if button.winfo_exists():
             button.configure(style='ControlButton.Active.TButton' if float(rbw_val) == float(current_rbw_str) else 'ControlButton.Inactive.TButton')
-    
+
     for name, var in [("Live", showtime_tab_instance.trace_live_mode), ("Max Hold", showtime_tab_instance.trace_max_hold_mode), ("Min Hold", showtime_tab_instance.trace_min_hold_mode)]:
         if name in showtime_tab_instance.trace_buttons and showtime_tab_instance.trace_buttons[name].winfo_exists():
             showtime_tab_instance.trace_buttons[name].configure(style='ControlButton.Active.TButton' if var.get() else 'ControlButton.Inactive.TButton')
@@ -400,17 +403,18 @@ def on_span_button_click(showtime_tab_instance, span_hz):
     else:
         showtime_tab_instance.follow_zone_span_var.set(False)
         showtime_tab_instance.span_var.set(str(span_hz))
-    
+
     _update_control_styles(showtime_tab_instance)
-    
+
     if showtime_tab_instance.app_instance and showtime_tab_instance.app_instance.inst:
         if not showtime_tab_instance.follow_zone_span_var.get():
             try:
                 with showtime_tab_instance.instrument_lock:
-                    set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=float(span_hz), console_print_func=console_log)
+                    status, message = set_span_logic(app_instance=showtime_tab_instance.app_instance, span_hz=float(span_hz), console_print_func=showtime_tab_instance.console_print_func)
+                    showtime_tab_instance.console_print_func(message)
             except (ValueError, TypeError) as e:
                  debug_log(f"Span logic error: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function=inspect.currentframe().f_code.co_name)
-    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=console_log, app_instance=showtime_tab_instance.app_instance)
+    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=showtime_tab_instance.console_print_func, app_instance=showtime_tab_instance.app_instance)
 
 def on_rbw_button_click(showtime_tab_instance, rbw_hz):
     """Handles an RBW button click."""
@@ -419,10 +423,11 @@ def on_rbw_button_click(showtime_tab_instance, rbw_hz):
     if showtime_tab_instance.app_instance and showtime_tab_instance.app_instance.inst:
         try:
             with showtime_tab_instance.instrument_lock:
-                set_rbw_logic(app_instance=showtime_tab_instance.app_instance, rbw_hz=float(rbw_hz), console_print_func=console_log)
+                status, message = set_rbw_logic(app_instance=showtime_tab_instance.app_instance, rbw_hz=float(rbw_hz), console_print_func=showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message)
         except (ValueError, TypeError) as e:
             debug_log(f"RBW logic error: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function=inspect.currentframe().f_code.co_name)
-    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=console_log, app_instance=showtime_tab_instance.app_instance)
+    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=showtime_tab_instance.console_print_func, app_instance=showtime_tab_instance.app_instance)
 
 def on_trace_button_click(showtime_tab_instance, trace_var):
     """Handles a trace button click."""
@@ -430,8 +435,9 @@ def on_trace_button_click(showtime_tab_instance, trace_var):
     _update_control_styles(showtime_tab_instance)
     if showtime_tab_instance.app_instance and showtime_tab_instance.app_instance.inst:
         with showtime_tab_instance.instrument_lock:
-            set_trace_modes_logic(app_instance=showtime_tab_instance.app_instance, live_mode=showtime_tab_instance.trace_live_mode.get(), max_hold_mode=showtime_tab_instance.trace_max_hold_mode.get(), min_hold_mode=showtime_tab_instance.trace_min_hold_mode.get(), console_print_func=console_log)
-    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=console_log, app_instance=showtime_tab_instance.app_instance)
+            status, message = set_trace_modes_logic(app_instance=showtime_tab_instance.app_instance, live_mode=showtime_tab_instance.trace_live_mode.get(), max_hold_mode=showtime_tab_instance.trace_max_hold_mode.get(), min_hold_mode=showtime_tab_instance.trace_min_hold_mode.get(), console_print_func=showtime_tab_instance.console_print_func)
+            showtime_tab_instance.console_print_func(message)
+    save_config(config=showtime_tab_instance.app_instance.config, file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH, console_print_func=showtime_tab_instance.console_print_func, app_instance=showtime_tab_instance.app_instance)
 
 def on_poke_action(showtime_tab_instance):
     """Handles the Poke button action."""
@@ -441,15 +447,19 @@ def on_poke_action(showtime_tab_instance):
             freq_hz = float(freq_mhz) * MHZ_TO_HZ
             poke_marker_name = f"POKE: {freq_mhz} MHz"
             span_hz = float(showtime_tab_instance.span_var.get())
-            
+
             with showtime_tab_instance.instrument_lock:
-                set_span_logic(showtime_tab_instance.app_instance, span_hz, console_log)
-                set_trace_modes_logic(showtime_tab_instance.app_instance, showtime_tab_instance.trace_live_mode.get(), showtime_tab_instance.trace_max_hold_mode.get(), showtime_tab_instance.trace_min_hold_mode.get(), console_log)
-                set_frequency_logic(showtime_tab_instance.app_instance, freq_hz, console_log)
-                set_marker_logic(showtime_tab_instance.app_instance, freq_hz, poke_marker_name, console_log)
-            
+                status_span, message_span = set_span_logic(showtime_tab_instance.app_instance, span_hz, showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_span)
+                status_trace, message_trace = set_trace_modes_logic(showtime_tab_instance.app_instance, showtime_tab_instance.trace_live_mode.get(), showtime_tab_instance.trace_max_hold_mode.get(), showtime_tab_instance.trace_min_hold_mode.get(), showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_trace)
+                status_freq, message_freq = set_frequency_logic(showtime_tab_instance.app_instance, freq_hz, showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_freq)
+                status_marker, message_marker = set_marker_logic(app_instance=showtime_tab_instance.app_instance, frequency_hz=showtime_tab_instance.selected_device_freq, console_print_func=showtime_tab_instance.console_print_func)
+                showtime_tab_instance.console_print_func(message_marker)
+
             showtime_tab_instance.selected_device_name = poke_marker_name
             showtime_tab_instance.selected_device_freq = freq_hz
-            
+
         except (ValueError, TypeError) as e:
-            console_log(f"Invalid POKE frequency: {e}")
+            showtime_tab_instance.console_print_func(f"❌ Invalid POKE frequency: {e}")

@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.235700.2
+# Version 20250814.003800.1 (FIXED: Corrected the import of ShowtimeTab to resolve a circular dependency issue.)
 
 import tkinter as tk
 from tkinter import ttk
@@ -29,8 +29,8 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # --- Version Information ---
-current_version = "20250812.235700.2"
-current_version_hash = (20250812 * 235700 * 2)
+current_version = "20250814.003800.1"
+current_version_hash = (20250814 * 3800 * 1)
 
 class TAB_MARKERS_PARENT(ttk.Frame):
     """
