@@ -14,11 +14,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.211000.1
-# FIX: Restructured the START/STOP frequency input into separate frames for better layout.
+# Version 20250815.213200.1
+# ADD: Applied 'InteractionBars.TScale' style to all sliders for better visual contrast.
 
-current_version = "20250815.211000.1"
-current_version_hash = 20250815 * 211000 * 1
+current_version = "20250815.213200.1"
+current_version_hash = 20250815 * 213200 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -149,14 +149,14 @@ class FrequencySettingsTab(ttk.Frame):
         start_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         start_frame.grid_columnconfigure(0, weight=1)
         ttk.Entry(start_frame, textvariable=self.freq_start_var).grid(row=0, column=0, sticky="ew")
-        ttk.Scale(start_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_start_var).grid(row=1, column=0, sticky="ew")
+        ttk.Scale(start_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_start_var, style='InteractionBars.TScale').grid(row=1, column=0, sticky="ew")
 
         # Stop Frequency Frame
         stop_frame = ttk.LabelFrame(main_start_stop_frame, text="STOP", padding=5)
         stop_frame.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         stop_frame.grid_columnconfigure(0, weight=1)
         ttk.Entry(stop_frame, textvariable=self.freq_stop_var).grid(row=0, column=0, sticky="ew")
-        ttk.Scale(stop_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_stop_var).grid(row=1, column=0, sticky="ew")
+        ttk.Scale(stop_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_stop_var, style='InteractionBars.TScale').grid(row=1, column=0, sticky="ew")
         
         # Result Label and YakBeg Button
         ttk.Label(freq_ss_frame, textvariable=self.freq_ss_result_var, style="Dark.TLabel.Value").grid(row=1, column=0, padx=5, pady=2, sticky="ew")
@@ -171,12 +171,12 @@ class FrequencySettingsTab(ttk.Frame):
 
         # Center Frequency Slider & Entry
         ttk.Label(freq_cs_frame, text="Center Frequency:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_center_var).grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
+        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_center_var, style='InteractionBars.TScale').grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
         ttk.Entry(freq_cs_frame, textvariable=self.freq_center_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
 
         # Span Slider & Entry
         ttk.Label(freq_cs_frame, text="Span:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_span_var).grid(row=3, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
+        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_span_var, style='InteractionBars.TScale').grid(row=3, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
         ttk.Entry(freq_cs_frame, textvariable=self.freq_span_var).grid(row=2, column=1, padx=5, pady=2, sticky="ew")
 
         # Span Preset Buttons Frame

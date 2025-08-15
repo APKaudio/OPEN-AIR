@@ -14,10 +14,12 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250814.150000.1
+# Version 20250815.221000.1
+# FIX: Corrected the custom layout for 'InteractionBars.TScale' by building on the stock clam theme's layout.
+#      The layout now correctly defines the 'trough' and 'slider' elements to prevent TclErrors.
 
-current_version = "20250814.150000.1"
-current_version_hash = (20250814 * 150000 * 1)
+current_version = "20250815.221000.1"
+current_version_hash = (20250815 * 221000 * 1)
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -53,6 +55,7 @@ COLOR_PALETTE = {
     'black': 'black', # Explicit black for clarity
     'yellow_btn': '#FFEB3B',
     'yellow_btn_active': '#FFF176',
+    'dark_grey_slider': '#1F1F1F',
 }
 
 COLOR_PALETTE_TABS = {
@@ -127,6 +130,27 @@ def apply_styles(style, debug_log_func, current_app_version):
               selectbackground=[('readonly', COLOR_PALETTE['select_bg'])],
               selectforeground=[('readonly', COLOR_PALETTE['select_fg'])])
 
+    # --- New Slider Style ---
+    # Define the layout for the new custom slider style based on the stock style.
+    style.layout('Horizontal.InteractionBars.TScale',
+        [('Horizontal.Scale.trough',
+          {'sticky': 'nswe'}),
+         ('Horizontal.Scale.slider',
+          {'side': 'left', 'sticky': 'ew'})])
+
+    style.layout('Vertical.InteractionBars.TScale',
+        [('Vertical.Scale.trough',
+          {'sticky': 'nswe'}),
+         ('Vertical.Scale.slider',
+          {'side': 'top', 'sticky': 'ns'})])
+
+    style.configure('InteractionBars.TScale',
+                     background=COLOR_PALETTE['background'],
+                     troughcolor=COLOR_PALETTE['dark_grey_slider'],
+                     sliderrelief='flat',
+                     sliderthickness=15,
+                     borderwidth=0)
+    
     # --- Custom Tab Button Styles (Parents) & Child Notebook Styles ---
     for name, config in COLOR_PALETTE_TABS.items():
         active_color = config['active']
@@ -166,7 +190,7 @@ def apply_styles(style, debug_log_func, current_app_version):
 
     style.configure('DeviceButton.Blinking.TButton',
                      background=COLOR_PALETTE['red_btn'],
-                     foreground=COLOR_PALETTE['white'],
+                     foreground='white',
                      font=('Helvetica', 10, 'bold'),
                      padding=5,
                      anchor='center',
@@ -247,7 +271,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     # --- Run Control Buttons (Start, Pause, Stop) ---
     style.configure('StartScan.TButton',
                      background=COLOR_PALETTE['green_btn'],
-                     foreground=COLOR_PALETTE['white'],
+                     foreground='white',
                      font=('Helvetica', 11, 'bold'),
                      padding=[10, 5])
     style.map('StartScan.TButton',
@@ -257,7 +281,7 @@ def apply_styles(style, debug_log_func, current_app_version):
 
     style.configure('PauseScan.TButton',
                      background=COLOR_PALETTE['orange_btn'],
-                     foreground=COLOR_PALETTE['black'],
+                     foreground='black',
                      font=('Helvetica', 11, 'bold'),
                      padding=[10, 5])
     style.map('PauseScan.TButton',
@@ -267,7 +291,7 @@ def apply_styles(style, debug_log_func, current_app_version):
 
     style.configure('StopScan.TButton',
                      background=COLOR_PALETTE['red_btn'],
-                     foreground=COLOR_PALETTE['white'],
+                     foreground='white',
                      font=('Helvetica', 11, 'bold'),
                      padding=[10, 5])
     style.map('StopScan.TButton',
@@ -277,7 +301,7 @@ def apply_styles(style, debug_log_func, current_app_version):
     
     style.configure('ResumeScan.Blink.TButton',
                      background=COLOR_PALETTE['select_bg'],
-                     foreground=COLOR_PALETTE['white'],
+                     foreground='white',
                      font=('Helvetica', 11, 'bold'),
                      padding=[10, 5])
     style.map('ResumeScan.Blink.TButton',
