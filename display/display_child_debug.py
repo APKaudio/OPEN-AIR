@@ -1,9 +1,9 @@
 # display/display_child_debug.py
 #
 # This file defines the DebugTab, a Tkinter Frame that provides the application's
-# debug control settings. It includes checkboxes to manage various debug flags,
-# a button to clear the debug log file, and two ScrolledText widgets to display
-# the contents of the debug log files in real-time.
+# debug control settings. It includes a master control button, checkboxes to manage
+# various debug flags, a button to clear debug logs, a button to open the data folder,
+# and two ScrolledText widgets to display the contents of the debug log files in real-time.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -16,25 +16,30 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.160100.5 (UPDATED: Restructured log display to use a vertical PanedWindow for stackable and resizable log viewers.)
+# Version 20250814.224000.1 (FIXED: The Debug toggle button's initial state is now correctly set based on the config.ini file, resolving a UI synchronization bug. All checkbox toggles now explicitly call save_config to persist changes.)
 
-current_version = "20250810.160100.5"
-current_version_hash = 20250810 * 160100 * 5 # Example hash, adjust as needed
+current_version = "20250814.224000.1"
+current_version_hash = 20250814 * 224000 * 1
 
 import tkinter as tk
-from tkinter import ttk, scrolledtext
+from tkinter import ttk, scrolledtext, filedialog
 import inspect
 import os
+import subprocess
+import sys
+import threading
+import time
 
 # Import debug_log and the specific debug control functions from debug_logic
 from display.debug_logic import (
     debug_log,
-    set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode,
+    set_debug_mode, set_log_visa_commands_mode,
     set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode,
-    clear_debug_log_file,
-    DEBUG_FILE_PATH
+    clear_debug_log_file, set_log_truncation_mode, set_include_visa_messages_to_debug_file_mode,
+    DEBUG_FILE_PATH, VISA_FILE_PATH
 )
 from display.console_logic import console_log
+from src.settings_and_config.config_manager import save_config
 
 class DebugTab(ttk.Frame):
     """
@@ -43,8 +48,9 @@ class DebugTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, **kwargs):
         # This function description tells me what this function does
         # Initializes the DebugTab, creating a dedicated frame for debug control settings.
-        # It sets up checkboxes to manage various debug flags, a button to clear the debug log,
-        # and two ScrolledText widgets to display the contents of the debug log files.
+        # It sets up a master toggle button, checkboxes for various debug flags,
+        # buttons for file management, and two ScrolledText widgets to display
+        # the contents of the debug log files in real-time.
         #
         # Inputs to this function
         #   master (tk.Widget): The parent widget, typically a ttk.Notebook.
@@ -65,6 +71,8 @@ class DebugTab(ttk.Frame):
         self.polling_id = None
         self.last_software_log_size = 0
         self.last_visa_log_size = 0
+        self.read_log_thread = None
+        self.stop_thread = threading.Event()
 
         self._create_widgets()
         
@@ -76,8 +84,9 @@ class DebugTab(ttk.Frame):
     def _create_widgets(self):
         # This function description tells me what this function does
         # Creates and arranges the widgets for the Debug tab.
-        # This includes checkboxes for various debug flags, a button to clear the debug log file,
-        # and two ScrolledText widgets to display the log file contents.
+        # This includes a master debug toggle button, checkboxes for various debug flags,
+        # buttons to clear logs and open the data folder, and two ScrolledText widgets
+        # to display the log file contents.
         #
         # Inputs to this function
         #   None.
@@ -91,113 +100,139 @@ class DebugTab(ttk.Frame):
                     function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(5, weight=1)
+        self.grid_rowconfigure(2, weight=1)
+        
+        # --- Master Debug Control Frame ---
+        master_control_frame = ttk.LabelFrame(self, text="Master Debug Control", style='Dark.TLabelframe')
+        master_control_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        master_control_frame.grid_columnconfigure(0, weight=1)
+        
+        # Master debug toggle button
+        self.toggle_debug_button = ttk.Button(master_control_frame, text="Enable Debug", command=self._toggle_debug_mode, style='Blue.TButton')
+        self.toggle_debug_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        
+        # NEW: Set initial state of the button based on the config variable
+        if self.app_instance.general_debug_enabled_var.get():
+            self.toggle_debug_button.config(text="Disable Debug", style='Red.TButton')
+        else:
+            self.toggle_debug_button.config(text="Enable Debug", style='Blue.TButton')
 
-        # General Debug Checkbox
-        self.general_debug_checkbox = ttk.Checkbutton(self, text="Enable General Debug",
-                                                      variable=self.app_instance.general_debug_enabled_var,
-                                                      command=self._toggle_general_debug_mode,
-                                                      style='TCheckbutton')
-        self.general_debug_checkbox.grid(row=0, column=0, padx=5, pady=2, sticky="w")
 
-        # Log VISA Commands Checkbox
-        self.log_visa_commands_checkbox = ttk.Checkbutton(self, text="Log VISA Commands",
-                                                          variable=self.app_instance.log_visa_commands_enabled_var,
-                                                          command=self._toggle_visa_logging_mode,
-                                                          style='TCheckbutton')
-        self.log_visa_commands_checkbox.grid(row=0, column=1, padx=5, pady=2, sticky="w")
+        # --- PanedWindow for resizable log display windows ---
+        log_paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
+        log_paned_window.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
+        
+        # Frame for Software Log
+        software_log_frame = ttk.LabelFrame(log_paned_window, text="Software Debug Log")
+        log_paned_window.add(software_log_frame, weight=1)
+        software_log_frame.grid_columnconfigure(0, weight=1)
+        software_log_frame.grid_rowconfigure(2, weight=1)
 
-        # Debug to Terminal Checkbox
-        self.debug_to_terminal_checkbox = ttk.Checkbutton(self, text="Debug to Terminal",
-                                                          variable=self.app_instance.debug_to_terminal_var,
-                                                          command=self._toggle_debug_to_terminal_mode,
-                                                          style='TCheckbutton')
-        self.debug_to_terminal_checkbox.grid(row=1, column=0, padx=5, pady=2, sticky="w")
-
-        # Debug to File Checkbox
-        self.debug_to_file_checkbox = ttk.Checkbutton(self, text="Debug to File",
+        # File logging controls for software log
+        file_log_controls_frame = ttk.Frame(software_log_frame, style='Dark.TFrame')
+        file_log_controls_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        file_log_controls_frame.grid_columnconfigure(0, weight=1)
+        
+        self.debug_to_file_checkbox = ttk.Checkbutton(file_log_controls_frame, text="Log to File",
                                                       variable=self.app_instance.debug_to_file_var,
                                                       command=self._toggle_debug_to_file_mode,
                                                       style='TCheckbutton')
-        self.debug_to_file_checkbox.grid(row=1, column=1, padx=5, pady=2, sticky="w")
-
-        # Include Console Messages in Debug File Checkbox
-        self.include_console_messages_checkbox = ttk.Checkbutton(self, text="Include Console Messages in Debug File",
+        self.debug_to_file_checkbox.grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        
+        self.include_console_messages_checkbox = ttk.Checkbutton(file_log_controls_frame, text="Include Console Messages",
                                                                  variable=self.app_instance.include_console_messages_to_debug_file_var,
                                                                  command=self._toggle_include_console_messages_to_debug_file_mode,
                                                                  style='TCheckbutton')
-        self.include_console_messages_checkbox.grid(row=2, column=0, padx=5, pady=2, sticky="w")
-
-        # Last Config Save Time Label
-        self.last_save_time_label = ttk.Label(self,
-                                              textvariable=self.app_instance.last_config_save_time_var,
-                                              style='Dark.TLabel.Value')
-        self.last_save_time_label.grid(row=2, column=1, padx=5, pady=2, sticky="e")
+        self.include_console_messages_checkbox.grid(row=1, column=0, padx=5, pady=2, sticky="w")
         
-        # Clear Debug Log File Button
-        self.clear_debug_log_button = ttk.Button(self, text="Clear Debug Log File",
+        self.include_visa_messages_to_debug_file_checkbox = ttk.Checkbutton(file_log_controls_frame, text="Include VISA Messages into Debug File",
+                                                                           variable=self.app_instance.include_visa_messages_to_debug_file_var,
+                                                                           command=self._toggle_include_visa_messages_to_debug_file_mode,
+                                                                           style='TCheckbutton')
+        self.include_visa_messages_to_debug_file_checkbox.grid(row=2, column=0, padx=5, pady=2, sticky="w")
+
+
+        self.log_truncation_checkbox = ttk.Checkbutton(file_log_controls_frame, text="Truncate Long Numeric Messages",
+                                                       variable=self.app_instance.log_truncation_enabled_var,
+                                                       command=self._toggle_log_truncation_mode,
+                                                       style='TCheckbutton')
+        self.log_truncation_checkbox.grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        
+        self.clear_debug_log_button = ttk.Button(software_log_frame, text="Clear Debug Log File",
                                                  command=self._clear_debug_log_file_action,
                                                  style='Red.TButton')
-        self.clear_debug_log_button.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        self.clear_debug_log_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
-        # Separator for visual distinction
-        ttk.Separator(self, orient=tk.HORIZONTAL).grid(row=4, column=0, columnspan=2, sticky="ew", pady=5)
-        
-        # PanedWindow for resizable log display windows
-        log_paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
-        log_paned_window.grid(row=5, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
-        
-        # Frame for Software Log
-        software_log_frame = ttk.Frame(log_paned_window)
-        log_paned_window.add(software_log_frame, weight=1)
-        software_log_frame.grid_columnconfigure(0, weight=1)
-        software_log_frame.grid_rowconfigure(1, weight=1)
-
-        ttk.Label(software_log_frame, text="Software Debug Log", style='Dark.TLabel.Value').grid(row=0, column=0, sticky="ew", pady=(0, 2))
         self.software_log_text = scrolledtext.ScrolledText(software_log_frame, wrap="word", height=10, bg="#2b2b2b", fg="#cccccc", insertbackground="white")
-        self.software_log_text.grid(row=1, column=0, sticky="nsew")
+        self.software_log_text.grid(row=2, column=0, sticky="nsew")
         self.software_log_text.config(state=tk.DISABLED)
 
         # Frame for VISA Log
-        visa_log_frame = ttk.Frame(log_paned_window)
+        visa_log_frame = ttk.LabelFrame(log_paned_window, text="VISA Commands Log")
         log_paned_window.add(visa_log_frame, weight=1)
         visa_log_frame.grid_columnconfigure(0, weight=1)
         visa_log_frame.grid_rowconfigure(1, weight=1)
 
-        ttk.Label(visa_log_frame, text="VISA Commands Log", style='Dark.TLabel.Value').grid(row=0, column=0, sticky="ew", pady=(0, 2))
+        # VISA logging control
+        visa_log_controls_frame = ttk.Frame(visa_log_frame, style='Dark.TFrame')
+        visa_log_controls_frame.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+        visa_log_controls_frame.grid_columnconfigure(0, weight=1)
+
+        self.log_visa_commands_checkbox = ttk.Checkbutton(visa_log_frame, text="Log VISA Commands",
+                                                          variable=self.app_instance.log_visa_commands_enabled_var,
+                                                          command=self._toggle_visa_logging_mode,
+                                                          style='TCheckbutton')
+        self.log_visa_commands_checkbox.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        
         self.visa_log_text = scrolledtext.ScrolledText(visa_log_frame, wrap="word", height=10, bg="#2b2b2b", fg="#cccccc", insertbackground="white")
-        self.visa_log_text.grid(row=1, column=0, sticky="nsew")
+        self.visa_log_text.grid(row=1, column=0, columnspan=2, sticky="nsew")
         self.visa_log_text.config(state=tk.DISABLED)
+
+        # --- Bottom Buttons ---
+        bottom_button_frame = ttk.Frame(self, style='Dark.TFrame')
+        bottom_button_frame.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+        bottom_button_frame.grid_columnconfigure(0, weight=1)
+        
+        self.open_data_folder_button = ttk.Button(bottom_button_frame, text="Open Data Folder", command=self._open_data_folder_action, style='Blue.TButton')
+        self.open_data_folder_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        
+        # Last Config Save Time Label
+        self.last_save_time_label = ttk.Label(bottom_button_frame,
+                                              textvariable=self.app_instance.last_config_save_time_var,
+                                              style='Dark.TLabel.Value')
+        self.last_save_time_label.grid(row=1, column=0, padx=5, pady=2, sticky="e")
 
         debug_log(f"DebugTab widgets created. Log viewers are a go!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
 
-    def _toggle_general_debug_mode(self):
-        """Toggles the global debug mode based on checkbox state."""
+    def _toggle_debug_mode(self):
+        """Toggles the global debug mode and updates the button's appearance."""
         current_function = inspect.currentframe().f_code.co_name
-        set_debug_mode(self.app_instance.general_debug_enabled_var.get())
-        debug_log(f"Toggling general debug. Current state: {self.app_instance.general_debug_enabled_var.get()}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+        current_state = self.app_instance.general_debug_enabled_var.get()
+        new_state = not current_state
+        self.app_instance.general_debug_enabled_var.set(new_state)
+        set_debug_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
+        if new_state:
+            self.toggle_debug_button.config(text="Disable Debug", style='Red.TButton')
+            console_log("Debug mode is now ENABLED. The microscope is on! 🔬", function=current_function)
+        else:
+            self.toggle_debug_button.config(text="Enable Debug", style='Green.TButton')
+            console_log("Debug mode is now DISABLED. Back to normal. 🤫", function=current_function)
+        
     def _toggle_visa_logging_mode(self):
         """Toggles the global VISA command logging based on checkbox state."""
         current_function = inspect.currentframe().f_code.co_name
-        set_log_visa_commands_mode(self.app_instance.log_visa_commands_enabled_var.get())
-        debug_log(f"Toggling VISA logging. Current state: {self.app_instance.log_visa_commands_enabled_var.get()}",
-                    file=f"{os.path.basename(__file__)} - {current_version}",
-                    version=current_version,
-                    function=current_function)
+        new_state = self.app_instance.log_visa_commands_enabled_var.get()
+        set_log_visa_commands_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
 
-    def _toggle_debug_to_terminal_mode(self):
-        """Toggles whether debug messages go to terminal or GUI console."""
-        current_function = inspect.currentframe().f_code.co_name
-        set_debug_to_terminal_mode(self.app_instance.debug_to_terminal_var.get())
-        debug_log(f"Toggling debug output to terminal. Current state: {self.app_instance.debug_to_terminal_var.get()}",
+        debug_log(f"Toggling VISA logging. Current state: {new_state}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -205,8 +240,12 @@ class DebugTab(ttk.Frame):
     def _toggle_debug_to_file_mode(self):
         """Toggles whether debug messages are written to a file."""
         current_function = inspect.currentframe().f_code.co_name
-        set_debug_to_file_mode(self.app_instance.debug_to_file_var.get(), self.app_instance.DEBUG_COMMANDS_FILE_PATH)
-        debug_log(f"Toggling debug output to file. Current state: {self.app_instance.debug_to_file_var.get()}",
+        new_state = self.app_instance.debug_to_file_var.get()
+        set_debug_to_file_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+        
+        debug_log(f"Toggling debug output to file. Current state: {new_state}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -214,11 +253,42 @@ class DebugTab(ttk.Frame):
     def _toggle_include_console_messages_to_debug_file_mode(self):
         """Toggles whether console messages are included in the debug file."""
         current_function = inspect.currentframe().f_code.co_name
-        set_include_console_messages_to_debug_file_mode(self.app_instance.include_console_messages_to_debug_file_var.get())
-        debug_log(f"Toggling inclusion of console messages to debug file. Current state: {self.app_instance.include_console_messages_to_debug_file_var.get()}",
+        new_state = self.app_instance.include_console_messages_to_debug_file_var.get()
+        set_include_console_messages_to_debug_file_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+        
+        debug_log(f"Toggling inclusion of console messages to debug file. Current state: {new_state}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+
+    def _toggle_log_truncation_mode(self):
+        """Toggles whether log messages are truncated."""
+        current_function = inspect.currentframe().f_code.co_name
+        new_state = self.app_instance.log_truncation_enabled_var.get()
+        set_log_truncation_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+        
+        debug_log(f"Toggling log truncation. Current state: {new_state}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
+    def _toggle_include_visa_messages_to_debug_file_mode(self):
+        """Toggles whether console messages are included in the debug file."""
+        current_function = inspect.currentframe().f_code.co_name
+        new_state = self.app_instance.include_visa_messages_to_debug_file_var.get()
+        set_include_visa_messages_to_debug_file_mode(new_state)
+        # Force a config save
+        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, console_log, self.app_instance)
+
+        debug_log(f"Toggling inclusion of VISA messages to debug file. Current state: {new_state}",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+
 
     def _clear_debug_log_file_action(self):
         """Action to clear the debug log file."""
@@ -228,16 +298,12 @@ class DebugTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         
-        # Determine log file paths based on app_instance variables
-        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
-        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
-
-        clear_debug_log_file(software_log_path)
-        clear_debug_log_file(visa_log_path)
+        clear_debug_log_file(DEBUG_FILE_PATH)
+        clear_debug_log_file(VISA_FILE_PATH)
         
         console_log(f"Debug log files cleared. Fucking finally!", function=current_function)
         
-        # Manually clear the display widgets to ensure they update immediately
+        # Clear the display widgets immediately without waiting for the poller
         self.software_log_text.config(state=tk.NORMAL)
         self.software_log_text.delete("1.0", tk.END)
         self.software_log_text.config(state=tk.DISABLED)
@@ -245,58 +311,104 @@ class DebugTab(ttk.Frame):
         self.visa_log_text.delete("1.0", tk.END)
         self.visa_log_text.config(state=tk.DISABLED)
         
+        # Reset file pointers
         self.last_software_log_size = 0
         self.last_visa_log_size = 0
 
 
-    def _read_and_display_log(self, text_widget, file_path):
-        """Reads a file and displays its content in a scrolled text widget."""
+    def _open_data_folder_action(self):
+        """Opens the main DATA folder in the file explorer."""
         current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Opening DATA folder...",
+                    file=f"{os.path.basename(__file__)} - {current_version}",
+                    version=current_version,
+                    function=current_function)
+        
+        data_path = self.app_instance.DATA_FOLDER_PATH
+        if os.path.exists(data_path):
+            try:
+                if sys.platform == "win32":
+                    os.startfile(data_path)
+                elif sys.platform == "darwin": # macOS
+                    subprocess.Popen(["open", data_path])
+                else: # Linux
+                    subprocess.Popen(["xdg-open", data_path])
+                console_log(f"✅ Opened data folder: {data_path}", function=current_function)
+            except Exception as e:
+                console_log(f"❌ Failed to open data folder: {e}", function=current_function)
+        else:
+            console_log(f"❌ Data folder not found at: {data_path}", function=current_function)
+
+    def _read_and_display_log(self, text_widget, file_path, start_pos):
+        """Reads new lines from a file starting from a given position."""
+        if not os.path.exists(file_path):
+            return start_pos
+        
+        new_content = ""
         try:
-            if os.path.exists(file_path):
-                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                text_widget.config(state=tk.NORMAL)
-                text_widget.delete("1.0", tk.END)
-                text_widget.insert(tk.END, content)
-                text_widget.config(state=tk.DISABLED)
-                text_widget.see(tk.END)
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                f.seek(start_pos)
+                new_content = f.read()
         except Exception as e:
-            debug_log(f"ERROR: Failed to read log file {file_path}: {e}",
+            debug_log(f"ERROR: Failed to read from log file {file_path}: {e}",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
-                        function=current_function)
+                        function=inspect.currentframe().f_code.co_name)
+            return start_pos
+
+        if new_content:
+            text_widget.config(state=tk.NORMAL)
+            text_widget.insert(tk.END, new_content)
+            text_widget.config(state=tk.DISABLED)
+            text_widget.see(tk.END)
+        
+        return start_pos + len(new_content)
 
     def _check_log_files(self):
         """Checks for new content in the log files and updates the displays."""
-        current_function = inspect.currentframe().f_code.co_name
-        # Determine log file paths based on app_instance variables
-        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
-        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+        if self.stop_thread.is_set():
+            return
 
+        # Check for new content in the software log
         try:
-            if os.path.exists(software_log_path):
-                current_size = os.path.getsize(software_log_path)
-                if current_size != self.last_software_log_size:
-                    self.last_software_log_size = current_size
-                    self._read_and_display_log(self.software_log_text, software_log_path)
-            
-            if os.path.exists(visa_log_path):
-                current_size = os.path.getsize(visa_log_path)
-                if current_size != self.last_visa_log_size:
-                    self.last_visa_log_size = current_size
-                    self._read_and_display_log(self.visa_log_text, visa_log_path)
+            current_size = os.path.getsize(DEBUG_FILE_PATH)
+            if current_size > self.last_software_log_size:
+                self.last_software_log_size = self._read_and_display_log(self.software_log_text, DEBUG_FILE_PATH, self.last_software_log_size)
+            elif current_size < self.last_software_log_size: # File was cleared
+                self.software_log_text.config(state=tk.NORMAL)
+                self.software_log_text.delete("1.0", tk.END)
+                self.software_log_text.config(state=tk.DISABLED)
+                self.last_software_log_size = current_size
+        except FileNotFoundError:
+            pass
         except Exception as e:
-            debug_log(f"ERROR: An error occurred while checking log files: {e}",
+            debug_log(f"ERROR: An error occurred while checking software log file: {e}",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
-                        function=current_function)
+                        function=inspect.currentframe().f_code.co_name)
+
+        # Check for new content in the VISA log
+        try:
+            current_size = os.path.getsize(VISA_FILE_PATH)
+            if current_size > self.last_visa_log_size:
+                self.last_visa_log_size = self._read_and_display_log(self.visa_log_text, VISA_FILE_PATH, self.last_visa_log_size)
+            elif current_size < self.last_visa_log_size: # File was cleared
+                self.visa_log_text.config(state=tk.NORMAL)
+                self.visa_log_text.delete("1.0", tk.END)
+                self.visa_log_text.config(state=tk.DISABLED)
+                self.last_visa_log_size = current_size
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            debug_log(f"ERROR: An error occurred while checking VISA log file: {e}",
+                        file=f"{os.path.basename(__file__)} - {current_version}",
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
         
-        self.polling_id = self.after(500, self._check_log_files)
+        self.after(500, self._check_log_files)
 
     def _on_tab_selected(self, event):
         # This function description tells me what this function does
-        # Placeholder for actions to be taken when the Debug tab is selected.
         # Starts log monitoring when the tab becomes active.
         #
         # Inputs to this function
@@ -310,31 +422,18 @@ class DebugTab(ttk.Frame):
                     version=current_version,
                     function=current_function)
         
-        software_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
-        visa_log_path = os.path.join(self.app_instance.DATA_FOLDER_PATH, 'DEBUG_VISA_COMMANDS.log')
+        # Populate initial log content and set file size pointers
+        self.software_log_text.config(state=tk.NORMAL)
+        self.software_log_text.delete("1.0", tk.END)
+        self.visa_log_text.config(state=tk.NORMAL)
+        self.visa_log_text.delete("1.0", tk.END)
         
-        self._read_and_display_log(self.software_log_text, software_log_path)
-        self._read_and_display_log(self.visa_log_text, visa_log_path)
-        
-        self._start_log_monitoring()
+        self.last_software_log_size = self._read_and_display_log(self.software_log_text, DEBUG_FILE_PATH, 0)
+        self.last_visa_log_size = self._read_and_display_log(self.visa_log_text, VISA_FILE_PATH, 0)
 
-    def _start_log_monitoring(self):
-        """Starts the periodic check of log files."""
-        current_function = inspect.currentframe().f_code.co_name
-        if not self.polling_id:
-            self.polling_id = self.after(500, self._check_log_files)
-            debug_log(f"Log file monitoring started. �",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)
+        self.software_log_text.config(state=tk.DISABLED)
+        self.visa_log_text.config(state=tk.DISABLED)
+
+        # Start the polling loop for live updates
+        self.after(500, self._check_log_files)
     
-    def _stop_log_monitoring(self):
-        """Stops the periodic check of log files."""
-        current_function = inspect.currentframe().f_code.co_name
-        if self.polling_id:
-            self.after_cancel(self.polling_id)
-            self.polling_id = None
-            debug_log(f"Log file monitoring stopped. Phew.",
-                        file=f"{os.path.basename(__file__)} - {current_version}",
-                        version=current_version,
-                        function=current_function)

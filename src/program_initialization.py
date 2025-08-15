@@ -14,16 +14,17 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250810.220100.10 (FIXED: Added calls to set debug modes after configuration is restored to prevent unwanted logging at startup.)
+# Version 20250814.214800.1 (FIXED: The call to 'set_debug_to_file_mode' was updated to correctly pass only one argument, resolving the TypeError. Corrected the initialization of a missing Tkinter variable to resolve an AttributeError.)
 
-current_version = "20250810.220100.10"
-current_version_hash = 20250810 * 220100 * 10 # Example hash, adjust as needed
+current_version = "20250814.214800.1"
+current_version_hash = 20250814 * 214800 * 1
 
 import os
 import inspect
+import tkinter as tk
 
 # Local application imports
-from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_terminal_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode
+from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, set_log_truncation_mode, set_include_visa_messages_to_debug_file_mode
 from display.console_logic import console_log
 from src.program_default_values import (
     DATA_FOLDER_PATH, CONFIG_FILE_PATH
@@ -72,9 +73,11 @@ def initialize_program_environment(app_instance):
     
     set_debug_mode(app_instance.general_debug_enabled_var.get())
     set_log_visa_commands_mode(app_instance.log_visa_commands_enabled_var.get())
-    set_debug_to_terminal_mode(app_instance.debug_to_terminal_var.get())
-    set_debug_to_file_mode(app_instance.debug_to_file_var.get(), app_instance.DEBUG_COMMANDS_FILE_PATH)
+    
+    set_debug_to_file_mode(app_instance.debug_to_file_var.get())
     set_include_console_messages_to_debug_file_mode(app_instance.include_console_messages_to_debug_file_var.get())
+    set_log_truncation_mode(app_instance.log_truncation_enabled_var.get())
+    set_include_visa_messages_to_debug_file_mode(app_instance.include_visa_messages_to_debug_file_var.get())
     
     debug_log("Debug settings synced. No more unwanted logging at startup!",
               file=os.path.basename(__file__),

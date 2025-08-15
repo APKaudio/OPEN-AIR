@@ -16,10 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.005800.1
-#
-#
-# Version 20250813.001600.3
+# Version 20250814.215500.1 (FIXED: Added initialization for new debug-related Tkinter variables to resolve AttributeError on startup.)
 
 
 import tkinter as tk
@@ -32,8 +29,8 @@ from src.program_default_values import DEFAULT_CONFIG
 from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Version Information ---
-current_version = "20250813.005800.1"
-current_version_hash = (20250813 * 5800 * 1)
+current_version = "20250814.215500.1"
+current_version_hash = (20250814 * 215500 * 1)
 
 
 def setup_tkinter_variables(app_instance):
@@ -98,9 +95,6 @@ def setup_tkinter_variables(app_instance):
     app_instance.ref_level_dbm_var = tk.DoubleVar(app_instance, value=-20.0)
     app_instance.high_sensitivity_on_var = tk.BooleanVar(app_instance, value=False)
     app_instance.preamp_on_var = tk.BooleanVar(app_instance, value=False)
-    # The following variables were causing a conflict. They should be created from the config file now.
-    # app_instance.rbw_hz_var = tk.IntVar(app_instance, value=100000)
-    # app_instance.vbw_hz_var = tk.IntVar(app_instance, value=100000)
 
     # Tkinter variables for displaying current instrument settings
     app_instance.current_center_freq_var = tk.StringVar(app_instance, value="N/A")
@@ -115,6 +109,12 @@ def setup_tkinter_variables(app_instance):
     if SCAN_BAND_RANGES:
         for band in SCAN_BAND_RANGES:
             app_instance.band_vars.append({"band": band, "level": 0})
+
+    # --- NEW: Initialize the new debug-related Tkinter variables ---
+    # These are needed by the DebugTab widget but are initialized here
+    # to be part of the main application instance from the start.
+    app_instance.log_truncation_enabled_var = tk.BooleanVar(app_instance, value=False)
+    app_instance.include_visa_messages_to_debug_file_var = tk.BooleanVar(app_instance, value=False)
     
     debug_log(f"Finished setting up all Tkinter variables. The application's brain is now fully wired! ✅",
                 file=f"{os.path.basename(__file__)} - {current_version}",

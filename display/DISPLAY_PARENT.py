@@ -28,8 +28,8 @@ import inspect
 # --- Import UI Components ---
 from orchestrator.orchestrator_gui import OrchestratorGUI
 from display.display_child_scan_monitor import ScanMonitorTab
-from display.display_child_console import ConsoleTab
-from display.display_child_orchestrator_tasks import OrchestratorTasksTab
+from display.display_child_application_console import ConsoleTab
+from orchestrator.display_child_orchestrator_tasks import OrchestratorTasksTab
 from display.display_child_debug import DebugTab
 from display.console_logic import console_log
 from display.debug_logic import debug_log

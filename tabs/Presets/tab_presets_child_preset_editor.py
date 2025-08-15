@@ -84,8 +84,8 @@ class PresetEditorTab(ttk.Frame):
         self._create_widgets()
         self.populate_presets_table()
         
-        # Bind to main app window focus-in event for refresh when app gains focus
-        self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
+        # Removed the problematic binding to <FocusIn>
+        # self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
 
         debug_log(f"PresetEditorTab initialized. Version: {current_version}. Preset editor is live!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
@@ -353,3 +353,4 @@ class PresetEditorTab(ttk.Frame):
         self.populate_presets_table()
         self.presets_tree.selection_set(self.presets_tree.get_children()[-len(filenames_to_move):])
         self.logic.save_presets()
+
