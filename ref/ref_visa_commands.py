@@ -382,6 +382,14 @@ def get_default_commands():
         ("Keysight Technologies", "*", "MARKER/5/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer5:STATe", "OFF", ""),
         ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE/OFF", "DO", ":CALCulate:MARKer6:STATe", "OFF", ""),
 
+                # Get Marker Calculate State
+        ("Keysight Technologies", "*", "MARKER/1/CALCULATE/STATE", "GET", ":CALCulate:MARKer1:STATe", "?", ""),
+        ("Keysight Technologies", "*", "MARKER/2/CALCULATE/STATE", "GET", ":CALCulate:MARKer2:STATe", "?", ""),
+        ("Keysight Technologies", "*", "MARKER/3/CALCULATE/STATE", "GET", ":CALCulate:MARKer3:STATe", "?", ""),
+        ("Keysight Technologies", "*", "MARKER/4/CALCULATE/STATE", "GET", ":CALCulate:MARKer4:STATe", "?", ""),
+        ("Keysight Technologies", "*", "MARKER/5/CALCULATE/STATE", "GET", ":CALCulate:MARKer5:STATe", "?", ""),
+        ("Keysight Technologies", "*", "MARKER/6/CALCULATE/STATE", "GET", ":CALCulate:MARKer6:STATe", "?", ""),
+
 
         # Marker Calculate X (Frequency)
         ("Keysight Technologies", "*", "MARKER/1/PLACE/X", "SET", ":CALCulate:MARKer1:X", "111111", ""),

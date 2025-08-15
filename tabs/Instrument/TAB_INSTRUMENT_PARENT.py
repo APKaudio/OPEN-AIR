@@ -14,7 +14,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.000900.3
+# Version 20250815.103400.1
+# REFACTORED: The monolithic SettingsTab has been replaced with the new SettingsParentTab container.
+
+current_version = "20250815.103400.1"
+current_version_hash = (20250815 * 103400 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -23,14 +27,12 @@ import os
 from datetime import datetime
 
 from tabs.Instrument.tab_instrument_child_connection import InstrumentTab
-from tabs.Instrument.tab_instrument_child_settings import SettingsTab
 from tabs.Instrument.tab_instrument_child_visa_interpreter import VisaInterpreterTab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-# --- Version Information ---
-current_version = "20250813.000900.3"
-current_version_hash = (20250813 * 900 * 3)
+# Import the new SettingsParentTab that now contains the refactored settings UI.
+from tabs.Instrument.tab_instrument_child_settings import SettingsParentTab
 
 class TAB_INSTRUMENT_PARENT(ttk.Frame):
     """
@@ -48,7 +50,10 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # Instantiate the tabs before adding them to the notebook
         # Pass a reference of this parent instance to the connection tab
         self.instrument_connection_tab = InstrumentTab(self.child_notebook, self.app_instance, self.console_print_func, parent_notebook_ref=self)
-        self.settings_tab = SettingsTab(self.child_notebook, self.app_instance, self.console_print_func)
+        
+        # Instantiate the new SettingsParentTab
+        self.settings_tab = SettingsParentTab(self.child_notebook, self.app_instance, self.console_print_func)
+        
         self.visa_interpreter_tab = VisaInterpreterTab(self.child_notebook, self.app_instance, self.console_print_func)
 
         # RENAMED the tab text to "Connection"
@@ -63,7 +68,8 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # Programmatically selects the 'Settings' child tab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Programmatically switching to Settings tab.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
                   function=current_function)
         self.child_notebook.select(self.settings_tab)
 
@@ -81,7 +87,8 @@ class TAB_INSTRUMENT_PARENT(ttk.Frame):
         # pane to the "Console" tab automatically.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Instrument Parent tab selected. Forcing display view to Console.",
-                  file=f"{os.path.basename(__file__)} - {current_version}",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
                   function=current_function)
 
         # Switch the display parent to the Console tab

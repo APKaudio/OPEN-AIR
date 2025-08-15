@@ -1,4 +1,4 @@
-# tabs/Instrument/utils_instrument_setting_handler.py
+# yak/utils_yak_setting_handler.py
 #
 # This file provides a high-level interface for executing and managing all VISA commands.
 # It acts as a central handler, exposing public API functions for the GUI to use,
@@ -15,17 +15,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250817.184500.1
+# Version 20250815.102500.1
+# FIX: Corrected the issue where floating-point values were being sent to YakDo, causing a command mismatch.
+# All numerical values are now converted to integers or formatted correctly before being sent to the instrument.
 
-current_version = "20250817.184500.1"
-current_version_hash = (20250817 * 184500 * 1)
+current_version = "20250815.102500.1"
+current_version_hash = (20250815 * 102500 * 1)
 
 import os
 import inspect
+import numpy as np # Import numpy for linspace function in _process_trace_data
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from tabs.Instrument.instrument_logic import query_current_settings_logic
 
 # NEW: Import the Yak functions from Yakety_Yak.py
 from yak.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
@@ -54,7 +56,7 @@ def set_center_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/CENTER", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid frequency value: '{value}'. Please enter a number.")
@@ -77,7 +79,7 @@ def set_span_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/SPAN", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid span value: '{value}'. Please enter a number.")
@@ -100,7 +102,7 @@ def set_start_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/START", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid start frequency value: '{value}'. Please enter a number.")
@@ -123,7 +125,7 @@ def set_stop_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/STOP", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid stop frequency value: '{value}'. Please enter a number.")
@@ -146,7 +148,7 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid RBW value: '{value}'. Please enter a number.")
@@ -169,7 +171,7 @@ def set_video_bandwidth(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "BANDWIDTH/VIDEO", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
             return True
     except ValueError:
         console_print_func(f"❌ Invalid VBW value: '{value}'. Please enter a number.")
@@ -194,7 +196,7 @@ def toggle_vbw_auto(app_instance, console_print_func):
     
     if YakDo(app_instance, f"BANDWIDTH/VIDEO/AUTO/{new_state}", console_print_func) == "PASSED":
         app_instance.vbw_auto_on_var.set(not current_state)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -212,9 +214,11 @@ def set_continuous_initiate_mode(app_instance, mode, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot set continuous initiate mode.")
         return False
     
-    if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode}", console_print_func) == "PASSED":
-        app_instance.initiate_continuous_on_var.set(mode == "ON")
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+    # We need to ensure the mode is a string "ON" or "OFF"
+    mode_str = "ON" if mode else "OFF"
+    if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode_str}", console_print_func) == "PASSED":
+        app_instance.initiate_continuous_on_var.set(mode)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -234,13 +238,16 @@ def do_immediate_initiate(app_instance, console_print_func):
     
     if YakDo(app_instance, "INITIATE/IMMEDIATE", console_print_func) == "PASSED":
         console_print_func("✅ Immediate scan initiated successfully.")
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
 def set_reference_level(app_instance, value, console_print_func):
     """
     Sets the reference level on the instrument and triggers a GUI refresh.
+    
+    FIXED: The value is now converted to an integer string to prevent a mismatch
+    with the command table, which expects integer values.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"API call to set reference level: {value} dBm.",
@@ -252,11 +259,30 @@ def set_reference_level(app_instance, value, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot set reference level.")
         return False
     
-    if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{value}", console_print_func) == "PASSED":
-        app_instance.ref_level_dbm_var.set(value)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
-        return True
-    return False
+    try:
+        # Convert the value to an integer to strip the decimal.
+        # The value from the dropdown is already a string representation of a float.
+        int_value = int(float(value))
+        if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{int_value}", console_print_func) == "PASSED":
+            app_instance.ref_level_dbm_var.set(value)
+            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            return True
+        else:
+            return False
+    except (ValueError, TypeError) as e:
+        console_print_func(f"❌ Invalid reference level value: '{value}'. Please enter a number. Error: {e}")
+        debug_log(f"ValueError: could not convert reference level to int. Failed to parse data. Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        return False
+    except Exception as e:
+        console_print_func(f"❌ An unexpected error occurred while setting the reference level: {e}")
+        debug_log(f"An unexpected error occurred: {e}",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        return False
 
 def toggle_preamp(app_instance, console_print_func):
     """
@@ -277,7 +303,7 @@ def toggle_preamp(app_instance, console_print_func):
     
     if YakDo(app_instance, f"AMPLITUDE/POWER/GAIN/{new_state}", console_print_func) == "PASSED":
         app_instance.preamp_on_var.set(not current_state)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
 
@@ -297,7 +323,7 @@ def set_power_attenuation(app_instance, value, console_print_func):
     
     if YakDo(app_instance, f"AMPLITUDE/POWER/ATTENUATION/{value}DB", console_print_func) == "PASSED":
         app_instance.power_attenuation_db_var.set(value)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -320,7 +346,7 @@ def toggle_high_sensitivity(app_instance, console_print_func):
 
     if YakDo(app_instance, f"AMPLITUDE/POWER/HIGH SENSITIVE/{new_state}", console_print_func) == "PASSED":
         app_instance.high_sensitivity_on_var.set(not current_state)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -341,7 +367,7 @@ def set_trace_mode(app_instance, trace_number, mode, console_print_func):
     if YakDo(app_instance, f"TRACE/{trace_number}/MODE/{mode}", console_print_func) == "PASSED":
         trace_var = getattr(app_instance, f"trace{trace_number}_mode_var")
         trace_var.set(mode)
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -360,7 +386,7 @@ def do_turn_all_markers_on(app_instance, console_print_func):
         return False
     
     if YakDo(app_instance, "MARKER/All/CALCULATE/STATE/ON", console_print_func) == "PASSED":
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -380,7 +406,7 @@ def toggle_marker_state(app_instance, marker_number, state, console_print_func):
         
     new_state = "ON" if state else "OFF"
     if YakDo(app_instance, f"MARKER/{marker_number}/CALCULATE/STATE/{new_state}", console_print_func) == "PASSED":
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
@@ -400,7 +426,7 @@ def do_peak_search(app_instance, console_print_func):
     
     if YakDo(app_instance, "MARKER/PEAK/SEARCH", console_print_func) == "PASSED":
         console_print_func("✅ Peak search command sent successfully.")
-        app_instance.after(0, app_instance.settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
 
