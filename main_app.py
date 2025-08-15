@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.225000.1 (FIXED: Reordered console redirection logic to prevent race condition and ensure splash screen displays first.)
+# Version 20250814.225500.1 (FIXED: Removed the incorrect import of 'set_debug_to_gui_console_mode' to resolve ImportError.)
 
-current_version = "20250814.225000.1"
-current_version_hash = (20250814 * 225000 * 1)
+current_version = "20250814.225500.1"
+current_version_hash = (20250814 * 225500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
