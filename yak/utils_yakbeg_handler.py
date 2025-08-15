@@ -27,7 +27,7 @@ import inspect
 import os
 import numpy as np
 
-from tabs.Instrument.Yakety_Yak import YakBeg
+from yak.Yakety_Yak import YakBeg
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 

@@ -39,7 +39,7 @@ from display.console_logic import console_log
 from ref.ref_visa_commands import get_default_commands
 
 # NEW: Import the new high-level Yak functions from Yakety_Yak
-from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
+from yak.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
 
 class VisaInterpreterTab(ttk.Frame):
     """

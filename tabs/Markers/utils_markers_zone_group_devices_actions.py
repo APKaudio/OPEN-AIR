@@ -29,8 +29,8 @@ import numpy as np
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from tabs.Instrument.Yakety_Yak import YakSet, YakDo, YakNab
-from tabs.Instrument.utils_yakbeg_handler import handle_marker_place_all_beg, handle_trace_data_beg, handle_freq_center_span_beg
+from yak.Yakety_Yak import YakSet, YakDo, YakNab
+from yak.utils_yakbeg_handler import handle_marker_place_all_beg, handle_trace_data_beg, handle_freq_center_span_beg
 from .utils_markers_files_zone_groups_devices import load_and_structure_markers_data
 from .utils_markers_get_traces import get_marker_traces
 from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO

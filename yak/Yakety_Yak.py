@@ -34,7 +34,7 @@ from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
 
 # FIXED: Import the low-level read/write functions from the correct location
-from tabs.Instrument.utils_yak_visa import write_safe, query_safe
+from yak.utils_yak_visa import write_safe, query_safe
 
 # --- User-configurable variables ---
 VISA_COMMAND_DELAY_SECONDS = 0.05

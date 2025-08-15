@@ -28,7 +28,7 @@ from display.console_logic import console_log
 from tabs.Instrument.instrument_logic import query_current_settings_logic
 
 # NEW: Import the Yak functions from Yakety_Yak.py
-from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
+from yak.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
 
 # Conversion constant from Megahertz to Hertz
 MHZ_TO_HZ_CONVERSION = 1_000_000

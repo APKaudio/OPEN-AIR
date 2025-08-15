@@ -16,10 +16,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.163200.1 (FIXED: The Selected Preset Details section was reorganized into logical groups.)
+# Version 20250815.95600.1
+# FIX: Removed unwanted window focus-in event that caused continuous preset re-loading.
 
-current_version = "20250814.163200.1"
-current_version_hash = 20250814 * 163200 * 1
+current_version = "20250815.95600.1"
+current_version_hash = 20250815 * 95600 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -42,25 +43,6 @@ class LocalPresetsTab(ttk.Frame):
     to load them, which updates the main application's instrument settings
     and pushes them to the connected instrument.
     """
-    def _on_window_focus_in(self, event):
-        """
-        Called when the main application window gains focus.
-        This will trigger a refresh of the displayed presets to ensure they are up-to-date.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Main window gained focus. Refreshing Local Presets. 🔄", file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-        # Check if this tab is the active one in its notebook
-        if self.master.winfo_exists() and self.master.select() == str(self):
-            self.populate_local_presets_list()
-            debug_log(f"Local Presets tab active and window focused. Buttons refreshed. ✅", file=f"{os.path.basename(__file__)}",
-                        version=current_version,
-                        function=current_function)
-        else:
-            debug_log(f"Window focused, but Local Presets tab not active. Skipping refresh. 😴", file=f"{os.path.basename(__file__)}",
-                        version=current_version,
-                        function=current_function)
 
     def _on_tab_selected(self, event):
         """
@@ -68,7 +50,7 @@ class LocalPresetsTab(ttk.Frame):
         Ensures the presets are reloaded and buttons are refreshed instantly.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Local Presets tab selected. Refreshing buttons instantly. �", file=f"{os.path.basename(__file__)}",
+        debug_log(f"Local Presets tab selected. Refreshing buttons instantly. ✅", file=f"{os.path.basename(__file__)}",
                     version=current_version,
                     function=current_function)
         self.populate_local_presets_list()
@@ -152,10 +134,6 @@ class LocalPresetsTab(ttk.Frame):
 
         self._create_widgets()
         self.populate_local_presets_list() # Initial population
-
-        # Bind to main app window focus-in event for refresh when app gains focus
-        # This binding needs to be after _on_window_focus_in is defined.
-        self.app_instance.bind("<FocusIn>", self._on_window_focus_in)
 
         debug_log(f"LocalPresetsTab initialized. Version: {current_version}. Local presets ready! ✅", file=f"{os.path.basename(__file__)}",
                     version=current_function)

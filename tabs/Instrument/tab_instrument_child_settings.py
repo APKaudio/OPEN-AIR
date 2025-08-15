@@ -30,7 +30,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import all API functions from the centralized handler file
-from tabs.Instrument.utils_yak_setting_handler import (
+from yak.utils_yak_setting_handler import (
     set_center_frequency, set_span_frequency, set_start_frequency, set_stop_frequency,
     set_resolution_bandwidth, set_video_bandwidth, toggle_vbw_auto,
     set_continuous_initiate_mode, do_immediate_initiate,

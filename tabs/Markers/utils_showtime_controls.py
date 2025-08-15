@@ -24,8 +24,8 @@ import os
 import inspect
 from ref.frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
-from tabs.Instrument.Yakety_Yak import YakSet
-from tabs.Instrument.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg
+from yak.Yakety_Yak import YakSet
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg
 
 # --- UI Constants ---
 SPAN_OPTIONS = {

@@ -34,7 +34,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import low-level VISA utilities
-from tabs.Instrument.Yakety_Yak import YakGet, YakSet, YakDo, query_safe, write_safe
+from yak.Yakety_Yak import YakGet, YakSet, YakDo, query_safe, write_safe
 from tabs.Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
 

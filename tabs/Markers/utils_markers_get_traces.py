@@ -31,7 +31,7 @@ from display.utils_display_monitor import update_bottom_plot, update_middle_plot
 from ref.frequency_bands import MHZ_TO_HZ
 
 # NEW: Import the centralized YakGet command from the instrument utility
-from tabs.Instrument.Yakety_Yak import YakGet
+from yak.Yakety_Yak import YakGet
 
 def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func):
     # Function Description:

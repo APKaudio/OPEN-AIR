@@ -47,7 +47,7 @@ import os
 import numpy as np
 
 # Import the new handler module
-from tabs.Instrument.utils_yakbeg_handler import (
+from yak.utils_yakbeg_handler import (
     handle_freq_start_stop_beg,
     handle_freq_center_span_beg,
     handle_marker_place_all_beg,
