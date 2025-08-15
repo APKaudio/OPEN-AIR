@@ -15,298 +15,301 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250803.183035.0 (Standardized all data structures to use 'label', 'value', 'description' keys.)
+# Version 20250815.151240.13
+# REFACTOR: Moved presets without handlers to a new file, ref_scanning_setting.py.
 
+current_version = "20250815.151240.13" # this variable should always be defined below the header to make the debugging better
 
-current_version = "20250803.183035.0" # this variable should always be defined below the header to make the debugging better
+# --- UI Constants ---
+MHZ_TO_HZ = 1_000_000  # Assumed constant for converting MHz to Hz
 
-graph_quality_drop_down = [
+PREST_SWEEP_TIME = [
     {
-        "label": "Ultra Low",
-        "value": 1_000_000,
-        "description": "Blocky enough to be Minecraft."
-    },
-    {
-        "label": "Low",
-        "value": 100_000,
-        "description": "VHS quality RF — nostalgic but fuzzy."
-    },
-    {
-        "label": "Medium",
-        "value": 50_000,
-        "description": "Standard definition TV of frequency."
-    },
-    {
-        "label": "Medium Well",
-        "value": 25_000,
-        "description": "Almost gourmet, but still quick-cook."
-    },
-    {
-        "label": "High",
-        "value": 10_000,
-        "description": "RF with Wi-Fi smoothness."
-    },
-    {
-        "label": "Ultra High",
-        "value": 5_000,
-        "description": "Retina display for radio."
-    },
-    {
-        "label": "Ludacris",
-        "value": 1_000,
-        "description": "So fine, even Ludacris said “Damn.”"
-    },
-    {
-        "label": "Ridonkulous",
-        "value": 500,
-        "description": "“I can see the atoms in your waveform.”"
-    },
-    {
-        "label": "Quantum Foam",
-        "value": 100,
-        "description": "Where reality and noise floor blur."
-    },
-    {
-        "label": "This is Fine",
-        "value": 10,
-        "description": "The scanner cries, but it's worth it. 🔥"
-    }
-]
-
-dwell_time_drop_down = [
-    {
-        "label": "Crazy Fast",
         "value": 0.5,
-        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail."
+        "label": "Crazy Fast",
+        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail.",
+        "handler": "set_sweep_time" 
     },
     {
-        "label": "Very Fast",
         "value": 1.0,
-        "description": "Great for active scanning with basic detection."
+        "label": "Very Fast",
+        "description": "Great for active scanning with basic detection.",
+        "handler": "set_sweep_time"
     },
     {
-        "label": "Standard",
         "value": 2.0,
-        "description": "Balanced scan — enough time for most signals to show."
+        "label": "Standard",
+        "description": "Balanced scan — enough time for most signals to show.",
+        "handler": "set_sweep_time"
     },
     {
-        "label": "Long",
         "value": 3.0,
-        "description": "Allows time to catch short bursts or weak signals."
+        "label": "Long",
+        "description": "Allows time to catch short bursts or weak signals.",
+        "handler": "set_sweep_time"
     },
     {
-        "label": "Very Long",
         "value": 5.0,
-        "description": "Camped out. Good for quiet bands or deep listening."
+        "label": "Very Long",
+        "description": "Camped out. Good for quiet bands or deep listening.",
+        "handler": "set_sweep_time"
     },
     {
-        "label": "Glacier Mode",
         "value": 10.0,
-        "description": "For scientists, spies, and patient people. 🧊"
+        "label": "Glacier Mode",
+        "description": "For scientists, spies, and patient people. 🧊",
+        "handler": "set_sweep_time"
     }
 ]
 
-cycle_wait_time_presets = [
+PREST_AMPLITUDE_REFERENCE_LEVEL = [
     {
-        "label": "Hold Your Horses",
-        "value": 15,
-        "description": "Just a moment — enough time to sneeze twice."
-    },
-    {
-        "label": "Wait-a-Second",
-        "value": 30,
-        "description": "Half a minute of suspense. Elevator music optional."
-    },
-    {
-        "label": "Microwave Dinner",
-        "value": 60,
-        "description": "One full minute — perfect for impatient people."
-    },
-    {
-        "label": "Coffee Break",
-        "value": 300,
-        "description": "Five minutes — time to stretch or grab caffeine."
-    },
-    {
-        "label": "Quarter of Shame",
-        "value": 900,
-        "description": "15 minutes of contemplation. Or buffering."
-    },
-    {
-        "label": "Netflix Warmup",
-        "value": 1800,
-        "description": "30 minutes — just long enough to not commit to a show."
-    },
-    {
-        "label": "Full Commitment",
-        "value": 3600,
-        "description": "1 hour — a true test of patience and faith in the process."
-    },
-    {
-        "label": "Eternal Watcher",
-        "value": 10800,
-        "description": "3 hours — were you expecting a callback?"
-    }
-]
-
-reference_level_drop_down = [
-    {
-        "label": "Very Low",
         "value": -110,
-        "description": "Deep noise floor — ideal for weak signal hunting."
+        "label": "Very Low",
+        "description": "Deep noise floor — ideal for weak signal hunting.",
+        "handler": "set_reference_level"
     },
     {
-        "label": "Low",
         "value": -90,
-        "description": "Below typical ambient RF noise — for sensitive receivers."
+        "label": "Low",
+        "description": "Below typical ambient RF noise — for sensitive receivers.",
+        "handler": "set_reference_level"
     },
     {
-        "label": "Medium Low",
         "value": -70,
-        "description": "Quiet environment, low-level signals clearly visible."
+        "label": "Medium Low",
+        "description": "Quiet environment, low-level signals clearly visible.",
+        "handler": "set_reference_level"
     },
     {
-        "label": "Medium",
         "value": -50,
-        "description": "Good general-purpose reference level."
+        "label": "Medium",
+        "description": "Good general-purpose reference level.",
+        "handler": "set_reference_level"
     },
     {
-        "label": "Medium High",
         "value": -30,
-        "description": "Stronger signals, moderate local RF traffic."
+        "label": "Medium High",
+        "description": "Stronger signals, moderate local RF traffic.",
+        "handler": "set_reference_level"
     },
     {
-        "label": "High",
         "value": -10,
-        "description": "For strong broadcast transmitters or test signals."
+        "label": "High",
+        "description": "For strong broadcast transmitters or test signals.",
+        "handler": "set_reference_level"
     },
     {
+        "value": 0,
         "label": "Very High",
-        "value": 0,
-        "description": "Max headroom — use with caution to avoid clipping."
+        "description": "Max headroom — use with caution to avoid clipping.",
+        "handler": "set_reference_level"
     }
 ]
 
-frequency_shift_presets = [
+PREST_AMPLITUDE_PREAMP_STATE = [
     {
-        "label": "No Shift",
-        "value": 0,
-        "description": "don't touch that dial — stay put."
+        "value": "ON",
+        "label": "PREAMP ON",
+        "description": "Turns on the pre-amplifier. A monstrous gain for weak signals.",
+        "handler": "toggle_preamp"
     },
     {
-        "label": "A Wee Bit",
-        "value": 1_000,
-        "description": "Just a nudge — like adjusting your hat slightly."
-    },
-    {
-        "label": "A Nudge",
-        "value": 5_000,
-        "description": "A gentle push up or down the dial."
-    },
-    {
-        "label": "A Whap",
-        "value": 10_000,
-        "description": "Noticeable thump — not subtle, not wild."
-    },
-    {
-        "label": "A Scooch",
-        "value": 25_000,
-        "description": "Just enough to dodge interference or hop channels."
-    },
-    {
-        "label": "A Chunk",
-        "value": 50_000,
-        "description": "A meaty move — shift the neighborhood."
-    },
-    {
-        "label": "A Jump",
-        "value": 100_000,
-        "description": "You're not walking anymore — you're airborne."
-    },
-    {
-        "label": "A Leap",
-        "value": 250_000,
-        "description": "Covering ground like a gazelle on caffeine."
-    },
-    {
-        "label": "A Yeet",
-        "value": 500_000,
-        "description": "Full send across the spectrum — no regrets."
-    },
-    {
-        "label": "A Warp",
-        "value": 1_000_000,
-        "description": "Fold space and reappear in another RF galaxy."
+        "value": "OFF",
+        "label": "PREAMP OFF",
+        "description": "Turns off the pre-amplifier. The scanner returns to its natural, less monstrous state.",
+        "handler": "toggle_preamp"
     }
 ]
 
-number_of_scans_presets = [
+PREST_AMPLITUDE_HIGH_SENSITIVITY_STATE = [
     {
-        "label": "Just a Test",
-        "value": 1,
-        "description": "See how she goes — one and done."
+        "value": "ON",
+        "label": "HIGH SENSITIVITY ON",
+        "description": "Activates high-sensitivity mode. The scanner now listens for the whispers of the universe.",
+        "handler": "toggle_high_sensitivity"
     },
     {
-        "label": "A Whiff",
-        "value": 2,
-        "description": "A quick sniff around the spectrum."
+        "value": "OFF",
+        "label": "HIGH SENSITIVITY OFF",
+        "description": "Deactivates high-sensitivity mode. The scanner's ears are no longer superhuman.",
+        "handler": "toggle_high_sensitivity"
+    }
+]
+
+PREST_AMPLITUDE_POWER_ATTENUATION = [
+    {
+        "value": 0,
+        "label": "0 dB",
+        "description": "No attenuation. Full power! Use with caution.",
+        "handler": "set_power_attenuation"
     },
     {
-        "label": "A Bunch",
         "value": 10,
-        "description": "Enough to get a good feel."
+        "label": "10 dB",
+        "description": "A light filter, for when the signal is just a bit too spicy.",
+        "handler": "set_power_attenuation"
     },
     {
-        "label": "A Bushel",
+        "value": 20,
+        "label": "20 dB",
+        "description": "A good, solid filter for moderate signals.",
+        "handler": "set_power_attenuation"
+    },
+    {
+        "value": 30,
+        "label": "30 dB",
+        "description": "A strong filter for powerful signals. Like wearing sunglasses to the beach.",
+        "handler": "set_power_attenuation"
+    },
+    {
+        "value": 40,
+        "label": "40 dB",
+        "description": "A heavy filter for blaringly strong signals. It's like wearing a blindfold on a sunny day.",
+        "handler": "set_power_attenuation"
+    },
+    {
         "value": 50,
-        "description": "A good harvest of data."
+        "label": "50 dB",
+        "description": "Extreme attenuation for signals that could damage the instrument.",
+        "handler": "set_power_attenuation"
     },
     {
-        "label": "A Shwack",
-        "value": 75,
-        "description": "A hefty pile — things are serious now."
+        "value": 60,
+        "label": "60 dB",
+        "description": "Maximum power attenuation. It's like listening to a whisper in a hurricane.",
+        "handler": "set_power_attenuation"
     },
     {
-        "label": "A Ton",
-        "value": 100,
-        "description": "A solid chunk of scanning."
-    },
-    {
-        "label": "A Tone",
-        "value": 1_000,
-        "description": "A big, noisy tone of scans."
-    },
-    {
-        "label": "Never-Ending Story",
-        "value": 99_999_999,
-        "description": "Until you say stop or the program crashes spectacularly."
+        "value": 70,
+        "label": "70 dB",
+        "description": "The highest attenuation possible. The signal is barely a memory.",
+        "handler": "set_power_attenuation"
     }
 ]
 
-rbw_presets = [
+PREST_BANDWIDTH_RBW = [
     {
-        "label": "SLOW",
-        "value": 1_000,
-        "description": "Very fine resolution, for distinguishing closely spaced signals. Slowest scan."
+        "value": 1_000_000,
+        "label": "Fast",
+        "description": "Like a race car: fast sweep, low detail. Best for catching fleeting signals.",
+        "handler": "set_resolution_bandwidth"
     },
     {
-        "label": "3 kHz",
-        "value": 3_000,
-        "description": "Good for narrow-band signals like voice communications."
+        "value": 300_000,
+        "label": "Brisk",
+        "description": "A jog through the spectrum; quick enough to see the sights without missing much.",
+        "handler": "set_resolution_bandwidth"
     },
     {
-        "label": "10 kHz",
-        "value": 10_000,
-        "description": "Standard resolution for general-purpose scanning."
-    },
-    {
-        "label": "30 kHz",
-        "value": 30_000,
-        "description": "Faster scan, suitable for wider signals or quicker sweeps."
-    },
-    {
-        "label": "100 kHz",
         "value": 100_000,
-        "description": "Fastest resolution, good for wideband signals or quick spectrum overviews."
+        "label": "Deliberate",
+        "description": "The perfect balance of speed and fidelity. Not too fast, not too slow.",
+        "handler": "set_resolution_bandwidth"
+    },
+    {
+        "value": 30_000,
+        "label": "Steady",
+        "description": "A calm stroll, giving you time to appreciate the finer signal details.",
+        "handler": "set_resolution_bandwidth"
+    },
+    {
+        "value": 10_000,
+        "label": "Leisurely",
+        "description": "A slow saunter through the noise floor, where every waveform is a work of art.",
+        "handler": "set_resolution_bandwidth"
+    },
+    {
+        "value": 3_000,
+        "label": "Unhurried",
+        "description": "For the patient scientist. You'll see things nobody else can, but it'll take a while.",
+        "handler": "set_resolution_bandwidth"
+    },
+    {
+        "value": 1_000,
+        "label": "Slothlike",
+        "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
+        "handler": "set_resolution_bandwidth"
+    },
+]
+
+PREST_FREQUENCY_SPAN = [
+    {
+        "value": 100_000_000,
+        "label": "Ultra Wide",
+        "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 10_000_000,
+        "label": "Wide",
+        "description": "A broad, digestible view of the spectrum, great for general reconnaissance.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 1_000_000,
+        "label": "Normal",
+        "description": "The standard span, a balanced diet for most common analysis.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 100_000,
+        "label": "Tight",
+        "description": "A narrow, focused view for getting up close and personal with signals.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 10_000,
+        "label": "Microscope",
+        "description": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
+        "handler": "set_span_frequency"
+    },
+]
+
+PREST_TRACE_MODES = [
+    {
+        "value": "WRITE",
+        "label": "LIVE REALTIME",
+        "description": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+        "handler": "handle_trace_modes_beg"
+    },
+    {
+        "value": "MAXHOLD",
+        "label": "MAX HOLD",
+        "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+        "handler": "handle_trace_modes_beg"
+    },
+    {
+        "value": "MINHOLD",
+        "label": "MIN HOLD",
+        "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+        "handler": "handle_trace_modes_beg"
+    },
+    {
+        "value": "BLANK",
+        "label": "BLANK",
+        "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+        "handler": "handle_trace_modes_beg"
+    },
+    {
+        "value": "VIEW",
+        "label": "VIEW",
+        "description": "The standard mode, simply viewing the current sweep data.",
+        "handler": "handle_trace_modes_beg"
+    },
+]
+
+PREST_CONTINUOUS_MODE = [
+    {
+        "value": "ON",
+        "label": "CONTINUOUS ON",
+        "description": "Turns on continuous sweep mode. The scanner never rests!",
+        "handler": "set_continuous_initiate_mode"
+    },
+    {
+        "value": "OFF",
+        "label": "CONTINUOUS OFF",
+        "description": "Turns off continuous sweep mode. The scanner will perform a single sweep and then rest.",
+        "handler": "set_continuous_initiate_mode"
     }
 ]

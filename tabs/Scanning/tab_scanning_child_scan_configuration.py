@@ -1,7 +1,7 @@
 # tabs/Scanning/tab_scanning_child_scan_configuration.py
 #
-# This file defines the ScanTab, a Tkinter Frame that contains the Scan Configuration settings.
-# All band selection logic has been moved to a separate file, `tab_scanning_child_bands.py`.
+# This file defines the ScanTab, a Tkinter Frame that provides a user interface
+# for configuring scanner settings such as frequency span, RBW, sweep time, etc.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,37 +14,45 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.010030.1
-#
-#
-# Version 20250810.160100.2 (REFACTORED: Extracted all band selection UI and logic into a new tab.)
+# Version 20250815.151740.3
+# FIX: Corrected import names and paths after refactoring of preset lists.
 
+current_version = "20250815.151740.3"
+current_version_hash = (20250815 * 151740 * 3)
 
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk
 import inspect
 import os
 import subprocess
 import sys
+from tkinter import filedialog
 
-# Local application imports
+
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-
 from src.settings_and_config.config_manager import save_config
-from ref.frequency_bands import SCAN_BAND_RANGES
+
+# Import presets that have associated handlers
 from ref.ref_scanner_setting_lists import (
-    graph_quality_drop_down,
-    dwell_time_drop_down,
-    cycle_wait_time_presets,
-    reference_level_drop_down,
-    frequency_shift_presets,
-    number_of_scans_presets,
-    rbw_presets
+    PREST_SWEEP_TIME,
+    PREST_AMPLITUDE_REFERENCE_LEVEL,
+    PREST_AMPLITUDE_PREAMP_STATE,
+    PREST_AMPLITUDE_HIGH_SENSITIVITY_STATE,
+    PREST_AMPLITUDE_POWER_ATTENUATION,
+    PREST_BANDWIDTH_RBW,
+    PREST_FREQUENCY_SPAN,
+    PREST_TRACE_MODES,
+    PREST_CONTINUOUS_MODE
 )
 
-current_version = "20250813.010030.1"
-current_version_hash = 20250813 * 10030 * 1
+# Import presets for UI only
+from ref.ref_scanning_setting import (
+    PREST_DISPLAY_GRAPH_QUALITY,
+    PREST_CYCLE_WAIT_TIME,
+    PREST_FREQUENCY_SHIFT,
+    PREST_NUMBER_OF_SCANS,
+)
 
 
 class ScanTab(ttk.Frame):
@@ -257,7 +265,7 @@ class ScanTab(ttk.Frame):
         # Outputs of this function
         #   None. Updates a Tkinter variable and saves the config.
         current_function = inspect.currentframe().f_code.co_name
-        console_log("Browse for output folder...", function=current_function)
+        console_log("Browse for output folder...", self.console_print_func, function=current_function)
         debug_log(f"Opening file dialog to select output folder.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -293,11 +301,11 @@ class ScanTab(ttk.Frame):
                     subprocess.Popen(["open", path])
                 else:
                     subprocess.Popen(["xdg-open", path])
-                console_log(f"✅ Opened output folder: {path}", function=current_function)
+                console_log(f"✅ Opened output folder: {path}", self.console_print_func, function=current_function)
             except Exception as e:
-                console_log(f"❌ Error opening folder: {e}", function=current_function)
+                console_log(f"❌ Error opening folder: {e}", self.console_print_func, function=current_function)
         else:
-            console_log(f"❌ Folder not found: {path}", function=current_function)
+            console_log(f"❌ Folder not found: {path}", self.console_print_func, function=current_function)
 
     def _on_tab_selected(self, event=None):
         """Called when the tab is selected, ensures UI is synced with config."""

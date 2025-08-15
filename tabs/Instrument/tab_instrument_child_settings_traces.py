@@ -14,11 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.105500.1
-# NEW: Added YakBeg functionality for traces.
+# Version 20250815.113414.2
+# NEW: Added YakBeg functionality for traces from the old YakBegTab.
+# FIX: Moved the corresponding methods to this file to resolve the AttributeError.
+# FIX: Changed TraceSettingsTab to use local StringVar objects for trace modes to resolve update issue.
 
-current_version = "20250815.105500.1"
-current_version_hash = 20250815 * 105500 * 1
+current_version = "20250815.113414.2"
+current_version_hash = 20250815 * 113414 * 2
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -28,6 +30,7 @@ import os
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg
+from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
 
 class TraceSettingsTab(ttk.Frame):
     """
@@ -41,11 +44,18 @@ class TraceSettingsTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
         self.trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
+        
+        # FIXED: Initialize local StringVar objects instead of referencing from app_instance
+        self.trace1_mode_var = tk.StringVar(value=self.trace_modes[0])
+        self.trace2_mode_var = tk.StringVar(value=self.trace_modes[1])
+        self.trace3_mode_var = tk.StringVar(value=self.trace_modes[2])
+        self.trace4_mode_var = tk.StringVar(value=self.trace_modes[3])
+        
         self.trace_vars = [
-            self.app_instance.trace1_mode_var,
-            self.app_instance.trace2_mode_var,
-            self.app_instance.trace3_mode_var,
-            self.app_instance.trace4_mode_var
+            self.trace1_mode_var,
+            self.trace2_mode_var,
+            self.trace3_mode_var,
+            self.trace4_mode_var
         ]
 
         # Tkinter variables for trace data
@@ -94,7 +104,7 @@ class TraceSettingsTab(ttk.Frame):
         self.trace_modes_result_var = tk.StringVar(value="Result: N/A")
         ttk.Label(trace_modes_frame, textvariable=self.trace_modes_result_var, style="Dark.TLabel.Value").grid(row=2, column=0, columnspan=4, padx=5, pady=2, sticky="ew")
         
-        ttk.Button(trace_modes_frame, text="YakBeg - TRACE/MODES", command=self._on_trace_modes_beg).grid(row=3, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
+        ttk.Button(trace_modes_frame, text="YakBeg - TRACE/MODES", command=lambda: self._on_trace_modes_beg()).grid(row=3, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
 
 
         # --- TRACE/DATA Frame (from YakBegTab) ---
@@ -123,7 +133,7 @@ class TraceSettingsTab(ttk.Frame):
         ttk.Label(trace_data_controls_frame, text="Stop Freq (MHz):", style="TLabel").grid(row=1, column=2, padx=5, pady=2, sticky="w")
         ttk.Entry(trace_data_controls_frame, textvariable=self.trace_data_stop_freq_var).grid(row=1, column=3, padx=5, pady=2, sticky="ew")
         
-        ttk.Button(trace_data_controls_frame, text="YakBeg - TRACE/DATA", command=None).grid(row=2, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
+        ttk.Button(trace_data_controls_frame, text="YakBeg - TRACE/DATA", command=lambda: self._on_trace_data_beg()).grid(row=2, column=0, columnspan=4, padx=5, pady=5, sticky="ew")
 
         # Table to display trace data
         columns = ("Frequency (MHz)", "Value (dBm)")
@@ -137,9 +147,83 @@ class TraceSettingsTab(ttk.Frame):
         self.trace_data_tree.configure(yscrollcommand=vsb.set)
         
         # New button to push data to monitor
-        ttk.Button(self, text="Push Trace Data to Monitor", command=None, style="Green.TButton").grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        ttk.Button(self, text="Push Trace Data to Monitor", command=lambda: self._on_push_to_monitor(), style="Green.TButton").grid(row=2, column=0, padx=10, pady=5, sticky="ew")
 
+
+    def _on_trace_modes_beg(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"YakBeg for TRACE/MODES triggered.",
+                    file=f"{os.path.basename(__file__)}",
+                    version=current_version,
+                    function=current_function)
+        
+        # FIXED: Get values from the local StringVar objects
+        trace_modes = [
+            self.trace1_mode_var.get(),
+            self.trace2_mode_var.get(),
+            self.trace3_mode_var.get(),
+            self.trace4_mode_var.get()
+        ]
+        
+        response = handle_trace_modes_beg(self.app_instance, trace_modes, self.console_print_func)
+        self.trace_modes_result_var.set(f"Result: {response}")
+
+
+    def _on_trace_data_beg(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"YakBeg for TRACE/DATA triggered.",
+                    file=f"{os.path.basename(__file__)}",
+                    version=current_version,
+                    function=current_function)
+        
+        trace_number = self.trace_select_var.get()
+        start_freq_mhz = self.trace_data_start_freq_var.get()
+        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        
+        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_mhz, stop_freq_mhz, self.console_print_func)
+
+        if processed_data:
+            self.trace_data_count_var.set(str(len(processed_data)))
+            self.trace_data_tree.delete(*self.trace_data_tree.get_children())
+            
+            for freq, value in processed_data:
+                self.trace_data_tree.insert("", "end", values=(f"{freq:.3f}", f"{value:.2f}"))
+            
+            self.console_print_func(f"✅ Received and displayed {len(processed_data)} data points.")
+        else:
+            self.trace_data_count_var.set("0")
+            self.trace_data_tree.delete(*self.trace_data_tree.get_children())
+            self.console_print_func("❌ Trace data retrieval failed.")
 
     def _on_tab_selected(self, event):
         """Called when this tab is selected."""
         pass # No specific actions needed on selection
+        
+    def _on_push_to_monitor(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Push to Monitor button clicked. Let's see if we can get this trace on screen! 🖥️",
+                    file=f"{os.path.basename(__file__)}",
+                    version=current_version,
+                    function=current_function)
+        
+        trace_number = self.trace_select_var.get()
+        data = []
+        for item in self.trace_data_tree.get_children():
+            values = self.trace_data_tree.item(item, 'values')
+            data.append((float(values[0]), float(values[1])))
+        
+        # We need to know which plot to update. The original code only had one push function.
+        # Let's assume we're pushing to the top plot for now.
+        plot_title = f"Trace {trace_number} Data"
+        if trace_number == "1":
+            update_top_plot(self.app_instance.display_parent_tab.scan_monitor_tab, data, self.trace_data_start_freq_var.get(), self.trace_data_stop_freq_var.get(), plot_title)
+        elif trace_number == "2":
+            update_middle_plot(self.app_instance.display_parent_tab.scan_monitor_tab, data, self.trace_data_start_freq_var.get(), self.trace_data_stop_freq_var.get(), plot_title)
+        elif trace_number == "3":
+            update_bottom_plot(self.app_instance.display_parent_tab.scan_monitor_tab, data, self.trace_data_start_freq_var.get(), self.trace_data_stop_freq_var.get(), plot_title)
+        else:
+            self.console_print_func("⚠️ Invalid trace number selected. Cannot push to monitor.")
+            debug_log("Invalid trace number selected. This is a fucking waste of time!",
+                        file=f"{os.path.basename(__file__)}",
+                        version=current_version,
+                        function=current_function)

@@ -14,11 +14,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.105500.1
-# NEW: Added YakBeg functionality for markers.
+# Version 20250815.113847.7
+# FIX: Corrected keyword argument for handle_marker_place_all_beg. Reverted the incorrect console_log call.
 
-current_version = "20250815.105500.1"
-current_version_hash = 20250815 * 105500 * 1
+current_version = "20250815.113847.7"
+current_version_hash = 20250815 * 113847 * 7
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,87 +33,73 @@ class MarkerSettingsTab(ttk.Frame):
     """
     A Tkinter Frame that provides a user interface for marker settings.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, **kwargs):
-        """
-        Initializes the MarkerSettingsTab.
-        """
-        super().__init__(master, **kwargs)
-        self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else console_log
-        self.marker_vars = [
-            self.app_instance.marker1_on_var,
-            self.app_instance.marker2_on_var,
-            self.app_instance.marker3_on_var,
-            self.app_instance.marker4_on_var,
-            self.app_instance.marker5_on_var,
-            self.app_instance.marker6_on_var,
-        ]
-        self.marker_value_labels = []
-
-        # Tkinter variables for Marker/Place/All
-        self.marker_freq_vars = [tk.StringVar(self, value="111"), tk.StringVar(self, value="222"),
-                                 tk.StringVar(self, value="333"), tk.StringVar(self, value="444"),
-                                 tk.StringVar(self, value="555"), tk.StringVar(self, value="666")]
-        self.marker_place_all_result_var = tk.StringVar(self, value="Result: N/A")
-        self._create_widgets()
-
-    def _create_widgets(self):
-        """
-        Creates and arranges the widgets for the Marker Settings tab.
-        """
+    def __init__(self, master=None, app_instance=None, console_print_func=None):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering _create_widgets. Creating widgets for the Marker Settings Tab. 📍",
+        debug_log(f"Initializing MarkerSettingsTab. This should be a walk in the park! 🚶‍♀️",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
+
+        self.app_instance = app_instance
+        self.console_print_func = console_print_func
+
+        super().__init__(master)
+        self.pack(fill="both", expand=True)
+        self._set_default_variables()
+        self._create_widgets()
+
+    def _set_default_variables(self):
+        """Initializes Tkinter variables for the widgets."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Setting default variables for MarkerSettingsTab. ⚙️",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+        self.read_markers_all_data = tk.StringVar(self, value="N/A")
+        # Set default values to match the experiment tab
+        default_freqs = [111.0, 222.0, 333.0, 444.0, 555.0, 666.0]
+        self.marker_freq_vars = [tk.DoubleVar(self, value=f) for f in default_freqs]
         
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+    def _create_widgets(self):
+        """Creates the GUI widgets for the tab."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Creating widgets for MarkerSettingsTab. The puzzle pieces are coming together! 🧩",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
 
-        # --- Marker Settings Frame ---
-        marker_frame = ttk.LabelFrame(self, text="Marker Settings", style='Dark.TLabelframe')
-        marker_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-        marker_frame.grid_columnconfigure(0, weight=1)
-        marker_frame.grid_columnconfigure(1, weight=1)
+        # Main frame for the MarkerSettingsTab
+        main_frame = ttk.LabelFrame(self, text="Marker Settings", padding=10)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # --- Frame for "Turn On All Markers" and "Peak search" ---
-        turn_on_markers_frame = ttk.Frame(marker_frame, style='Dark.TFrame')
-        turn_on_markers_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
-        turn_on_markers_frame.grid_columnconfigure(0, weight=1)
-        turn_on_markers_frame.grid_columnconfigure(1, weight=1)
+        # --- MARKER/READ/ALL Frame ---
+        read_markers_frame = ttk.LabelFrame(main_frame, text="Read All Markers", padding=10)
+        read_markers_frame.pack(fill="x", padx=5, pady=5)
 
-        self.turn_all_markers_on_button = ttk.Button(turn_on_markers_frame, text="Turn All Markers On", command=None)
-        self.turn_all_markers_on_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-
-        # Peak search button
-        self.peak_search_button = ttk.Button(turn_on_markers_frame, text="Peak search", command=None, style='Blue.TButton')
-        self.peak_search_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-
-        # --- Frame for "Read All Markers" ---
-        read_markers_frame = ttk.Frame(marker_frame, style='Dark.TFrame')
-        read_markers_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
-        read_markers_frame.grid_columnconfigure(1, weight=1)
-        read_markers_frame.grid_rowconfigure(7, weight=1)
+        ttk.Label(read_markers_frame, text="Marker Data:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(read_markers_frame, textvariable=self.read_markers_all_data, style='Dark.TLabel.Value').grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
         
-        ttk.Label(read_markers_frame, text="Marker Values:").grid(row=0, column=1, padx=5, pady=2, sticky="w")
-        
-        # Marker On/Off checkboxes
-        for i in range(6):
-            cb = ttk.Checkbutton(read_markers_frame, text=f"Marker {i+1} On", variable=self.marker_vars[i], command=None)
-            cb.grid(row=i+1, column=0, padx=5, pady=2, sticky="w")
-        
-            # Placeholder for Marker X/Y display
-            label = ttk.Label(read_markers_frame, text="X: N/A, Y: N/A", style='Dark.TLabel.Value')
-            label.grid(row=i+1, column=1, padx=5, pady=2, sticky="ew")
-            self.marker_value_labels.append(label)
+        # Spacer
+        ttk.Frame(read_markers_frame, height=10).grid(row=2, column=0, columnspan=2)
 
-        # Read marker values button
+        # --- MARKER/PEAK Frame ---
+        marker_peak_frame = ttk.LabelFrame(read_markers_frame, text="Peak Search", padding=10)
+        marker_peak_frame.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        self.peak_search_button = ttk.Button(marker_peak_frame, text="Peak Search", command=None)
+        self.peak_search_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+
+        self.peak_search_next_button = ttk.Button(marker_peak_frame, text="Next Peak", command=None)
+        self.peak_search_next_button.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+
+        # --- MARKER/READ Button ---
         self.read_markers_button = ttk.Button(read_markers_frame, text="Read All Markers", command=None)
         self.read_markers_button.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
 
         # --- MARKER/PLACE/ALL Frame (from YakBegTab) ---
         marker_place_all_frame = ttk.LabelFrame(self, text="YakBeg - MARKER/PLACE/ALL", padding=10)
-        marker_place_all_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        marker_place_all_frame.pack(fill="x", padx=10, pady=5)
         marker_place_all_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
 
         for i in range(6):
@@ -122,11 +108,41 @@ class MarkerSettingsTab(ttk.Frame):
 
         self.marker_place_all_result_var = tk.StringVar(self, value="Result: N/A")
         ttk.Label(marker_place_all_frame, textvariable=self.marker_place_all_result_var, style="Dark.TLabel.Value").grid(row=2, column=0, columnspan=6, padx=5, pady=2, sticky="ew")
-
+        
         ttk.Button(marker_place_all_frame, text="YakBeg - MARKER/PLACE/ALL", command=self._on_marker_place_all_beg).grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="ew")
 
-
-        debug_log(f"Widgets for Marker Settings Tab created. The marker controls are ready! 📊",
+        debug_log(f"Widgets for Marker Settings Tab created. The controls are ready to go! 🗺️",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
+
+    def _on_marker_place_all_beg(self):
+        """
+        Handles the YakBeg - MARKER/PLACE/ALL command.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Entering function: {current_function}. Arrr, let's get these markers placed! 🧭",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+        try:
+            marker_freqs = [v.get() for v in self.marker_freq_vars]
+            
+            result = handle_marker_place_all_beg(
+                app_instance=self.app_instance, 
+                marker_freqs_mhz=marker_freqs,
+                console_print_func=self.console_print_func
+            )
+            
+            if result is not None:
+                self.marker_place_all_result_var.set(f"Result: {result}")
+            else:
+                self.marker_place_all_result_var.set("Result: FAILED")
+                
+        except Exception as e:
+            console_log(f"❌ Error in {current_function}: {e}", self.console_print_func)
+            debug_log(f"Arrr, the code be capsized! The error be: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)

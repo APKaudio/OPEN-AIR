@@ -1,5 +1,5 @@
 DEFAULT_SETTINGS_STRUCTURE = {
-        'GLOBAL__window_geometry': '1400x780+100+100',
+        'GLOBAL__window_geometry': '1700x800+100+100',
         'GLOBAL__debug_enabled': 'False',
         'GLOBAL__log_visa_commands_enabled': 'False',
         'GLOBAL__paned_window_sash_position': '700', # NEW: Default sash position

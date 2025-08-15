@@ -17,11 +17,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.201000.1 (NEW: Created handler functions for YakBegTab functionality.)
-# Version 20250818.201500.1 (FIXED: Refactored handler functions to correctly parse and return data and to separate UI logic.)
+# Version 20250818.201500.3
+# FIX: Corrected the parsing order for handle_freq_center_span_beg to match the VISA response.
 
-current_version = "20250818.201500.1"
-current_version_hash = (20250818 * 201500 * 1)
+current_version = "20250818.201500.3"
+current_version_hash = (20250818 * 201500 * 3)
 
 import inspect
 import os
@@ -37,45 +37,66 @@ MHZ_TO_HZ = 1000000
 
 def handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func):
     # Function Description:
-    # Handles the YakBeg command for FREQUENCY/START-STOP.
+    # Handles the extended YakBeg command for FREQUENCY/START-STOP.
+    # It now returns start, stop, center, and span frequencies.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}",
+    debug_log(f"Entering {current_function}. Arrr, a treasure map for frequencies! 🗺️",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
+    
+    # We send start and stop, and get back start, stop, span, and center
     response = YakBeg(app_instance, "FREQUENCY/START-STOP", console_print_func, start_freq, stop_freq)
     
     if response and response != "FAILED":
         try:
+            # Response is a semicolon-separated string of four values
             parts = response.split(';')
-            if len(parts) == 2:
+            if len(parts) == 4:
                 start = float(parts[0])
                 stop = float(parts[1])
-                return start, stop
-        except (ValueError, IndexError):
-            pass
-    return None, None
+                span = float(parts[2])
+                center = float(parts[3])
+                return start, stop, span, center
+        except (ValueError, IndexError) as e:
+            console_print_func(f"❌ Failed to parse response from instrument. Error: {e}")
+            debug_log(f"Arrr, the response be gibberish! Error: {e}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+    return None, None, None, None
 
 def handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func):
     # Function Description:
-    # Handles the YakBeg command for FREQUENCY/CENTER-SPAN.
+    # Handles the extended YakBeg command for FREQUENCY/CENTER-SPAN.
+    # It now returns center, span, start, and stop frequencies.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}",
+    debug_log(f"Entering {current_function}. Plotting a course to the center! 🧭",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
+    
+    # We send center and span, and get back span, center, start, and stop
     response = YakBeg(app_instance, "FREQUENCY/CENTER-SPAN", console_print_func, center_freq, span_freq)
     
     if response and response != "FAILED":
         try:
+            # Response is a semicolon-separated string of four values
             parts = response.split(';')
-            if len(parts) == 2:
-                center = float(parts[1])
+            if len(parts) == 4:
+                # FIXED: Correct parsing order to match the VISA response
                 span = float(parts[0])
-                return center, span
-        except (ValueError, IndexError):
-            pass
-    return None, None
+                center = float(parts[1])
+                start = float(parts[2])
+                stop = float(parts[3])
+                return center, span, start, stop
+        except (ValueError, IndexError) as e:
+            console_print_func(f"❌ Failed to parse response from instrument. Error: {e}")
+            debug_log(f"Arrr, the response be gibberish! Error: {e}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+    return None, None, None, None
 
 def handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func):
     # Function Description:

@@ -44,7 +44,7 @@ def get_default_commands():
 
         ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "RIG", ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222; ", "2", ""),
         ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "NAB", ":SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
-        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "BEG", ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer? ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/CENTER-SPAN", "BEG", ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?;:FREQuency:STARt?;:FREQuency:STOP?", "2", ""),
         
 
 
@@ -56,7 +56,7 @@ def get_default_commands():
         
         ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "RIG", ":FREQuency:STARt 111;:FREQuency:STOP 222 ", "2", ""),
         ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "NAB", ":FREQuency:STARt?;:FREQuency:STOP? ", "2", ""),
-        ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:FREQuency:STARt?;:FREQuency:STOP? ", "2", ""),
+        ("Keysight Technologies", "*", "FREQUENCY/START-STOP", "BEG", ":FREQuency:STARt 111;:FREQuency:STOP 222;:FREQuency:STARt?;:FREQuency:STOP?;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?;", "2", ""),
         
 
         ("Keysight Technologies", "*", "FREQUENCY/SWEEP/POINTS", "GET", ":SENSe:SWEep:POINts", "?", ""),
