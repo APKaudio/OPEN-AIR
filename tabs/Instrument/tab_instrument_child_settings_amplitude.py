@@ -15,13 +15,21 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.123518.25
-# FIX: Corrected the edge case where engaging a slider or toggling the preamp would not turn off high sensitivity.
-# The new logic ensures that when the preamp toggle button is used, or a slider for Reference Level or Power Attenuation is moved, 
-# the high sensitivity mode is explicitly turned OFF.
+# Version 20250816.123518.26
+# FIX: Sliders now snap to and only use values from the provided preset lists.
+# FIX: The displayed values for the sliders no longer show decimal points.
+# FIX: The _on_ref_level_change and _on_power_attenuation_change functions now correctly handle the push to YakSet.
+# FIX: The `_update_descriptions` function has been improved to ensure discrete values are used.
+# FIX: The `_update_toggle_button_style` function now correctly references the `tab_instance`.
+# FIX: High Sensitivity toggle now explicitly refreshes UI values for reference level, power attenuation, and preamp.
+# FIX: Corrected the TypeError by passing the tab_instance to the handler functions.
+# FIX: Adjusted the grid layout to lock the Reference Level and Power Attenuation frames to a 50/50 proportional split,
+#      preventing them from "jumping" due to text length changes.
+# ADD: New logic to automatically disable High Sensitivity mode when other amplitude settings are adjusted.
+# FIX: The logic in toggle_preamp has been updated to also turn off High Sensitivity when the preamp is disabled.
 
-current_version = "Version 20250816.123518.25"
-current_version_hash = (20250816 * 123518 * 25)
+current_version = "Version 20250816.123518.26"
+current_version_hash = (20250816 * 123518 * 26)
 
 import tkinter as tk
 from tkinter import ttk

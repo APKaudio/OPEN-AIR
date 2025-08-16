@@ -15,24 +15,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.124230.27
-# FIX: Corrected the issue where floating-point values were being sent to YakDo, causing a command mismatch.
-# All numerical values are now converted to integers or formatted correctly before being sent to the instrument.
-# FIX: Added the missing console_print_func argument to all calls to YakDo.
-# FIX: Corrected the object traversal path for _refresh_all_from_instrument.
-# FIX: High Sensitivity toggle now correctly uses YakNab to parse multiple returned values and update the GUI.
-# FIX: Corrected parsing of returned string from instrument by stripping single quotes and splitting by a comma.
-# FIX: Standardized the GUI refresh logic by correcting the object path from app_instance.instrument_parent_tab to the
-#      more direct and valid app_instance.instrument_settings_tab. This resolves the AttributeErrors.
-# FIX: Corrected the object traversal to refresh the GUI by navigating from app_instance to its instrument parent tab,
-#      then to the instrument settings tab, which contains the refresh function. This resolves the latest AttributeError.
+# Version 20250816.124230.29
+# FIX: The toggle_preamp function now correctly turns off high sensitivity mode if it is active when the preamp is being turned off.
+# This fixes the logical bug where both settings could be simultaneously disabled without the intended inverse relationship.
 
-current_version = "Version 20250816.124230.27"
-current_version_hash = (20250816 * 124230 * 27)
+current_version = "Version 20250816.124230.29"
+current_version_hash = (20250816 * 124230 * 29)
 
 import os
 import inspect
-import numpy as np # Import numpy for linspace function in _process_trace_data
+import numpy as np 
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -46,6 +38,78 @@ MHZ_TO_HZ_CONVERSION = 1_000_000
 # =========================================================================
 # PUBLIC API FOR CONTROLLING SETTINGS - GUI should call these functions
 # =========================================================================
+def refresh_all_from_instrument(app_instance, console_print_func):
+    # This is a new public API for the GUI to call
+    # Queries all settings from the instrument and returns a dictionary of values.
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"API call to refresh all settings from the instrument.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+    
+    if not app_instance.is_connected.get():
+        console_print_func("❌ Not connected to an instrument. Cannot refresh settings.")
+        return None
+
+    settings = {}
+    try:
+        settings['center_freq_hz'] = YakGet(app_instance, "FREQUENCY/CENTER", console_print_func)
+        settings['span_hz'] = YakGet(app_instance, "FREQUENCY/SPAN", console_print_func)
+        settings['start_freq_hz'] = YakGet(app_instance, "FREQUENCY/START", console_print_func)
+        settings['stop_freq_hz'] = YakGet(app_instance, "FREQUENCY/STOP", console_print_func)
+        
+        settings['rbw_hz'] = YakGet(app_instance, "BANDWIDTH/RESOLUTION", console_print_func)
+        settings['vbw_hz'] = YakGet(app_instance, "BANDWIDTH/VIDEO", console_print_func)
+        settings['vbw_auto_on'] = YakGet(app_instance, "BANDWIDTH/VIDEO/AUTO", console_print_func) in ["ON", "1"]
+        
+        settings['initiate_continuous_on'] = YakGet(app_instance, "INITIATE/CONTINUOUS", console_print_func) in ["ON", "1"]
+        
+        settings['ref_level_dbm'] = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
+        settings['power_attenuation_db'] = YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", console_print_func)
+        settings['preamp_on'] = YakGet(app_instance, "AMPLITUDE/POWER/GAIN", console_print_func) in ["ON", "1"]
+        settings['high_sensitivity_on'] = YakGet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func) in ["ON", "1"]
+        
+        settings['trace1_mode'] = YakGet(app_instance, "TRACE/1/MODE", console_print_func)
+        settings['trace2_mode'] = YakGet(app_instance, "TRACE/2/MODE", console_print_func)
+        settings['trace3_mode'] = YakGet(app_instance, "TRACE/3/MODE", console_print_func)
+        settings['trace4_mode'] = YakGet(app_instance, "TRACE/4/MODE", console_print_func)
+        
+        for i in range(6):
+            settings[f'marker{i+1}_on'] = YakGet(app_instance, f"MARKER/{i+1}/CALCULATE/STATE", console_print_func) in ["ON", "1"]
+            
+        return settings
+    except Exception as e:
+        console_print_func(f"❌ Failed to retrieve settings from instrument: {e}.")
+        debug_log(message=f"Error retrieving settings from instrument: {e}. What a mess!",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        return None
+
+def _trigger_gui_refresh(app_instance):
+    # Function Description:
+    # Safely calls the refresh method on the correct GUI object from the main thread.
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"Attempting to refresh GUI from within handler. 🔄",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+    
+    try:
+        # CORRECTED PATH: Navigate through the `tabs_parent` dictionary to find the right object
+        instrument_parent_tab = app_instance.tabs_parent.tab_content_frames['Instruments']
+        settings_tab = instrument_parent_tab.settings_tab
+        settings_tab._refresh_all_from_instrument()
+    except AttributeError as e:
+        debug_log(message=f"CRITICAL ERROR: Failed to find the GUI refresh method. Path traversal failed. Error: {e} 💥",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+    except Exception as e:
+        debug_log(message=f"An unexpected error occurred during GUI refresh: {e}. 🤯",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
 
 def set_center_frequency(app_instance, value, console_print_func):
     """
@@ -64,7 +128,7 @@ def set_center_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/CENTER", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid frequency value: '{value}'. Please enter a number.")
@@ -87,7 +151,7 @@ def set_span_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/SPAN", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid span value: '{value}'. Please enter a number.")
@@ -110,7 +174,7 @@ def set_start_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/START", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid start frequency value: '{value}'. Please enter a number.")
@@ -133,7 +197,7 @@ def set_stop_frequency(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "FREQUENCY/STOP", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid stop frequency value: '{value}'. Please enter a number.")
@@ -156,7 +220,7 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid RBW value: '{value}'. Please enter a number.")
@@ -179,7 +243,7 @@ def set_video_bandwidth(app_instance, value, console_print_func):
     try:
         hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
         if YakSet(app_instance, "BANDWIDTH/VIDEO", str(hz_value), console_print_func) == "PASSED":
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
     except ValueError:
         console_print_func(f"❌ Invalid VBW value: '{value}'. Please enter a number.")
@@ -204,7 +268,7 @@ def toggle_vbw_auto(app_instance, console_print_func):
     
     if YakDo(app_instance, f"BANDWIDTH/VIDEO/AUTO/{new_state}", console_print_func=console_print_func) == "PASSED":
         app_instance.vbw_auto_on_var.set(not current_state)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -226,7 +290,7 @@ def set_continuous_initiate_mode(app_instance, mode, console_print_func):
     mode_str = "ON" if mode else "OFF"
     if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode_str}", console_print_func=console_print_func) == "PASSED":
         app_instance.initiate_continuous_on_var.set(mode)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -246,7 +310,7 @@ def do_immediate_initiate(app_instance, console_print_func):
     
     if YakDo(app_instance, "INITIATE/IMMEDIATE", console_print_func=console_print_func) == "PASSED":
         console_print_func("✅ Immediate scan initiated successfully.")
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -268,7 +332,7 @@ def set_reference_level(tab_instance, app_instance, value, console_print_func):
         int_value = int(float(value))
         if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{int_value}", console_print_func=console_print_func) == "PASSED":
             app_instance.ref_level_dbm_var.set(value)
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
         else:
             return False
@@ -304,13 +368,20 @@ def toggle_preamp(tab_instance, app_instance, console_print_func):
             YakDo(app_instance, "AMPLITUDE/POWER/GAIN/OFF", console_print_func=console_print_func)
             app_instance.preamp_on_var.set(False)
             console_print_func("✅ Preamp turned OFF.")
+            # NEW LOGIC: If preamp is turned off, also turn off high sensitivity
+            if app_instance.high_sensitivity_on_var.get():
+                debug_log(message=f"Preamp turned off, automatically turning off high sensitivity. 🕵️‍♀️",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+                toggle_high_sensitivity(tab_instance=tab_instance, app_instance=app_instance, console_print_func=console_print_func)
         else:
             YakDo(app_instance, "AMPLITUDE/POWER/GAIN/ON", console_print_func=console_print_func)
             app_instance.preamp_on_var.set(True)
             console_print_func("✅ Preamp turned ON.")
 
         tab_instance._update_toggle_button_style(button=tab_instance.preamp_toggle_button, state=app_instance.preamp_on_var.get())
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
 
     except Exception as e:
         console_print_func(f"❌ Error toggling preamp: {e}")
@@ -376,7 +447,7 @@ def set_power_attenuation(tab_instance, app_instance, value, console_print_func)
     
     if YakDo(app_instance, f"AMPLITUDE/POWER/ATTENUATION/{value}DB", console_print_func=console_print_func) == "PASSED":
         app_instance.power_attenuation_db_var.set(value)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -398,7 +469,7 @@ def set_trace_mode(app_instance, trace_number, mode, console_print_func):
     if YakDo(app_instance, f"TRACE/{trace_number}/MODE/{mode}", console_print_func=console_print_func) == "PASSED":
         trace_var = getattr(app_instance, f"trace{trace_number}_mode_var")
         trace_var.set(mode)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -417,7 +488,7 @@ def do_turn_all_markers_on(app_instance, console_print_func):
         return False
     
     if YakDo(app_instance, "MARKER/All/CALCULATE/STATE/ON", console_print_func=console_print_func) == "PASSED":
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -437,7 +508,7 @@ def toggle_marker_state(app_instance, marker_number, state, console_print_func):
         
     new_state = "ON" if state else "OFF"
     if YakDo(app_instance, f"MARKER/{marker_number}/CALCULATE/STATE/{new_state}", console_print_func=console_print_func) == "PASSED":
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
     
@@ -457,7 +528,7 @@ def do_peak_search(app_instance, console_print_func):
     
     if YakDo(app_instance, "MARKER/PEAK/SEARCH", console_print_func=console_print_func) == "PASSED":
         console_print_func("✅ Peak search command sent successfully.")
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
 
