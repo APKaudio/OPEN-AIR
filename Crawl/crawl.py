@@ -114,9 +114,16 @@ class FolderCrawlerApp:
         # --- UI Elements ---
         control_frame = ttk.Frame(self.root, padding="10")
         control_frame.grid(row=0, column=0, sticky="ew")
-        control_frame.grid_columnconfigure(1, weight=1) # Makes the entry field stretch
+        control_frame.grid_columnconfigure(0, weight=1) # Makes the label stretch
 
-        ttk.Label(control_frame, text=f"Crawling: {start_directory}").grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+        # The label now uses a textvariable to automatically update when the folder is changed
+        self.current_dir_label = ttk.Label(control_frame, textvariable=self.directory_path_var)
+        self.current_dir_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        # --- NEW BUTTON to select a folder ---
+        self.select_folder_button = ttk.Button(control_frame, text="Select Folder", command=self._select_folder)
+        self.select_folder_button.grid(row=0, column=1, padx=5, pady=5)
+        # --- END NEW BUTTON ---
 
         self.crawl_button = ttk.Button(control_frame, text="Start Crawl", command=self._start_crawl)
         self.crawl_button.grid(row=0, column=2, padx=5, pady=5)
@@ -184,6 +191,18 @@ class FolderCrawlerApp:
                     file=self.current_file, version=self.current_version, function=current_function)
         self._open_file(os.path.dirname(os.path.abspath(__file__)), "Crawl Folder")
 
+    def _select_folder(self):
+        # function_name()
+        # Function Description:
+        # Opens a dialog to allow the user to select a new directory to crawl.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"Opening directory selection dialog. 📂",
+                    file=self.current_file, version=self.current_version, function=current_function)
+        new_directory = filedialog.askdirectory(title="Select a directory to crawl")
+        if new_directory:
+            self.directory_path_var.set(new_directory)
+            self._append_to_text_area(f"✅ Crawling directory changed to: {new_directory}", "header")
+
     def _start_crawl(self):
         # function_name()
         # Function Description:
@@ -191,10 +210,22 @@ class FolderCrawlerApp:
         # Opens both 'Crawl.log', 'MAP.txt', and 'EVERYTHING.py.LOG' files with timestamps,
         # in a newly created directory.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Starting crawl. Let's explore! �",
+        debug_log(message=f"Starting crawl. Let's explore! ",
                     file=self.current_file, version=self.current_version, function=current_function)
 
         self.text_area.delete(1.0, tk.END) # Clear previous output
+        
+        target_directory = self.directory_path_var.get()
+        
+        # --- NEW SANITY CHECK ---
+        # Check if the selected directory is one of the script's own log directories
+        # by checking for the YYYYMMDDHHMMSS timestamp pattern.
+        dir_name = os.path.basename(target_directory)
+        if re.match(r'^\d{14}$', dir_name):
+            self._append_to_text_area("❌ Error: Cannot crawl a directory that is a previous crawl log.", "header")
+            messagebox.showerror("Invalid Directory", "The selected directory appears to be a previous crawl log. Please select a different directory.")
+            return
+        # --- END NEW SANITY CHECK ---
 
         # Create a new directory for output files
         timestamp_dir = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -335,6 +366,16 @@ class FolderCrawlerApp:
                         debug_log(message=f"Aaargh! Couldn't sink the __pycache__ ship! The error be: {e}",
                                     file=self.current_file, version=self.current_version, function=current_function)
 
+                # --- NEW: Ignore this script's own log directories to prevent recursive crawling ---
+                dirs_to_remove = []
+                for d in dirs:
+                    if d.lower() == 'crawl' or re.match(r'^\d{14}$', d):
+                        dirs_to_remove.append(d)
+                for d in dirs_to_remove:
+                    dirs.remove(d)
+                    self._append_to_text_area(f"  [INFO] Ignoring crawl output directory: {os.path.join(root, d)}", "header")
+                # --- END NEW ---
+
                 # Ignore folders starting with a dot
                 dirs[:] = [d for d in dirs if not d.startswith('.')]
 
@@ -401,12 +442,16 @@ class FolderCrawlerApp:
                                 try:
                                     with open(file_path, "r", encoding="utf-8") as generic_file:
                                         file_content = generic_file.read()
+                                    
+                                    # Create the relative path from the target directory
+                                    relative_file_path = os.path.join(os.path.basename(target_directory), os.path.relpath(file_path, target_directory))
                                     self.everything_log_file.write(
                                         f"#####################################\n"
-                                        f"### File: {file_path}\n"
+                                        f"### File: {relative_file_path}\n"
                                         f"#####################################\n"
                                         f"{file_content}\n\n"
                                     )
+
                                     debug_log(message=f"Wrote content of {item} to EVERYTHING.py.LOG. ✅",
                                                 file=self.current_file, version=self.current_version, function=current_function)
                                 except Exception as e:
@@ -799,18 +844,8 @@ class FolderCrawlerApp:
                 messagebox.showinfo("File Not Found", "No everything log directory or file found.")
 
 if __name__ == "__main__":
+    # The script now starts directly with the current directory as the default.
     root = tk.Tk()
-    root.withdraw() # Hide the main window initially
-
-    selected_directory = filedialog.askdirectory(title="What directory do you want to crawl?")
-
-    if selected_directory:
-        # Destroy the temporary root window and create a new one for the app
-        root.destroy()
-        root = tk.Tk()
-        app = FolderCrawlerApp(root, selected_directory)
-        app._start_crawl() # Automatically start the crawl with the selected directory
-        root.mainloop()
-    else:
-        print("No directory selected, exiting.")
-        root.destroy()
+    start_directory = os.path.dirname(os.path.abspath(__file__))
+    app = FolderCrawlerApp(root, start_directory)
+    root.mainloop()

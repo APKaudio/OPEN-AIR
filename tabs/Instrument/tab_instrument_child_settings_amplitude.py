@@ -15,17 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.013500.23
-# FIX: Sliders now snap to and only use values from the provided preset lists.
-# FIX: The displayed values for the sliders no longer show decimal points.
-# FIX: The _on_ref_level_change and _on_power_attenuation_change functions now correctly handle the push to YakSet.
-# FIX: The `_update_descriptions` function has been improved to ensure discrete values are used.
-# FIX: The `_update_toggle_button_style` function now correctly references the `tab_instance`.
-# FIX: High Sensitivity toggle now explicitly refreshes UI values for reference level, power attenuation, and preamp.
-# FIX: Corrected the TypeError by passing the tab_instance to the handler functions.
+# Version 20250816.123518.25
+# FIX: Corrected the edge case where engaging a slider or toggling the preamp would not turn off high sensitivity.
+# The new logic ensures that when the preamp toggle button is used, or a slider for Reference Level or Power Attenuation is moved, 
+# the high sensitivity mode is explicitly turned OFF.
 
-current_version = "20250816.013500.23"
-current_version_hash = (20250816 * 13500 * 23)
+current_version = "Version 20250816.123518.25"
+current_version_hash = (20250816 * 123518 * 25)
 
 import tkinter as tk
 from tkinter import ttk
@@ -80,8 +76,12 @@ class AmplitudeSettingsTab(ttk.Frame):
         # --- Amplitude/Ref Level Frame ---
         amplitude_frame = ttk.LabelFrame(self, text="Amplitude Settings", style='Dark.TLabelframe')
         amplitude_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-        amplitude_frame.grid_columnconfigure(0, weight=1)
-        amplitude_frame.grid_columnconfigure(1, weight=1)
+        
+        # --- FIX: Ensure 50/50 proportional split for child frames ---
+        # We explicitly set weights and a minimum width to prevent the layout from "jumping"
+        # when the description text changes.
+        amplitude_frame.grid_columnconfigure(0, weight=1, minsize=100)
+        amplitude_frame.grid_columnconfigure(1, weight=1, minsize=100)
         amplitude_frame.grid_rowconfigure(0, weight=1)
 
         # Container for Ref Level slider and labels
@@ -207,6 +207,11 @@ class AmplitudeSettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         
+        # New Logic: Turn off High Sensitivity if it's on
+        if self.app_instance.high_sensitivity_on_var.get():
+            self.console_print_func("⚠️ High Sensitivity turned off to adjust Reference Level.")
+            utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
+
         ref_level = int(self._find_closest_preset_value(self.app_instance.ref_level_dbm_var.get(), PRESET_AMPLITUDE_REFERENCE_LEVEL))
         utils_yak_setting_handler.set_reference_level(tab_instance=self, app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func)
 
@@ -218,6 +223,11 @@ class AmplitudeSettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         
+        # New Logic: Turn off High Sensitivity if it's on
+        if self.app_instance.high_sensitivity_on_var.get():
+            self.console_print_func("⚠️ High Sensitivity turned off to adjust Power Attenuation.")
+            utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
+
         power_attenuation = int(self._find_closest_preset_value(self.app_instance.power_attenuation_db_var.get(), PRESET_AMPLITUDE_POWER_ATTENUATION))
         utils_yak_setting_handler.set_power_attenuation(tab_instance=self, app_instance=self.app_instance, value=power_attenuation, console_print_func=self.console_print_func)
 
