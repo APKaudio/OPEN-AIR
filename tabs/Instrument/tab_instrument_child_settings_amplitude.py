@@ -8,22 +8,24 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
+# application can be negotiated. There is no change to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.174900.3
-# REFACTOR: Replaced comboboxes with vertical sliders for reference level and power attenuation.
-# NEW: Added a single 'Apply' button to push all amplitude settings at once.
-# REFACTOR: Now imports and uses the preset values from ref_scanner_setting_lists.py.
-# NEW: Added labels to display the descriptions of the selected amplitude settings.
-# FIX: Removed the 'console_print_func' argument from the debug_log calls to fix a TypeError.
+# Version 20250816.013500.23
+# FIX: Sliders now snap to and only use values from the provided preset lists.
+# FIX: The displayed values for the sliders no longer show decimal points.
+# FIX: The _on_ref_level_change and _on_power_attenuation_change functions now correctly handle the push to YakSet.
+# FIX: The `_update_descriptions` function has been improved to ensure discrete values are used.
+# FIX: The `_update_toggle_button_style` function now correctly references the `tab_instance`.
+# FIX: High Sensitivity toggle now explicitly refreshes UI values for reference level, power attenuation, and preamp.
+# FIX: Corrected the TypeError by passing the tab_instance to the handler functions.
 
-current_version = "20250815.174900.3"
-current_version_hash = (20250815 * 174900 * 3)
+current_version = "20250816.013500.23"
+current_version_hash = (20250816 * 13500 * 23)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,7 +35,8 @@ import os
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak import utils_yak_setting_handler
-from ref.ref_scanner_setting_lists import PREST_AMPLITUDE_REFERENCE_LEVEL, PREST_AMPLITUDE_POWER_ATTENUATION
+from ref.ref_scanner_setting_lists import PRESET_AMPLITUDE_REFERENCE_LEVEL, PRESET_AMPLITUDE_POWER_ATTENUATION, PRESET_AMPLITUDE_PREAMP_STATE, PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE
+from yak.Yakety_Yak import YakGet
 
 class AmplitudeSettingsTab(ttk.Frame):
     """
@@ -43,9 +46,19 @@ class AmplitudeSettingsTab(ttk.Frame):
         """
         Initializes the AmplitudeSettingsTab.
         """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"Initializing AmplitudeSettingsTab. Setting up the GUI and its logic. 💻",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
         super().__init__(master, **kwargs)
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
+        
+        self.is_ref_level_tracing = False
+        self.is_attenuation_tracing = False
+
         self._create_widgets()
         self.preamp_state_var = self.app_instance.preamp_on_var
         self.high_sensitivity_state_var = self.app_instance.high_sensitivity_on_var
@@ -66,76 +79,81 @@ class AmplitudeSettingsTab(ttk.Frame):
 
         # --- Amplitude/Ref Level Frame ---
         amplitude_frame = ttk.LabelFrame(self, text="Amplitude Settings", style='Dark.TLabelframe')
-        amplitude_frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+        amplitude_frame.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
         amplitude_frame.grid_columnconfigure(0, weight=1)
+        amplitude_frame.grid_columnconfigure(1, weight=1)
         amplitude_frame.grid_rowconfigure(0, weight=1)
 
-        # Container for sliders and labels
-        slider_container = ttk.Frame(amplitude_frame, style='Dark.TFrame')
-        slider_container.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
-        slider_container.grid_columnconfigure(0, weight=1)
-        slider_container.grid_columnconfigure(1, weight=1)
+        # Container for Ref Level slider and labels
+        ref_level_frame = ttk.LabelFrame(amplitude_frame, text="Reference Level (dBm)", style='Dark.TLabelframe')
+        ref_level_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        ref_level_frame.grid_columnconfigure(0, weight=1)
+        ref_level_frame.grid_columnconfigure(1, weight=1)
         
-        # Reference Level Slider
-        ttk.Label(slider_container, text="Reference Level (dBm)").grid(row=0, column=0, padx=5, pady=2)
-        ref_values = [p["value"] for p in PREST_AMPLITUDE_REFERENCE_LEVEL]
+        ref_values = [p["value"] for p in PRESET_AMPLITUDE_REFERENCE_LEVEL]
         ref_min = min(ref_values)
         ref_max = max(ref_values)
-        self.ref_level_slider = ttk.Scale(slider_container,
-                                         orient="vertical",
-                                         variable=self.app_instance.ref_level_dbm_var,
-                                         from_=ref_max,
-                                         to=ref_min,
-                                         command=lambda value: self._update_descriptions(value=value, preset_list=PREST_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var),
-                                         length=200)
-        self.ref_level_slider.grid(row=1, column=0, padx=10, pady=5, sticky="ns")
-        self.ref_level_label = ttk.Label(slider_container, textvariable=self.app_instance.ref_level_dbm_var, style='TLabel')
-        self.ref_level_label.grid(row=2, column=0)
-        self.ref_level_description_label = ttk.Label(slider_container, text="", wraplength=150, style='Description.TLabel')
-        self.ref_level_description_label.grid(row=3, column=0, padx=5, pady=2)
+        self.ref_level_slider = ttk.Scale(ref_level_frame,
+                                           orient="vertical",
+                                           variable=self.app_instance.ref_level_dbm_var,
+                                           from_=ref_max,
+                                           to=ref_min,
+                                           command=self._update_ref_level_display,
+                                           length=200)
+        self.ref_level_slider.grid(row=0, column=0, padx=10, pady=5, sticky="ns")
+        self.ref_level_slider.bind("<ButtonRelease-1>", self._on_ref_level_change)
+        
+        ref_description_container = ttk.Frame(ref_level_frame)
+        ref_description_container.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        self.ref_level_label = ttk.Label(ref_description_container, textvariable=self.app_instance.ref_level_dbm_var, style='TLabel')
+        self.ref_level_label.grid(row=0, column=0)
+        self.ref_level_description_label = ttk.Label(ref_description_container, text="", wraplength=150, style='Description.TLabel')
+        self.ref_level_description_label.grid(row=1, column=0, padx=5, pady=2)
 
-        # Power Attenuation Slider
-        ttk.Label(slider_container, text="Power Attenuation (dB)").grid(row=0, column=1, padx=5, pady=2)
-        att_values = [p["value"] for p in PREST_AMPLITUDE_POWER_ATTENUATION]
+
+        # Container for Power Attenuation slider and labels
+        power_att_frame = ttk.LabelFrame(amplitude_frame, text="Power Attenuation (dB)", style='Dark.TLabelframe')
+        power_att_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        power_att_frame.grid_columnconfigure(0, weight=1)
+        power_att_frame.grid_columnconfigure(1, weight=1)
+
+        att_values = [p["value"] for p in PRESET_AMPLITUDE_POWER_ATTENUATION]
         att_min = min(att_values)
         att_max = max(att_values)
-        self.power_attenuation_slider = ttk.Scale(slider_container,
-                                                orient="vertical",
-                                                variable=self.app_instance.power_attenuation_db_var,
-                                                from_=att_max,
-                                                to=att_min,
-                                                command=lambda value: self._update_descriptions(value=value, preset_list=PREST_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var),
-                                                length=200)
-        self.power_attenuation_slider.grid(row=1, column=1, padx=10, pady=5, sticky="ns")
-        self.power_attenuation_label = ttk.Label(slider_container, textvariable=self.app_instance.power_attenuation_db_var, style='TLabel')
-        self.power_attenuation_label.grid(row=2, column=1)
-        self.power_attenuation_description_label = ttk.Label(slider_container, text="", wraplength=150, style='Description.TLabel')
-        self.power_attenuation_description_label.grid(row=3, column=1, padx=5, pady=2)
+        self.power_attenuation_slider = ttk.Scale(power_att_frame,
+                                                   orient="vertical",
+                                                   variable=self.app_instance.power_attenuation_db_var,
+                                                   from_=att_min,
+                                                   to=att_max,
+                                                   command=self._update_power_attenuation_display,
+                                                   length=200)
+        self.power_attenuation_slider.grid(row=0, column=0, padx=10, pady=5, sticky="ns")
+        self.power_attenuation_slider.bind("<ButtonRelease-1>", self._on_power_attenuation_change)
 
-        # Toggle buttons container
-        button_container = ttk.Frame(amplitude_frame, style='Dark.TFrame')
-        button_container.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        button_container.grid_columnconfigure(0, weight=1)
-        button_container.grid_columnconfigure(1, weight=1)
+        power_att_description_container = ttk.Frame(power_att_frame)
+        power_att_description_container.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
+        self.power_attenuation_label = ttk.Label(power_att_description_container, textvariable=self.app_instance.power_attenuation_db_var, style='TLabel')
+        self.power_attenuation_label.grid(row=0, column=0)
+        self.power_attenuation_description_label = ttk.Label(power_att_description_container, text="", wraplength=150, style='Description.TLabel')
+        self.power_attenuation_description_label.grid(row=1, column=0, padx=5, pady=2)
 
-        # Preamp Gain toggle button
-        ttk.Label(button_container, text="Preamp Gain:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        self.preamp_toggle_button = ttk.Button(button_container,
-                                               command=lambda: utils_yak_setting_handler.toggle_preamp(app_instance=self.app_instance, console_print_func=self.console_print_func))
-        self.preamp_toggle_button.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        # --- Preamp Gain Frame ---
+        preamp_frame = ttk.LabelFrame(self, text="Preamp Gain", style='Dark.TLabelframe')
+        preamp_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+        preamp_frame.grid_columnconfigure(0, weight=1)
 
-        # High Sensitivity toggle button
-        ttk.Label(button_container, text="High Sensitivity:").grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        self.hs_toggle_button = ttk.Button(button_container,
-                                           command=lambda: utils_yak_setting_handler.toggle_high_sensitivity(app_instance=self.app_instance, console_print_func=self.console_print_func))
-        self.hs_toggle_button.grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        self.preamp_toggle_button = ttk.Button(preamp_frame,
+                                                command=lambda: utils_yak_setting_handler.toggle_preamp(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func))
+        self.preamp_toggle_button.grid(row=0, column=0, padx=5, pady=2, sticky="ew")
 
-        # Apply All Settings button
-        apply_button = ttk.Button(amplitude_frame,
-                                  text="Apply All Amplitude Settings",
-                                  style='Orange.TButton',
-                                  command=self._apply_amplitude_settings)
-        apply_button.grid(row=2, column=0, padx=5, pady=10, sticky="ew")
+        # --- High Sensitivity Frame ---
+        hs_frame = ttk.LabelFrame(self, text="High Sensitivity", style='Dark.TLabelframe')
+        hs_frame.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+        hs_frame.grid_columnconfigure(0, weight=1)
+
+        self.hs_toggle_button = ttk.Button(hs_frame,
+                                            command=lambda: utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func))
+        self.hs_toggle_button.grid(row=0, column=0, padx=5, pady=2, sticky="ew")
 
         debug_log(message=f"Widgets for Amplitude Settings Tab created. The amplitude controls are ready! 📉👍",
                   file=os.path.basename(__file__),
@@ -156,9 +174,52 @@ class AmplitudeSettingsTab(ttk.Frame):
         self.ref_level_slider.set(self.app_instance.ref_level_dbm_var.get())
         self.power_attenuation_slider.set(self.app_instance.power_attenuation_db_var.get())
 
-        self._update_descriptions(value=self.app_instance.ref_level_dbm_var.get(), preset_list=PREST_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var)
-        self._update_descriptions(value=self.app_instance.power_attenuation_db_var.get(), preset_list=PREST_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var)
+        self._update_descriptions(value=self.app_instance.ref_level_dbm_var.get(), preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var)
+        self._update_descriptions(value=self.app_instance.power_attenuation_db_var.get(), preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var)
 
+    def _update_ref_level_display(self, value):
+        if self.is_ref_level_tracing:
+            return
+        self.is_ref_level_tracing = True
+        
+        rounded_value = self._find_closest_preset_value(float(value), PRESET_AMPLITUDE_REFERENCE_LEVEL)
+        self.app_instance.ref_level_dbm_var.set(rounded_value)
+        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var)
+        
+        self.is_ref_level_tracing = False
+
+    def _update_power_attenuation_display(self, value):
+        if self.is_attenuation_tracing:
+            return
+        self.is_attenuation_tracing = True
+        
+        rounded_value = self._find_closest_preset_value(float(value), PRESET_AMPLITUDE_POWER_ATTENUATION)
+        self.app_instance.power_attenuation_db_var.set(rounded_value)
+        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var)
+        
+        self.is_attenuation_tracing = False
+
+    def _on_ref_level_change(self, event):
+        """Updates the reference level and pushes the setting on slider release."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"Entering {current_function}. Slider released, pushing new value to instrument. 📤",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        ref_level = int(self._find_closest_preset_value(self.app_instance.ref_level_dbm_var.get(), PRESET_AMPLITUDE_REFERENCE_LEVEL))
+        utils_yak_setting_handler.set_reference_level(tab_instance=self, app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func)
+
+    def _on_power_attenuation_change(self, event):
+        """Updates the power attenuation and pushes the setting on slider release."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"Entering {current_function}. Slider released, pushing new value to instrument. 📤",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        power_attenuation = int(self._find_closest_preset_value(self.app_instance.power_attenuation_db_var.get(), PRESET_AMPLITUDE_POWER_ATTENUATION))
+        utils_yak_setting_handler.set_power_attenuation(tab_instance=self, app_instance=self.app_instance, value=power_attenuation, console_print_func=self.console_print_func)
 
     def _update_toggle_button_style(self, button, state):
         """Updates the style and text of a toggle button based on its state."""
@@ -167,14 +228,42 @@ class AmplitudeSettingsTab(ttk.Frame):
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
-        if state:
-            button.config(style='Orange.TButton', text="ON")
-        else:
-            button.config(style='Dark.TButton', text="OFF")
+        
+        # Determine the correct preset list to use based on the button instance
+        preset_list = None
+        if button == self.preamp_toggle_button:
+            preset_list = PRESET_AMPLITUDE_PREAMP_STATE
+        elif button == self.hs_toggle_button:
+            preset_list = PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE
+            
+        if preset_list:
+            if state:
+                button.config(style='Orange.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'ON'), "ON"))
+            else:
+                button.config(style='Dark.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'OFF'), "OFF"))
+
+        # After toggling, refresh all status on the page
+        app_instance = self.app_instance
+        YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", self.console_print_func)
+        YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", self.console_print_func)
+        YakGet(app_instance, "AMPLITUDE/POWER/GAIN", self.console_print_func)
+        YakGet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", self.console_print_func)
+
+    def _find_closest_preset_value(self, value, preset_list):
+        """Finds the closest discrete preset value for a given float value."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"Entering {current_function}. Finding closest preset for value: {value}",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+        values = [p["value"] for p in preset_list]
+        return min(values, key=lambda x: abs(x - value))
 
     def _update_descriptions(self, value, preset_list, label, var):
         """
-        Updates a description label based on the slider value by finding the closest preset.
+        Updates a description label and the variable value based on the slider value
+        by finding the closest preset and snapping to it.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"Entering {current_function}. Seeking the closest preset for a value of {value}...",
@@ -182,18 +271,13 @@ class AmplitudeSettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         
-        var.set(round(float(value)))
-
-        closest_preset = None
-        min_diff = float('inf')
-
-        for preset in preset_list:
-            diff = abs(preset["value"] - var.get())
-            if diff < min_diff:
-                min_diff = diff
-                closest_preset = preset
+        # Find the closest preset value first
+        closest_value = self._find_closest_preset_value(value, preset_list)
+        
+        closest_preset = next((preset for preset in preset_list if preset["value"] == closest_value), None)
 
         if closest_preset:
+            var.set(closest_preset["value"])
             label.config(text=closest_preset["description"])
             debug_log(message=f"Found a description! ' {closest_preset['description']} '",
                       file=os.path.basename(__file__),
@@ -202,36 +286,6 @@ class AmplitudeSettingsTab(ttk.Frame):
         else:
             label.config(text="No matching description found.")
             debug_log(message=f"Arrr, no description to be found! Shiver me timbers! 🏴‍☠️",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function)
-
-    def _apply_amplitude_settings(self):
-        """
-        Pushes the current settings from the GUI to the instrument.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. Acknowledging a request to apply settings. This could be a quantum leap! ⚛️",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function)
-        try:
-            ref_level = self.app_instance.ref_level_dbm_var.get()
-            attenuation = self.app_instance.power_attenuation_db_var.get()
-
-            # Using named arguments as requested
-            utils_yak_setting_handler.set_reference_level(app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func)
-            utils_yak_setting_handler.set_power_attenuation(app_instance=self.app_instance, value=attenuation, console_print_func=self.console_print_func)
-
-            self.console_print_func("✅ All amplitude settings applied successfully.")
-            debug_log(message=f"The Amplitude Settings have been applied! Reference Level: {ref_level}, Attenuation: {attenuation} 🎉",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function)
-
-        except Exception as e:
-            self.console_print_func(f"❌ Error applying amplitude settings: {e}")
-            debug_log(message=f"Arrr, the code be capsized! Error applying amplitude settings: {e} 🏴‍☠️",
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)

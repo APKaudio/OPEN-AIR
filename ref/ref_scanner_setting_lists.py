@@ -23,7 +23,7 @@ current_version = "20250815.151240.13" # this variable should always be defined 
 # --- UI Constants ---
 MHZ_TO_HZ = 1_000_000  # Assumed constant for converting MHz to Hz
 
-PREST_SWEEP_TIME = [
+PRESET_SWEEP_TIME = [
     {
         "value": 0.5,
         "label": "Crazy Fast",
@@ -61,12 +61,41 @@ PREST_SWEEP_TIME = [
         "handler": "set_sweep_time"
     }
 ]
-
-PREST_AMPLITUDE_REFERENCE_LEVEL = [
+PRESET_AMPLITUDE_REFERENCE_LEVEL = [
+    {
+        "value": -120,
+        "label": "Extremely Low",
+        "description": "The lowest possible reference level for hunting the weakest signals imaginable.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -115,
+        "label": "Very Low",
+        "description": "Deep noise floor — ideal for weak signal hunting.",
+        "handler": "set_reference_level"
+    },
     {
         "value": -110,
         "label": "Very Low",
         "description": "Deep noise floor — ideal for weak signal hunting.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -105,
+        "label": "Low",
+        "description": "Below typical ambient RF noise — for sensitive receivers.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -100,
+        "label": "Low",
+        "description": "Below typical ambient RF noise — for sensitive receivers.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -95,
+        "label": "Low",
+        "description": "Below typical ambient RF noise — for sensitive receivers.",
         "handler": "set_reference_level"
     },
     {
@@ -76,9 +105,45 @@ PREST_AMPLITUDE_REFERENCE_LEVEL = [
         "handler": "set_reference_level"
     },
     {
+        "value": -85,
+        "label": "Medium Low",
+        "description": "Quiet environment, low-level signals clearly visible.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -80,
+        "label": "Medium Low",
+        "description": "Quiet environment, low-level signals clearly visible.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -75,
+        "label": "Medium Low",
+        "description": "Quiet environment, low-level signals clearly visible.",
+        "handler": "set_reference_level"
+    },
+    {
         "value": -70,
         "label": "Medium Low",
         "description": "Quiet environment, low-level signals clearly visible.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -65,
+        "label": "Medium",
+        "description": "Good general-purpose reference level.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -60,
+        "label": "Medium",
+        "description": "Good general-purpose reference level.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -55,
+        "label": "Medium",
+        "description": "Good general-purpose reference level.",
         "handler": "set_reference_level"
     },
     {
@@ -88,15 +153,57 @@ PREST_AMPLITUDE_REFERENCE_LEVEL = [
         "handler": "set_reference_level"
     },
     {
+        "value": -45,
+        "label": "Medium High",
+        "description": "Stronger signals, moderate local RF traffic.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -40,
+        "label": "Medium High",
+        "description": "Stronger signals, moderate local RF traffic.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -35,
+        "label": "Medium High",
+        "description": "Stronger signals, moderate local RF traffic.",
+        "handler": "set_reference_level"
+    },
+    {
         "value": -30,
         "label": "Medium High",
         "description": "Stronger signals, moderate local RF traffic.",
         "handler": "set_reference_level"
     },
     {
+        "value": -25,
+        "label": "High",
+        "description": "For strong broadcast transmitters or test signals.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -20,
+        "label": "High",
+        "description": "For strong broadcast transmitters or test signals.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -15,
+        "label": "High",
+        "description": "For strong broadcast transmitters or test signals.",
+        "handler": "set_reference_level"
+    },
+    {
         "value": -10,
         "label": "High",
         "description": "For strong broadcast transmitters or test signals.",
+        "handler": "set_reference_level"
+    },
+    {
+        "value": -5,
+        "label": "Very High",
+        "description": "Max headroom — use with caution to avoid clipping.",
         "handler": "set_reference_level"
     },
     {
@@ -107,7 +214,7 @@ PREST_AMPLITUDE_REFERENCE_LEVEL = [
     }
 ]
 
-PREST_AMPLITUDE_PREAMP_STATE = [
+PRESET_AMPLITUDE_PREAMP_STATE = [
     {
         "value": "ON",
         "label": "PREAMP ON",
@@ -122,7 +229,7 @@ PREST_AMPLITUDE_PREAMP_STATE = [
     }
 ]
 
-PREST_AMPLITUDE_HIGH_SENSITIVITY_STATE = [
+PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE = [
     {
         "value": "ON",
         "label": "HIGH SENSITIVITY ON",
@@ -137,7 +244,7 @@ PREST_AMPLITUDE_HIGH_SENSITIVITY_STATE = [
     }
 ]
 
-PREST_AMPLITUDE_POWER_ATTENUATION = [
+PRESET_AMPLITUDE_POWER_ATTENUATION = [
     {
         "value": 0,
         "label": "0 dB",
@@ -173,22 +280,11 @@ PREST_AMPLITUDE_POWER_ATTENUATION = [
         "label": "50 dB",
         "description": "Extreme attenuation for signals that could damage the instrument.",
         "handler": "set_power_attenuation"
-    },
-    {
-        "value": 60,
-        "label": "60 dB",
-        "description": "Maximum power attenuation. It's like listening to a whisper in a hurricane.",
-        "handler": "set_power_attenuation"
-    },
-    {
-        "value": 70,
-        "label": "70 dB",
-        "description": "The highest attenuation possible. The signal is barely a memory.",
-        "handler": "set_power_attenuation"
     }
+
 ]
 
-PREST_BANDWIDTH_RBW = [
+PRESET_BANDWIDTH_RBW = [
     {
         "value": 1_000_000,
         "label": "Fast",
@@ -233,7 +329,7 @@ PREST_BANDWIDTH_RBW = [
     },
 ]
 
-PREST_FREQUENCY_SPAN = [
+PRESET_FREQUENCY_SPAN = [
     {
         "value": 100_000_000,
         "label": "Ultra Wide",
@@ -266,7 +362,7 @@ PREST_FREQUENCY_SPAN = [
     },
 ]
 
-PREST_TRACE_MODES = [
+PRESET_TRACE_MODES = [
     {
         "value": "WRITE",
         "label": "LIVE REALTIME",
@@ -299,7 +395,7 @@ PREST_TRACE_MODES = [
     },
 ]
 
-PREST_CONTINUOUS_MODE = [
+PRESET_CONTINUOUS_MODE = [
     {
         "value": "ON",
         "label": "CONTINUOUS ON",

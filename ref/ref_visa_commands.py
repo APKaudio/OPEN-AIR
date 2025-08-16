@@ -115,44 +115,34 @@ def get_default_commands():
 
         # Amplitude/Reference Level/Attenuation/Gain
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+      # Updated commands for AMPLITUDE/REFERENCE LEVEL, with 5 dB increments from 0 to -120.
+
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/0", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "0", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-        
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/10", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "10", ""),   
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/20", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "20", ""),   
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/30", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "30", ""),   
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/20", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "40", ""),   
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-5", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-5", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-10", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-10", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),              
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-15", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-15", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-20", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-20", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-25", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-25", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-30", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-30", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-35", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-35", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-40", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-40", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-45", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-45", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-50", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-50", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
-
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-50", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-50", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-55", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-55", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-60", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-60", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-65", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-65", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-70", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-70", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-75", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-75", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-80", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-80", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-85", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-85", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-90", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-90", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-95", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-95", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-100", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-100", ""),
-        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL", "GET", ":DISPlay:WINDow:TRACe:Y:RLEVel", "?", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-105", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-105", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-110", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-110", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-115", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-115", ""),
+        ("Keysight Technologies", "*", "AMPLITUDE/REFERENCE LEVEL/-120", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel", "-120", ""),
 
         ("Keysight Technologies", "*", "AMPLITUDE/ATTENUATION/AUTO/ON", "DO", ":INPut:ATTenuation:AUTO", "ON", ""),
         ("Keysight Technologies", "*", "AMPLITUDE/ATTENUATION/AUTO", "GET", ":INPut:ATTenuation", "?", ""),
@@ -191,9 +181,11 @@ def get_default_commands():
         
         ("Keysight Technologies", "N9342CN", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":POWer:HSENsitive", "ON", ""),
         ("Keysight Technologies", "N9342CN", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":POWer:HSENsitive", "OFF", ""),
+        ("Keysight Technologies", "N9342CN", "AMPLITUDE/POWER/HIGH SENSITIVE", "NAB", ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?", "3", ""),
 
         ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/ON", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON", "", ""),
         ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", "DO", ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF", "", ""),
+        ("Keysight Technologies", "N9340B", "AMPLITUDE/POWER/HIGH SENSITIVE", "NAB", ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?", "3", ""),
 
         ("Keysight Technologies", "*", "TRACE/MODES", "NAB", ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?", "4", ""),
         ("Keysight Technologies", "*", "TRACE/MODES", "RIG", ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444", "4", ""),

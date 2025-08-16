@@ -298,9 +298,12 @@ def YakGet(app_instance, command_type, console_print_func):
                     function=current_function)
         return "FAILED"
 
+        
 def YakNab(app_instance, command_type, console_print_func):
-    # Function Description:
-    # Executes a 'NAB' (multi-query) VISA command for a given command type.
+    """
+    Function Description:
+    Executes a 'NAB' (multi-query) VISA command for a given command type.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering YakNab. command_type: {command_type}",
                 file=os.path.basename(__file__),
@@ -323,6 +326,7 @@ def YakNab(app_instance, command_type, console_print_func):
                     version=current_version,
                     function=current_function)
         return "FAILED"
+
 
 def YakSet(app_instance, command_type, variable_value, console_print_func):
     # Function Description:
@@ -414,8 +418,8 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
             
             if response_string is not None:
                 try:
-                    values = [float(val.strip()) for val in response_string.split(';')]
-                    formatted_response = "|||".join([f"{v:.3f}" for v in values])
+                    values = [float(val.strip().strip("'")) for val in response_string.split(';')]
+                    formatted_response = values 
                     console_print_func(f"✅ NAB Response: {formatted_response}")
                     debug_log(f"NAB Query response: {response_string}. Fucking finally!",
                                 file=os.path.basename(__file__),

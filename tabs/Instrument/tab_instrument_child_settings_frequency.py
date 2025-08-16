@@ -31,7 +31,7 @@ import numpy as np
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_start_stop_beg, handle_freq_center_span_beg
-from ref.ref_scanner_setting_lists import PREST_FREQUENCY_SPAN
+from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN
 
 
 class FrequencySettingsTab(ttk.Frame):
@@ -204,7 +204,7 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
 
         try:
-            for i, preset in enumerate(PREST_FREQUENCY_SPAN):
+            for i, preset in enumerate(PRESET_FREQUENCY_SPAN):
                 # Use a format string with two decimal places for better display and rely on grid for sizing.
                 button_text = f"{preset['label']}\n{preset['value'] / 1e6:.2f} MHz"
                 button = ttk.Button(parent_frame,
@@ -214,7 +214,7 @@ class FrequencySettingsTab(ttk.Frame):
                 self.span_buttons[preset['label']] = button
 
             parent_frame.grid_rowconfigure(0, weight=1)
-            for i in range(len(PREST_FREQUENCY_SPAN)):
+            for i in range(len(PRESET_FREQUENCY_SPAN)):
                 parent_frame.grid_columnconfigure(i, weight=1)
 
             console_log(message="✅ Span preset buttons created successfully.", function=current_function)
@@ -270,7 +270,7 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
         try:
             current_span_mhz = self.freq_span_var.get()
-            for preset in PREST_FREQUENCY_SPAN:
+            for preset in PRESET_FREQUENCY_SPAN:
                 button = self.span_buttons.get(preset['label'])
                 if button:
                     if np.isclose(current_span_mhz, preset['value'] / 1e6):

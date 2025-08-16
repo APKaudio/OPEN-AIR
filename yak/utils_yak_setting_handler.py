@@ -8,19 +8,23 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.102500.1
+# Version 20250816.015500.25
 # FIX: Corrected the issue where floating-point values were being sent to YakDo, causing a command mismatch.
 # All numerical values are now converted to integers or formatted correctly before being sent to the instrument.
+# FIX: Added the missing console_print_func argument to all calls to YakDo.
+# FIX: Corrected the object traversal path for _refresh_all_from_instrument.
+# FIX: High Sensitivity toggle now correctly uses YakNab to parse multiple returned values and update the GUI.
+# FIX: Corrected parsing of returned string from instrument by stripping single quotes and splitting by a comma.
 
-current_version = "20250815.102500.1"
-current_version_hash = (20250815 * 102500 * 1)
+current_version = "20250816.015500.25"
+current_version_hash = (20250816 * 15500 * 25)
 
 import os
 import inspect
@@ -194,7 +198,7 @@ def toggle_vbw_auto(app_instance, console_print_func):
     current_state = app_instance.vbw_auto_on_var.get()
     new_state = "OFF" if current_state else "ON"
     
-    if YakDo(app_instance, f"BANDWIDTH/VIDEO/AUTO/{new_state}", console_print_func) == "PASSED":
+    if YakDo(app_instance, f"BANDWIDTH/VIDEO/AUTO/{new_state}", console_print_func=console_print_func) == "PASSED":
         app_instance.vbw_auto_on_var.set(not current_state)
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
@@ -216,7 +220,7 @@ def set_continuous_initiate_mode(app_instance, mode, console_print_func):
     
     # We need to ensure the mode is a string "ON" or "OFF"
     mode_str = "ON" if mode else "OFF"
-    if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode_str}", console_print_func) == "PASSED":
+    if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode_str}", console_print_func=console_print_func) == "PASSED":
         app_instance.initiate_continuous_on_var.set(mode)
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
@@ -236,18 +240,15 @@ def do_immediate_initiate(app_instance, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot initiate immediate scan.")
         return False
     
-    if YakDo(app_instance, "INITIATE/IMMEDIATE", console_print_func) == "PASSED":
+    if YakDo(app_instance, "INITIATE/IMMEDIATE", console_print_func=console_print_func) == "PASSED":
         console_print_func("✅ Immediate scan initiated successfully.")
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
-def set_reference_level(app_instance, value, console_print_func):
+def set_reference_level(tab_instance, app_instance, value, console_print_func):
     """
     Sets the reference level on the instrument and triggers a GUI refresh.
-    
-    FIXED: The value is now converted to an integer string to prevent a mismatch
-    with the command table, which expects integer values.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"API call to set reference level: {value} dBm.",
@@ -260,12 +261,10 @@ def set_reference_level(app_instance, value, console_print_func):
         return False
     
     try:
-        # Convert the value to an integer to strip the decimal.
-        # The value from the dropdown is already a string representation of a float.
         int_value = int(float(value))
-        if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{int_value}", console_print_func) == "PASSED":
+        if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{int_value}", console_print_func=console_print_func) == "PASSED":
             app_instance.ref_level_dbm_var.set(value)
-            app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+            app_instance.after(0, tab_instance.master.master.instrument_settings_tab._refresh_all_from_instrument)
             return True
         else:
             return False
@@ -274,40 +273,90 @@ def set_reference_level(app_instance, value, console_print_func):
         debug_log(f"ValueError: could not convert reference level to int. Failed to parse data. Error: {e}",
                     file=os.path.basename(__file__),
                     version=current_version,
-                    function=current_function)
+                    function=current_function, special=True)
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while setting the reference level: {e}")
         debug_log(f"An unexpected error occurred: {e}",
                     file=os.path.basename(__file__),
                     version=current_version,
-                    function=current_function)
+                    function=current_function, special=True)
         return False
 
-def toggle_preamp(app_instance, console_print_func):
+
+def toggle_preamp(tab_instance, app_instance, console_print_func):
     """
-    Toggles the preamp state on the instrument and triggers a GUI refresh.
+    Toggles the preamp on or off and updates the UI state.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"API call to toggle preamp.",
+    debug_log(message=f"Entering {current_function}. Toggling the preamp switch! ⚡",
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
     
-    if not app_instance.is_connected.get():
-        console_print_func("❌ Not connected to an instrument. Cannot set preamp gain.")
-        return False
-        
-    current_state = app_instance.preamp_on_var.get()
-    new_state = "OFF" if current_state else "ON"
-    
-    if YakDo(app_instance, f"AMPLITUDE/POWER/GAIN/{new_state}", console_print_func) == "PASSED":
-        app_instance.preamp_on_var.set(not current_state)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
-        return True
-    return False
+    try:
+        is_on = app_instance.preamp_on_var.get()
+        if is_on:
+            YakDo(app_instance, "AMPLITUDE/POWER/GAIN/OFF", console_print_func=console_print_func)
+            app_instance.preamp_on_var.set(False)
+            console_print_func("✅ Preamp turned OFF.")
+        else:
+            YakDo(app_instance, "AMPLITUDE/POWER/GAIN/ON", console_print_func=console_print_func)
+            app_instance.preamp_on_var.set(True)
+            console_print_func("✅ Preamp turned ON.")
 
-def set_power_attenuation(app_instance, value, console_print_func):
+        tab_instance._update_toggle_button_style(button=tab_instance.preamp_toggle_button, state=app_instance.preamp_on_var.get())
+        app_instance.after(0, tab_instance.master.master.instrument_settings_tab._refresh_all_from_instrument)
+
+    except Exception as e:
+        console_print_func(f"❌ Error toggling preamp: {e}")
+        debug_log(message=f"Arrr, the code be capsized! Error toggling preamp: {e} 🏴‍☠️",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+
+def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
+    """
+    Toggles the high sensitivity mode on or off and updates the UI state.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"Entering {current_function}. Flipping the high sensitivity switch! 🔬",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+
+    try:
+        is_on = app_instance.high_sensitivity_on_var.get()
+        if is_on:
+            YakDo(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE/OFF", console_print_func=console_print_func)
+            app_instance.high_sensitivity_on_var.set(False)
+            console_print_func("✅ High Sensitivity turned OFF.")
+        else:
+            YakDo(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE/ON", console_print_func=console_print_func)
+            app_instance.high_sensitivity_on_var.set(True)
+            console_print_func("✅ High Sensitivity turned ON.")
+
+        tab_instance._update_toggle_button_style(button=tab_instance.hs_toggle_button, state=app_instance.high_sensitivity_on_var.get())
+        
+        # Explicitly get the latest values from the instrument and update the GUI
+        results = YakNab(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func=console_print_func)
+        if results is not None and len(results) >= 3:
+            ref_level_dbm, attenuation_db, preamp_on = results
+            app_instance.ref_level_dbm_var.set(float(ref_level_dbm))
+            app_instance.power_attenuation_db_var.set(float(attenuation_db))
+            app_instance.preamp_on_var.set(int(preamp_on) == 1)
+            tab_instance._set_ui_initial_state()
+            console_print_func("✅ Updated UI with new values from instrument.")
+        
+    except Exception as e:
+        console_print_func(f"❌ Error toggling high sensitivity: {e}")
+        debug_log(message=f"Arrr, the code be capsized! The error be: {e} 🏴‍☠️",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+def set_power_attenuation(tab_instance, app_instance, value, console_print_func):
     """
     Sets the power attenuation on the instrument and triggers a GUI refresh.
     """
@@ -321,34 +370,12 @@ def set_power_attenuation(app_instance, value, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot set power attenuation.")
         return False
     
-    if YakDo(app_instance, f"AMPLITUDE/POWER/ATTENUATION/{value}DB", console_print_func) == "PASSED":
+    if YakDo(app_instance, f"AMPLITUDE/POWER/ATTENUATION/{value}DB", console_print_func=console_print_func) == "PASSED":
         app_instance.power_attenuation_db_var.set(value)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
+        app_instance.after(0, tab_instance.master.master.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
     
-def toggle_high_sensitivity(app_instance, console_print_func):
-    """
-    Toggles the high sensitivity mode on the instrument and triggers a GUI refresh.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"API call to toggle high sensitivity.",
-              file=os.path.basename(__file__),
-              version=current_version,
-              function=current_function)
-    
-    if not app_instance.is_connected.get():
-        console_print_func("❌ Not connected to an instrument. Cannot set high sensitivity.")
-        return False
-    
-    current_state = app_instance.high_sensitivity_on_var.get()
-    new_state = "OFF" if current_state else "ON"
-
-    if YakDo(app_instance, f"AMPLITUDE/POWER/HIGH SENSITIVE/{new_state}", console_print_func) == "PASSED":
-        app_instance.high_sensitivity_on_var.set(not current_state)
-        app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
-        return True
-    return False
     
 def set_trace_mode(app_instance, trace_number, mode, console_print_func):
     """
@@ -364,7 +391,7 @@ def set_trace_mode(app_instance, trace_number, mode, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot set trace mode.")
         return False
     
-    if YakDo(app_instance, f"TRACE/{trace_number}/MODE/{mode}", console_print_func) == "PASSED":
+    if YakDo(app_instance, f"TRACE/{trace_number}/MODE/{mode}", console_print_func=console_print_func) == "PASSED":
         trace_var = getattr(app_instance, f"trace{trace_number}_mode_var")
         trace_var.set(mode)
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
@@ -385,7 +412,7 @@ def do_turn_all_markers_on(app_instance, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot turn on markers.")
         return False
     
-    if YakDo(app_instance, "MARKER/All/CALCULATE/STATE/ON", console_print_func) == "PASSED":
+    if YakDo(app_instance, "MARKER/All/CALCULATE/STATE/ON", console_print_func=console_print_func) == "PASSED":
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
@@ -405,7 +432,7 @@ def toggle_marker_state(app_instance, marker_number, state, console_print_func):
         return False
         
     new_state = "ON" if state else "OFF"
-    if YakDo(app_instance, f"MARKER/{marker_number}/CALCULATE/STATE/{new_state}", console_print_func) == "PASSED":
+    if YakDo(app_instance, f"MARKER/{marker_number}/CALCULATE/STATE/{new_state}", console_print_func=console_print_func) == "PASSED":
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
     return False
@@ -424,7 +451,7 @@ def do_peak_search(app_instance, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot perform peak search.")
         return False
     
-    if YakDo(app_instance, "MARKER/PEAK/SEARCH", console_print_func) == "PASSED":
+    if YakDo(app_instance, "MARKER/PEAK/SEARCH", console_print_func=console_print_func) == "PASSED":
         console_print_func("✅ Peak search command sent successfully.")
         app_instance.after(0, app_instance.instrument_parent_tab.instrument_settings_tab._refresh_all_from_instrument)
         return True
@@ -581,7 +608,7 @@ def reset_device(app_instance, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot reset device.")
         return False
     
-    if YakDo(app_instance, "SYSTEM/RESET", console_print_func) == "PASSED":
+    if YakDo(app_instance, "SYSTEM/RESET", console_print_func=console_print_func) == "PASSED":
         return True
     return False
 
@@ -629,7 +656,7 @@ def refresh_all_from_instrument(app_instance, console_print_func):
     except Exception as e:
         console_print_func(f"❌ Failed to retrieve settings from instrument: {e}.")
         debug_log(f"Error retrieving settings from instrument: {e}. What a mess!",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function)
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
         return None

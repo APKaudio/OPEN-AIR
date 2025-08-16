@@ -19,7 +19,7 @@
 
 current_version = "20250815.151240.13" # this variable should always be defined below the header to make the debugging better
 
-PREST_DISPLAY_GRAPH_QUALITY = [
+PRESET_DISPLAY_GRAPH_QUALITY = [
     {
         "value": 1_000_000,
         "label": "Ultra Low",
@@ -82,7 +82,7 @@ PREST_DISPLAY_GRAPH_QUALITY = [
     }
 ]
 
-PREST_CYCLE_WAIT_TIME = [
+PRESET_CYCLE_WAIT_TIME = [
     {
         "value": 15,
         "label": "Hold Your Horses",
@@ -133,7 +133,7 @@ PREST_CYCLE_WAIT_TIME = [
     }
 ]
 
-PREST_FREQUENCY_SHIFT = [
+PRESET_FREQUENCY_SHIFT = [
     {
         "value": 0,
         "label": "No Shift",
@@ -196,7 +196,7 @@ PREST_FREQUENCY_SHIFT = [
     }
 ]
 
-PREST_NUMBER_OF_SCANS = [
+PRESET_NUMBER_OF_SCANS = [
     {
         "value": 1,
         "label": "Just a Test",
