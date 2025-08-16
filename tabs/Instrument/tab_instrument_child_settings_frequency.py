@@ -14,11 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.213200.1
-# ADD: Applied 'InteractionBars.TScale' style to all sliders for better visual contrast.
+# Version 20250815.224813.3
+# ADD: Removed two individual result boxes and added a new, common result display at the top.
+# ADD: Both YakBeg functions now update the common result display and all corresponding sliders.
+# FIX: Adjusted _on_freq_start_stop_beg to automatically correct stop frequency if it is less than start.
 
-current_version = "20250815.213200.1"
-current_version_hash = 20250815 * 213200 * 1
+current_version = "20250815.224813.3"
+current_version_hash = 20250815 * 224813 * 3
 
 import tkinter as tk
 from tkinter import ttk
@@ -38,7 +40,7 @@ class FrequencySettingsTab(ttk.Frame):
     """
     def __init__(self, master=None, app_instance=None, console_print_func=None):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing FrequencySettingsTab. This should be a walk in the park! 🚶‍♀️",
+        debug_log(message=f"Initializing FrequencySettingsTab. This should be a walk in the park! 🚶‍♀️",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -56,20 +58,19 @@ class FrequencySettingsTab(ttk.Frame):
     def _set_default_variables(self):
         """Initializes Tkinter variables for the widgets."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Setting default variables for FrequencySettingsTab. ⚙️",
+        debug_log(message=f"Setting default variables for FrequencySettingsTab. ⚙️",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
-
-        # New variables to hold the query results in MHz
-        self.freq_ss_result_var = tk.StringVar(value="Result: N/A")
-        self.freq_cs_result_var = tk.StringVar(value="Result: N/A")
 
         # Tkinter variables for frequency settings, now in MHz
         self.freq_start_var = tk.DoubleVar(value=100.0)
         self.freq_stop_var = tk.DoubleVar(value=200.0)
         self.freq_center_var = tk.DoubleVar(value=150.0)
         self.freq_span_var = tk.DoubleVar(value=100.0)
+
+        # New shared variable for the common result display
+        self.freq_common_result_var = tk.StringVar(value="Result: N/A")
 
         # NEW: Add traces to round the variable values
         self.freq_start_var.trace_add('write', self._round_variables)
@@ -78,6 +79,7 @@ class FrequencySettingsTab(ttk.Frame):
         self.freq_span_var.trace_add('write', self._round_variables)
         # New trace for span button styling
         self.freq_span_var.trace_add('write', self._on_span_variable_change)
+
 
     def _round_variables(self, *args):
         """
@@ -89,7 +91,7 @@ class FrequencySettingsTab(ttk.Frame):
         self.is_tracing = True
 
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Rounding variables to 3 decimal places. A meticulous process, for sure! 🔬",
+        debug_log(message=f"Rounding variables to 3 decimal places. A meticulous process, for sure! 🔬",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -115,8 +117,8 @@ class FrequencySettingsTab(ttk.Frame):
             self.freq_span_var.set(round(truncate_float(current_span), 3))
 
         except Exception as e:
-            console_log(f"❌ Error while rounding variables: {e}")
-            debug_log(f"Rounding failed! The numbers be acting up! The error be: {e}",
+            console_log(message=f"❌ Error while rounding variables: {e}")
+            debug_log(message=f"Rounding failed! The numbers be acting up! The error be: {e}",
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
@@ -126,16 +128,22 @@ class FrequencySettingsTab(ttk.Frame):
     def _create_widgets(self):
         """Creates the GUI widgets for the tab."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Creating widgets for FrequencySettingsTab. The puzzle pieces are coming together! 🧩",
+        debug_log(message=f"Creating widgets for FrequencySettingsTab. The puzzle pieces are coming together! 🧩",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
 
+        # --- NEW COMMON RESULT FRAME ---
+        common_result_frame = ttk.LabelFrame(self, text="LAST COMMAND RESULT", padding=10)
+        common_result_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        common_result_frame.grid_columnconfigure(0, weight=1)
+        ttk.Label(common_result_frame, textvariable=self.freq_common_result_var, style="Dark.TLabel.Value").grid(row=0, column=0, padx=5, pady=2, sticky="ew")
+
         # --- FREQUENCY/START-STOP Frame ---
         freq_ss_frame = ttk.LabelFrame(self, text="FREQUENCY/START-STOP (MHz)", padding=10)
-        freq_ss_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+        freq_ss_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
         freq_ss_frame.grid_columnconfigure(0, weight=1)
 
         # Container for Start and Stop frames
@@ -158,14 +166,13 @@ class FrequencySettingsTab(ttk.Frame):
         ttk.Entry(stop_frame, textvariable=self.freq_stop_var).grid(row=0, column=0, sticky="ew")
         ttk.Scale(stop_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_stop_var, style='InteractionBars.TScale').grid(row=1, column=0, sticky="ew")
         
-        # Result Label and YakBeg Button
-        ttk.Label(freq_ss_frame, textvariable=self.freq_ss_result_var, style="Dark.TLabel.Value").grid(row=1, column=0, padx=5, pady=2, sticky="ew")
-        ttk.Button(freq_ss_frame, text="YakBeg - FREQUENCY/START-STOP", command=self._on_freq_start_stop_beg).grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        # YakBeg Button
+        ttk.Button(freq_ss_frame, text="YakBeg - FREQUENCY/START-STOP", command=self._on_freq_start_stop_beg).grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
 
         # --- FREQUENCY/CENTER-SPAN Frame ---
         freq_cs_frame = ttk.LabelFrame(self, text="FREQUENCY/CENTER-SPAN (MHz)", padding=10)
-        freq_cs_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        freq_cs_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
         freq_cs_frame.grid_columnconfigure(0, weight=1)
         freq_cs_frame.grid_columnconfigure(1, weight=1)
 
@@ -184,15 +191,14 @@ class FrequencySettingsTab(ttk.Frame):
         span_buttons_frame.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         self._create_span_preset_buttons(parent_frame=span_buttons_frame)
 
-        # Result Label and YakBeg Button
-        ttk.Label(freq_cs_frame, textvariable=self.freq_cs_result_var, style="Dark.TLabel.Value").grid(row=5, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
-        ttk.Button(freq_cs_frame, text="YakBeg - FREQUENCY/CENTER-SPAN", command=self._on_freq_center_span_beg).grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        # YakBeg Button
+        ttk.Button(freq_cs_frame, text="YakBeg - FREQUENCY/CENTER-SPAN", command=self._on_freq_center_span_beg).grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
     def _create_span_preset_buttons(self, parent_frame):
         # Creates buttons for predefined frequency spans and links them to the span variable.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"Entering {current_function} with argument: parent_frame: {parent_frame}",
+        debug_log(message=f"Entering {current_function} with argument: parent_frame: {parent_frame}",
                   file=current_file,
                   version=current_version,
                   function=current_function)
@@ -213,7 +219,7 @@ class FrequencySettingsTab(ttk.Frame):
 
             console_log(message="✅ Span preset buttons created successfully.", function=current_function)
         except Exception as e:
-            console_log(f"❌ Error in {current_function}: {e}")
+            console_log(message=f"❌ Error in {current_function}: {e}")
             debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
                       file=current_file,
                       version=current_version,
@@ -224,7 +230,7 @@ class FrequencySettingsTab(ttk.Frame):
         # Handles the click event for a span preset button.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"Entering {current_function} with argument: preset: {preset}",
+        debug_log(message=f"Entering {current_function} with argument: preset: {preset}",
                   file=current_file,
                   version=current_version,
                   function=current_function)
@@ -233,9 +239,9 @@ class FrequencySettingsTab(ttk.Frame):
             self.freq_span_var.set(preset['value'] / 1e6)
             self.is_tracing = False
             self._update_span_button_styles()
-            console_log(f"✅ Span set to {preset['label']} ({self.freq_span_var.get()} MHz).", function=current_function)
+            console_log(message=f"✅ Span set to {preset['label']} ({self.freq_span_var.get()} MHz).", function=current_function)
         except Exception as e:
-            console_log(f"❌ Error in {current_function}: {e}")
+            console_log(message=f"❌ Error in {current_function}: {e}")
             debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
                       file=current_file,
                       version=current_version,
@@ -245,7 +251,7 @@ class FrequencySettingsTab(ttk.Frame):
         # A callback function for the span variable's trace.
         # It updates button styles when the variable changes.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering {current_function} with no arguments.",
+        debug_log(message=f"Entering {current_function} with no arguments.",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -258,7 +264,7 @@ class FrequencySettingsTab(ttk.Frame):
         # A brief, one-sentence description of the function's purpose.
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"Entering {current_function} with no arguments.",
+        debug_log(message=f"Entering {current_function} with no arguments.",
                   file=current_file,
                   version=current_version,
                   function=current_function)
@@ -273,7 +279,7 @@ class FrequencySettingsTab(ttk.Frame):
                         button.configure(style='Blue.TButton')
             console_log(message="✅ Span button styles updated.", function=current_function)
         except Exception as e:
-            console_log(f"❌ Error in {current_function}: {e}")
+            console_log(message=f"❌ Error in {current_function}: {e}")
             debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
                       file=current_file,
                       version=current_version,
@@ -285,7 +291,7 @@ class FrequencySettingsTab(ttk.Frame):
         Handles the YakBeg for FREQUENCY/START-STOP.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering function: {current_function}. Arrr, a treasure map for frequencies! 🗺️",
+        debug_log(message=f"Entering function: {current_function}. Arrr, a treasure map for frequencies! 🗺️",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -294,24 +300,23 @@ class FrequencySettingsTab(ttk.Frame):
             start_freq_mhz = self.freq_start_var.get()
             stop_freq_mhz = self.freq_stop_var.get()
 
-            # NEW: If start is >= stop, adjust stop
+            # If start is >= stop, adjust stop
             if start_freq_mhz >= stop_freq_mhz:
                 new_stop_mhz = start_freq_mhz + 10.0
-                console_log(f"⚠️ Start frequency ({start_freq_mhz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_mhz:.3f} MHz). Automatically setting stop to {new_stop_mhz:.3f} MHz.", self.console_print_func)
-                debug_log(f"The start frequency ({start_freq_mhz} MHz) is greater than or equal to the stop frequency ({stop_freq_mhz} MHz). The captain has corrected the course! 📈",
+                console_log(message=f"⚠️ Start frequency ({start_freq_mhz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_mhz:.3f} MHz). Automatically setting stop to {new_stop_mhz:.3f} MHz.", console_print_func=self.console_print_func)
+                debug_log(message=f"The start frequency ({start_freq_mhz} MHz) is greater than or equal to the stop frequency ({stop_freq_mhz} MHz). The captain has corrected the course! 📈",
                           file=os.path.basename(__file__),
                           version=current_version,
                           function=current_function)
-                self.freq_stop_var.set(new_stop_mhz)
+                self.freq_stop_var.set(value=new_stop_mhz)
                 # Re-read the adjusted value for the YakBeg command
                 stop_freq_mhz = self.freq_stop_var.get()
-
 
             # Get values in MHz and convert to Hz, ensuring no decimal points
             start_freq_hz = int(start_freq_mhz * 1e6)
             stop_freq_hz = int(stop_freq_mhz * 1e6)
 
-            # FIXED: Expect 4 values to be returned from the handler
+            # Expect 4 values to be returned from the handler
             start_resp_hz, stop_resp_hz, span_resp_hz, center_resp_hz = handle_freq_start_stop_beg(
                 app_instance=self.app_instance,
                 start_freq=start_freq_hz,
@@ -323,17 +328,24 @@ class FrequencySettingsTab(ttk.Frame):
                 # Convert response back to MHz for display
                 start_resp_mhz = start_resp_hz / 1e6
                 stop_resp_mhz = stop_resp_hz / 1e6
-                self.freq_start_var.set(start_resp_mhz)
-                self.freq_stop_var.set(stop_resp_mhz)
-                # Display all four values
-                self.freq_ss_result_var.set(f"Result: Start: {start_resp_mhz:.3f} MHz; Stop: {stop_resp_mhz:.3f} MHz; Center: {center_resp_hz / 1e6:.3f} MHz; Span: {span_resp_hz / 1e6:.3f} MHz")
+                span_resp_mhz = span_resp_hz / 1e6
+                center_resp_mhz = center_resp_hz / 1e6
+                
+                # Update all variables
+                self.freq_start_var.set(value=start_resp_mhz)
+                self.freq_stop_var.set(value=stop_resp_mhz)
+                self.freq_center_var.set(value=center_resp_mhz)
+                self.freq_span_var.set(value=span_resp_mhz)
+                
+                # Display all four values in the common result box
+                result_message = f"Result: Start: {start_resp_mhz:.3f} MHz; Stop: {stop_resp_mhz:.3f} MHz; Center: {center_resp_mhz:.3f} MHz; Span: {span_resp_mhz:.3f} MHz"
+                self.freq_common_result_var.set(value=result_message)
             else:
-                self.freq_ss_result_var.set("Result: FAILED")
+                self.freq_common_result_var.set(value="Result: FAILED")
 
         except Exception as e:
-            # FIXED: Reverted console_log call to its proper format
-            console_log(f"❌ Error in {current_function}: {e}")
-            debug_log(f"Arrr, the code be capsized! The error be: {e}",
+            console_log(message=f"❌ Error in {current_function}: {e}")
+            debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
@@ -343,7 +355,7 @@ class FrequencySettingsTab(ttk.Frame):
         Handles the YakBeg for FREQUENCY/CENTER-SPAN.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering function: {current_function}. Plotting a course to the center! 🧭",
+        debug_log(message=f"Entering function: {current_function}. Plotting a course to the center! 🧭",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -356,7 +368,7 @@ class FrequencySettingsTab(ttk.Frame):
             center_freq_hz = int(center_freq_mhz * 1e6)
             span_freq_hz = int(span_freq_mhz * 1e6)
 
-            # FIXED: Expect 4 values to be returned from the handler
+            # Expect 4 values to be returned from the handler
             center_resp_hz, span_resp_hz, start_resp_hz, stop_resp_hz = handle_freq_center_span_beg(
                 app_instance=self.app_instance,
                 center_freq=center_freq_hz,
@@ -368,17 +380,24 @@ class FrequencySettingsTab(ttk.Frame):
                 # Convert response back to MHz for display
                 center_resp_mhz = center_resp_hz / 1e6
                 span_resp_mhz = span_resp_hz / 1e6
-                self.freq_center_var.set(center_resp_mhz)
-                self.freq_span_var.set(span_resp_mhz)
-                # Display all four values
-                self.freq_cs_result_var.set(f"Result: Center: {center_resp_mhz:.3f} MHz; Span: {span_resp_mhz:.3f} MHz; Start: {start_resp_hz / 1e6:.3f} MHz; Stop: {stop_resp_hz / 1e6:.3f} MHz")
+                start_resp_mhz = start_resp_hz / 1e6
+                stop_resp_mhz = stop_resp_hz / 1e6
+                
+                # Update all variables
+                self.freq_center_var.set(value=center_resp_mhz)
+                self.freq_span_var.set(value=span_resp_mhz)
+                self.freq_start_var.set(value=start_resp_mhz)
+                self.freq_stop_var.set(value=stop_resp_mhz)
+                
+                # Display all four values in the common result box
+                result_message = f"Result: Center: {center_resp_mhz:.3f} MHz; Span: {span_resp_mhz:.3f} MHz; Start: {start_resp_mhz:.3f} MHz; Stop: {stop_resp_mhz:.3f} MHz"
+                self.freq_common_result_var.set(value=result_message)
             else:
-                self.freq_cs_result_var.set("Result: FAILED")
+                self.freq_common_result_var.set(value="Result: FAILED")
 
         except Exception as e:
-            # FIXED: Reverted console_log call to its proper format
-            console_log(f"❌ Error in {current_function}: {e}")
-            debug_log(f"Arrr, the code be capsized! The error be: {e}",
+            console_log(message=f"❌ Error in {current_function}: {e}")
+            debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
