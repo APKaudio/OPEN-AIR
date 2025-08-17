@@ -272,7 +272,6 @@ def handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_
         except (ValueError, IndexError, TypeError) as e:
             console_print_func(f"❌ Failed to parse trace data: {e}. What a disaster!")
     return None
-
 def handle_all_traces_nab(app_instance, console_print_func) -> Optional[Dict]:
     """
     Function Description:
@@ -295,88 +294,62 @@ def handle_all_traces_nab(app_instance, console_print_func) -> Optional[Dict]:
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
-    
-    try:
-        # YakNab is called to send a single, combined query command.
-        # It returns a single string with semicolon-separated values.
-        response_string = YakNab(app_instance, "TRACE/ALL/ONETWOTHREE", console_print_func)
-        
-        # ADDED: A debug log to show the raw response string received from YakNab
-        debug_log(f"Raw response from YakNab: {response_string}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function, special=True)
 
-        if response_string and isinstance(response_string, str) and response_string != "FAILED":
-            # We now split the single response string into a list of its 8 components.
-            response_list = response_string.split(';')
+    # YakNab is called to send a single, combined query command.
+    # It should return a list of parsed strings from the single response.
+    response_list = YakNab(app_instance, "TRACE/ALL/ONETWOTHREE", console_print_func)
 
-            # ADDED: A debug log to show the list after splitting
-            debug_log(f"Response list after splitting: {response_list}",
+    # We validate the response to ensure it's a list of the correct length.
+    if response_list and isinstance(response_list, list) and len(response_list) == 8:
+        try:
+            # The first two elements are start and stop frequencies.
+            start_freq_hz = float(response_list[0])
+            stop_freq_hz = float(response_list[1])
+
+            # The next three elements are the modes for traces 1, 2, and 3.
+            trace_modes = {
+                "Trace1": response_list[2],
+                "Trace2": response_list[3],
+                "Trace3": response_list[4],
+            }
+
+            trace_data = {}
+            # The last three elements are the raw data for traces 1, 2, and 3.
+            # We start the data parsing loop from index 5.
+            for i in range(1, 4):
+                # The raw data for each trace is a single comma-separated string.
+                trace_string = response_list[i + 4]
+                # We parse the comma-separated string of amplitude values.
+                values = [float(val.strip()) for val in trace_string.split(',') if val.strip()]
+                num_points = len(values)
+
+                if num_points > 0:
+                    # We create a frequency array corresponding to the number of data points.
+                    frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
+                    # The frequency array and amplitude values are combined into a list of tuples.
+                    trace_data[f"Trace{i}"] = list(zip(frequencies / MHZ_TO_HZ, values))
+                else:
+                    trace_data[f"Trace{i}"] = []
+
+            console_log("✅ Successfully retrieved and parsed data for three traces.")
+            debug_log(f"Successfully retrieved traces. What a haul! 🎣",
                       file=os.path.basename(__file__),
                       version=current_version,
-                      function=current_function, special=True)
+                      function=current_function)
 
-            # Now we validate the response to ensure it's a list of the correct length.
-            if len(response_list) == 8:
-                # The first two elements are start and stop frequencies.
-                start_freq_hz = float(response_list[0])
-                stop_freq_hz = float(response_list[1])
+            # Return a single dictionary containing all the information.
+            return {
+                "TraceData": trace_data,
+                "StartFreq": start_freq_hz,
+                "StopFreq": stop_freq_hz,
+                "TraceModes": trace_modes
+            }
 
-                # The next three elements are the modes for traces 1, 2, and 3.
-                trace_modes = {
-                    "Trace1": response_list[2],
-                    "Trace2": response_list[3],
-                    "Trace3": response_list[4],
-                }
-
-                trace_data = {}
-                # The last three elements are the raw data for traces 1, 2, and 3.
-                # We start the data parsing loop from index 5.
-                for i in range(1, 4):
-                    # The raw data for each trace is a single comma-separated string.
-                    trace_string = response_list[i + 4]
-                    # We parse the comma-separated string of amplitude values.
-                    values = [float(val.strip()) for val in trace_string.split(',') if val.strip()]
-                    num_points = len(values)
-
-                    if num_points > 0:
-                        # We create a frequency array corresponding to the number of data points.
-                        frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
-                        # The frequency array and amplitude values are combined into a list of tuples.
-                        trace_data[f"Trace{i}"] = list(zip(frequencies / MHZ_TO_HZ, values))
-                    else:
-                        trace_data[f"Trace{i}"] = []
-
-                console_log("✅ Successfully retrieved and parsed data for three traces.")
-                debug_log(f"Successfully retrieved traces. What a haul! 🎣",
-                          file=os.path.basename(__file__),
-                          version=current_version,
-                          function=current_function)
-
-                # Return a single dictionary containing all the information.
-                return {
-                    "TraceData": trace_data,
-                    "StartFreq": start_freq_hz,
-                    "StopFreq": stop_freq_hz,
-                    "TraceModes": trace_modes
-                }
-    
-            else:
-                # Log an error if the response has an unexpected number of elements.
-                console_log(f"❌ Failed to parse response: Unexpected number of elements. Expected 8, got {len(response_list)}. 🤦‍♂️")
-                debug_log(f"Arrr, the number of response elements be wrong! Expected 8, but got {len(response_list)}. ☠️",
-                          file=os.path.basename(__file__),
-                          version=current_version,
-                          function=current_function)
-    
-        # This catch block handles errors in parsing the individual elements.
-    except (ValueError, IndexError, TypeError) as e:
-        console_log(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
-        debug_log(f"Arrr, the response be gibberish! Error: {e}",
-                    file=os.path.basename(__file__),
-                    version=current_version,
-                    function=current_function)
-
+        except (ValueError, IndexError, TypeError) as e:
+            console_log(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
+            debug_log(f"Arrr, the response be gibberish! Error: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
     # This is the fallback for any validation or parsing failure.
     return None

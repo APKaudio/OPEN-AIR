@@ -191,7 +191,7 @@ def YakRig(app_instance, command_type, console_print_func, *variable_values):
     else:
         console_log(f"❌ Could not find a matching RIG command for '{command_type}'.")
         debug_log(f"No matching RIG command found for '{command_type}'. Fucking useless!",
-                    file=os.path.basename(__file__),
+                   file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         return "FAILED"
@@ -245,7 +245,7 @@ def YakBeg(app_instance, command_type, console_print_func, *variable_values):
         # The BEG command is a single string with both set and get queries.
         # We use query_safe to send the entire string and get the response.
         response = query_safe(app_instance.inst, full_command, console_print_func)
-        
+    
         if response is not None:
             console_print_func(f"✅ Beg Response: {response}")
             debug_log(f"Beg query response: {response}. Fucking finally!",
@@ -261,9 +261,9 @@ def YakBeg(app_instance, command_type, console_print_func, *variable_values):
                         function=current_function)
             return "FAILED"
     else:
-        console_print_func(f"❌ Could not find a matching BEG command for '{command_type}'.")
+        console_log(f"❌ Could not find a matching BEG command for '{command_type}'.")
         debug_log(f"No matching BEG command found for '{command_type}'. Fucking useless!",
-                    file=os.path.basename(__file__),
+                   file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
         return "FAILED"
@@ -446,16 +446,15 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return "FAILED"
         elif action_type == "NAB":
             full_command = visa_command
-            debug_log(f"Prepared command string for NAB: {full_command}",
-                        file=os.path.basename(__file__),
-                        version=current_version,
-                        function=current_function)
             
+            # The instrument is returning a single string with comma separators
+            # So we must perform the split here
             response_string = query_safe(inst, full_command, console_print_func)
             
             if response_string is not None:
-                # We now parse the single response string into a list of values
-                values = [val.strip() for val in response_string.split(';') if val.strip()]
+                # FIXED: The instrument response is a single string with values separated by commas.
+                # The raw response needs to be split by commas, not semicolons.
+                values = [val.strip() for val in response_string.split(',') if val.strip()]
                 console_print_func(f"✅ NAB Response: {values}")
                 debug_log(f"NAB Query response: {response_string}. Fucking finally!",
                             file=os.path.basename(__file__),
@@ -464,6 +463,7 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return values
             else:
                 return "FAILED"
+
         elif action_type == "DO":
             if variable_value and variable_value.strip():
                 full_command = f"{visa_command} {variable_value}"
