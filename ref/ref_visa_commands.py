@@ -213,8 +213,8 @@ def get_default_commands():
         ("Keysight Technologies", "N9340B", "TRACE/3/DATA", "GET", ":TRACe3:DATA", "?", ""),
         ("Keysight Technologies", "N9340B", "TRACE/4/DATA", "GET", ":TRACe4:DATA", "?", ""),
         
-        ("Keysight Technologies", "N9340B", "TRACE/ALL/ONETWOTHREE", "NAB", ":TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?;", "4", ""),
-        ("Keysight Technologies", "N9342CN", "TRACE/ALL/ONETWOTHREE", "NAB", ":TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;", "4", ""),
+        ("Keysight Technologies", "N9340B", "TRACE/ALL/ONETWOTHREE", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?;", "5", ""),
+        ("Keysight Technologies", "N9342CN", "TRACE/ALL/ONETWOTHREE", "NAB", ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;", "5", ""),
 
         # Trace/Display - Expanded for 4 traces
         # Trace Data Query

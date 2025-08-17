@@ -17,17 +17,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.201500.3
+# Version 20250818.201500.5
 # FIX: Corrected the parsing order for handle_freq_center_span_beg to match the VISA response.
+# NEW: Added a new handler function handle_all_traces_nab to retrieve data for three traces at once.
 
-current_version = "20250818.201500.3"
-current_version_hash = (20250818 * 201500 * 3)
+current_version = "20250818.201500.5"
+current_version_hash = (20250818 * 201500 * 5)
 
 import inspect
 import os
 import numpy as np
+from typing import Optional, List, Dict
 
-from yak.Yakety_Yak import YakBeg
+from yak.Yakety_Yak import YakBeg, YakNab
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -170,4 +172,57 @@ def handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_
                 return list(zip(frequencies / MHZ_TO_HZ, values))
         except (ValueError, IndexError, TypeError) as e:
             console_print_func(f"❌ Failed to parse trace data: {e}. What a disaster!")
+    return None
+
+def handle_all_traces_nab(app_instance, console_print_func) -> Optional[Dict]:
+    """
+    Function Description:
+    Handles the NAB command for multiple traces at once.
+    It retrieves the start frequency, stop frequency, and data for traces 1, 2, and 3.
+
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - console_print_func (function): A function to print messages to the GUI console.
+
+    Outputs:
+    - dict: A dictionary containing the fetched trace data, or None on failure.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}. Retrieving multiple traces at once with a NAB command. This is efficient!",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+
+    response = YakNab(app_instance, "TRACE/ALL/ONETWOTHREE", console_print_func,2)
+
+    if response and isinstance(response, str) and response != "FAILED":
+        try:
+            parts = response.split(';')
+            if len(parts) == 5:
+                start_freq_hz = float(parts[0])
+                stop_freq_hz = float(parts[1])
+                
+                trace_data = {}
+                for i in range(1, 4):
+                    trace_string = parts[i + 1]
+                    values = [float(val.strip()) for val in trace_string.split(',') if val.strip()]
+                    num_points = len(values)
+                    if num_points > 0:
+                        frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
+                        trace_data[f"Trace{i}"] = list(zip(frequencies / MHZ_TO_HZ, values))
+                    else:
+                        trace_data[f"Trace{i}"] = []
+
+                console_print_func("✅ Successfully retrieved and parsed data for three traces.")
+                debug_log(f"Successfully retrieved traces for: Trace1, Trace2, Trace3. What a haul! 🎣",
+                          file=os.path.basename(__file__),
+                          version=current_version,
+                          function=current_function)
+                return trace_data
+        except (ValueError, IndexError, TypeError) as e:
+            console_print_func(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
+            debug_log(f"Arrr, the response be gibberish! Error: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
     return None

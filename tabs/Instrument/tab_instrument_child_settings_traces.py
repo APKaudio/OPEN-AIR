@@ -14,13 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.113414.2
+# Version 20250815.113414.3
 # NEW: Added YakBeg functionality for traces from the old YakBegTab.
 # FIX: Moved the corresponding methods to this file to resolve the AttributeError.
 # FIX: Changed TraceSettingsTab to use local StringVar objects for trace modes to resolve update issue.
+# NEW: Added a new handler and UI to retrieve all three traces at once via a NAB command.
 
-current_version = "20250815.113414.2"
-current_version_hash = 20250815 * 113414 * 2
+current_version = "20250815.113414.3"
+current_version_hash = 20250815 * 113414 * 3
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -29,7 +30,7 @@ import os
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg, handle_all_traces_nab
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
 
 class TraceSettingsTab(ttk.Frame):
@@ -45,7 +46,6 @@ class TraceSettingsTab(ttk.Frame):
         self.console_print_func = console_print_func if console_print_func else console_log
         self.trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
         
-        # FIXED: Initialize local StringVar objects instead of referencing from app_instance
         self.trace1_mode_var = tk.StringVar(value=self.trace_modes[0])
         self.trace2_mode_var = tk.StringVar(value=self.trace_modes[1])
         self.trace3_mode_var = tk.StringVar(value=self.trace_modes[2])
@@ -66,6 +66,11 @@ class TraceSettingsTab(ttk.Frame):
         
         self.trace_modes_result_var = tk.StringVar(value="Result: N/A")
         
+        # NEW: Variables for all traces NAB handler and display
+        self.all_traces_start_freq_var = tk.DoubleVar(value=500)
+        self.all_traces_stop_freq_var = tk.DoubleVar(value=1000)
+        self.all_traces_count_var = tk.StringVar(value="0")
+        
         self._create_widgets()
 
     def _create_widgets(self):
@@ -79,6 +84,7 @@ class TraceSettingsTab(ttk.Frame):
                   function=current_function)
         
         self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(2, weight=1)
 
         # --- TRACE/MODES Frame (from YakBegTab) ---
         trace_modes_frame = ttk.LabelFrame(self, text="YakBeg - TRACE/MODES", padding=10)
@@ -148,6 +154,77 @@ class TraceSettingsTab(ttk.Frame):
         
         # New button to push data to monitor
         ttk.Button(self, text="Push Trace Data to Monitor", command=lambda: self._on_push_to_monitor(), style="Green.TButton").grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+
+        # NEW: Frame for NAB All Traces functionality
+        all_traces_nab_frame = ttk.LabelFrame(self, text="YakNab - TRACE/ALL/ONETWOTHREE", padding=10)
+        all_traces_nab_frame.grid(row=3, column=0, padx=10, pady=5, sticky="nsew")
+        all_traces_nab_frame.grid_columnconfigure(0, weight=1)
+        all_traces_nab_frame.grid_columnconfigure(1, weight=1)
+
+        ttk.Label(all_traces_nab_frame, text="Start Freq (MHz):", style="TLabel").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(all_traces_nab_frame, textvariable=self.all_traces_start_freq_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        
+        ttk.Label(all_traces_nab_frame, text="Stop Freq (MHz):", style="TLabel").grid(row=1, column=0, padx=5, pady=2, sticky="w")
+        ttk.Entry(all_traces_nab_frame, textvariable=self.all_traces_stop_freq_var).grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        
+        self.all_traces_count_label = ttk.Label(all_traces_nab_frame, text="# of points:", style="TLabel")
+        self.all_traces_count_label.grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_count_var, style="Dark.TLabel.Value").grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+
+        ttk.Button(all_traces_nab_frame, text="YakNab - TRACE/ALL/ONETWOTHREE", command=self._on_all_traces_nab).grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        columns_all = ("Frequency (MHz)", "Trace 1", "Trace 2", "Trace 3")
+        self.all_traces_tree = ttk.Treeview(all_traces_nab_frame, columns=columns_all, show="headings", style='Treeview')
+        self.all_traces_tree.heading("Frequency (MHz)", text="Frequency (MHz)", anchor=tk.W)
+        self.all_traces_tree.heading("Trace 1", text="Trace 1 (dBm)", anchor=tk.W)
+        self.all_traces_tree.heading("Trace 2", text="Trace 2 (dBm)", anchor=tk.W)
+        self.all_traces_tree.heading("Trace 3", text="Trace 3 (dBm)", anchor=tk.W)
+        self.all_traces_tree.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        
+        vsb_all = ttk.Scrollbar(all_traces_nab_frame, orient="vertical", command=self.all_traces_tree.yview)
+        vsb_all.grid(row=4, column=2, sticky="ns")
+        self.all_traces_tree.configure(yscrollcommand=vsb_all.set)
+
+
+        debug_log(f"Widgets for Trace Settings Tab created. The controls are ready to go! 🗺️",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+
+    def _on_all_traces_nab(self):
+        """
+        Handles the YakNab command for all traces, displaying the results in the new table.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"YakNab for all traces triggered.",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
+                  function=current_function)
+        
+        all_trace_data = handle_all_traces_nab(self.app_instance, self.console_print_func)
+        
+        if all_trace_data:
+            trace1_data = all_trace_data.get("Trace1", [])
+            trace2_data = all_trace_data.get("Trace2", [])
+            trace3_data = all_trace_data.get("Trace3", [])
+
+            self.all_traces_count_var.set(str(len(trace1_data)))
+            self.all_traces_tree.delete(*self.all_traces_tree.get_children())
+            
+            for i in range(len(trace1_data)):
+                freq = trace1_data[i][0]
+                val1 = trace1_data[i][1] if i < len(trace1_data) else None
+                val2 = trace2_data[i][1] if i < len(trace2_data) else None
+                val3 = trace3_data[i][1] if i < len(trace3_data) else None
+                
+                self.all_traces_tree.insert("", "end", values=(f"{freq:.3f}", f"{val1:.2f}", f"{val2:.2f}", f"{val3:.2f}"))
+            
+            self.console_print_func(f"✅ Received and displayed data for 3 traces, with {len(trace1_data)} points each.")
+        else:
+            self.all_traces_count_var.set("0")
+            self.all_traces_tree.delete(*self.all_traces_tree.get_children())
+            self.console_print_func("❌ Trace data retrieval failed.")
 
 
     def _on_trace_modes_beg(self):
