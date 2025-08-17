@@ -45,12 +45,12 @@ class TraceSettingsTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
         self.trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
-        
+
         self.trace1_mode_var = tk.StringVar(value=self.trace_modes[0])
         self.trace2_mode_var = tk.StringVar(value=self.trace_modes[1])
         self.trace3_mode_var = tk.StringVar(value=self.trace_modes[2])
         self.trace4_mode_var = tk.StringVar(value=self.trace_modes[3])
-        
+
         self.trace_vars = [
             self.trace1_mode_var,
             self.trace2_mode_var,
@@ -63,14 +63,21 @@ class TraceSettingsTab(ttk.Frame):
         self.trace_data_stop_freq_var = tk.DoubleVar(value=1000)
         self.trace_select_var = tk.StringVar(value="1")
         self.trace_data_count_var = tk.StringVar(value="0")
-        
+
         self.trace_modes_result_var = tk.StringVar(value="Result: N/A")
-        
+
         # NEW: Variables for all traces NAB handler and display
         self.all_traces_start_freq_var = tk.DoubleVar(value=500)
         self.all_traces_stop_freq_var = tk.DoubleVar(value=1000)
         self.all_traces_count_var = tk.StringVar(value="0")
         
+        # NEW: StringVars for displaying the modes and frequencies from the NAB handler response
+        self.all_traces_start_freq_display_var = tk.StringVar(value="N/A")
+        self.all_traces_stop_freq_display_var = tk.StringVar(value="N/A")
+        self.all_traces_trace1_mode_display_var = tk.StringVar(value="N/A")
+        self.all_traces_trace2_mode_display_var = tk.StringVar(value="N/A")
+        self.all_traces_trace3_mode_display_var = tk.StringVar(value="N/A")
+
         self._create_widgets()
 
     def _create_widgets(self):
@@ -162,16 +169,25 @@ class TraceSettingsTab(ttk.Frame):
         all_traces_nab_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(all_traces_nab_frame, text="Start Freq (MHz):", style="TLabel").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(all_traces_nab_frame, textvariable=self.all_traces_start_freq_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_start_freq_display_var, style="Dark.TLabel.Value").grid(row=0, column=1, padx=5, pady=2, sticky="ew")
         
         ttk.Label(all_traces_nab_frame, text="Stop Freq (MHz):", style="TLabel").grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        ttk.Entry(all_traces_nab_frame, textvariable=self.all_traces_stop_freq_var).grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_stop_freq_display_var, style="Dark.TLabel.Value").grid(row=1, column=1, padx=5, pady=2, sticky="ew")
+        
+        ttk.Label(all_traces_nab_frame, text="Trace 1 Mode:", style="TLabel").grid(row=2, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_trace1_mode_display_var, style="Dark.TLabel.Value").grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+
+        ttk.Label(all_traces_nab_frame, text="Trace 2 Mode:", style="TLabel").grid(row=3, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_trace2_mode_display_var, style="Dark.TLabel.Value").grid(row=3, column=1, padx=5, pady=2, sticky="ew")
+        
+        ttk.Label(all_traces_nab_frame, text="Trace 3 Mode:", style="TLabel").grid(row=4, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_trace3_mode_display_var, style="Dark.TLabel.Value").grid(row=4, column=1, padx=5, pady=2, sticky="ew")
         
         self.all_traces_count_label = ttk.Label(all_traces_nab_frame, text="# of points:", style="TLabel")
-        self.all_traces_count_label.grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_count_var, style="Dark.TLabel.Value").grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        self.all_traces_count_label.grid(row=5, column=0, padx=5, pady=2, sticky="w")
+        ttk.Label(all_traces_nab_frame, textvariable=self.all_traces_count_var, style="Dark.TLabel.Value").grid(row=5, column=1, padx=5, pady=2, sticky="ew")
 
-        ttk.Button(all_traces_nab_frame, text="YakNab - TRACE/ALL/ONETWOTHREE", command=self._on_all_traces_nab).grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+        ttk.Button(all_traces_nab_frame, text="YakNab - TRACE/ALL/ONETWOTHREE", command=self._on_all_traces_nab).grid(row=6, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
         columns_all = ("Frequency (MHz)", "Trace 1", "Trace 2", "Trace 3")
         self.all_traces_tree = ttk.Treeview(all_traces_nab_frame, columns=columns_all, show="headings", style='Treeview')
@@ -179,10 +195,10 @@ class TraceSettingsTab(ttk.Frame):
         self.all_traces_tree.heading("Trace 1", text="Trace 1 (dBm)", anchor=tk.W)
         self.all_traces_tree.heading("Trace 2", text="Trace 2 (dBm)", anchor=tk.W)
         self.all_traces_tree.heading("Trace 3", text="Trace 3 (dBm)", anchor=tk.W)
-        self.all_traces_tree.grid(row=4, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+        self.all_traces_tree.grid(row=7, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
         
         vsb_all = ttk.Scrollbar(all_traces_nab_frame, orient="vertical", command=self.all_traces_tree.yview)
-        vsb_all.grid(row=4, column=2, sticky="ns")
+        vsb_all.grid(row=7, column=2, sticky="ns")
         self.all_traces_tree.configure(yscrollcommand=vsb_all.set)
 
 
@@ -202,14 +218,29 @@ class TraceSettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         
+        # We call the handler function, which now returns a dictionary.
         all_trace_data = handle_all_traces_nab(self.app_instance, self.console_print_func)
         
         if all_trace_data:
-            trace1_data = all_trace_data.get("Trace1", [])
-            trace2_data = all_trace_data.get("Trace2", [])
-            trace3_data = all_trace_data.get("Trace3", [])
+            # Extract the data and modes from the returned dictionary.
+            trace_data_dict = all_trace_data.get("TraceData", {})
+            trace_modes = all_trace_data.get("TraceModes", {})
+            start_freq = all_trace_data.get("StartFreq")
+            stop_freq = all_trace_data.get("StopFreq")
 
+            trace1_data = trace_data_dict.get("Trace1", [])
+            trace2_data = trace_data_dict.get("Trace2", [])
+            trace3_data = trace_data_dict.get("Trace3", [])
+
+            # Update the display variables for the new UI labels.
+            self.all_traces_start_freq_display_var.set(f"{start_freq / 1000000:.3f} MHz")
+            self.all_traces_stop_freq_display_var.set(f"{stop_freq / 1000000:.3f} MHz")
+            self.all_traces_trace1_mode_display_var.set(trace_modes.get("Trace1", "N/A"))
+            self.all_traces_trace2_mode_display_var.set(trace_modes.get("Trace2", "N/A"))
+            self.all_traces_trace3_mode_display_var.set(trace_modes.get("Trace3", "N/A"))
             self.all_traces_count_var.set(str(len(trace1_data)))
+
+            # Clear and repopulate the Treeview table.
             self.all_traces_tree.delete(*self.all_traces_tree.get_children())
             
             for i in range(len(trace1_data)):
@@ -222,6 +253,11 @@ class TraceSettingsTab(ttk.Frame):
             
             self.console_print_func(f"✅ Received and displayed data for 3 traces, with {len(trace1_data)} points each.")
         else:
+            self.all_traces_start_freq_display_var.set("N/A")
+            self.all_traces_stop_freq_display_var.set("N/A")
+            self.all_traces_trace1_mode_display_var.set("N/A")
+            self.all_traces_trace2_mode_display_var.set("N/A")
+            self.all_traces_trace3_mode_display_var.set("N/A")
             self.all_traces_count_var.set("0")
             self.all_traces_tree.delete(*self.all_traces_tree.get_children())
             self.console_print_func("❌ Trace data retrieval failed.")
