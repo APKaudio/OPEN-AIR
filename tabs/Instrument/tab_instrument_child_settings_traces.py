@@ -27,11 +27,12 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import inspect
 import os
+import pandas as pd # Import pandas for data manipulation
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg, handle_all_traces_nab
-from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
+from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot, clear_monitor_plots
 
 class TraceSettingsTab(ttk.Frame):
     """
@@ -66,10 +67,11 @@ class TraceSettingsTab(ttk.Frame):
 
         self.trace_modes_result_var = tk.StringVar(value="Result: N/A")
 
-        # NEW: Variables for all traces NAB handler and display
-        self.all_traces_start_freq_var = tk.DoubleVar(value=500)
-        self.all_traces_stop_freq_var = tk.DoubleVar(value=1000)
-        self.all_traces_count_var = tk.StringVar(value="0")
+        # Variables to store the last successful NAB response data for plotting
+        self.last_nab_trace_data = None
+        self.last_nab_start_freq = None
+        self.last_nab_stop_freq = None
+        self.last_nab_trace_modes = None
         
         # NEW: StringVars for displaying the modes and frequencies from the NAB handler response
         self.all_traces_start_freq_display_var = tk.StringVar(value="N/A")
@@ -77,6 +79,7 @@ class TraceSettingsTab(ttk.Frame):
         self.all_traces_trace1_mode_display_var = tk.StringVar(value="N/A")
         self.all_traces_trace2_mode_display_var = tk.StringVar(value="N/A")
         self.all_traces_trace3_mode_display_var = tk.StringVar(value="N/A")
+        self.all_traces_count_var = tk.StringVar(value="0")
 
         self._create_widgets()
 
@@ -85,7 +88,7 @@ class TraceSettingsTab(ttk.Frame):
         Creates and arranges the widgets for the Trace Settings tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering _create_widgets. Creating widgets for the Trace Settings Tab. 📈",
+        debug_log(f"Entering _create_widgets. Creating widgets for the Trace Settings Tab. �",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -222,11 +225,17 @@ class TraceSettingsTab(ttk.Frame):
         all_trace_data = handle_all_traces_nab(self.app_instance, self.console_print_func)
         
         if all_trace_data:
+            # Store the data for potential plotting later
+            self.last_nab_trace_data = all_trace_data.get("TraceData", {})
+            self.last_nab_start_freq = all_trace_data.get("StartFreq")
+            self.last_nab_stop_freq = all_trace_data.get("StopFreq")
+            self.last_nab_trace_modes = all_trace_data.get("TraceModes", {})
+
             # Extract the data and modes from the returned dictionary.
-            trace_data_dict = all_trace_data.get("TraceData", {})
-            trace_modes = all_trace_data.get("TraceModes", {})
-            start_freq = all_trace_data.get("StartFreq")
-            stop_freq = all_trace_data.get("StopFreq")
+            trace_data_dict = self.last_nab_trace_data
+            trace_modes = self.last_nab_trace_modes
+            start_freq = self.last_nab_start_freq
+            stop_freq = self.last_nab_stop_freq
 
             trace1_data = trace_data_dict.get("Trace1", [])
             trace2_data = trace_data_dict.get("Trace2", [])
@@ -252,6 +261,10 @@ class TraceSettingsTab(ttk.Frame):
                 self.all_traces_tree.insert("", "end", values=(f"{freq:.3f}", f"{val1:.2f}", f"{val2:.2f}", f"{val3:.2f}"))
             
             self.console_print_func(f"✅ Received and displayed data for 3 traces, with {len(trace1_data)} points each.")
+            
+            # Call the new function to plot the data
+            self._plot_all_traces_to_monitor()
+            
         else:
             self.all_traces_start_freq_display_var.set("N/A")
             self.all_traces_stop_freq_display_var.set("N/A")
@@ -340,3 +353,79 @@ class TraceSettingsTab(ttk.Frame):
                         file=f"{os.path.basename(__file__)}",
                         version=current_version,
                         function=current_function)
+
+    def _plot_all_traces_to_monitor(self):
+        """
+        Function Description:
+        This function takes the last successful response from handle_all_traces_nab,
+        converts the data to a DataFrame, and pushes it to the three monitor plots.
+        
+        Inputs:
+            None (uses self.last_nab_trace_data and other class attributes)
+
+        Outputs:
+            None. Renders the plots to the GUI.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Entering {current_function}. Plotting all three NAB traces to the monitor. 📊",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
+                  function=current_function)
+
+        if not self.last_nab_trace_data:
+            self.console_print_func("❌ No NAB trace data available to plot. Press the NAB button first!")
+            debug_log("No NAB trace data available. Aborting plot.",
+                        file=f"{os.path.basename(__file__)}",
+                        version=current_version,
+                        function=current_function)
+            return
+
+        # Get the global plot instance
+        monitor_tab = self.app_instance.display_parent_tab.bottom_pane.scan_monitor_tab
+        if not monitor_tab:
+            self.console_print_func("❌ Monitor tab not found. Cannot plot.")
+            debug_log("Monitor tab instance not found. This is a critical failure!",
+                        file=f"{os.path.basename(__file__)}",
+                        version=current_version,
+                        function=current_function)
+            return
+
+        start_freq_mhz = self.last_nab_start_freq / 1000000
+        stop_freq_mhz = self.last_nab_stop_freq / 1000000
+
+        # Plot Trace 1 (Live/View) on the top plot
+        trace1_data = self.last_nab_trace_data.get("Trace1", [])
+        trace1_mode = self.last_nab_trace_modes.get("Trace1", "N/A")
+        if trace1_data and trace1_mode.upper() in ["VIEW", "WRIT"]:
+            df1 = pd.DataFrame(trace1_data, columns=["Frequency_Hz", "Power_dBm"])
+            update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, f"Live/View ({trace1_mode})")
+        else:
+            # Clear the plot if the mode is 'BLANK' or no data is available
+            df1 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
+            update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, "Live/View (BLANK)")
+            
+        # Plot Trace 2 (Max Hold) on the middle plot
+        trace2_data = self.last_nab_trace_data.get("Trace2", [])
+        trace2_mode = self.last_nab_trace_modes.get("Trace2", "N/A")
+        if trace2_data and trace2_mode.upper() == "MAXH":
+            df2 = pd.DataFrame(trace2_data, columns=["Frequency_Hz", "Power_dBm"])
+            update_middle_plot(monitor_tab, df2, start_freq_mhz, stop_freq_mhz, f"Max Hold ({trace2_mode})")
+        else:
+            df2 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
+            update_middle_plot(monitor_tab, df2, start_freq_mhz, stop_freq_mhz, "Max Hold (BLANK)")
+
+        # Plot Trace 3 (Min Hold) on the bottom plot
+        trace3_data = self.last_nab_trace_data.get("Trace3", [])
+        trace3_mode = self.last_nab_trace_modes.get("Trace3", "N/A")
+        if trace3_data and trace3_mode.upper() == "MINH":
+            df3 = pd.DataFrame(trace3_data, columns=["Frequency_Hz", "Power_dBm"])
+            update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, f"Min Hold ({trace3_mode})")
+        else:
+            df3 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
+            update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, "Min Hold (BLANK)")
+
+        self.console_print_func("✅ Successfully plotted all traces to the monitor.")
+        debug_log(f"All NAB traces plotted successfully. Mission accomplished! 🥳",
+                  file=f"{os.path.basename(__file__)}",
+                  version=current_version,
+                  function=current_function)

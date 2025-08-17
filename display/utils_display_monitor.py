@@ -135,8 +135,10 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         ax.clear()
         
         data_tuples = None
+        # FIX: The incoming data DataFrame now has frequencies in MHz.
+        # We no longer need to divide by 1,000,000 here.
         if data is not None and not data.empty:
-            data_tuples = list(zip(data['Frequency_Hz'] / 1000000, data['Power_dBm']))
+            data_tuples = list(zip(data['Frequency_Hz'], data['Power_dBm']))
 
         if data_tuples:
             frequencies, amplitudes = zip(*data_tuples)
@@ -190,8 +192,10 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         ax.clear()
 
         data_tuples = None
+        # FIX: The incoming data DataFrame now has frequencies in MHz.
+        # We no longer need to divide by 1,000,000 here.
         if data is not None and not data.empty:
-            data_tuples = list(zip(data['Frequency_Hz'] / 1000000, data['Power_dBm']))
+            data_tuples = list(zip(data['Frequency_Hz'], data['Power_dBm']))
 
         if data_tuples:
             frequencies, amplitudes = zip(*data_tuples)
@@ -246,8 +250,10 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         ax.clear()
 
         data_tuples = None
+        # FIX: The incoming data DataFrame now has frequencies in MHz.
+        # We no longer need to divide by 1,000,000 here.
         if data is not None and not data.empty:
-            data_tuples = list(zip(data['Frequency_Hz'] / 1000000, data['Power_dBm']))
+            data_tuples = list(zip(data['Frequency_Hz'], data['Power_dBm']))
 
         if data_tuples:
             frequencies, amplitudes = zip(*data_tuples)
