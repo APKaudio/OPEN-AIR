@@ -14,22 +14,26 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250819.004000.1 (NEW: Initial version of the ScanViewTab with a single plot.)
+# Version 20250816.222300.1
 
-current_version = "20250819.004000.1"
-current_version_hash = 20250819 * 4000 * 1
+current_version = "20250816.222300.1"
+current_version_hash = 20250816 * 222300 * 1
 
 import tkinter as tk
 from tkinter import ttk
 import inspect
 import os
 import numpy as np
+import pandas as pd
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 # Import logging functions for debugging
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+
+# Import the new utility file
+from display.utils_scan_view import update_plot
 
 class ScanViewTab(ttk.Frame):
     """
@@ -93,3 +97,6 @@ class ScanViewTab(ttk.Frame):
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
+        
+        # Call the new utility function to set up the plot with initial empty data
+        update_plot(self, pd.DataFrame(columns=['Frequency_Hz', 'Power_dBm']), 0, 100, "Initial Plot View")

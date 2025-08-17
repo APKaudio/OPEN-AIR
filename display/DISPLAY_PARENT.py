@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.114500.1
+# Version 20250816.222300.1
 
-current_version = "20250814.114500.1"
-current_version_hash = (20250814 * 114500 * 1)
+current_version = "20250816.222300.1"
+current_version_hash = (20250816 * 222300 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,6 +33,9 @@ from orchestrator.display_child_orchestrator_tasks import OrchestratorTasksTab
 from display.display_child_debug import DebugTab
 from display.console_logic import console_log
 from display.debug_logic import debug_log
+
+# NEW: Import the ScanViewTab class
+from display.display_child_scan_view import ScanViewTab
 
 
 class TopPane(ttk.Frame):
@@ -62,23 +65,31 @@ class BottomPane(ttk.Frame):
         self.notebook = ttk.Notebook(self, style='Bottom.TNotebook')
         self.notebook.pack(expand=True, fill='both', padx=10, pady=(0, 10))
 
+        # NEW: Instantiate the ScanViewTab
+        self.scan_view_tab = ScanViewTab(self.notebook, self.app_instance)
         self.scan_monitor_tab = ScanMonitorTab(self.notebook, self.app_instance)
         self.console_tab = ConsoleTab(self.notebook, self.app_instance)
         self.orchestrator_tasks_tab = OrchestratorTasksTab(self.notebook, self.app_instance)
         self.debug_tab = DebugTab(self.notebook, self.app_instance)
 
+        # NEW: Add the ScanViewTab and make it the first tab.
         self.tab_name_to_widget_map = {
+            "View": self.scan_view_tab,
             "Monitor": self.scan_monitor_tab,
             "Console": self.console_tab,
             "Orchestrator": self.orchestrator_tasks_tab,
             "Debug": self.debug_tab
         }
 
+        # NEW: Add the ScanViewTab as the very first tab
+        self.notebook.add(self.scan_view_tab, text='Scan View')
         self.notebook.add(self.scan_monitor_tab, text='Scan Monitor')
         self.notebook.add(self.console_tab, text='Console')
         self.notebook.add(self.orchestrator_tasks_tab, text='Orchestrator Tasks')
         self.notebook.add(self.debug_tab, text='Debug')
 
+        # NEW: Add a reference to the new tab to the app_instance
+        self.app_instance.scan_view_tab = self.scan_view_tab
         self.app_instance.scan_monitor_tab = self.scan_monitor_tab
         self.app_instance.console_tab = self.console_tab
         self.app_instance.orchestrator_tasks_tab = self.orchestrator_tasks_tab

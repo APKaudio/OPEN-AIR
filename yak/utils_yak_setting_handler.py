@@ -15,10 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.204500.1 (NEW: Added do_power_cycle function to handle the POWER/RESET command and a 20-second reconnection delay. The function also explicitly sets the application to a disconnected state.)
+# Version 20250818.204500.2
+# FIXED: Removed incorrect MHz-to-Hz conversion from set_resolution_bandwidth and set_video_bandwidth functions.
+# UPDATED: Corrected debug log messages to accurately reflect the units being processed.
 
-current_version = "20250818.204500.1"
-current_version_hash = (20250818 * 204500 * 1)
+current_version = "20250818.204500.2"
+current_version_hash = (20250818 * 204500 * 2)
 
 import os
 import inspect
@@ -208,7 +210,7 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
     Sets the resolution bandwidth on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set resolution bandwidth: {value} MHz.",
+    debug_log(message=f"API call to set resolution bandwidth: {value} Hz.",
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
@@ -218,7 +220,8 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
         return False
     
     try:
-        hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
+        # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
+        hz_value = int(float(value)) 
         if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
@@ -231,7 +234,7 @@ def set_video_bandwidth(app_instance, value, console_print_func):
     Sets the video bandwidth on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set video bandwidth: {value} MHz.",
+    debug_log(message=f"API call to set video bandwidth: {value} Hz.",
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
@@ -241,7 +244,8 @@ def set_video_bandwidth(app_instance, value, console_print_func):
         return False
         
     try:
-        hz_value = int(float(value) * MHZ_TO_HZ_CONVERSION)
+        # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
+        hz_value = int(float(value)) 
         if YakSet(app_instance, "BANDWIDTH/VIDEO", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
@@ -430,6 +434,7 @@ def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
+
 
 def set_power_attenuation(tab_instance, app_instance, value, console_print_func):
     """
@@ -632,8 +637,9 @@ def get_trace_data_logic(app_instance, console_print_func):
     return all_trace_data
     
 def do_power_cycle(app_instance, console_print_func):
-    # Function Description:
-    # Sends a power cycle command to the instrument and handles the disconnection state.
+    """
+    Sends a power cycle command to the instrument and handles the disconnection state.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(message=f"API call to power cycle the device.",
               file=os.path.basename(__file__),

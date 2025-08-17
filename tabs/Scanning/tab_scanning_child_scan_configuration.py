@@ -35,7 +35,7 @@ from src.settings_and_config.config_manager import save_config
 
 # Import presets that have associated handlers
 from ref.ref_scanner_setting_lists import (
-    PRESET_SWEEP_TIME,
+    
     PRESET_AMPLITUDE_REFERENCE_LEVEL,
     PRESET_AMPLITUDE_PREAMP_STATE,
     PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE,
@@ -48,6 +48,7 @@ from ref.ref_scanner_setting_lists import (
 
 # Import presets for UI only
 from ref.ref_scanning_setting import (
+    PRESET_SWEEP_TIME,
     PRESET_DISPLAY_GRAPH_QUALITY,
     PRESET_CYCLE_WAIT_TIME,
     PRESET_FREQUENCY_SHIFT,

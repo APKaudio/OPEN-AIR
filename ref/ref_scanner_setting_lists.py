@@ -15,52 +15,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.151240.13
-# REFACTOR: Moved presets without handlers to a new file, ref_scanning_setting.py.
+# Version 20250816.224500.1
+# UPDATED: Rebuilt the PRESET_BANDWIDTH_VIDEO list with a correct handler value.
 
-current_version = "20250815.151240.13" # this variable should always be defined below the header to make the debugging better
+current_version = "20250816.224500.1" # this variable should always be defined below the header to make the debugging better
 
 # --- UI Constants ---
 MHZ_TO_HZ = 1_000_000  # Assumed constant for converting MHz to Hz
 
-PRESET_SWEEP_TIME = [
-    {
-        "value": 0.5,
-        "label": "Crazy Fast",
-        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail.",
-        "handler": "set_sweep_time" 
-    },
-    {
-        "value": 1.0,
-        "label": "Very Fast",
-        "description": "Great for active scanning with basic detection.",
-        "handler": "set_sweep_time"
-    },
-    {
-        "value": 2.0,
-        "label": "Standard",
-        "description": "Balanced scan — enough time for most signals to show.",
-        "handler": "set_sweep_time"
-    },
-    {
-        "value": 3.0,
-        "label": "Long",
-        "description": "Allows time to catch short bursts or weak signals.",
-        "handler": "set_sweep_time"
-    },
-    {
-        "value": 5.0,
-        "label": "Very Long",
-        "description": "Camped out. Good for quiet bands or deep listening.",
-        "handler": "set_sweep_time"
-    },
-    {
-        "value": 10.0,
-        "label": "Glacier Mode",
-        "description": "For scientists, spies, and patient people. 🧊",
-        "handler": "set_sweep_time"
-    }
-]
 PRESET_AMPLITUDE_REFERENCE_LEVEL = [
     {
         "value": -120,
@@ -327,7 +289,97 @@ PRESET_BANDWIDTH_RBW = [
         "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
         "handler": "set_resolution_bandwidth"
     },
+    {
+        "value": 300,
+        "label": "Slothlike",
+        "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
+        "handler": "set_resolution_bandwidth"
+    },
 ]
+
+
+
+PRESET_BANDWIDTH_VIDEO = [
+    {
+        "value": 1_000_000,
+        "label": "Ultra Fast",
+        "description": "A lightning-fast sweep. Filters are wide open, letting everything through.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 300_000,
+        "label": "Very Fast",
+        "description": "A quick pass through the spectrum, ideal for fast-changing signals.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 100_000,
+        "label": "Fast",
+        "description": "A balanced speed for general purpose monitoring and signal capture.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 30_000,
+        "label": "Normal",
+        "description": "The standard filter setting for most common analysis tasks. Not too much, not too little.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 10_000,
+        "label": "Slow",
+        "description": "A gentle filter, giving you more time to appreciate the finer details of a waveform.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 3_000,
+        "label": "Very Slow",
+        "description": "For the meticulous scientist. You'll filter out fast noise and jitter, but at the cost of speed.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 1_000,
+        "label": "Ultra Slow",
+        "description": "A meditative pace. So slow you can practically see the electrons move, offering maximum stability and noise reduction.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 300,
+        "label": "Glacial",
+        "description": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 100,
+        "label": "Glacial",
+        "description": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 30,
+        "label": "Sub-Glacial",
+        "description": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 10,
+        "label": "Sub-Glacial",
+        "description": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 3,
+        "label": "Crazy Slow",
+        "description": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
+        "handler": "set_video_bandwidth"
+    },
+    {
+        "value": 1,
+        "label": "Crazy Slow",
+        "description": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
+        "handler": "set_video_bandwidth"
+    },
+]
+
 
 
 # REVERSED ORDERING. This is the way.

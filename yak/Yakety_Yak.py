@@ -397,6 +397,10 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
     try:
         if action_type == "GET":
             full_command = f"{visa_command}{variable_value}" if variable_value and variable_value.strip() == "?" else visa_command
+            debug_log(f"Prepared command string for GET: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             response = query_safe(inst, full_command, console_print_func)
             if response is not None:
                 console_print_func(f"✅ Response: {response}")
@@ -414,6 +418,10 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return "FAILED"
         elif action_type == "NAB":
             full_command = visa_command
+            debug_log(f"Prepared command string for NAB: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             response_string = query_safe(inst, full_command, console_print_func)
             
             if response_string is not None:
@@ -441,6 +449,10 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
             else:
                 full_command = visa_command
             
+            debug_log(f"Prepared command string for DO: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Command executed successfully.")
                 return "PASSED"
@@ -464,7 +476,11 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
             except (ValueError, TypeError):
                 # If not a number, send as a string (e.g., "ON", "OFF")
                 full_command = f"{visa_command} {variable_value}"
-
+            
+            debug_log(f"Prepared command string for SET: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Command executed successfully.")
                 return "PASSED"
@@ -478,6 +494,10 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
         elif action_type == "RIG":
             full_command = visa_command
             
+            debug_log(f"Prepared command string for RIG: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             if write_safe(inst, full_command, console_print_func):
                 console_print_func("✅ Rig command executed successfully.")
                 return "PASSED"
@@ -491,6 +511,11 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
         elif action_type == "BEG":
             # The BEG command is a single string with both set and get queries.
             # We use query_safe to send the entire string and get the response.
+            full_command = visa_command
+            debug_log(f"Prepared command string for BEG: {full_command}",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
             response_string = query_safe(inst, visa_command, console_print_func)
             if response_string is not None:
                 return response_string

@@ -14,12 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.105500.1
-# REVERTED: Reverted to a static tabbed layout only, as dynamic resizing was causing TclErrors.
+# Version 20250815.105500.2
+# FIXED: Reverted to a static tabbed layout only, as dynamic resizing was causing TclErrors.
 # FIX: The red styling for the nested tabs was corrected to use the right color palette.
+# ADDED: New method refresh_all_child_tabs to properly refresh all child tabs.
 
-current_version = "20250815.105500.1"
-current_version_hash = 20250815 * 105500 * 1
+current_version = "20250815.105500.2"
+current_version_hash = 20250815 * 105500 * 2
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,9 +34,9 @@ from src.program_style import COLOR_PALETTE, COLOR_PALETTE_TABS
 # Import the new child tabs
 from tabs.Instrument.tab_instrument_child_settings_frequency import FrequencySettingsTab
 from tabs.Instrument.tab_instrument_child_settings_amplitude import AmplitudeSettingsTab
-from tabs.Instrument.tab_instrument_child_settings_traces import TraceSettingsTab
-from tabs.Instrument.tab_instrument_child_settings_markers import MarkerSettingsTab
 from tabs.Instrument.tab_instrument_child_settings_bandwidth import BandwidthSettingsTab
+from tabs.Instrument.tab_instrument_child_settings_markers import MarkerSettingsTab
+from tabs.Instrument.tab_instrument_child_settings_traces import TraceSettingsTab
 
 class SettingsParentTab(ttk.Frame):
     """
@@ -101,3 +102,19 @@ class SettingsParentTab(ttk.Frame):
             selected_child_tab_widget = self.child_notebook.nametowidget(selected_child_tab_id)
             if hasattr(selected_child_tab_widget, '_on_tab_selected'):
                 selected_child_tab_widget._on_tab_selected(event)
+    
+    def refresh_all_child_tabs(self):
+        """
+        A public method to trigger a refresh on all child tabs of this parent.
+        This is the new central point for refreshing the entire settings UI.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"API call to refresh all child tabs in SettingsParentTab. Initiating cascade!",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        # Iterate through all child tab instances and call their dedicated refresh method
+        for tab in [self.frequency_tab, self.amplitude_tab, self.bandwidth_tab, self.traces_tab, self.markers_tab]:
+            if hasattr(tab, '_sync_ui_from_app_state'):
+                tab._sync_ui_from_app_state()

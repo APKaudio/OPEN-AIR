@@ -61,14 +61,14 @@ def get_default_commands():
 
         ("Keysight Technologies", "*", "FREQUENCY/SWEEP/POINTS", "GET", ":SENSe:SWEep:POINts", "?", ""),
         
-        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", "::SENSe:SWEep:TIME", "?", ""),
+        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", ":SENSe:SWEep:TIME", "?", ""),
         ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME/ON", "DO", ":SENSe:SWEep:TIME:AUTO", "ON", ""),
-        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", "::SENSe:SWEep:TIME", "?", ""),
+        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", ":SENSe:SWEep:TIME", "?", ""),
         ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME/OFF", "DO", ":SENSe:SWEep:TIME:AUTO", "OFF", ""),
-        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", "::SENSe:SWEep:TIME", "?", ""),
+        ("Keysight Technologies", "N9342CN", "FREQUENCY/SWEEP/TIME", "GET", ":SENSe:SWEep:TIME", "?", ""),
 
         ("Agilent Technologies", "N9340B", "FREQUENCY/SWEEP/TIME", "SET", ":SENSe:SWEep:TIME", "3", ""),
-        ("Agilent Technologies", "N9340B", "FREQUENCY/SWEEP/TIME", "GET", "::SENSe:SWEep:TIME", "?", ""),
+        ("Agilent Technologies", "N9340B", "FREQUENCY/SWEEP/TIME", "GET", ":SENSe:SWEep:TIME", "?", ""),
 
         ("Agilent Technologies", "N9340B", "FREQUENCY/SWEEP/TIME/AUTO", "GET", ":SENSe:SWEep:TIME:AUTO", "?", ""),
         ("Agilent Technologies", "N9340B", "FREQUENCY/SWEEP/TIME/AUTO/ON", "DO", ":SENSe:SWEep:TIME:AUTO", "ON", ""),
@@ -99,7 +99,11 @@ def get_default_commands():
         ("Keysight Technologies", "*", "INITIATE/CONTINUOUS/ON", "DO", ":INITiate:CONTinuous", "ON", ""),
         ("Keysight Technologies", "*", "INITIATE/CONTINUOUS", "GET", ":INITiate:CONTinuous", "?", ""),
         ("Keysight Technologies", "*", "INITIATE/CONTINUOUS/OFF", "DO", ":INITiate:CONTinuous", "Off", ""),
-        ("Keysight Technologies", "*", "INITIATE/IMMEDIATE", "SET", ":INITiate:IMMediate", "", ""),
+        
+        ("Keysight Technologies", "*", "BANDWIDTH/SETTINGS", "NAB", ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?", "5", ""),
+        
+        
+        ("Keysight Technologies", "*", "INITIATE/IMMEDIATE", "DO", ":INITiate:IMMediate", "", ""),
 
         ("Keysight Technologies", "*", "BANDWIDTH/VIDEO", "GET", ":SENSe:BANDwidth:VIDeo", "?", ""),
         ("Keysight Technologies", "*", "BANDWIDTH/VIDEO", "SET", ":SENSe:BANDwidth:VIDeo", "1000000", ""),
