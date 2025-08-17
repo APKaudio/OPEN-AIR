@@ -17,12 +17,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.193300.6
-# FIXED: The YakNab function now correctly retrieves the `num_reads` value from the CSV file
-#        and passes it to `execute_visa_command`, removing the flawed hardcoded default.
+# Version 20250818.193300.8
+# FIXED: The YakNab function now returns the raw response string without parsing it, as this should be handled by the specific handler function that knows the data structure.
 
-current_version = "20250818.193300.6"
-current_version_hash = (20250818 * 193300 * 6)
+current_version = "20250818.193300.8"
+current_version_hash = (20250818 * 193300 * 8)
 
 import csv
 import os
@@ -190,7 +189,7 @@ def YakRig(app_instance, command_type, console_print_func, *variable_values):
                         function=current_function)
             return "FAILED"
     else:
-        console_print_func(f"❌ Could not find a matching RIG command for '{command_type}'.")
+        console_log(f"❌ Could not find a matching RIG command for '{command_type}'.")
         debug_log(f"No matching RIG command found for '{command_type}'. Fucking useless!",
                     file=os.path.basename(__file__),
                     version=current_version,
@@ -298,7 +297,7 @@ def YakGet(app_instance, command_type, console_print_func):
                     function=current_function)
         return "FAILED"
   
-def YakNab(app_instance, command_type, console_print_func, num_reads=1):
+def YakNab(app_instance, command_type, console_print_func):
     """
     Function Description:
     Executes a 'NAB' (multi-query) VISA command for a given command type.
@@ -307,14 +306,13 @@ def YakNab(app_instance, command_type, console_print_func, num_reads=1):
     - app_instance (object): A reference to the main application instance.
     - command_type (str): The name of the 'NAB' command from the CSV.
     - console_print_func (function): A function to print messages to the GUI console.
-    - num_reads (int): The number of times to read from the instrument's buffer. Defaults to 1.
-                       Set to a higher value for large data sets.
-
+    
     Outputs:
-    - The response string from the GET command if successful, or "FAILED" otherwise.
+    - The response string from the GET command if successful, or a list of parsed strings otherwise.
+      "FAILED" on failure.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering YakNab. command_type: {command_type}, num_reads: {num_reads}",
+    debug_log(f"Entering YakNab. command_type: {command_type}",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
@@ -324,20 +322,31 @@ def YakNab(app_instance, command_type, console_print_func, num_reads=1):
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
 
-    action, command, variable = _find_command(command_type, "NAB", model)
+    action, command, num_reads_str = _find_command(command_type, "NAB", model)
 
     if action == "NAB" and command:
-        # FIXED: Retrieve num_reads from the CSV file and pass it to execute_visa_command
         try:
-            num_reads_from_csv = num_reads
-        except (ValueError, TypeError):
-            num_reads_from_csv = 1
+            # We now correctly handle the single, semicolon-separated response string
+            response_string = query_safe(app_instance.inst, command, console_print_func)
+        except (ValueError, IndexError):
+            console_print_func("❌ NAB command variable for num_reads is not a valid integer.")
             debug_log("NAB command variable for num_reads is not a valid integer. Defaulting to 1. 🤷‍♀️",
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
-
-        return execute_visa_command(app_instance, action, command, variable, console_print_func, num_reads=num_reads_from_csv)
+            response_string = query_safe(app_instance.inst, command, console_print_func)
+        
+        if response_string is not None:
+            # We now parse the single response string into a list of values
+            values = [val.strip() for val in response_string.split(';') if val.strip()]
+            console_print_func(f"✅ NAB Response: {values}")
+            debug_log(f"NAB Query response: {response_string}. Fucking finally!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+            return values
+        else:
+            return "FAILED"
     else:
         console_print_func(f"❌ Could not find a matching NAB command for '{command_type}'.")
         debug_log(f"No matching NAB command found for '{command_type}'. Fucking useless!",
@@ -437,53 +446,22 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
                 return "FAILED"
         elif action_type == "NAB":
             full_command = visa_command
-            debug_log(f"Prepared command string for NAB: {full_command}, with {num_reads} reads.",
+            debug_log(f"Prepared command string for NAB: {full_command}",
                         file=os.path.basename(__file__),
                         version=current_version,
                         function=current_function)
             
-            response_chunks = []
-            try:
-                # Send the command with a write-only operation
-                inst.write(full_command)
-                log_visa_command(full_command, "SENT")
-                
-                # Loop to read back data for the specified number of reads
-                for i in range(num_reads):
-                    chunk = inst.read_raw().decode('utf-8')
-                    if chunk:
-                        response_chunks.append(chunk)
-                        log_visa_command(f"Chunk {i+1}: {chunk}", "RECEIVED_CHUNK")
-                    else:
-                        break
-            except Exception as e:
-                console_print_func(f"❌ Error during NAB command execution: {e}")
-                debug_log(f"Error executing NAB command '{full_command}': {e}. This thing is a pain in the ass!",
+            response_string = query_safe(inst, full_command, console_print_func)
+            
+            if response_string is not None:
+                # We now parse the single response string into a list of values
+                values = [val.strip() for val in response_string.split(';') if val.strip()]
+                console_print_func(f"✅ NAB Response: {values}")
+                debug_log(f"NAB Query response: {response_string}. Fucking finally!",
                             file=os.path.basename(__file__),
                             version=current_version,
                             function=current_function)
-                return "FAILED"
-
-            response_string = "".join(response_chunks).strip()
-            
-            if response_string:
-                try:
-                    # Parse the combined response string, typically semicolon-separated
-                    values = [val.strip().strip("'") for val in response_string.split(';') if val.strip()]
-                    formatted_response = values
-                    console_print_func(f"✅ NAB Response: {formatted_response}")
-                    debug_log(f"NAB Query response: {response_string}. Fucking finally!",
-                                file=os.path.basename(__file__),
-                                version=current_version,
-                                function=current_function)
-                    return formatted_response
-                except ValueError as e:
-                    console_print_func(f"❌ Failed to parse NAB response: {e}")
-                    debug_log(f"Failed to parse NAB response: {e}. What a disaster!",
-                                file=os.path.basename(__file__),
-                                version=current_version,
-                                function=current_function)
-                    return "FAILED"
+                return values
             else:
                 return "FAILED"
         elif action_type == "DO":

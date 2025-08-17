@@ -274,52 +274,40 @@ def handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_
     return None
 
 def handle_all_traces_nab(app_instance, console_print_func) -> Optional[Dict]:
-    """
-    Function Description:
-    Handles the NAB command for multiple traces at once.
-    It retrieves the start frequency, stop frequency, and data for traces 1, 2, and 3.
-
-    Inputs:
-    - app_instance (object): A reference to the main application instance.
-    - console_print_func (function): A function to print messages to the GUI console.
-
-    Outputs:
-    - dict: A dictionary containing the fetched trace data, or None on failure.
-    """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Retrieving multiple traces at once with a NAB command. This is efficient!",
+    debug_log(f"Entering {current_function}. Retrieving multiple traces with a single NAB command.",
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
 
-    response = YakNab(app_instance, "TRACE/ALL/ONETWOTHREE", console_print_func,2)
-
-    if response and isinstance(response, str) and response != "FAILED":
+    # YakNab will now return a list of parsed strings from the single response
+    response_list = YakNab(app_instance, "TRACE/ALL/ONETWOTHREE", console_print_func)
+    
+    if response_list and isinstance(response_list, list) and len(response_list) == 5:
         try:
-            parts = response.split(';')
-            if len(parts) == 5:
-                start_freq_hz = float(parts[0])
-                stop_freq_hz = float(parts[1])
+            start_freq_hz = float(response_list[0])
+            stop_freq_hz = float(response_list[1])
+            
+            trace_data = {}
+            for i in range(1, 4):
+                trace_string = response_list[i + 1]
+                values = [float(val.strip()) for val in trace_string.split(',') if val.strip()]
+                num_points = len(values)
                 
-                trace_data = {}
-                for i in range(1, 4):
-                    trace_string = parts[i + 1]
-                    values = [float(val.strip()) for val in trace_string.split(',') if val.strip()]
-                    num_points = len(values)
-                    if num_points > 0:
-                        frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
-                        trace_data[f"Trace{i}"] = list(zip(frequencies / MHZ_TO_HZ, values))
-                    else:
-                        trace_data[f"Trace{i}"] = []
+                if num_points > 0:
+                    frequencies = np.linspace(start_freq_hz, stop_freq_hz, num_points)
+                    trace_data[f"Trace{i}"] = list(zip(frequencies / MHZ_TO_HZ, values))
+                else:
+                    trace_data[f"Trace{i}"] = []
 
-                console_print_func("✅ Successfully retrieved and parsed data for three traces.")
-                debug_log(f"Successfully retrieved traces for: Trace1, Trace2, Trace3. What a haul! 🎣",
-                          file=os.path.basename(__file__),
-                          version=current_version,
-                          function=current_function)
-                return trace_data
+            console_log("✅ Successfully retrieved and parsed data for three traces.")
+            debug_log(f"Successfully retrieved traces. What a haul! 🎣",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            return trace_data
         except (ValueError, IndexError, TypeError) as e:
-            console_print_func(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
+            console_log(f"❌ Failed to parse response from instrument. Error: {e}")
             debug_log(f"Arrr, the response be gibberish! Error: {e}",
                       file=os.path.basename(__file__),
                       version=current_version,
