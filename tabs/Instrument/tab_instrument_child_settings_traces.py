@@ -267,6 +267,9 @@ class TraceSettingsTab(ttk.Frame):
             # Call the new function to plot the data
             self._plot_all_traces_to_monitor()
             
+            # NEW: Switch to the Scan Monitor tab automatically
+            self.app_instance.display_parent_tab.change_display_tab("Monitor")
+
         else:
             self.all_traces_start_freq_display_var.set("N/A")
             self.all_traces_stop_freq_display_var.set("N/A")
@@ -319,11 +322,14 @@ class TraceSettingsTab(ttk.Frame):
             
             self.console_print_func(f"✅ Received and displayed {len(processed_data)} data points.")
 
-            # NEW: Call update_single_plot to update the Scan View tab with the new data
+            # NEW: Call update_plot to update the Scan View tab with the new data
             scan_view_tab = self.app_instance.display_parent_tab.bottom_pane.scan_view_tab
             df = pd.DataFrame(processed_data, columns=['Frequency_Hz', 'Power_dBm'])
             plot_title = f"Trace {trace_number} Data from YakBeg"
             update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, plot_title)
+            
+            # NEW: Switch to the Scan View tab automatically
+            self.app_instance.display_parent_tab.change_display_tab("View")
 
         else:
             self.trace_data_count_var.set("0")
