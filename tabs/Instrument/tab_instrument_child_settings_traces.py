@@ -47,10 +47,11 @@ class TraceSettingsTab(ttk.Frame):
         self.console_print_func = console_print_func if console_print_func else console_log
         self.trace_modes = ["VIEW", "WRITE", "BLANK", "MAXHOLD", "MINHOLD"]
 
-        self.trace1_mode_var = tk.StringVar(value=self.trace_modes[0])
-        self.trace2_mode_var = tk.StringVar(value=self.trace_modes[1])
-        self.trace3_mode_var = tk.StringVar(value=self.trace_modes[2])
-        self.trace4_mode_var = tk.StringVar(value=self.trace_modes[3])
+        # UPDATED: Set default values for the trace mode variables
+        self.trace1_mode_var = tk.StringVar(value="WRITE")
+        self.trace2_mode_var = tk.StringVar(value="MAXHOLD")
+        self.trace3_mode_var = tk.StringVar(value="MINHOLD")
+        self.trace4_mode_var = tk.StringVar(value="BLANK")
 
         self.trace_vars = [
             self.trace1_mode_var,
@@ -88,7 +89,7 @@ class TraceSettingsTab(ttk.Frame):
         Creates and arranges the widgets for the Trace Settings tab.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering _create_widgets. Creating widgets for the Trace Settings Tab. �",
+        debug_log(f"Entering _create_widgets. Creating widgets for the Trace Settings Tab. 📈",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
