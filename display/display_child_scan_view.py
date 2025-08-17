@@ -33,7 +33,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import the new utility file
-from display.utils_scan_view import update_plot
+from display.utils_scan_view import update_single_plot
 
 class ScanViewTab(ttk.Frame):
     """
@@ -99,4 +99,4 @@ class ScanViewTab(ttk.Frame):
                     function=current_function)
         
         # Call the new utility function to set up the plot with initial empty data
-        update_plot(self, pd.DataFrame(columns=['Frequency_Hz', 'Power_dBm']), 0, 100, "Initial Plot View")
+        update_single_plot(self, pd.DataFrame(columns=['Frequency_Hz', 'Power_dBm']), 0, 100, "Initial Plot View")

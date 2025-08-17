@@ -7,7 +7,7 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
+# application can be negotiated. There is no change to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
@@ -123,7 +123,7 @@ def reset_zoom(ax, canvas):
         debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
-def update_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
+def update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the single plot in the Scan View tab with new data.
     debug_log(f"Entering update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
@@ -136,7 +136,8 @@ def update_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot
         
         data_tuples = None
         if data is not None and not data.empty:
-            data_tuples = list(zip(data['Frequency_Hz'] / 1000000, data['Power_dBm']))
+            # FIX: Remove the redundant conversion, as data is already in MHz
+            data_tuples = list(zip(data['Frequency_Hz'], data['Power_dBm']))
 
         if data_tuples:
             frequencies, amplitudes = zip(*data_tuples)

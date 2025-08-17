@@ -33,6 +33,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg, handle_all_traces_nab
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot, clear_monitor_plots
+from display.utils_scan_view import update_single_plot
 
 class TraceSettingsTab(ttk.Frame):
     """
@@ -317,6 +318,13 @@ class TraceSettingsTab(ttk.Frame):
                 self.trace_data_tree.insert("", "end", values=(f"{freq:.3f}", f"{value:.2f}"))
             
             self.console_print_func(f"✅ Received and displayed {len(processed_data)} data points.")
+
+            # NEW: Call update_single_plot to update the Scan View tab with the new data
+            scan_view_tab = self.app_instance.display_parent_tab.bottom_pane.scan_view_tab
+            df = pd.DataFrame(processed_data, columns=['Frequency_Hz', 'Power_dBm'])
+            plot_title = f"Trace {trace_number} Data from YakBeg"
+            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, plot_title)
+
         else:
             self.trace_data_count_var.set("0")
             self.trace_data_tree.delete(*self.trace_data_tree.get_children())
