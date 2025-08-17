@@ -14,13 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.224813.3
-# ADD: Removed two individual result boxes and added a new, common result display at the top.
-# ADD: Both YakBeg functions now update the common result display and all corresponding sliders.
-# FIX: Adjusted _on_freq_start_stop_beg to automatically correct stop frequency if it is less than start.
+# Version 20250819.002000.2 (UPDATED: Added labels above the start and stop sections and right-justified the center frequency and span labels to align them with the entry boxes.)
 
-current_version = "20250815.224813.3"
-current_version_hash = 20250815 * 224813 * 3
+current_version = "20250819.002000.2"
+current_version_hash = 20250819 * 2000 * 2
 
 import tkinter as tk
 from tkinter import ttk
@@ -38,7 +35,7 @@ class FrequencySettingsTab(ttk.Frame):
     """
     A Tkinter Frame that provides a user interface for frequency settings.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None):
+    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"Initializing FrequencySettingsTab. This should be a walk in the park! 🚶‍♀️",
                   file=os.path.basename(__file__),
@@ -134,16 +131,13 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
 
         self.grid_columnconfigure(0, weight=1)
-
-        # --- NEW COMMON RESULT FRAME ---
-        common_result_frame = ttk.LabelFrame(self, text="LAST COMMAND RESULT", padding=10)
-        common_result_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
-        common_result_frame.grid_columnconfigure(0, weight=1)
-        ttk.Label(common_result_frame, textvariable=self.freq_common_result_var, style="Dark.TLabel.Value").grid(row=0, column=0, padx=5, pady=2, sticky="ew")
+        self.grid_rowconfigure(0, weight=0)
+        self.grid_rowconfigure(1, weight=0)
+        self.grid_rowconfigure(2, weight=0)
 
         # --- FREQUENCY/START-STOP Frame ---
-        freq_ss_frame = ttk.LabelFrame(self, text="FREQUENCY/START-STOP (MHz)", padding=10)
-        freq_ss_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+        freq_ss_frame = ttk.Frame(self, padding=10)
+        freq_ss_frame.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
         freq_ss_frame.grid_columnconfigure(0, weight=1)
 
         # Container for Start and Stop frames
@@ -153,46 +147,78 @@ class FrequencySettingsTab(ttk.Frame):
         main_start_stop_frame.grid_columnconfigure(1, weight=1)
 
         # Start Frequency Frame
-        start_frame = ttk.LabelFrame(main_start_stop_frame, text="START", padding=5)
+        start_frame = ttk.Frame(main_start_stop_frame, padding=5)
         start_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         start_frame.grid_columnconfigure(0, weight=1)
-        ttk.Entry(start_frame, textvariable=self.freq_start_var).grid(row=0, column=0, sticky="ew")
-        ttk.Scale(start_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_start_var, style='InteractionBars.TScale').grid(row=1, column=0, sticky="ew")
+        # UPDATED: Added Label for "START"
+        ttk.Label(start_frame, text="Start:").grid(row=0, column=0, sticky="ew", padx=5, pady=2)
+        start_entry = ttk.Entry(start_frame, textvariable=self.freq_start_var)
+        start_entry.grid(row=1, column=0, sticky="ew")
+        start_entry.bind("<Return>", lambda e: self._on_freq_start_stop_beg())
+        start_entry.bind("<FocusOut>", lambda e: self._on_freq_start_stop_beg())
+        start_scale = ttk.Scale(start_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_start_var, style='InteractionBars.TScale')
+        start_scale.grid(row=2, column=0, sticky="ew")
+        start_scale.bind("<ButtonRelease-1>", lambda e: self._on_freq_start_stop_beg())
 
         # Stop Frequency Frame
-        stop_frame = ttk.LabelFrame(main_start_stop_frame, text="STOP", padding=5)
+        stop_frame = ttk.Frame(main_start_stop_frame, padding=5)
         stop_frame.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
         stop_frame.grid_columnconfigure(0, weight=1)
-        ttk.Entry(stop_frame, textvariable=self.freq_stop_var).grid(row=0, column=0, sticky="ew")
-        ttk.Scale(stop_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_stop_var, style='InteractionBars.TScale').grid(row=1, column=0, sticky="ew")
-        
-        # YakBeg Button
-        ttk.Button(freq_ss_frame, text="YakBeg - FREQUENCY/START-STOP", command=self._on_freq_start_stop_beg).grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-
+        # UPDATED: Added Label for "STOP"
+        ttk.Label(stop_frame, text="Stop:").grid(row=0, column=0, sticky="ew", padx=5, pady=2)
+        stop_entry = ttk.Entry(stop_frame, textvariable=self.freq_stop_var)
+        stop_entry.grid(row=1, column=0, sticky="ew")
+        stop_entry.bind("<Return>", lambda e: self._on_freq_start_stop_beg())
+        stop_entry.bind("<FocusOut>", lambda e: self._on_freq_start_stop_beg())
+        stop_scale = ttk.Scale(stop_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_stop_var, style='InteractionBars.TScale')
+        stop_scale.grid(row=2, column=0, sticky="ew")
+        stop_scale.bind("<ButtonRelease-1>", lambda e: self._on_freq_start_stop_beg())
 
         # --- FREQUENCY/CENTER-SPAN Frame ---
-        freq_cs_frame = ttk.LabelFrame(self, text="FREQUENCY/CENTER-SPAN (MHz)", padding=10)
-        freq_cs_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        freq_cs_frame = ttk.Frame(self, padding=10)
+        freq_cs_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
         freq_cs_frame.grid_columnconfigure(0, weight=1)
         freq_cs_frame.grid_columnconfigure(1, weight=1)
 
         # Center Frequency Slider & Entry
-        ttk.Label(freq_cs_frame, text="Center Frequency:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_center_var, style='InteractionBars.TScale').grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
-        ttk.Entry(freq_cs_frame, textvariable=self.freq_center_var).grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(freq_cs_frame, text="Center Frequency:", justify=tk.RIGHT).grid(row=0, column=0, padx=5, pady=2, sticky="e")
+        center_scale = ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_center_var, style='InteractionBars.TScale')
+        center_scale.grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
+        center_scale.bind("<ButtonRelease-1>", lambda e: self._on_freq_center_span_beg())
+        center_entry = ttk.Entry(freq_cs_frame, textvariable=self.freq_center_var)
+        center_entry.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        center_entry.bind("<Return>", lambda e: self._on_freq_center_span_beg())
+        center_entry.bind("<FocusOut>", lambda e: self._on_freq_center_span_beg())
+
 
         # Span Slider & Entry
-        ttk.Label(freq_cs_frame, text="Span:").grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Scale(freq_cs_frame, from_=100, to=1000, orient=tk.HORIZONTAL, variable=self.freq_span_var, style='InteractionBars.TScale').grid(row=3, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
-        ttk.Entry(freq_cs_frame, textvariable=self.freq_span_var).grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        ttk.Label(freq_cs_frame, text="Span:", justify=tk.RIGHT).grid(row=2, column=0, padx=5, pady=2, sticky="e")
+        # FIXED: Updated slider range from 0 to 500 MHz
+        span_scale = ttk.Scale(freq_cs_frame, from_=0, to=500, orient=tk.HORIZONTAL, variable=self.freq_span_var, style='InteractionBars.TScale')
+        span_scale.grid(row=3, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
+        span_scale.bind("<ButtonRelease-1>", lambda e: self._on_freq_center_span_beg())
+        span_entry = ttk.Entry(freq_cs_frame, textvariable=self.freq_span_var)
+        span_entry.grid(row=2, column=1, padx=5, pady=2, sticky="ew")
+        span_entry.bind("<Return>", lambda e: self._on_freq_center_span_beg())
+        span_entry.bind("<FocusOut>", lambda e: self._on_freq_center_span_beg())
+
 
         # Span Preset Buttons Frame
-        span_buttons_frame = ttk.LabelFrame(freq_cs_frame, text="Preset Spans", padding=5)
+        span_buttons_frame = ttk.Frame(freq_cs_frame, padding=5)
         span_buttons_frame.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         self._create_span_preset_buttons(parent_frame=span_buttons_frame)
 
-        # YakBeg Button
-        ttk.Button(freq_cs_frame, text="YakBeg - FREQUENCY/CENTER-SPAN", command=self._on_freq_center_span_beg).grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
+
+        # --- NEW COMMON RESULT FRAME ---
+        common_result_frame = ttk.Frame(self, padding=10)
+        common_result_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
+        common_result_frame.grid_columnconfigure(0, weight=1)
+        # REVERTED: The Label now uses the default style, without custom options
+        ttk.Label(common_result_frame,
+                  textvariable=self.freq_common_result_var,
+                  justify=tk.LEFT
+                  ).grid(row=0, column=0, padx=5, pady=2, sticky="ew")
+
 
     def _create_span_preset_buttons(self, parent_frame):
         # Creates buttons for predefined frequency spans and links them to the span variable.
@@ -239,6 +265,7 @@ class FrequencySettingsTab(ttk.Frame):
             self.freq_span_var.set(preset['value'] / 1e6)
             self.is_tracing = False
             self._update_span_button_styles()
+            self._on_freq_center_span_beg() # NEW: Trigger YakBeg after button click
             console_log(message=f"✅ Span set to {preset['label']} ({self.freq_span_var.get()} MHz).", function=current_function)
         except Exception as e:
             console_log(message=f"❌ Error in {current_function}: {e}")
@@ -299,11 +326,11 @@ class FrequencySettingsTab(ttk.Frame):
         try:
             start_freq_mhz = self.freq_start_var.get()
             stop_freq_mhz = self.freq_stop_var.get()
-
-            # If start is >= stop, adjust stop
+            
+            # UPDATED: Validation logic for Start/Stop frequencies
             if start_freq_mhz >= stop_freq_mhz:
                 new_stop_mhz = start_freq_mhz + 10.0
-                console_log(message=f"⚠️ Start frequency ({start_freq_mhz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_mhz:.3f} MHz). Automatically setting stop to {new_stop_mhz:.3f} MHz.", console_print_func=self.console_print_func)
+                console_log(message=f"⚠️ Start frequency ({start_freq_mhz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_mhz:.3f} MHz). Automatically setting stop to {new_stop_mhz:.3f} MHz.")
                 debug_log(message=f"The start frequency ({start_freq_mhz} MHz) is greater than or equal to the stop frequency ({stop_freq_mhz} MHz). The captain has corrected the course! 📈",
                           file=os.path.basename(__file__),
                           version=current_version,
@@ -311,6 +338,17 @@ class FrequencySettingsTab(ttk.Frame):
                 self.freq_stop_var.set(value=new_stop_mhz)
                 # Re-read the adjusted value for the YakBeg command
                 stop_freq_mhz = self.freq_stop_var.get()
+            elif stop_freq_mhz < start_freq_mhz:
+                new_start_mhz = stop_freq_mhz - 10.0
+                console_log(message=f"⚠️ Stop frequency ({stop_freq_mhz:.3f} MHz) is less than start frequency ({start_freq_mhz:.3f} MHz). Automatically setting start to {new_start_mhz:.3f} MHz.")
+                debug_log(message=f"The stop frequency ({stop_freq_mhz} MHz) is less than the start frequency ({start_freq_mhz} MHz). The captain has corrected the course! 📉",
+                          file=os.path.basename(__file__),
+                          version=current_version,
+                          function=current_function)
+                self.freq_start_var.set(value=new_start_mhz)
+                # Re-read the adjusted value for the YakBeg command
+                start_freq_mhz = self.freq_start_var.get()
+
 
             # Get values in MHz and convert to Hz, ensuring no decimal points
             start_freq_hz = int(start_freq_mhz * 1e6)
@@ -337,8 +375,13 @@ class FrequencySettingsTab(ttk.Frame):
                 self.freq_center_var.set(value=center_resp_mhz)
                 self.freq_span_var.set(value=span_resp_mhz)
                 
-                # Display all four values in the common result box
-                result_message = f"Result: Start: {start_resp_mhz:.3f} MHz; Stop: {stop_resp_mhz:.3f} MHz; Center: {center_resp_mhz:.3f} MHz; Span: {span_resp_mhz:.3f} MHz"
+                # UPDATED: Format the result string to match the requested layout
+                result_message = (
+                    f"Center: {center_resp_mhz:.3f} MHz\n"
+                    f"Space: {span_resp_mhz:.3f} MHz\n\n\n"
+                    f"Start: {start_resp_mhz:.3f} MHz\n"
+                    f"Stop: {stop_resp_mhz:.3f} MHz"
+                )
                 self.freq_common_result_var.set(value=result_message)
             else:
                 self.freq_common_result_var.set(value="Result: FAILED")
@@ -389,8 +432,13 @@ class FrequencySettingsTab(ttk.Frame):
                 self.freq_start_var.set(value=start_resp_mhz)
                 self.freq_stop_var.set(value=stop_resp_mhz)
                 
-                # Display all four values in the common result box
-                result_message = f"Result: Center: {center_resp_mhz:.3f} MHz; Span: {span_resp_mhz:.3f} MHz; Start: {start_resp_mhz:.3f} MHz; Stop: {stop_resp_mhz:.3f} MHz"
+                # UPDATED: Format the result string to match the requested layout
+                result_message = (
+                    f"Center: {center_resp_mhz:.3f} MHz\n"
+                    f"Span: {span_resp_mhz:.3f} MHz\n\n\n"
+                    f"Start: {start_resp_mhz:.3f} MHz\n"
+                    f"Stop: {stop_resp_mhz:.3f} MHz"
+                )
                 self.freq_common_result_var.set(value=result_message)
             else:
                 self.freq_common_result_var.set(value="Result: FAILED")

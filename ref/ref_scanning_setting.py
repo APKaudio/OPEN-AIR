@@ -246,3 +246,42 @@ PRESET_NUMBER_OF_SCANS = [
         "handler": None
     }
 ]
+
+PRESET_SWEEP_TIME = [
+    {
+        "value": 0.5,
+        "label": "Crazy Fast",
+        "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail.",
+        "handler": "set_sweep_time" 
+    },
+    {
+        "value": 1.0,
+        "label": "Very Fast",
+        "description": "Great for active scanning with basic detection.",
+        "handler": "set_sweep_time"
+    },
+    {
+        "value": 2.0,
+        "label": "Standard",
+        "description": "Balanced scan — enough time for most signals to show.",
+        "handler": "set_sweep_time"
+    },
+    {
+        "value": 3.0,
+        "label": "Long",
+        "description": "Allows time to catch short bursts or weak signals.",
+        "handler": "set_sweep_time"
+    },
+    {
+        "value": 5.0,
+        "label": "Very Long",
+        "description": "Camped out. Good for quiet bands or deep listening.",
+        "handler": "set_sweep_time"
+    },
+    {
+        "value": 10.0,
+        "label": "Glacier Mode",
+        "description": "For scientists, spies, and patient people. 🧊",
+        "handler": "set_sweep_time"
+    }
+]

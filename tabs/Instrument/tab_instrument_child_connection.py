@@ -14,22 +14,21 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250817.183400.1 (FIXED: Added a check for the settings_tab before attempting to switch to it.)
-#
-# Version 20250811.215000.4 (UPDATED: Restructured the marker settings frame into two separate sections and added a 'Peak search' button.)
+# Version 20250818.205500.1 (UPDATED: Added a new 'Power Cycle' button and corresponding logic to safely perform a device power reset, handle the disconnection state, and require manual reconnection.)
 
-current_version = "20250817.183400.1"
-current_version_hash = 20250817 * 183400 * 1
+current_version = "20250818.205500.1"
+current_version_hash = 20250818 * 205500 * 1
 
 import tkinter as tk
 from tkinter import ttk, messagebox
 import inspect
 import os
 import threading
-from datetime import datetime
+import time
 
 # Import low-level VISA utilities
 from tabs.Instrument.instrument_logic import connect_instrument_logic, disconnect_instrument_logic, populate_resources_logic
+from yak.utils_yak_setting_handler import reset_device, do_power_cycle
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
@@ -39,11 +38,18 @@ class InstrumentTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func if console_print_func else console_log
         self.parent_notebook_ref = parent_notebook_ref
+
+        # Tkinter StringVars for displaying instrument details
+        self.manufacturer_var = tk.StringVar(value="N/A")
+        self.model_var = tk.StringVar(value="N/A")
+        self.serial_number_var = tk.StringVar(value="N/A")
+        self.version_var = tk.StringVar(value="N/A")
+
         self._create_widgets()
 
     def _create_widgets(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering _create_widgets. Creating simplified widgets for the Connection Tab.",
+        debug_log(f"Entering _create_widgets. Creating simplified widgets for the Connection Tab. 🛠️",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -66,10 +72,42 @@ class InstrumentTab(ttk.Frame):
         # Connect/Disconnect button
         self.connect_button = ttk.Button(main_frame, text="Connect", command=self._toggle_connection, style='Green.TButton')
         self.connect_button.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        
+        # NEW: Instrument Details Frame
+        self.details_frame = ttk.LabelFrame(main_frame, text="Device Details", style='Dark.TLabelframe', padding=10)
+        self.details_frame.grid(row=3, column=0, padx=5, pady=5, sticky="ew")
+        self.details_frame.grid_columnconfigure(1, weight=1)
+        self.details_frame.grid_remove() # Hide initially
+
+        ttk.Label(self.details_frame, text="Manufacturer:").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+        ttk.Label(self.details_frame, textvariable=self.manufacturer_var, style='Dark.TLabel.Value').grid(row=0, column=1, sticky="ew", padx=5, pady=2)
+
+        ttk.Label(self.details_frame, text="Model:").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+        ttk.Label(self.details_frame, textvariable=self.model_var, style='Dark.TLabel.Value').grid(row=1, column=1, sticky="ew", padx=5, pady=2)
+        
+        ttk.Label(self.details_frame, text="Serial Number:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+        ttk.Label(self.details_frame, textvariable=self.serial_number_var, style='Dark.TLabel.Value').grid(row=2, column=1, sticky="ew", padx=5, pady=2)
+        
+        ttk.Label(self.details_frame, text="Firmware Version:").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+        ttk.Label(self.details_frame, textvariable=self.version_var, style='Dark.TLabel.Value').grid(row=3, column=1, sticky="ew", padx=5, pady=2)
+
+        # NEW: Reset and Power Cycle Buttons Frame
+        control_buttons_frame = ttk.Frame(main_frame, style='Dark.TFrame')
+        control_buttons_frame.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        control_buttons_frame.grid_columnconfigure(0, weight=1)
+        control_buttons_frame.grid_columnconfigure(1, weight=1)
+
+        self.reset_button = ttk.Button(control_buttons_frame, text="Reset Instrument (*RST)", command=self._reset_instrument, style='Orange.TButton')
+        self.reset_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        self.reset_button.config(state=tk.DISABLED) # Start disabled
+        
+        self.power_cycle_button = ttk.Button(control_buttons_frame, text="Power Cycle", command=self._power_cycle_instrument, style='Red.TButton')
+        self.power_cycle_button.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.power_cycle_button.config(state=tk.DISABLED) # Start disabled
 
         self.app_instance.is_connected.trace_add('write', self._update_connection_status)
         
-        debug_log(f"Simplified widgets for Connection Tab created. Ready to go! 🚀",
+        debug_log(f"Simplified widgets for Connection Tab created. Ready to go! �",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -86,7 +124,16 @@ class InstrumentTab(ttk.Frame):
             self.connect_button.config(text="Disconnect", style='Red.TButton')
             self.populate_button.config(state=tk.DISABLED)
             self.resource_combobox.config(state='disabled')
+            self.reset_button.config(state=tk.NORMAL)
+            self.power_cycle_button.config(state=tk.NORMAL)
+            self.details_frame.grid()
             
+            # Populate the new labels
+            self.manufacturer_var.set(self.app_instance.connected_instrument_manufacturer.get())
+            self.model_var.set(self.app_instance.connected_instrument_model.get())
+            self.serial_number_var.set(self.app_instance.connected_instrument_serial.get())
+            self.version_var.set(self.app_instance.connected_instrument_version.get())
+
             # FIXED: Add a check to ensure the settings_tab exists before trying to switch to it.
             if self.parent_notebook_ref and hasattr(self.parent_notebook_ref, 'settings_tab'):
                 self.parent_notebook_ref.switch_to_settings_tab()
@@ -95,6 +142,9 @@ class InstrumentTab(ttk.Frame):
             self.connect_button.config(text="Connect", style='Green.TButton')
             self.populate_button.config(state=tk.NORMAL)
             self.resource_combobox.config(state='readonly')
+            self.reset_button.config(state=tk.DISABLED)
+            self.power_cycle_button.config(state=tk.DISABLED)
+            self.details_frame.grid_remove()
             self.console_print_func("❌ Disconnected from instrument.")
 
     def _toggle_connection(self):
@@ -132,6 +182,32 @@ class InstrumentTab(ttk.Frame):
         
         disconnection_thread = threading.Thread(target=disconnect_instrument_logic, args=(self.app_instance, self.console_print_func))
         disconnection_thread.start()
+    
+    # NEW: Reset Button Functionality
+    def _reset_instrument(self):
+        # [A brief, one-sentence description of the function's purpose.]
+        # Sends a soft reset command to the instrument in a separate thread.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Reset button clicked. Starting reset thread. ♻️",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        reset_thread = threading.Thread(target=reset_device, args=(self.app_instance, self.console_print_func))
+        reset_thread.start()
+    
+    # NEW: Power Cycle Functionality
+    def _power_cycle_instrument(self):
+        # [A brief, one-sentence description of the function's purpose.]
+        # Sends a power reset command to the instrument in a separate thread.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Power Cycle button clicked. Starting power cycle thread. 💥",
+                    file=os.path.basename(__file__),
+                    version=current_version,
+                    function=current_function)
+        
+        power_cycle_thread = threading.Thread(target=do_power_cycle, args=(self.app_instance, self.console_print_func))
+        power_cycle_thread.start()
         
     def _on_tab_selected(self, event=None):
         current_function = inspect.currentframe().f_code.co_name

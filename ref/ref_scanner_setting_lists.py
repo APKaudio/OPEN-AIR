@@ -329,23 +329,13 @@ PRESET_BANDWIDTH_RBW = [
     },
 ]
 
+
+# REVERSED ORDERING. This is the way.
 PRESET_FREQUENCY_SPAN = [
     {
-        "value": 100_000_000,
-        "label": "Ultra Wide",
-        "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
-        "handler": "set_span_frequency"
-    },
-    {
-        "value": 10_000_000,
-        "label": "Wide",
-        "description": "A broad, digestible view of the spectrum, great for general reconnaissance.",
-        "handler": "set_span_frequency"
-    },
-    {
-        "value": 1_000_000,
-        "label": "Normal",
-        "description": "The standard span, a balanced diet for most common analysis.",
+        "value": 10_000,
+        "label": "Microscope",
+        "description": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
         "handler": "set_span_frequency"
     },
     {
@@ -355,9 +345,33 @@ PRESET_FREQUENCY_SPAN = [
         "handler": "set_span_frequency"
     },
     {
-        "value": 10_000,
-        "label": "Microscope",
-        "description": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
+        "value": 1_000_000,
+        "label": "Normal",
+        "description": "The standard span, a balanced diet for most common analysis.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 10_000_000,
+        "label": "Wide",
+        "description": "A broad, digestible view of the spectrum, great for general reconnaissance.",
+        "handler": "set_span_frequency"
+    },
+    {
+        "value": 100_000_000,
+        "label": "Ultra Wide",
+        "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+        "handler": "set_span_frequency"
+    },
+        {
+        "value": 500_000_000,
+        "label": "From Space",
+        "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+        "handler": "set_span_frequency"
+    },
+            {
+        "value": 1_000_000_000,
+        "label": "From The Moon",
+        "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
         "handler": "set_span_frequency"
     },
 ]

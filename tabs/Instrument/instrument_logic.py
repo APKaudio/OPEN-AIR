@@ -17,10 +17,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.101300.1 (REFACTORED: Rewrote query_current_settings_logic to use high-level YakGet calls to eliminate redundancy and simplify the code.)
+# Version 20250818.203000.2 (UPDATED: Corrected IDN parsing logic in connect_instrument_logic to handle devices that return 2 values instead of 4, ensuring all available information is displayed and preventing errors.)
 
-current_version = "20250813.101300.1"
-current_version_hash = 20250813 * 101300 * 1
+current_version = "20250818.203000.2"
+current_version_hash = 20250818 * 203000 * 2
 
 import inspect
 import os
@@ -93,17 +93,34 @@ def connect_instrument_logic(app_instance, console_print_func):
         idn_response = YakGet(app_instance, "SYSTEM/ID", console_print_func)
         if idn_response and idn_response != "FAILED":
             idn_parts = idn_response.split(',')
+            
+            # UPDATED: Handle the full IDN string regardless of the number of parts
+            manufacturer = "N/A"
+            model = "GENERIC"
+            serial_number = "N/A"
+            version = "N/A"
+            
+            if len(idn_parts) >= 1:
+                manufacturer = idn_parts[0].strip()
             if len(idn_parts) >= 2:
-                app_instance.connected_instrument_manufacturer.set(idn_parts[0].strip())
-                app_instance.connected_instrument_model.set(idn_parts[1].strip())
-            else:
-                console_print_func("⚠️ Warning: Could not parse instrument IDN. Proceeding with generic model.")
-                app_instance.connected_instrument_manufacturer.set("N/A")
-                app_instance.connected_instrument_model.set("GENERIC")
+                model = idn_parts[1].strip()
+            if len(idn_parts) >= 3:
+                serial_number = idn_parts[2].strip()
+            if len(idn_parts) >= 4:
+                version = idn_parts[3].strip()
+
+            app_instance.connected_instrument_manufacturer.set(manufacturer)
+            app_instance.connected_instrument_model.set(model)
+            app_instance.connected_instrument_serial.set(serial_number)
+            app_instance.connected_instrument_version.set(version)
+            console_print_func(f"✅ Device details found: {manufacturer}, {model}, {serial_number}, {version}")
+
         else:
             console_print_func("⚠️ Warning: Could not query instrument IDN. Proceeding with generic settings.")
             app_instance.connected_instrument_manufacturer.set("N/A")
             app_instance.connected_instrument_model.set("GENERIC")
+            app_instance.connected_instrument_serial.set("N/A")
+            app_instance.connected_instrument_version.set("N/A")
         
         app_instance.is_connected.set(True)
         debug_log("Connection successful! The instrument is alive! 🥳",
@@ -116,7 +133,7 @@ def connect_instrument_logic(app_instance, console_print_func):
         debug_log(f"Connection failed spectacularly! Error: {e}. What a disaster! Traceback: {traceback.format_exc()}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
-        disconnect_instrument(app_instance, console_print_func)
+        disconnect_instrument_logic(app_instance, console_print_func)
         app_instance.is_connected.set(False)
         return False
 
@@ -142,7 +159,7 @@ def disconnect_instrument_logic(app_instance, console_print_func):
     app_instance.is_connected.set(False)
     
     if result:
-        debug_log("Successfully disconnected. Until we meet again! �",
+        debug_log("Successfully disconnected. Until we meet again! 👋",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
     else:

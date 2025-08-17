@@ -14,12 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250815.221000.1
-# FIX: Corrected the custom layout for 'InteractionBars.TScale' by building on the stock clam theme's layout.
-#      The layout now correctly defines the 'trough' and 'slider' elements to prevent TclErrors.
+# Version 20250818.232000.2 (FIXED: Reverted the problematic custom style, and updated the selected text highlight color for entry widgets to be more visible.)
 
-current_version = "20250815.221000.1"
-current_version_hash = (20250815 * 221000 * 1)
+current_version = "20250818.232000.2"
+current_version_hash = (20250818 * 232000 * 2)
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -110,20 +108,28 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure('Dark.TLabel.Error', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
     style.configure('Disconnected.TLabel', background=COLOR_PALETTE['red_btn'], foreground=COLOR_PALETTE['white'], font=('Helvetica', 10, 'bold'))
 
-    style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground='white', borderwidth=1, relief="solid", font=('Helvetica', 10))
-    style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
+    # REVERTED: The custom 'Dark.TLabel.Result' style and its layout have been removed.
+    # The label will now use the default 'TLabel' style.
 
-    style.configure('TCheckbutton', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
+
+    # UPDATED: Changed font size for Entry widgets to 14pt AND added selectbackground
+    style.configure('TEntry', fieldbackground=COLOR_PALETTE['input_bg'], foreground='white', borderwidth=1, relief="solid", font=('Helvetica', 14))
+    style.map('TEntry', fieldbackground=[('focus', COLOR_PALETTE['active_bg'])])
+    style.map('TEntry', selectbackground=[('selected', COLOR_PALETTE['select_bg'])])
+
+    style.configure('TCheckbutton', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 9))
     style.map('TCheckbutton',
         background=[('active', COLOR_PALETTE['background'])],
         foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # UPDATED: Changed font size for Combobox widgets to 14pt
     style.configure('TCombobox',
                      fieldbackground=COLOR_PALETTE['input_bg'],
                      selectbackground=COLOR_PALETTE['select_bg'],
                      foreground=COLOR_PALETTE['input_fg'],
                      selectforeground=COLOR_PALETTE['select_fg'],
-                     background=COLOR_PALETTE['input_bg'])
+                     background=COLOR_PALETTE['input_bg'],
+                     font=('Helvetica', 14))
     style.map('TCombobox',
               fieldbackground=[('readonly', COLOR_PALETTE['input_bg'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])],
@@ -131,7 +137,8 @@ def apply_styles(style, debug_log_func, current_app_version):
               selectforeground=[('readonly', COLOR_PALETTE['select_fg'])])
 
     # --- New Slider Style ---
-    # Define the layout for the new custom slider style based on the stock style.
+    # Define the layout for the new custom slider style based on the stock clam theme's layout
+    # FIXED: Layout corrected to build on the stock clam theme's layout.
     style.layout('Horizontal.InteractionBars.TScale',
         [('Horizontal.Scale.trough',
           {'sticky': 'nswe'}),
@@ -156,42 +163,48 @@ def apply_styles(style, debug_log_func, current_app_version):
         active_color = config['active']
         inactive_color = _get_dark_color(active_color)
         
+        # UPDATED: Changed font size for active parent buttons to 13pt
         style.configure(f'{name}.Active.TButton', background=active_color, foreground=config['fg'], font=('Helvetica', 13, 'bold'), relief='flat')
         style.map(f'{name}.Active.TButton', background=[('active', active_color)])
         
-        style.configure(f'{name}.Inactive.TButton', background=inactive_color, foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 10, 'bold'), relief='flat')
+        # UPDATED: Changed font size for inactive parent buttons to 13pt
+        style.configure(f'{name}.Inactive.TButton', background=inactive_color, foreground=COLOR_PALETTE['foreground'], font=('Helvetica', 13, 'bold'), relief='flat')
         style.map(f'{name}.Inactive.TButton', background=[('active', active_color)])
 
         child_style_name = f'{name}.Child.TNotebook'
         child_tab_style_name = f'{child_style_name}.Tab'
         
         style.configure(child_style_name, background=COLOR_PALETTE['background'], borderwidth=1)
-        style.configure(child_tab_style_name, background=inactive_color, foreground=COLOR_PALETTE['foreground'], padding=[8, 4], font=('Helvetica', 9, 'bold'))
+        # UPDATED: Changed font size for child tabs to 13pt
+        style.configure(child_tab_style_name, background=inactive_color, foreground=COLOR_PALETTE['foreground'], padding=[8, 4], font=('Helvetica', 13, 'bold'))
         style.map(child_tab_style_name, background=[('selected', active_color)], foreground=[('selected', config['fg'])])
 
     # --- Device Buttons (Markers Tab) ---
+    # UPDATED: Changed font size for device buttons to 13pt
     style.configure('DeviceButton.Inactive.TButton', 
                      background=COLOR_PALETTE['active_bg'], 
                      foreground=COLOR_PALETTE['foreground'], 
-                     font=('Helvetica', 10),
+                     font=('Helvetica', 13),
                      padding=5,
                      anchor='center',
                      justify='center')
     style.map('DeviceButton.Inactive.TButton', background=[('active', COLOR_PALETTE['select_bg'])])
     
+    # UPDATED: Changed font size for active device buttons to 13pt
     style.configure('DeviceButton.Active.TButton',
                      background=COLOR_PALETTE['orange_btn'],
                      foreground='black',
-                     font=('Helvetica', 10, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=5,
                      anchor='center',
                      justify='center')
     style.map('DeviceButton.Active.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
+    # UPDATED: Changed font size for blinking device buttons to 13pt
     style.configure('DeviceButton.Blinking.TButton',
                      background=COLOR_PALETTE['red_btn'],
                      foreground='white',
-                     font=('Helvetica', 10, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=5,
                      anchor='center',
                      justify='center')
@@ -199,20 +212,22 @@ def apply_styles(style, debug_log_func, current_app_version):
 
 
     # --- Styles for Control Buttons (Markers Tab) ---
+    # UPDATED: Changed font size for control buttons to 13pt
     style.configure('ControlButton.Inactive.TButton',
                      background=COLOR_PALETTE['grey_btn'],
                      foreground=COLOR_PALETTE['foreground'],
-                     font=('Helvetica', 9),
+                     font=('Helvetica', 13),
                      padding=5,
                      anchor='center',
                      justify='center')
     style.map('ControlButton.Inactive.TButton',
               background=[('active', COLOR_PALETTE['grey_btn_active'])])
     
+    # UPDATED: Changed font size for active control buttons to 13pt
     style.configure('ControlButton.Active.TButton',
                      background=COLOR_PALETTE['orange_btn'],
                      foreground='black',
-                     font=('Helvetica', 9, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[5, 5],
                      anchor='center',
                      justify='center')
@@ -220,10 +235,11 @@ def apply_styles(style, debug_log_func, current_app_version):
               background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
     # --- Styles for Band Selection Buttons (Running Tab) ---
+    # UPDATED: Changed font size for band buttons to 13pt
     style.configure('Band.TButton',
                      background=COLOR_PALETTE['grey_btn'],
                      foreground='white',
-                     font=('Helvetica', 9),
+                     font=('Helvetica', 13),
                      padding=[5, 5],
                      anchor='center',
                      justify='center',
@@ -232,10 +248,11 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Band.TButton',
               background=[('active', COLOR_PALETTE['grey_btn_active'])])
 
+    # UPDATED: Changed font size for low band buttons to 13pt
     style.configure('Band.Low.TButton',
                      background=COLOR_PALETTE['yellow_btn'],
                      foreground='black',
-                     font=('Helvetica', 9, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[5, 5],
                      anchor='center',
                      justify='center',
@@ -244,10 +261,11 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Band.Low.TButton',
               background=[('active', COLOR_PALETTE['yellow_btn_active'])])
 
+    # UPDATED: Changed font size for medium band buttons to 13pt
     style.configure('Band.Medium.TButton',
                      background=COLOR_PALETTE['orange_btn'],
                      foreground='black',
-                     font=('Helvetica', 9, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[5, 5],
                      anchor='center',
                      justify='center',
@@ -256,10 +274,11 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.map('Band.Medium.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active'])])
 
+    # UPDATED: Changed font size for high band buttons to 13pt
     style.configure('Band.High.TButton',
                      background=COLOR_PALETTE['red_btn'],
                      foreground='white',
-                     font=('Helvetica', 9, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[5, 5],
                      anchor='center',
                      justify='center',
@@ -269,59 +288,70 @@ def apply_styles(style, debug_log_func, current_app_version):
               background=[('active', COLOR_PALETTE['red_btn_active'])])
 
     # --- Run Control Buttons (Start, Pause, Stop) ---
+    # UPDATED: Changed font size for scan control buttons to 13pt
     style.configure('StartScan.TButton',
                      background=COLOR_PALETTE['green_btn'],
                      foreground='white',
-                     font=('Helvetica', 11, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[10, 5])
     style.map('StartScan.TButton',
               background=[('active', COLOR_PALETTE['green_btn_active']),
                           ('disabled', COLOR_PALETTE['disabled_bg'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # UPDATED: Changed font size for scan control buttons to 13pt
     style.configure('PauseScan.TButton',
                      background=COLOR_PALETTE['orange_btn'],
                      foreground='black',
-                     font=('Helvetica', 11, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[10, 5])
     style.map('PauseScan.TButton',
               background=[('active', COLOR_PALETTE['orange_btn_active']),
                           ('disabled', COLOR_PALETTE['disabled_bg'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
 
+    # UPDATED: Changed font size for scan control buttons to 13pt
     style.configure('StopScan.TButton',
                      background=COLOR_PALETTE['red_btn'],
                      foreground='white',
-                     font=('Helvetica', 11, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[10, 5])
     style.map('StopScan.TButton',
               background=[('active', COLOR_PALETTE['red_btn_active']),
                           ('disabled', COLOR_PALETTE['disabled_bg'])],
               foreground=[('disabled', COLOR_PALETTE['disabled_fg'])])
     
+    # UPDATED: Changed font size for scan control buttons to 13pt
     style.configure('ResumeScan.Blink.TButton',
                      background=COLOR_PALETTE['select_bg'],
                      foreground='white',
-                     font=('Helvetica', 11, 'bold'),
+                     font=('Helvetica', 13, 'bold'),
                      padding=[10, 5])
     style.map('ResumeScan.Blink.TButton',
               background=[('active', COLOR_PALETTE['blue_btn_active'])])
 
 
     # --- Other Generic Buttons ---
-    style.configure('Green.TButton', background=COLOR_PALETTE['green_btn'], foreground='white')
+    # UPDATED: Changed font size for generic buttons to 13pt
+    style.configure('Green.TButton', background=COLOR_PALETTE['green_btn'], foreground='white', font=('Helvetica', 13))
     style.map('Green.TButton', background=[('active', COLOR_PALETTE['green_btn_active'])])
-    style.configure('Red.TButton', background=COLOR_PALETTE['red_btn'], foreground='white')
+    # UPDATED: Changed font size for generic buttons to 13pt
+    style.configure('Red.TButton', background=COLOR_PALETTE['red_btn'], foreground='white', font=('Helvetica', 13))
     style.map('Red.TButton', background=[('active', COLOR_PALETTE['red_btn_active'])])
-    style.configure('Blue.TButton', background=COLOR_PALETTE['blue_btn'], foreground='white')
+    # UPDATED: Changed font size for generic buttons to 13pt
+    style.configure('Blue.TButton', background=COLOR_PALETTE['blue_btn'], foreground='white', font=('Helvetica', 13))
     style.map('Blue.TButton', background=[('active', COLOR_PALETTE['blue_btn_active'])])
-    style.configure('Orange.TButton', background=COLOR_PALETTE['orange_btn'], foreground='black')
+    # UPDATED: Changed font size for generic buttons to 13pt
+    style.configure('Orange.TButton', background=COLOR_PALETTE['orange_btn'], foreground='black', font=('Helvetica', 13))
     style.map('Orange.TButton', background=[('active', COLOR_PALETTE['orange_btn_active'])])
-    style.configure('Purple.TButton', background=COLOR_PALETTE['purple_btn'], foreground='white')
+    # UPDATED: Changed font size for generic buttons to 13pt
+    style.configure('Purple.TButton', background=COLOR_PALETTE['purple_btn'], foreground='white', font=('Helvetica', 13))
     style.map('Purple.TButton', background=[('active', COLOR_PALETTE['purple_btn_active'])])
 
     # --- Treeview ---
-    style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 9))
+    # UPDATED: Changed font size for Treeview to 13pt
+    style.configure("Treeview", background=COLOR_PALETTE['input_bg'], foreground=COLOR_PALETTE['foreground'], fieldbackground=COLOR_PALETTE['input_bg'], font=("Helvetica", 13))
     style.map("Treeview", background=[('selected', COLOR_PALETTE['select_bg'])], foreground=[('selected', COLOR_PALETTE['select_fg'])])
-    style.configure("Treeview.Heading", font=("Helvetica", 9, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
+    # UPDATED: Changed font size for Treeview headings to 13pt
+    style.configure("Treeview.Heading", font=("Helvetica", 13, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
     style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])

@@ -15,16 +15,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.124230.29
-# FIX: The toggle_preamp function now correctly turns off high sensitivity mode if it is active when the preamp is being turned off.
-# This fixes the logical bug where both settings could be simultaneously disabled without the intended inverse relationship.
+# Version 20250818.204500.1 (NEW: Added do_power_cycle function to handle the POWER/RESET command and a 20-second reconnection delay. The function also explicitly sets the application to a disconnected state.)
 
-current_version = "Version 20250816.124230.29"
-current_version_hash = (20250816 * 124230 * 29)
+current_version = "20250818.204500.1"
+current_version_hash = (20250818 * 204500 * 1)
 
 import os
 import inspect
 import numpy as np 
+import threading
+import time
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -630,6 +630,29 @@ def get_trace_data_logic(app_instance, console_print_func):
             console_print_func(f"❌ Failed to retrieve Trace {i} data.")
     
     return all_trace_data
+    
+def do_power_cycle(app_instance, console_print_func):
+    # Function Description:
+    # Sends a power cycle command to the instrument and handles the disconnection state.
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"API call to power cycle the device.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+    
+    if not app_instance.is_connected.get():
+        console_print_func("❌ Not connected to an instrument. Cannot power cycle device.")
+        return False
+
+    console_print_func("⚠️ Initiating device power cycle. Connection will be lost for ~20 seconds. Please wait to reconnect.")
+    
+    if YakDo(app_instance, "POWER/RESET", console_print_func=console_print_func) == "PASSED":
+        # The instrument is now cycling, so we need to set the application state to disconnected.
+        # This is the correct way to handle the disconnected state after a reset.
+        app_instance.is_connected.set(False)
+        return True
+        
+    return False
 
 def get_all_marker_values_logic(app_instance, console_print_func):
     """
