@@ -244,11 +244,6 @@ def get_default_commands():
 
 
 
-        # Averaging
-        ("Keysight Technologies", "*", "TRACE/1/AVERAGE/ON", "DO", ":SENS:AVER:TRAC1:STAT", "ON", ""),
-        ("Keysight Technologies", "*", "TRACE/2/AVERAGE/ON", "DO", ":SENS:AVER:TRAC2:STAT", "ON", ""),
-        ("Keysight Technologies", "*", "TRACE/3/AVERAGE/ON", "DO", ":SENS:AVER:TRAC3:STAT", "ON", ""),
-        ("Keysight Technologies", "*", "TRACE/4/AVERAGE/ON", "DO", ":SENS:AVER:TRAC4:STAT", "ON", ""),
 
         # Trace Mode write
         ("Keysight Technologies", "*", "TRACE/1/MODE/WRITE", "DO", ":TRAC1:MODE", "WRITe", ""),
@@ -306,31 +301,18 @@ def get_default_commands():
         ("Keysight Technologies", "*", "TRACE/4/MODE", "GET", ":TRAC4:MODE", "?", ""),
 
         # Averaging:
-        ("Keysight Technologies", "", "TRACE/1/AVERAGE/COUNT", "SET", ":SENS:AVER:TRAC1:COUNT", "10", ""),
-        ("Keysight Technologies", "", "TRACE/2/AVERAGE/COUNT", "SET", ":SENS:AVER:TRAC2:COUNT", "10", ""),
-        ("Keysight Technologies", "", "TRACE/3/AVERAGE/COUNT", "SET", ":SENS:AVER:TRAC3:COUNT", "10", ""),
-        ("Keysight Technologies", "", "TRACE/4/AVERAGE/COUNT", "SET", ":SENS:AVER:TRAC4:COUNT", "10", ""),
 
-        ("Keysight Technologies", "", "TRACE/1/AVERAGE/COUNT", "GET", ":SENS:AVER:TRAC1:COUNT", "?", ""),
-        ("Keysight Technologies", "", "TRACE/2/AVERAGE/COUNT", "GET", ":SENS:AVER:TRAC2:COUNT", "?", ""),
-        ("Keysight Technologies", "", "TRACE/3/AVERAGE/COUNT", "GET", ":SENS:AVER:TRAC3:COUNT", "?", ""),
-        ("Keysight Technologies", "", "TRACE/4/AVERAGE/COUNT", "GET", ":SENS:AVER:TRAC4:COUNT", "?", ""),
 
-        ("Keysight Technologies", "*", "TRACE/1/AVERAGE", "GET", ":SENS:AVER:TRAC1:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/2/AVERAGE", "GET", ":SENS:AVER:TRAC2:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/3/AVERAGE", "GET", ":SENS:AVER:TRAC3:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/4/AVERAGE", "GET", ":SENS:AVER:TRAC4:STAT", "?", ""),
+        
+        # Averaging
+        ("Keysight Technologies", "*", "AVERAGE/ON", "DO", ":AVER:TRAC1:STAT", "ON", ""),
+        ("Keysight Technologies", "*", "AVERAGE/OFF", "DO", ":AVER:TRAC1:STAT", "OFF", ""),
+        ("Keysight Technologies", "*", "AVERAGE", "SET", ":AVER:TRAC1:COUNT", "25", ""),
+        ("Keysight Technologies", "*", "AVERAGE", "NAB", ":AVER:TRAC1:STAT?;:AVER:TRAC1:COUNT?", "2", ""),
 
-        ("Keysight Technologies", "*", "TRACE/1/AVERAGE/OFF", "SET", ":SENS:AVER:TRAC1:STAT", "OFF", ""),
-        ("Keysight Technologies", "*", "TRACE/2/AVERAGE/OFF", "SET", ":SENS:AVER:TRAC2:STAT", "OFF", ""),
-        ("Keysight Technologies", "*", "TRACE/3/AVERAGE/OFF", "SET", ":SENS:AVER:TRAC3:STAT", "OFF", ""),
-        ("Keysight Technologies", "*", "TRACE/4/AVERAGE/OFF", "SET", ":SENS:AVER:TRAC4:STAT", "OFF", ""),
+        
 
-        ("Keysight Technologies", "*", "TRACE/1/AVERAGE", "GET", ":SENS:AVER:TRAC1:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/2/AVERAGE", "GET", ":SENS:AVER:TRAC2:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/3/AVERAGE", "GET", ":SENS:AVER:TRAC3:STAT", "?", ""),
-        ("Keysight Technologies", "*", "TRACE/4/AVERAGE", "GET", ":SENS:AVER:TRAC4:STAT", "?", ""),
-
+        
         ("Keysight Technologies", "*", "TRACE/DISPLAY/TYPE", "GET", ":DISPlay:WINDow:TRACe:TYPE", "?", ""),
         ("Keysight Technologies", "*", "TRACE/DISPLAY/Y SCALE/SPACING", "SET", ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing", "LOGarithmic", ""),
         ("Keysight Technologies", "N9342CN", "TRACE/FORMAT/DATA/ASCII", "DO", ":TRACe:FORMat:DATA", "ASCii", ""), # For *

@@ -325,3 +325,68 @@ PRESET_SWEEP_TIME = [
         "handler": "set_sweep_time"
     }
 ]
+
+
+
+PRESET_AVERAGING = [
+    {
+        "value": "OFF",
+        "label": "Off",
+        "description": "Just a raw, single sweep. Great for seeing fast changes and fleeting events, but the noise floor is high and the trace is very jittery.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 5,
+        "label": "Light Filter",
+        "description": "A very mild smoothing of the signal, removing some of the jitter. It’s like putting a slight damper on the noise, making the trace a little easier to read.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 10,
+        "label": "Getting Clear",
+        "description": "The trace becomes noticeably less fuzzy. The random spikes of the noise floor start to settle down, revealing more consistent signals.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 25,
+        "label": "The Sweet Spot",
+        "description": "A good balance of noise reduction and display speed. The noise floor is clean, and low-level, stable signals are clearly visible.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 50,
+        "label": "Steady Hands",
+        "description": "The noise floor is now very stable and appears as a thin line. You’re only seeing the most consistent signals and cutting out most of the random interference.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 75,
+        "label": "Deep Dive",
+        "description": "This setting is for serious analysis. It's a highly stable trace that filters out a large portion of the ambient RF noise, allowing for precise measurements of continuous signals.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 100,
+        "label": "Scientific Grade",
+        "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection. 🔬",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 200,
+        "label": "Crystal Clear",
+        "description": "A deep and thorough look at the spectrum. All but the most stable signals are averaged out, offering a truly pristine view of the fundamental RF environment.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 500,
+        "label": "The Observer",
+        "description": "An incredibly slow and deliberate pace. This is for long-term monitoring, allowing you to see the overall shape of the spectrum with almost all noise removed.",
+        "handler": "set_averaging"
+    },
+    {
+        "value": 1000,
+        "label": "Meditative Mode",
+        "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis. 🧘‍♂️",
+        "handler": "set_averaging"
+    }
+]

@@ -127,7 +127,7 @@ def _find_command(command_type, action_type, model):
                         function=current_function)
             return row[3], row[4], row[5]
 
-    debug_log(f"No matching command found for Type: '{upper_command_type}', Action: '{upper_action_type}', Model: '{upper_model}'. This is a fucking waste of time! 💥",
+    debug_log(f"No matching command found for Type: '{upper_command_type}', Action: '{upper_action_type}', Model: '{upper_model}'. This is a fucking waste of time! �",
                 file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
@@ -454,7 +454,7 @@ def execute_visa_command(app_instance, action_type, visa_command, variable_value
             if response_string is not None:
                 # FIXED: The instrument response is a single string with values separated by commas.
                 # The raw response needs to be split by commas, not semicolons.
-                values = [val.strip() for val in response_string.split(',') if val.strip()]
+                values = [val.strip() for val in response_string.split(';') if val.strip()]
                 console_print_func(f"✅ NAB Response: {values}")
                 debug_log(f"NAB Query response: {response_string}. Fucking finally!",
                             file=os.path.basename(__file__),

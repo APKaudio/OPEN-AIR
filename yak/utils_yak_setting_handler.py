@@ -8,7 +8,7 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
+# application can be negotiated. There is no change to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
@@ -18,13 +18,14 @@
 # Version 20250818.204500.2
 # FIXED: Removed incorrect MHz-to-Hz conversion from set_resolution_bandwidth and set_video_bandwidth functions.
 # UPDATED: Corrected debug log messages to accurately reflect the units being processed.
+# NEW: Added a new handler function to toggle trace averaging on a per-trace basis.
 
 current_version = "20250818.204500.2"
 current_version_hash = (20250818 * 204500 * 2)
 
 import os
 import inspect
-import numpy as np 
+import numpy as np
 import threading
 import time
 
@@ -48,7 +49,7 @@ def refresh_all_from_instrument(app_instance, console_print_func):
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
-    
+
     if not app_instance.is_connected.get():
         console_print_func("❌ Not connected to an instrument. Cannot refresh settings.")
         return None
@@ -59,26 +60,32 @@ def refresh_all_from_instrument(app_instance, console_print_func):
         settings['span_hz'] = YakGet(app_instance, "FREQUENCY/SPAN", console_print_func)
         settings['start_freq_hz'] = YakGet(app_instance, "FREQUENCY/START", console_print_func)
         settings['stop_freq_hz'] = YakGet(app_instance, "FREQUENCY/STOP", console_print_func)
-        
+
         settings['rbw_hz'] = YakGet(app_instance, "BANDWIDTH/RESOLUTION", console_print_func)
         settings['vbw_hz'] = YakGet(app_instance, "BANDWIDTH/VIDEO", console_print_func)
         settings['vbw_auto_on'] = YakGet(app_instance, "BANDWIDTH/VIDEO/AUTO", console_print_func) in ["ON", "1"]
-        
+
         settings['initiate_continuous_on'] = YakGet(app_instance, "INITIATE/CONTINUOUS", console_print_func) in ["ON", "1"]
-        
+
         settings['ref_level_dbm'] = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
         settings['power_attenuation_db'] = YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", console_print_func)
         settings['preamp_on'] = YakGet(app_instance, "AMPLITUDE/POWER/GAIN", console_print_func) in ["ON", "1"]
         settings['high_sensitivity_on'] = YakGet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func) in ["ON", "1"]
-        
+
         settings['trace1_mode'] = YakGet(app_instance, "TRACE/1/MODE", console_print_func)
         settings['trace2_mode'] = YakGet(app_instance, "TRACE/2/MODE", console_print_func)
         settings['trace3_mode'] = YakGet(app_instance, "TRACE/3/MODE", console_print_func)
         settings['trace4_mode'] = YakGet(app_instance, "TRACE/4/MODE", console_print_func)
-        
+
         for i in range(6):
             settings[f'marker{i+1}_on'] = YakGet(app_instance, f"MARKER/{i+1}/CALCULATE/STATE", console_print_func) in ["ON", "1"]
-            
+
+        # NEW: Get averaging state and count for all traces
+        for i in range(1, 5):
+            avg_status, avg_count = get_trace_averaging_settings(app_instance, i, console_print_func)
+            settings[f'trace{i}_average_on'] = avg_status
+            settings[f'trace{i}_average_count'] = avg_count
+
         return settings
     except Exception as e:
         console_print_func(f"❌ Failed to retrieve settings from instrument: {e}.")
@@ -101,7 +108,8 @@ def _trigger_gui_refresh(app_instance):
         # CORRECTED PATH: Navigate through the `tabs_parent` dictionary to find the right object
         instrument_parent_tab = app_instance.tabs_parent.tab_content_frames['Instruments']
         settings_tab = instrument_parent_tab.settings_tab
-        settings_tab._refresh_all_from_instrument()
+        # FIXED: Corrected the function call to the existing method
+        settings_tab.refresh_all_child_tabs()
     except AttributeError as e:
         debug_log(message=f"CRITICAL ERROR: Failed to find the GUI refresh method. Path traversal failed. Error: {e} 💥",
                   file=os.path.basename(__file__),
@@ -221,7 +229,7 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
     
     try:
         # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
-        hz_value = int(float(value)) 
+        hz_value = int(float(value))
         if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
@@ -245,7 +253,7 @@ def set_video_bandwidth(app_instance, value, console_print_func):
         
     try:
         # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
-        hz_value = int(float(value)) 
+        hz_value = int(float(value))
         if YakSet(app_instance, "BANDWIDTH/VIDEO", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
@@ -537,6 +545,123 @@ def do_peak_search(app_instance, console_print_func):
         return True
     return False
 
+def toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func):
+    """
+    Function Description:
+    Toggles the averaging state for a specific trace and triggers a GUI refresh.
+    
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - trace_number (int): The number of the trace to toggle (1-4).
+    - is_on (bool): The desired state for averaging (True for ON, False for OFF).
+    - console_print_func (function): A function to print messages to the GUI console.
+    
+    Outputs:
+    - bool: True if the command is executed successfully, False otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"API call to toggle trace averaging for trace {trace_number} to {is_on}.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+    
+    if not app_instance.is_connected.get():
+        console_print_func("❌ Not connected to an instrument. Cannot toggle trace averaging.")
+        return False
+
+    # FIXED: Use the new DO commands for ON and OFF states
+    state_str = "ON" if is_on else "OFF"
+    command_type = f"AVERAGE/{state_str}"
+    
+    if YakDo(app_instance, command_type, console_print_func) == "PASSED":
+        console_print_func(f"✅ Trace {trace_number} averaging turned {state_str}.")
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
+        return True
+    
+    return False
+
+# NEW: Add a function to set the average count
+def set_trace_averaging_count(app_instance, trace_number, count, console_print_func):
+    """
+    Function Description:
+    Sets the averaging count for a specific trace and triggers a GUI refresh.
+    
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - trace_number (int): The number of the trace to set (1-4).
+    - count (int): The desired averaging count.
+    - console_print_func (function): A function to print messages to the GUI console.
+    
+    Outputs:
+    - bool: True if the command is executed successfully, False otherwise.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"API call to set trace averaging count for trace {trace_number} to {count}.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+    
+    if not app_instance.is_connected.get():
+        console_print_func("❌ Not connected to an instrument. Cannot set trace averaging count.")
+        return False
+        
+    command_type = f"AVERAGE"
+    variable_value = count # The full command string for the SET action
+    
+    if YakSet(app_instance, command_type, variable_value, console_print_func) == "PASSED":
+        console_print_func(f"✅ Trace {trace_number} averaging count set to {count}.")
+        app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
+        return True
+    
+    return False
+
+
+# NEW: Add a handler function to get the average state and count
+def get_trace_averaging_settings(app_instance, trace_number, console_print_func) -> (bool, int):
+    """
+    Function Description:
+    Retrieves the averaging state and count for a specific trace using a single NAB command.
+    
+    Inputs:
+    - app_instance (object): A reference to the main application instance.
+    - trace_number (int): The number of the trace to query (1-4).
+    - console_print_func (function): A function to print messages to the GUI console.
+    
+    Outputs:
+    - (bool, int): A tuple containing the averaging state (True/False) and the count, or (None, None) on failure.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"API call to retrieve averaging settings for trace {trace_number}.",
+              file=os.path.basename(__file__),
+              version=current_version,
+              function=current_function)
+              
+    if not app_instance.is_connected.get():
+        console_print_func("❌ Not connected to an instrument. Cannot retrieve averaging settings.")
+        return None, None
+
+    # The command type needs to be generic so YakNab can find it in the CSV
+    command_type = "AVERAGE"
+    
+    response = YakNab(app_instance, command_type, console_print_func)
+    
+    if response and isinstance(response, list) and len(response) >= 2:
+        try:
+            state_str = response[0]
+            count_str = response[1]
+            
+            is_on = state_str in ["ON", "1"]
+            count = int(float(count_str))
+            
+            return is_on, count
+        except (ValueError, IndexError, TypeError) as e:
+            console_print_func(f"❌ Failed to parse averaging settings. Error: {e}")
+            debug_log(message=f"Arrr, the response be gibberish! Error: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+    
+    return None, None
 # =========================================================================
 # HELPER FUNCTIONS - Not for direct GUI use
 # =========================================================================
@@ -715,52 +840,3 @@ def reset_device(app_instance, console_print_func):
     if YakDo(app_instance, "SYSTEM/RESET", console_print_func=console_print_func) == "PASSED":
         return True
     return False
-
-def refresh_all_from_instrument(app_instance, console_print_func):
-    """
-    Queries all settings from the instrument and returns a dictionary of values.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to refresh all settings from the instrument.",
-              file=os.path.basename(__file__),
-              version=current_version,
-              function=current_function)
-    
-    if not app_instance.is_connected.get():
-        console_print_func("❌ Not connected to an instrument. Cannot refresh settings.")
-        return None
-
-    settings = {}
-    try:
-        settings['center_freq_hz'] = YakGet(app_instance, "FREQUENCY/CENTER", console_print_func)
-        settings['span_hz'] = YakGet(app_instance, "FREQUENCY/SPAN", console_print_func)
-        settings['start_freq_hz'] = YakGet(app_instance, "FREQUENCY/START", console_print_func)
-        settings['stop_freq_hz'] = YakGet(app_instance, "FREQUENCY/STOP", console_print_func)
-        
-        settings['rbw_hz'] = YakGet(app_instance, "BANDWIDTH/RESOLUTION", console_print_func)
-        settings['vbw_hz'] = YakGet(app_instance, "BANDWIDTH/VIDEO", console_print_func)
-        settings['vbw_auto_on'] = YakGet(app_instance, "BANDWIDTH/VIDEO/AUTO", console_print_func) in ["ON", "1"]
-        
-        settings['initiate_continuous_on'] = YakGet(app_instance, "INITIATE/CONTINUOUS", console_print_func) in ["ON", "1"]
-        
-        settings['ref_level_dbm'] = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
-        settings['power_attenuation_db'] = YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", console_print_func)
-        settings['preamp_on'] = YakGet(app_instance, "AMPLITUDE/POWER/GAIN", console_print_func) in ["ON", "1"]
-        settings['high_sensitivity_on'] = YakGet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func) in ["ON", "1"]
-        
-        settings['trace1_mode'] = YakGet(app_instance, "TRACE/1/MODE", console_print_func)
-        settings['trace2_mode'] = YakGet(app_instance, "TRACE/2/MODE", console_print_func)
-        settings['trace3_mode'] = YakGet(app_instance, "TRACE/3/MODE", console_print_func)
-        settings['trace4_mode'] = YakGet(app_instance, "TRACE/4/MODE", console_print_func)
-        
-        for i in range(6):
-            settings[f'marker{i+1}_on'] = YakGet(app_instance, f"MARKER/{i+1}/CALCULATE/STATE", console_print_func) in ["ON", "1"]
-            
-        return settings
-    except Exception as e:
-        console_print_func(f"❌ Failed to retrieve settings from instrument: {e}.")
-        debug_log(message=f"Error retrieving settings from instrument: {e}. What a mess!",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function)
-        return None

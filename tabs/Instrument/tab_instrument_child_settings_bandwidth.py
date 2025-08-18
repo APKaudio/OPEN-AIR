@@ -14,16 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.231500.10
-# FIXED: Resolved TypeError by correcting the argument count for handle_bandwidth_settings_nab.
-# FIXED: Removed the call to the non-existent _trigger_gui_refresh method to eliminate the CRITICAL ERROR.
-# FIXED: Corrected sync logic to prevent a crash when no instrument is connected.
-# NEW: Added a dedicated text box to display the parsed response from the NAB query.
-# UPDATED: Corrected sync logic to prevent recursive calls and ensure proper UI update after a change.
-# FIXED: Removed the raw NAB response variable as it was causing a crash and is no longer needed.
+# Version 20250819.004500.1
+# REFACTORED: Simplified averaging UI to a single toggle button and count dropdown for Trace 1.
+# FIXED: Corrected the import path for the `handle_bandwidth_settings_nab` handler.
+# FIXED: Corrected the `YakSet` command format in the `set_trace_averaging_count` handler.
 
-current_version = "20250816.231500.10"
-current_version_hash = 20250816 * 231500 * 10
+current_version = "20250819.004500.1"
+current_version_hash = 20250819 * 4500 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -39,11 +36,11 @@ from yak import utils_yak_setting_handler
 from ref.ref_scanner_setting_lists import (
     PRESET_BANDWIDTH_RBW,
     PRESET_BANDWIDTH_VIDEO,
-    PRESET_CONTINUOUS_MODE
+    PRESET_CONTINUOUS_MODE,
+    PRESET_AVERAGING
 )
-# Import the NAB handler from the new module
+# FIXED: Corrected the import path for the NAB handler
 from yak.utils_yaknab_handler import handle_bandwidth_settings_nab
-from yak.Yakety_Yak import YakNab
 
 class BandwidthSettingsTab(ttk.Frame):
     """
@@ -63,13 +60,22 @@ class BandwidthSettingsTab(ttk.Frame):
         self.vbw_hz_var = tk.DoubleVar(self, value=0.0)
         self.vbw_auto_state_var = tk.BooleanVar(self, value=False)
         self.continuous_mode_var = tk.StringVar(self, value="OFF")
+
+        # NEW: Variables for averaging controls (single trace only)
+        self.average_on_var = tk.BooleanVar(self, value=False)
+        self.average_count_var = tk.IntVar(self, value=0)
         
         # NEW: Variables to hold the parsed NAB response values
         self.parsed_rbw_var = tk.StringVar(self, value="N/A")
         self.parsed_vbw_var = tk.StringVar(self, value="N/A")
         self.parsed_vbw_auto_var = tk.StringVar(self, value="N/A")
         self.parsed_continuous_mode_var = tk.StringVar(self, value="N/A")
-
+        self.parsed_averaging_status_var = tk.StringVar(self, value="N/A")
+        self.parsed_averaging_count_var = tk.StringVar(self, value="N/A")
+        
+        # NEW: Response variable for the averaging controls
+        self.averaging_result_var = tk.StringVar(self, value="Result: N/A")
+        
         self.last_known_rbw_hz = 0.0
         self.last_known_vbw_hz = 0.0
 
@@ -140,10 +146,29 @@ class BandwidthSettingsTab(ttk.Frame):
                                                      command=lambda: utils_yak_setting_handler.do_immediate_initiate(self.app_instance, self.console_print_func))
         self.initiate_immediate_button.grid(row=1, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
         
+        # NEW: Averaging Frame (Updated layout for Trace 1 only)
+        averaging_frame = ttk.LabelFrame(self, text="Averaging", style='Dark.TLabelframe')
+        averaging_frame.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+        averaging_frame.grid_columnconfigure((1, 3), weight=1)
+
+        # Row 0: Averaging Toggle and Count
+        ttk.Label(averaging_frame, text="Trace 1 Averaging:").grid(row=0, column=0, padx=5, pady=2, sticky="w")
+        self.average_on_button = ttk.Button(averaging_frame, text="OFF", command=lambda: self._on_averaging_toggle(1, not self.average_on_var.get()), style='Red.TButton')
+        self.average_on_button.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
+        
+        ttk.Label(averaging_frame, text="Count:").grid(row=0, column=2, padx=5, pady=2, sticky="w")
+        avg_labels = [f"{p['value']} - {p['label']}" for p in PRESET_AVERAGING]
+        self.average_count_dropdown = ttk.Combobox(averaging_frame, textvariable=self.average_count_var, values=avg_labels, state='readonly')
+        self.average_count_dropdown.grid(row=0, column=3, padx=5, pady=2, sticky="ew")
+        self.average_count_dropdown.bind("<<ComboboxSelected>>", lambda event: self._on_averaging_count_selected(event, 1))
+
+        # NEW: Result label for averaging actions
+        ttk.Label(averaging_frame, textvariable=self.averaging_result_var, style="Dark.TLabel.Value").grid(row=1, column=0, columnspan=4, padx=5, pady=2, sticky="ew")
+
+
         # Frame for NAB raw response display
-        # NEW: Changed to display parsed values
         parsed_nab_response_frame = ttk.LabelFrame(self, text="Parsed NAB Response", style='Dark.TLabelframe')
-        parsed_nab_response_frame.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+        parsed_nab_response_frame.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
         parsed_nab_response_frame.grid_columnconfigure(1, weight=1)
 
         ttk.Label(parsed_nab_response_frame, text="RBW (Hz):", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
@@ -169,11 +194,54 @@ class BandwidthSettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
 
+    def _on_averaging_toggle(self, trace_number, state):
+        """
+        Handler for when an averaging toggle button is clicked.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Averaging toggle for trace {trace_number} clicked. State: {state}",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        if utils_yak_setting_handler.toggle_trace_averaging(app_instance=self.app_instance, trace_number=trace_number, is_on=state, console_print_func=self.console_print_func):
+            self.averaging_result_var.set(f"Result: Trace {trace_number} averaging set to {'ON' if state else 'OFF'}.")
+            self._sync_ui_from_app_state()
+        else:
+            self.averaging_result_var.set("Result: FAILED")
+            self._sync_ui_from_app_state()
+
+
+    def _on_averaging_count_selected(self, event, trace_number):
+        current_function = inspect.currentframe().f_code.co_name
+        selected_text = event.widget.get()
+        match = re.search(r'(\d+)', selected_text)
+        
+        if 'Off' in selected_text:
+            count = 0
+            state = False
+        elif match:
+            count = int(match.group(1))
+            state = True
+        else:
+            self.console_print_func(f"❌ Could not parse averaging count from '{selected_text}'.")
+            self.averaging_result_var.set("Result: FAILED to parse count")
+            return
+            
+        debug_log(f"Averaging count for trace {trace_number} selected: {count}, state: {state}", file=os.path.basename(__file__), version=current_version, function=current_function)
+        
+        if utils_yak_setting_handler.set_trace_averaging_count(app_instance=self.app_instance, trace_number=trace_number, count=count, console_print_func=self.console_print_func) and \
+           utils_yak_setting_handler.toggle_trace_averaging(app_instance=self.app_instance, trace_number=trace_number, is_on=state, console_print_func=self.console_print_func):
+            self.averaging_result_var.set(f"Result: Trace {trace_number} averaging set to {count} sweeps.")
+            self._sync_ui_from_app_state()
+        else:
+            self.averaging_result_var.set("Result: FAILED")
+            self._sync_ui_from_app_state()
+
     def _on_tab_selected(self, event=None):
         """
         Called when this tab is selected. Syncs the UI with the application's state.
         """
-        # We only sync the UI if there is a connection.
         if self.app_instance.is_connected.get():
             self._sync_ui_from_app_state()
         else:
@@ -186,7 +254,7 @@ class BandwidthSettingsTab(ttk.Frame):
         This function now calls the NAB handler to get the current state from the instrument.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering {current_function}. Syncing UI from app state. 🔄",
+        debug_log(f"Entering {current_function}. Syncing UI from app state. �",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -206,6 +274,13 @@ class BandwidthSettingsTab(ttk.Frame):
             if hasattr(self.app_instance, 'initiate_continuous_on_var'):
                 self.continuous_mode_var.set(self.app_instance.initiate_continuous_on_var.get())
             
+            # NEW: Set averaging vars from app_instance
+            if hasattr(self.app_instance, 'trace1_average_on_var'):
+                self.average_on_var.set(self.app_instance.trace1_average_on_var.get())
+            if hasattr(self.app_instance, 'trace1_average_count_var'):
+                self.average_count_var.set(self.app_instance.trace1_average_count_var.get())
+
+
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
             self._update_toggle_button_style(self.vbw_auto_toggle_button, self.vbw_auto_state_var.get())
@@ -217,10 +292,6 @@ class BandwidthSettingsTab(ttk.Frame):
             return
 
         # Call the NAB handler to get all settings in one go.
-        # FIXED: Removed the unnecessary "BANDWIDTH/SETTINGS" argument
-        # response = YakNab(self.app_instance, "BANDWIDTH/SETTINGS", self.console_print_func)
-        
-        # Use handle_bandwidth_settings_nab which calls YakNab internally and returns parsed data
         settings = handle_bandwidth_settings_nab(self.app_instance, self.console_print_func)
 
         # Update the parsed response display variables
@@ -239,7 +310,17 @@ class BandwidthSettingsTab(ttk.Frame):
             self.vbw_hz_var.set(settings["VBW_Hz"])
             self.vbw_auto_state_var.set(settings["VBW_Auto_On"])
             self.continuous_mode_var.set("ON" if settings["Continuous_Mode_On"] else "OFF")
-
+            
+            # NEW: Update averaging vars from NAB response for Trace 1 only
+            avg_on, avg_count = utils_yak_setting_handler.get_trace_averaging_settings(self.app_instance, 1, self.console_print_func)
+            
+            # Update the state toggle button
+            self.average_on_var.set(avg_on)
+            self._update_toggle_button_style(self.average_on_button, avg_on)
+            
+            # Update the count dropdown
+            self.average_count_var.set(avg_count)
+            
             # Update the combobox displays
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
@@ -263,9 +344,15 @@ class BandwidthSettingsTab(ttk.Frame):
             self.vbw_auto_state_var.set(self.app_instance.vbw_auto_on_var.get())
             self.continuous_mode_var.set(self.app_instance.initiate_continuous_on_var.get())
             
+            # NEW: Set averaging vars from app_instance
+            if hasattr(self.app_instance, 'trace1_average_on_var'):
+                self.average_on_var.set(self.app_instance.trace1_average_on_var.get())
+            if hasattr(self.app_instance, 'trace1_average_count_var'):
+                self.average_count_var.set(self.app_instance.trace1_average_count_var.get())
+
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
-            self._update_toggle_button_style(self.vbw_auto_state_var.get())
+            self._update_toggle_button_style(self.vbw_auto_toggle_button, self.vbw_auto_state_var.get())
             if self.vbw_auto_state_var.get():
                 self.vbw_combobox.config(state='disabled')
             else:
@@ -275,9 +362,9 @@ class BandwidthSettingsTab(ttk.Frame):
     def _update_toggle_button_style(self, button, state):
         """Updates the style and text of a toggle button based on its state."""
         if state:
-            button.config(style='Orange.TButton', text="ON")
+            button.config(text="ON", style='Green.TButton')
         else:
-            button.config(style='Dark.TButton', text="OFF")
+            button.config(text="OFF", style='Red.TButton')
 
     def _update_rbw_combobox_display(self):
         """Updates the RBW combobox to show the current value."""
