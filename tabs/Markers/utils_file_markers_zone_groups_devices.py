@@ -32,26 +32,6 @@ from src.program_default_values import DATA_FOLDER_PATH
 # Define the path to the markers file
 MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
 
-def create_progress_bar(value, min_val=-120, max_val=0, width=24):
-    # Generates a Unicode text-based progress bar for a given peak value.
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function} with value: {value}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-    try:
-        value = float(value)
-        if value < min_val: value = min_val
-        if value > max_val: value = max_val
-        
-        percentage = (value - min_val) / (max_val - min_val)
-        filled_length = int(width * percentage)
-        
-        bar = '█' * filled_length
-        empty = ' ' * (width - filled_length)
-        debug_log(f"Exiting {current_function}. Generated bar: [{bar}{empty}]", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-        return f"[{bar}{empty}]"
-    except (ValueError, TypeError) as e:
-        debug_log(f"Error in {current_function}: {e}. Returning empty bar. Fucking useless!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-        return f"[{' ' * width}]"
-
 def load_and_structure_markers_data():
     # The main function to load, parse, and structure data from MARKERS.CSV.
     current_function = inspect.currentframe().f_code.co_name

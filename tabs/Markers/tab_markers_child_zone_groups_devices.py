@@ -14,10 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.180000.7
+# Version 20250819.003324.3
+# FIX: Corrected a crash that occurred when returning to the tab and selecting a zone/group.
+#      Stale references to active buttons are now cleared when the data is reloaded.
 
-current_version = "20250814.180000.7"
-current_version_hash = (20250814 * 180000 * 7)
+current_version = "20250819.003324.3"
+current_version_hash = (20250819 * 3324 * 3)
 
 import tkinter as tk
 from tkinter import ttk
@@ -25,12 +27,14 @@ from functools import partial
 import os
 import inspect
 import pandas as pd
+import math # Needed to check for nan
 
 # Import the new utility functions
-from .utils_markers_files_zone_groups_devices import load_and_structure_markers_data, create_progress_bar
-from .utils_markers_zone_group_devices_actions import _start_orchestrated_scan_loop, _stop_scan_loops, focus_device
+from tabs.Markers.utils_file_markers_zone_groups_devices import load_and_structure_markers_data
+from tabs.Markers.utils_button_volume_level import create_signal_level_indicator
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+from src.program_style import COLOR_PALETTE
 
 class ZoneGroupsDevicesFrame(ttk.Frame):
     def __init__(self, parent, app_instance, showtime_tab_instance):
@@ -49,7 +53,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         self.active_zone_button = None
         self.active_group_button = None
         self.active_device_button = None
-        self.device_buttons = {} # Store device button widgets
+        self.device_buttons = {} # Store device button widgets mapped to unique device IDs
 
         self._create_layout()
         self.load_and_display_data()
@@ -79,20 +83,20 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
-        devices_outer_frame = ttk.LabelFrame(parent, text="Devices", style='TLabelframe')
-        devices_outer_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
-        devices_outer_frame.grid_rowconfigure(0, weight=1)
-        devices_outer_frame.grid_columnconfigure(0, weight=1)
+        self.devices_outer_frame = ttk.LabelFrame(parent, text="Devices", style='TLabelframe')
+        self.devices_outer_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
+        self.devices_outer_frame.grid_rowconfigure(0, weight=1)
+        self.devices_outer_frame.grid_columnconfigure(0, weight=1)
 
-        canvas = tk.Canvas(devices_outer_frame, borderwidth=0, highlightthickness=0)
-        scrollbar = ttk.Scrollbar(devices_outer_frame, orient="vertical", command=canvas.yview)
-        self.devices_scrollable_frame = ttk.Frame(canvas, style='Dark.TFrame')
+        self.canvas = tk.Canvas(self.devices_outer_frame, borderwidth=0, highlightthickness=0, bg=COLOR_PALETTE['background'])
+        scrollbar = ttk.Scrollbar(self.devices_outer_frame, orient="vertical", command=self.canvas.yview)
+        self.devices_scrollable_frame = ttk.Frame(self.canvas, style='Dark.TFrame')
 
-        self.devices_scrollable_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-        canvas.create_window((0, 0), window=self.devices_scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        self.devices_scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        self.canvas.create_window((0, 0), window=self.devices_scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
         
-        canvas.grid(row=0, column=0, sticky="nsew")
+        self.canvas.grid(row=0, column=0, sticky="nsew")
         scrollbar.grid(row=0, column=1, sticky="ns")
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
@@ -102,11 +106,23 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
+        # ✅ FIX: Reset active button states before rebuilding the UI to prevent stale references
+        self.active_zone_button = None
+        self.active_group_button = None
+        self.active_device_button = None
+        
         self.structured_data = load_and_structure_markers_data()
         self._make_zone_buttons()
+        # Initial display of all devices, groups frame is hidden by default.
         self._make_group_buttons()
         self._make_device_buttons()
         
+        # Set initial frame titles
+        all_devices = self._get_all_devices_in_zone(self.structured_data, None)
+        self._get_min_max_freq_and_update_title(frame_widget=self.zones_frame, devices=all_devices, title_prefix="ALL DEVICES")
+        self.groups_frame.config(text="Groups")
+        self.devices_outer_frame.config(text="Devices")
+
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
 
@@ -143,7 +159,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         for widget in self.groups_frame.winfo_children():
             widget.destroy()
             
-        self.groups_frame.grid_remove()  # Hide the frame by default
+        self.groups_frame.grid_remove() # Hide the frame by default
         
         if not self.selected_zone or not self.structured_data:
             debug_log("No zone selected or no structured data. Exiting _make_group_buttons.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
@@ -152,14 +168,11 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         groups = self.structured_data.get(self.selected_zone, {})
         
         # Only show groups if there is more than one group or the single group is NOT 'Ungrouped'
-        if len(groups) > 1:
-             self.groups_frame.grid()  # Show the frame again if conditions are met
-             self.selected_group = next(iter(groups))
-        elif len(groups) == 1 and ('Ungrouped' not in groups and 'No Group' not in groups):
-             self.groups_frame.grid()
+        if len(groups) > 1 or (len(groups) == 1 and next(iter(groups)) not in ['Ungrouped', 'No Group']):
+             self.groups_frame.grid() # Show the frame again if conditions are met
         else:
-             self._make_device_buttons() # Call _make_device_buttons directly to show all devices
-             return
+            debug_log("Only one group or no groups, keeping the groups frame hidden. We don't need no stinkin' groups!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            return
             
         max_columns = 6
         for i, group_name in enumerate(groups.keys()):
@@ -181,96 +194,226 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         for widget in self.devices_scrollable_frame.winfo_children():
             widget.destroy()
         
-        if not self.selected_zone or self.structured_data is None:
-            debug_log("No zone selected or no structured data. Exiting _make_device_buttons.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-            return
-            
-        devices = []
-        if self.selected_group:
-            devices = self.structured_data.get(self.selected_zone, {}).get(self.selected_group, [])
-        else: # Display all devices in the zone if no group is selected
-            for group_name in self.structured_data.get(self.selected_zone, {}).keys():
-                devices.extend(self.structured_data.get(self.selected_zone, {}).get(group_name, []))
+        self.device_buttons.clear() # Clear the old button mapping
 
+        devices_to_display = []
+        if self.selected_zone:
+            if self.selected_group:
+                devices_to_display = self.structured_data.get(self.selected_zone, {}).get(self.selected_group, [])
+            else: # Display all devices in the zone if no group is selected
+                for group_name in self.structured_data.get(self.selected_zone, {}).keys():
+                    devices_to_display.extend(self.structured_data.get(self.selected_zone, {}).get(group_name, []))
+        else: # Display all devices from all zones if no zone is selected
+            for zone_name in self.structured_data.keys():
+                for group_name in self.structured_data.get(zone_name, {}).keys():
+                    devices_to_display.extend(self.structured_data.get(zone_name, {}).get(group_name, []))
+
+        # Update the devices frame title with the count
+        self.devices_outer_frame.config(text=f"Devices ({len(devices_to_display)})")
+        
         max_cols = 4
-        for i, device in enumerate(devices):
+        for col in range(max_cols):
+            self.devices_scrollable_frame.grid_columnconfigure(col, weight=1)
+        
+        for i, device in enumerate(devices_to_display):
             name = device.get('NAME', 'N/A')
             device_type = device.get('DEVICE', 'N/A')
             center = device.get('CENTER', 'N/A')
             peak = device.get('PEAK', -120.0)
             
-            progress_bar = create_progress_bar(peak)
+            # Conditionally break the DEVICE name into two lines
+            if len(device_type) > 10:
+                # Find a good place to break, e.g., a space, or just after 10 chars
+                split_point = device_type.find(' ', 10)
+                if split_point != -1:
+                    device_type_formatted = device_type[:split_point] + "\n" + device_type[split_point+1:]
+                else:
+                    device_type_formatted = device_type[:10] + "\n" + device_type[10:]
+            else:
+                device_type_formatted = device_type
             
-            btn_text = f"{name}\n{device_type}\n{center} MHz\n{peak} dBm\n{progress_bar}"
+            progress_bar = create_signal_level_indicator(peak)
+            
+            btn_text = f"{name}\n{device_type_formatted}\n{center} MHz\n{peak} dBm\n{progress_bar}"
             
             btn = ttk.Button(self.devices_scrollable_frame, text=btn_text, style='DeviceButton.Inactive.TButton',
-                             command=partial(self.on_device_selected, name))
+                             command=partial(self.on_device_selected, device))
+            
+            self.device_buttons[id(device)] = btn
             
             row = i // max_cols
             col = i % max_cols
             
             btn.grid(row=row, column=col, padx=5, pady=2, sticky="ew", ipadx=10, ipady=5)
-            self.devices_scrollable_frame.grid_columnconfigure(col, weight=1)
         
-        debug_log(f"Exiting {current_function}. Rebuilt {len(devices)} device buttons.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(f"Exiting {current_function}. Rebuilt {len(devices_to_display)} device buttons. 🤖", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
+
+    def _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix):
+        # Helper function to find min/max frequencies and update the frame title.
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Entering {current_function} to update title for '{title_prefix}'.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        
+        freqs = [float(d.get('CENTER')) for d in devices if d.get('CENTER') and isinstance(d.get('CENTER'), (int, float))]
+        
+        if freqs:
+            min_freq = min(freqs)
+            max_freq = max(freqs)
+            new_title = f"{title_prefix} ({len(devices)}) - MIN: {min_freq:.3f} MHz - MAX: {max_freq:.3f} MHz"
+            frame_widget.config(text=new_title)
+            debug_log(f"Updated title to '{new_title}'.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        else:
+            new_title = f"{title_prefix} ({len(devices)})" if len(devices) > 0 else title_prefix
+            frame_widget.config(text=new_title)
+            debug_log(f"No frequencies found, title remains '{new_title}'.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        
+        debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
 
     # --- Event Handlers ---
-    def on_zone_selected(self, zone_name, event=None):
+    def on_zone_selected(self, zone_name):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function} for zone: {zone_name}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-        
-        if self.active_zone_button:
-            self.active_zone_button.config(style='ControlButton.Inactive.TButton')
-            
-        if self.active_group_button:
-            self.active_group_button.config(style='ControlButton.Inactive.TButton')
-            self.active_group_button = None
 
-        self.selected_zone = zone_name
-        self.selected_group = None
-        console_log(f"EVENT: Zone '{zone_name}' selected. Loading groups and devices...", "INFO")
-        
-        if event and event.widget:
-            event.widget.config(style='ControlButton.Active.TButton')
-            self.active_zone_button = event.widget
-        
-        _stop_scan_loops()
-        _start_orchestrated_scan_loop(self.app_instance, self.showtime_tab_instance)
+        # Find the button widget associated with the zone_name
+        for widget in self.zones_frame.winfo_children():
+            if widget.cget("text") == zone_name:
+                selected_button = widget
+                break
+        else:
+            selected_button = None
+
+        if self.selected_zone == zone_name:
+            # Deselect the current zone
+            console_log(f"EVENT: Zone '{zone_name}' deselected. Unfiltering to show all devices. 🔍", "INFO")
+            self.selected_zone = None
+            self.selected_group = None
+            if self.active_zone_button and self.active_zone_button.winfo_exists():
+                self.active_zone_button.config(style='ControlButton.Inactive.TButton')
+                self.active_zone_button = None
+            if self.active_group_button and self.active_group_button.winfo_exists():
+                self.active_group_button.config(style='ControlButton.Inactive.TButton')
+                self.active_group_button = None
+            self.groups_frame.grid_remove() # Hide groups frame
+            all_devices = self._get_all_devices_in_zone(self.structured_data, None)
+            self._get_min_max_freq_and_update_title(frame_widget=self.zones_frame, devices=all_devices, title_prefix="ALL DEVICES")
+        else:
+            # Select a new zone
+            console_log(f"EVENT: Zone '{zone_name}' selected. Loading groups and devices... 🚀", "INFO")
+            if self.active_zone_button and self.active_zone_button.winfo_exists():
+                self.active_zone_button.config(style='ControlButton.Inactive.TButton')
+            if self.active_group_button and self.active_group_button.winfo_exists():
+                self.active_group_button.config(style='ControlButton.Inactive.TButton')
+                self.active_group_button = None
+            
+            self.active_device_button = None
+
+            self.selected_zone = zone_name
+            self.selected_group = None
+            
+            if selected_button:
+                selected_button.config(style='ControlButton.Active.TButton')
+                self.active_zone_button = selected_button
+            
+            all_devices_in_zone = self._get_all_devices_in_zone(self.structured_data, self.selected_zone)
+            self._get_min_max_freq_and_update_title(frame_widget=self.zones_frame, devices=all_devices_in_zone, title_prefix=f"Zone '{zone_name}'")
+
+        self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=[], title_prefix=f"Groups in Zone '{self.selected_zone}'" if self.selected_zone else "Groups")
 
         self._make_group_buttons()
         self._make_device_buttons()
+
+        # Scroll to the top of the device list
+        self.canvas.yview_moveto(0)
         
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
-    def on_group_selected(self, group_name, event=None):
+    def on_group_selected(self, group_name):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function} for group: {group_name}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
-        if self.active_group_button:
-            self.active_group_button.config(style='ControlButton.Inactive.TButton')
-
-        self.selected_group = group_name
-        console_log(f"EVENT: Group '{group_name}' selected in Zone '{self.selected_zone}'. Loading devices...", "INFO")
-        
-        if event and event.widget:
-            event.widget.config(style='ControlButton.Active.TButton')
-            self.active_group_button = event.widget
-        
-        _stop_scan_loops()
-        _start_orchestrated_scan_loop(self.app_instance, self.showtime_tab_instance)
+        # Find the button widget associated with the group_name
+        for widget in self.groups_frame.winfo_children():
+            if widget.cget("text") == group_name:
+                selected_button = widget
+                break
+        else:
+            selected_button = None
             
+        if self.selected_group == group_name:
+            # Deselect the current group
+            console_log(f"EVENT: Group '{group_name}' deselected. Unfiltering to show all devices in Zone '{self.selected_zone}'.", "INFO")
+            self.selected_group = None
+            if self.active_group_button and self.active_group_button.winfo_exists():
+                self.active_group_button.config(style='ControlButton.Inactive.TButton')
+                self.active_group_button = None
+            all_devices_in_zone = self._get_all_devices_in_zone(self.structured_data, self.selected_zone)
+            self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=all_devices_in_zone, title_prefix=f"Groups in Zone '{self.selected_zone}'")
+        else:
+            # Select a new group
+            console_log(f"EVENT: Group '{group_name}' selected in Zone '{self.selected_zone}'. Loading devices... ⚙️", "INFO")
+            if self.active_group_button and self.active_group_button.winfo_exists():
+                self.active_group_button.config(style='ControlButton.Inactive.TButton')
+
+            self.active_device_button = None
+
+            self.selected_group = group_name
+            if selected_button:
+                selected_button.config(style='ControlButton.Active.TButton')
+                self.active_group_button = selected_button
+            
+            devices_in_group = self.structured_data.get(self.selected_zone, {}).get(self.selected_group, [])
+            self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=devices_in_group, title_prefix=f"Group '{group_name}'")
+
         self._make_device_buttons()
 
-        debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-
-    def on_device_selected(self, device_name, event=None):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering {current_function} for device: {device_name}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-
-        console_log(f"EVENT: Device '{device_name}' selected.", "INFO")
+        # Scroll to the top of the device list
+        self.canvas.yview_moveto(0)
         
-        _stop_scan_loops()
-        focus_device(self.app_instance, self.showtime_tab_instance, device_name)
+        debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
+    def on_device_selected(self, device_info):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Entering {current_function} for device object: {device_info}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
+        selected_button = self.device_buttons.get(id(device_info))
+        
+        if self.active_device_button and self.active_device_button.winfo_exists():
+            self.active_device_button.config(style='DeviceButton.Inactive.TButton')
+
+        if selected_button:
+            selected_button.config(style='DeviceButton.Active.TButton')
+            self.active_device_button = selected_button
+            
+            device_name = device_info.get('NAME', 'N/A')
+            if isinstance(device_name, float) and math.isnan(device_name):
+                device_name = 'nan'
+            
+            console_log(f"EVENT: Device '{device_name}' selected. 🎵", "INFO")
+        
+        if device_info:
+            freq = device_info.get('CENTER', 'N/A')
+            if freq != 'N/A':
+                device_name_for_title = device_name
+                self.devices_outer_frame.config(text=f"Devices - {device_name_for_title} - {freq:.3f} MHz")
+                console_log(f"✅ Displaying device '{device_name_for_title}' at frequency {freq:.3f} MHz.", "SUCCESS")
+            else:
+                self.devices_outer_frame.config(text=f"Devices - {device_name} - N/A")
+                console_log(f"⚠️ Device '{device_name}' has no valid frequency.", "WARNING")
+        else:
+            self.devices_outer_frame.config(text="Devices")
+            console_log(f"❌ Device info not found. The device has vanished into thin air!", "ERROR")
 
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
+    def _get_all_devices_in_zone(self, structured_data, zone_name):
+        # Helper function to flatten all devices from all groups within a zone.
+        devices = []
+        if structured_data and zone_name in structured_data:
+            for group_name, group_devices in structured_data[zone_name].items():
+                devices.extend(group_devices)
+        elif not zone_name and structured_data:
+            for zone in structured_data.values():
+                for group_name in zone.keys():
+                    devices.extend(zone.get(group_name, []))
+        return devices

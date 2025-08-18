@@ -14,11 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.113847.7
-# FIX: Corrected keyword argument for handle_marker_place_all_beg. Reverted the incorrect console_log call.
+# Version 20250815.113847.14
+# FIX: Restructured the UI to align all elements to the top, removing unnecessary frames.
+#      The results table height has been explicitly set to 6 rows.
 
-current_version = "20250815.113847.7"
-current_version_hash = 20250815 * 113847 * 7
+current_version = "20250815.113847.14"
+current_version_hash = 20250815 * 113847 * 14
 
 import tkinter as tk
 from tkinter import ttk
@@ -68,49 +69,44 @@ class MarkerSettingsTab(ttk.Frame):
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
-
-        # Main frame for the MarkerSettingsTab
-        main_frame = ttk.LabelFrame(self, text="Marker Settings", padding=10)
-        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-
-        # --- MARKER/READ/ALL Frame ---
-        read_markers_frame = ttk.LabelFrame(main_frame, text="Read All Markers", padding=10)
-        read_markers_frame.pack(fill="x", padx=5, pady=5)
-
-        ttk.Label(read_markers_frame, text="Marker Data:", style='TLabel').grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Label(read_markers_frame, textvariable=self.read_markers_all_data, style='Dark.TLabel.Value').grid(row=1, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
         
-        # Spacer
-        ttk.Frame(read_markers_frame, height=10).grid(row=2, column=0, columnspan=2)
-
-        # --- MARKER/PEAK Frame ---
-        marker_peak_frame = ttk.LabelFrame(read_markers_frame, text="Peak Search", padding=10)
-        marker_peak_frame.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
-
-        self.peak_search_button = ttk.Button(marker_peak_frame, text="Peak Search", command=None)
-        self.peak_search_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
-
-        self.peak_search_next_button = ttk.Button(marker_peak_frame, text="Next Peak", command=None)
-        self.peak_search_next_button.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
-
-        # --- MARKER/READ Button ---
-        self.read_markers_button = ttk.Button(read_markers_frame, text="Read All Markers", command=None)
-        self.read_markers_button.grid(row=7, column=1, padx=5, pady=5, sticky="ew")
-
-        # --- MARKER/PLACE/ALL Frame (from YakBegTab) ---
-        marker_place_all_frame = ttk.LabelFrame(self, text="YakBeg - MARKER/PLACE/ALL", padding=10)
-        marker_place_all_frame.pack(fill="x", padx=10, pady=5)
-        marker_place_all_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
-
+        # Main container frame with padding
+        main_container = ttk.Frame(self, padding="10")
+        main_container.pack(fill="both", expand=True)
+        main_container.grid_columnconfigure(0, weight=1)
+        
+        # --- Marker Input Frame (top row) ---
+        marker_input_frame = ttk.Frame(main_container)
+        marker_input_frame.grid(row=0, column=0, pady=(0, 5), sticky="ew")
         for i in range(6):
-            ttk.Label(marker_place_all_frame, text=f"M{i+1} Freq (MHz):").grid(row=0, column=i, padx=5, pady=2, sticky="w")
-            ttk.Entry(marker_place_all_frame, textvariable=self.marker_freq_vars[i]).grid(row=1, column=i, padx=5, pady=2, sticky="ew")
+            marker_input_frame.grid_columnconfigure(i, weight=1)
+            ttk.Label(marker_input_frame, text=f"M{i+1} Freq (MHz):").grid(row=0, column=i, padx=2, pady=2)
+            ttk.Entry(marker_input_frame, textvariable=self.marker_freq_vars[i], width=8).grid(row=1, column=i, padx=2, pady=2)
 
-        self.marker_place_all_result_var = tk.StringVar(self, value="Result: N/A")
-        ttk.Label(marker_place_all_frame, textvariable=self.marker_place_all_result_var, style="Dark.TLabel.Value").grid(row=2, column=0, columnspan=6, padx=5, pady=2, sticky="ew")
+        # --- Action Button ---
+        ttk.Button(main_container, text="YakBeg - MARKER/PLACE/ALL", command=self._on_marker_place_all_beg, style='Blue.TButton').grid(row=1, column=0, pady=5, sticky="ew")
+
+        # --- Results Table ---
+        results_frame = ttk.Frame(main_container)
+        results_frame.grid(row=2, column=0, pady=(5, 0), sticky="nsew")
+        results_frame.grid_columnconfigure(0, weight=1)
+        results_frame.grid_rowconfigure(0, weight=1)
         
-        ttk.Button(marker_place_all_frame, text="YakBeg - MARKER/PLACE/ALL", command=self._on_marker_place_all_beg).grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky="ew")
+        self.marker_result_table = ttk.Treeview(results_frame, columns=('Marker', 'Frequency', 'Amplitude'), show='headings', height=6)
+        self.marker_result_table.heading('Marker', text='Marker')
+        self.marker_result_table.heading('Frequency', text='Frequency (MHz)')
+        self.marker_result_table.heading('Amplitude', text='Amplitude (dBm)')
+        
+        self.marker_result_table.column('Marker', width=80, stretch=tk.YES, anchor='center')
+        self.marker_result_table.column('Frequency', width=120, stretch=tk.YES, anchor='center')
+        self.marker_result_table.column('Amplitude', width=120, stretch=tk.YES, anchor='center')
+        
+        self.marker_result_table.grid(row=0, column=0, sticky="nsew")
 
+        vsb = ttk.Scrollbar(results_frame, orient="vertical", command=self.marker_result_table.yview)
+        vsb.grid(row=0, column=1, sticky="ns")
+        self.marker_result_table.configure(yscrollcommand=vsb.set)
+        
         debug_log(f"Widgets for Marker Settings Tab created. The controls are ready to go! 🗺️",
                   file=os.path.basename(__file__),
                   version=current_version,
@@ -129,19 +125,42 @@ class MarkerSettingsTab(ttk.Frame):
         try:
             marker_freqs = [v.get() for v in self.marker_freq_vars]
             
-            result = handle_marker_place_all_beg(
+            result_string = handle_marker_place_all_beg(
                 app_instance=self.app_instance, 
                 marker_freqs_mhz=marker_freqs,
                 console_print_func=self.console_print_func
             )
             
-            if result is not None:
-                self.marker_place_all_result_var.set(f"Result: {result}")
+            self.marker_result_table.delete(*self.marker_result_table.get_children())
+
+            if result_string and result_string != "FAILED":
+                y_values = result_string.split(';')
+
+                if len(y_values) == 6:
+                    for i in range(6):
+                        marker_label = f"M{i+1}"
+                        input_freq_mhz = self.marker_freq_vars[i].get()
+                        
+                        try:
+                            amplitude_dbm = float(y_values[i])
+                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_mhz:.3f}", f"{amplitude_dbm:.2f}"))
+                        except (ValueError, IndexError):
+                            self.console_print_func(f"❌ Error parsing result for {marker_label}.")
+                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_mhz:.3f}", 'FAILED'))
+                    self.console_print_func("✅ Marker operation successful. Results displayed in table.")
+                else:
+                    self.console_print_func(f"❌ Invalid response format. Expected 6 values, got {len(y_values)}.")
+                    debug_log(f"Invalid response format from instrument. Expected 6 values, got {len(y_values)}. What a pain!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+                    self.marker_result_table.insert('', 'end', values=('M1-6', 'FAILED', 'FAILED'))
             else:
-                self.marker_place_all_result_var.set("Result: FAILED")
+                self.console_print_func("❌ Marker operation failed.")
+                self.marker_result_table.insert('', 'end', values=('M1-6', 'FAILED', 'FAILED'))
                 
         except Exception as e:
-            console_log(f"❌ Error in {current_function}: {e}", self.console_print_func)
+            self.console_print_func(f"❌ Error in {current_function}: {e}")
             debug_log(f"Arrr, the code be capsized! The error be: {e}",
                       file=os.path.basename(__file__),
                       version=current_version,

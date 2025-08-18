@@ -25,8 +25,10 @@ import os
 import inspect
 
 # Import the custom frame components
-from .tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
-from .tab_markers_child_controls import ControlsFrame
+from tabs.Markers.tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
+from tabs.Markers.controls.tab_markers_child_bottom_controls import ControlsFrame
+
+
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 

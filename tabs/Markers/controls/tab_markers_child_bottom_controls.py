@@ -22,7 +22,7 @@ current_version_hash = (20250814 * 172000 * 1)
 import tkinter as tk
 from tkinter import ttk
 
-from .utils_showtime_controls import (
+from tabs.Markers.controls.utils_showtime_controls import (
     on_span_button_click, on_rbw_button_click, on_trace_button_click, on_poke_action, 
     format_hz, sync_trace_modes, SPAN_OPTIONS, RBW_OPTIONS
 )

@@ -28,8 +28,8 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import the specific child tab classes
-from tabs.Markers.tab_markers_child_showtime import ShowtimeTab
-
+from tabs.Markers.tab_markers_parent_showtime import ShowtimeTab
+from tabs.Markers.files.tab_markers_child_import_and_edit import ReportConverterTab
 
 class TAB_MARKERS_PARENT(ttk.Frame):
     def __init__(self, parent, app_instance, console_print_func):
@@ -42,7 +42,7 @@ class TAB_MARKERS_PARENT(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
         # NEW: Import the child tab inside the __init__ method to break the circular dependency
-        from tabs.Markers.tab_markers_child_import_and_edit import ReportConverterTab
+        
 
         # Use the specific, color-coded style for this child notebook
         self.child_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')

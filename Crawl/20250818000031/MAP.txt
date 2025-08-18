@@ -40,11 +40,12 @@
 #        |   -> Function: get_tab_instance(self, parent_tab_name, child_tab_name)
 #└── DATA/
 #    ├── SCANS/
-#    ├── DEBUG_SOFTWARE.log (Lines: 2100)
+#    ├── DEBUG_SOFTWARE.log (Lines: 67757)
+#    ├── DEBUG_VISA_COMMANDS.log (Lines: 3319)
 #    ├── MARKERS.CSV (Lines: 169)
 #    ├── PRESETS.CSV (Lines: 1)
 #    ├── config.ini (Lines: 101)
-#    └── visa_commands.csv (Lines: 289)
+#    └── visa_commands.csv (Lines: 270)
 #    └── SCANS/
 #        └── MyScan_3D_Scans_Over_Time_20250816_093204.html (Lines: 3885)
 #└── display/
@@ -168,7 +169,7 @@
 #            |   -> Class: ScanViewTab
 #            |   -> Function: __init__(self, master, app_instance)
 #            |   -> Function: _create_widgets(self)
-#    ├── utils_display_monitor.py (Lines: 319)
+#    ├── utils_display_monitor.py (Lines: 325)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
@@ -189,7 +190,7 @@
 #            |   -> Function: update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
 #            |   -> Function: update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
 #            |   -> Function: update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
-#    └── utils_scan_view.py (Lines: 179)
+#    └── utils_scan_view.py (Lines: 180)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
@@ -204,7 +205,7 @@
 #            |   -> Function: on_release(event)
 #            |   -> Function: reset_zoom(ax, canvas)
 #            |   -> Function: update_annot(event)
-#            |   -> Function: update_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+#            |   -> Function: update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
 #└── orchestrator/
 #    ├── __init__.py (Lines: 60)
 #    ├── display_child_orchestrator_tasks.py (Lines: 122)
@@ -219,7 +220,7 @@
 #            |   -> Function: _create_widgets(self)
 #            |   -> Function: log_event(self, source, event)
 #            |   -> Function: update_status_display(self, is_running, is_paused)
-#    ├── orchestrator_gui.py (Lines: 92)
+#    ├── orchestrator_gui.py (Lines: 94)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
@@ -341,11 +342,11 @@
 #            |   -> Function: display_scan_band_ranges()
 #            |   -> Function: display_tv_plot_band_markers()
 #            |   -> Function: display_vbw_rbw_ratio_options()
-#    ├── ref_scanner_setting_lists.py (Lines: 477)
+#    ├── ref_scanner_setting_lists.py (Lines: 539)
 #            - No functions, classes, or imports found.
-#    ├── ref_scanning_setting.py (Lines: 327)
+#    ├── ref_scanning_setting.py (Lines: 392)
 #            - No functions, classes, or imports found.
-#    └── ref_visa_commands.py (Lines: 429)
+#    └── ref_visa_commands.py (Lines: 411)
 #            |   -> Function: get_default_commands()
 #└── scan_data/
 #└── src/
@@ -663,7 +664,7 @@
 #                |   -> Function: _reset_instrument(self)
 #                |   -> Function: _toggle_connection(self)
 #                |   -> Function: _update_connection_status(self)
-#        ├── tab_instrument_child_settings.py (Lines: 103)
+#        ├── tab_instrument_child_settings.py (Lines: 120)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -678,7 +679,8 @@
 #                |   -> Class: SettingsParentTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _on_tab_selected(self, event)
-#        ├── tab_instrument_child_settings_amplitude.py (Lines: 309)
+#                |   -> Function: refresh_all_child_tabs(self)
+#        ├── tab_instrument_child_settings_amplitude.py (Lines: 305)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -693,22 +695,27 @@
 #                |   -> Function: _find_closest_preset_value(self, value, preset_list)
 #                |   -> Function: _on_power_attenuation_change(self, event)
 #                |   -> Function: _on_ref_level_change(self, event)
+#                |   -> Function: _on_resize(self, event)
 #                |   -> Function: _set_ui_initial_state(self)
 #                |   -> Function: _update_descriptions(self, value, preset_list, label, var)
 #                |   -> Function: _update_power_attenuation_display(self, value)
 #                |   -> Function: _update_ref_level_display(self, value)
 #                |   -> Function: _update_toggle_button_style(self, button, state)
-#        ├── tab_instrument_child_settings_bandwidth.py (Lines: 284)
+#        ├── tab_instrument_child_settings_bandwidth.py (Lines: 491)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
+#                |   -> Import: re
 #                |   -> Import: ref.ref_scanner_setting_lists
 #                |   -> Import: tkinter
 #                |   -> Import: yak
+#                |   -> Import: yak.utils_yaknab_handler
 #                |   -> Class: BandwidthSettingsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_averaging_count_selected(self, event, trace_number)
+#                |   -> Function: _on_averaging_toggle(self, trace_number, state)
 #                |   -> Function: _on_continuous_mode_change(self, event)
 #                |   -> Function: _on_rbw_selected(self, event)
 #                |   -> Function: _on_tab_selected(self, event)
@@ -739,7 +746,7 @@
 #                |   -> Function: _set_default_variables(self)
 #                |   -> Function: _update_span_button_styles(self)
 #                |   -> Function: truncate_float(f)
-#        ├── tab_instrument_child_settings_markers.py (Lines: 148)
+#        ├── tab_instrument_child_settings_markers.py (Lines: 167)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -751,21 +758,25 @@
 #                |   -> Function: _create_widgets(self)
 #                |   -> Function: _on_marker_place_all_beg(self)
 #                |   -> Function: _set_default_variables(self)
-#        ├── tab_instrument_child_settings_traces.py (Lines: 229)
+#        ├── tab_instrument_child_settings_traces.py (Lines: 446)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: display.utils_display_monitor
+#                |   -> Import: display.utils_scan_view
 #                |   -> Import: inspect
 #                |   -> Import: os
+#                |   -> Import: pandas
 #                |   -> Import: tkinter
 #                |   -> Import: yak.utils_yakbeg_handler
 #                |   -> Class: TraceSettingsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_all_traces_nab(self)
 #                |   -> Function: _on_push_to_monitor(self)
 #                |   -> Function: _on_tab_selected(self, event)
 #                |   -> Function: _on_trace_data_beg(self)
 #                |   -> Function: _on_trace_modes_beg(self)
+#                |   -> Function: _plot_all_traces_to_monitor(self)
 #        ├── tab_instrument_child_visa_interpreter.py (Lines: 632)
 #                |   -> Import: csv
 #                |   -> Import: display.console_logic
@@ -806,14 +817,15 @@
 #                |   -> Function: disconnect_instrument(inst, console_print_func)
 #                |   -> Function: list_visa_resources(console_print_func)
 #    └── Markers/
-#        ├── GUTTED/
+#        ├── controls/
+#        ├── files/
 #        ├── TAB_MARKERS_PARENT.py (Lines: 88)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
-#                |   -> Import: tabs.Markers.tab_markers_child_import_and_edit
-#                |   -> Import: tabs.Markers.tab_markers_child_showtime
+#                |   -> Import: tabs.Markers.files.tab_markers_child_import_and_edit
+#                |   -> Import: tabs.Markers.tab_markers_parent_showtime
 #                |   -> Import: tkinter
 #                |   -> Import: typing
 #                |   -> Class: TAB_MARKERS_PARENT
@@ -821,75 +833,22 @@
 #                |   -> Function: _on_child_tab_selected(self, event)
 #                |   -> Function: _on_parent_tab_selected(self, event)
 #        ├── __init__.py (Lines: 24)
-#        ├── tab_markers_child_controls.py (Lines: 122)
-#                |   -> Import: tkinter
-#                |   -> Import: utils_showtime_controls
-#                |   -> Class: ControlsFrame
-#                |   -> Function: __init__(self, parent, app_instance)
-#                |   -> Function: _create_controls_notebook(self)
-#                |   -> Function: console_print_func(self, message, level)
-#        ├── tab_markers_child_import_and_edit.py (Lines: 847)
-#                |   -> Import: csv
-#                |   -> Import: datetime
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: json
-#                |   -> Import: os
-#                |   -> Import: re
-#                |   -> Import: src.gui_elements
-#                |   -> Import: sys
-#                |   -> Import: tabs.Markers.utils_report_converter
-#                |   -> Import: threading
-#                |   -> Import: tkinter
-#                |   -> Import: xml.etree.ElementTree
-#                |   -> Class: ReportConverterTab
-#                |   -> Function: __init__(self, master, app_instance, console_print_func)
-#                |   -> Function: _create_widgets(self)
-#                |   -> Function: _disable_buttons(self)
-#                |   -> Function: _enable_buttons(self)
-#                |   -> Function: _increment_string_with_trailing_digits(self, text)
-#                |   -> Function: _initiate_conversion(self, file_type)
-#                |   -> Function: _load_markers_file(self)
-#                |   -> Function: _navigate_cells(self, current_item, current_col_index, direction)
-#                |   -> Function: _on_tab_selected(self, event)
-#                |   -> Function: _on_tree_double_click(self, event)
-#                |   -> Function: _on_tree_header_click(self, event)
-#                |   -> Function: _perform_conversion(self, file_path, file_type)
-#                |   -> Function: _populate_marker_tree(self)
-#                |   -> Function: _save_markers_file_internally(self)
-#                |   -> Function: _save_open_air_csv(self)
-#                |   -> Function: _sort_treeview(self, column_name, ascending)
-#                |   -> Function: _start_editing_cell(self, item, col_index, initial_value)
-#                |   -> Function: _update_markers_display_tab_data(self)
-#                |   -> Function: get_sort_key(item)
-#                |   -> Function: on_edit_complete_and_navigate(event, navigate_direction)
-#        ├── tab_markers_child_showtime.py (Lines: 90)
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: os
-#                |   -> Import: tab_markers_child_controls
-#                |   -> Import: tab_markers_child_zone_groups_devices
-#                |   -> Import: tkinter
-#                |   -> Class: ShowtimeTab
-#                |   -> Function: __init__(self, parent, app_instance)
-#                |   -> Function: _create_widgets(self)
-#                |   -> Function: _on_tab_selected(self, event)
-#        ├── tab_markers_child_zone_groups_devices.py (Lines: 276)
+#        ├── tab_markers_child_zone_groups_devices.py (Lines: 328)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: functools
 #                |   -> Import: inspect
 #                |   -> Import: os
 #                |   -> Import: pandas
+#                |   -> Import: tabs.Markers.utils_button_volume_level
+#                |   -> Import: tabs.Markers.utils_file_markers_zone_groups_devices
 #                |   -> Import: tkinter
-#                |   -> Import: utils_markers_files_zone_groups_devices
-#                |   -> Import: utils_markers_zone_group_devices_actions
 #                |   -> Class: ZoneGroupsDevicesFrame
 #                |   -> Function: __init__(self, parent, app_instance, showtime_tab_instance)
 #                |   -> Function: _create_device_frame(self, parent)
 #                |   -> Function: _create_layout(self)
+#                |   -> Function: _get_all_devices_in_zone(self, structured_data, zone_name)
+#                |   -> Function: _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix)
 #                |   -> Function: _make_device_buttons(self)
 #                |   -> Function: _make_group_buttons(self)
 #                |   -> Function: _make_zone_buttons(self)
@@ -897,27 +856,24 @@
 #                |   -> Function: on_device_selected(self, device_name, event)
 #                |   -> Function: on_group_selected(self, group_name, event)
 #                |   -> Function: on_zone_selected(self, zone_name, event)
-#        ├── utils_markers.py (Lines: 105)
+#        ├── tab_markers_parent_showtime.py (Lines: 92)
+#                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
 #                |   -> Import: os
-#                |   -> Import: ref.frequency_bands
-#                |   -> Import: tabs.Instrument.Yakety_Yak
-#                |   -> Import: time
-#                |   -> Function: blank_hold_traces_logic(app_instance, console_print_func)
-#                |   -> Function: set_frequency_logic(app_instance, frequency_hz, console_print_func)
-#                |   -> Function: set_marker_logic(app_instance, frequency_hz, console_print_func)
-#                |   -> Function: set_trace_modes_logic(app_instance, live_mode, max_hold_mode, min_hold_mode, console_print_func)
-#        ├── utils_markers_file_handling.py (Lines: 141)
-#                |   -> Import: display.debug_logic
+#                |   -> Import: tabs.Markers.controls.tab_markers_child_bottom_controls
+#                |   -> Import: tabs.Markers.tab_markers_child_zone_groups_devices
+#                |   -> Import: tkinter
+#                |   -> Class: ShowtimeTab
+#                |   -> Function: __init__(self, parent, app_instance)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#        ├── utils_button_volume_level.py (Lines: 61)
 #                |   -> Import: inspect
-#                |   -> Import: numpy
 #                |   -> Import: os
-#                |   -> Import: pandas
-#                |   -> Function: _group_by_zone_and_group(data)
-#                |   -> Function: load_and_process_markers(app_instance, console_print_func)
-#                |   -> Function: load_markers_data(app_instance, console_print_func)
-#        ├── utils_markers_files_zone_groups_devices.py (Lines: 117)
+#                |   -> Function: create_signal_level_indicator(value, min_val, max_val, width)
+#                |   -> Function: debug_log(message, file, version, function)
+#        └── utils_file_markers_zone_groups_devices.py (Lines: 97)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -925,113 +881,94 @@
 #                |   -> Import: os
 #                |   -> Import: pandas
 #                |   -> Import: src.program_default_values
-#                |   -> Function: create_progress_bar(value, min_val, max_val, width)
 #                |   -> Function: load_and_structure_markers_data()
-#        ├── utils_markers_get_traces.py (Lines: 148)
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: display.utils_display_monitor
-#                |   -> Import: inspect
-#                |   -> Import: numpy
-#                |   -> Import: os
-#                |   -> Import: pandas
-#                |   -> Import: ref.frequency_bands
-#                |   -> Import: yak.Yakety_Yak
-#                |   -> Function: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func)
-#                |   -> Function: get_marker_traces(app_instance, showtime_tab_instance, console_print_func, center_freq_hz, span_hz, device_name, trace_number)
-#                |   -> Function: get_trace_data_by_number(app_instance, console_print_func, trace_number, start_freq_hz, end_freq_hz)
-#        ├── utils_markers_zone_group_devices_actions.py (Lines: 205)
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: numpy
-#                |   -> Import: os
-#                |   -> Import: pandas
-#                |   -> Import: ref.frequency_bands
-#                |   -> Import: src.settings_and_config.config_manager
-#                |   -> Import: threading
-#                |   -> Import: time
-#                |   -> Import: utils_markers_files_zone_groups_devices
-#                |   -> Import: utils_markers_get_traces
-#                |   -> Import: yak.Yakety_Yak
-#                |   -> Import: yak.utils_yakbeg_handler
-#                |   -> Function: _calculate_zone_span(devices)
-#                |   -> Function: _focus_loop(app_instance, showtime_tab_instance, device_name)
-#                |   -> Function: _get_all_devices_in_zone(structured_data, zone_name)
-#                |   -> Function: _get_peak_values_and_update_csv_logic(app_instance, devices_to_process)
-#                |   -> Function: _orchestrated_scan_loop(app_instance, showtime_tab_instance)
-#                |   -> Function: _start_orchestrated_scan_loop(app_instance, showtime_tab_instance)
-#                |   -> Function: _stop_scan_loops()
-#                |   -> Function: focus_device(app_instance, showtime_tab_instance, device_name)
-#        ├── utils_report_converter.py (Lines: 462)
-#                |   -> Import: bs4
-#                |   -> Import: csv
-#                |   -> Import: display.console_logic
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: numpy
-#                |   -> Import: os
-#                |   -> Import: pdfplumber
-#                |   -> Import: re
-#                |   -> Import: subprocess
-#                |   -> Import: sys
-#                |   -> Import: xml.etree.ElementTree
-#                |   -> Function: convert_html_report_to_csv(html_content, console_print_func)
-#                |   -> Function: convert_pdf_report_to_csv(pdf_file_path, console_print_func)
-#                |   -> Function: generate_csv_from_shw(xml_file_path, console_print_func)
-#        └── utils_showtime_controls.py (Lines: 183)
-#                |   -> Import: display.debug_logic
-#                |   -> Import: inspect
-#                |   -> Import: os
-#                |   -> Import: ref.frequency_bands
-#                |   -> Import: yak.Yakety_Yak
-#                |   -> Import: yak.utils_yakbeg_handler
-#                |   -> Function: _update_control_styles(controls_frame)
-#                |   -> Function: format_hz(hz_value)
-#                |   -> Function: on_poke_action(controls_frame)
-#                |   -> Function: on_rbw_button_click(controls_frame, rbw_hz)
-#                |   -> Function: on_span_button_click(controls_frame, span_hz)
-#                |   -> Function: on_trace_button_click(controls_frame, trace_var_to_toggle)
-#                |   -> Function: set_marker_logic(app, freq, console)
-#                |   -> Function: set_rbw_logic(app_instance, rbw_hz, console_print_func)
-#                |   -> Function: set_span_logic(app_instance, span_hz, console_print_func)
-#                |   -> Function: sync_trace_modes(controls_frame)
-#        └── GUTTED/
-#            ├── utils_marker_peaks.py (Lines: 129)
+#        └── controls/
+#            ├── tab_markers_child_bottom_controls.py (Lines: 122)
+#                    |   -> Import: tabs.Markers.controls.utils_showtime_controls
+#                    |   -> Import: tkinter
+#                    |   -> Class: ControlsFrame
+#                    |   -> Function: __init__(self, parent, app_instance)
+#                    |   -> Function: _create_controls_notebook(self)
+#                    |   -> Function: console_print_func(self, message, level)
+#            └── utils_showtime_controls.py (Lines: 183)
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: os
+#                    |   -> Import: ref.frequency_bands
+#                    |   -> Import: yak.Yakety_Yak
+#                    |   -> Import: yak.utils_yakbeg_handler
+#                    |   -> Function: _update_control_styles(controls_frame)
+#                    |   -> Function: format_hz(hz_value)
+#                    |   -> Function: on_poke_action(controls_frame)
+#                    |   -> Function: on_rbw_button_click(controls_frame, rbw_hz)
+#                    |   -> Function: on_span_button_click(controls_frame, span_hz)
+#                    |   -> Function: on_trace_button_click(controls_frame, trace_var_to_toggle)
+#                    |   -> Function: set_marker_logic(app, freq, console)
+#                    |   -> Function: set_rbw_logic(app_instance, rbw_hz, console_print_func)
+#                    |   -> Function: set_span_logic(app_instance, span_hz, console_print_func)
+#                    |   -> Function: sync_trace_modes(controls_frame)
+#        └── files/
+#            ├── tab_markers_child_import_and_edit.py (Lines: 847)
+#                    |   -> Import: csv
+#                    |   -> Import: datetime
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: json
+#                    |   -> Import: os
+#                    |   -> Import: re
+#                    |   -> Import: src.gui_elements
+#                    |   -> Import: sys
+#                    |   -> Import: tabs.Markers.files.utils_marker_report_converter
+#                    |   -> Import: threading
+#                    |   -> Import: tkinter
+#                    |   -> Import: xml.etree.ElementTree
+#                    |   -> Class: ReportConverterTab
+#                    |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                    |   -> Function: _create_widgets(self)
+#                    |   -> Function: _disable_buttons(self)
+#                    |   -> Function: _enable_buttons(self)
+#                    |   -> Function: _increment_string_with_trailing_digits(self, text)
+#                    |   -> Function: _initiate_conversion(self, file_type)
+#                    |   -> Function: _load_markers_file(self)
+#                    |   -> Function: _navigate_cells(self, current_item, current_col_index, direction)
+#                    |   -> Function: _on_tab_selected(self, event)
+#                    |   -> Function: _on_tree_double_click(self, event)
+#                    |   -> Function: _on_tree_header_click(self, event)
+#                    |   -> Function: _perform_conversion(self, file_path, file_type)
+#                    |   -> Function: _populate_marker_tree(self)
+#                    |   -> Function: _save_markers_file_internally(self)
+#                    |   -> Function: _save_open_air_csv(self)
+#                    |   -> Function: _sort_treeview(self, column_name, ascending)
+#                    |   -> Function: _start_editing_cell(self, item, col_index, initial_value)
+#                    |   -> Function: _update_markers_display_tab_data(self)
+#                    |   -> Function: get_sort_key(item)
+#                    |   -> Function: on_edit_complete_and_navigate(event, navigate_direction)
+#            ├── utils_file_markers_handling.py (Lines: 141)
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: numpy
+#                    |   -> Import: os
+#                    |   -> Import: pandas
+#                    |   -> Function: _group_by_zone_and_group(data)
+#                    |   -> Function: load_and_process_markers(app_instance, console_print_func)
+#                    |   -> Function: load_markers_data(app_instance, console_print_func)
+#            └── utils_marker_report_converter.py (Lines: 462)
+#                    |   -> Import: bs4
 #                    |   -> Import: csv
 #                    |   -> Import: display.console_logic
 #                    |   -> Import: display.debug_logic
 #                    |   -> Import: inspect
 #                    |   -> Import: numpy
 #                    |   -> Import: os
-#                    |   -> Import: pandas
-#                    |   -> Import: ref.frequency_bands
-#                    |   -> Import: tabs.Instrument.Yakety_Yak
-#                    |   -> Import: threading
-#                    |   -> Import: time
-#                    |   -> Function: get_peak_values_and_update_csv(app_instance, devices_to_process, console_print_func)
-#            └── utils_markers_showtime.py (Lines: 246)
-#                    |   -> Import: display.debug_logic
-#                    |   -> Import: inspect
-#                    |   -> Import: os
-#                    |   -> Import: ref.frequency_bands
-#                    |   -> Import: tabs.Markers.utils_markers
-#                    |   -> Import: tabs.Markers.utils_markers_file_handling
-#                    |   -> Import: threading
-#                    |   -> Import: time
-#                    |   -> Import: tkinter
-#                    |   -> Function: _update_active_device_button(showtime_tab_instance, active_device_name)
-#                    |   -> Function: _update_control_styles(showtime_tab_instance)
-#                    |   -> Function: format_hz(hz_value)
-#                    |   -> Function: load_markers_data_wrapper(showtime_tab_instance)
-#                    |   -> Function: on_group_button_click(showtime_tab_instance, group_name)
-#                    |   -> Function: on_poke_action(showtime_tab_instance)
-#                    |   -> Function: on_rbw_button_click(showtime_tab_instance, rbw_hz)
-#                    |   -> Function: on_span_button_click(showtime_tab_instance, span_hz)
-#                    |   -> Function: on_trace_button_click(showtime_tab_instance, trace_var)
-#                    |   -> Function: on_zone_button_click(showtime_tab_instance, zone_name)
-#                    |   -> Function: orchestrated_update_loop(showtime_tab_instance)
-#                    |   -> Function: populate_zone_buttons(showtime_tab_instance)
+#                    |   -> Import: pdfplumber
+#                    |   -> Import: re
+#                    |   -> Import: subprocess
+#                    |   -> Import: sys
+#                    |   -> Import: xml.etree.ElementTree
+#                    |   -> Function: convert_html_report_to_csv(html_content, console_print_func)
+#                    |   -> Function: convert_pdf_report_to_csv(pdf_file_path, console_print_func)
+#                    |   -> Function: generate_csv_from_shw(xml_file_path, console_print_func)
 #    └── Plotting/
 #        ├── TAB_PLOTTING_PARENT.py (Lines: 72)
 #                |   -> Import: display.console_logic
@@ -1419,7 +1356,7 @@
 #            |   -> Import: os
 #            |   -> Function: write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode, console_print_func)
 #└── yak/
-#    ├── Yakety_Yak.py (Lines: 512)
+#    ├── Yakety_Yak.py (Lines: 558)
 #            |   -> Import: csv
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
@@ -1437,8 +1374,8 @@
 #            |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
 #            |   -> Function: _find_command(command_type, action_type, model)
 #            |   -> Function: _load_commands_from_file(file_path)
-#            |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func)
-#    ├── utils_yak_setting_handler.py (Lines: 760)
+#            |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func, num_reads)
+#    ├── utils_yak_setting_handler.py (Lines: 842)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
@@ -1454,8 +1391,8 @@
 #            |   -> Function: do_power_cycle(app_instance, console_print_func)
 #            |   -> Function: do_turn_all_markers_on(app_instance, console_print_func)
 #            |   -> Function: get_all_marker_values_logic(app_instance, console_print_func)
+#            |   -> Function: get_trace_averaging_settings(app_instance, trace_number, console_print_func)
 #            |   -> Function: get_trace_data_logic(app_instance, console_print_func)
-#            |   -> Function: refresh_all_from_instrument(app_instance, console_print_func)
 #            |   -> Function: refresh_all_from_instrument(app_instance, console_print_func)
 #            |   -> Function: reset_device(app_instance, console_print_func)
 #            |   -> Function: set_center_frequency(app_instance, value, console_print_func)
@@ -1466,11 +1403,13 @@
 #            |   -> Function: set_span_frequency(app_instance, value, console_print_func)
 #            |   -> Function: set_start_frequency(app_instance, value, console_print_func)
 #            |   -> Function: set_stop_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_trace_averaging_count(app_instance, trace_number, count, console_print_func)
 #            |   -> Function: set_trace_mode(app_instance, trace_number, mode, console_print_func)
 #            |   -> Function: set_video_bandwidth(app_instance, value, console_print_func)
 #            |   -> Function: toggle_high_sensitivity(tab_instance, app_instance, console_print_func)
 #            |   -> Function: toggle_marker_state(app_instance, marker_number, state, console_print_func)
 #            |   -> Function: toggle_preamp(tab_instance, app_instance, console_print_func)
+#            |   -> Function: toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func)
 #            |   -> Function: toggle_vbw_auto(app_instance, console_print_func)
 #    ├── utils_yak_visa.py (Lines: 258)
 #            |   -> Import: display.console_logic
@@ -1484,24 +1423,35 @@
 #            |   -> Function: query_safe(inst, command, console_print_func)
 #            |   -> Function: set_safe(inst, command, value, console_print_func)
 #            |   -> Function: write_safe(inst, command, console_print_func)
-#    ├── utils_yakbeg_handler.py (Lines: 173)
+#    ├── utils_yakbeg_handler.py (Lines: 355)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
 #            |   -> Import: numpy
 #            |   -> Import: os
+#            |   -> Import: typing
 #            |   -> Import: yak.Yakety_Yak
+#            |   -> Function: handle_all_traces_nab(app_instance, console_print_func)
+#            |   -> Function: handle_amplitude_settings_nab(app_instance, console_print_func)
+#            |   -> Function: handle_bandwidth_settings_nab(app_instance, console_print_func)
 #            |   -> Function: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func)
 #            |   -> Function: handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func)
 #            |   -> Function: handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func)
 #            |   -> Function: handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func)
 #            |   -> Function: handle_trace_modes_beg(app_instance, trace_modes, console_print_func)
-#    └── utils_yaknab_handler.py (Lines: 124)
+#    └── utils_yaknab_handler.py (Lines: 382)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
+#            |   -> Import: numpy
 #            |   -> Import: os
 #            |   -> Import: typing
 #            |   -> Import: yak.Yakety_Yak
+#            |   -> Function: handle_all_traces_nab(app_instance, console_print_func)
 #            |   -> Function: handle_amplitude_settings_nab(app_instance, console_print_func)
 #            |   -> Function: handle_bandwidth_settings_nab(app_instance, console_print_func)
+#            |   -> Function: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func)
+#            |   -> Function: handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func)
+#            |   -> Function: handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func)
+#            |   -> Function: handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func)
+#            |   -> Function: handle_trace_modes_beg(app_instance, trace_modes, console_print_func)

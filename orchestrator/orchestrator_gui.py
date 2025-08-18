@@ -14,10 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.095000.1
+# Version 20250814.095000.2
+# FIX: Restructured the layout to use a proportional grid for buttons.
+# FIX: The button styling now correctly references predefined styles from program_style.py.
 
-current_version = "20250814.095000.1"
-current_version_hash = (20250814 * 95000 * 1)
+current_version = "20250814.095000.2"
+current_version_hash = (20250814 * 95000 * 2)
 
 import tkinter as tk
 from tkinter import ttk
@@ -37,17 +39,21 @@ class OrchestratorGUI(ttk.Frame):
         self._create_widgets()
 
     def _create_widgets(self):
-        # [A brief, one-sentence description of the function's purpose.]
         # Creates and arranges the widgets for the orchestrator control bar.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function_name}", file=f"{__name__}", version=current_version, function=current_function_name)
         try:
-            self.grid_columnconfigure(0, weight=1)
-
+            self.grid_columnconfigure(0, weight=1) # Spacer column to the left
+            self.grid_columnconfigure(1, weight=1)
+            self.grid_columnconfigure(2, weight=1)
+            self.grid_columnconfigure(3, weight=1)
+            self.grid_columnconfigure(4, weight=1) # Spacer column to the right
+            self.grid_columnconfigure(5, weight=1)
+            
             # --- Button Definitions ---
             self.start_button = ttk.Button(self, text="Start", command=self.orchestrator.start_orchestrator, style='Start.TButton')
-            self.pause_button = ttk.Button(self, text="Pause", command=self.orchestrator.toggle_pause, style='Stop.TButton', state=tk.DISABLED)
-            self.stop_button = ttk.Button(self, text="Stop", command=self.orchestrator.stop_orchestrator, style='Stop.TButton', state=tk.DISABLED)
+            self.pause_button = ttk.Button(self, text="Pause", command=self.orchestrator.toggle_pause, style='PauseScan.TButton', state=tk.DISABLED)
+            self.stop_button = ttk.Button(self, text="Stop", command=self.orchestrator.stop_orchestrator, style='StopScan.TButton', state=tk.DISABLED)
 
             # --- Grid Layout ---
             self.start_button.grid(row=0, column=1, padx=(10, 2), pady=10, sticky="ew")
@@ -60,30 +66,26 @@ class OrchestratorGUI(ttk.Frame):
             debug_log(f"The GUI has gone rogue! The error be: {e}", file=f"{__name__}", version=current_version, function=current_function_name)
 
     def update_button_states(self):
-        # [A brief, one-sentence description of the function's purpose.]
         # Updates the enabled/disabled state of the control buttons based on the orchestrator's status.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function_name} with state is_running={self.orchestrator.is_running}, is_paused={self.orchestrator.is_paused}",
                   file=f"{__name__}", version=current_version, function=current_function_name)
         try:
             if self.orchestrator.is_running:
-                self.start_button.config(state=tk.DISABLED)
+                self.start_button.config(state=tk.DISABLED, style='Disabled.TButton')
                 self.pause_button.config(state=tk.NORMAL)
-                self.stop_button.config(state=tk.NORMAL)
-                self.pause_button.config(text="Resume" if self.orchestrator.is_paused else "Pause")
-            else:
-                self.start_button.config(state=tk.NORMAL)
-                self.pause_button.config(state=tk.DISABLED, text="Pause")
-                self.stop_button.config(state=tk.DISABLED)
+                self.stop_button.config(state=tk.NORMAL, style='StopScan.TButton')
+                
+                # Use a different style for Resume
+                if self.orchestrator.is_paused:
+                    self.pause_button.config(text="Resume", style='ResumeScan.Blink.TButton')
+                else:
+                    self.pause_button.config(text="Pause", style='PauseScan.TButton')
 
-            # Update styles for visual feedback
-            self.start_button.config(style='Start.TButton' if not self.orchestrator.is_running else 'Disabled.TButton')
-            self.stop_button.config(style='Stop.TButton' if self.orchestrator.is_running else 'Disabled.TButton')
-            
-            if self.orchestrator.is_running:
-                self.pause_button.config(style='Resume.TButton' if self.orchestrator.is_paused else 'Pause.TButton')
             else:
-                self.pause_button.config(style='Disabled.TButton')
+                self.start_button.config(state=tk.NORMAL, style='StartScan.TButton')
+                self.pause_button.config(state=tk.DISABLED, text="Pause", style='Disabled.TButton')
+                self.stop_button.config(state=tk.DISABLED, style='Disabled.TButton')
 
             console_log("✅ Orchestrator button states updated.")
         except Exception as e:

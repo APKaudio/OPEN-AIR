@@ -36,7 +36,7 @@ import datetime
 import re 
 
 # Import the new report converter utility functions
-from tabs.Markers.utils_report_converter import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
+from tabs.Markers.files.utils_marker_report_converter import convert_html_report_to_csv, generate_csv_from_shw, convert_pdf_report_to_csv
 from src.gui_elements import TextRedirector 
 from display.debug_logic import debug_log 
 from display.console_logic import console_log 

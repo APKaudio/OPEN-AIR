@@ -40,12 +40,12 @@
 #        |   -> Function: get_tab_instance(self, parent_tab_name, child_tab_name)
 #└── DATA/
 #    ├── SCANS/
-#    ├── DEBUG_SOFTWARE.log (Lines: 22977)
-#    ├── DEBUG_VISA_COMMANDS.log (Lines: 1025)
+#    ├── DEBUG_SOFTWARE.log (Lines: 15534)
+#    ├── DEBUG_VISA_COMMANDS.log (Lines: 1207)
 #    ├── MARKERS.CSV (Lines: 169)
 #    ├── PRESETS.CSV (Lines: 1)
 #    ├── config.ini (Lines: 101)
-#    └── visa_commands.csv (Lines: 290)
+#    └── visa_commands.csv (Lines: 270)
 #    └── SCANS/
 #        └── MyScan_3D_Scans_Over_Time_20250816_093204.html (Lines: 3885)
 #└── display/
@@ -342,11 +342,11 @@
 #            |   -> Function: display_scan_band_ranges()
 #            |   -> Function: display_tv_plot_band_markers()
 #            |   -> Function: display_vbw_rbw_ratio_options()
-#    ├── ref_scanner_setting_lists.py (Lines: 477)
+#    ├── ref_scanner_setting_lists.py (Lines: 539)
 #            - No functions, classes, or imports found.
-#    ├── ref_scanning_setting.py (Lines: 327)
+#    ├── ref_scanning_setting.py (Lines: 392)
 #            - No functions, classes, or imports found.
-#    └── ref_visa_commands.py (Lines: 434)
+#    └── ref_visa_commands.py (Lines: 411)
 #            |   -> Function: get_default_commands()
 #└── scan_data/
 #└── src/
@@ -700,7 +700,7 @@
 #                |   -> Function: _update_power_attenuation_display(self, value)
 #                |   -> Function: _update_ref_level_display(self, value)
 #                |   -> Function: _update_toggle_button_style(self, button, state)
-#        ├── tab_instrument_child_settings_bandwidth.py (Lines: 474)
+#        ├── tab_instrument_child_settings_bandwidth.py (Lines: 491)
 #                |   -> Import: display.console_logic
 #                |   -> Import: display.debug_logic
 #                |   -> Import: inspect
@@ -709,11 +709,11 @@
 #                |   -> Import: ref.ref_scanner_setting_lists
 #                |   -> Import: tkinter
 #                |   -> Import: yak
-#                |   -> Import: yak.Yakety_Yak
 #                |   -> Import: yak.utils_yaknab_handler
 #                |   -> Class: BandwidthSettingsTab
 #                |   -> Function: __init__(self, master, app_instance, console_print_func)
 #                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_averaging_count_selected(self, event, trace_number)
 #                |   -> Function: _on_averaging_toggle(self, trace_number, state)
 #                |   -> Function: _on_continuous_mode_change(self, event)
 #                |   -> Function: _on_rbw_selected(self, event)
@@ -1448,7 +1448,7 @@
 #            |   -> Function: _find_command(command_type, action_type, model)
 #            |   -> Function: _load_commands_from_file(file_path)
 #            |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func, num_reads)
-#    ├── utils_yak_setting_handler.py (Lines: 756)
+#    ├── utils_yak_setting_handler.py (Lines: 842)
 #            |   -> Import: display.console_logic
 #            |   -> Import: display.debug_logic
 #            |   -> Import: inspect
@@ -1464,6 +1464,7 @@
 #            |   -> Function: do_power_cycle(app_instance, console_print_func)
 #            |   -> Function: do_turn_all_markers_on(app_instance, console_print_func)
 #            |   -> Function: get_all_marker_values_logic(app_instance, console_print_func)
+#            |   -> Function: get_trace_averaging_settings(app_instance, trace_number, console_print_func)
 #            |   -> Function: get_trace_data_logic(app_instance, console_print_func)
 #            |   -> Function: refresh_all_from_instrument(app_instance, console_print_func)
 #            |   -> Function: reset_device(app_instance, console_print_func)
@@ -1475,6 +1476,7 @@
 #            |   -> Function: set_span_frequency(app_instance, value, console_print_func)
 #            |   -> Function: set_start_frequency(app_instance, value, console_print_func)
 #            |   -> Function: set_stop_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_trace_averaging_count(app_instance, trace_number, count, console_print_func)
 #            |   -> Function: set_trace_mode(app_instance, trace_number, mode, console_print_func)
 #            |   -> Function: set_video_bandwidth(app_instance, value, console_print_func)
 #            |   -> Function: toggle_high_sensitivity(tab_instance, app_instance, console_print_func)
