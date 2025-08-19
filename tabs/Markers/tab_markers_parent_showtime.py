@@ -1,4 +1,4 @@
-# FolderName/tab_markers_child_showtime.py
+# tabs/Markers/tab_markers_parent_showtime.py
 #
 # This file defines the Showtime tab. It assembles the main UI components
 # by combining the ZoneGroupsDevicesFrame and the ControlsFrame.
@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.161500.2
+# Version 20250818.145245.1
 
-current_version = "20250814.161500.2"
-current_version_hash = (20250814 * 161500 * 2)
+current_version = "20250818.145245.1"
+current_version_hash = (20250818 * 145245 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -26,8 +26,10 @@ import inspect
 
 # Import the custom frame components
 from tabs.Markers.tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
-from tabs.Markers.controls.tab_markers_child_bottom_controls import ControlsFrame
+# The import for ControlsFrame is now moved inside _create_widgets to prevent circular dependency
 
+# Import the sync_trace_modes function
+from tabs.Markers.controls.utils_showtime_controls import sync_trace_modes
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -40,28 +42,26 @@ class ShowtimeTab(ttk.Frame):
         
         super().__init__(parent)
         self.app_instance = app_instance
-        self.grid(row=0, column=0, sticky="nsew")
-        self.console_print_func = console_log  # Assuming console_log is the default
+        self.console_print_func = console_log
 
         self._create_widgets()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def _create_widgets(self):
+        # --- MOVED IMPORT HERE TO FIX CIRCULAR DEPENDENCY ---
+        from tabs.Markers.controls.tab_markers_child_bottom_controls import ControlsFrame
+
         # Creates and places the primary UI frames for this tab.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
         try:
-            # Configure the grid layout for the ShowtimeTab itself.
             self.rowconfigure(0, weight=1)
             self.columnconfigure(0, weight=1)
 
-            # Create and place the Zones, Groups, and Devices frame at the top
-            # FIXED: Pass 'self' as the showtime_tab_instance argument
             self.zgd_frame = ZoneGroupsDevicesFrame(self, self.app_instance, self)
             self.zgd_frame.grid(row=0, column=0, sticky="nsew")
 
-            # Create and place the Controls frame at the bottom
             self.controls_frame = ControlsFrame(self, self.app_instance)
             self.controls_frame.grid(row=1, column=0, sticky="ew")
             
@@ -73,16 +73,13 @@ class ShowtimeTab(ttk.Frame):
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def _on_tab_selected(self, event):
-        # A brief, one-sentence description of the function's purpose.
         # Handles the event when this tab is selected.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
         try:
-            # You can add any specific logic here that needs to run when the tab is selected.
-            # For example, refreshing the data display in child frames.
             self.zgd_frame.load_and_display_data()
-            self.controls_frame.sync_trace_modes(self.controls_frame)
+            sync_trace_modes(self.controls_frame)
             console_log("✅ Showtime tab refreshed.", "INFO")
             debug_log("Showtime tab refreshed successfully. 👍", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         except Exception as e:

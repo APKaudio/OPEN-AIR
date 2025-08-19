@@ -1,4 +1,4 @@
-# tabs/Markers/utils_showtime_controls.py
+# tabs/Markers/controls/utils_showtime_controls.py
 #
 # This utility file provides the backend logic for the ControlsFrame. It contains
 # functions that handle button clicks for Span, RBW, Trace Modes, and Poking,
@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.172000.1
+# Version 20250818.145024.2
 
-current_version = "20250814.172000.1"
-current_version_hash = (20250814 * 172000 * 1)
+current_version = "20250818.145024.2"
+current_version_hash = (20250818 * 145024 * 2)
 
 import os
 import inspect
@@ -85,10 +85,70 @@ def _update_control_styles(controls_frame):
     controls_frame.trace_buttons['Live'].configure(style=active_style if controls_frame.trace_live_mode.get() else inactive_style)
     controls_frame.trace_buttons['Max Hold'].configure(style=active_style if controls_frame.trace_max_hold_mode.get() else inactive_style)
     controls_frame.trace_buttons['Min Hold'].configure(style=active_style if controls_frame.trace_min_hold_mode.get() else inactive_style)
+    
+    _update_peaks_button_styles(controls_frame)
 
+def _update_peaks_button_styles(controls_frame):
+    # [This function updates the PEAKS tab buttons and labels to show the active context.]
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function_name} to update PEAKS button styles and labels.",
+              file=f"{os.path.basename(__file__)}", version=current_version, function=current_function_name)
+              
+    active_style = 'ControlButton.Active.TButton'
+    inactive_style = 'ControlButton.Inactive.TButton'
+    
+    zgd_frame = controls_frame.app_instance.tabs_parent.tab_content_frames['Markers'].showtime_tab.zgd_frame
+    
+    active_button_key = 'All'
+    devices = []
+    
+    # Determine which button should be active and what data to display
+    if hasattr(zgd_frame, 'selected_device_info') and zgd_frame.selected_device_info:
+        active_button_key = 'Device'
+        device_info = zgd_frame.selected_device_info
+        name = device_info.get('NAME', 'N/A')
+        freq = device_info.get('CENTER', 'N/A')
+        controls_frame.peaks_label_left_var.set(f"Device: {name}")
+        controls_frame.peaks_label_center_var.set(f"Center: {freq:.3f} MHz" if isinstance(freq, (int, float)) else "N/A")
+        controls_frame.peaks_label_right_var.set("(1 Marker)")
+
+    elif zgd_frame.selected_group:
+        active_button_key = 'Group'
+        devices = zgd_frame.structured_data.get(zgd_frame.selected_zone, {}).get(zgd_frame.selected_group, [])
+        freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+        controls_frame.peaks_label_left_var.set(f"Group: {zgd_frame.selected_group}")
+        controls_frame.peaks_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+        controls_frame.peaks_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+
+    elif zgd_frame.selected_zone:
+        active_button_key = 'Zone'
+        devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
+        freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+        controls_frame.peaks_label_left_var.set(f"Zone: {zgd_frame.selected_zone}")
+        controls_frame.peaks_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+        controls_frame.peaks_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+
+    else: # Default is All Markers
+        active_button_key = 'All'
+        devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zone_name=None)
+        freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+        controls_frame.peaks_label_left_var.set("All Markers")
+        controls_frame.peaks_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+        controls_frame.peaks_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+
+    # Update all button styles
+    for key, button in controls_frame.peaks_buttons.items():
+        if key == active_button_key:
+            button.config(style=active_style)
+        else:
+            button.config(style=inactive_style)
+    
+    debug_log(f"PEAKS buttons and labels updated. Active button: '{active_button_key}'.",
+              file=f"{os.path.basename(__file__)}", version=current_version, function=current_function_name)
+
+# ... (rest of the file is unchanged) ...
 def on_span_button_click(controls_frame, span_hz):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Handles clicks on span buttons, updating state and calling instrument logic.
+    # [This function handles clicks on span buttons, updating state and calling instrument logic.]
     if span_hz == 'Follow':
         controls_frame.follow_zone_span_var.set(True)
         controls_frame.console_print_func("Span set to follow active zone.", "INFO")
@@ -100,21 +160,18 @@ def on_span_button_click(controls_frame, span_hz):
     _update_control_styles(controls_frame)
 
 def on_rbw_button_click(controls_frame, rbw_hz):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Handles clicks on RBW buttons, updating state and calling instrument logic.
+    # [This function handles clicks on RBW buttons, updating state and calling instrument logic.]
     controls_frame.rbw_var.set(str(rbw_hz))
     set_rbw_logic(controls_frame.app_instance, int(rbw_hz), controls_frame.console_print_func)
     _update_control_styles(controls_frame)
 
 def on_trace_button_click(controls_frame, trace_var_to_toggle):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Toggles the state of a single trace mode variable, then calls the sync function.
+    # [This function toggles the state of a single trace mode variable, then calls the sync function.]
     trace_var_to_toggle.set(not trace_var_to_toggle.get())
     sync_trace_modes(controls_frame)
 
 def sync_trace_modes(controls_frame):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Sets all four trace modes at once using the efficient YakBeg handler.
+    # [This function sets all four trace modes at once using the efficient YakBeg handler.]
     app = controls_frame.app_instance
     console = controls_frame.console_print_func
     
@@ -138,8 +195,7 @@ def sync_trace_modes(controls_frame):
     _update_control_styles(controls_frame)
 
 def on_poke_action(controls_frame):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Sets center frequency and span simultaneously using the YakBeg handler.
+    # [This function sets center frequency and span simultaneously using the YakBeg handler.]
     try:
         center_freq_mhz = float(controls_frame.poke_freq_var.get())
         center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
@@ -169,15 +225,13 @@ def on_poke_action(controls_frame):
         controls_frame.console_print_func(f"An unexpected error occurred during poke: {e}", "ERROR")
 
 def set_span_logic(app_instance, span_hz, console_print_func):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Sets the instrument's span frequency using the YakSet command.
+    # [This function sets the instrument's span frequency using the YakSet command.]
     status = YakSet(app_instance=app_instance, command_type="FREQUENCY/SPAN", variable_value=str(span_hz), console_print_func=console_print_func)
     if status != "PASSED":
         console_print_func(f"❌ Failed to set span frequency.", "ERROR")
 
 def set_rbw_logic(app_instance, rbw_hz, console_print_func):
-    # [A brief, one-sentence description of the function's purpose.]
-    # Sets the instrument's Resolution Bandwidth (RBW) using the YakSet command.
+    # [This function sets the instrument's Resolution Bandwidth (RBW) using the YakSet command.]
     status = YakSet(app_instance=app_instance, command_type="BANDWIDTH/RESOLUTION", variable_value=str(rbw_hz), console_print_func=console_print_func)
     if status != "PASSED":
         console_print_func(f"❌ Failed to set RBW.", "ERROR")
