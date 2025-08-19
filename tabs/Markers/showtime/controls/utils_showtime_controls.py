@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.214000.2
+# Version 20250818.221500.2
 
-current_version = "20250818.214000.2"
-current_version_hash = (20250818 * 214000 * 2)
+current_version = "20250818.221500.2"
+current_version_hash = (20250818 * 221500 * 2)
 
 import os
 import inspect
@@ -26,7 +26,14 @@ from ref.frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
-from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg
+
+# MODIFIED: Added new YakBeg and YakNab handlers for trace data
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg, handle_trace_data_beg
+from yak.utils_yaknab_handler import handle_all_traces_nab
+
+# MODIFIED: Import display utilities
+from display.utils_display_monitor import update_top_plot, update_middle_plot,update_bottom_plot
+from display.utils_scan_view import update_single_plot
 
 # Import the Zone Zoom functions to be called automatically
 from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import (
@@ -268,3 +275,117 @@ def set_rbw_logic(app_instance, rbw_hz, console_print_func):
     status = YakSet(app_instance=app_instance, command_type="BANDWIDTH/RESOLUTION", variable_value=str(rbw_hz), console_print_func=console_print_func)
     if status != "PASSED":
         console_print_func(f"❌ Failed to set RBW.")
+
+
+# --- NEW: TRACE DATA HANDLING ---
+
+def _get_current_view_details(controls_frame):
+    # [Helper function to determine the current frequency span and title based on UI selection.]
+    debug_log(f"Entering _get_current_view_details", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_current_view_details")
+    zgd_frame = controls_frame.app_instance.tabs_parent.tab_content_frames['Markers'].showtime_tab.zgd_frame
+    
+    view_name = "All Markers"
+    start_freq_mhz = None
+    stop_freq_mhz = None
+
+    try:
+        if hasattr(zgd_frame, 'selected_device_info') and zgd_frame.selected_device_info:
+            device = zgd_frame.selected_device_info
+            center_mhz = device.get('CENTER')
+            span_hz = int(float(controls_frame.span_var.get()))
+            span_mhz = span_hz / MHZ_TO_HZ
+            start_freq_mhz = center_mhz - (span_mhz / 2)
+            stop_freq_mhz = center_mhz + (span_mhz / 2)
+            view_name = f"Device: {device.get('NAME', 'N/A')}"
+
+        elif zgd_frame.selected_group:
+            devices = zgd_frame.structured_data[zgd_frame.selected_zone][zgd_frame.selected_group]
+            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            if freqs:
+                start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
+            view_name = f"Group: {zgd_frame.selected_group}"
+
+        elif zgd_frame.selected_zone:
+            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
+            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            if freqs:
+                start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
+            view_name = f"Zone: {zgd_frame.selected_zone}"
+        
+        else: # All Markers
+            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, None)
+            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            if freqs:
+                start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
+            view_name = "All Markers"
+
+        debug_log(f"Current view: {view_name}, Start: {start_freq_mhz} MHz, Stop: {stop_freq_mhz} MHz", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_current_view_details")
+        return view_name, start_freq_mhz, stop_freq_mhz
+
+    except Exception as e:
+        controls_frame.console_print_func(f"❌ Could not determine current frequency view: {e}", "ERROR")
+        return None, None, None
+
+
+def on_get_all_traces_click(controls_frame):
+    # [Handles 'Get Live, Max and Min' button click.]
+    debug_log(f"Entering on_get_all_traces_click", file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_all_traces_click")
+    view_name, start_freq_mhz, stop_freq_mhz = _get_current_view_details(controls_frame)
+    if not all([view_name, start_freq_mhz, stop_freq_mhz]):
+        controls_frame.console_print_func("❌ Cannot get traces, no valid frequency range selected.", "ERROR")
+        return
+
+    trace_data_dict = handle_all_traces_nab(controls_frame.app_instance, controls_frame.console_print_func)
+    
+    if trace_data_dict and "TraceData" in trace_data_dict:
+        monitor_tab = controls_frame.app_instance.tabs_parent.tab_content_frames.get('Scan Monitor')
+        if monitor_tab:
+            update_top_plot(monitor_tab, "top", trace_data_dict["TraceData"]["Trace1"], f"Live Trace - {view_name}")
+            update_middle_plot(monitor_tab, "middle", trace_data_dict["TraceData"]["Trace2"], f"Max Hold - {view_name}")
+            update_bottom_plot(monitor_tab, "bottom", trace_data_dict["TraceData"]["Trace3"], f"Min Hold - {view_name}")
+            controls_frame.console_print_func("✅ Successfully updated monitor with all three traces.", "SUCCESS")
+        else:
+            controls_frame.console_print_func("❌ Scan Monitor tab not found.", "ERROR")
+    else:
+        controls_frame.console_print_func("❌ Failed to retrieve trace data.", "ERROR")
+
+def on_get_live_trace_click(controls_frame):
+    # [Handles 'Get Live' button click.]
+    debug_log(f"Entering on_get_live_trace_click", file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_live_trace_click")
+    view_name, start_freq_mhz, stop_freq_mhz = _get_current_view_details(controls_frame)
+    if not all([view_name, start_freq_mhz, stop_freq_mhz]):
+        controls_frame.console_print_func("❌ Cannot get trace, no valid frequency range selected.", "ERROR")
+        return
+
+    trace_data = handle_trace_data_beg(controls_frame.app_instance, 1, start_freq_mhz, stop_freq_mhz, controls_frame.console_print_func)
+
+    if trace_data:
+        scan_view_tab = controls_frame.app_instance.tabs_parent.tab_content_frames.get('Scan View')
+        if scan_view_tab:
+            update_single_plot(scan_view_tab, trace_data, start_freq_mhz, stop_freq_mhz, f"Live Trace - {view_name}")
+            controls_frame.console_print_func("✅ Successfully updated Scan View with live trace.", "SUCCESS")
+        else:
+            controls_frame.console_print_func("❌ Scan View tab not found.", "ERROR")
+    else:
+        controls_frame.console_print_func("❌ Failed to retrieve live trace data.", "ERROR")
+
+
+def on_get_max_trace_click(controls_frame):
+    # [Handles 'Get Max' button click.]
+    debug_log(f"Entering on_get_max_trace_click", file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_max_trace_click")
+    view_name, start_freq_mhz, stop_freq_mhz = _get_current_view_details(controls_frame)
+    if not all([view_name, start_freq_mhz, stop_freq_mhz]):
+        controls_frame.console_print_func("❌ Cannot get trace, no valid frequency range selected.", "ERROR")
+        return
+
+    trace_data = handle_trace_data_beg(controls_frame.app_instance, 2, start_freq_mhz, stop_freq_mhz, controls_frame.console_print_func)
+
+    if trace_data:
+        scan_view_tab = controls_frame.app_instance.tabs_parent.tab_content_frames.get('Scan View')
+        if scan_view_tab:
+            update_single_plot(scan_view_tab, trace_data, start_freq_mhz, stop_freq_mhz, f"Max Hold - {view_name}")
+            controls_frame.console_print_func("✅ Successfully updated Scan View with max hold trace.", "SUCCESS")
+        else:
+            controls_frame.console_print_func("❌ Scan View tab not found.", "ERROR")
+    else:
+        controls_frame.console_print_func("❌ Failed to retrieve max hold trace data.", "ERROR")

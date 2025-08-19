@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.214000.1
+# Version 20250818.221000.1
 
-current_version = "20250818.214000.1"
-current_version_hash = (20250818 * 214000 * 1)
+current_version = "20250818.221000.1"
+current_version_hash = (20250818 * 221000 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -27,9 +27,11 @@ from datetime import datetime
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
+# MODIFIED: Added imports for the new trace handler functions
 from tabs.Markers.showtime.controls.utils_showtime_controls import (
     on_span_button_click, on_rbw_button_click, on_trace_button_click, on_poke_action,
-    format_hz, sync_trace_modes, _update_control_styles, SPAN_OPTIONS, RBW_OPTIONS
+    format_hz, sync_trace_modes, _update_control_styles, SPAN_OPTIONS, RBW_OPTIONS,
+    on_get_all_traces_click, on_get_live_trace_click, on_get_max_trace_click
 )
 
 from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import (
@@ -120,13 +122,19 @@ class ControlsFrame(ttk.Frame):
             for i in range(3):
                 trace_tab.grid_columnconfigure(i, weight=1)
 
-            # --- TRACES Tab ---
+            # --- MODIFIED: TRACES Tab ---
             traces_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
             controls_notebook.add(traces_tab, text="TRACES")
             traces_tab.columnconfigure((0, 1, 2), weight=1)
-            ttk.Button(traces_tab, text="Get View, Min and Max", style='ControlButton.Inactive.TButton').grid(row=0, column=0, padx=2, pady=2, sticky="ew")
-            ttk.Button(traces_tab, text="Get view", style='ControlButton.Inactive.TButton').grid(row=0, column=1, padx=2, pady=2, sticky="ew")
-            ttk.Button(traces_tab, text="BEG", style='ControlButton.Inactive.TButton').grid(row=0, column=2, padx=2, pady=2, sticky="ew")
+
+            btn_get_all = ttk.Button(traces_tab, text="Get Live, Max and Min", style='ControlButton.Inactive.TButton', command=lambda: on_get_all_traces_click(self))
+            btn_get_all.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+
+            btn_get_live = ttk.Button(traces_tab, text="Get Live", style='ControlButton.Inactive.TButton', command=lambda: on_get_live_trace_click(self))
+            btn_get_live.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
+
+            btn_get_max = ttk.Button(traces_tab, text="Get Max", style='ControlButton.Inactive.TButton', command=lambda: on_get_max_trace_click(self))
+            btn_get_max.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
 
             # --- Poke Tab ---
             poke_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
