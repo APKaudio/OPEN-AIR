@@ -22,7 +22,7 @@ current_version_hash = (20250818 * 221500 * 2)
 
 import os
 import inspect
-import pandas as pd # FIXED: Added pandas import
+import pandas as pd
 from ref.frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -308,14 +308,14 @@ def _get_current_view_details(controls_frame):
 
         elif zgd_frame.selected_zone:
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
-            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            freqs = [d['CENTER'] for d in devices if isinstance(d['CENTER'], (int, float))]
             if freqs:
                 start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
             view_name = f"Zone: {zgd_frame.selected_zone}"
         
         else: # All Markers
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, None)
-            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            freqs = [d['CENTER'] for d in devices if isinstance(d['CENTER'], (int, float))]
             if freqs:
                 start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
             view_name = "All Markers"
@@ -335,9 +335,17 @@ def on_get_all_traces_click(controls_frame):
     if not all([view_name, start_freq_mhz, stop_freq_mhz]):
         controls_frame.console_print_func("❌ Cannot get traces, no valid frequency range selected.", "ERROR")
         return
-
+    
+    # ADDED DEBUG: Log the parameters before calling the handler
+    debug_log(f"Attempting to retrieve all traces. Parameters: Start_MHz={start_freq_mhz}, Stop_MHz={stop_freq_mhz}",
+              file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_all_traces_click", special=True)
+              
     trace_data_dict = handle_all_traces_nab(controls_frame.app_instance, controls_frame.console_print_func)
     
+    # ADDED DEBUG: Log the return value from the handler
+    debug_log(f"Returned from handle_all_traces_nab. Result is a {type(trace_data_dict)}. Value: {trace_data_dict}",
+              file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_all_traces_click", special=True)
+
     if trace_data_dict and "TraceData" in trace_data_dict:
         # CORRECTED: Get the monitor tab reference directly from the app instance
         monitor_tab = controls_frame.app_instance.display_parent_tab.bottom_pane.scan_monitor_tab
@@ -356,6 +364,9 @@ def on_get_all_traces_click(controls_frame):
             controls_frame.console_print_func("❌ Scan Monitor tab not found.", "ERROR")
     else:
         controls_frame.console_print_func("❌ Failed to retrieve trace data.", "ERROR")
+        # ADDED DEBUG: A detailed debug log for the failure
+        debug_log(f"Arrr, the plotting operation be capsized! The data from the handler be all wrong! Returned a {type(trace_data_dict)} when a dict was expected. 🏴‍☠️",
+                 file=f"{os.path.basename(__file__)}", version=current_version, function="on_get_all_traces_click")
 
 def on_get_live_trace_click(controls_frame):
     # [Handles 'Get Live' button click.]
