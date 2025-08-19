@@ -16,6 +16,7 @@
 #
 # Version 20250818.221000.1
 # MODIFIED: Added a Buffer dropdown and removed "Set " from button labels.
+# MODIFIED: Reverted trace controls to use individual toggle buttons.
 
 current_version = "20250818.221000.1"
 current_version_hash = (20250818 * 221000 * 1)
@@ -58,7 +59,7 @@ class ControlsFrame(ttk.Frame):
             self.trace_max_hold_mode = tk.BooleanVar(value=True)
             self.trace_min_hold_mode = tk.BooleanVar(value=True)
             self.poke_freq_var = tk.StringVar()
-            self.buffer_var = tk.StringVar(value="1") # NEW: Variable for the buffer
+            self.buffer_var = tk.StringVar(value="1") 
 
             self.zone_zoom_label_left_var = tk.StringVar(value="All Markers")
             self.zone_zoom_label_center_var = tk.StringVar(value="Start: N/A")
@@ -82,12 +83,12 @@ class ControlsFrame(ttk.Frame):
         # [Creates the notebook and populates it with all the control tabs.]
         debug_log(f"Entering _create_controls_notebook", file=f"{os.path.basename(__file__)}", version=current_version, function="_create_controls_notebook")
         try:
-            controls_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
-            controls_notebook.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
+            self.controls_notebook = ttk.Notebook(self, style='Markers.Child.TNotebook')
+            self.controls_notebook.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
 
             # --- Span Tab ---
-            span_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(span_tab, text="Span")
+            span_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(span_tab, text="Span")
             # MODIFIED: Removed "Follow Zone" button
             for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
                 btn_text = f"{name}\n({format_hz(span_hz)})"
@@ -98,33 +99,37 @@ class ControlsFrame(ttk.Frame):
                 span_tab.grid_columnconfigure(i, weight=1)
 
             # --- RBW Tab ---
-            rbw_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(rbw_tab, text="RBW")
+            rbw_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(rbw_tab, text="RBW")
             for i, (name, rbw_hz) in enumerate(RBW_OPTIONS.items()):
                 btn_text = f"{name}\n({format_hz(rbw_hz)})"
                 btn = ttk.Button(rbw_tab, text=btn_text, style='ControlButton.Inactive.TButton', command=lambda r=rbw_hz: on_rbw_button_click(self, r))
                 btn.grid(row=0, column=i, padx=2, pady=2, sticky="ew")
                 self.rbw_buttons[str(rbw_hz)] = btn
                 rbw_tab.grid_columnconfigure(i, weight=1)
-
-            # --- Trace Tab ---
-            trace_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(trace_tab, text="Trace Modes")
+            
+            # --- MODIFIED: Trace Tab (back to toggle buttons) ---
+            trace_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(trace_tab, text="Trace Modes")
+            
+            # Reverting to the old toggle button system
             live_btn = ttk.Button(trace_tab, text="Live\nTrace", style='ControlButton.Inactive.TButton', command=lambda: on_trace_button_click(self, self.trace_live_mode))
             live_btn.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
             self.trace_buttons['Live'] = live_btn
+            
             max_btn = ttk.Button(trace_tab, text="Max Hold\nTrace", style='ControlButton.Inactive.TButton', command=lambda: on_trace_button_click(self, self.trace_max_hold_mode))
             max_btn.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
             self.trace_buttons['Max Hold'] = max_btn
+            
             min_btn = ttk.Button(trace_tab, text="Min Hold\nTrace", style='ControlButton.Inactive.TButton', command=lambda: on_trace_button_click(self, self.trace_min_hold_mode))
             min_btn.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
             self.trace_buttons['Min Hold'] = min_btn
-            for i in range(3):
-                trace_tab.grid_columnconfigure(i, weight=1)
+            
+            trace_tab.columnconfigure((0, 1, 2), weight=1)
 
-            # --- MODIFIED: TRACES Tab ---
-            traces_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(traces_tab, text="TRACES")
+            # --- Traces Tab (single-action buttons) ---
+            traces_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(traces_tab, text="TRACES")
             traces_tab.columnconfigure((0, 1, 2), weight=1)
 
             btn_get_all = ttk.Button(traces_tab, text="Get Live, Max and Min", style='ControlButton.Inactive.TButton', command=lambda: on_get_all_traces_click(self))
@@ -137,8 +142,8 @@ class ControlsFrame(ttk.Frame):
             btn_get_max.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
 
             # --- Poke Tab ---
-            poke_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(poke_tab, text="Poke Frequency")
+            poke_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(poke_tab, text="Poke Frequency")
             poke_tab.columnconfigure(0, weight=1)
             poke_entry = ttk.Entry(poke_tab, textvariable=self.poke_freq_var)
             poke_entry.pack(side='left', fill='x', expand=True, padx=2, pady=2)
@@ -146,8 +151,8 @@ class ControlsFrame(ttk.Frame):
             poke_btn.pack(side='left', padx=2, pady=2)
 
             # --- Zone Zoom Tab ---
-            zone_zoom_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
-            controls_notebook.add(zone_zoom_tab, text="Zone Zoom")
+            zone_zoom_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
+            self.controls_notebook.add(zone_zoom_tab, text="Zone Zoom")
             zone_zoom_tab.columnconfigure((0, 1, 2, 4), weight=1)
             zone_zoom_tab.columnconfigure(3, weight=0) 
 
@@ -187,6 +192,23 @@ class ControlsFrame(ttk.Frame):
             console_log(f"❌ Error in _create_controls_notebook: {e}")
             debug_log(f"Shiver me timbers, the controls notebook has been scuttled! Error: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="_create_controls_notebook")
 
+    def switch_to_tab(self, tab_name):
+        """Switches the active tab in the controls notebook."""
+        debug_log(f"Entering switch_to_tab for '{tab_name}'", file=f"{os.path.basename(__file__)}", version=current_version, function="switch_to_tab")
+        if self.controls_notebook:
+            tab_index = -1
+            for i in range(self.controls_notebook.index("end")):
+                if self.controls_notebook.tab(i, "text") == tab_name:
+                    tab_index = i
+                    break
+            if tab_index != -1:
+                self.controls_notebook.select(tab_index)
+                debug_log(f"Switched to tab '{tab_name}' successfully.", file=f"{os.path.basename(__file__)}", version=current_version, function="switch_to_tab")
+            else:
+                debug_log(f"Tab '{tab_name}' not found. Cannot switch.", file=f"{os.path.basename(__file__)}", version=current_version, function="switch_to_tab")
+        else:
+            debug_log("Controls notebook not found. Cannot switch tabs.", file=f"{os.path.basename(__file__)}", version=current_version, function="switch_to_tab")
+
     def _get_zgd_frame(self):
         # [Safely gets the ZoneGroupsDevicesFrame instance from the application hierarchy.]
         debug_log(f"Entering _get_zgd_frame", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_zgd_frame")
@@ -214,7 +236,7 @@ class ControlsFrame(ttk.Frame):
             return
             
         set_span_to_zone(self, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs),
-                         StartFreq=min(freqs), StopFreq=max(freqs), selected=True)
+                         StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=float(self.buffer_var.get()))
 
     def _on_set_span_to_group_click(self):
         # [Handles the click event to set the instrument span to the selected group.]
@@ -232,7 +254,7 @@ class ControlsFrame(ttk.Frame):
             return
             
         set_span_to_group(self, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs),
-                          StartFreq=min(freqs), StopFreq=max(freqs))
+                          StartFreq=min(freqs), StopFreq=max(freqs), buffer_mhz=float(self.buffer_var.get()))
 
     def _on_set_span_to_device_click(self):
         # [Handles the click event to set the instrument span to the selected device.]
@@ -267,7 +289,7 @@ class ControlsFrame(ttk.Frame):
             return
 
         set_span_to_all_markers(self, NumberOfMarkers=len(freqs), StartFreq=min(freqs),
-                                StopFreq=max(freqs), selected=True)
+                                StopFreq=max(freqs), selected=True, buffer_mhz=float(self.buffer_var.get()))
 
     def console_print_func(self, message, level="INFO"):
         # [Safely prints a message to the main application console.]
