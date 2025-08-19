@@ -1,4 +1,4 @@
-# tabs/Markers/tab_markers_parent_showtime.py
+# tabs/Markers/showtime/tab_markers_parent_showtime.py
 #
 # This file defines the Showtime tab. It assembles the main UI components
 # by combining the ZoneGroupsDevicesFrame and the ControlsFrame.
@@ -25,11 +25,11 @@ import os
 import inspect
 
 # Import the custom frame components
-from tabs.Markers.tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
+from tabs.Markers.showtime.tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
 # The import for ControlsFrame is now moved inside _create_widgets to prevent circular dependency
 
 # Import the sync_trace_modes function
-from tabs.Markers.controls.utils_showtime_controls import sync_trace_modes
+from tabs.Markers.showtime.controls.utils_showtime_controls import sync_trace_modes
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -49,7 +49,7 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_widgets(self):
         # --- MOVED IMPORT HERE TO FIX CIRCULAR DEPENDENCY ---
-        from tabs.Markers.controls.tab_markers_child_bottom_controls import ControlsFrame
+        from tabs.Markers.showtime.controls.tab_markers_child_bottom_controls import ControlsFrame
 
         # Creates and places the primary UI frames for this tab.
         current_function = inspect.currentframe().f_code.co_name

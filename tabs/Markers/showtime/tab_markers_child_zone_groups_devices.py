@@ -1,4 +1,4 @@
-# tabs/Markers/tab_markers_child_zone_groups_devices.py
+# tabs/Markers/showtime/tab_markers_child_zone_groups_devices.py
 #
 # This file defines the ZoneGroupsDevicesFrame, which now dynamically loads
 # and displays data from the MARKERS.CSV file.
@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.144515.3
+# Version 20250818.214900.1
 
-current_version = "20250818.144515.3"
-current_version_hash = (20250818 * 144515 * 3)
+current_version = "20250818.214900.1"
+current_version_hash = (20250818 * 214900 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -28,9 +28,9 @@ import pandas as pd
 import math
 
 # Import utility functions
-from tabs.Markers.utils_file_markers_zone_groups_devices import load_and_structure_markers_data
-from tabs.Markers.utils_button_volume_level import create_signal_level_indicator
-from tabs.Markers.controls.utils_showtime_controls import _update_control_styles
+from tabs.Markers.showtime.utils_file_markers_zone_groups_devices import load_and_structure_markers_data
+from tabs.Markers.showtime.utils_button_volume_level import create_signal_level_indicator
+from tabs.Markers.showtime.controls.utils_showtime_controls import _update_control_styles
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.program_style import COLOR_PALETTE
@@ -59,7 +59,6 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
-    # ... (_create_layout, _create_device_frame, load_and_display_data, _make... functions are unchanged) ...
     def _create_layout(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
@@ -267,41 +266,58 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function} for group: {group_name}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
+        devices_in_group = self.structured_data.get(self.selected_zone, {}).get(group_name, [])
+
+        if len(devices_in_group) == 1:
+            console_log(f"EVENT: Group '{group_name}' contains one device. Auto-selecting device...", "INFO")
+            self.selected_group = group_name 
+            self._make_device_buttons() 
+            self.on_device_selected(devices_in_group[0]) 
+            
+            for widget in self.groups_frame.winfo_children():
+                if widget.cget("text") == group_name:
+                    if self.active_group_button and self.active_group_button.winfo_exists():
+                        self.active_group_button.config(style='ControlButton.Inactive.TButton')
+                    widget.config(style='ControlButton.Active.TButton')
+                    self.active_group_button = widget
+                    break
+            return
+
+        # --- MODIFIED: Revert to parent zone on group deselection ---
+        if self.selected_group == group_name:
+            console_log(f"EVENT: Group '{group_name}' deselected. Reverting to Zone '{self.selected_zone}'.", "INFO")
+            # Deactivate the group button visually before reverting
+            if self.active_group_button and self.active_group_button.winfo_exists():
+                self.active_group_button.config(style='ControlButton.Inactive.TButton')
+                self.active_group_button = None
+            # Re-select the parent zone to reset the view
+            self.on_zone_selected(self.selected_zone) 
+            return
+
+        # --- Existing group selection logic ---
         for widget in self.groups_frame.winfo_children():
             if widget.cget("text") == group_name:
                 selected_button = widget
                 break
         else:
             selected_button = None
-            
-        if self.selected_group == group_name:
-            console_log(f"EVENT: Group '{group_name}' deselected. Unfiltering to show all devices in Zone '{self.selected_zone}'.", "INFO")
-            self.selected_group = None
-            self.selected_device_info = None
-            if self.active_group_button and self.active_group_button.winfo_exists():
-                self.active_group_button.config(style='ControlButton.Inactive.TButton')
-                self.active_group_button = None
-            all_devices_in_zone = self._get_all_devices_in_zone(self.structured_data, self.selected_zone)
-            self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=all_devices_in_zone, title_prefix=f"Groups in Zone '{self.selected_zone}'")
-        else:
-            console_log(f"EVENT: Group '{group_name}' selected in Zone '{self.selected_zone}'. Loading devices... ⚙️", "INFO")
-            if self.active_group_button and self.active_group_button.winfo_exists():
-                self.active_group_button.config(style='ControlButton.Inactive.TButton')
 
-            self.active_device_button = None
-            self.selected_device_info = None
+        console_log(f"EVENT: Group '{group_name}' selected in Zone '{self.selected_zone}'. Loading devices... ⚙️", "INFO")
+        if self.active_group_button and self.active_group_button.winfo_exists():
+            self.active_group_button.config(style='ControlButton.Inactive.TButton')
 
-            self.selected_group = group_name
-            if selected_button:
-                selected_button.config(style='ControlButton.Active.TButton')
-                self.active_group_button = selected_button
-            
-            devices_in_group = self.structured_data.get(self.selected_zone, {}).get(self.selected_group, [])
-            self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=devices_in_group, title_prefix=f"Group '{group_name}'")
+        self.active_device_button = None
+        self.selected_device_info = None
+        self.selected_group = group_name
+
+        if selected_button:
+            selected_button.config(style='ControlButton.Active.TButton')
+            self.active_group_button = selected_button
+        
+        self._get_min_max_freq_and_update_title(frame_widget=self.groups_frame, devices=devices_in_group, title_prefix=f"Group '{group_name}'")
 
         self._make_device_buttons()
         self.canvas.yview_moveto(0)
-        
         _update_control_styles(self.showtime_tab_instance.controls_frame)
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
@@ -309,8 +325,21 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function} for device object: {device_info}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
+        device_name = device_info.get('NAME', 'N/A')
+        if isinstance(device_name, float) and math.isnan(device_name):
+            device_name = 'nan'
+
+        if self.selected_device_info and id(self.selected_device_info) == id(device_info):
+            console_log(f"EVENT: Device '{device_name}' deselected.", "INFO")
+            self.selected_device_info = None
+            if self.active_device_button and self.active_device_button.winfo_exists():
+                self.active_device_button.config(style='DeviceButton.Inactive.TButton')
+            self.active_device_button = None
+            _update_control_styles(self.showtime_tab_instance.controls_frame)
+            debug_log(f"Exiting {current_function} after deselecting device.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            return
+
         self.selected_device_info = device_info
-        
         selected_button = self.device_buttons.get(id(device_info))
         
         if self.active_device_button and self.active_device_button.winfo_exists():
@@ -319,19 +348,13 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         if selected_button:
             selected_button.config(style='DeviceButton.Active.TButton')
             self.active_device_button = selected_button
-            
-            device_name = device_info.get('NAME', 'N/A')
-            if isinstance(device_name, float) and math.isnan(device_name):
-                device_name = 'nan'
-            
             console_log(f"EVENT: Device '{device_name}' selected. 🎵", "INFO")
         
         if device_info:
             freq = device_info.get('CENTER', 'N/A')
             if freq != 'N/A':
-                device_name_for_title = device_name
-                self.devices_outer_frame.config(text=f"Devices - {device_name_for_title} - {freq:.3f} MHz")
-                console_log(f"✅ Displaying device '{device_name_for_title}' at frequency {freq:.3f} MHz.", "SUCCESS")
+                self.devices_outer_frame.config(text=f"Devices - {device_name} - {freq:.3f} MHz")
+                console_log(f"✅ Displaying device '{device_name}' at frequency {freq:.3f} MHz.", "SUCCESS")
             else:
                 self.devices_outer_frame.config(text=f"Devices - {device_name} - N/A")
                 console_log(f"⚠️ Device '{device_name}' has no valid frequency.", "WARNING")

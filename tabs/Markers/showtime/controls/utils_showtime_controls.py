@@ -1,0 +1,270 @@
+# tabs/Markers/showtime/controls/utils_showtime_controls.py
+#
+# This utility file provides the backend logic for the ControlsFrame. It contains
+# functions that handle button clicks for Span, RBW, Trace Modes, and Poking,
+# and then communicates with the instrument control layer.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no change to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20250818.214000.2
+
+current_version = "20250818.214000.2"
+current_version_hash = (20250818 * 214000 * 2)
+
+import os
+import inspect
+from ref.frequency_bands import MHZ_TO_HZ
+from display.debug_logic import debug_log
+from display.console_logic import console_log
+from yak.Yakety_Yak import YakSet
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg
+
+# Import the Zone Zoom functions to be called automatically
+from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import (
+    set_span_to_all_markers, set_span_to_zone, set_span_to_group, set_span_to_device
+)
+
+# --- UI Constants ---
+SPAN_OPTIONS = {
+    "Ultra Wide": 100 * MHZ_TO_HZ,
+    "Wide": 10 * MHZ_TO_HZ,
+    "Normal": 1 * MHZ_TO_HZ,
+    "Tight": 100 * 1000,
+    "Microscope": 10 * 1000,
+}
+
+RBW_OPTIONS = {
+    "Fast": 1 * MHZ_TO_HZ,
+    "Brisk": 300 * 1000,
+    "Deliberate": 100 * 1000,
+    "Steady": 30 * 1000,
+    "Leisurely": 3 * 1000,
+    "Unhurried": 1 * 1000,
+}
+
+def format_hz(hz_value):
+    # [Formats a frequency in Hz to a human-readable string.]
+    try:
+        hz_value = float(hz_value)
+        if hz_value >= 1_000_000:
+            return f"{hz_value / 1_000_000:.1f}M"
+        elif hz_value >= 1_000:
+            return f"{hz_value / 1_000:.0f}k"
+        else:
+            return f"{hz_value}Hz"
+    except (ValueError, TypeError):
+        return "N/A"
+
+def _update_control_styles(controls_frame):
+    # [Updates the visual styles of all control buttons based on the current state.]
+    debug_log(f"Entering _update_control_styles", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_control_styles")
+    try:
+        active_style = 'ControlButton.Active.TButton'
+        inactive_style = 'ControlButton.Inactive.TButton'
+
+        follow_style = active_style if controls_frame.follow_zone_span_var.get() else inactive_style
+        if 'Follow' in controls_frame.span_buttons:
+            controls_frame.span_buttons['Follow'].configure(style=follow_style)
+        
+        for span_val_str, btn in controls_frame.span_buttons.items():
+            if span_val_str != 'Follow':
+                is_active = (span_val_str == controls_frame.span_var.get()) and not controls_frame.follow_zone_span_var.get()
+                btn.configure(style=active_style if is_active else inactive_style)
+                
+        for rbw_val_str, btn in controls_frame.rbw_buttons.items():
+            btn.configure(style=active_style if rbw_val_str == controls_frame.rbw_var.get() else inactive_style)
+
+        controls_frame.trace_buttons['Live'].configure(style=active_style if controls_frame.trace_live_mode.get() else inactive_style)
+        controls_frame.trace_buttons['Max Hold'].configure(style=active_style if controls_frame.trace_max_hold_mode.get() else inactive_style)
+        controls_frame.trace_buttons['Min Hold'].configure(style=active_style if controls_frame.trace_min_hold_mode.get() else inactive_style)
+        
+        _update_zone_zoom_button_styles(controls_frame)
+    except Exception as e:
+        console_log(f"❌ Error in _update_control_styles: {e}")
+        debug_log(f"My creation! It refuses to be styled! The error is: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_control_styles")
+
+def _update_zone_zoom_button_styles(controls_frame):
+    # [Updates Zone Zoom buttons, labels, AND automatically triggers the instrument span update.]
+    debug_log(f"Entering _update_zone_zoom_button_styles to update styles and trigger span.",
+              file=f"{os.path.basename(__file__)}", version=current_version, function="_update_zone_zoom_button_styles")
+              
+    try:
+        active_style = 'ControlButton.Active.TButton'
+        inactive_style = 'ControlButton.Inactive.TButton'
+        
+        zgd_frame = controls_frame.app_instance.tabs_parent.tab_content_frames['Markers'].showtime_tab.zgd_frame
+        
+        active_button_key = 'All'
+        
+        # --- Determine active context and trigger the corresponding span update ---
+        if hasattr(zgd_frame, 'selected_device_info') and zgd_frame.selected_device_info:
+            active_button_key = 'Device'
+            device_info = zgd_frame.selected_device_info
+            name = device_info.get('NAME', 'N/A')
+            freq = device_info.get('CENTER', 'N/A')
+            controls_frame.zone_zoom_label_left_var.set(f"Device: {name}")
+            controls_frame.zone_zoom_label_center_var.set(f"Center: {freq:.3f} MHz" if isinstance(freq, (int, float)) else "N/A")
+            controls_frame.zone_zoom_label_right_var.set("(1 Marker)")
+            
+            if freq != 'N/A':
+                # AUTOMATICALLY TRIGGER SPAN UPDATE
+                set_span_to_device(controls_frame, DeviceName=name, CenterFreq=freq)
+
+        elif zgd_frame.selected_group:
+            active_button_key = 'Group'
+            devices = zgd_frame.structured_data.get(zgd_frame.selected_zone, {}).get(zgd_frame.selected_group, [])
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+            controls_frame.zone_zoom_label_left_var.set(f"Group: {zgd_frame.selected_group}")
+            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+            
+            if freqs:
+                # AUTOMATICALLY TRIGGER SPAN UPDATE
+                set_span_to_group(controls_frame, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs))
+
+        elif zgd_frame.selected_zone:
+            active_button_key = 'Zone'
+            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+            controls_frame.zone_zoom_label_left_var.set(f"Zone: {zgd_frame.selected_zone}")
+            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+            
+            if freqs:
+                # AUTOMATICALLY TRIGGER SPAN UPDATE
+                set_span_to_zone(controls_frame, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True)
+
+        else: # Default is All Markers
+            active_button_key = 'All'
+            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zone_name=None)
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
+            controls_frame.zone_zoom_label_left_var.set("All Markers")
+            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
+            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
+            
+            if freqs:
+                # AUTOMATICALLY TRIGGER SPAN UPDATE
+                set_span_to_all_markers(controls_frame, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True)
+
+        # Update all button styles
+        for key, button in controls_frame.zone_zoom_buttons.items():
+            if key == active_button_key:
+                button.config(style=active_style)
+            else:
+                button.config(style=inactive_style)
+        
+        debug_log(f"Zone Zoom buttons, labels, and span updated. Active context: '{active_button_key}'.",
+                  file=f"{os.path.basename(__file__)}", version=current_version, function="_update_zone_zoom_button_styles")
+    except Exception as e:
+        console_log(f"❌ Error in _update_zone_zoom_button_styles: {e}")
+        debug_log(f"It's madness! The Zone Zoom button styles refused to update! The error is: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_zone_zoom_button_styles")
+
+
+def on_span_button_click(controls_frame, span_hz):
+    # [Handles clicks on span buttons, updating state and calling instrument logic.]
+    debug_log(f"Entering on_span_button_click with span_hz: {span_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function="on_span_button_click")
+    if span_hz == 'Follow':
+        controls_frame.follow_zone_span_var.set(True)
+        controls_frame.console_print_func("Span set to follow active zone.")
+    else:
+        controls_frame.follow_zone_span_var.set(False)
+        controls_frame.span_var.set(str(span_hz))
+        set_span_logic(controls_frame.app_instance, int(span_hz), controls_frame.console_print_func)
+    
+    _update_control_styles(controls_frame)
+
+def on_rbw_button_click(controls_frame, rbw_hz):
+    # [Handles clicks on RBW buttons, updating state and calling instrument logic.]
+    debug_log(f"Entering on_rbw_button_click with rbw_hz: {rbw_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function="on_rbw_button_click")
+    controls_frame.rbw_var.set(str(rbw_hz))
+    set_rbw_logic(controls_frame.app_instance, int(rbw_hz), controls_frame.console_print_func)
+    _update_control_styles(controls_frame)
+
+def on_trace_button_click(controls_frame, trace_var_to_toggle):
+    # [Toggles the state of a single trace mode variable, then calls the sync function.]
+    debug_log(f"Entering on_trace_button_click", file=f"{os.path.basename(__file__)}", version=current_version, function="on_trace_button_click")
+    trace_var_to_toggle.set(not trace_var_to_toggle.get())
+    sync_trace_modes(controls_frame)
+
+def sync_trace_modes(controls_frame):
+    # [Sets all four trace modes at once using the efficient YakBeg handler.]
+    debug_log(f"Entering sync_trace_modes", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
+    try:
+        app = controls_frame.app_instance
+        console = controls_frame.console_print_func
+        
+        desired_modes = [
+            'WRIT' if controls_frame.trace_live_mode.get() else 'BLAN',
+            'MAXH' if controls_frame.trace_max_hold_mode.get() else 'BLAN',
+            'MINH' if controls_frame.trace_min_hold_mode.get() else 'BLAN',
+            'BLAN'
+        ]
+
+        response = handle_trace_modes_beg(app, desired_modes, console)
+
+        if response and isinstance(response, list) and len(response) >= 3:
+            controls_frame.trace_live_mode.set('WRIT' in response[0])
+            controls_frame.trace_max_hold_mode.set('MAXH' in response[1])
+            controls_frame.trace_min_hold_mode.set('MINH' in response[2])
+            console("✅ Trace modes synchronized.")
+        else:
+            console("❌ Failed to synchronize trace modes. Response was invalid.")
+        
+        _update_control_styles(controls_frame)
+    except Exception as e:
+        console_log(f"❌ Error in sync_trace_modes: {e}")
+        debug_log(f"The trace modes are rebelling! The error is: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
+
+def on_poke_action(controls_frame):
+    # [Sets center frequency and span simultaneously using the YakBeg handler.]
+    debug_log(f"Entering on_poke_action", file=f"{os.path.basename(__file__)}", version=current_version, function="on_poke_action")
+    try:
+        center_freq_mhz = float(controls_frame.poke_freq_var.get())
+        center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
+        
+        span_hz = int(controls_frame.span_var.get())
+        
+        controls_frame.console_print_func(f"Poking instrument: Center={center_freq_mhz} MHz, Span={format_hz(span_hz)}...")
+        
+        response = handle_freq_center_span_beg(
+            controls_frame.app_instance, 
+            center_freq_hz, 
+            span_hz,
+            controls_frame.console_print_func
+        )
+        
+        if response and len(response) >= 2:
+            returned_center, returned_span, _, _ = response
+            controls_frame.console_print_func(
+                f"✅ Instrument Confirmed: Center={returned_center / MHZ_TO_HZ:.3f} MHz, Span={format_hz(returned_span)}"
+            )
+        else:
+            controls_frame.console_print_func("❌ Poke command failed. Instrument did not confirm settings.")
+            
+    except ValueError:
+        controls_frame.console_print_func("Invalid frequency for Poke action. Please enter a number.")
+    except Exception as e:
+        controls_frame.console_print_func(f"An unexpected error occurred during poke: {e}")
+
+def set_span_logic(app_instance, span_hz, console_print_func):
+    # [Sets the instrument's span frequency using the YakSet command.]
+    debug_log(f"Entering set_span_logic with span_hz: {span_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_logic")
+    status = YakSet(app_instance=app_instance, command_type="FREQUENCY/SPAN", variable_value=str(span_hz), console_print_func=console_print_func)
+    if status != "PASSED":
+        console_print_func(f"❌ Failed to set span frequency.")
+
+def set_rbw_logic(app_instance, rbw_hz, console_print_func):
+    # [Sets the instrument's Resolution Bandwidth (RBW) using the YakSet command.]
+    debug_log(f"Entering set_rbw_logic with rbw_hz: {rbw_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_rbw_logic")
+    status = YakSet(app_instance=app_instance, command_type="BANDWIDTH/RESOLUTION", variable_value=str(rbw_hz), console_print_func=console_print_func)
+    if status != "PASSED":
+        console_print_func(f"❌ Failed to set RBW.")

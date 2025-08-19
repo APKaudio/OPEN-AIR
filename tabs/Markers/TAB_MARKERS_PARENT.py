@@ -28,7 +28,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import the specific child tab classes
-from tabs.Markers.tab_markers_parent_showtime import ShowtimeTab
+from tabs.Markers.showtime.tab_markers_parent_showtime import ShowtimeTab
 from tabs.Markers.files.tab_markers_child_import_and_edit import ReportConverterTab
 
 class TAB_MARKERS_PARENT(ttk.Frame):

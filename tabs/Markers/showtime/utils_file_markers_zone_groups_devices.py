@@ -1,4 +1,4 @@
-# FolderName/utils_markers_files_zone_groups_devices.py
+# tabs.Markers/showtime/utils_markers_files_zone_groups_devices.py
 #
 # This new utility file centralizes all logic for parsing the MARKERS.CSV file,
 # structuring the data into zones, groups, and devices, and providing helper
