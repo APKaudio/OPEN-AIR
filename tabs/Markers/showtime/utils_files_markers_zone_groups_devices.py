@@ -16,6 +16,7 @@
 #
 #
 # Version 20250814.180000.2
+# FIXED: Replaced inplace operations on DataFrame slices to remove FutureWarning messages.
 
 current_version = "20250814.180000.2"
 current_version_hash = (20250814 * 180000 * 2)
@@ -41,7 +42,6 @@ def load_and_structure_markers_data():
         console_log(f"❌ MARKERS.CSV not found at path: {MARKERS_FILE_PATH}", "ERROR")
         debug_log("Marker CSV not found. What a disaster!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         return None
-
     try:
         df = pd.read_csv(MARKERS_FILE_PATH)
         
@@ -68,8 +68,11 @@ def load_and_structure_markers_data():
             if col not in df.columns:
                 df[col] = 'N/A' if col != 'PEAK' else -120
 
-        df['GROUP'].fillna('Ungrouped', inplace=True)
-        df['ZONE'].fillna('Unzoned', inplace=True)
+        # FIXED: Corrected the fillna operations to avoid FutureWarning in pandas 3.0
+        # Replaces df['GROUP'].fillna('Ungrouped', inplace=True)
+        df.loc[:, 'GROUP'] = df['GROUP'].fillna('Ungrouped')
+        # Replaces df['ZONE'].fillna('Unzoned', inplace=True)
+        df.loc[:, 'ZONE'] = df['ZONE'].fillna('Unzoned')
 
         # --- Hierarchical Structuring ---
         structured_data = {}

@@ -16,6 +16,7 @@
 #
 #
 # Version 20250818.221500.2
+# MODIFIED: Corrected object path to directly access display tabs from app_instance.
 
 current_version = "20250818.221500.2"
 current_version_hash = (20250818 * 221500 * 2)
@@ -113,6 +114,10 @@ def _update_zone_zoom_button_styles(controls_frame):
         
         active_button_key = 'All'
         
+        # NEW: Get the current buffer value from the dropdown
+        buffer_mhz = float(controls_frame.buffer_var.get())
+        debug_log(f"Retrieved buffer value: {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_zone_zoom_button_styles")
+        
         # --- Determine active context and trigger the corresponding span update ---
         if hasattr(zgd_frame, 'selected_device_info') and zgd_frame.selected_device_info:
             active_button_key = 'Device'
@@ -137,7 +142,8 @@ def _update_zone_zoom_button_styles(controls_frame):
             
             if freqs:
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
-                set_span_to_group(controls_frame, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs))
+                # MODIFIED: Passed the new buffer value
+                set_span_to_group(controls_frame, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), buffer_mhz=buffer_mhz)
 
         elif zgd_frame.selected_zone:
             active_button_key = 'Zone'
@@ -149,11 +155,12 @@ def _update_zone_zoom_button_styles(controls_frame):
             
             if freqs:
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
-                set_span_to_zone(controls_frame, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True)
+                # MODIFIED: Passed the new buffer value
+                set_span_to_zone(controls_frame, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=buffer_mhz)
 
         else: # Default is All Markers
             active_button_key = 'All'
-            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zone_name=None)
+            devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, None)
             freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             controls_frame.zone_zoom_label_left_var.set("All Markers")
             controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
@@ -161,7 +168,8 @@ def _update_zone_zoom_button_styles(controls_frame):
             
             if freqs:
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
-                set_span_to_all_markers(controls_frame, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True)
+                # MODIFIED: Passed the new buffer value
+                set_span_to_all_markers(controls_frame, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=buffer_mhz)
 
         # Update all button styles
         for key, button in controls_frame.zone_zoom_buttons.items():
@@ -300,22 +308,24 @@ def _get_current_view_details(controls_frame):
             view_name = f"Device: {device.get('NAME', 'N/A')}"
 
         elif zgd_frame.selected_group:
+            active_button_key = 'Group'
             devices = zgd_frame.structured_data.get(zgd_frame.selected_zone, {}).get(zgd_frame.selected_group, [])
-            freqs = [d['CENTER'] for d in devices if 'CENTER' in d and isinstance(d['CENTER'], (int, float))]
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             if freqs:
                 start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
             view_name = f"Group: {zgd_frame.selected_group}"
 
         elif zgd_frame.selected_zone:
+            active_button_key = 'Zone'
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
-            freqs = [d['CENTER'] for d in devices if isinstance(d['CENTER'], (int, float))]
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             if freqs:
                 start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
             view_name = f"Zone: {zgd_frame.selected_zone}"
         
         else: # All Markers
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, None)
-            freqs = [d['CENTER'] for d in devices if isinstance(d['CENTER'], (int, float))]
+            freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             if freqs:
                 start_freq_mhz, stop_freq_mhz = min(freqs), max(freqs)
             view_name = "All Markers"
@@ -360,6 +370,8 @@ def on_get_all_traces_click(controls_frame):
             df3 = pd.DataFrame(trace_data_dict["TraceData"]["Trace3"], columns=['Frequency_Hz', 'Power_dBm'])
             update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, f"Min Hold - {view_name}")
             controls_frame.console_print_func("✅ Successfully updated monitor with all three traces.", "SUCCESS")
+            # ADDED: Switch to the Scan Monitor tab
+            controls_frame.app_instance.display_parent_tab.change_display_tab('Monitor')
         else:
             controls_frame.console_print_func("❌ Scan Monitor tab not found.", "ERROR")
     else:
@@ -384,8 +396,11 @@ def on_get_live_trace_click(controls_frame):
         if scan_view_tab:
             # The handler now returns a list of tuples, convert to DataFrame
             df = pd.DataFrame(trace_data, columns=['Frequency_Hz', 'Power_dBm'])
-            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, f"Live Trace - {view_name}")
+            # MODIFIED: Passed 'yellow' for live trace
+            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, f"Live Trace - {view_name}", line_color='yellow')
             controls_frame.console_print_func("✅ Successfully updated Scan View with live trace.", "SUCCESS")
+            # ADDED: Switch to the Scan View tab
+            controls_frame.app_instance.display_parent_tab.change_display_tab('View')
         else:
             controls_frame.console_print_func("❌ Scan View tab not found.", "ERROR")
     else:
@@ -408,8 +423,11 @@ def on_get_max_trace_click(controls_frame):
         if scan_view_tab:
             # The handler now returns a list of tuples, convert to DataFrame
             df = pd.DataFrame(trace_data, columns=['Frequency_Hz', 'Power_dBm'])
-            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, f"Max Hold - {view_name}")
+            # MODIFIED: Passed 'green' for max hold trace
+            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, f"Max Hold - {view_name}", line_color='green')
             controls_frame.console_print_func("✅ Successfully updated Scan View with max hold trace.", "SUCCESS")
+            # ADDED: Switch to the Scan View tab
+            controls_frame.app_instance.display_parent_tab.change_display_tab('View')
         else:
             controls_frame.console_print_func("❌ Scan View tab not found.", "ERROR")
     else:

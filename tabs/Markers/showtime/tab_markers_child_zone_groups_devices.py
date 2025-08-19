@@ -15,6 +15,7 @@
 #
 #
 # Version 20250818.214900.1
+# FIXED: Replaced inplace operations on DataFrame slices to remove FutureWarning messages.
 
 current_version = "20250818.214900.1"
 current_version_hash = (20250818 * 214900 * 1)
@@ -28,7 +29,7 @@ import pandas as pd
 import math
 
 # Import utility functions
-from tabs.Markers.showtime.utils_file_markers_zone_groups_devices import load_and_structure_markers_data
+from tabs.Markers.showtime.utils_files_markers_zone_groups_devices import load_and_structure_markers_data
 from tabs.Markers.showtime.utils_button_volume_level import create_signal_level_indicator
 from tabs.Markers.showtime.controls.utils_showtime_controls import _update_control_styles
 from display.debug_logic import debug_log
@@ -283,15 +284,15 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
                     break
             return
 
-        # --- MODIFIED: Revert to parent zone on group deselection ---
+        # --- MODIFIED: Corrected logic for group deselection ---
         if self.selected_group == group_name:
-            console_log(f"EVENT: Group '{group_name}' deselected. Reverting to Zone '{self.selected_zone}'.", "INFO")
-            # Deactivate the group button visually before reverting
+            console_log(f"EVENT: Group '{group_name}' deselected. Reverting to show all devices in Zone '{self.selected_zone}'.", "INFO")
             if self.active_group_button and self.active_group_button.winfo_exists():
                 self.active_group_button.config(style='ControlButton.Inactive.TButton')
                 self.active_group_button = None
-            # Re-select the parent zone to reset the view
-            self.on_zone_selected(self.selected_zone) 
+            self.selected_group = None
+            self._make_device_buttons()
+            _update_control_styles(self.showtime_tab_instance.controls_frame)
             return
 
         # --- Existing group selection logic ---
@@ -336,6 +337,9 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
                 self.active_device_button.config(style='DeviceButton.Inactive.TButton')
             self.active_device_button = None
             _update_control_styles(self.showtime_tab_instance.controls_frame)
+            # FIXED: Add tab switch logic for deselection
+            if hasattr(self.showtime_tab_instance.controls_frame, 'switch_to_tab'):
+                self.showtime_tab_instance.controls_frame.switch_to_tab("Zone Zoom")
             debug_log(f"Exiting {current_function} after deselecting device.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
             return
 
@@ -355,6 +359,9 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             if freq != 'N/A':
                 self.devices_outer_frame.config(text=f"Devices - {device_name} - {freq:.3f} MHz")
                 console_log(f"✅ Displaying device '{device_name}' at frequency {freq:.3f} MHz.", "SUCCESS")
+                # FIXED: Add tab switch logic for selection
+                if hasattr(self.showtime_tab_instance.controls_frame, 'switch_to_tab'):
+                    self.showtime_tab_instance.controls_frame.switch_to_tab("Span")
             else:
                 self.devices_outer_frame.config(text=f"Devices - {device_name} - N/A")
                 console_log(f"⚠️ Device '{device_name}' has no valid frequency.", "WARNING")

@@ -15,6 +15,7 @@
 #
 #
 # Version 20250816.222300.1
+# MODIFIED: Added line_color parameter to update_single_plot.
 
 current_version = "20250816.222300.1"
 current_version_hash = (20250816 * 222300 * 1)
@@ -123,7 +124,7 @@ def reset_zoom(ax, canvas):
         debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
-def update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
+def update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title, line_color='yellow'):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the single plot in the Scan View tab with new data.
     debug_log(f"Entering update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
@@ -141,7 +142,8 @@ def update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mh
 
         if data_tuples:
             frequencies, amplitudes = zip(*data_tuples)
-            ax.plot(frequencies, amplitudes, color='yellow', linewidth=1)
+            # FIXED: Used the new line_color parameter
+            ax.plot(frequencies, amplitudes, color=line_color, linewidth=1)
         
         ax.set_title(plot_title, color='white')
         ax.set_xlim(start_freq_mhz, end_freq_mhz)

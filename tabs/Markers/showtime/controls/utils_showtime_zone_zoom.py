@@ -47,37 +47,49 @@ def format_hz(hz_value):
 # Import the YakBeg handlers for direct instrument control
 from yak.utils_yakbeg_handler import handle_freq_start_stop_beg, handle_freq_center_span_beg
 
-def set_span_to_all_markers(self, NumberOfMarkers, StartFreq, StopFreq, selected):
+def set_span_to_all_markers(self, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
     # [Calculates the required span to view all markers and sets the instrument using a start-stop command.]
-    debug_log(f"Entering set_span_to_all_markers", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_all_markers")
+    debug_log(f"Entering set_span_to_all_markers with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_all_markers")
     try:
-        start_freq_hz = int(StartFreq * MHZ_TO_HZ)
-        stop_freq_hz = int(StopFreq * MHZ_TO_HZ)
-        self.console_print_func(f"✅ Setting span to all markers: {StartFreq:.3f} MHz to {StopFreq:.3f} MHz.")
+        # MODIFIED: Apply the buffer to the start and stop frequencies
+        buffered_start_freq_mhz = StartFreq - buffer_mhz
+        buffered_stop_freq_mhz = StopFreq + buffer_mhz
+        
+        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        self.console_print_func(f"✅ Setting span to all markers: {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
         handle_freq_start_stop_beg(self.app_instance, start_freq_hz, stop_freq_hz, self.console_print_func)
     except Exception as e:
         console_log(f"❌ Error in set_span_to_all_markers: {e}")
         debug_log(f"Shiver me timbers, setting span to all markers has failed! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_all_markers")
 
-def set_span_to_zone(self, ZoneName, NumberOfMarkers, StartFreq, StopFreq, selected):
+def set_span_to_zone(self, ZoneName, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
     # [Calculates the required span for a zone and sets the instrument using a start-stop command.]
-    debug_log(f"Entering set_span_to_zone for Zone: {ZoneName}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_zone")
+    debug_log(f"Entering set_span_to_zone for Zone: {ZoneName} with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_zone")
     try:
-        start_freq_hz = int(StartFreq * MHZ_TO_HZ)
-        stop_freq_hz = int(StopFreq * MHZ_TO_HZ)
-        self.console_print_func(f"✅ Setting span to zone '{ZoneName}': {StartFreq:.3f} MHz to {StopFreq:.3f} MHz.")
+        # MODIFIED: Apply the buffer to the start and stop frequencies
+        buffered_start_freq_mhz = StartFreq - buffer_mhz
+        buffered_stop_freq_mhz = StopFreq + buffer_mhz
+        
+        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        self.console_print_func(f"✅ Setting span to zone '{ZoneName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
         handle_freq_start_stop_beg(self.app_instance, start_freq_hz, stop_freq_hz, self.console_print_func)
     except Exception as e:
         console_log(f"❌ Error in set_span_to_zone: {e}")
         debug_log(f"Arrr, the code be capsized! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_zone")
 
-def set_span_to_group(self, GroupName, NumberOfMarkers, StartFreq, StopFreq):
+def set_span_to_group(self, GroupName, NumberOfMarkers, StartFreq, StopFreq, buffer_mhz=0):
     # [Calculates the required span for a group and sets the instrument using a start-stop command.]
-    debug_log(f"Entering set_span_to_group for Group: {GroupName}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_group")
+    debug_log(f"Entering set_span_to_group for Group: {GroupName} with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_group")
     try:
-        start_freq_hz = int(StartFreq * MHZ_TO_HZ)
-        stop_freq_hz = int(StopFreq * MHZ_TO_HZ)
-        self.console_print_func(f"✅ Setting span to group '{GroupName}': {StartFreq:.3f} MHz to {StopFreq:.3f} MHz.")
+        # MODIFIED: Apply the buffer to the start and stop frequencies
+        buffered_start_freq_mhz = StartFreq - buffer_mhz
+        buffered_stop_freq_mhz = StopFreq + buffer_mhz
+        
+        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        self.console_print_func(f"✅ Setting span to group '{GroupName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
         handle_freq_start_stop_beg(self.app_instance, start_freq_hz, stop_freq_hz, self.console_print_func)
     except Exception as e:
         console_log(f"❌ Error in set_span_to_group: {e}")

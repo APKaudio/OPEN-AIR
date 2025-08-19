@@ -15,6 +15,7 @@
 #
 #
 # Version 20250818.221000.1
+# MODIFIED: Added a Buffer dropdown and removed "Set " from button labels.
 
 current_version = "20250818.221000.1"
 current_version_hash = (20250818 * 221000 * 1)
@@ -57,6 +58,7 @@ class ControlsFrame(ttk.Frame):
             self.trace_max_hold_mode = tk.BooleanVar(value=True)
             self.trace_min_hold_mode = tk.BooleanVar(value=True)
             self.poke_freq_var = tk.StringVar()
+            self.buffer_var = tk.StringVar(value="1") # NEW: Variable for the buffer
 
             self.zone_zoom_label_left_var = tk.StringVar(value="All Markers")
             self.zone_zoom_label_center_var = tk.StringVar(value="Start: N/A")
@@ -86,15 +88,13 @@ class ControlsFrame(ttk.Frame):
             # --- Span Tab ---
             span_tab = ttk.Frame(controls_notebook, style='TFrame', padding=5)
             controls_notebook.add(span_tab, text="Span")
-            follow_btn = ttk.Button(span_tab, text="Follow Zone\n(Active)", style='ControlButton.Inactive.TButton', command=lambda: on_span_button_click(self, 'Follow'))
-            follow_btn.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
-            self.span_buttons['Follow'] = follow_btn
+            # MODIFIED: Removed "Follow Zone" button
             for i, (name, span_hz) in enumerate(SPAN_OPTIONS.items()):
                 btn_text = f"{name}\n({format_hz(span_hz)})"
                 btn = ttk.Button(span_tab, text=btn_text, style='ControlButton.Inactive.TButton', command=lambda s=span_hz: on_span_button_click(self, s))
-                btn.grid(row=0, column=i + 1, padx=2, pady=2, sticky="ew")
+                btn.grid(row=0, column=i, padx=2, pady=2, sticky="ew")
                 self.span_buttons[str(span_hz)] = btn
-            for i in range(len(SPAN_OPTIONS) + 1):
+            for i in range(len(SPAN_OPTIONS)):
                 span_tab.grid_columnconfigure(i, weight=1)
 
             # --- RBW Tab ---
@@ -155,25 +155,32 @@ class ControlsFrame(ttk.Frame):
             ttk.Label(zone_zoom_tab, textvariable=self.zone_zoom_label_left_var, anchor="w").grid(row=0, column=0, columnspan=2, pady=2, padx=2, sticky="w")
             ttk.Label(zone_zoom_tab, textvariable=self.zone_zoom_label_center_var, anchor="e").grid(row=0, column=2, pady=2, padx=2, sticky="e")
             ttk.Label(zone_zoom_tab, textvariable=self.zone_zoom_label_right_var, anchor="e").grid(row=0, column=3, columnspan=2, pady=2, padx=2, sticky="e")
+            
+            # NEW: Buffer Dropdown
+            ttk.Label(zone_zoom_tab, text="Buffer (MHz):", anchor="w").grid(row=1, column=0, columnspan=2, pady=2, padx=2, sticky="w")
+            buffer_options = [1, 3, 10, 30]
+            buffer_combobox = ttk.Combobox(zone_zoom_tab, textvariable=self.buffer_var, values=buffer_options, state="readonly", width=5)
+            buffer_combobox.grid(row=1, column=1, columnspan=1, padx=2, pady=2, sticky="ew")
 
             # --- REORDERED Buttons ---
-            btn_all = ttk.Button(zone_zoom_tab, text="Set Span to All Markers", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_all_markers_click)
-            btn_all.grid(row=1, column=0, padx=2, pady=2, sticky="ew")
+            # MODIFIED: Removed "Set" from button text
+            btn_all = ttk.Button(zone_zoom_tab, text="All Markers", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_all_markers_click)
+            btn_all.grid(row=2, column=0, padx=2, pady=2, sticky="ew")
             self.zone_zoom_buttons['All'] = btn_all
 
-            btn_zone = ttk.Button(zone_zoom_tab, text="Set Span to Zone", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_zone_click)
-            btn_zone.grid(row=1, column=1, padx=2, pady=2, sticky="ew")
+            btn_zone = ttk.Button(zone_zoom_tab, text="Zone", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_zone_click)
+            btn_zone.grid(row=2, column=1, padx=2, pady=2, sticky="ew")
             self.zone_zoom_buttons['Zone'] = btn_zone
 
-            btn_group = ttk.Button(zone_zoom_tab, text="Set Span to Group", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_group_click)
-            btn_group.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
+            btn_group = ttk.Button(zone_zoom_tab, text="Group", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_group_click)
+            btn_group.grid(row=2, column=2, padx=2, pady=2, sticky="ew")
             self.zone_zoom_buttons['Group'] = btn_group
             
             # Spacer for visual separation
-            ttk.Frame(zone_zoom_tab, width=20, style='TFrame').grid(row=1, column=3)
+            ttk.Frame(zone_zoom_tab, width=20, style='TFrame').grid(row=2, column=3)
 
-            btn_device = ttk.Button(zone_zoom_tab, text="Set Span to Device", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_device_click)
-            btn_device.grid(row=1, column=4, padx=2, pady=2, sticky="ew")
+            btn_device = ttk.Button(zone_zoom_tab, text="Device", style='ControlButton.Inactive.TButton', command=self._on_set_span_to_device_click)
+            btn_device.grid(row=2, column=4, padx=2, pady=2, sticky="ew")
             self.zone_zoom_buttons['Device'] = btn_device
             console_log("✅ Controls notebook created successfully!")
         except Exception as e:
