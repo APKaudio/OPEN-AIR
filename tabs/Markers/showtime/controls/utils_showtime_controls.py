@@ -15,11 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.221500.2
-# MODIFIED: Corrected object path to directly access display tabs from app_instance.
+# Version 20250819.133300.2
+# REFACTORED: Moved all trace acquisition and plotting logic to a new file, utils_showtime_trace.py.
+# MODIFIED: The `_update_zone_zoom_button_styles` function now calls the new `execute_trace_action` function after setting the span.
+# FIXED: This fixes the bug where traces were not automatically captured after a zone zoom change.
 
-current_version = "20250818.221500.2"
-current_version_hash = (20250818 * 221500 * 2)
+current_version = "20250819.133300.2"
+current_version_hash = (20250819 * 133300 * 2)
 
 import os
 import inspect
@@ -29,13 +31,14 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
 
-# MODIFIED: Added new YakBeg and YakNab handlers for trace data
-from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg, handle_trace_data_beg
-from yak.utils_yaknab_handler import handle_all_traces_nab
+# NEW: Import the new utility file containing trace logic
+from tabs.Markers.showtime.controls.utils_showtime_trace import execute_trace_action
 
-# MODIFIED: Import display utilities
-from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
-from display.utils_scan_view import update_single_plot
+# MODIFIED: Removed now-relocated handlers
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_freq_center_span_beg, handle_trace_data_beg
+# REMOVED: from yak.utils_yaknab_handler import handle_all_traces_nab
+# REMOVED: from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
+# REMOVED: from display.utils_scan_view import update_single_plot
 
 # Import the Zone Zoom functions to be called automatically
 from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import (
@@ -131,45 +134,66 @@ def _update_zone_zoom_button_styles(controls_frame):
             if freq != 'N/A':
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
                 set_span_to_device(controls_frame, DeviceName=name, CenterFreq=freq)
+                # NEW: Call the trace action after setting the span
+                execute_trace_action(controls_frame)
 
         elif zgd_frame.selected_group:
             active_button_key = 'Group'
             devices = zgd_frame.structured_data.get(zgd_frame.selected_zone, {}).get(zgd_frame.selected_group, [])
             freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             controls_frame.zone_zoom_label_left_var.set(f"Group: {zgd_frame.selected_group}")
-            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
-            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
             
             if freqs:
+                buffered_start_freq = min(freqs) - buffer_mhz
+                buffered_stop_freq = max(freqs) + buffer_mhz
+                controls_frame.zone_zoom_label_center_var.set(f"Start: {buffered_start_freq:.3f} MHz")
+                controls_frame.zone_zoom_label_right_var.set(f"Stop: {buffered_stop_freq:.3f} MHz ({len(freqs)} Markers)")
+                
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
-                # MODIFIED: Passed the new buffer value
                 set_span_to_group(controls_frame, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), buffer_mhz=buffer_mhz)
+                # NEW: Call the trace action after setting the span
+                execute_trace_action(controls_frame)
+            else:
+                controls_frame.zone_zoom_label_center_var.set("Start: N/A")
+                controls_frame.zone_zoom_label_right_var.set("Stop: N/A (0 Markers)")
 
         elif zgd_frame.selected_zone:
             active_button_key = 'Zone'
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, zgd_frame.selected_zone)
             freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             controls_frame.zone_zoom_label_left_var.set(f"Zone: {zgd_frame.selected_zone}")
-            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
-            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
-            
-            if freqs:
-                # AUTOMATICALLY TRIGGER SPAN UPDATE
-                # MODIFIED: Passed the new buffer value
-                set_span_to_zone(controls_frame, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=buffer_mhz)
 
+            if freqs:
+                buffered_start_freq = min(freqs) - buffer_mhz
+                buffered_stop_freq = max(freqs) + buffer_mhz
+                controls_frame.zone_zoom_label_center_var.set(f"Start: {buffered_start_freq:.3f} MHz")
+                controls_frame.zone_zoom_label_right_var.set(f"Stop: {buffered_stop_freq:.3f} MHz ({len(freqs)} Markers)")
+
+                # AUTOMATICALLY TRIGGER SPAN UPDATE
+                set_span_to_zone(controls_frame, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=buffer_mhz)
+                # NEW: Call the trace action after setting the span
+                execute_trace_action(controls_frame)
+            else:
+                controls_frame.zone_zoom_label_center_var.set("Start: N/A")
+                controls_frame.zone_zoom_label_right_var.set("Stop: N/A (0 Markers)")
+            
         else: # Default is All Markers
             active_button_key = 'All'
             devices = zgd_frame._get_all_devices_in_zone(zgd_frame.structured_data, None)
             freqs = [d.get('CENTER') for d in devices if isinstance(d.get('CENTER'), (int, float))]
             controls_frame.zone_zoom_label_left_var.set("All Markers")
-            controls_frame.zone_zoom_label_center_var.set(f"Start: {min(freqs):.3f} MHz" if freqs else "N/A")
-            controls_frame.zone_zoom_label_right_var.set(f"Stop: {max(freqs):.3f} MHz ({len(freqs)} Markers)")
             
             if freqs:
+                buffered_start_freq = min(freqs) - buffer_mhz
+                buffered_stop_freq = max(freqs) + buffer_mhz
+                controls_frame.zone_zoom_label_center_var.set(f"Start: {buffered_start_freq:.3f} MHz")
+                controls_frame.zone_zoom_label_right_var.set(f"Stop: {buffered_stop_freq:.3f} MHz ({len(freqs)} Markers)")
+                
                 # AUTOMATICALLY TRIGGER SPAN UPDATE
-                # MODIFIED: Passed the new buffer value
                 set_span_to_all_markers(controls_frame, NumberOfMarkers=len(freqs), StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=buffer_mhz)
+            else:
+                controls_frame.zone_zoom_label_center_var.set("Start: N/A")
+                controls_frame.zone_zoom_label_right_var.set("Stop: N/A (0 Markers)")
 
         # Update all button styles
         for key, button in controls_frame.zone_zoom_buttons.items():

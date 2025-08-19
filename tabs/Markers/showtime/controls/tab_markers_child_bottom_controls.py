@@ -14,12 +14,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.221000.1
+# Version 20250819.105942.1
+# MODIFIED: Converted Get Live, Get Max, and Get All buttons to toggles.
 # MODIFIED: Added a Buffer dropdown and removed "Set " from button labels.
 # MODIFIED: Reverted trace controls to use individual toggle buttons.
+# FIXED: The logic for toggling trace action buttons and updating their styles has been completely rewritten.
+# FIXED: The _execute_selected_trace_action method was added to the ControlsFrame class.
 
-current_version = "20250818.221000.1"
-current_version_hash = (20250818 * 221000 * 1)
+current_version = "20250819.105942.1"
+current_version_hash = (20250819 * 105942 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -64,6 +67,12 @@ class ControlsFrame(ttk.Frame):
             self.zone_zoom_label_left_var = tk.StringVar(value="All Markers")
             self.zone_zoom_label_center_var = tk.StringVar(value="Start: N/A")
             self.zone_zoom_label_right_var = tk.StringVar(value="Stop: N/A (0 Markers)")
+            
+            # New toggle variables for the TRACES tab
+            self.toggle_get_all_traces = tk.BooleanVar(value=False)
+            self.toggle_get_live_trace = tk.BooleanVar(value=False)
+            self.toggle_get_max_trace = tk.BooleanVar(value=False)
+
 
             self.span_buttons = {}
             self.rbw_buttons = {}
@@ -78,6 +87,66 @@ class ControlsFrame(ttk.Frame):
         except Exception as e:
             console_log(f"❌ Error in ControlsFrame __init__: {e}")
             debug_log(f"Arrr, the code be capsized! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="__init__")
+
+    def _execute_selected_trace_action(self):
+        # This function description tells me what this function does
+        # A new private method to execute the correct trace action based on which button is active.
+        debug_log(f"Entering _execute_selected_trace_action. Executing the selected trace handler.", file=f"{os.path.basename(__file__)}", version=current_version, function="_execute_selected_trace_action")
+        
+        # NEW: Check if any button is active. If not, default to 'Get All'
+        if not self.toggle_get_all_traces.get() and not self.toggle_get_live_trace.get() and not self.toggle_get_max_trace.get():
+            self.console_print_func("No trace action button is currently active. Defaulting to 'Get All Traces'.")
+            self.toggle_get_all_traces.set(True)
+            self._update_button_styles() # Update the UI to show 'Get All' is active
+
+        if self.toggle_get_all_traces.get():
+            on_get_all_traces_click(self)
+        elif self.toggle_get_live_trace.get():
+            on_get_live_trace_click(self)
+        elif self.toggle_get_max_trace.get():
+            on_get_max_trace_click(self)
+        else:
+            self.console_print_func("No trace action button is currently active.")
+            debug_log(f"No trace action button is currently active. Nothing to execute!", file=f"{os.path.basename(__file__)}", version=current_version, function="_execute_selected_trace_action")
+
+    def _toggle_trace_button(self, button_type):
+        debug_log(f"Toggling trace button of type '{button_type}'.", file=f"{os.path.basename(__file__)}", version=current_version, function="_toggle_trace_button")
+        
+        # Determine which variable to toggle
+        target_var = None
+        if button_type == 'all':
+            target_var = self.toggle_get_all_traces
+        elif button_type == 'live':
+            target_var = self.toggle_get_live_trace
+        elif button_type == 'max':
+            target_var = self.toggle_get_max_trace
+
+        if not target_var:
+            self.console_print_func(f"Error: Unknown trace button type '{button_type}'.")
+            return
+
+        # Deselect all other buttons
+        if button_type != 'all': self.toggle_get_all_traces.set(False)
+        if button_type != 'live': self.toggle_get_live_trace.set(False)
+        if button_type != 'max': self.toggle_get_max_trace.set(False)
+
+        # Toggle the selected button's state
+        target_var.set(not target_var.get())
+        
+        # Update button styles and execute action
+        self._update_button_styles()
+        self._execute_selected_trace_action()
+
+    def _update_button_styles(self):
+        debug_log(f"Updating button styles based on toggle state.", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_button_styles")
+        
+        active_style = 'ControlButton.Active.TButton'
+        inactive_style = 'ControlButton.Inactive.TButton'
+
+        # Set the style for the main buttons
+        self.trace_buttons['Get All'].config(style=active_style if self.toggle_get_all_traces.get() else inactive_style)
+        self.trace_buttons['Get Live'].config(style=active_style if self.toggle_get_live_trace.get() else inactive_style)
+        self.trace_buttons['Get Max'].config(style=active_style if self.toggle_get_max_trace.get() else inactive_style)
 
     def _create_controls_notebook(self):
         # [Creates the notebook and populates it with all the control tabs.]
@@ -127,19 +196,23 @@ class ControlsFrame(ttk.Frame):
             
             trace_tab.columnconfigure((0, 1, 2), weight=1)
 
-            # --- Traces Tab (single-action buttons) ---
+            # --- MODIFIED: Traces Tab (new toggle buttons) ---
             traces_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
             self.controls_notebook.add(traces_tab, text="TRACES")
             traces_tab.columnconfigure((0, 1, 2), weight=1)
 
-            btn_get_all = ttk.Button(traces_tab, text="Get Live, Max and Min", style='ControlButton.Inactive.TButton', command=lambda: on_get_all_traces_click(self))
+            # Replaced Checkbuttons with regular Buttons and manually manage their state
+            btn_get_all = ttk.Button(traces_tab, text="Get All Traces", style='ControlButton.Inactive.TButton', command=lambda: self._toggle_trace_button('all'))
             btn_get_all.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+            self.trace_buttons['Get All'] = btn_get_all
 
-            btn_get_live = ttk.Button(traces_tab, text="Get Live", style='ControlButton.Inactive.TButton', command=lambda: on_get_live_trace_click(self))
+            btn_get_live = ttk.Button(traces_tab, text="Get Live", style='ControlButton.Inactive.TButton', command=lambda: self._toggle_trace_button('live'))
             btn_get_live.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
+            self.trace_buttons['Get Live'] = btn_get_live
 
-            btn_get_max = ttk.Button(traces_tab, text="Get Max", style='ControlButton.Inactive.TButton', command=lambda: on_get_max_trace_click(self))
+            btn_get_max = ttk.Button(traces_tab, text="Get Max", style='ControlButton.Inactive.TButton', command=lambda: self._toggle_trace_button('max'))
             btn_get_max.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
+            self.trace_buttons['Get Max'] = btn_get_max
 
             # --- Poke Tab ---
             poke_tab = ttk.Frame(self.controls_notebook, style='TFrame', padding=5)
@@ -237,6 +310,8 @@ class ControlsFrame(ttk.Frame):
             
         set_span_to_zone(self, ZoneName=zgd_frame.selected_zone, NumberOfMarkers=len(freqs),
                          StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=float(self.buffer_var.get()))
+        
+        self._execute_selected_trace_action()
 
     def _on_set_span_to_group_click(self):
         # [Handles the click event to set the instrument span to the selected group.]
@@ -256,6 +331,8 @@ class ControlsFrame(ttk.Frame):
         set_span_to_group(self, GroupName=zgd_frame.selected_group, NumberOfMarkers=len(freqs),
                           StartFreq=min(freqs), StopFreq=max(freqs), buffer_mhz=float(self.buffer_var.get()))
 
+        self._execute_selected_trace_action()
+
     def _on_set_span_to_device_click(self):
         # [Handles the click event to set the instrument span to the selected device.]
         debug_log(f"Entering _on_set_span_to_device_click", file=f"{os.path.basename(__file__)}", version=current_version, function="_on_set_span_to_device_click")
@@ -273,6 +350,8 @@ class ControlsFrame(ttk.Frame):
             return
             
         set_span_to_device(self, DeviceName=device_name, CenterFreq=center_freq)
+
+        self._execute_selected_trace_action()
 
     def _on_set_span_to_all_markers_click(self):
         # [Handles the click event to set the instrument span to all loaded markers.]
