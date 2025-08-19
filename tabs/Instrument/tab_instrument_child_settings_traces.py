@@ -31,7 +31,9 @@ import pandas as pd # Import pandas for data manipulation
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg, handle_all_traces_nab
+from yak.utils_yakbeg_handler import handle_trace_modes_beg, handle_trace_data_beg
+from yak.utils_yaknab_handler import handle_all_traces_nab
+
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot, clear_monitor_plots
 from display.utils_scan_view import update_single_plot
 
