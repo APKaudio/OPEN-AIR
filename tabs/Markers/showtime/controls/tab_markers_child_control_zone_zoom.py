@@ -14,14 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.232600.1
-# ADDED: Added `set_zone_zoom_labels` and `get_current_buffer` methods to manage internal state.
-# FIXED: The `AttributeError: 'ZoneZoomTab' object has no attribute 'buffer_var'` was fixed
-#        by correcting the references to use the local instance (`self`) instead of the parent.
-# FIXED: The hardcoded notebook tab index was corrected to ensure the Trace tab is found correctly.
+# Version 20250821.003600.1
+# FIXED: The `_on_set_span_to..._click` calls were updated to correctly reference
+#        `self`, ensuring the utility functions can access the tab's internal state.
+# FIXED: The hardcoded traces tab index was corrected to match the new tab order.
 
-current_version = "20250820.232600.1"
-current_version_hash = (20250820 * 232600 * 1)
+current_version = "20250821.003600.1"
+current_version_hash = (20250821 * 3600 * 1)
 
 import os
 import inspect
@@ -125,7 +124,7 @@ class ZoneZoomTab(ttk.Frame):
                          StartFreq=min(freqs), StopFreq=max(freqs), selected=True, buffer_mhz=float(self.buffer_var.get()))
         
         # When a zone is selected, trigger a trace action in the new TracesTab
-        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[3])
+        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[4])
         if hasattr(traces_tab, '_execute_selected_trace_action'):
             traces_tab._execute_selected_trace_action()
         self._update_zone_zoom_button_styles()
@@ -149,7 +148,7 @@ class ZoneZoomTab(ttk.Frame):
                           StartFreq=min(freqs), StopFreq=max(freqs), buffer_mhz=float(self.buffer_var.get()))
         
         # When a group is selected, trigger a trace action in the new TracesTab
-        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[3])
+        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[4])
         if hasattr(traces_tab, '_execute_selected_trace_action'):
             traces_tab._execute_selected_trace_action()
         self._update_zone_zoom_button_styles()
@@ -173,7 +172,7 @@ class ZoneZoomTab(ttk.Frame):
         set_span_to_device(self, DeviceName=device_name, CenterFreq=center_freq)
         
         # When a device is selected, trigger a trace action in the new TracesTab
-        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[3])
+        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[4])
         if hasattr(traces_tab, '_execute_selected_trace_action'):
             traces_tab._execute_selected_trace_action()
         self._update_zone_zoom_button_styles()
@@ -196,7 +195,7 @@ class ZoneZoomTab(ttk.Frame):
                                 StopFreq=max(freqs), selected=True, buffer_mhz=float(self.buffer_var.get()))
         
         # When all markers are selected, trigger a trace action in the new TracesTab
-        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[3])
+        traces_tab = self.controls_frame.controls_notebook.nametowidget(self.controls_frame.controls_notebook.tabs()[4])
         if hasattr(traces_tab, '_execute_selected_trace_action'):
             traces_tab._execute_selected_trace_action()
         self._update_zone_zoom_button_styles()

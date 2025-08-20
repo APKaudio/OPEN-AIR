@@ -1,4 +1,4 @@
-# tabs/Markers/showtime/controls/tab_markers_parent_bottom_controls.py
+# tabs/Markers/showtime/controls/tab_markers_child_bottom_controls.py
 #
 # This file defines the ControlsFrame, a reusable ttk.Frame containing the
 # Span, RBW, Trace Modes, and other controls in a notebook.
@@ -14,14 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.232500.1
-# FIXED: The parent `ControlsFrame` now correctly stores the `follow_zone_span_var`,
-#        as it is a shared state variable required by both the Span and ZoneZoom tabs.
-# FIXED: All other `AttributeError`s were fixed by moving the variables to their respective
-#        child classes.
+# Version 20250821.005500.1
+# FIXED: The `_update_control_styles` method has been restored to this parent class,
+#        resolving the `AttributeError`. It now acts as an orchestration point for
+#        all child-tab UI updates.
+# FIXED: `span_var` and `rbw_var` were restored here as shared state variables.
 
-current_version = "20250820.232500.1"
-current_version_hash = (20250820 * 232500 * 1)
+current_version = "20250821.005500.1"
+current_version_hash = (20250821 * 5500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,9 +33,6 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import all utility functions
-from process_math.math_frequency_translation import (
-    format_hz
-)
 from tabs.Markers.showtime.controls.utils_showtime_trace import (
     sync_trace_modes
 )
@@ -50,26 +47,66 @@ from tabs.Markers.showtime.controls.tab_markers_child_control_zone_zoom import Z
 
 class ControlsFrame(ttk.Frame):
     def __init__(self, parent, app_instance):
-        # [Initializes the ControlsFrame as a generic container.]
+        # [Initializes the ControlsFrame and all its associated Tkinter variables.]
         debug_log(f"Entering __init__", file=f"{os.path.basename(__file__)}", version=current_version, function="__init__")
         try:
             super().__init__(parent, style='TFrame')
             self.app_instance = app_instance
             self.grid(row=0, column=0, sticky="nsew")
             self.columnconfigure(0, weight=1)
-
-            # --- Instance variables to manage the notebook tabs ---
+            
+            # --- Initialize shared Tkinter Control Variables ---
+            self.span_var = tk.StringVar(value="1000000")
+            self.rbw_var = tk.StringVar(value="100000")
+            self.follow_zone_span_var = tk.BooleanVar(value=True)
+            self.poke_freq_var = tk.StringVar()
+            self.buffer_var = tk.StringVar(value="1") 
+            self.zone_zoom_label_left_var = tk.StringVar(value="All Markers")
+            self.zone_zoom_label_center_var = tk.StringVar(value="Start: N/A")
+            self.zone_zoom_label_right_var = tk.StringVar(value="Stop: N/A (0 Markers)")
+            
+            # --- Dictionaries to hold button references from child tabs ---
+            self.span_buttons = {}
+            self.rbw_buttons = {}
+            self.trace_buttons = {}
+            self.zone_zoom_buttons = {}
+            
             self.current_tab_instance = None
             self.last_tab_index = -1
             self.controls_notebook = None
-            self.follow_zone_span_var = tk.BooleanVar(value=True)
-
             self._create_controls_notebook()
-            
+
+            self.after(100, lambda: sync_trace_modes(self))
+            self.after(110, lambda: self._update_control_styles())
             console_log("✅ ControlsFrame initialized successfully!")
         except Exception as e:
             console_log(f"❌ Error in ControlsFrame __init__: {e}")
             debug_log(f"Arrr, the code be capsized! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="__init__")
+    
+    def _update_control_styles(self):
+        # [Updates the visual styles of all control buttons by calling child methods.]
+        debug_log(f"Entering _update_control_styles", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_control_styles")
+        
+        # Get references to the child tabs
+        poke_tab = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[0])
+        span_tab = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[1])
+        rbw_tab = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[2])
+        zone_zoom_tab = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[3])
+        traces_tab = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[4])
+
+        # Call their respective update methods
+        if hasattr(poke_tab, '_sync_ui_from_app_state'):
+            poke_tab._sync_ui_from_app_state()
+        if hasattr(span_tab, '_sync_ui_from_app_state'):
+            span_tab._sync_ui_from_app_state()
+        if hasattr(rbw_tab, '_sync_ui_from_app_state'):
+            rbw_tab._sync_ui_from_app_state()
+        if hasattr(zone_zoom_tab, '_update_zone_zoom_button_styles'):
+            zone_zoom_tab._update_zone_zoom_button_styles()
+        if hasattr(traces_tab, '_update_button_styles'):
+            traces_tab._update_button_styles()
+            
+        debug_log(f"Exiting _update_control_styles", file=f"{os.path.basename(__file__)}", version=current_version, function="_update_control_styles")
 
     def _create_controls_notebook(self):
         # [Creates the notebook and populates it with all the control tabs.]
@@ -118,7 +155,7 @@ class ControlsFrame(ttk.Frame):
         
         # Get the instance of the old and new tabs
         old_tab_instance = self.current_tab_instance
-        new_tab_instance = self.controls_notebook.winfo_children()[selected_index]
+        new_tab_instance = self.controls_notebook.nametowidget(self.controls_notebook.tabs()[selected_index])
         self.current_tab_instance = new_tab_instance
 
         # Call the deselected method on the old tab

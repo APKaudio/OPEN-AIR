@@ -14,17 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.234500.2
+# Version 20250821.004800.1
 # FIXED: All `AttributeError`s were fixed by correcting the variable references
 #        to point to the local instance (`self`) instead of the parent.
 # FIXED: The `sync_trace_modes` and `execute_trace_action` utility calls now correctly
 #        pass `self` to access the local variables.
-# REFACTORED: The `_update_button_styles`, `_execute_selected_trace_action`,
-#             and `_toggle_trace_button` methods were restored and refactored
-#             to be self-contained within this class.
 
-current_version = "20250820.234500.2"
-current_version_hash = (20250820 * 234500 * 2)
+current_version = "20250821.004800.1"
+current_version_hash = (20250821 * 4800 * 1)
 
 import os
 import inspect

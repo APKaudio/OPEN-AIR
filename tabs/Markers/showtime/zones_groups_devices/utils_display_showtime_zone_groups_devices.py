@@ -15,13 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.001800.1
-# NEW: Added dedicated `on_group_deselected` and `on_device_deselected` functions for clean state management.
+# Version 20250821.002800.1
+# NEW: Added `on_group_deselected` and `on_device_deselected` functions for clean state management.
 # NEW: Added `get_current_view_details` function to return frequency information of the current selection.
 # FIXED: The `on_group_selected` and `on_device_selected` functions now call the new deselection utilities.
 
-current_version = "20250821.001800.1"
-current_version_hash = (20250821 * 1800 * 1)
+current_version = "20250821.002800.1"
+current_version_hash = (20250821 * 2800 * 1)
 
 import os
 import inspect
@@ -42,9 +42,9 @@ def get_current_view_details(zgd_frame_instance):
     if zgd_frame_instance.selected_device_info:
         center_freq = zgd_frame_instance.selected_device_info.get('CENTER')
         if center_freq:
-            span = float(zgd_frame_instance.showtime_tab_instance.controls_frame.span_var.get()) / 1000000
-            start_freq = center_freq - span / 2
-            stop_freq = center_freq + span / 2
+            span = float(zgd_frame_instance.showtime_tab_instance.controls_frame.span_var.get())
+            start_freq = center_freq - (span / 2)
+            stop_freq = center_freq + (span / 2)
     
     elif zgd_frame_instance.selected_zone or zgd_frame_instance.selected_group:
         devices = []
@@ -111,6 +111,7 @@ def no_zone_grou_device_selected(zgd_frame_instance):
     zgd_frame_instance.showtime_tab_instance.controls_frame._update_control_styles()
     
     debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+
 
 def on_zone_selected(zgd_frame_instance, zone_name):
     current_function = inspect.currentframe().f_code.co_name

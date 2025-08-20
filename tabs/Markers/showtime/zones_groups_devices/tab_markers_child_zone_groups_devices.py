@@ -14,14 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.002200.1
-# FIXED: The `_update_control_styles` method was restored to the `ControlsFrame`
-#        class, as it is a critical orchestration method for all child tabs.
-# FIXED: `on_zone_selected` was updated to correctly call this method on the parent
-#        `controls_frame` instance.
+# Version 20250821.004500.1
+# REFACTORED: The event-handling methods `on_zone_selected`, `on_group_selected`, and
+#             `on_device_selected` were moved to a new utility file to improve modularity.
+# FIXED: The `ImportError` was fixed by correcting the import statements and ensuring
+#        the correct utility functions are called.
 
-current_version = "20250821.002200.1"
-current_version_hash = (20250821 * 2200 * 1)
+current_version = "20250821.004500.1"
+current_version_hash = (20250821 * 4500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
