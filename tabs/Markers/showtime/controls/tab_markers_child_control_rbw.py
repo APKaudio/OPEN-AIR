@@ -15,13 +15,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.233600.1
-# FIXED: The `on_rbw_button_click` call was updated to correctly reference `self`.
-# ADDED: Added `set_rbw` and `get_current_rbw` methods to manage internal state.
-# FIXED: References to `rbw_var` and `rbw_buttons` were corrected to use the local instance.
+# Version 20250821.013000.1
+# FIXED: The `ImportError` was fixed by correctly importing `PRESET_BANDWIDTH_RBW`
+#        from `ref.ref_scanner_setting_lists`.
+# REFACTORED: Removed local variables. Now uses shared state variables from the parent
+#             `showtime_tab_instance`.
 
-current_version = "20250820.233600.1"
-current_version_hash = (20250820 * 233600 * 1)
+current_version = "20250821.013000.1"
+current_version_hash = (20250821 * 13000 * 1)
 
 import os
 import inspect
@@ -32,13 +33,10 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 from ref.ref_scanner_setting_lists import (
-    PRESET_BANDWIDTH_RBW,
+    PRESET_BANDWIDTH_RBW
 )
 
-from tabs.Markers.showtime.controls.utils_showtime_rbw import (
-    on_rbw_button_click
-)
-
+from tabs.Markers.showtime.controls.utils_showtime_rbw import on_rbw_button_click
 from process_math.math_frequency_translation import format_hz
 
 class RBWTab(ttk.Frame):
@@ -48,8 +46,11 @@ class RBWTab(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         super().__init__(parent, style='TFrame', padding=5)
         self.controls_frame = controls_frame
-        self.rbw_buttons = {}
-        self.rbw_var = tk.StringVar(value="100000")
+        
+        # The variables are now held by the parent ShowtimeTab instance
+        # self.rbw_buttons = {}
+        # self.rbw_var = tk.StringVar(value="100000")
+
         self._create_widgets()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
@@ -58,12 +59,17 @@ class RBWTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
+        showtime_tab = self.controls_frame.showtime_tab_instance
+
         for i, rbw_preset in enumerate(PRESET_BANDWIDTH_RBW):
             btn_text = f"{rbw_preset['label']}\n({format_hz(rbw_preset['value'])})"
-            btn = ttk.Button(self, text=btn_text, style='ControlButton.Inactive.TButton', command=lambda value=rbw_preset['value']: on_rbw_button_click(self, value))
+            btn = ttk.Button(self, text=btn_text, style='ControlButton.Inactive.TButton',
+                             command=lambda value=rbw_preset['value']: on_rbw_button_click(self.controls_frame.showtime_tab_instance, value))
             btn.grid(row=0, column=i, padx=2, pady=2, sticky="ew")
-            self.rbw_buttons[str(rbw_preset['value'])] = btn
             
+            # Store button reference in parent's dictionary
+            showtime_tab.rbw_buttons[str(rbw_preset['value'])] = btn
+        
         for i in range(len(PRESET_BANDWIDTH_RBW)):
             self.grid_columnconfigure(i, weight=1)
 
@@ -72,15 +78,15 @@ class RBWTab(ttk.Frame):
     def set_rbw(self, new_rbw_value):
         # [Sets the internal RBW variable and updates the UI.]
         debug_log(f"Entering set_rbw with new value: {new_rbw_value}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_rbw")
-        self.rbw_var.set(value=new_rbw_value)
-        self._sync_ui_from_app_state()
-        debug_log(f"Exiting set_rbw. RBW is now: {self.rbw_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_rbw")
+        self.controls_frame.showtime_tab_instance.rbw_var.set(value=new_rbw_value)
+        self.controls_frame._update_control_styles()
+        debug_log(f"Exiting set_rbw. RBW is now: {self.controls_frame.showtime_tab_instance.rbw_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_rbw")
 
     def get_current_rbw(self):
         # [Returns the current value of the RBW variable.]
         debug_log(f"Entering get_current_rbw", file=f"{os.path.basename(__file__)}", version=current_version, function="get_current_rbw")
-        return self.rbw_var.get()
-    
+        return self.controls_frame.showtime_tab_instance.rbw_var.get()
+
     def _on_tab_selected(self):
         # [Synchronizes the UI elements when the tab is selected.]
         debug_log(f"Entering _on_tab_selected", file=f"{os.path.basename(__file__)}", version=current_version, function="_on_tab_selected")
@@ -97,11 +103,12 @@ class RBWTab(ttk.Frame):
     def _sync_ui_from_app_state(self):
         # [Updates the appearance of the buttons based on the current RBW setting.]
         debug_log(f"Entering _sync_ui_from_app_state", file=f"{os.path.basename(__file__)}", version=current_version, function="_sync_ui_from_app_state")
-        current_rbw = self.rbw_var.get()
+        showtime_tab = self.controls_frame.showtime_tab_instance
+        current_rbw = showtime_tab.rbw_var.get()
         active_style = 'ControlButton.Active.TButton'
         inactive_style = 'ControlButton.Inactive.TButton'
 
-        for value_str, btn in self.rbw_buttons.items():
+        for value_str, btn in showtime_tab.rbw_buttons.items():
             if value_str == current_rbw:
                 btn.config(style=active_style)
             else:

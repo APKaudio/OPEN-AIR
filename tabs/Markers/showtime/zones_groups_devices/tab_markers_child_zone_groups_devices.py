@@ -7,21 +7,23 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.004500.1
+# Version 20250821.010500.1
 # REFACTORED: The event-handling methods `on_zone_selected`, `on_group_selected`, and
 #             `on_device_selected` were moved to a new utility file to improve modularity.
+# REFACTORED: Now uses shared state variables from the parent `ShowtimeTab` instance.
+#
 # FIXED: The `ImportError` was fixed by correcting the import statements and ensuring
 #        the correct utility functions are called.
 
-current_version = "20250821.004500.1"
-current_version_hash = (20250821 * 4500 * 1)
+current_version = "20250821.010500.1"
+current_version_hash = (20250821 * 10500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -49,15 +51,16 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         self.showtime_tab_instance = showtime_tab_instance
         self.grid(row=0, column=0, sticky="nsew")
 
-        self.structured_data = None
-        self.selected_zone = None
-        self.selected_group = None
-        self.selected_device_info = None
-        self.active_zone_button = None
-        self.active_group_button = None
-        self.active_device_button = None
-        self.device_buttons = {}
-        self.last_selected_type = None
+        # The state is now managed in the parent `showtime_tab_instance`
+        # self.structured_data = None
+        # self.selected_zone = None
+        # self.selected_group = None
+        # self.selected_device_info = None
+        # self.active_zone_button = None
+        # self.active_group_button = None
+        # self.active_device_button = None
+        # self.device_buttons = {}
+        # self.last_selected_type = None
 
         self._create_layout()
         self.load_and_display_data()
@@ -96,18 +99,23 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
     def load_and_display_data(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-        self.active_zone_button = None
-        self.active_group_button = None
-        self.active_device_button = None
-        self.selected_device_info = None
-        self.structured_data = load_and_structure_markers_data()
+
+        # Update the parent's state variables directly
+        self.showtime_tab_instance.active_zone_button = None
+        self.showtime_tab_instance.active_group_button = None
+        self.showtime_tab_instance.active_device_button = None
+        self.showtime_tab_instance.selected_device_info = None
+        
+        self.showtime_tab_instance.structured_data = load_and_structure_markers_data()
         self._make_zone_buttons()
         self._make_group_buttons()
         self._make_device_buttons()
-        all_devices = self._get_all_devices_in_zone(self.structured_data, None)
+        
+        all_devices = self._get_all_devices_in_zone(self.showtime_tab_instance.structured_data, None)
         self._get_min_max_freq_and_update_title(frame_widget=self.zones_frame, devices=all_devices, title_prefix="ALL DEVICES")
         self.groups_frame.config(text="Groups")
         self.devices_outer_frame.config(text="Devices")
+
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def _make_zone_buttons(self):
@@ -115,13 +123,15 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         for widget in self.zones_frame.winfo_children():
             widget.destroy()
-        if self.structured_data is None or not self.structured_data:
+            
+        if self.showtime_tab_instance.structured_data is None or not self.showtime_tab_instance.structured_data:
             console_log(f"❌ Marker CSV not found or is empty. Cannot load zones.", "ERROR")
             debug_log("Marker CSV not found or is empty. Cannot load zones. Fucking useless!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
             ttk.Label(self.zones_frame, text="Could not load MARKERS.CSV").pack(padx=5, pady=5)
             return
+            
         max_columns = 6
-        for i, zone_name in enumerate(self.structured_data.keys()):
+        for i, zone_name in enumerate(self.showtime_tab_instance.structured_data.keys()):
             row = i // max_columns
             col = i % max_columns
             btn = ttk.Button(self.zones_frame, text=zone_name, style='ControlButton.Inactive.TButton', command=partial(on_zone_selected, self, zone_name))
@@ -135,15 +145,21 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         for widget in self.groups_frame.winfo_children():
             widget.destroy()
         self.groups_frame.grid_remove()
-        if not self.selected_zone or not self.structured_data:
+        
+        # Access selected_zone from the parent instance
+        if not self.showtime_tab_instance.selected_zone or not self.showtime_tab_instance.structured_data:
             debug_log("No zone selected or no structured data. Exiting _make_group_buttons.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
             return
-        groups = self.structured_data.get(self.selected_zone, {})
+            
+        # Access structured_data from the parent instance
+        groups = self.showtime_tab_instance.structured_data.get(self.showtime_tab_instance.selected_zone, {})
+        
         if len(groups) > 1 or (len(groups) == 1 and next(iter(groups)) not in ['Ungrouped', 'No Group']):
             self.groups_frame.grid()
         else:
             debug_log("Only one group or no groups, keeping the groups frame hidden. We don't need no stinkin' groups!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
             return
+            
         max_columns = 6
         for i, group_name in enumerate(groups.keys()):
             row = i // max_columns
@@ -158,22 +174,28 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         for widget in self.devices_scrollable_frame.winfo_children():
             widget.destroy()
-        self.device_buttons.clear()
+        
+        # Access device_buttons dict from parent
+        self.showtime_tab_instance.device_buttons.clear()
+        
         devices_to_display = []
-        if self.selected_zone:
-            if self.selected_group:
-                devices_to_display = self.structured_data.get(self.selected_zone, {}).get(self.selected_group, [])
+        # Access state from parent
+        if self.showtime_tab_instance.selected_zone:
+            if self.showtime_tab_instance.selected_group:
+                devices_to_display = self.showtime_tab_instance.structured_data.get(self.showtime_tab_instance.selected_zone, {}).get(self.showtime_tab_instance.selected_group, [])
             else:
-                for group_name in self.structured_data.get(self.selected_zone, {}).keys():
-                    devices_to_display.extend(self.structured_data.get(self.selected_zone, {}).get(group_name, []))
+                for group_name in self.showtime_tab_instance.structured_data.get(self.showtime_tab_instance.selected_zone, {}).keys():
+                    devices_to_display.extend(self.showtime_tab_instance.structured_data.get(self.showtime_tab_instance.selected_zone, {}).get(group_name, []))
         else:
-            for zone_name in self.structured_data.keys():
-                for group_name in self.structured_data.get(zone_name, {}).keys():
-                    devices_to_display.extend(self.structured_data.get(zone_name, {}).get(group_name, []))
+            for zone_name in self.showtime_tab_instance.structured_data.keys():
+                for group_name in self.showtime_tab_instance.structured_data.get(zone_name, {}).keys():
+                    devices_to_display.extend(self.showtime_tab_instance.structured_data.get(zone_name, {}).get(group_name, []))
+                    
         self.devices_outer_frame.config(text=f"Devices ({len(devices_to_display)})")
         max_cols = 4
         for col in range(max_cols):
             self.devices_scrollable_frame.grid_columnconfigure(col, weight=1)
+            
         for i, device in enumerate(devices_to_display):
             name = device.get('NAME', 'N/A')
             device_type = device.get('DEVICE', 'N/A')
@@ -190,10 +212,14 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             progress_bar = create_signal_level_indicator(peak)
             btn_text = f"{name}\n{device_type_formatted}\n{center} MHz\n{peak} dBm\n{progress_bar}"
             btn = ttk.Button(self.devices_scrollable_frame, text=btn_text, style='DeviceButton.Inactive.TButton', command=partial(on_device_selected, self, device))
-            self.device_buttons[id(device)] = btn
+            
+            # Store button reference in parent's dictionary
+            self.showtime_tab_instance.device_buttons[id(device)] = btn
+            
             row = i // max_cols
             col = i % max_cols
             btn.grid(row=row, column=col, padx=5, pady=2, sticky="ew", ipadx=10, ipady=5)
+            
         debug_log(f"Exiting {current_function}. Rebuilt {len(devices_to_display)} device buttons. 🤖", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix):

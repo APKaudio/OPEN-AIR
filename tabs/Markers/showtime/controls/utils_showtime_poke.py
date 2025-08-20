@@ -15,15 +15,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.235500.1
-# REFACTORED: This file was cleaned up to be a dedicated utility for `on_poke_action`.
-#             All references to other utility functions (span, rbw, trace, zone_zoom)
-#             were removed to avoid redundancy and circular dependencies.
+# Version 20250821.012500.1
+# REFACTORED: `on_poke_action` now directly accesses all shared state variables from
+#             the `showtime_tab_instance` passed as an argument.
+#
 # FIXED: The `on_poke_action` function now correctly accesses variables from the
-#        parent `controls_frame` instance, resolving `AttributeError`s.
+#        `showtime_tab_instance`, resolving `AttributeError`s.
 
-current_version = "20250820.235500.1"
-current_version_hash = (20250820 * 235500 * 1)
+current_version = "20250821.012500.1"
+current_version_hash = (20250821 * 12500 * 1)
 
 import os
 import inspect
@@ -38,38 +38,38 @@ from tabs.Markers.showtime.controls.utils_showtime_span import format_hz
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
 
-def on_poke_action(poke_tab_instance):
+def on_poke_action(showtime_tab_instance):
     # [Sets center frequency and span simultaneously using the YakBeg handler.]
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
     
     try:
-        center_freq_mhz = float(poke_tab_instance.poke_freq_var.get())
+        center_freq_mhz = float(showtime_tab_instance.poke_freq_var.get())
         center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
         
-        span_hz = int(poke_tab_instance.controls_frame.span_var.get())
+        span_hz = int(showtime_tab_instance.span_var.get())
         
-        poke_tab_instance.controls_frame.console_print_func(f"Poking instrument: Center={center_freq_mhz} MHz, Span={format_hz(span_hz)}...")
+        showtime_tab_instance.console_print_func(f"Poking instrument: Center={center_freq_mhz} MHz, Span={format_hz(span_hz)}...")
         
         response = handle_freq_center_span_beg(
-            poke_tab_instance.controls_frame.app_instance, 
+            showtime_tab_instance.app_instance, 
             center_freq_hz, 
             span_hz,
-            poke_tab_instance.controls_frame.console_print_func
+            showtime_tab_instance.console_print_func
         )
         
         if response and len(response) >= 2:
             returned_center, returned_span, _, _ = response
-            poke_tab_instance.controls_frame.console_print_func(
+            showtime_tab_instance.console_print_func(
                 f"✅ Instrument Confirmed: Center={returned_center / MHZ_TO_HZ:.3f} MHz, Span={format_hz(returned_span)}"
             )
         else:
-            poke_tab_instance.controls_frame.console_print_func("❌ Poke command failed. Instrument did not confirm settings.")
+            showtime_tab_instance.console_print_func("❌ Poke command failed. Instrument did not confirm settings.")
             
     except ValueError:
-        poke_tab_instance.controls_frame.console_print_func("⚠️ Poke frequency must be a valid number.")
+        showtime_tab_instance.console_print_func("⚠️ Poke frequency must be a valid number.")
     except Exception as e:
-        poke_tab_instance.controls_frame.console_print_func(f"❌ Error during poke action: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error during poke action: {e}")
         debug_log(f"Shiver me timbers, the poke be capsized! The error be: {e}",
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,

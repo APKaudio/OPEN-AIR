@@ -15,17 +15,17 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.233600.1
-# REFACTORED: The local `format_hz` function was removed and replaced with an import
-#             from `process_math.math_frequency_translation` for global availability.
-# FIXED: The `on_rbw_button_click` function signature and internal logic were updated
-#        to correctly use the `rbw_tab_instance`, resolving `AttributeError`s.
+# Version 20250821.011000.1
+# REFACTORED: All functions now directly access shared state from the parent
+#             `showtime_tab_instance` via the `rbw_tab_instance` passed as an argument.
 
-current_version = "20250820.233600.1"
-current_version_hash = (20250820 * 233600 * 1)
+current_version = "20250821.011000.1"
+current_version_hash = (20250821 * 11000 * 1)
 
 import os
 import inspect
+import tkinter as tk
+from tkinter import ttk
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
@@ -52,13 +52,15 @@ def on_rbw_button_click(rbw_tab_instance, rbw_hz):
               version=current_version,
               function=current_function)
     
+    showtime_tab = rbw_tab_instance.controls_frame.showtime_tab_instance
+
     try:
-        # Update the RBW variable on the tab instance
-        rbw_tab_instance.rbw_var.set(str(rbw_hz))
+        # Update the shared RBW variable on the parent instance
+        showtime_tab.rbw_var.set(str(rbw_hz))
         
         # Re-sync the RBW button styles
-        for value_str, btn in rbw_tab_instance.rbw_buttons.items():
-            if value_str == rbw_tab_instance.rbw_var.get():
+        for value_str, btn in showtime_tab.rbw_buttons.items():
+            if value_str == showtime_tab.rbw_var.get():
                 btn.config(style='ControlButton.Active.TButton')
             else:
                 btn.config(style='ControlButton.Inactive.TButton')
@@ -66,7 +68,7 @@ def on_rbw_button_click(rbw_tab_instance, rbw_hz):
         rbw_tab_instance.controls_frame.console_print_func(f"✅ RBW set to {format_hz(rbw_hz)}.")
         
         # Trigger the handler to send the new RBW to the instrument
-        set_resolution_bandwidth(rbw_tab_instance.controls_frame.app_instance, int(rbw_hz), rbw_tab_instance.controls_frame.console_print_func)
+        set_resolution_bandwidth(showtime_tab.app_instance, int(rbw_hz), showtime_tab.console_print_func)
 
     except Exception as e:
         rbw_tab_instance.controls_frame.console_print_func(f"❌ Error setting RBW: {e}")

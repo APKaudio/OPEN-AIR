@@ -1,4 +1,4 @@
-# tabs/Markers/showtime/controls/tab_markers_child_control_poke.py
+# # tabs/Markers/showtime/controls/tab_markers_child_control_poke.py
 #
 # This file defines the Poke tab for the ControlsFrame. It contains the UI
 # for manually poking the instrument to a specific frequency.
@@ -14,12 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.235700.1
-# FIXED: The `on_poke_action` call was updated to correctly reference `self`
-#        instead of `self.controls_frame`, preventing an `AttributeError`.
+# Version 20250821.012500.1
+# REFACTORED: `_create_widgets` now passes the `showtime_tab_instance` directly to the
+#             `on_poke_action` utility function, ensuring the correct object is used.
 
-current_version = "20250820.235700.1"
-current_version_hash = (20250820 * 235700 * 1)
+current_version = "20250821.012500.1"
+current_version_hash = (20250821 * 12500 * 1)
 
 import os
 import inspect
@@ -40,10 +40,6 @@ class PokeTab(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         super().__init__(parent, style='TFrame', padding=5)
         self.controls_frame = controls_frame
-        
-        # Now defined within this class
-        self.poke_freq_var = tk.StringVar()
-        
         self._create_widgets()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
@@ -51,23 +47,28 @@ class PokeTab(ttk.Frame):
         # [Creates and lays out the Poke control widgets.]
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        
+        showtime_tab = self.controls_frame.showtime_tab_instance
         self.grid_columnconfigure(0, weight=1)
-        poke_entry = ttk.Entry(self, textvariable=self.poke_freq_var)
+        
+        poke_entry = ttk.Entry(self, textvariable=showtime_tab.poke_freq_var)
         poke_entry.pack(side='left', fill='x', expand=True, padx=2, pady=2)
-        poke_btn = ttk.Button(self, text="Poke", style='ControlButton.Inactive.TButton', command=lambda: on_poke_action(self))
+        
+        poke_btn = ttk.Button(self, text="Poke", style='ControlButton.Inactive.TButton',
+                              command=lambda: on_poke_action(self.controls_frame.showtime_tab_instance))
         poke_btn.pack(side='left', padx=2, pady=2)
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def set_poke_freq(self, new_freq_value):
         # [Sets the internal poke frequency variable.]
         debug_log(f"Entering set_poke_freq with new value: {new_freq_value}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_poke_freq")
-        self.poke_freq_var.set(value=new_freq_value)
-        debug_log(f"Exiting set_poke_freq. Poke frequency is now: {self.poke_freq_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_poke_freq")
+        self.controls_frame.showtime_tab_instance.poke_freq_var.set(value=new_freq_value)
+        debug_log(f"Exiting set_poke_freq. Poke frequency is now: {self.controls_frame.showtime_tab_instance.poke_freq_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_poke_freq")
 
     def get_current_poke_freq(self):
         # [Returns the current value of the poke frequency variable.]
         debug_log(f"Entering get_current_poke_freq", file=f"{os.path.basename(__file__)}", version=current_version, function="get_current_poke_freq")
-        return self.poke_freq_var.get()
+        return self.controls_frame.showtime_tab_instance.poke_freq_var.get()
 
     def _on_tab_selected(self):
         # [Synchronizes the UI elements when the tab is selected.]

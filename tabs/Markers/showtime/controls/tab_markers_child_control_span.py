@@ -14,13 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.005500.1
-# FIXED: The `on_span_button_click` call was updated to correctly reference `self`
-#        and the `_sync_ui_from_app_state` method now correctly references the
-#        `follow_zone_span_var` from the parent `controls_frame`.
+# Version 20250821.012500.1
+# FIXED: The `on_span_button_click` call was updated to correctly reference `self.controls_frame.showtime_tab_instance`.
+# REFACTORED: Removed local variables. Now uses shared state variables from the parent
+#             `showtime_tab_instance`.
 
-current_version = "20250821.005500.1"
-current_version_hash = (20250821 * 5500 * 1)
+current_version = "20250821.012500.1"
+current_version_hash = (20250821 * 12500 * 1)
 
 import os
 import inspect
@@ -47,10 +47,6 @@ class SpanTab(ttk.Frame):
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         super().__init__(parent, style='TFrame', padding=5)
         self.controls_frame = controls_frame
-        
-        # This dictionary is local to this tab
-        self.span_buttons = {}
-
         self._create_widgets()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
@@ -59,11 +55,16 @@ class SpanTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
+        showtime_tab = self.controls_frame.showtime_tab_instance
+        
         for i, span_preset in enumerate(PRESET_FREQUENCY_SPAN):
             btn_text = f"{span_preset['label']}\n({format_hz(span_preset['value'])})"
-            btn = ttk.Button(self, text=btn_text, style='ControlButton.Inactive.TButton', command=lambda value=span_preset['value']: on_span_button_click(self, value))
+            btn = ttk.Button(self, text=btn_text, style='ControlButton.Inactive.TButton',
+                             command=lambda value=span_preset['value']: on_span_button_click(self.controls_frame.showtime_tab_instance, value))
             btn.grid(row=0, column=i, padx=2, pady=2, sticky="ew")
-            self.controls_frame.span_buttons[str(span_preset['value'])] = btn
+            
+            # Store button reference in parent's dictionary
+            showtime_tab.span_buttons[str(span_preset['value'])] = btn
         
         for i in range(len(PRESET_FREQUENCY_SPAN)):
             self.grid_columnconfigure(i, weight=1)
@@ -73,14 +74,14 @@ class SpanTab(ttk.Frame):
     def set_span(self, new_span_value):
         # [Sets the internal span variable and updates the UI.]
         debug_log(f"Entering set_span with new value: {new_span_value}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span")
-        self.controls_frame.span_var.set(value=new_span_value)
+        self.controls_frame.showtime_tab_instance.span_var.set(value=new_span_value)
         self.controls_frame._update_control_styles()
-        debug_log(f"Exiting set_span. Span is now: {self.controls_frame.span_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span")
+        debug_log(f"Exiting set_span. Span is now: {self.controls_frame.showtime_tab_instance.span_var.get()}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span")
 
     def get_current_span(self):
         # [Returns the current value of the span variable.]
         debug_log(f"Entering get_current_span", file=f"{os.path.basename(__file__)}", version=current_version, function="get_current_span")
-        return self.controls_frame.span_var.get()
+        return self.controls_frame.showtime_tab_instance.span_var.get()
 
     def _on_tab_selected(self):
         # [Synchronizes the UI elements when the tab is selected.]
@@ -98,12 +99,13 @@ class SpanTab(ttk.Frame):
     def _sync_ui_from_app_state(self):
         # [Updates the appearance of the buttons based on the current span setting.]
         debug_log(f"Entering _sync_ui_from_app_state", file=f"{os.path.basename(__file__)}", version=current_version, function="_sync_ui_from_app_state")
-        current_span = self.controls_frame.span_var.get()
+        showtime_tab = self.controls_frame.showtime_tab_instance
+        current_span = showtime_tab.span_var.get()
         active_style = 'ControlButton.Active.TButton'
         inactive_style = 'ControlButton.Inactive.TButton'
 
-        for value_str, btn in self.controls_frame.span_buttons.items():
-            if value_str == current_span and not self.controls_frame.follow_zone_span_var.get():
+        for value_str, btn in showtime_tab.span_buttons.items():
+            if value_str == current_span and not showtime_tab.follow_zone_span_var.get():
                 btn.config(style=active_style)
             else:
                 btn.config(style=inactive_style)

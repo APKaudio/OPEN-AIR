@@ -15,14 +15,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.233800.1
-# REFACTORED: The local `format_hz` function was removed and replaced with an import
-#             from `process_math.math_frequency_translation` for global availability.
-# FIXED: The `on_span_button_click` function signature and internal logic were updated
-#        to correctly use the `span_tab_instance`, resolving `AttributeError`s.
+# Version 20250821.020000.1
+# REFACTORED: Removed incorrect trace-related logic. This utility should not
+#             be responsible for updating trace buttons. `_update_control_styles`
+#             on the parent will handle the full UI refresh.
+# REFACTORED: All functions now directly access shared state from the parent
+#             `showtime_tab_instance` via the `span_tab_instance` passed as an argument.
 
-current_version = "20250820.233800.1"
-current_version_hash = (20250820 * 233800 * 1)
+current_version = "20250821.020000.1"
+current_version_hash = (20250821 * 20000 * 1)
 
 import os
 import inspect
@@ -33,7 +34,7 @@ from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
 from process_math.math_frequency_translation import format_hz
 
-def on_span_button_click(span_tab_instance, span_hz):
+def on_span_button_click(showtime_tab_instance, span_hz):
     # [Handles the event when a Span button is clicked.]
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering {current_function} with span_hz: {span_hz}",
@@ -43,21 +44,21 @@ def on_span_button_click(span_tab_instance, span_hz):
     
     try:
         # Check if the user wants to follow the zone span
-        span_tab_instance.controls_frame.follow_zone_span_var.set(False)
+        showtime_tab_instance.follow_zone_span_var.set(False)
 
-        # Update the span variable on the tab instance
-        span_tab_instance.span_var.set(str(span_hz))
+        # Update the shared span variable on the parent instance
+        showtime_tab_instance.span_var.set(str(span_hz))
 
         # Re-sync all the control buttons
-        span_tab_instance._sync_ui_from_app_state()
+        showtime_tab_instance.controls_frame._update_control_styles()
         
-        span_tab_instance.controls_frame.console_print_func(f"✅ Span set to {format_hz(span_hz)}.")
+        showtime_tab_instance.console_print_func(f"✅ Span set to {format_hz(span_hz)}.")
 
         # Trigger the handler to send the new span to the instrument.
-        handle_freq_center_span_beg(span_tab_instance.controls_frame.app_instance, center_freq=span_tab_instance.controls_frame.app_instance.scan_center_freq_var.get(), span_freq=int(span_hz), console_print_func=span_tab_instance.controls_frame.console_print_func)
+        handle_freq_center_span_beg(showtime_tab_instance.app_instance, center_freq=showtime_tab_instance.app_instance.scan_center_freq_var.get(), span_freq=int(span_hz), console_print_func=showtime_tab_instance.console_print_func)
 
     except Exception as e:
-        span_tab_instance.controls_frame.console_print_func(f"❌ Error setting span: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error setting span: {e}")
         debug_log(f"Arrr, a kraken be attacking the span settings! The error be: {e}",
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,

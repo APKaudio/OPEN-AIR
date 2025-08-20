@@ -14,14 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.005500.1
+# Version 20250821.011500.1
 # FIXED: The `_update_control_styles` method has been restored to this parent class,
 #        resolving the `AttributeError`. It now acts as an orchestration point for
 #        all child-tab UI updates.
-# FIXED: `span_var` and `rbw_var` were restored here as shared state variables.
+# REFACTORED: `span_var` and `rbw_var` were restored here as shared state variables.
 
-current_version = "20250821.005500.1"
-current_version_hash = (20250821 * 5500 * 1)
+current_version = "20250821.011500.1"
+current_version_hash = (20250821 * 11500 * 1)
 
 import tkinter as tk
 from tkinter import ttk
@@ -52,31 +52,33 @@ class ControlsFrame(ttk.Frame):
         try:
             super().__init__(parent, style='TFrame')
             self.app_instance = app_instance
+            self.showtime_tab_instance = parent # A reference to the parent ShowtimeTab
             self.grid(row=0, column=0, sticky="nsew")
             self.columnconfigure(0, weight=1)
             
             # --- Initialize shared Tkinter Control Variables ---
-            self.span_var = tk.StringVar(value="1000000")
-            self.rbw_var = tk.StringVar(value="100000")
-            self.follow_zone_span_var = tk.BooleanVar(value=True)
-            self.poke_freq_var = tk.StringVar()
-            self.buffer_var = tk.StringVar(value="1") 
-            self.zone_zoom_label_left_var = tk.StringVar(value="All Markers")
-            self.zone_zoom_label_center_var = tk.StringVar(value="Start: N/A")
-            self.zone_zoom_label_right_var = tk.StringVar(value="Stop: N/A (0 Markers)")
+            # These variables are now references to the parent's variables
+            self.span_var = self.showtime_tab_instance.span_var
+            self.rbw_var = self.showtime_tab_instance.rbw_var
+            self.follow_zone_span_var = self.showtime_tab_instance.follow_zone_span_var
+            self.poke_freq_var = self.showtime_tab_instance.poke_freq_var
+            self.buffer_var = self.showtime_tab_instance.buffer_var
+            self.zone_zoom_label_left_var = self.showtime_tab_instance.zone_zoom_label_left_var
+            self.zone_zoom_label_center_var = self.showtime_tab_instance.zone_zoom_label_center_var
+            self.zone_zoom_label_right_var = self.showtime_tab_instance.zone_zoom_label_right_var
             
             # --- Dictionaries to hold button references from child tabs ---
-            self.span_buttons = {}
-            self.rbw_buttons = {}
-            self.trace_buttons = {}
-            self.zone_zoom_buttons = {}
-            
+            self.span_buttons = self.showtime_tab_instance.span_buttons
+            self.rbw_buttons = self.showtime_tab_instance.rbw_buttons
+            self.trace_buttons = self.showtime_tab_instance.trace_buttons
+            self.zone_zoom_buttons = self.showtime_tab_instance.zone_zoom_buttons
+
             self.current_tab_instance = None
             self.last_tab_index = -1
             self.controls_notebook = None
             self._create_controls_notebook()
 
-            self.after(100, lambda: sync_trace_modes(self))
+            self.after(100, lambda: sync_trace_modes(self.showtime_tab_instance))
             self.after(110, lambda: self._update_control_styles())
             console_log("✅ ControlsFrame initialized successfully!")
         except Exception as e:

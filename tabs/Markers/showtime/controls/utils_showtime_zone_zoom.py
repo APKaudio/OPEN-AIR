@@ -15,13 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.005500.1
+# Version 20250821.011500.1
 # NEW: Added a dedicated function `_buffer_start_stop_frequencies` to handle buffering logic.
-# FIXED: All `set_span_to...` functions were updated to correctly use the buffer,
-#        access the `span_var` from the parent, and pass the correct instance.
+# REFACTORED: All `set_span_to...` functions now access and update state directly on the
+#             `showtime_tab_instance` object, adhering to the centralized state management model.
 
-current_version = "20250821.005500.1"
-current_version_hash = (20250821 * 5500 * 1)
+current_version = "20250821.011500.1"
+current_version_hash = (20250821 * 11500 * 1)
 
 import inspect
 import os
@@ -44,7 +44,7 @@ def _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz):
     
     return buffered_start_freq_mhz, buffered_stop_freq_mhz
 
-def set_span_to_all_markers(zone_zoom_tab_instance, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
+def set_span_to_all_markers(showtime_tab_instance, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
     # [Calculates the required span to view all markers and sets the instrument using a start-stop command.]
     debug_log(f"Entering set_span_to_all_markers with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_all_markers")
     try:
@@ -52,16 +52,16 @@ def set_span_to_all_markers(zone_zoom_tab_instance, NumberOfMarkers, StartFreq, 
         
         start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
         stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"✅ Setting span to all markers: {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        showtime_tab_instance.console_print_func(f"✅ Setting span to all markers: {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
         
-        handle_freq_start_stop_beg(zone_zoom_tab_instance.controls_frame.app_instance, start_freq_hz, stop_freq_hz, zone_zoom_tab_instance.controls_frame.console_print_func)
+        handle_freq_start_stop_beg(showtime_tab_instance.app_instance, start_freq_hz, stop_freq_hz, showtime_tab_instance.console_print_func)
 
-        zone_zoom_tab_instance.controls_frame.follow_zone_span_var.set(True)
+        showtime_tab_instance.follow_zone_span_var.set(True)
     except Exception as e:
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"❌ Error in set_span_to_all_markers: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error in set_span_to_all_markers: {e}")
         debug_log(f"Shiver me timbers, setting span to all markers has failed! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_all_markers")
 
-def set_span_to_zone(zone_zoom_tab_instance, ZoneName, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
+def set_span_to_zone(showtime_tab_instance, ZoneName, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz=0):
     # [Calculates the required span for a zone and sets the instrument using a start-stop command.]
     debug_log(f"Entering set_span_to_zone for Zone: {ZoneName} with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_zone")
     try:
@@ -69,15 +69,15 @@ def set_span_to_zone(zone_zoom_tab_instance, ZoneName, NumberOfMarkers, StartFre
 
         start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
         stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"✅ Setting span to zone '{ZoneName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
-        handle_freq_start_stop_beg(zone_zoom_tab_instance.controls_frame.app_instance, start_freq_hz, stop_freq_hz, zone_zoom_tab_instance.controls_frame.console_print_func)
+        showtime_tab_instance.console_print_func(f"✅ Setting span to zone '{ZoneName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        handle_freq_start_stop_beg(showtime_tab_instance.app_instance, start_freq_hz, stop_freq_hz, showtime_tab_instance.console_print_func)
         
-        zone_zoom_tab_instance.controls_frame.follow_zone_span_var.set(True)
+        showtime_tab_instance.follow_zone_span_var.set(True)
     except Exception as e:
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"❌ Error in set_span_to_zone: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error in set_span_to_zone: {e}")
         debug_log(f"Arrr, the code be capsized! The error be: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_zone")
 
-def set_span_to_group(zone_zoom_tab_instance, GroupName, NumberOfMarkers, StartFreq, StopFreq, buffer_mhz=0):
+def set_span_to_group(showtime_tab_instance, GroupName, NumberOfMarkers, StartFreq, StopFreq, buffer_mhz=0):
     # [Calculates the required span for a group and sets the instrument using a start-stop command.]
     debug_log(f"Entering set_span_to_group for Group: {GroupName} with a buffer of {buffer_mhz} MHz.", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_group")
     try:
@@ -85,24 +85,24 @@ def set_span_to_group(zone_zoom_tab_instance, GroupName, NumberOfMarkers, StartF
 
         start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
         stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"✅ Setting span to group '{GroupName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
-        handle_freq_start_stop_beg(zone_zoom_tab_instance.controls_frame.app_instance, start_freq_hz, stop_freq_hz, zone_zoom_tab_instance.controls_frame.console_print_func)
+        showtime_tab_instance.console_print_func(f"✅ Setting span to group '{GroupName}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        handle_freq_start_stop_beg(showtime_tab_instance.app_instance, start_freq_hz, stop_freq_hz, showtime_tab_instance.console_print_func)
         
-        zone_zoom_tab_instance.controls_frame.follow_zone_span_var.set(True)
+        showtime_tab_instance.follow_zone_span_var.set(True)
     except Exception as e:
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"❌ Error in set_span_to_group: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error in set_span_to_group: {e}")
         debug_log(f"Great Scott! The group span calculation has failed! The error is: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_group")
 
-def set_span_to_device(zone_zoom_tab_instance, DeviceName, CenterFreq):
+def set_span_to_device(showtime_tab_instance, DeviceName, CenterFreq):
     # [Sets the instrument's span to focus on a single device using a center-span command.]
     debug_log(f"Entering set_span_to_device for Device: {DeviceName}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_device")
     try:
         center_freq_hz = int(CenterFreq * MHZ_TO_HZ)
-        span_hz = int(float(zone_zoom_tab_instance.controls_frame.span_var.get()))
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"✅ Setting span to device '{DeviceName}': Center={CenterFreq:.3f} MHz, Span={format_hz(span_hz)}.")
-        handle_freq_center_span_beg(zone_zoom_tab_instance.controls_frame.app_instance, center_freq_hz, span_hz, zone_zoom_tab_instance.controls_frame.console_print_func)
+        span_hz = int(float(showtime_tab_instance.span_var.get()))
+        showtime_tab_instance.console_print_func(f"✅ Setting span to device '{DeviceName}': Center={CenterFreq:.3f} MHz, Span={format_hz(span_hz)}.")
+        handle_freq_center_span_beg(showtime_tab_instance.app_instance, center_freq_hz, span_hz, showtime_tab_instance.console_print_func)
         
-        zone_zoom_tab_instance.controls_frame.follow_zone_span_var.set(False)
+        showtime_tab_instance.follow_zone_span_var.set(False)
     except Exception as e:
-        zone_zoom_tab_instance.controls_frame.console_print_func(f"❌ Error in set_span_to_device: {e}")
+        showtime_tab_instance.console_print_func(f"❌ Error in set_span_to_device: {e}")
         debug_log(f"It's madness! The device span function has gone haywire! The error is: {e}", file=f"{os.path.basename(__file__)}", version=current_version, function="set_span_to_device")

@@ -15,13 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.005500.1
-# FIXED: The `_get_and_plot_traces` function was corrected to access the
-#        `scan_center_freq_var` and `scan_span_freq_var` from `app_instance.orchestrator_logic`,
-#        resolving the `AttributeError`.
+# Version 20250821.011000.1
+# REFACTORED: All functions now directly access shared state from the parent
+#             `showtime_tab_instance` via the `traces_tab_instance` passed as an argument.
 
-current_version = "20250821.005500.1"
-current_version_hash = (20250821 * 5500 * 1)
+current_version = "20250821.011000.1"
+current_version_hash = (20250821 * 11000 * 1)
 
 import os
 import inspect
@@ -42,17 +41,18 @@ def sync_trace_modes(traces_tab_instance):
     # [Synchronizes the trace mode buttons with the instrument's current state.]
     debug_log(f"Entering sync_trace_modes", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
     
-    app_instance = traces_tab_instance.controls_frame.app_instance
-    console_print_func = traces_tab_instance.controls_frame.console_print_func
-    
+    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+    app_instance = showtime_tab.app_instance
+    console_print_func = showtime_tab.console_print_func
+
     # Placeholder for getting current trace modes from instrument
     current_modes = ['Live', 'Max Hold', 'Min Hold']
     
     for button_name in traces_tab_instance.trace_buttons.keys():
         if button_name in current_modes:
-            traces_tab_instance.trace_buttons[button_name].config(style='ControlButton.Active.TButton')
+            showtime_tab.trace_buttons[button_name].config(style='ControlButton.Active.TButton')
         else:
-            traces_tab_instance.trace_buttons[button_name].config(style='ControlButton.Inactive.TButton')
+            showtime_tab.trace_buttons[button_name].config(style='ControlButton.Inactive.TButton')
             
     debug_log(f"Exiting sync_trace_modes", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
 
@@ -60,6 +60,8 @@ def execute_trace_action(traces_tab_instance, action_type):
     # [Orchestrates the process of fetching and plotting traces based on user action.]
     debug_log(f"Entering execute_trace_action with action_type: {action_type}", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
     
+    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+
     # Set the instrument's trace mode based on the button clicked
     trace_mode_map = {
         'all': ['Live', 'Max Hold', 'Min Hold'],
@@ -71,7 +73,7 @@ def execute_trace_action(traces_tab_instance, action_type):
     selected_modes = trace_mode_map.get(action_type, [])
     
     # Placeholder for calling Yaknab handler to set trace modes on the instrument
-    # handle_trace_modes_beg(traces_tab_instance.controls_frame.app_instance, selected_modes, traces_tab_instance.controls_frame.console_print_func)
+    # handle_trace_modes_beg(showtime_tab.app_instance, selected_modes, showtime_tab.console_print_func)
     
     _get_and_plot_traces(traces_tab_instance, action_type)
     
@@ -81,8 +83,9 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
     # [Fetches trace data from the instrument and passes it to the plotting utility.]
     debug_log(f"Entering _get_and_plot_traces", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_and_plot_traces")
     
-    app_instance = traces_tab_instance.controls_frame.app_instance
-    console_print_func = traces_tab_instance.controls_frame.console_print_func
+    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+    app_instance = showtime_tab.app_instance
+    console_print_func = showtime_tab.console_print_func
     
     # Corrected references to get scan variables from the orchestrator logic
     start_freq_mhz = (app_instance.scan_center_freq_var.get() - app_instance.scan_span_freq_var.get() / 2) / 1000000
@@ -94,7 +97,7 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
         
         # If data is successfully retrieved, pass it to the plotter
         if trace_data:
-            plot_all_traces(controls_frame=traces_tab_instance.controls_frame, trace_data_dict=trace_data, view_name=view_name, start_freq_mhz=start_freq_mhz, stop_freq_mhz=stop_freq_mhz)
+            plot_all_traces(controls_frame=showtime_tab.controls_frame, trace_data_dict=trace_data, view_name=view_name, start_freq_mhz=start_freq_mhz, stop_freq_mhz=stop_freq_mhz)
         
     except Exception as e:
         console_print_func(f"❌ Error getting trace data: {e}")
