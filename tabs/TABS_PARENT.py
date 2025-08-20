@@ -53,7 +53,7 @@ class TABS_PARENT(ttk.Frame):
         from tabs.Presets.TAB_PRESETS_PARENT import TAB_PRESETS_PARENT
         from tabs.Scanning.TAB_SCANNING_PARENT import TAB_SCANNING_PARENT
         from tabs.Plotting.TAB_PLOTTING_PARENT import TAB_PLOTTING_PARENT
-        from tabs.Experiments.TAB_EXPERIMENTS_PARENT import TAB_EXPERIMENTS_PARENT
+        from tabs.Experiments.TAB_EXPERIMENTS_PARENT import ExperimentsParentTab
 
         current_file = os.path.basename(__file__)
         current_function = inspect.currentframe().f_code.co_name
@@ -83,7 +83,7 @@ class TABS_PARENT(ttk.Frame):
             "Presets": TAB_PRESETS_PARENT,
             "Scanning": TAB_SCANNING_PARENT,
             "Plotting": TAB_PLOTTING_PARENT,
-            "Experiments": TAB_EXPERIMENTS_PARENT
+            "Experiments": ExperimentsParentTab
         }
 
         for i, (name, content_class) in enumerate(tab_definitions.items()):

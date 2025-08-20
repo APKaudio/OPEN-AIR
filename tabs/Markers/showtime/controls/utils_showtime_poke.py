@@ -15,15 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.012500.1
+# Version 20250821.120100.2
 # REFACTORED: `on_poke_action` now directly accesses all shared state variables from
 #             the `showtime_tab_instance` passed as an argument.
 #
 # FIXED: The `on_poke_action` function now correctly accesses variables from the
 #        `showtime_tab_instance`, resolving `AttributeError`s.
-
-current_version = "20250821.012500.1"
-current_version_hash = (20250821 * 12500 * 1)
+# FIXED: Corrected versioning to adhere to project standards.
 
 import os
 import inspect
@@ -37,6 +35,13 @@ from yak.Yakety_Yak import YakSet
 from tabs.Markers.showtime.controls.utils_showtime_span import format_hz
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
+# --- Versioning ---
+w = 20250821
+x = 120100
+y = 2
+current_version = f"Version {w}.{x}.{y}"
+current_version_hash = (w * x * y)
+current_file = file=f"{os.path.basename(__file__)}"
 
 def on_poke_action(showtime_tab_instance):
     # [Sets center frequency and span simultaneously using the YakBeg handler.]
@@ -44,18 +49,18 @@ def on_poke_action(showtime_tab_instance):
     debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
     
     try:
-        center_freq_mhz = float(showtime_tab_instance.poke_freq_var.get())
+        center_freq_mhz = float(showtime_tab_instance.shared_state.poke_freq_var.get())
         center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
         
-        span_hz = int(showtime_tab_instance.span_var.get())
+        span_hz = int(showtime_tab_instance.shared_state.span_var.get())
         
         showtime_tab_instance.console_print_func(f"Poking instrument: Center={center_freq_mhz} MHz, Span={format_hz(span_hz)}...")
         
         response = handle_freq_center_span_beg(
-            showtime_tab_instance.app_instance, 
-            center_freq_hz, 
-            span_hz,
-            showtime_tab_instance.console_print_func
+            app_instance=showtime_tab_instance.app_instance, 
+            center_freq=center_freq_hz, 
+            span_freq=span_hz,
+            console_print_func=showtime_tab_instance.console_print_func
         )
         
         if response and len(response) >= 2:

@@ -15,13 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.234900.1
+# Version 20250821.120100.4
 # FIXED: The plotting functions are now correctly imported from `utils_display_monitor.py`
 #        and `utils_scan_view.py` instead of being defined here, resolving the issue
 #        of displaying plots on the monitor tab.
-
-current_version = "20250820.234900.1"
-current_version_hash = (20250820 * 234900 * 1)
+# FIXED: Corrected the `plot_all_traces` function to correctly access attributes from the `showtime_tab_instance`.
+# FIXED: Corrected versioning to adhere to project standards.
 
 import os
 import inspect
@@ -34,8 +33,16 @@ from display.console_logic import console_log
 # Import plotting functions from the display utilities
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
 
+# --- Versioning ---
+w = 20250821
+x = 120100
+y = 4
+current_version = f"Version {w}.{x}.{y}"
+current_version_hash = (w * x * y)
+current_file = file=f"{os.path.basename(__file__)}"
 
-def plot_all_traces(controls_frame, trace_data_dict, view_name, start_freq_mhz, stop_freq_mhz):
+
+def plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_freq_mhz, stop_freq_mhz):
     # [Updates the display plots with trace data from the instrument.]
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering {current_function} with view_name: {view_name}",
@@ -44,7 +51,7 @@ def plot_all_traces(controls_frame, trace_data_dict, view_name, start_freq_mhz, 
               function=current_function)
     
     if trace_data_dict:
-        monitor_tab = controls_frame.app_instance.display_parent_tab.bottom_pane.scan_monitor_tab
+        monitor_tab = showtime_tab_instance.app_instance.display_parent_tab.bottom_pane.scan_monitor_tab
         if monitor_tab:
             df1 = pd.DataFrame(trace_data_dict["TraceData"]["Trace1"], columns=['Frequency_Hz', 'Power_dBm'])
             update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, f"Live Trace - {view_name}")
@@ -55,14 +62,14 @@ def plot_all_traces(controls_frame, trace_data_dict, view_name, start_freq_mhz, 
             df3 = pd.DataFrame(trace_data_dict["TraceData"]["Trace3"], columns=['Frequency_Hz', 'Power_dBm'])
             update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, f"Min Hold - {view_name}")
             
-            controls_frame.console_print_func("✅ Successfully updated monitor with all three traces.", "SUCCESS")
+            showtime_tab_instance.console_print_func("✅ Successfully updated monitor with all three traces.")
             
             # This is a bit of a hack to ensure the monitor tab is visible
-            controls_frame.app_instance.display_parent_tab.change_display_tab('Monitor')
+            showtime_tab_instance.app_instance.display_parent_tab.change_display_tab('Monitor')
         else:
-            controls_frame.console_print_func("❌ Scan Monitor tab not found.", "ERROR")
+            showtime_tab_instance.console_print_func("❌ Scan Monitor tab not found.")
     else:
-        controls_frame.console_print_func("❌ Failed to retrieve trace data.", "ERROR")
+        showtime_tab_instance.console_print_func("❌ Failed to retrieve trace data.")
         debug_log(f"Shiver me timbers, the trace data be lost at sea!",
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,
