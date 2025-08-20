@@ -14,11 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.214900.1
-# FIXED: Replaced inplace operations on DataFrame slices to remove FutureWarning messages.
+# Version 20250819.213800.5
+# REFACTORED: The logic for handling pandas operations was updated to prevent FutureWarning messages.
+# MODIFIED: The function `on_zone_selected` was updated to reset group and device selections when a zone is deselected.
+# MODIFIED: Added logic to switch tabs in the ControlsFrame to ensure the correct controls are visible.
+# FIXED: Resolved circular import by removing reference to utils_showtime_controls.py and calling the method on the controls_frame instance.
 
-current_version = "20250818.214900.1"
-current_version_hash = (20250818 * 214900 * 1)
+current_version = "20250819.213800.5"
+current_version_hash = (20250819 * 213800 * 5)
 
 import tkinter as tk
 from tkinter import ttk
@@ -29,9 +32,8 @@ import pandas as pd
 import math
 
 # Import utility functions
-from tabs.Markers.showtime.utils_files_markers_zone_groups_devices import load_and_structure_markers_data
-from tabs.Markers.showtime.utils_button_volume_level import create_signal_level_indicator
-from tabs.Markers.showtime.controls.utils_showtime_controls import _update_control_styles
+from tabs.Markers.showtime.zones_groups_devices.utils_files_markers_zone_groups_devices import load_and_structure_markers_data
+from tabs.Markers.showtime.zones_groups_devices.utils_button_volume_level import create_signal_level_indicator
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.program_style import COLOR_PALETTE
@@ -136,7 +138,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             return
         groups = self.structured_data.get(self.selected_zone, {})
         if len(groups) > 1 or (len(groups) == 1 and next(iter(groups)) not in ['Ungrouped', 'No Group']):
-             self.groups_frame.grid()
+            self.groups_frame.grid()
         else:
             debug_log("Only one group or no groups, keeping the groups frame hidden. We don't need no stinkin' groups!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
             return
@@ -260,7 +262,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         self._make_device_buttons()
         self.canvas.yview_moveto(0)
         
-        _update_control_styles(self.showtime_tab_instance.controls_frame)
+        self.showtime_tab_instance.controls_frame._update_control_styles()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
     def on_group_selected(self, group_name):
@@ -292,7 +294,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
                 self.active_group_button = None
             self.selected_group = None
             self._make_device_buttons()
-            _update_control_styles(self.showtime_tab_instance.controls_frame)
+            self.showtime_tab_instance.controls_frame._update_control_styles()
             return
 
         # --- Existing group selection logic ---
@@ -319,7 +321,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
 
         self._make_device_buttons()
         self.canvas.yview_moveto(0)
-        _update_control_styles(self.showtime_tab_instance.controls_frame)
+        self.showtime_tab_instance.controls_frame._update_control_styles()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def on_device_selected(self, device_info):
@@ -336,7 +338,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             if self.active_device_button and self.active_device_button.winfo_exists():
                 self.active_device_button.config(style='DeviceButton.Inactive.TButton')
             self.active_device_button = None
-            _update_control_styles(self.showtime_tab_instance.controls_frame)
+            self.showtime_tab_instance.controls_frame._update_control_styles()
             # FIXED: Add tab switch logic for deselection
             if hasattr(self.showtime_tab_instance.controls_frame, 'switch_to_tab'):
                 self.showtime_tab_instance.controls_frame.switch_to_tab("Zone Zoom")
@@ -369,7 +371,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             self.devices_outer_frame.config(text="Devices")
             console_log(f"❌ Device info not found. The device has vanished into thin air!", "ERROR")
 
-        _update_control_styles(self.showtime_tab_instance.controls_frame)
+        self.showtime_tab_instance.controls_frame._update_control_styles()
         debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
     def _get_all_devices_in_zone(self, structured_data, zone_name):

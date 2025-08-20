@@ -1,0 +1,1516 @@
+# └── OPEN-AIR/
+#├── DATA/
+#├── display/
+#├── orchestrator/
+#├── process_math/
+#├── ref/
+#├── scan_data/
+#├── src/
+#├── tabs/
+#├── utils/
+#├── yak/
+#├── .gitattributes (Lines: 2)
+#├── .gitignore (Lines: 6)
+#├── README.md (Lines: 133)
+#└── main_app.py (Lines: 214)
+#        |   -> Import: datetime
+#        |   -> Import: display.console_logic
+#        |   -> Import: display.debug_logic
+#        |   -> Import: inspect
+#        |   -> Import: orchestrator.orchestrator_logic
+#        |   -> Import: os
+#        |   -> Import: ref.frequency_bands
+#        |   -> Import: src.gui_elements
+#        |   -> Import: src.program_check_Dependancies
+#        |   -> Import: src.program_default_values
+#        |   -> Import: src.program_gui_utils
+#        |   -> Import: src.program_initialization
+#        |   -> Import: src.program_shared_values
+#        |   -> Import: src.program_style
+#        |   -> Import: src.settings_and_config.config_manager
+#        |   -> Import: sys
+#        |   -> Import: tkinter
+#        |   -> Class: App
+#        |   -> Function: __init__(self)
+#        |   -> Function: _on_app_resize_or_move(self, event)
+#        |   -> Function: _on_closing(self)
+#        |   -> Function: _post_gui_setup(self)
+#        |   -> Function: _save_config_on_idle(self, message)
+#        |   -> Function: _set_console_redirectors(self)
+#        |   -> Function: get_tab_instance(self, parent_tab_name, child_tab_name)
+#└── DATA/
+#    ├── SCANS/
+#    ├── BTR800 - Open_Air_Markers - DefaultScan - 20250819_0021.csv (Lines: 3)
+#    ├── DEBUG_SOFTWARE.log (Lines: 18431)
+#    ├── MARKERS.CSV (Lines: 254)
+#    ├── PRESETS.CSV (Lines: 1)
+#    ├── config.ini (Lines: 101)
+#    └── visa_commands.csv (Lines: 270)
+#    └── SCANS/
+#        ├── MyScan_3D_Scans_Over_Time_20250819_111459.html (Lines: 3885)
+#        └── MyScan_3D_Scans_Over_Time_20250819_141201.html (Lines: 3885)
+#└── display/
+#    ├── DISPLAY_PARENT.py (Lines: 137)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: display.display_child_application_console
+#            |   -> Import: display.display_child_debug
+#            |   -> Import: display.display_child_scan_monitor
+#            |   -> Import: display.display_child_scan_view
+#            |   -> Import: inspect
+#            |   -> Import: orchestrator.display_child_orchestrator_tasks
+#            |   -> Import: orchestrator.orchestrator_gui
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Class: BottomPane
+#            |   -> Class: TAB_DISPLAY_PARENT
+#            |   -> Class: TopPane
+#            |   -> Function: __init__(self, parent, app_instance)
+#            |   -> Function: __init__(self, parent, app_instance, orchestrator_logic)
+#            |   -> Function: __init__(self, parent, app_instance, orchestrator_logic)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: _on_child_tab_selected(self, event)
+#            |   -> Function: change_display_tab(self, new_tab_name)
+#            |   -> Function: change_display_tab(self, new_tab_name)
+#    ├── __init__.py (Lines: 24)
+#    ├── console_logic.py (Lines: 160)
+#            |   -> Import: datetime
+#            |   -> Import: inspect
+#            |   -> Import: re
+#            |   -> Import: sys
+#            |   -> Import: tkinter
+#            |   -> Function: _truncate_message(message, max_items)
+#            |   -> Function: clear_console()
+#            |   -> Function: console_log(message, function)
+#            |   -> Function: set_clear_console_func(clear_func)
+#            |   -> Function: set_debug_file_hooks(include_flag_callable, write_func)
+#            |   -> Function: set_gui_console_redirector(stdout_redirector, stderr_redirector)
+#            |   -> Function: set_log_truncation_mode_ref(mode_callable)
+#    ├── debug_logic.py (Lines: 243)
+#            |   -> Import: datetime
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: re
+#            |   -> Import: sys
+#            |   -> Function: _truncate_message(message, max_items)
+#            |   -> Function: _write_to_debug_file(message)
+#            |   -> Function: _write_to_visa_file(message)
+#            |   -> Function: clear_debug_log_file(file_path)
+#            |   -> Function: debug_log(message, file, version, function, special)
+#            |   -> Function: log_visa_command(command, direction)
+#            |   -> Function: set_console_log_func(func)
+#            |   -> Function: set_debug_mode(mode)
+#            |   -> Function: set_debug_redirectors(stdout_redirector, stderr_redirector)
+#            |   -> Function: set_debug_to_file_mode(mode)
+#            |   -> Function: set_include_console_messages_to_debug_file_mode(mode)
+#            |   -> Function: set_include_visa_messages_to_debug_file_mode(mode)
+#            |   -> Function: set_log_truncation_mode(mode)
+#            |   -> Function: set_log_visa_commands_mode(mode)
+#    ├── display_child_application_console.py (Lines: 181)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: src.gui_elements
+#            |   -> Import: tkinter
+#            |   -> Class: ConsoleTab
+#            |   -> Function: __init__(self, master, app_instance)
+#            |   -> Function: _clear_applications_console_action(self)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: _on_tab_selected(self, event)
+#    ├── display_child_debug.py (Lines: 439)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: src.settings_and_config.config_manager
+#            |   -> Import: subprocess
+#            |   -> Import: sys
+#            |   -> Import: threading
+#            |   -> Import: time
+#            |   -> Import: tkinter
+#            |   -> Class: DebugTab
+#            |   -> Function: __init__(self, master, app_instance)
+#            |   -> Function: _check_log_files(self)
+#            |   -> Function: _clear_debug_log_file_action(self)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: _on_tab_selected(self, event)
+#            |   -> Function: _open_data_folder_action(self)
+#            |   -> Function: _read_and_display_log(self, text_widget, file_path, start_pos)
+#            |   -> Function: _toggle_debug_mode(self)
+#            |   -> Function: _toggle_debug_to_file_mode(self)
+#            |   -> Function: _toggle_include_console_messages_to_debug_file_mode(self)
+#            |   -> Function: _toggle_include_visa_messages_to_debug_file_mode(self)
+#            |   -> Function: _toggle_log_truncation_mode(self)
+#            |   -> Function: _toggle_visa_logging_mode(self)
+#    ├── display_child_scan_monitor.py (Lines: 153)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: matplotlib.backends.backend_tkagg
+#            |   -> Import: matplotlib.figure
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Class: ScanMonitorTab
+#            |   -> Function: __init__(self, master, app_instance)
+#            |   -> Function: _create_widgets(self)
+#    ├── display_child_scan_view.py (Lines: 102)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: display.utils_scan_view
+#            |   -> Import: inspect
+#            |   -> Import: matplotlib.backends.backend_tkagg
+#            |   -> Import: matplotlib.figure
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: pandas
+#            |   -> Import: tkinter
+#            |   -> Class: ScanViewTab
+#            |   -> Function: __init__(self, master, app_instance)
+#            |   -> Function: _create_widgets(self)
+#    ├── utils_display_monitor.py (Lines: 325)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: matplotlib.offsetbox
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: traceback
+#            |   -> Function: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz)
+#            |   -> Function: _setup_zoom_events(ax, canvas, original_xlim)
+#            |   -> Function: clear_monitor_plots(scan_monitor_tab_instance)
+#            |   -> Function: on_double_click(event)
+#            |   -> Function: on_press(event)
+#            |   -> Function: on_release(event)
+#            |   -> Function: reset_zoom(ax, canvas)
+#            |   -> Function: update_annot(event)
+#            |   -> Function: update_annot(event)
+#            |   -> Function: update_annot(event)
+#            |   -> Function: update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+#            |   -> Function: update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+#            |   -> Function: update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+#    └── utils_scan_view.py (Lines: 182)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: matplotlib.offsetbox
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: traceback
+#            |   -> Function: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz)
+#            |   -> Function: _setup_zoom_events(ax, canvas, original_xlim)
+#            |   -> Function: on_double_click(event)
+#            |   -> Function: on_press(event)
+#            |   -> Function: on_release(event)
+#            |   -> Function: reset_zoom(ax, canvas)
+#            |   -> Function: update_annot(event)
+#            |   -> Function: update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title, line_color)
+#└── orchestrator/
+#    ├── __init__.py (Lines: 60)
+#    ├── display_child_orchestrator_tasks.py (Lines: 122)
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Class: OrchestratorTasksTab
+#            |   -> Function: __init__(self, parent, app_instance)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: log_event(self, source, event)
+#            |   -> Function: update_status_display(self, is_running, is_paused)
+#    ├── orchestrator_gui.py (Lines: 94)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Class: OrchestratorGUI
+#            |   -> Function: __init__(self, parent, app_instance, orchestrator_logic)
+#            |   -> Function: _create_widgets(self)
+#            |   -> Function: update_button_states(self)
+#    └── orchestrator_logic.py (Lines: 98)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Class: OrchestratorLogic
+#            |   -> Function: __init__(self, app_instance, gui)
+#            |   -> Function: get_status(self)
+#            |   -> Function: log_check_in(self, source_file)
+#            |   -> Function: log_task_event(self, source_file, event)
+#            |   -> Function: start_orchestrator(self)
+#            |   -> Function: stop_orchestrator(self)
+#            |   -> Function: toggle_pause(self)
+#└── process_math/
+#    ├── __init__ .py (Lines: 0)
+#            - No functions, classes, or imports found.
+#    ├── averaging_utils.py (Lines: 735)
+#            |   -> Import: csv
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: pandas
+#            |   -> Import: platform
+#            |   -> Import: re
+#            |   -> Import: ref.frequency_bands
+#            |   -> Import: tabs.Plotting.utils_plotting
+#            |   -> Function: _calculate_average(power_levels_df, console_print_func)
+#            |   -> Function: _calculate_median(power_levels_df, console_print_func)
+#            |   -> Function: _calculate_psd(power_levels_df, rbw_values, console_print_func)
+#            |   -> Function: _calculate_range(power_levels_df, console_print_func)
+#            |   -> Function: _calculate_std_dev(power_levels_df, console_print_func)
+#            |   -> Function: _calculate_variance(power_levels_df, console_print_func)
+#            |   -> Function: _create_output_subfolder(base_output_dir, prefix, timestamp_str, console_print_func)
+#            |   -> Function: average_scan(file_paths, selected_avg_types, plot_title_prefix, output_html_path_base, console_print_func)
+#            |   -> Function: generate_multi_file_average_and_plot(file_paths, selected_avg_types, plot_title_prefix, include_tv_markers, include_gov_markers, include_markers, output_html_path_base, open_html_after_complete, console_print_func)
+#    ├── calculate_intermod.py (Lines: 347)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: math
+#            |   -> Import: pandas
+#            |   -> Import: typing
+#            |   -> Function: _get_severity(order_label)
+#            |   -> Function: euclidean_distance(pos1, pos2)
+#            |   -> Function: multi_zone_intermods(zones, in_band_low_freq, in_band_high_freq, export_csv, include_3rd_order, include_5th_order, include_cross_zone_imd, console_print_func)
+#    ├── google_maps_lookup.py (Lines: 173)
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: json
+#            |   -> Import: requests
+#            |   -> Import: time
+#            |   -> Function: get_location_from_google_maps(query, google_maps_api_key, console_print_func)
+#    ├── json_host.py (Lines: 386)
+#            |   -> Import: csv
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: flask
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: sys
+#            |   -> Function: _get_scan_files()
+#            |   -> Function: _read_markers_data()
+#            |   -> Function: _read_scan_data(filename)
+#            |   -> Function: get_markers_data()
+#            |   -> Function: get_scan_data(filename)
+#            |   -> Function: get_scan_in_progress_data()
+#            |   -> Function: index()
+#            |   -> Function: list_scans()
+#    ├── ploting_intermod_zones.py (Lines: 266)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: pandas
+#            |   -> Import: plotly.express
+#            |   -> Import: plotly.graph_objects
+#            |   -> Import: typing
+#            |   -> Function: plot_zones(zones, imd_df, html_filename, color_code_severity, console_print_func)
+#    └── scan_stitch.py (Lines: 248)
+#            |   -> Import: csv
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: pandas
+#            |   -> Import: ref.frequency_bands
+#            |   -> Function: process_and_stitch_scan_data(raw_data, overall_start_freq_hz, overall_stop_freq_hz, console_print_func)
+#            |   -> Function: stitch_and_save_scan_data(raw_scan_data_for_current_sweep, output_folder, scan_name, operator_name, venue_name, equipment_used, notes, postal_code, latitude, longitude, antenna_type, antenna_amplifier, console_print_func)
+#└── ref/
+#    ├── Antenna_type.py (Lines: 63)
+#            |   -> Function: display_antenna_types()
+#    ├── __init__ .py (Lines: 0)
+#            - No functions, classes, or imports found.
+#    ├── antenna_amplifier_type.py (Lines: 63)
+#            |   -> Function: display_antenna_amplifier_types()
+#    ├── default_settings.py (Lines: 76)
+#            |   -> Function: display_default_settings_structure()
+#    ├── frequency_bands.py (Lines: 263)
+#            |   -> Function: display_default_freq_shift_options()
+#            |   -> Function: display_default_ref_level_options()
+#            |   -> Function: display_eu_tv_band_markers()
+#            |   -> Function: display_gov_plot_band_markers()
+#            |   -> Function: display_rbw_options()
+#            |   -> Function: display_scan_band_ranges()
+#            |   -> Function: display_tv_plot_band_markers()
+#            |   -> Function: display_vbw_rbw_ratio_options()
+#    ├── ref_scanner_setting_lists.py (Lines: 539)
+#            - No functions, classes, or imports found.
+#    ├── ref_scanning_setting.py (Lines: 392)
+#            - No functions, classes, or imports found.
+#    └── ref_visa_commands.py (Lines: 411)
+#            |   -> Function: get_default_commands()
+#└── scan_data/
+#└── src/
+#    ├── settings_and_config/
+#    ├── __init__.py (Lines: 0)
+#    ├── connection_status_logic.py (Lines: 78)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Function: update_connection_status_logic(app_instance, is_connected, is_running, console_print_func)
+#    ├── gui_elements.py (Lines: 219)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: sys
+#            |   -> Import: time
+#            |   -> Import: tkinter
+#            |   -> Class: TextRedirector
+#            |   -> Function: __init__(self, widget, tag)
+#            |   -> Function: _print_collaboration_ascii(console_print_func)
+#            |   -> Function: _print_inst_ascii(console_print_func)
+#            |   -> Function: _print_marks_ascii(console_print_func)
+#            |   -> Function: _print_open_air_ascii(console_print_func)
+#            |   -> Function: _print_plot_ascii(console_print_func)
+#            |   -> Function: _print_presets_ascii(console_print_func)
+#            |   -> Function: _print_scan_ascii(console_print_func)
+#            |   -> Function: _print_xxx_ascii(console_print_func)
+#            |   -> Function: display_splash_screen()
+#            |   -> Function: flush(self)
+#            |   -> Function: write(self, text)
+#    ├── program_check_Dependancies.py (Lines: 119)
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: subprocess
+#            |   -> Import: sys
+#            |   -> Function: check_and_install_dependencies(current_app_version)
+#    ├── program_default_values.py (Lines: 146)
+#            |   -> Import: datetime
+#            |   -> Import: os
+#            |   -> Import: ref.frequency_bands
+#    ├── program_gui_utils.py (Lines: 85)
+#            |   -> Import: display.DISPLAY_PARENT
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tabs.TABS_PARENT
+#            |   -> Import: tkinter
+#            |   -> Function: apply_saved_geometry(app_instance)
+#            |   -> Function: create_main_layout_and_widgets(app_instance, orchestrator_logic)
+#    ├── program_initialization.py (Lines: 86)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: src.program_default_values
+#            |   -> Import: src.settings_and_config.config_manager
+#            |   -> Import: src.settings_and_config.restore_settings_logic
+#            |   -> Import: tkinter
+#            |   -> Function: initialize_program_environment(app_instance)
+#    ├── program_shared_values.py (Lines: 121)
+#            |   -> Import: datetime
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: ref.frequency_bands
+#            |   -> Import: src.program_default_values
+#            |   -> Import: tkinter
+#            |   -> Function: setup_tkinter_variables(app_instance)
+#    └── program_style.py (Lines: 357)
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tkinter
+#            |   -> Function: _get_dark_color(hex_color)
+#            |   -> Function: apply_styles(style, debug_log_func, current_app_version)
+#    └── settings_and_config/
+#        ├── __init__.py (Lines: 0)
+#        ├── config_manager.py (Lines: 306)
+#                |   -> Import: configparser
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: src.program_default_values
+#                |   -> Function: load_config(file_path, console_print_func)
+#                |   -> Function: save_config(config, file_path, console_print_func, app_instance)
+#                |   -> Function: save_config_as_new_file(app_instance, new_file_path)
+#        └── restore_settings_logic.py (Lines: 265)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: src.program_default_values
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: tkinter
+#                |   -> Function: restore_default_settings_logic(app_instance, console_print_func)
+#                |   -> Function: restore_last_used_settings_logic(app_instance, console_print_func)
+#└── tabs/
+#    ├── Experiments/
+#    ├── Instrument/
+#    ├── Markers/
+#    ├── Plotting/
+#    ├── Presets/
+#    ├── Scanning/
+#    ├── TABS_PARENT.py (Lines: 134)
+#            |   -> Import: datetime
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: functools
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: tabs.Experiments.TAB_EXPERIMENTS_PARENT
+#            |   -> Import: tabs.Instrument.TAB_INSTRUMENT_PARENT
+#            |   -> Import: tabs.Markers.TAB_MARKERS_PARENT
+#            |   -> Import: tabs.Plotting.TAB_PLOTTING_PARENT
+#            |   -> Import: tabs.Presets.TAB_PRESETS_PARENT
+#            |   -> Import: tabs.Scanning.TAB_SCANNING_PARENT
+#            |   -> Import: tkinter
+#            |   -> Class: TABS_PARENT
+#            |   -> Function: __init__(self, parent, app_instance)
+#            |   -> Function: switch_tab(self, new_tab_name)
+#    └── __init__.py (Lines: 60)
+#    └── Experiments/
+#        ├── TAB_EXPERIMENTS_PARENT.py (Lines: 96)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Experiments.tab_experiments_child_JSON_api
+#                |   -> Import: tabs.Experiments.tab_experiments_child_YakBeg
+#                |   -> Import: tabs.Experiments.tab_experiments_child_initial_configuration
+#                |   -> Import: tabs.Experiments.tab_experiments_child_intermod
+#                |   -> Import: tabs.Experiments.tab_experiments_colouring
+#                |   -> Import: tkinter
+#                |   -> Class: TAB_EXPERIMENTS_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#        ├── __init__.py (Lines: 24)
+#        ├── tab_experiments_child_JSON_api.py (Lines: 489)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: requests
+#                |   -> Import: subprocess
+#                |   -> Import: sys
+#                |   -> Import: threading
+#                |   -> Import: time
+#                |   -> Import: tkinter
+#                |   -> Import: webbrowser
+#                |   -> Class: JsonApiTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _open_all_api_scans(self)
+#                |   -> Function: _open_api_scan_data(self, filename)
+#                |   -> Function: _open_latest_api_scan(self)
+#                |   -> Function: _open_markers_api(self)
+#                |   -> Function: _open_scan_in_progress_api(self)
+#                |   -> Function: _run_json_api_thread_target(self)
+#                |   -> Function: _start_json_api(self)
+#                |   -> Function: _stop_json_api(self)
+#                |   -> Function: _update_api_button_states(self)
+#                |   -> Function: fetch_and_display()
+#        ├── tab_experiments_child_YakBeg.py (Lines: 343)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: tkinter
+#                |   -> Import: yak.utils_yakbeg_handler
+#                |   -> Class: YakBegTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_freq_center_span_beg(self)
+#                |   -> Function: _on_freq_start_stop_beg(self)
+#                |   -> Function: _on_marker_place_all_beg(self)
+#                |   -> Function: _on_push_to_monitor(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_trace_data_beg(self)
+#                |   -> Function: _on_trace_modes_beg(self)
+#        ├── tab_experiments_child_initial_configuration.py (Lines: 438)
+#                |   -> Import: configparser
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: src.settings_and_config.restore_settings_logic
+#                |   -> Import: tkinter
+#                |   -> Class: InitialConfigurationTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _end_edit(self)
+#                |   -> Function: _load_default_config(self)
+#                |   -> Function: _load_previous_config(self)
+#                |   -> Function: _navigate_and_edit(self, current_item_id, current_col_id, direction)
+#                |   -> Function: _on_double_click_edit(self, event)
+#                |   -> Function: _on_edit_escape(self, event)
+#                |   -> Function: _on_edit_return(self, event)
+#                |   -> Function: _on_focus_out(self, event)
+#                |   -> Function: _on_focus_out_editor(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _populate_config_table(self)
+#                |   -> Function: _push_edits_to_file(self)
+#                |   -> Function: _save_current_config_as_new_file(self)
+#                |   -> Function: _save_edit(self, item_id, column_id, new_value)
+#                |   -> Function: _save_running_config(self)
+#                |   -> Function: _start_edit(self, item_id, column_id)
+#                |   -> Function: _update_tkinter_var_from_config(self, section_name, key, new_value_str)
+#        ├── tab_experiments_child_intermod.py (Lines: 680)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: process_math.calculate_intermod
+#                |   -> Import: process_math.ploting_intermod_zones
+#                |   -> Import: random
+#                |   -> Import: subprocess
+#                |   -> Import: sys
+#                |   -> Import: tkinter
+#                |   -> Import: tkinter.font
+#                |   -> Import: typing
+#                |   -> Class: InterModTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _browse_markers_file(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _display_imd_results(self, df)
+#                |   -> Function: _load_intermod_csv(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_treeview_header_click(self, event)
+#                |   -> Function: _open_intermod_csv(self)
+#                |   -> Function: _open_intermod_map(self)
+#                |   -> Function: _parse_markers_csv(self, csv_path)
+#                |   -> Function: _plot_imd_results(self)
+#                |   -> Function: _process_imd(self)
+#                |   -> Function: _sort_treeview(self, col_name, order)
+#        └── tab_experiments_colouring.py (Lines: 305)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: re
+#                |   -> Import: src.program_style
+#                |   -> Import: tkinter
+#                |   -> Class: ColouringTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _add_color_display_row(self, parent_frame, text, hex_color, row_idx, indent)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_mousewheel(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _populate_content(self)
+#    └── Instrument/
+#        ├── TAB_INSTRUMENT_PARENT.py (Lines: 99)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Instrument.tab_instrument_child_connection
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings
+#                |   -> Import: tabs.Instrument.tab_instrument_child_visa_interpreter
+#                |   -> Import: tkinter
+#                |   -> Class: TAB_INSTRUMENT_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#                |   -> Function: switch_to_settings_tab(self)
+#        ├── __init__.py (Lines: 0)
+#        ├── instrument_logic.py (Lines: 230)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pyvisa
+#                |   -> Import: sys
+#                |   -> Import: tabs.Instrument.utils_instrument_connection
+#                |   -> Import: time
+#                |   -> Import: tkinter
+#                |   -> Import: traceback
+#                |   -> Import: yak.Yakety_Yak
+#                |   -> Function: connect_instrument_logic(app_instance, console_print_func)
+#                |   -> Function: disconnect_instrument_logic(app_instance, console_print_func)
+#                |   -> Function: populate_resources_logic(app_instance, combobox_widget, console_print_func)
+#                |   -> Function: query_current_settings_logic(app_instance, console_print_func)
+#        ├── tab_instrument_child_connection.py (Lines: 221)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Import: threading
+#                |   -> Import: time
+#                |   -> Import: tkinter
+#                |   -> Import: yak.utils_yak_setting_handler
+#                |   -> Class: InstrumentTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, parent_notebook_ref)
+#                |   -> Function: _connect_instrument(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _disconnect_instrument(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _populate_resources(self)
+#                |   -> Function: _power_cycle_instrument(self)
+#                |   -> Function: _reset_instrument(self)
+#                |   -> Function: _toggle_connection(self)
+#                |   -> Function: _update_connection_status(self)
+#        ├── tab_instrument_child_settings.py (Lines: 120)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: src.program_style
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings_amplitude
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings_bandwidth
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings_frequency
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings_markers
+#                |   -> Import: tabs.Instrument.tab_instrument_child_settings_traces
+#                |   -> Import: tkinter
+#                |   -> Class: SettingsParentTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: refresh_all_child_tabs(self)
+#        ├── tab_instrument_child_settings_amplitude.py (Lines: 305)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: ref.ref_scanner_setting_lists
+#                |   -> Import: tkinter
+#                |   -> Import: yak
+#                |   -> Import: yak.Yakety_Yak
+#                |   -> Class: AmplitudeSettingsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _find_closest_preset_value(self, value, preset_list)
+#                |   -> Function: _on_power_attenuation_change(self, event)
+#                |   -> Function: _on_ref_level_change(self, event)
+#                |   -> Function: _on_resize(self, event)
+#                |   -> Function: _set_ui_initial_state(self)
+#                |   -> Function: _update_descriptions(self, value, preset_list, label, var)
+#                |   -> Function: _update_power_attenuation_display(self, value)
+#                |   -> Function: _update_ref_level_display(self, value)
+#                |   -> Function: _update_toggle_button_style(self, button, state)
+#        ├── tab_instrument_child_settings_bandwidth.py (Lines: 491)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: re
+#                |   -> Import: ref.ref_scanner_setting_lists
+#                |   -> Import: tkinter
+#                |   -> Import: yak
+#                |   -> Import: yak.utils_yaknab_handler
+#                |   -> Class: BandwidthSettingsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_averaging_count_selected(self, event, trace_number)
+#                |   -> Function: _on_averaging_toggle(self, trace_number, state)
+#                |   -> Function: _on_continuous_mode_change(self, event)
+#                |   -> Function: _on_rbw_selected(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_vbw_auto_toggle(self)
+#                |   -> Function: _on_vbw_selected(self, event)
+#                |   -> Function: _sync_ui_from_app_state(self)
+#                |   -> Function: _update_rbw_combobox_display(self)
+#                |   -> Function: _update_toggle_button_style(self, button, state)
+#                |   -> Function: _update_vbw_combobox_display(self)
+#        ├── tab_instrument_child_settings_frequency.py (Lines: 451)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: ref.ref_scanner_setting_lists
+#                |   -> Import: tkinter
+#                |   -> Import: yak.utils_yakbeg_handler
+#                |   -> Class: FrequencySettingsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _create_span_preset_buttons(self, parent_frame)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_freq_center_span_beg(self)
+#                |   -> Function: _on_freq_start_stop_beg(self)
+#                |   -> Function: _on_span_preset_button_click(self, preset)
+#                |   -> Function: _on_span_variable_change(self)
+#                |   -> Function: _round_variables(self)
+#                |   -> Function: _set_default_variables(self)
+#                |   -> Function: _update_span_button_styles(self)
+#                |   -> Function: truncate_float(f)
+#        ├── tab_instrument_child_settings_markers.py (Lines: 167)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tkinter
+#                |   -> Import: yak.utils_yakbeg_handler
+#                |   -> Class: MarkerSettingsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_marker_place_all_beg(self)
+#                |   -> Function: _set_default_variables(self)
+#        ├── tab_instrument_child_settings_traces.py (Lines: 448)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: display.utils_display_monitor
+#                |   -> Import: display.utils_scan_view
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: tkinter
+#                |   -> Import: yak.utils_yakbeg_handler
+#                |   -> Import: yak.utils_yaknab_handler
+#                |   -> Class: TraceSettingsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_all_traces_nab(self)
+#                |   -> Function: _on_push_to_monitor(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_trace_data_beg(self)
+#                |   -> Function: _on_trace_modes_beg(self)
+#                |   -> Function: _plot_all_traces_to_monitor(self)
+#        ├── tab_instrument_child_visa_interpreter.py (Lines: 632)
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: ref.ref_visa_commands
+#                |   -> Import: time
+#                |   -> Import: tkinter
+#                |   -> Import: yak.Yakety_Yak
+#                |   -> Class: VisaInterpreterTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _add_row(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _delete_row(self)
+#                |   -> Function: _ensure_data_file_exists(self)
+#                |   -> Function: _load_data(self)
+#                |   -> Function: _on_double_click_edit(self, event)
+#                |   -> Function: _on_enter_edit(self, event)
+#                |   -> Function: _on_escape_edit(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _populate_treeview(self)
+#                |   -> Function: _resize_columns_to_fit_content(self)
+#                |   -> Function: _save_and_destroy_editor(self)
+#                |   -> Function: _save_data(self, commands_to_save)
+#                |   -> Function: _sort_treeview_column(self, tv, col)
+#                |   -> Function: _validate_all_rows(self)
+#                |   -> Function: _yak_button_action(self)
+#                |   -> Function: numeric_sort_key(x)
+#        └── utils_instrument_connection.py (Lines: 194)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pyvisa
+#                |   -> Function: connect_to_instrument(resource_name, console_print_func)
+#                |   -> Function: disconnect_instrument(inst, console_print_func)
+#                |   -> Function: list_visa_resources(console_print_func)
+#    └── Markers/
+#        ├── files/
+#        ├── showtime/
+#        ├── TAB_MARKERS_PARENT.py (Lines: 88)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Markers.files.tab_markers_child_import_and_edit
+#                |   -> Import: tabs.Markers.showtime.tab_markers_parent_showtime
+#                |   -> Import: tkinter
+#                |   -> Import: typing
+#                |   -> Class: TAB_MARKERS_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#        └── __init__.py (Lines: 24)
+#        └── files/
+#            ├── tab_markers_child_import_and_edit.py (Lines: 847)
+#                    |   -> Import: csv
+#                    |   -> Import: datetime
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: json
+#                    |   -> Import: os
+#                    |   -> Import: re
+#                    |   -> Import: src.gui_elements
+#                    |   -> Import: sys
+#                    |   -> Import: tabs.Markers.files.utils_marker_report_converter
+#                    |   -> Import: threading
+#                    |   -> Import: tkinter
+#                    |   -> Import: xml.etree.ElementTree
+#                    |   -> Class: ReportConverterTab
+#                    |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                    |   -> Function: _create_widgets(self)
+#                    |   -> Function: _disable_buttons(self)
+#                    |   -> Function: _enable_buttons(self)
+#                    |   -> Function: _increment_string_with_trailing_digits(self, text)
+#                    |   -> Function: _initiate_conversion(self, file_type)
+#                    |   -> Function: _load_markers_file(self)
+#                    |   -> Function: _navigate_cells(self, current_item, current_col_index, direction)
+#                    |   -> Function: _on_tab_selected(self, event)
+#                    |   -> Function: _on_tree_double_click(self, event)
+#                    |   -> Function: _on_tree_header_click(self, event)
+#                    |   -> Function: _perform_conversion(self, file_path, file_type)
+#                    |   -> Function: _populate_marker_tree(self)
+#                    |   -> Function: _save_markers_file_internally(self)
+#                    |   -> Function: _save_open_air_csv(self)
+#                    |   -> Function: _sort_treeview(self, column_name, ascending)
+#                    |   -> Function: _start_editing_cell(self, item, col_index, initial_value)
+#                    |   -> Function: _update_markers_display_tab_data(self)
+#                    |   -> Function: get_sort_key(item)
+#                    |   -> Function: on_edit_complete_and_navigate(event, navigate_direction)
+#            ├── utils_file_markers_handling.py (Lines: 141)
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: numpy
+#                    |   -> Import: os
+#                    |   -> Import: pandas
+#                    |   -> Function: _group_by_zone_and_group(data)
+#                    |   -> Function: load_and_process_markers(app_instance, console_print_func)
+#                    |   -> Function: load_markers_data(app_instance, console_print_func)
+#            └── utils_marker_report_converter.py (Lines: 462)
+#                    |   -> Import: bs4
+#                    |   -> Import: csv
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: numpy
+#                    |   -> Import: os
+#                    |   -> Import: pdfplumber
+#                    |   -> Import: re
+#                    |   -> Import: subprocess
+#                    |   -> Import: sys
+#                    |   -> Import: xml.etree.ElementTree
+#                    |   -> Function: convert_html_report_to_csv(html_content, console_print_func)
+#                    |   -> Function: convert_pdf_report_to_csv(pdf_file_path, console_print_func)
+#                    |   -> Function: generate_csv_from_shw(xml_file_path, console_print_func)
+#        └── showtime/
+#            ├── controls/
+#            ├── tab_markers_child_zone_groups_devices.py (Lines: 387)
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: functools
+#                    |   -> Import: inspect
+#                    |   -> Import: math
+#                    |   -> Import: os
+#                    |   -> Import: pandas
+#                    |   -> Import: src.program_style
+#                    |   -> Import: tabs.Markers.showtime.controls.utils_showtime_bottom_controls
+#                    |   -> Import: tabs.Markers.showtime.utils_button_volume_level
+#                    |   -> Import: tabs.Markers.showtime.utils_files_markers_zone_groups_devices
+#                    |   -> Import: tkinter
+#                    |   -> Class: ZoneGroupsDevicesFrame
+#                    |   -> Function: __init__(self, parent, app_instance, showtime_tab_instance)
+#                    |   -> Function: _create_device_frame(self, parent)
+#                    |   -> Function: _create_layout(self)
+#                    |   -> Function: _get_all_devices_in_zone(self, structured_data, zone_name)
+#                    |   -> Function: _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix)
+#                    |   -> Function: _make_device_buttons(self)
+#                    |   -> Function: _make_group_buttons(self)
+#                    |   -> Function: _make_zone_buttons(self)
+#                    |   -> Function: load_and_display_data(self)
+#                    |   -> Function: on_device_selected(self, device_info)
+#                    |   -> Function: on_group_selected(self, group_name)
+#                    |   -> Function: on_zone_selected(self, zone_name)
+#            ├── tab_markers_parent_showtime.py (Lines: 89)
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: os
+#                    |   -> Import: tabs.Markers.showtime.controls.tab_markers_child_bottom_controls
+#                    |   -> Import: tabs.Markers.showtime.controls.utils_showtime_bottom_controls
+#                    |   -> Import: tabs.Markers.showtime.tab_markers_child_zone_groups_devices
+#                    |   -> Import: tkinter
+#                    |   -> Class: ShowtimeTab
+#                    |   -> Function: __init__(self, parent, app_instance)
+#                    |   -> Function: _create_widgets(self)
+#                    |   -> Function: _on_tab_selected(self, event)
+#            ├── utils_button_volume_level.py (Lines: 61)
+#                    |   -> Import: inspect
+#                    |   -> Import: os
+#                    |   -> Function: create_signal_level_indicator(value, min_val, max_val, width)
+#                    |   -> Function: debug_log(message, file, version, function)
+#            └── utils_files_markers_zone_groups_devices.py (Lines: 100)
+#                    |   -> Import: display.console_logic
+#                    |   -> Import: display.debug_logic
+#                    |   -> Import: inspect
+#                    |   -> Import: numpy
+#                    |   -> Import: os
+#                    |   -> Import: pandas
+#                    |   -> Import: src.program_default_values
+#                    |   -> Function: load_and_structure_markers_data()
+#            └── controls/
+#                ├── tab_markers_child_bottom_controls.py (Lines: 378)
+#                        |   -> Import: datetime
+#                        |   -> Import: display.console_logic
+#                        |   -> Import: display.debug_logic
+#                        |   -> Import: inspect
+#                        |   -> Import: os
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_bottom_controls
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_span_rbw
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_trace
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_zone_zoom
+#                        |   -> Import: tkinter
+#                        |   -> Class: ControlsFrame
+#                        |   -> Function: __init__(self, parent, app_instance)
+#                        |   -> Function: _create_controls_notebook(self)
+#                        |   -> Function: _execute_selected_trace_action(self)
+#                        |   -> Function: _get_zgd_frame(self)
+#                        |   -> Function: _on_set_span_to_all_markers_click(self)
+#                        |   -> Function: _on_set_span_to_device_click(self)
+#                        |   -> Function: _on_set_span_to_group_click(self)
+#                        |   -> Function: _on_set_span_to_zone_click(self)
+#                        |   -> Function: _toggle_trace_button(self, button_type)
+#                        |   -> Function: _update_button_styles(self)
+#                        |   -> Function: console_print_func(self, message, level)
+#                        |   -> Function: switch_to_tab(self, tab_name)
+#                ├── utils_showtime_bottom_controls.py (Lines: 132)
+#                        |   -> Import: display.console_logic
+#                        |   -> Import: display.debug_logic
+#                        |   -> Import: inspect
+#                        |   -> Import: os
+#                        |   -> Import: pandas
+#                        |   -> Import: ref.frequency_bands
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_span_rbw
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_trace
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_zone_zoom
+#                        |   -> Import: yak.Yakety_Yak
+#                        |   -> Import: yak.utils_yakbeg_handler
+#                        |   -> Function: _update_control_styles(controls_frame)
+#                        |   -> Function: on_poke_action(controls_frame)
+#                        |   -> Function: sync_trace_modes(controls_frame)
+#                ├── utils_showtime_span_rbw.py (Lines: 95)
+#                        |   -> Import: display.console_logic
+#                        |   -> Import: display.debug_logic
+#                        |   -> Import: inspect
+#                        |   -> Import: os
+#                        |   -> Import: ref.frequency_bands
+#                        |   -> Import: tabs.Markers.showtime.controls.utils_showtime_bottom_controls
+#                        |   -> Import: yak.Yakety_Yak
+#                        |   -> Function: format_hz(hz_value)
+#                        |   -> Function: on_rbw_button_click(controls_frame, rbw_hz)
+#                        |   -> Function: on_span_button_click(controls_frame, span_hz)
+#                        |   -> Function: set_rbw_logic(app_instance, rbw_hz, console_print_func)
+#                        |   -> Function: set_span_logic(app_instance, span_hz, console_print_func)
+#                ├── utils_showtime_trace.py (Lines: 185)
+#                        |   -> Import: display.console_logic
+#                        |   -> Import: display.debug_logic
+#                        |   -> Import: display.utils_display_monitor
+#                        |   -> Import: display.utils_scan_view
+#                        |   -> Import: inspect
+#                        |   -> Import: os
+#                        |   -> Import: pandas
+#                        |   -> Import: ref.frequency_bands
+#                        |   -> Import: tkinter
+#                        |   -> Import: yak.utils_yakbeg_handler
+#                        |   -> Import: yak.utils_yaknab_handler
+#                        |   -> Function: _fetch_and_plot_trace(controls_frame, trace_number, plot_type)
+#                        |   -> Function: _get_all_traces(controls_frame)
+#                        |   -> Function: _get_current_view_details(controls_frame)
+#                        |   -> Function: execute_trace_action(controls_frame)
+#                        |   -> Function: on_get_live_trace_click(controls_frame)
+#                        |   -> Function: on_get_max_trace_click(controls_frame)
+#                └── utils_showtime_zone_zoom.py (Lines: 110)
+#                        |   -> Import: display.console_logic
+#                        |   -> Import: display.debug_logic
+#                        |   -> Import: inspect
+#                        |   -> Import: os
+#                        |   -> Import: ref.frequency_bands
+#                        |   -> Import: yak.utils_yakbeg_handler
+#                        |   -> Function: format_hz(hz_value)
+#                        |   -> Function: set_span_to_all_markers(self, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz)
+#                        |   -> Function: set_span_to_device(self, DeviceName, CenterFreq)
+#                        |   -> Function: set_span_to_group(self, GroupName, NumberOfMarkers, StartFreq, StopFreq, buffer_mhz)
+#                        |   -> Function: set_span_to_zone(self, ZoneName, NumberOfMarkers, StartFreq, StopFreq, selected, buffer_mhz)
+#    └── Plotting/
+#        ├── TAB_PLOTTING_PARENT.py (Lines: 72)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: tabs.Plotting.tab_plotting_child_3D
+#                |   -> Import: tabs.Plotting.tab_plotting_child_Single
+#                |   -> Import: tabs.Plotting.tab_plotting_child_average
+#                |   -> Import: tkinter
+#                |   -> Class: TAB_PLOTTING_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#        ├── __init__.py (Lines: 24)
+#        ├── tab_plotting_child_3D.py (Lines: 540)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: glob
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: platform
+#                |   -> Import: re
+#                |   -> Import: tabs.Plotting.utils_plotting_scans_over_time
+#                |   -> Import: tkinter
+#                |   -> Import: webbrowser
+#                |   -> Class: Plotting3DTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _clear_dynamic_3d_buttons(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _find_and_group_csv_files_3d(self, folder_path)
+#                |   -> Function: _generate_plot_scans_over_time(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _open_folder_for_3d_plotting(self)
+#                |   -> Function: _select_group_for_3d_plotting(self, prefix)
+#        ├── tab_plotting_child_Single.py (Lines: 670)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: tabs.Plotting.utils_plotting
+#                |   -> Import: tkinter
+#                |   -> Import: webbrowser
+#                |   -> Class: PlottingTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _local_calculate_average(df)
+#                |   -> Function: _local_calculate_median(df)
+#                |   -> Function: _local_calculate_psd(df, rbw_values_list)
+#                |   -> Function: _local_calculate_range(df)
+#                |   -> Function: _local_calculate_std_dev(df)
+#                |   -> Function: _local_calculate_variance(df)
+#                |   -> Function: _on_create_html_checkbox_changed(self)
+#                |   -> Function: _on_scan_marker_checkbox_changed(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _open_last_plot(self)
+#                |   -> Function: _plot_current_cycle_average(self)
+#                |   -> Function: _plot_single_scan(self)
+#        ├── tab_plotting_child_average.py (Lines: 1067)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: glob
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: platform
+#                |   -> Import: process_math.averaging_utils
+#                |   -> Import: re
+#                |   -> Import: subprocess
+#                |   -> Import: tabs.Plotting.utils_plotting
+#                |   -> Import: tkinter
+#                |   -> Import: webbrowser
+#                |   -> Class: AveragingTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _clear_dynamic_buttons(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _find_and_group_csv_files(self, folder_path)
+#                |   -> Function: _generate_csv_selected_series(self)
+#                |   -> Function: _generate_multi_average_plot(self, include_scans)
+#                |   -> Function: _on_avg_type_checkbox_changed(self)
+#                |   -> Function: _on_multi_file_marker_checkbox_changed(self)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _open_applied_math_folder(self)
+#                |   -> Function: _open_folder_for_averaging(self)
+#                |   -> Function: _select_group_for_plotting(self, prefix)
+#        ├── utils_plotting.py (Lines: 675)
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: plotly.express
+#                |   -> Import: plotly.graph_objects
+#                |   -> Import: re
+#                |   -> Import: webbrowser
+#                |   -> Function: _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, MHZ_TO_HZ, console_print_func)
+#                |   -> Function: _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_print_func)
+#                |   -> Function: _add_markers_from_csv(fig, markers_csv_path, MHZ_TO_HZ, console_print_func)
+#                |   -> Function: _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE)
+#                |   -> Function: _open_plot_in_browser(html_file_path, console_print_func)
+#                |   -> Function: plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, historical_dfs_with_names, individual_scan_dfs_with_names, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE)
+#                |   -> Function: plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE)
+#        └── utils_plotting_scans_over_time.py (Lines: 303)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: plotly.colors
+#                |   -> Import: plotly.graph_objects
+#                |   -> Import: re
+#                |   -> Import: ref.frequency_bands
+#                |   -> Import: webbrowser
+#                |   -> Function: plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder, amplitude_threshold_dbm, console_print_func)
+#    └── Presets/
+#        ├── TAB_PRESETS_PARENT.py (Lines: 70)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Presets.tab_presets_child_device
+#                |   -> Import: tabs.Presets.tab_presets_child_local
+#                |   -> Import: tabs.Presets.tab_presets_child_preset_editor
+#                |   -> Import: tkinter
+#                |   -> Class: TAB_PRESETS_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#        ├── __init__.py (Lines: 24)
+#        ├── tab_presets_child_device.py (Lines: 470)
+#                |   -> Import: csv
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: src.program_style
+#                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Import: tabs.Presets.utils_preset_csv_process
+#                |   -> Import: tabs.Presets.utils_push_preset
+#                |   -> Import: tkinter
+#                |   -> Class: DevicePresetsTab
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func, style_obj)
+#                |   -> Function: __load_selected_preset_logic(self, selected_preset_name, is_device_preset, preset_data_dict)
+#                |   -> Function: _handle_connection_status_change_event(self, event)
+#                |   -> Function: _load_selected_device_preset(self)
+#                |   -> Function: _on_connection_status_changed(self, is_connected, instrument_model)
+#                |   -> Function: _on_device_preset_select(self, event)
+#                |   -> Function: _populate_device_preset_listboxes(self, presets)
+#                |   -> Function: _query_and_populate_device_presets(self)
+#                |   -> Function: bind_events(self)
+#                |   -> Function: create_widgets(self)
+#                |   -> Function: save_current_settings_as_user_preset(self)
+#                |   -> Function: setup_layout(self)
+#        ├── tab_presets_child_local.py (Lines: 645)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: src.program_style
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: tabs.Presets.utils_preset_csv_process
+#                |   -> Import: tabs.Presets.utils_push_preset
+#                |   -> Import: tkinter
+#                |   -> Class: LocalPresetsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _on_mousewheel(self, event)
+#                |   -> Function: _on_preset_button_click(self, preset_data, clicked_button)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _update_gui_from_preset_data(self, preset_data)
+#                |   -> Function: get_and_set_app_var(preset_key, app_attr_name, conversion_func, scale_factor)
+#                |   -> Function: get_and_set_bool_app_var(preset_key, app_attr_name)
+#                |   -> Function: populate_local_presets_list(self)
+#                |   -> Function: set_display_var(tk_var, key, format_str, conversion_func, default_val)
+#        ├── tab_presets_child_preset_editor.py (Lines: 356)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: src.program_style
+#                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Import: tabs.Presets.utils_presets_editor
+#                |   -> Import: tkinter
+#                |   -> Class: PresetEditorTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _add_current_settings(self)
+#                |   -> Function: _add_new_empty_row(self)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _delete_selected_preset(self)
+#                |   -> Function: _end_edit(self, event)
+#                |   -> Function: _export_presets(self)
+#                |   -> Function: _import_presets(self)
+#                |   -> Function: _move_preset_down(self)
+#                |   -> Function: _move_preset_up(self)
+#                |   -> Function: _on_double_click(self, event)
+#                |   -> Function: _on_edit_escape(self, event)
+#                |   -> Function: _on_edit_return(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _on_tree_select(self, event)
+#                |   -> Function: _on_window_focus_in(self, event)
+#                |   -> Function: _save_presets_to_csv(self)
+#                |   -> Function: _start_edit(self, item_id, col_index)
+#                |   -> Function: populate_presets_table(self)
+#        ├── utils_preset_csv_process.py (Lines: 269)
+#                |   -> Import: csv
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Function: get_presets_csv_path(config_file_path, console_print_func)
+#                |   -> Function: load_user_presets_from_csv(config_file_path, console_print_func)
+#                |   -> Function: overwrite_user_presets_csv(config_file_path, presets_data, console_print_func, fieldnames)
+#        ├── utils_preset_query_and_load.py (Lines: 297)
+#                |   -> Import: csv
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: pyvisa
+#                |   -> Import: tabs.Instrument.utils_instrument_connection
+#                |   -> Import: tabs.Instrument.utils_instrument_read_and_write
+#                |   -> Import: time
+#                |   -> Function: load_selected_preset_logic(app_instance, selected_preset_name, console_print_func, is_device_preset, preset_data_dict)
+#                |   -> Function: query_current_instrument_settings_for_preset(inst, console_print_func)
+#                |   -> Function: query_device_presets_logic(app_instance, console_print_func)
+#        ├── utils_presets_editor.py (Lines: 266)
+#                |   -> Import: csv
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: shutil
+#                |   -> Import: tabs.Instrument.instrument_logic
+#                |   -> Import: tabs.Presets.utils_preset_csv_process
+#                |   -> Class: PresetEditorLogic
+#                |   -> Function: __init__(self, app_instance, console_print_func, columns)
+#                |   -> Function: add_current_settings(self)
+#                |   -> Function: add_new_empty_row(self)
+#                |   -> Function: delete_presets(self, selected_filenames)
+#                |   -> Function: export_presets(self, file_path)
+#                |   -> Function: import_presets(self, file_path)
+#                |   -> Function: load_presets(self)
+#                |   -> Function: move_preset_down(self, filename)
+#                |   -> Function: move_preset_up(self, filename)
+#                |   -> Function: save_presets(self)
+#                |   -> Function: update_preset_value(self, filename, column_name, new_value)
+#        └── utils_push_preset.py (Lines: 210)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: re
+#                |   -> Import: ref.frequency_bands
+#                |   -> Import: tabs.Instrument.Yakety_Yak
+#                |   -> Function: push_preset_logic(app_instance, console_print_func, preset_data)
+#    └── Scanning/
+#        ├── TAB_SCANNING_PARENT.py (Lines: 125)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: tabs.Scanning.tab_scanning_child_bands
+#                |   -> Import: tabs.Scanning.tab_scanning_child_scan_configuration
+#                |   -> Import: tabs.Scanning.tab_scanning_child_scan_meta_data
+#                |   -> Import: tkinter
+#                |   -> Class: TAB_SCANNING_PARENT
+#                |   -> Function: __init__(self, parent, app_instance, console_print_func)
+#                |   -> Function: _on_child_tab_selected(self, event)
+#                |   -> Function: _on_parent_tab_selected(self, event)
+#        ├── __init__.py (Lines: 24)
+#        ├── tab_scanning_child_bands.py (Lines: 450)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: matplotlib.backends.backend_tkagg
+#                |   -> Import: matplotlib.figure
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: tkinter
+#                |   -> Class: BandsTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _deselect_all_bands(self)
+#                |   -> Function: _on_band_button_toggle(self, band_item)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _populate_band_buttons(self)
+#                |   -> Function: _select_all_bands(self)
+#                |   -> Function: _update_all_band_button_styles(self)
+#                |   -> Function: _update_band_chart(self)
+#                |   -> Function: _update_band_table(self)
+#                |   -> Function: _update_button_style(self, button, level)
+#        ├── tab_scanning_child_scan_configuration.py (Lines: 319)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: ref.ref_scanner_setting_lists
+#                |   -> Import: ref.ref_scanning_setting
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: subprocess
+#                |   -> Import: sys
+#                |   -> Import: tkinter
+#                |   -> Class: ScanTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func)
+#                |   -> Function: _browse_output_folder(self)
+#                |   -> Function: _create_setting_row(self, parent, row, key, label_text, app_var, data_list, unit)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _load_settings_into_ui(self)
+#                |   -> Function: _on_boolean_combobox_select(self, event, app_var)
+#                |   -> Function: _on_combobox_select(self, event, app_var, data_list, description_var, unit)
+#                |   -> Function: _on_tab_selected(self, event)
+#                |   -> Function: _open_output_folder(self)
+#                |   -> Function: _set_combobox_display_from_value(self, key)
+#        ├── tab_scanning_child_scan_meta_data.py (Lines: 556)
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: os
+#                |   -> Import: process_math.google_maps_lookup
+#                |   -> Import: ref.Antenna_type
+#                |   -> Import: ref.antenna_amplifier_type
+#                |   -> Import: src.settings_and_config.config_manager
+#                |   -> Import: subprocess
+#                |   -> Import: tkinter
+#                |   -> Class: ScanMetaDataTab
+#                |   -> Function: __init__(self, master, app_instance, console_print_func, style_obj)
+#                |   -> Function: _create_widgets(self)
+#                |   -> Function: _lookup_postal_code(self)
+#                |   -> Function: _on_amplifier_type_selected(self, event)
+#                |   -> Function: _on_antenna_type_selected(self, event)
+#                |   -> Function: _on_notes_change(self, event)
+#                |   -> Function: _on_tab_selected(self, event)
+#        └── utils_scan_instrument.py (Lines: 481)
+#                |   -> Import: datetime
+#                |   -> Import: display.console_logic
+#                |   -> Import: display.debug_logic
+#                |   -> Import: inspect
+#                |   -> Import: numpy
+#                |   -> Import: os
+#                |   -> Import: pandas
+#                |   -> Import: process_math.scan_stitch
+#                |   -> Import: pyvisa
+#                |   -> Import: re
+#                |   -> Import: ref.frequency_bands
+#                |   -> Import: src.connection_status_logic
+#                |   -> Import: tabs.Instrument.utils_instrument_initialization
+#                |   -> Import: threading
+#                |   -> Import: time
+#                |   -> Import: utils.utils_csv_writer
+#                |   -> Function: _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func)
+#                |   -> Function: configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity_on, preamp_on, app_instance_ref, app_console_update_func)
+#                |   -> Function: initiate_scan_thread(app_instance, console_print_func, stop_event, pause_event, update_progress_func)
+#                |   -> Function: perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, maxhold_enabled, max_hold_time, app_instance_ref, pause_event, stop_event, segment_counter, total_segments_in_band, band_name, app_console_update_func, current_segment_start_freq_hz)
+#                |   -> Function: perform_single_sweep(inst, app_instance_ref, app_console_update_func)
+#                |   -> Function: query_safe(inst, command, app_instance_ref, app_console_update_func)
+#                |   -> Function: scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func)
+#                |   -> Function: write_safe(inst, command, app_instance_ref, app_console_update_func)
+#└── utils/
+#    ├── __init__.py (Lines: 0)
+#    └── utils_csv_writer.py (Lines: 125)
+#            |   -> Import: csv
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Function: write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode, console_print_func)
+#└── yak/
+#    ├── Yakety_Yak.py (Lines: 558)
+#            |   -> Import: csv
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: pyvisa
+#            |   -> Import: time
+#            |   -> Import: tkinter
+#            |   -> Import: yak.utils_yak_visa
+#            |   -> Function: YakBeg(app_instance, command_type, console_print_func)
+#            |   -> Function: YakDo(app_instance, command_type, console_print_func)
+#            |   -> Function: YakGet(app_instance, command_type, console_print_func)
+#            |   -> Function: YakNab(app_instance, command_type, console_print_func)
+#            |   -> Function: YakRig(app_instance, command_type, console_print_func)
+#            |   -> Function: YakSet(app_instance, command_type, variable_value, console_print_func)
+#            |   -> Function: _find_command(command_type, action_type, model)
+#            |   -> Function: _load_commands_from_file(file_path)
+#            |   -> Function: execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func, num_reads)
+#    ├── utils_yak_setting_handler.py (Lines: 842)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: threading
+#            |   -> Import: time
+#            |   -> Import: yak.Yakety_Yak
+#            |   -> Function: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func)
+#            |   -> Function: _trigger_gui_refresh(app_instance)
+#            |   -> Function: do_immediate_initiate(app_instance, console_print_func)
+#            |   -> Function: do_peak_search(app_instance, console_print_func)
+#            |   -> Function: do_power_cycle(app_instance, console_print_func)
+#            |   -> Function: do_turn_all_markers_on(app_instance, console_print_func)
+#            |   -> Function: get_all_marker_values_logic(app_instance, console_print_func)
+#            |   -> Function: get_trace_averaging_settings(app_instance, trace_number, console_print_func)
+#            |   -> Function: get_trace_data_logic(app_instance, console_print_func)
+#            |   -> Function: refresh_all_from_instrument(app_instance, console_print_func)
+#            |   -> Function: reset_device(app_instance, console_print_func)
+#            |   -> Function: set_center_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_continuous_initiate_mode(app_instance, mode, console_print_func)
+#            |   -> Function: set_power_attenuation(tab_instance, app_instance, value, console_print_func)
+#            |   -> Function: set_reference_level(tab_instance, app_instance, value, console_print_func)
+#            |   -> Function: set_resolution_bandwidth(app_instance, value, console_print_func)
+#            |   -> Function: set_span_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_start_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_stop_frequency(app_instance, value, console_print_func)
+#            |   -> Function: set_trace_averaging_count(app_instance, trace_number, count, console_print_func)
+#            |   -> Function: set_trace_mode(app_instance, trace_number, mode, console_print_func)
+#            |   -> Function: set_video_bandwidth(app_instance, value, console_print_func)
+#            |   -> Function: toggle_high_sensitivity(tab_instance, app_instance, console_print_func)
+#            |   -> Function: toggle_marker_state(app_instance, marker_number, state, console_print_func)
+#            |   -> Function: toggle_preamp(tab_instance, app_instance, console_print_func)
+#            |   -> Function: toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func)
+#            |   -> Function: toggle_vbw_auto(app_instance, console_print_func)
+#    ├── utils_yak_visa.py (Lines: 258)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: os
+#            |   -> Import: pyvisa
+#            |   -> Import: time
+#            |   -> Function: _reset_device(inst, console_print_func)
+#            |   -> Function: _wait_for_opc(inst, console_print_func, timeout)
+#            |   -> Function: query_safe(inst, command, console_print_func)
+#            |   -> Function: set_safe(inst, command, value, console_print_func)
+#            |   -> Function: write_safe(inst, command, console_print_func)
+#    ├── utils_yakbeg_handler.py (Lines: 174)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: typing
+#            |   -> Import: yak.Yakety_Yak
+#            |   -> Function: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func)
+#            |   -> Function: handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func)
+#            |   -> Function: handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func)
+#            |   -> Function: handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func)
+#            |   -> Function: handle_trace_modes_beg(app_instance, trace_modes, console_print_func)
+#    └── utils_yaknab_handler.py (Lines: 275)
+#            |   -> Import: display.console_logic
+#            |   -> Import: display.debug_logic
+#            |   -> Import: inspect
+#            |   -> Import: numpy
+#            |   -> Import: os
+#            |   -> Import: typing
+#            |   -> Import: yak.Yakety_Yak
+#            |   -> Function: handle_all_traces_nab(app_instance, console_print_func)
+#            |   -> Function: handle_amplitude_settings_nab(app_instance, console_print_func)
+#            |   -> Function: handle_bandwidth_settings_nab(app_instance, console_print_func)
+#            |   -> Function: handle_bandwidth_settings_nab(app_instance, console_print_func)
