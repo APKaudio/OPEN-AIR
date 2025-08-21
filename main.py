@@ -15,9 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.145100.5
-# FIXED: Converted the sash position from a float to an integer before calling
-#        paned_window.sashpos() to resolve a TclError.
+# Version 20250821.145100.8
+# FIXED: Removed the continuous save on window move/resize. The window state is now
+#        only saved on graceful exit. The sash position continues to be saved on release.
 
 import sys
 import tkinter as tk
@@ -45,7 +45,7 @@ class App(tk.Tk):
         # Initializing core application variables
         current_function = inspect.currentframe().f_code.co_name
         self.current_file = os.path.basename(__file__)
-        self.current_version = "20250821.145100.5"
+        self.current_version = "20250821.145100.8" # INCREMENTED VERSION
 
         # FIXED: Initialize the `inst` attribute here to prevent an AttributeError later.
         self.inst = None
@@ -125,6 +125,10 @@ class App(tk.Tk):
                 self.paned_window.sashpos(0, int(sash_pos_absolute)) # FIXED: Cast to int to resolve TclError
                 debug_log(f"✅ Paned window sash position restored to {sash_pos_percentage}",
                           file=self.current_file, version=self.current_version, function=current_function, special=True)
+        
+        # REVERTED: Removed the continuous saving of geometry.
+        # The paned_window sash position is still saved on button release.
+        self.paned_window.bind("<ButtonRelease-1>", self._save_sash_position)
 
     def _set_console_redirectors(self):
         """
@@ -141,6 +145,22 @@ class App(tk.Tk):
             self.redirector_set = False
             debug_log("Console widgets not found. GUI console redirection not available. This is a critical failure!",
                       file=self.current_file, version=self.current_version, function=current_function, special=True)
+    
+    # NEW: Function to handle saving sash position on button release
+    def _save_sash_position(self, event=None):
+        """
+        Saves the paned window sash position to the config file.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Paned window sash position save triggered. 💾",
+                  file=self.current_file, version=self.current_version, function=current_function, special=True)
+        
+        if hasattr(self, 'program_config') and hasattr(self, 'paned_window') and self.paned_window and self.winfo_width() > 0:
+            sash_pos = self.paned_window.sashpos(0)
+            sash_pos_percentage = int((sash_pos / self.winfo_width()) * 100)
+            self.program_config.set('Application', 'paned_window_sash_position_percentage', str(sash_pos_percentage))
+            save_config(config=self.program_config, console_print_func=console_log, app_instance=self)
+            console_log("✅ Sash position saved.")
 
     def on_closing(self):
         """
