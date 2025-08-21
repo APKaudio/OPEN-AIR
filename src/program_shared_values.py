@@ -1,5 +1,4 @@
-
-    # src/program_shared_values.py
+# src/program_shared_values.py
 #
 # This module centralizes the definition and initialization of all Tkinter variables
 # used throughout the RF Spectrum Analyzer Controller application. It provides a
@@ -17,8 +16,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.215500.1 (FIXED: Added initialization for new debug-related Tkinter variables to resolve AttributeError on startup.)
-
+# Version 20250821.215500.2
+# FIXED: The last_config_save_time_var variable was being incorrectly redefined as a BooleanVar,
+#        causing a TypeError when saving the config file. This has been corrected.
 
 import tkinter as tk
 import inspect
@@ -29,8 +29,8 @@ from display.debug_logic import debug_log
 from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Version Information ---
-current_version = "20250814.215500.1"
-current_version_hash = (20250814 * 215500 * 1)
+current_version = "20250821.215500.2"
+current_version_hash = (20250821 * 215500 * 2)
 
 
 def setup_shared_values(app_instance):
@@ -53,6 +53,7 @@ def setup_shared_values(app_instance):
     # --- Application & Debugging Variables ---
     app_instance.is_connected = tk.BooleanVar(app_instance, value=False)
     app_instance.is_running = tk.BooleanVar(app_instance, value=False)
+    # The redundant and incorrect declaration of last_config_save_time_var as a BooleanVar has been removed.
     app_instance.last_config_save_time_var = tk.StringVar(app_instance, value="")
     app_instance.general_debug_enabled_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Debug']['general_debug_enabled'] == 'True')
     app_instance.debug_to_gui_console_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Debug']['debug_to_gui_console'] == 'True')
@@ -63,13 +64,13 @@ def setup_shared_values(app_instance):
     app_instance.log_truncation_enabled_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Debug']['log_truncation_enabled'] == 'True')
     app_instance.include_visa_messages_to_debug_file_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Debug']['include_visa_messages_to_debug_file'] == 'True')
 
-
-
-    app_instance.general_geometry_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Application']['geometry'] == '1600x900+100+100')
-    app_instance.window_state_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Application']['window_state'] == 'normal')
-    app_instance.last_config_save_time_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Application']['window_state'] == '')
-    app_instance.paned_window_sash_position_percentage_var = tk.BooleanVar(app_instance, value=DEFAULT_CONFIG['Application']['paned_window_sash_position_percentage'] == '45')
-
+    # FIXED: Renamed variables to store strings directly instead of boolean flags.
+    # The values will be set by the config manager.
+    app_instance.geometry_string = DEFAULT_CONFIG['Application']['geometry']
+    app_instance.window_state_string = DEFAULT_CONFIG['Application']['window_state']
+    app_instance.paned_window_sash_position_percentage_var = tk.StringVar(app_instance, value=DEFAULT_CONFIG['Application']['paned_window_sash_position_percentage'])
+    app_instance.last_config_save_time_var.set(DEFAULT_CONFIG['Application']['last_config_save_time'])
+    
     app_instance.connected_instrument_manufacturer = tk.StringVar(app_instance, value="N/A")
     app_instance.connected_instrument_model = tk.StringVar(app_instance, value="N/A")
     app_instance.connected_instrument_serial = tk.StringVar(app_instance, value="N/A")

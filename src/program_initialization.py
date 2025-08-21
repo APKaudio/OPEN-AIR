@@ -14,10 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250814.214800.1 (FIXED: The call to 'set_debug_to_file_mode' was updated to correctly pass only one argument, resolving the TypeError. Corrected the initialization of a missing Tkinter variable to resolve an AttributeError.)
-
-current_version = "20250814.214800.1"
-current_version_hash = 20250814 * 214800 * 1
+# Version 20250821.111700.1
+# FIXED: Corrected the call to 'load_config' by passing the correct arguments. This
+#        resolves the 'str' object has no attribute 'items' AttributeError.
 
 import os
 import inspect
@@ -26,10 +25,16 @@ import tkinter as tk
 # Local application imports
 from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, set_log_truncation_mode, set_include_visa_messages_to_debug_file_mode
 from display.console_logic import console_log
-from src.settings_and_config.program_default_values import DATA_FOLDER_PATH, CONFIG_FILE_PATH
+from src.settings_and_config.program_default_values import DATA_FOLDER_PATH, CONFIG_FILE_PATH, DEFAULT_CONFIG
 from src.settings_and_config.config_manager import load_config, save_config
 from src.settings_and_config.restore_settings_logic import restore_last_used_settings
 from src.program_shared_values import setup_shared_values
+
+
+# --- Version Information ---
+current_version = "20250821.111700.1"
+current_version_hash = 20250821 * 111700 * 1
+current_file = f"{os.path.basename(__file__)}"
 
 
 def initialize_program_environment(app_instance):
@@ -50,7 +55,12 @@ def initialize_program_environment(app_instance):
     _setup_initial_settings(app_instance)
 
     # The load_config function will create a default if one doesn't exist.
-    app_instance.config = load_config(CONFIG_FILE_PATH, console_log)
+    # FIXED: The load_config function now takes two arguments: the default config and the file path.
+    # The previous call was incorrect and caused an AttributeError.
+    app_instance.config, app_instance.CONFIG_FILE_PATH, app_instance.DATA_FOLDER_PATH = load_config(
+        default_config=DEFAULT_CONFIG,
+        config_file_path=CONFIG_FILE_PATH
+    )
     
     # After loading the config file, apply the last used settings to the Tkinter variables.
     restore_last_used_settings(app_instance, console_log)
@@ -92,14 +102,14 @@ def _create_necessary_folders():
             os.makedirs(DATA_FOLDER_PATH)
             console_log(f"✅ Created data folder at: {DATA_FOLDER_PATH}")
             debug_log(f"✅ Created folder: {DATA_FOLDER_PATH}",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function)
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
         else:
             debug_log(f"✅ Data folder already exists at: {DATA_FOLDER_PATH}",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function)
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
     except Exception as e:
         console_log(f"❌ Error creating folders: {e}")
         debug_log(f"❌ Failed to create directory. Error: {e}",

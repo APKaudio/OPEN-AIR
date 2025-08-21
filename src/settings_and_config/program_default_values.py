@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.140000.1
+# Version 20250821.110500.1
 # FIXED: The BASE_DIR calculation has been corrected to properly point to the
 #        root 'OPEN-AIR' directory, resolving the 'config.ini' pathing error.
 # UPDATED: Added new MarkerTab configuration keys for a more comprehensive default state.
@@ -26,24 +26,26 @@ from datetime import datetime
 # Import the main frequency bands data
 from ref.frequency_bands import SCAN_BAND_RANGES
 
+
 # --- Version Information ---
-w = 20250823
-x_str = '140000'
+w = 20250821
+x_str = '110500'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"{w}.{x_str}.{y}"
-current_version_hash = w * x * y
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
 
-
-# --- Path Constants ---
-# CORRECTED: The BASE_DIR calculation is now relative to the parent of the `src` folder.
+# --- Global Paths ---
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
+
 CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
-PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV')
-MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
-VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.csv')
-DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
+PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'presets.json')
+MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'markers.json')
+VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.log')
+DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'debug.log')
 
 # --- Default Settings ---
 DEFAULT_CONFIG = {

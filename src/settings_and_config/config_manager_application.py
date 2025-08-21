@@ -1,4 +1,4 @@
-# src/settings_and_config/config_manager_application.py
+# FolderName/config_manager_application.py
 #
 # This file provides the backend logic for saving application-level settings like
 # window geometry and state to the configuration file. It is designed to be
@@ -15,8 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.093800.1
-# REFACTORED: Created a new, dedicated module for saving application settings.
+# Version 20250821.093800.6
+# REFACTORED: The save_application_settings function was updated to correctly reference
+#             the geometry and window state from the main app instance.
 
 import os
 import inspect
@@ -29,7 +30,7 @@ from display.console_logic import console_log
 w = 20250821
 x_str = '093800'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
-y = 1
+y = 6
 current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
 current_file = f"{os.path.basename(__file__)}"
@@ -43,36 +44,40 @@ def _save_application_settings(config, app_instance, console_print_func):
         config.add_section(section)
 
     try:
-        if hasattr(app_instance, 'geometry_string'):
-            new_value = str(app_instance.geometry_string)
-            if config.get(section, 'geometry', fallback=None) != new_value:
-                config.set(section, 'geometry', new_value)
-                debug_log(f"🔧💾📝 {section} - Changed 'geometry' to '{new_value}' from {current_function}", file=current_file, version=current_version, function=current_function)
-                changed_count += 1
+        # FIXED: Corrected the variables to correctly get the window geometry and state.
+        # The app.geometry() and app.state() methods return the current values.
+        current_geometry = app_instance.geometry()
+        current_state = app_instance.state()
         
-        if hasattr(app_instance, 'state_string'):
-            new_value = str(app_instance.state_string)
-            if config.get(section, 'window_state', fallback=None) != new_value:
-                config.set(section, 'window_state', new_value)
-                debug_log(f"🔧💾📝 {section} - Changed 'window_state' to '{new_value}' from {current_function}", file=current_file, version=current_version, function=current_function)
-                changed_count += 1
+        # Check and save geometry
+        new_value = current_geometry
+        if config.get(section, 'geometry', fallback=None) != new_value:
+            config.set(section, 'geometry', new_value)
+            debug_log(f"🔧💾📝 {section} - Changed 'geometry' to '{new_value}' from {current_function}", file=current_file, version=current_version, function=current_function)
+            changed_count += 1
+        
+        # Check and save window state
+        new_value = current_state
+        if config.get(section, 'window_state', fallback=None) != new_value:
+            config.set(section, 'window_state', new_value)
+            debug_log(f"🔧💾📝 {section} - Changed 'window_state' to '{new_value}' from {current_function}", file=current_file, version=current_version, function=current_function)
+            changed_count += 1
         
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if config.get(section, 'last_config_save_time', fallback=None) != current_time:
-            config.set(section, 'last_config_save_time', current_time)
-            debug_log(f"🔧💾📝 {section} - Changed 'last_config_save_time' to '{current_time}' from {current_function}", file=current_file, version=current_version, function=current_function)
-            if hasattr(app_instance, 'last_config_save_time_var'):
-                app_instance.last_config_save_time_var.set(current_time)
-            changed_count += 1
+        config.set(section, 'last_config_save_time', current_time)
+        debug_log(f"🔧💾📝 {section} - Updated 'last_config_save_time' to '{current_time}' from {current_function}", file=current_file, version=current_version, function=current_function)
+        if hasattr(app_instance, 'last_config_save_time_var'):
+            app_instance.last_config_save_time_var.set(current_time)
+        changed_count += 1
 
         if hasattr(app_instance, 'paned_window') and app_instance.paned_window and app_instance.winfo_width() > 0:
             sash_pos = app_instance.paned_window.sashpos(0)
             sash_pos_percentage = int((sash_pos / app_instance.winfo_width()) * 100)
             sash_pos_percentage_str = str(sash_pos_percentage)
-            if config.get(section, 'paned_window_sash_position_percentage', fallback=None) != sash_pos_percentage_str:
-                config.set(section, 'paned_window_sash_position_percentage', sash_pos_percentage_str)
-                debug_log(f"🔧💾📝 {section} - Changed 'paned_window_sash_position_percentage' to '{sash_pos_percentage_str}' from {current_function}", file=current_file, version=current_version, function=current_function)
-                changed_count += 1
+            # FIX: Removed the conditional check to ensure the value is always saved.
+            config.set(section, 'paned_window_sash_position_percentage', sash_pos_percentage_str)
+            debug_log(f"🔧💾📝 {section} - Set 'paned_window_sash_position_percentage' to '{sash_pos_percentage_str}' from {current_function}", file=current_file, version=current_version, function=current_function)
+            changed_count += 1
 
         if changed_count > 0:
             debug_log(f"🔧💾🔧💾✅ Application settings saved.", file=current_file, version=current_version, function=current_function)

@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250816.200000.11 (FIXED: The tab now dynamically reads and displays all colors and styles from `program_style.py`, with clear labels and live previews of buttons.)
+# Version 20250816.200000.12 (FIXED: The tab now dynamically reads and displays all colors and styles from `program_style.py`, with clear labels and live previews of buttons.)
 
-current_version = "20250816.200000.11"
-current_version_hash = 20250816 * 200000 * 11
+current_version = "20250816.200000.12"
+current_version_hash = 20250816 * 200000 * 12
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -233,7 +233,8 @@ class ColouringTab(ttk.Frame):
         for display_name, properties in common_ui_styles.items():
             try:
                 style_name = properties['style_name']
-                style_spec = self.app_instance.style.lookup(style_name, 'font')
+                # FIXED: Changed `self.app_instance.style` to `self.app_instance.style_obj`
+                style_spec = self.app_instance.style_obj.lookup(style_name, 'font')
                 if style_spec:
                     style_font = style_spec
                 else:
