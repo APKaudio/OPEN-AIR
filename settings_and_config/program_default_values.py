@@ -37,7 +37,8 @@ current_version_hash = (w * x * y)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Global Paths ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
 
