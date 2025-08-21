@@ -214,7 +214,7 @@ def debug_log(message, file=None, version=None, function=None, special=False):
 
     prefix = f"[{' | '.join(prefix_parts)}] " if prefix_parts else ""
     
-    full_message = f"🚫🐛 [{timestamp}] {prefix}{_truncate_message(message)}"
+    full_message = f"🐛[{timestamp}]{_truncate_message(message)} {prefix}"
     
     if DEBUG_TO_FILE:
         _write_to_debug_file(full_message)

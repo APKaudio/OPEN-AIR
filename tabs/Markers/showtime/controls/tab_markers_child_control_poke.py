@@ -13,8 +13,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.114327.4
+# Version 20250822.093400.1
 # REFACTORED: Updated to use the centralized `shared_state.poke_freq_var`.
+# UPDATED: File header and versioning adhere to new standards.
+# UPDATED: All debug messages now include the correct emoji prefixes.
 
 import os
 import inspect
@@ -26,10 +28,10 @@ from display.debug_logic import debug_log
 from .utils_showtime_poke import on_poke_action
 
 # --- Versioning ---
-w = int(datetime.now().strftime('%Y%m%d'))
-x_str = datetime.now().strftime('%H%M%S')
+w = 20250822
+x_str = '093400'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
-y = 4
+y = 1
 current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
@@ -37,13 +39,28 @@ current_file = file=f"{os.path.basename(__file__)}"
 class PokeTab(ttk.Frame):
     def __init__(self, parent_notebook, showtime_tab_instance, shared_state):
         # [Initializes the Poke control tab.]
+        debug_log(f"🖥️ 🟢 Entering __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
         super().__init__(parent_notebook)
         self.showtime_tab_instance = showtime_tab_instance
         self.shared_state = shared_state
         self._create_widgets()
+        
+        debug_log(f"🖥️ 🟢 Exiting __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
 
     def _create_widgets(self):
         # [Creates the UI elements for the Poke tab.]
+        debug_log(f"🖥️ 🟢 Creating widgets for PokeTab.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
         self.poke_entry = ttk.Entry(self, textvariable=self.shared_state.poke_freq_var, style='TEntry')
         self.poke_button = ttk.Button(
             self, text="Poke", style='ControlButton.TButton',
@@ -51,3 +68,8 @@ class PokeTab(ttk.Frame):
         )
         self.poke_entry.pack(side='left', fill='x', expand=True, padx=(0, 5))
         self.poke_button.pack(side='left')
+        
+        debug_log(f"🖥️ ✅ Widgets created successfully.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)

@@ -133,7 +133,7 @@ def console_log(message, function=None):
     prefix = f"[{' | '.join(prefix_parts)}] " if prefix_parts else ""
 
     # Generate message for debug file (with emoji)
-    full_message_with_emoji = f"💬 [{timestamp}] {prefix}{_truncate_message(message)}"
+    full_message_with_emoji = f"💬[{timestamp}] {prefix}{_truncate_message(message)}"
     
     # Generate message for console (without emoji)
     console_message = f"{prefix}{_truncate_message(message)}"

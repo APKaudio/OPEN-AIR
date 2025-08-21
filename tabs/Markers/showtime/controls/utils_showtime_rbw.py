@@ -15,11 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.120100.3
+# Version 20250821.210000.1
 # REFACTORED: All functions now directly access shared state from the parent
 #             `showtime_tab_instance` via the `rbw_tab_instance` passed as an argument.
 # FIXED: The problematic import `from .utils_showtime_rbw import on_rbw_button_click` was removed.
 # FIXED: Corrected versioning to adhere to project standards.
+# NEW: Added debug logging for writes to the shared state variables.
 
 import os
 import inspect
@@ -34,17 +35,14 @@ from yak.utils_yak_setting_handler import set_resolution_bandwidth
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
-w = 20250821
-x = 120100
-y = 3
-current_version = f"Version {w}.{x}.{y}"
-current_version_hash = (w * x * y)
+current_version = "20250821.210000.1"
+current_version_hash = (20250821 * 210000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def set_rbw_logic(app_instance, rbw_hz, console_print_func):
     # [Sets the resolution bandwidth of the instrument and reports back.]
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function} with rbw_hz: {rbw_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+    debug_log(message=f"Entering {current_function} with rbw_hz: {rbw_hz}", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
     
     status = YakSet(app_instance=app_instance, command_type="BANDWIDTH/RESOLUTION", variable_value=str(rbw_hz), console_print_func=console_print_func)
     
@@ -54,14 +52,15 @@ def set_rbw_logic(app_instance, rbw_hz, console_print_func):
 def on_rbw_button_click(showtime_tab, rbw_hz):
     # [Handles the event when an RBW button is clicked.]
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function} with rbw_hz: {rbw_hz}",
+    debug_log(message=f"Entering {current_function} with rbw_hz: {rbw_hz}",
               file=f"{os.path.basename(__file__)}",
               version=current_version,
               function=current_function)
     
     try:
-        # Update the shared RBW variable on the parent instance
+        # 📝 Write Data: Update the shared RBW variable on the parent instance.
         showtime_tab.shared_state.rbw_var.set(str(rbw_hz))
+        debug_log(message=f"📝 Writing shared state: rbw_var = {rbw_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
         # Re-sync the RBW button styles
         for value_str, btn in showtime_tab.shared_state.rbw_buttons.items():
@@ -77,7 +76,7 @@ def on_rbw_button_click(showtime_tab, rbw_hz):
 
     except Exception as e:
         showtime_tab.console_print_func(f"❌ Error setting RBW: {e}")
-        debug_log(f"Shiver me timbers, the RBW has gone rogue! The error be: {e}",
+        debug_log(message=f"Shiver me timbers, the RBW has gone rogue! The error be: {e}",
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)

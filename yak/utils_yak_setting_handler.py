@@ -15,13 +15,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.204500.2
+# Version 20250821.210502.1
 # FIXED: Removed incorrect MHz-to-Hz conversion from set_resolution_bandwidth and set_video_bandwidth functions.
 # UPDATED: Corrected debug log messages to accurately reflect the units being processed.
 # NEW: Added a new handler function to toggle trace averaging on a per-trace basis.
-
-current_version = "20250818.204500.2"
-current_version_hash = (20250818 * 204500 * 2)
+# UPDATED: All debug messages now include the required 🐐 emoji at the start.
 
 import os
 import inspect
@@ -35,6 +33,16 @@ from display.console_logic import console_log
 # NEW: Import the Yak functions from Yakety_Yak.py
 from yak.Yakety_Yak import YakGet, YakSet, YakDo, YakNab
 
+# --- Versioning ---
+w = 20250821
+x_str = '210502'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = file=f"{os.path.basename(__file__)}"
+
+
 # Conversion constant from Megahertz to Hertz
 MHZ_TO_HZ_CONVERSION = 1_000_000
 
@@ -45,8 +53,8 @@ def refresh_all_from_instrument(app_instance, console_print_func):
     # This is a new public API for the GUI to call
     # Queries all settings from the instrument and returns a dictionary of values.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to refresh all settings from the instrument.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 🟢 API call to refresh all settings from the instrument.",
+              file=current_file,
               version=current_version,
               function=current_function)
 
@@ -86,11 +94,12 @@ def refresh_all_from_instrument(app_instance, console_print_func):
             settings[f'trace{i}_average_on'] = avg_status
             settings[f'trace{i}_average_count'] = avg_count
 
+        debug_log(f"🐐 ✅ Retrieved all settings: {settings}", file=current_file, version=current_version, function=current_function)
         return settings
     except Exception as e:
         console_print_func(f"❌ Failed to retrieve settings from instrument: {e}.")
-        debug_log(message=f"Error retrieving settings from instrument: {e}. What a mess!",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 ❌ Error retrieving settings from instrument: {e}. What a mess!",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
         return None
@@ -99,8 +108,8 @@ def _trigger_gui_refresh(app_instance):
     # Function Description:
     # Safely calls the refresh method on the correct GUI object from the main thread.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"Attempting to refresh GUI from within handler. 🔄",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 🔄 Attempting to refresh GUI from within handler. 🔄",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -111,13 +120,13 @@ def _trigger_gui_refresh(app_instance):
         # FIXED: Corrected the function call to the existing method
         settings_tab.refresh_all_child_tabs()
     except AttributeError as e:
-        debug_log(message=f"CRITICAL ERROR: Failed to find the GUI refresh method. Path traversal failed. Error: {e} 💥",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 💥 CRITICAL ERROR: Failed to find the GUI refresh method. Path traversal failed. Error: {e} 💥",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
     except Exception as e:
-        debug_log(message=f"An unexpected error occurred during GUI refresh: {e}. 🤯",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 🤯 An unexpected error occurred during GUI refresh: {e}. 🤯",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
 
@@ -126,8 +135,8 @@ def set_center_frequency(app_instance, value, console_print_func):
     Sets the center frequency on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set center frequency: {value} MHz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set center frequency: {value} MHz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -149,8 +158,8 @@ def set_span_frequency(app_instance, value, console_print_func):
     Sets the span frequency on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set span: {value} MHz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set span: {value} MHz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -172,8 +181,8 @@ def set_start_frequency(app_instance, value, console_print_func):
     Sets the start frequency on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set start frequency: {value} MHz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set start frequency: {value} MHz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -195,8 +204,8 @@ def set_stop_frequency(app_instance, value, console_print_func):
     Sets the stop frequency on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set stop frequency: {value} MHz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set stop frequency: {value} MHz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -218,8 +227,8 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
     Sets the resolution bandwidth on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set resolution bandwidth: {value} Hz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set resolution bandwidth: {value} Hz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -228,7 +237,6 @@ def set_resolution_bandwidth(app_instance, value, console_print_func):
         return False
     
     try:
-        # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
         hz_value = int(float(value))
         if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
@@ -242,8 +250,8 @@ def set_video_bandwidth(app_instance, value, console_print_func):
     Sets the video bandwidth on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set video bandwidth: {value} Hz.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set video bandwidth: {value} Hz.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -252,7 +260,6 @@ def set_video_bandwidth(app_instance, value, console_print_func):
         return False
         
     try:
-        # FIXED: Remove multiplication by MHZ_TO_HZ_CONVERSION as the value is already in Hz.
         hz_value = int(float(value))
         if YakSet(app_instance, "BANDWIDTH/VIDEO", str(hz_value), console_print_func) == "PASSED":
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
@@ -266,8 +273,8 @@ def toggle_vbw_auto(app_instance, console_print_func):
     Toggles the automatic VBW setting on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to toggle VBW auto.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to toggle VBW auto.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -289,8 +296,8 @@ def set_continuous_initiate_mode(app_instance, mode, console_print_func):
     Sets the continuous initiate mode on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set continuous initiate mode: {mode}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set continuous initiate mode: {mode}.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -298,7 +305,6 @@ def set_continuous_initiate_mode(app_instance, mode, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot set continuous initiate mode.")
         return False
     
-    # We need to ensure the mode is a string "ON" or "OFF"
     mode_str = "ON" if mode else "OFF"
     if YakDo(app_instance, f"INITIATE/CONTINUOUS/{mode_str}", console_print_func=console_print_func) == "PASSED":
         app_instance.initiate_continuous_on_var.set(mode)
@@ -311,8 +317,8 @@ def do_immediate_initiate(app_instance, console_print_func):
     Initiates an immediate sweep on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to initiate immediate scan.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to initiate immediate scan.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -331,8 +337,8 @@ def set_reference_level(tab_instance, app_instance, value, console_print_func):
     Sets the reference level on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set reference level: {value} dBm.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set reference level: {value} dBm.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -350,15 +356,15 @@ def set_reference_level(tab_instance, app_instance, value, console_print_func):
             return False
     except (ValueError, TypeError) as e:
         console_print_func(f"❌ Invalid reference level value: '{value}'. Please enter a number. Error: {e}")
-        debug_log(message=f"ValueError: could not convert reference level to int. Failed to parse data. Error: {e}",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 ❌ ValueError: could not convert reference level to int. Failed to parse data. Error: {e}",
+                  file=current_file,
                   version=current_version,
                   function=current_function, special=True)
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while setting the reference level: {e}")
-        debug_log(message=f"An unexpected error occurred: {e}",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 An unexpected error occurred: {e}",
+                  file=current_file,
                   version=current_version,
                   function=current_function, special=True)
         return False
@@ -369,8 +375,8 @@ def toggle_preamp(tab_instance, app_instance, console_print_func):
     Toggles the preamp on or off and updates the UI state.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"Entering {current_function}. Toggling the preamp switch! ⚡",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to toggle the preamp switch! ⚡",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -380,10 +386,9 @@ def toggle_preamp(tab_instance, app_instance, console_print_func):
             YakDo(app_instance, "AMPLITUDE/POWER/GAIN/OFF", console_print_func=console_print_func)
             app_instance.preamp_on_var.set(False)
             console_print_func("✅ Preamp turned OFF.")
-            # NEW LOGIC: If preamp is turned off, also turn off high sensitivity
             if app_instance.high_sensitivity_on_var.get():
-                debug_log(message=f"Preamp turned off, automatically turning off high sensitivity. 🕵️‍♀️",
-                        file=os.path.basename(__file__),
+                debug_log(f"🐐 Preamp turned off, automatically turning off high sensitivity. 🕵️‍♀️",
+                        file=current_file,
                         version=current_version,
                         function=current_function)
                 toggle_high_sensitivity(tab_instance=tab_instance, app_instance=app_instance, console_print_func=console_print_func)
@@ -397,8 +402,8 @@ def toggle_preamp(tab_instance, app_instance, console_print_func):
 
     except Exception as e:
         console_print_func(f"❌ Error toggling preamp: {e}")
-        debug_log(message=f"Arrr, the code be capsized! Error toggling preamp: {e} 🏴‍☠️",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 Arrr, the code be capsized! Error toggling preamp: {e} 🏴‍☠️",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
 
@@ -408,8 +413,8 @@ def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
     Toggles the high sensitivity mode on or off and updates the UI state.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"Entering {current_function}. Flipping the high sensitivity switch! 🔬",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to toggle the high sensitivity switch! 🔬",
+              file=current_file,
               version=current_version,
               function=current_function)
 
@@ -426,7 +431,6 @@ def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
 
         tab_instance._update_toggle_button_style(button=tab_instance.hs_toggle_button, state=app_instance.high_sensitivity_on_var.get())
         
-        # Explicitly get the latest values from the instrument and update the GUI
         results = YakNab(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func=console_print_func)
         if results is not None and len(results) >= 3:
             ref_level_dbm, attenuation_db, preamp_on = results
@@ -438,8 +442,8 @@ def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
         
     except Exception as e:
         console_print_func(f"❌ Error toggling high sensitivity: {e}")
-        debug_log(message=f"Arrr, the code be capsized! The error be: {e} 🏴‍☠️",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 Arrr, the code be capsized! The error be: {e} 🏴‍☠️",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
 
@@ -449,8 +453,8 @@ def set_power_attenuation(tab_instance, app_instance, value, console_print_func)
     Sets the power attenuation on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set power attenuation: {value} dB.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set power attenuation: {value} dB.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -470,8 +474,8 @@ def set_trace_mode(app_instance, trace_number, mode, console_print_func):
     Sets the trace mode for a specific trace on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set trace {trace_number} mode: {mode}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set trace {trace_number} mode: {mode}.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -491,8 +495,8 @@ def do_turn_all_markers_on(app_instance, console_print_func):
     Turns on all markers on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to turn on all markers.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to turn on all markers.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -510,8 +514,8 @@ def toggle_marker_state(app_instance, marker_number, state, console_print_func):
     Toggles the state of a specific marker on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to toggle marker {marker_number} state to {state}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to toggle marker {marker_number} state to {state}.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -530,8 +534,8 @@ def do_peak_search(app_instance, console_print_func):
     Performs a peak search on the instrument and triggers a GUI refresh.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to perform peak search.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to perform peak search.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -560,8 +564,8 @@ def toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func
     - bool: True if the command is executed successfully, False otherwise.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to toggle trace averaging for trace {trace_number} to {is_on}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to toggle trace averaging for trace {trace_number} to {is_on}.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -569,7 +573,6 @@ def toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func
         console_print_func("❌ Not connected to an instrument. Cannot toggle trace averaging.")
         return False
 
-    # FIXED: Use the new DO commands for ON and OFF states
     state_str = "ON" if is_on else "OFF"
     command_type = f"AVERAGE/{state_str}"
     
@@ -580,7 +583,6 @@ def toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func
     
     return False
 
-# NEW: Add a function to set the average count
 def set_trace_averaging_count(app_instance, trace_number, count, console_print_func):
     """
     Function Description:
@@ -596,8 +598,8 @@ def set_trace_averaging_count(app_instance, trace_number, count, console_print_f
     - bool: True if the command is executed successfully, False otherwise.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to set trace averaging count for trace {trace_number} to {count}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to set trace averaging count for trace {trace_number} to {count}.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -606,7 +608,7 @@ def set_trace_averaging_count(app_instance, trace_number, count, console_print_f
         return False
         
     command_type = f"AVERAGE"
-    variable_value = count # The full command string for the SET action
+    variable_value = count
     
     if YakSet(app_instance, command_type, variable_value, console_print_func) == "PASSED":
         console_print_func(f"✅ Trace {trace_number} averaging count set to {count}.")
@@ -615,8 +617,6 @@ def set_trace_averaging_count(app_instance, trace_number, count, console_print_f
     
     return False
 
-
-# NEW: Add a handler function to get the average state and count
 def get_trace_averaging_settings(app_instance, trace_number, console_print_func) -> (bool, int):
     """
     Function Description:
@@ -631,8 +631,8 @@ def get_trace_averaging_settings(app_instance, trace_number, console_print_func)
     - (bool, int): A tuple containing the averaging state (True/False) and the count, or (None, None) on failure.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to retrieve averaging settings for trace {trace_number}.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to retrieve averaging settings for trace {trace_number}.",
+              file=current_file,
               version=current_version,
               function=current_function)
               
@@ -640,7 +640,6 @@ def get_trace_averaging_settings(app_instance, trace_number, console_print_func)
         console_print_func("❌ Not connected to an instrument. Cannot retrieve averaging settings.")
         return None, None
 
-    # The command type needs to be generic so YakNab can find it in the CSV
     command_type = "AVERAGE"
     
     response = YakNab(app_instance, command_type, console_print_func)
@@ -656,15 +655,12 @@ def get_trace_averaging_settings(app_instance, trace_number, console_print_func)
             return is_on, count
         except (ValueError, IndexError, TypeError) as e:
             console_print_func(f"❌ Failed to parse averaging settings. Error: {e}")
-            debug_log(message=f"Arrr, the response be gibberish! Error: {e}",
-                      file=os.path.basename(__file__),
+            debug_log(f"🐐 ❌ Arrr, the response be gibberish! Error: {e}",
+                      file=current_file,
                       version=current_version,
                       function=current_function)
     
     return None, None
-# =========================================================================
-# HELPER FUNCTIONS - Not for direct GUI use
-# =========================================================================
 
 def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func):
     """
@@ -673,8 +669,8 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
     a list of (frequency, amplitude) pairs.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message="Processing raw trace data into frequency/amplitude pairs. This is a crucial step.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 Processing raw trace data into frequency/amplitude pairs. This is a crucial step.",
+              file=current_file,
               version=current_version,
               function=current_function)
 
@@ -694,8 +690,8 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
         
         processed_data = list(zip(freq_points / MHZ_TO_HZ_CONVERSION, amplitudes_dbm))
 
-        debug_log(message=f"Successfully processed trace data. First 5 points: {processed_data[:5]}...",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 ✅ Successfully processed trace data. First 5 points: {processed_data[:5]}...",
+                  file=current_file,
                   version=current_version,
                   function=current_function)
         
@@ -703,15 +699,15 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
 
     except ValueError as e:
         console_print_func(f"❌ Failed to parse trace data string. Error: {e}")
-        debug_log(message=f"ValueError: could not convert string to float. Failed to parse data string. Error: {e}",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 ❌ ValueError: could not convert string to float. Failed to parse data string. Error: {e}",
+                  file=current_file,
                   version=current_version,
                   function=current_function, special=True)
         return None
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while processing trace data: {e}")
-        debug_log(message=f"An unexpected error occurred: {e}",
-                  file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 An unexpected error occurred: {e}",
+                  file=current_file,
                   version=current_version,
                   function=current_function, special=True)
         return None
@@ -725,8 +721,8 @@ def get_trace_data_logic(app_instance, console_print_func):
     handling different trace modes with a simple update cycle counter.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message="Getting trace data from the instrument.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 Getting trace data from the instrument.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -734,16 +730,14 @@ def get_trace_data_logic(app_instance, console_print_func):
         console_print_func("❌ Not connected to an instrument. Cannot get trace data.")
         return False
     
-    # Placeholder for collecting all trace data
     all_trace_data = []
 
-    # Get frequency settings to properly process the trace data
     center_freq_hz = float(YakGet(app_instance, "FREQUENCY/CENTER", console_print_func))
     span_hz = float(YakGet(app_instance, "FREQUENCY/SPAN", console_print_func))
     start_freq_hz = center_freq_hz - (span_hz / 2)
     end_freq_hz = center_freq_hz + (span_hz / 2)
 
-    for i in range(1, 5): # Iterate through Trace 1 to 4
+    for i in range(1, 5):
         command_type = f"TRACE/{i}/DATA"
         raw_data_string = YakGet(app_instance, command_type.upper(), console_print_func)
         
@@ -766,8 +760,8 @@ def do_power_cycle(app_instance, console_print_func):
     Sends a power cycle command to the instrument and handles the disconnection state.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to power cycle the device.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to power cycle the device.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -778,8 +772,6 @@ def do_power_cycle(app_instance, console_print_func):
     console_print_func("⚠️ Initiating device power cycle. Connection will be lost for ~20 seconds. Please wait to reconnect.")
     
     if YakDo(app_instance, "POWER/RESET", console_print_func=console_print_func) == "PASSED":
-        # The instrument is now cycling, so we need to set the application state to disconnected.
-        # This is the correct way to handle the disconnected state after a reset.
         app_instance.is_connected.set(False)
         return True
         
@@ -791,8 +783,8 @@ def get_all_marker_values_logic(app_instance, console_print_func):
     Returns a list of tuples: [(x1, y1), (x2, y2), ...]
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"Getting all marker values from the instrument.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 Getting all marker values from the instrument.",
+              file=current_file,
               version=current_version,
               function=current_function)
     
@@ -802,7 +794,6 @@ def get_all_marker_values_logic(app_instance, console_print_func):
     
     marker_values = []
     for i in range(1, 7):
-        # Check if the marker is active
         marker_state = YakGet(app_instance, f"MARKER/{i}/CALCULATE/STATE", console_print_func)
         if marker_state in ["ON", "1"]:
             x_value = YakGet(app_instance, f"MARKER/{i}/CALCULATE/X", console_print_func)
@@ -814,8 +805,8 @@ def get_all_marker_values_logic(app_instance, console_print_func):
                 marker_values.append((x_value_mhz, y_value_dbm))
             except (ValueError, TypeError):
                 console_print_func(f"⚠️ Could not parse marker {i} values.")
-                debug_log(message=f"Failed to parse marker {i} values. What a mess!",
-                          file=os.path.basename(__file__),
+                debug_log(f"🐐 ❌ Failed to parse marker {i} values. What a mess!",
+                          file=current_file,
                           version=current_version,
                           function=current_function)
                 marker_values.append((None, None))
@@ -828,8 +819,8 @@ def reset_device(app_instance, console_print_func):
     Sends a soft reset command to the instrument.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"API call to reset the device.",
-              file=os.path.basename(__file__),
+    debug_log(f"🐐 API call to reset the device.",
+              file=current_file,
               version=current_version,
               function=current_function)
     

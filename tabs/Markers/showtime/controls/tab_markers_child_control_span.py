@@ -13,12 +13,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.141500.1
+# Version 20250822.093400.1
 # REFACTORED: Updated to use the centralized `shared_state` object and to correctly
 #             parse the list-of-dictionaries preset structure.
 # FIXED: Updated versioning to adhere to project standards.
 # FIXED: Modified the buttons to display the frequency value in MHz on a second line.
 # FIXED: Removed the call to `_update_control_styles` to prevent an AttributeError.
+# UPDATED: All debug messages now include the correct emoji prefixes.
 
 import os
 import inspect
@@ -31,8 +32,8 @@ from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN
 from .utils_showtime_span import on_span_button_click
 
 # --- Versioning ---
-w = 20250821
-x = 141500
+w = 20250822
+x = 93400
 y = 1
 current_version = f"Version {w}.{x}.{y}"
 current_version_hash = (w * x * y)
@@ -44,13 +45,28 @@ MHZ_TO_HZ = 1_000_000
 class SpanTab(ttk.Frame):
     def __init__(self, parent_notebook, showtime_tab_instance, shared_state):
         # [Initializes the Span control tab.]
+        debug_log(f"🖥️ 🟢 Entering __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
         super().__init__(parent_notebook)
         self.showtime_tab_instance = showtime_tab_instance
         self.shared_state = shared_state
         self._create_widgets()
         
+        debug_log(f"🖥️ 🟢 Exiting __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
     def _create_widgets(self):
         # [Creates the UI elements for the Span tab.]
+        debug_log(f"🖥️ 🟢 Creating widgets for SpanTab.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
         self.shared_state.span_buttons.clear()
 
         for i, span_data in enumerate(PRESET_FREQUENCY_SPAN):
@@ -68,3 +84,8 @@ class SpanTab(ttk.Frame):
             self.shared_state.span_buttons[str(value)] = btn
 
         self.grid_columnconfigure(list(range(len(PRESET_FREQUENCY_SPAN))), weight=1)
+
+        debug_log(f"🖥️ ✅ Widgets created successfully.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)

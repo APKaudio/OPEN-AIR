@@ -14,17 +14,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250820.115620.1
-# FIXED: Updated versioning to adhere to project standards.
+# Version 20250821.210502.1
+# UPDATED: Added new variables to store min/max frequencies and device count
+#          for the currently selected zone or group.
+# UPDATED: Updated versioning and file header to adhere to new standards.
 
 import tkinter as tk
 import os
 from datetime import datetime
 
 # --- Versioning ---
-w = 20250820
-x_str = '115620'
-x = 115620
+w = 20250821
+x_str = '210502'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
@@ -47,7 +49,7 @@ class ShowtimeSharedState:
         self.zone_zoom_buttons = {}
 
         # --- Tkinter State Variables ---
-        self.span_var = tk.StringVar(value="50M")
+        self.span_var = tk.StringVar(value="1M")
         self.rbw_var = tk.StringVar(value="300k")
         self.poke_freq_var = tk.StringVar(value="")
         self.follow_zone_span_var = tk.BooleanVar(value=False)
@@ -74,3 +76,21 @@ class ShowtimeSharedState:
         self.selected_device_info = None
         self.last_selected_button = None
         self.active_device_button = None
+        
+        # NEW: Variables to store information about the selected zone/group
+        self.selected_zone_info = {
+            'min_freq': 0.0,
+            'max_freq': 0.0,
+            'device_count': 0
+        }
+
+        self.selected_group_info = {
+            'min_freq': 0.0,
+            'max_freq': 0.0,
+            'device_count': 0
+        }
+        
+        # NEW: Variables for the window buffer
+        self.buffer_var = tk.StringVar(value="3")
+        self.buffered_start_var = tk.DoubleVar(value=0.0)
+        self.buffered_stop_var = tk.DoubleVar(value=0.0)

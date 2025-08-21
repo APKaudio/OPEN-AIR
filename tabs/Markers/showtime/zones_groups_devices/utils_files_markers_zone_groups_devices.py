@@ -15,11 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.180000.2
+# Version 20250821.210000.1
 # FIXED: Replaced inplace operations on DataFrame slices to remove FutureWarning messages.
-
-current_version = "20250814.180000.2"
-current_version_hash = (20250814 * 180000 * 2)
+# NEW: Added debug logging for reads and writes of file data.
 
 import os
 import inspect
@@ -36,13 +34,15 @@ MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
 def load_and_structure_markers_data():
     # The main function to load, parse, and structure data from MARKERS.CSV.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function}. Time to wrangle that CSV data!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+    debug_log(message=f"Entering {current_function}. Time to wrangle that CSV data! 📂", file=f"{os.path.basename(__file__)}", version="20250821.210000.1", function=current_function)
 
     if not os.path.exists(MARKERS_FILE_PATH):
         console_log(f"❌ MARKERS.CSV not found at path: {MARKERS_FILE_PATH}", "ERROR")
-        debug_log("Marker CSV not found. What a disaster!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(message=f"Marker CSV not found. What a disaster!", file=f"{os.path.basename(__file__)}", version="20250821.210000.1", function=current_function)
         return None
     try:
+        # 📂 Read File: Reading the marker CSV data.
+        debug_log(message=f"📂 Read File: Reading marker data from {MARKERS_FILE_PATH}", file=f"{os.path.basename(__file__)}", version="20250821.210000.1", function=current_function)
         df = pd.read_csv(MARKERS_FILE_PATH)
         
         # --- Data Cleaning and Structuring ---
@@ -90,11 +90,12 @@ def load_and_structure_markers_data():
                 zone_dict[group_name] = device_list
             structured_data[zone_name] = zone_dict
         
+        # 📊 Processed Data: Log the result of the data transformation.
         console_log(f"✅ Successfully loaded and structured {len(df)} devices into {len(structured_data)} zones.", "SUCCESS")
-        debug_log(f"Successfully loaded and structured {len(df)} devices into {len(structured_data)} zones. We got the data!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(message=f"📊 Processed Data: Successfully loaded and structured {len(df)} devices into {len(structured_data)} zones. We got the data! 🎣", file=f"{os.path.basename(__file__)}", version="20250821.210000.1", function=current_function)
         return structured_data
 
     except Exception as e:
         console_log(f"❌ Failed to parse MARKERS.CSV. Error: {e}", "ERROR")
-        debug_log(f"Full traceback for CSV parsing error: {e}. This bugger is being problematic!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(message=f"Full traceback for CSV parsing error: {e}. This bugger is being problematic!", file=f"{os.path.basename(__file__)}", version="20250821.210000.1", function=current_function)
         return None

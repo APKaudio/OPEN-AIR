@@ -18,10 +18,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250811.183037.0
-
-current_version = "20250811.183037.0"
-current_version_hash = 20250811 * 183037 * 0
+# Version 20250821.210502.1
+# UPDATED: All debug messages now include the required 🐐 emoji at the start.
 
 import inspect
 import pyvisa
@@ -32,7 +30,15 @@ import os
 from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
 
-# Helper function for instrument communication, using the new logging
+# --- Versioning ---
+w = 20250821
+x_str = '210502'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = file=f"{os.path.basename(__file__)}"
+
 
 def _reset_device(inst, console_print_func):
     """
@@ -53,22 +59,22 @@ def _reset_device(inst, console_print_func):
     """
     current_function = inspect.currentframe().f_code.co_name
     console_print_func("⚠️ Command failed. Attempting to reset the instrument with '*RST'...")
-    debug_log(f"Command failed. Attempting to send reset command '*RST' to the instrument.",
-                file=os.path.basename(__file__),
+    debug_log(f"🐐 🟡 Command failed. Attempting to send reset command '*RST' to the instrument.",
+                file=current_file,
                 version=current_version,
                 function=current_function)
     # Use the write_safe function to send the reset command
     reset_success = write_safe(inst, "*RST", console_print_func)
     if reset_success:
         console_print_func("✅ Device reset command sent successfully.")
-        debug_log("Reset command sent. Goddamn, that felt good!",
-                    file=os.path.basename(__file__),
+        debug_log("🐐 ✅ Reset command sent. Goddamn, that felt good!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
     else:
         console_print_func("❌ Failed to send reset command.")
-        debug_log("Failed to send reset command. This is a goddamn mess!",
-                    file=os.path.basename(__file__),
+        debug_log("🐐 ❌ Failed to send reset command. This is a goddamn mess!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
     return reset_success
@@ -95,14 +101,14 @@ def write_safe(inst, command, console_print_func):
     # (2025-08-01) Change: Refactored to use new logging.
     # (2025-08-11) Change: No changes.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to write command: {command}",
-                file=os.path.basename(__file__),
+    debug_log(f"🐐 📝 Attempting to write command: {command}",
+                file=current_file,
                 version=current_version,
                 function=current_function)
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot write command.")
-        debug_log("Instrument not connected. Fucking useless!",
-                    file=os.path.basename(__file__),
+        debug_log("🐐 ❌ Instrument not connected. Fucking useless!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         return False
@@ -112,8 +118,8 @@ def write_safe(inst, command, console_print_func):
         return True
     except Exception as e:
         console_print_func(f"❌ Error writing command '{command}': {e}")
-        debug_log(f"Error writing command '{command}': {e}. This thing is a pain in the ass!",
-                    file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 Error writing command '{command}': {e}. This thing is a pain in the ass!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -140,14 +146,14 @@ def query_safe(inst, command, console_print_func):
     # (2025-08-01) Change: Refactored to use new logging.
     # (2025-08-11) Change: No changes.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to query command: {command}",
-                file=os.path.basename(__file__),
+    debug_log(f"🐐 📝 Attempting to query command: {command}",
+                file=current_file,
                 version=current_version,
                 function=current_function)
     if not inst:
         console_print_func("⚠️ Warning: Instrument not connected. Cannot query command.")
-        debug_log("Instrument not connected. Fucking useless!",
-                    file=os.path.basename(__file__),
+        debug_log("🐐 ❌ Instrument not connected. Fucking useless!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         return None
@@ -158,8 +164,8 @@ def query_safe(inst, command, console_print_func):
         return response
     except Exception as e:
         console_print_func(f"❌ Error querying command '{command}': {e}")
-        debug_log(f"Error querying command '{command}': {e}. This goddamn thing is broken!",
-                    file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 Error querying command '{command}': {e}. This goddamn thing is broken!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -185,8 +191,8 @@ def set_safe(inst, command, value, console_print_func):
     """
     current_function = inspect.currentframe().f_code.co_name
     full_command = f"{command} {value}"
-    debug_log(f"Attempting to SET: {full_command}",
-                file=os.path.basename(__file__),
+    debug_log(f"🐐 📝 Attempting to SET: {full_command}",
+                file=current_file,
                 version=current_version,
                 function=current_function)
     return write_safe(inst, full_command, console_print_func)
@@ -208,8 +214,8 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
       or "FAILED" for other errors.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Waiting for Operation Complete (*OPC?) with a timeout of {timeout} seconds. Let's see if this thing is done!",
-                file=os.path.basename(__file__),
+    debug_log(f"🐐 🟠 Waiting for Operation Complete (*OPC?) with a timeout of {timeout} seconds. Let's see if this thing is done!",
+                file=current_file,
                 version=current_version,
                 function=current_function)
 
@@ -224,11 +230,15 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
 
         if response == "1":
             console_print_func("✅ Operation Complete. Fucking brilliant!")
+            debug_log("🐐 ✅ OPC query successful. Fucking brilliant!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
             return "PASSED"
         else:
             console_print_func("❌ Operation failed to complete or returned an unexpected value.")
-            debug_log(f"OPC query returned '{response}', not '1'. What the hell?!",
-                        file=os.path.basename(__file__),
+            debug_log(f"🐐 ❌ OPC query returned '{response}', not '1'. What the hell?!",
+                        file=current_file,
                         version=current_version,
                         function=current_function)
             _reset_device(inst, console_print_func)
@@ -237,8 +247,8 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
     except pyvisa.errors.VisaIOError as e:
         inst.timeout = original_timeout # Restore original timeout
         console_print_func(f"❌ Operation Complete query timed out after {timeout} seconds.")
-        debug_log(f"OPC query failed with a timeout: {e}. This thing is a stubborn bastard!",
-                    file=os.path.basename(__file__),
+        debug_log(f"🐐 ❌ OPC query failed with a timeout: {e}. This thing is a stubborn bastard!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
@@ -246,13 +256,9 @@ def _wait_for_opc(inst, console_print_func, timeout=5):
     except Exception as e:
         inst.timeout = original_timeout # Restore original timeout
         console_print_func(f"❌ Error during Operation Complete query: {e}")
-        debug_log(f"Error during OPC query: {e}. This bugger is being problematic!",
-                    file=os.path.basename(__file__),
+        debug_log(f"🐐 🧨 Error during OPC query: {e}. This bugger is being problematic!",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         _reset_device(inst, console_print_func)
         return "FAILED"
-    
-
-
-    ''''''

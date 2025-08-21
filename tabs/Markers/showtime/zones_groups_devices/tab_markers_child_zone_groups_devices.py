@@ -14,11 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.140000.1
+# Version 20250821.210502.1
 # REFACTORED: Restored the original, feature-rich display logic, including the
 #             scrollable device canvas, multi-line device buttons with signal
 #             indicators, grid layout, and dynamic frame titles.
 # FIXED: Merged original functionality with the new `shared_state` architecture.
+# UPDATED: Updated versioning and file header to adhere to new standards.
 
 import tkinter as tk
 from tkinter import ttk
@@ -36,8 +37,8 @@ from display.console_logic import console_log
 from src.program_style import COLOR_PALETTE
 
 # --- Versioning ---
-w = int(datetime.now().strftime('%Y%m%d'))
-x_str = datetime.now().strftime('%H%M%S')
+w = 20250821
+x_str = '210502'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"

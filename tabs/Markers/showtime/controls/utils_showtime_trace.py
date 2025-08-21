@@ -15,12 +15,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.120100.5
-# FIXED: The `_get_and_plot_traces` function was corrected to access the
-#        `scan_center_freq_var` and `scan_span_freq_var` from `app_instance.orchestrator_logic`,
-#        resolving the `AttributeError`.
-# FIXED: Corrected `execute_trace_action` to pass the `action_type` to `_get_and_plot_traces`.
+# Version 20250821.210000.1
+# FIXED: Corrected the AttributeErrors by changing the way the `showtime_tab` and `controls_frame` instances are accessed.
+# NEW: Added a 'min' option to the `trace_mode_map` for consistency.
 # FIXED: Corrected versioning to adhere to project standards.
+# NEW: Added debug logging for read data from the NAB handler.
 
 import os
 import inspect
@@ -38,18 +37,16 @@ from tabs.Markers.showtime.controls.utils_showtime_plot import plot_all_traces
 from process_math.math_frequency_translation import MHZ_TO_HZ
 
 # --- Versioning ---
-w = 20250821
-x = 120100
-y = 5
-current_version = f"Version {w}.{x}.{y}"
-current_version_hash = (w * x * y)
+current_version = "20250821.210000.1"
+current_version_hash = (20250821 * 210000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def sync_trace_modes(traces_tab_instance):
     # [Synchronizes the trace mode buttons with the instrument's current state.]
-    debug_log(f"Entering sync_trace_modes", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
     
-    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+    showtime_tab = traces_tab_instance.showtime_tab_instance
     app_instance = showtime_tab.app_instance
     console_print_func = showtime_tab.console_print_func
 
@@ -62,13 +59,15 @@ def sync_trace_modes(traces_tab_instance):
         else:
             traces_tab_instance.shared_state.trace_buttons[button_name].config(style='ControlButton.Inactive.TButton')
             
-    debug_log(f"Exiting sync_trace_modes", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
+    debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
 
 def execute_trace_action(traces_tab_instance, action_type):
     # [Orchestrates the process of fetching and plotting traces based on user action.]
-    debug_log(f"Entering execute_trace_action with action_type: {action_type}", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function} with action_type: {action_type}", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
     
-    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+    # FIXED: Access the parent ShowtimeParentTab instance directly from the child tab
+    showtime_tab = traces_tab_instance.showtime_tab_instance
 
     # Set the instrument's trace mode based on the button clicked
     trace_mode_map = {
@@ -86,13 +85,15 @@ def execute_trace_action(traces_tab_instance, action_type):
     # FIXED: Pass the action_type to _get_and_plot_traces
     _get_and_plot_traces(traces_tab_instance, action_type)
     
-    debug_log(f"Exiting execute_trace_action", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
+    debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
 
 def _get_and_plot_traces(traces_tab_instance, view_name):
     # [Fetches trace data from the instrument and passes it to the plotting utility.]
-    debug_log(f"Entering _get_and_plot_traces", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_and_plot_traces")
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"Entering {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="_get_and_plot_traces")
     
-    showtime_tab = traces_tab_instance.controls_frame.showtime_tab_instance
+    # FIXED: Access the parent ShowtimeParentTab instance directly from the child tab
+    showtime_tab = traces_tab_instance.showtime_tab_instance
     app_instance = showtime_tab.app_instance
     console_print_func = showtime_tab.console_print_func
     
@@ -101,7 +102,8 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
     stop_freq_mhz = (app_instance.orchestrator_logic.scan_center_freq_var.get() + app_instance.orchestrator_logic.scan_span_freq_var.get() / 2) / 1000000
     
     try:
-        # Fetch the data from the instrument
+        # 📖 Read Data: Fetch the data from the instrument.
+        debug_log(message=f"📖 Reading Data: Fetching all traces from the instrument via NAB handler.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         trace_data = handle_all_traces_nab(app_instance, console_print_func)
         
         # If data is successfully retrieved, pass it to the plotter
@@ -110,7 +112,7 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
         
     except Exception as e:
         console_print_func(f"❌ Error getting trace data: {e}")
-        debug_log(f"Shiver me timbers, the trace data be lost at sea! The error be: {e}",
+        debug_log(message=f"Shiver me timbers, the trace data be lost at sea! The error be: {e}",
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function="execute_trace_action")

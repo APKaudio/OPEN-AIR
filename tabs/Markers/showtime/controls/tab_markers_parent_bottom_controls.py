@@ -14,14 +14,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.143000.1
+# Version 20250822.103000.2
 # REFACTORED: Updated __init__ signature and child tab instantiation to correctly
 #             pass the showtime_tab_instance and the shared_state object.
 # FIXED: Corrected circular import by moving child tab imports inside the method.
 # FIXED: Added a new method to handle updating control button styles from other modules.
 # FIXED: Corrected versioning to adhere to project standards.
-# FIXED: Moved the call to `_update_control_styles` to execute after all child tabs are created,
-#        resolving an AttributeError in the startup sequence.
+# UPDATED: All debug messages now include the correct emoji prefixes.
+# FIXED: The initial styles are now applied to the buttons immediately after widget creation.
+# NEW: Added a public method `switch_to_tab` to programmatically change the active tab.
 
 import tkinter as tk
 from tkinter import ttk
@@ -31,23 +32,35 @@ from datetime import datetime
 from display.debug_logic import debug_log
 from src.program_style import COLOR_PALETTE, COLOR_PALETTE_TABS, _get_dark_color
 
-
 # --- Versioning ---
-w = 20250821
-x = 143000
-y = 1
-current_version = f"Version {w}.{x}.{y}"
+w = 20250822
+x_str = '103000'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 2
+current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 class ControlsFrame(ttk.Frame):
     def __init__(self, parent_frame, showtime_tab_instance, shared_state):
         # [Initializes the main controls frame with its notebook of control tabs.]
+        debug_log(f"🖥️ 🟢 Entering __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
         super().__init__(parent_frame)
         self.showtime_tab_instance = showtime_tab_instance
         self.shared_state = shared_state
         self.controls_notebook = None
         self._create_widgets()
+        # FIXED: Call the style update method here after the widgets are created.
+        self._update_control_styles()
+        
+        debug_log(f"🖥️ 🟢 Exiting __init__",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
 
     def _create_widgets(self):
         # FIXED: Move all child tab imports here to resolve circular dependency.
@@ -56,6 +69,11 @@ class ControlsFrame(ttk.Frame):
         from .tab_markers_child_control_poke import PokeTab
         from .tab_markers_child_control_traces import TracesTab
         from .tab_markers_child_control_zone_zoom import ZoneZoomTab
+        
+        debug_log(f"🖥️ 🟢 Creating widgets for ControlsFrame.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
 
         # --- NEW: Apply custom styling for the child notebook tabs ---
         style = ttk.Style(self)
@@ -87,12 +105,18 @@ class ControlsFrame(ttk.Frame):
         self.controls_notebook.add(self.traces_tab, text='Traces')
         self.controls_notebook.add(self.zone_zoom_tab, text='Zone Zoom')
         
-        # FIXED: Call the update function AFTER all children have been created.
-        self._update_control_styles()
-
+        debug_log(f"🖥️ ✅ Widgets created successfully.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+        
     def _update_control_styles(self):
         # [Updates the styles of the control buttons based on the currently selected
         # span or RBW in the shared state.]
+        debug_log(f"🖥️ 🔄 Updating control button styles.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
         
         # Update span buttons
         for value_str, btn in self.shared_state.span_buttons.items():
@@ -114,3 +138,33 @@ class ControlsFrame(ttk.Frame):
             if button:
                 style = 'ControlButton.Active.TButton' if var.get() else 'ControlButton.Inactive.TButton'
                 button.config(style=style)
+                
+        debug_log(f"🖥️ ✅ Control button styles updated successfully.",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
+    def switch_to_tab(self, tab_name):
+        # [Programmatically switches the active tab in the controls notebook.]
+        debug_log(f"🖥️ 🟢 Entering switch_to_tab with argument: {tab_name}",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
+
+        try:
+            tab_index = self.controls_notebook.index(tab_name)
+            self.controls_notebook.select(tab_index)
+            debug_log(f"🖥️ ✅ Successfully switched to tab: {tab_name}",
+                        file=current_file,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
+        except tk.TclError as e:
+            debug_log(f"🖥️ ❌ Error switching to tab '{tab_name}': {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=inspect.currentframe().f_code.co_name)
+        
+        debug_log(f"🖥️ 🟢 Exiting switch_to_tab",
+                    file=current_file,
+                    version=current_version,
+                    function=inspect.currentframe().f_code.co_name)
