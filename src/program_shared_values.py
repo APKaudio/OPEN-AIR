@@ -48,7 +48,7 @@ def setup_shared_values(app_instance):
                 function=current_function)
 
     # Lazily import DEFAULT_CONFIG to break circular dependency
-    from src.settings_and_config.program_default_values import DEFAULT_CONFIG
+    from settings_and_config.program_default_values import DEFAULT_CONFIG
 
     # --- Application & Debugging Variables ---
     app_instance.is_connected = tk.BooleanVar(app_instance, value=False)

@@ -47,7 +47,7 @@ from display.debug_logic import (
     DEBUG_FILE_PATH, VISA_FILE_PATH
 )
 from display.console_logic import console_log
-from src.settings_and_config.config_manager import save_config
+from settings_and_config.config_manager import save_config
 
 class DebugTab(ttk.Frame):
     """

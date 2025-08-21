@@ -28,7 +28,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import other components
-from tabs.TABS_PARENT import TABS_PARENT
+from .TABS_PARENT import TABS_PARENT
 from display.DISPLAY_PARENT import DISPLAY_PARENT
 
 # Import styling functions

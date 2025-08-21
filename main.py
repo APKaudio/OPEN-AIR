@@ -38,9 +38,9 @@ from src.program_initialization import initialize_program_environment
 from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_geometry
 from src.program_shared_values import setup_shared_values
 from src.program_style import apply_styles
-from src.settings_and_config.config_manager import save_config, load_config
+from settings_and_config.config_manager import save_config, load_config
 # Corrected import to get all global paths
-from src.settings_and_config.program_default_values import DEFAULT_CONFIG, CONFIG_FILE_PATH, DATA_FOLDER_PATH, VISA_COMMANDS_FILE_PATH
+from settings_and_config.program_default_values import DEFAULT_CONFIG, CONFIG_FILE_PATH, DATA_FOLDER_PATH, VISA_COMMANDS_FILE_PATH
 from display.debug_logic import debug_log, set_debug_redirectors, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, set_log_truncation_mode, set_debug_mode, set_log_visa_commands_mode, set_include_visa_messages_to_debug_file_mode
 from display.console_logic import console_log, set_gui_console_redirector, set_debug_file_hooks
 from src.gui_elements import TextRedirector

@@ -25,6 +25,7 @@ import pandas as pd
 import math
 from typing import Dict, List, Tuple
 import inspect # Used for enhanced debug printing context
+import os
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log

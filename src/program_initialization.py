@@ -25,9 +25,9 @@ import tkinter as tk
 # Local application imports
 from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, set_log_truncation_mode, set_include_visa_messages_to_debug_file_mode
 from display.console_logic import console_log
-from src.settings_and_config.program_default_values import DATA_FOLDER_PATH, CONFIG_FILE_PATH, DEFAULT_CONFIG
-from src.settings_and_config.config_manager import load_config, save_config
-from src.settings_and_config.restore_settings_logic import restore_last_used_settings
+from settings_and_config.program_default_values import DATA_FOLDER_PATH, CONFIG_FILE_PATH, DEFAULT_CONFIG
+from settings_and_config.config_manager import load_config, save_config
+from settings_and_config.restore_settings_logic import restore_last_used_settings
 from src.program_shared_values import setup_shared_values
 
 
