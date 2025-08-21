@@ -3,14 +3,9 @@
 # Author: Anthony Peter Kuzub
 # ... (Full header included)
 #
-# Version 20250822.093400.1
-# FIXED: The button command lambda now correctly passes `self.showtime_tab_instance`
-#        to the utility function, resolving the subsequent AttributeError.
-# FIXED: Corrected circular import by moving the problematic import inside the method.
-# FIXED: Updated versioning to adhere to project standards.
-# FIXED: Modified the buttons to display the frequency value on a second line,
-#        using Hz, kHz, or MHz for readability.
-# UPDATED: All debug messages now include the correct emoji prefixes.
+# Version 20250823.003000.1
+# UPDATED: File header and versioning adhere to new standards.
+# FIXED: on_rbw_button_click now saves the config after a successful operation.
 
 import tkinter as tk
 import os
@@ -24,8 +19,8 @@ import inspect
 from datetime import datetime
 
 # --- Versioning ---
-w = 20250822
-x = 93400
+w = 20250823
+x = 3000
 y = 1
 current_version = f"Version {w}.{x}.{y}"
 current_version_hash = (w * x * y)

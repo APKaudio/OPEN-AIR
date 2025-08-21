@@ -15,10 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.165100.1 (FIXED: The load_config function now correctly handles empty or non-existent config files by defaulting to the internal configuration.)
+# Version 20250823.140000.2
+# FIXED: Corrected the logic in save_config and save_config_as_new_file to
+#        explicitly check for and save the MarkerTab variables from the
+#        `app_instance` object, ensuring persistence.
 
-current_version = "20250812.165100.1"
-current_version_hash = (20250812 * 165100 * 1)
+current_version = "20250823.140000.2"
+current_version_hash = (20250823 * 140000 * 2)
 
 import configparser
 import os
@@ -30,7 +33,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Use the correct variable name 'DEFAULT_CONFIG'
-from src.program_default_values import DEFAULT_CONFIG
+from src.settings_and_config.program_default_values import DEFAULT_CONFIG
 
 
 def load_config(file_path, console_print_func):
@@ -109,6 +112,14 @@ def save_config(config, file_path, console_print_func, app_instance):
         'paned_window_sash_position_percentage',
         'last_scan_configuration__selected_bands',
         'last_scan_configuration__selected_bands_levels',
+        # ADDED: New MarkerTab keys
+        'span_hz',
+        'rbw_hz',
+        'trace_live',
+        'trace_max_hold',
+        'trace_min_hold',
+        'buffer_mhz',
+        'poke_mhz'
     ]
 
     try:
@@ -186,6 +197,34 @@ def save_config(config, file_path, console_print_func, app_instance):
                             version=current_version,
                             function=current_function)
         
+        # --- Explicitly save MarkerTab variables (now handled as shared state) ---
+        # FIXED: Corrected the check to ensure `showtime_parent_tab` and `shared_state` exist
+        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
+            shared_state = app_instance.showtime_parent_tab.shared_state
+            
+            if not config.has_section('MarkerTab'):
+                config.add_section('MarkerTab')
+
+            # Save MarkerTab specific variables
+            config.set('MarkerTab', 'span_hz', str(shared_state.span_var.get()))
+            config.set('MarkerTab', 'rbw_hz', str(shared_state.rbw_var.get()))
+            config.set('MarkerTab', 'trace_live', str(shared_state.trace_modes['live'].get()))
+            config.set('MarkerTab', 'trace_max_hold', str(shared_state.trace_modes['max'].get()))
+            config.set('MarkerTab', 'trace_min_hold', str(shared_state.trace_modes['min'].get()))
+            config.set('MarkerTab', 'buffer_mhz', str(shared_state.buffer_var.get()))
+            config.set('MarkerTab', 'poke_mhz', str(shared_state.poke_freq_var.get()))
+            
+            debug_log(f"Config object: Explicitly set MarkerTab values from shared state. All systems go!",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function, special=True)
+        else:
+            debug_log("Config object: 'showtime_parent_tab' not available. Skipping MarkerTab save.",
+                        file=os.path.basename(__file__),
+                        version=current_version,
+                        function=current_function)
+
+
         # --- Explicitly save selected bands from app_instance.band_vars ---
         if hasattr(app_instance, 'band_vars') and app_instance.band_vars:
             selected_bands_with_levels = [
@@ -207,7 +246,7 @@ def save_config(config, file_path, console_print_func, app_instance):
                         function=current_function)
 
         final_sash_pos_in_config = config.get('Application', 'paned_window_sash_position_percentage', fallback=50)
-        debug_log(f"Config object reports 'paned_window_sash_position_percentage' as '{final_sash_pos_in_config}' just before file write. Is this the right value? This better work!",
+        debug_log(f"Config object reports 'paned_window_sash_position_percentage' as '45' just before file write. Is this the right value? This better work!",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function, special=True)
@@ -286,6 +325,21 @@ def save_config_as_new_file(app_instance, new_file_path):
             if not new_config.has_section('Scan'):
                 new_config.add_section('Scan')
             new_config.set('Scan', 'last_scan_configuration__selected_bands_levels', selected_bands_str)
+        
+        # ADDED: Explicitly save MarkerTab variables from the new shared state
+        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
+            shared_state = app_instance.showtime_parent_tab.shared_state
+            
+            if not new_config.has_section('MarkerTab'):
+                new_config.add_section('MarkerTab')
+            
+            new_config.set('MarkerTab', 'span_hz', str(shared_state.span_var.get()))
+            new_config.set('MarkerTab', 'rbw_hz', str(shared_state.rbw_var.get()))
+            new_config.set('MarkerTab', 'trace_live', str(shared_state.trace_modes['live'].get()))
+            new_config.set('MarkerTab', 'trace_max_hold', str(shared_state.trace_modes['max'].get()))
+            new_config.set('MarkerTab', 'trace_min_hold', str(shared_state.trace_modes['min'].get()))
+            new_config.set('MarkerTab', 'buffer_mhz', str(shared_state.buffer_var.get()))
+            new_config.set('MarkerTab', 'poke_mhz', str(shared_state.poke_freq_var.get()))
 
         # Write the new config object to the specified new file
         with open(new_file_path, 'w') as configfile:

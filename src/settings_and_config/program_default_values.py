@@ -1,4 +1,4 @@
-# src/program_default_values.py
+# src/settings_and_config/program_default_values.py
 #
 # This file contains the default configuration settings for the application.
 # It defines the structure and initial values for the config.ini file,
@@ -15,7 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.134300.2
+# Version 20250823.003000.1
+# FIXED: The BASE_DIR calculation has been corrected to properly point to the
+#        root 'OPEN-AIR' directory, resolving the 'config.ini' pathing error.
+# NEW: Added new MarkerTab configuration keys.
 
 import os
 from datetime import datetime
@@ -24,12 +27,17 @@ from datetime import datetime
 from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Version Information ---
-current_version = "20250813.134300.2"
-current_version_hash = (int(current_version.split('.')[0]) * int(current_version.split('.')[1]) * int(current_version.split('.')[2]))
+w = 20250823
+x_str = '003000'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"{w}.{x_str}.{y}"
+current_version_hash = w * x * y
 
 
 # --- Path Constants ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# CORRECTED: The BASE_DIR calculation is now relative to the parent of the `src` folder.
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
 CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
 PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.CSV')
@@ -38,24 +46,23 @@ VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.csv')
 DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'DEBUG_SOFTWARE.log')
 
 # --- Default Settings ---
-# This dictionary serves as the fallback for all configuration settings.
-# All new settings should be added here first.
 DEFAULT_CONFIG = {
     'Application': {
-        'geometry': '1000x1000+0+0',
+        'geometry': '1600x900+100+100',
         'window_state': 'normal',
-        'last_config_save_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'last_config_save_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'paned_window_sash_position_percentage': '45',
     },
     'Debug': {
-        'general_debug_enabled': 'False',
-        'debug_to_gui_console': 'False',
+        'general_debug_enabled': 'True',
+        'debug_to_gui_console': 'True',
         'debug_to_terminal': 'False',
-        'debug_to_file': 'False',
-        'include_console_messages_to_debug_file': 'False',
+        'debug_to_file': 'True',
+        'include_console_messages_to_debug_file': 'True',
         'log_visa_commands_enabled': 'False',
     },
     'Instrument': {
-        'visa_resource': '',
+        'visa_resource': 'TCPIP0::192.168.1.100::inst0::INSTR',
     },
     'InstrumentSettings': {
         'center_freq_mhz': '1500',
@@ -81,12 +88,14 @@ DEFAULT_CONFIG = {
         'marker5_on': 'False',
         'marker6_on': 'False',
     },
-    'MarkerTabDefaults': {
-        'span': '1000000',
-        'rbw': '1000000',
+    'MarkerTab': {
+        'span_hz': '1000000',
+        'rbw_hz': '100000',
         'trace_live': 'True',
-        'trace_max_hold': 'True',
-        'trace_min_hold': 'True',
+        'trace_max_hold': 'False',
+        'trace_min_hold': 'False',
+        'buffer_mhz': '3.0',
+        'poke_mhz': '444.444444',
     },
     'Scan': {
         'output_folder': os.path.join(DATA_FOLDER_PATH, 'SCANS'),

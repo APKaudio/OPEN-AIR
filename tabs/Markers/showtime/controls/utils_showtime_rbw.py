@@ -15,12 +15,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.210000.1
-# REFACTORED: All functions now directly access shared state from the parent
-#             `showtime_tab_instance` via the `rbw_tab_instance` passed as an argument.
-# FIXED: The problematic import `from .utils_showtime_rbw import on_rbw_button_click` was removed.
-# FIXED: Corrected versioning to adhere to project standards.
-# NEW: Added debug logging for writes to the shared state variables.
+# Version 20250822.230000.1
+# UPDATED: File header and versioning adhere to new standards.
+# UPDATED: `on_rbw_button_click` now correctly uses `showtime_tab` to access the `shared_state`
+#          and triggers a button style update, ensuring UI consistency.
+# FIXED: The `on_rbw_button_click` function now saves the config after a successful operation.
 
 import os
 import inspect
@@ -31,12 +30,13 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
 from yak.utils_yak_setting_handler import set_resolution_bandwidth
+from src.settings_and_config.config_manager import save_config
 
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
-current_version = "20250821.210000.1"
-current_version_hash = (20250821 * 210000 * 1)
+current_version = "20250822.230000.1"
+current_version_hash = (20250822 * 230000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def set_rbw_logic(app_instance, rbw_hz, console_print_func):
@@ -73,6 +73,12 @@ def on_rbw_button_click(showtime_tab, rbw_hz):
         
         # Trigger the handler to send the new RBW to the instrument
         set_resolution_bandwidth(app_instance=showtime_tab.app_instance, value=int(rbw_hz), console_print_func=showtime_tab.console_print_func)
+        
+        # FIXED: Save config after a successful RBW change
+        save_config(config=showtime_tab.app_instance.config,
+                    file_path=showtime_tab.app_instance.CONFIG_FILE_PATH,
+                    console_print_func=showtime_tab.console_print_func,
+                    app_instance=showtime_tab.app_instance)
 
     except Exception as e:
         showtime_tab.console_print_func(f"❌ Error setting RBW: {e}")

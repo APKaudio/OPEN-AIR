@@ -28,7 +28,7 @@ from datetime import datetime
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from .storage_showtime_shared import ShowtimeSharedState
+
 from tabs.Markers.showtime.zones_groups_devices.tab_markers_child_zone_groups_devices import ZoneGroupsDevicesFrame
 from tabs.Markers.showtime.controls.tab_markers_parent_bottom_controls import ControlsFrame
 
@@ -47,7 +47,7 @@ class ShowtimeParentTab(ttk.Frame):
         super().__init__(parent_notebook)
         self.app_instance = app_instance
         self.console_print_func = console_print_func
-        self.shared_state = ShowtimeSharedState()
+        
 
         self._create_widgets()
         self.bind("<<NotebookTabChanged>>", self._on_tab_selected)
@@ -64,7 +64,7 @@ class ShowtimeParentTab(ttk.Frame):
         self.zgd_frame = ZoneGroupsDevicesFrame(
             parent_frame=content_frame,
             showtime_tab_instance=self,
-            shared_state=self.shared_state
+            
         )
         self.zgd_frame.grid(row=0, column=0, sticky="nsew")
 

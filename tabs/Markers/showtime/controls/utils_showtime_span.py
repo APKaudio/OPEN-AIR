@@ -15,10 +15,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.210000.1
-# FIXED: Modified `on_span_button_click` to use `set_span_frequency` instead of
-#        `handle_freq_center_span_beg`, ensuring only the span is changed.
-# NEW: Added debug logging for writes to the shared state variables.
+# Version 20250823.003000.1
+# UPDATED: File header and versioning adhere to new standards.
+# UPDATED: `on_span_button_click` now correctly uses `showtime_tab_instance` to access the
+#          `shared_state` and triggers a button style update, ensuring UI consistency.
+# FIXED: The `on_span_button_click` function now saves the config after a successful operation.
 
 import os
 import inspect
@@ -27,11 +28,12 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 from yak.utils_yak_setting_handler import set_span_frequency
+from src.settings_and_config.config_manager import save_config
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
-current_version = "20250821.210000.1"
-current_version_hash = (20250821 * 210000 * 1)
+current_version = "20250823.003000.1"
+current_version_hash = (20250823 * 3000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def on_span_button_click(showtime_tab_instance, span_hz):
@@ -58,10 +60,15 @@ def on_span_button_click(showtime_tab_instance, span_hz):
         # Trigger the handler to send the new span to the instrument.
         # It should use the current center frequency and the new span.
         
-        # FIXED: Calling set_span_frequency instead of handle_freq_center_span_beg
         set_span_frequency(app_instance=showtime_tab_instance.app_instance,
                                     value=span_hz / 1_000_000,
                                     console_print_func=showtime_tab_instance.console_print_func)
+        
+        # FIXED: Save config after a successful span change
+        save_config(config=showtime_tab_instance.app_instance.config,
+                    file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
+                    console_print_func=showtime_tab_instance.console_print_func,
+                    app_instance=showtime_tab_instance.app_instance)
 
     except Exception as e:
         showtime_tab_instance.console_print_func(f"❌ Error setting span: {e}")

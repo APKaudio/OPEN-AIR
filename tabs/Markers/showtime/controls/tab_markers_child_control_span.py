@@ -13,13 +13,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.093400.1
-# REFACTORED: Updated to use the centralized `shared_state` object and to correctly
-#             parse the list-of-dictionaries preset structure.
-# FIXED: Updated versioning to adhere to project standards.
-# FIXED: Modified the buttons to display the frequency value in MHz on a second line.
-# FIXED: Removed the call to `_update_control_styles` to prevent an AttributeError.
-# UPDATED: All debug messages now include the correct emoji prefixes.
+# Version 20250823.003000.1
+# UPDATED: File header and versioning adhere to new standards.
+# UPDATED: The span buttons are now correctly linked to the shared state.
+# FIXED: The span button click now saves the config after a successful operation.
 
 import os
 import inspect
@@ -32,8 +29,8 @@ from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN
 from .utils_showtime_span import on_span_button_click
 
 # --- Versioning ---
-w = 20250822
-x = 93400
+w = 20250823
+x = 3000
 y = 1
 current_version = f"Version {w}.{x}.{y}"
 current_version_hash = (w * x * y)

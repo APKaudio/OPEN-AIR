@@ -25,7 +25,7 @@ import os
 from datetime import datetime
 
 from display.debug_logic import debug_log
-from src.program_default_values import DEFAULT_CONFIG
+from src.settings_and_config.program_default_values import DEFAULT_CONFIG
 from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Version Information ---

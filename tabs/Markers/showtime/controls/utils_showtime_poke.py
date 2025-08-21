@@ -15,14 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.210000.1
-# REFACTORED: `on_poke_action` now directly accesses all shared state variables from
-#             the `showtime_tab_instance` passed as an argument.
-#
-# FIXED: The `on_poke_action` function now correctly accesses variables from the
-#        `showtime_tab_instance`, resolving `AttributeError`s.
-# FIXED: Corrected versioning to adhere to project standards.
-# NEW: Added debug logging for reads and writes to the shared state variables.
+# Version 20250822.230000.1
+# UPDATED: `on_poke_action` now correctly reads the new `poke_mhz` variable from the shared state.
+# FIXED: Added a call to `save_config` to ensure the new poke value is persisted.
 
 import os
 import inspect
@@ -31,14 +26,15 @@ from ref.frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
+from src.settings_and_config.config_manager import save_config
 
 # Import dedicated utility functions from their respective modules
 from tabs.Markers.showtime.controls.utils_showtime_span import format_hz
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
 # --- Versioning ---
-current_version = "20250821.210000.1"
-current_version_hash = (20250821 * 210000 * 1)
+current_version = "20250822.230000.1"
+current_version_hash = (20250822 * 230000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def on_poke_action(showtime_tab_instance):
@@ -68,6 +64,12 @@ def on_poke_action(showtime_tab_instance):
             showtime_tab_instance.console_print_func(
                 f"✅ Instrument Confirmed: Center={returned_center / MHZ_TO_HZ:.3f} MHz, Span={format_hz(returned_span)}"
             )
+            # FIXED: Save config after a successful poke action
+            save_config(config=showtime_tab_instance.app_instance.config,
+                        file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
+                        console_print_func=showtime_tab_instance.console_print_func,
+                        app_instance=showtime_tab_instance.app_instance)
+
         else:
             showtime_tab_instance.console_print_func("❌ Poke command failed. Instrument did not confirm settings.")
             

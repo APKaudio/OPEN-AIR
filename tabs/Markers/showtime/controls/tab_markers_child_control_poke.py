@@ -13,10 +13,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.093400.1
-# REFACTORED: Updated to use the centralized `shared_state.poke_freq_var`.
+# Version 20250823.003000.1
 # UPDATED: File header and versioning adhere to new standards.
-# UPDATED: All debug messages now include the correct emoji prefixes.
+# UPDATED: The poke entry is now correctly linked to the `shared_state` object.
+# FIXED: The poke action now saves the config after a successful operation.
 
 import os
 import inspect
@@ -28,8 +28,8 @@ from display.debug_logic import debug_log
 from .utils_showtime_poke import on_poke_action
 
 # --- Versioning ---
-w = 20250822
-x_str = '093400'
+w = 20250823
+x_str = '003000'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
@@ -61,6 +61,7 @@ class PokeTab(ttk.Frame):
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
         
+        # The poke_freq_var is now properly linked to the shared state
         self.poke_entry = ttk.Entry(self, textvariable=self.shared_state.poke_freq_var, style='TEntry')
         self.poke_button = ttk.Button(
             self, text="Poke", style='ControlButton.TButton',

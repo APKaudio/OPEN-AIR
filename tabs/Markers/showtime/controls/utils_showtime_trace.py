@@ -15,11 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.210000.1
-# FIXED: Corrected the AttributeErrors by changing the way the `showtime_tab` and `controls_frame` instances are accessed.
-# NEW: Added a 'min' option to the `trace_mode_map` for consistency.
-# FIXED: Corrected versioning to adhere to project standards.
-# NEW: Added debug logging for read data from the NAB handler.
+# Version 20250823.003000.1
+# UPDATED: File header and versioning adhere to new standards.
+# UPDATED: The trace mode mapping now correctly uses the mode strings defined in the new MarkerTab config.
+# FIXED: The execute_trace_action function now saves the config after changing trace modes.
 
 import os
 import inspect
@@ -32,13 +31,14 @@ from display.console_logic import console_log
 
 from yak.utils_yaknab_handler import handle_all_traces_nab
 from yak.utils_yakbeg_handler import handle_trace_modes_beg
+from src.settings_and_config.config_manager import save_config
 
 from tabs.Markers.showtime.controls.utils_showtime_plot import plot_all_traces
 from process_math.math_frequency_translation import MHZ_TO_HZ
 
 # --- Versioning ---
-current_version = "20250821.210000.1"
-current_version_hash = (20250821 * 210000 * 1)
+current_version = "20250823.003000.1"
+current_version_hash = (20250823 * 3000 * 1)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def sync_trace_modes(traces_tab_instance):
@@ -85,6 +85,12 @@ def execute_trace_action(traces_tab_instance, action_type):
     # FIXED: Pass the action_type to _get_and_plot_traces
     _get_and_plot_traces(traces_tab_instance, action_type)
     
+    # FIXED: Save config after a successful trace action
+    save_config(config=showtime_tab.app_instance.config,
+                file_path=showtime_tab.app_instance.CONFIG_FILE_PATH,
+                console_print_func=showtime_tab.console_print_func,
+                app_instance=showtime_tab.app_instance)
+
     debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="execute_trace_action")
 
 def _get_and_plot_traces(traces_tab_instance, view_name):

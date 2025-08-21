@@ -26,7 +26,7 @@ import numpy as np
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from src.program_default_values import DATA_FOLDER_PATH
+from src.settings_and_config.program_default_values import DATA_FOLDER_PATH
 
 # Define the path to the markers file
 MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')

@@ -14,10 +14,12 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250810.220100.9 (FIXED: Corrected function call to load_config to match the new signature, resolving a TypeError.)
+# Version 20250823.140000.1
+# UPDATED: Added handling to restore the new MarkerTab values from the config file.
+# FIXED: Corrected the `load_config` call to align with the latest function signature.
 
-current_version = "20250810.220100.9"
-current_version_hash = 20250810 * 220100 * 9 # Example hash, adjust as needed
+current_version = "20250823.140000.1"
+current_version_hash = 20250823 * 140000 * 1 # Example hash, adjust as needed
 
 import tkinter as tk
 import inspect
@@ -29,7 +31,7 @@ from display.console_logic import console_log
 
 # Import config management functions
 from src.settings_and_config.config_manager import load_config, save_config # Import save_config
-from src.program_default_values import DEFAULT_CONFIG # Import default values
+from src.settings_and_config.program_default_values import DEFAULT_CONFIG # Import default values
 
 
 def restore_default_settings_logic(app_instance, console_print_func):
@@ -67,10 +69,8 @@ def restore_default_settings_logic(app_instance, console_print_func):
             section, key = var_info['section'], var_info['key']
             if app_instance.config.has_option(section, key):
                 try:
-                    # Get the value from the new default config object
                     value = app_instance.config.get(section, key)
                     
-                    # Convert to correct type and set the Tkinter variable
                     if isinstance(var_info['var'], tk.BooleanVar):
                         value = value.lower() == 'true'
                     elif isinstance(var_info['var'], tk.DoubleVar):
@@ -88,6 +88,23 @@ def restore_default_settings_logic(app_instance, console_print_func):
                                 file=current_file,
                                 version=current_version,
                                 function=current_function)
+        
+        # Restore MarkerTab variables from defaults
+        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
+            shared_state = app_instance.showtime_parent_tab.shared_state
+            
+            shared_state.span_var.set(app_instance.config.get('MarkerTab', 'span_hz', fallback='1000000'))
+            shared_state.rbw_var.set(app_instance.config.get('MarkerTab', 'rbw_hz', fallback='100000'))
+            shared_state.trace_modes['live'].set(app_instance.config.getboolean('MarkerTab', 'trace_live', fallback=True))
+            shared_state.trace_modes['max'].set(app_instance.config.getboolean('MarkerTab', 'trace_max_hold', fallback=False))
+            shared_state.trace_modes['min'].set(app_instance.config.getboolean('MarkerTab', 'trace_min_hold', fallback=False))
+            shared_state.buffer_var.set(app_instance.config.get('MarkerTab', 'buffer_mhz', fallback='3'))
+            shared_state.poke_freq_var.set(app_instance.config.get('MarkerTab', 'poke_mhz', fallback=''))
+            
+            debug_log("Restored MarkerTab values from default config.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
 
         # Restore band importance levels to defaults
         bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
@@ -155,8 +172,6 @@ def restore_last_used_settings_logic(app_instance, console_print_func):
     
     try:
         # Load the configuration from file into the app_instance.config object
-        # CORRECTED: The load_config function now requires only two arguments.
-        # This fixes the TypeError: load_config() takes 2 positional arguments but 3 were given
         app_instance.config = load_config(app_instance.CONFIG_FILE_PATH, console_print_func)
         
         # Restore the main Tkinter variables using the loaded config
@@ -185,7 +200,30 @@ def restore_last_used_settings_logic(app_instance, console_print_func):
                                 version=current_version,
                                 function=current_function)
         
-        # NEW LOGIC: Restore band importance levels from the loaded config.ini file.
+        # ADDED: Restore MarkerTab values from the loaded config.ini file.
+        # FIXED: Corrected the check to ensure `showtime_parent_tab` and `shared_state` exist
+        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
+            shared_state = app_instance.showtime_parent_tab.shared_state
+            
+            shared_state.span_var.set(app_instance.config.get('MarkerTab', 'span_hz', fallback='1000000'))
+            shared_state.rbw_var.set(app_instance.config.get('MarkerTab', 'rbw_hz', fallback='100000'))
+            shared_state.trace_modes['live'].set(app_instance.config.getboolean('MarkerTab', 'trace_live', fallback=True))
+            shared_state.trace_modes['max'].set(app_instance.config.getboolean('MarkerTab', 'trace_max_hold', fallback=False))
+            shared_state.trace_modes['min'].set(app_instance.config.getboolean('MarkerTab', 'trace_min_hold', fallback=False))
+            shared_state.buffer_var.set(app_instance.config.get('MarkerTab', 'buffer_mhz', fallback='3'))
+            shared_state.poke_freq_var.set(app_instance.config.get('MarkerTab', 'poke_mhz', fallback=''))
+
+            debug_log("Restored MarkerTab values from last used config successfully!",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        else:
+            debug_log("No Showtime tab or shared state found. Skipping MarkerTab restore.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function)
+        
+        # Restore band importance levels from the loaded config.ini file.
         bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
         debug_log(f"Attempting to restore band levels from config. Raw string: '{bands_levels_str}'",
                     file=current_file,
@@ -203,16 +241,9 @@ def restore_last_used_settings_logic(app_instance, console_print_func):
                                 version=current_version,
                                 function=current_function)
             
-            # Now, apply these levels to the band_vars list.
             for band_item in app_instance.band_vars:
                 band_name = band_item["band"]["Band Name"]
-                # Use .get() to avoid key errors if a band from the config is missing.
                 band_item["level"] = band_levels_dict.get(band_name, 0)
-                debug_log(f"Set band '{band_name}' to level: {band_item['level']}",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function)
-
 
             debug_log("Restored band importance levels from last used config successfully!",
                         file=current_file,

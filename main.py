@@ -42,7 +42,7 @@ from src.gui_elements import (_print_inst_ascii, _print_marks_ascii, _print_pres
                               _print_scan_ascii, _print_plot_ascii, _print_xxx_ascii, display_splash_screen,
                               TextRedirector)
 
-from src.program_default_values import (
+from src.settings_and_config.program_default_values import (
     CONFIG_FILE_PATH, DATA_FOLDER_PATH, PRESETS_FILE_PATH,
     MARKERS_FILE_PATH, VISA_COMMANDS_FILE_PATH, DEBUG_COMMANDS_FILE_PATH
 )
