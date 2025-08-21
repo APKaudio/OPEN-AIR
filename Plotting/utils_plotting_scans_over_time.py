@@ -36,7 +36,7 @@ from display.console_logic import console_log
 
 # Import constants from frequency_bands.py - CORRECTED PATH
 try:
-    from ref.frequency_bands import MHZ_TO_HZ
+    from ref.ref_frequency_bands import MHZ_TO_HZ
 except ImportError:
     debug_log("Error: frequency_bands.py not found in 'ref' or current directory. Using default MHZ_TO_HZ. This is a goddamn mess!",
                 file=__file__,

@@ -14,12 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.113847.14
-# FIX: Restructured the UI to align all elements to the top, removing unnecessary frames.
-#      The results table height has been explicitly set to 6 rows.
+# Version 20250821.141300.1
+# UPDATED: Added a new handler to save marker settings to the configuration file
+#          after a successful update from the GUI.
 
-current_version = "20250815.113847.14"
-current_version_hash = 20250815 * 113847 * 14
+current_version = "20250821.141300.1"
+current_version_hash = 20250821 * 141300 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -29,6 +29,11 @@ import os
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_marker_place_all_beg
+
+# ADDED: Imports for the configuration manager
+from settings_and_config.config_manager_marker import _save_marker_tab_settings
+from settings_and_config.config_manager import save_config
+
 
 class MarkerSettingsTab(ttk.Frame):
     """
@@ -148,6 +153,7 @@ class MarkerSettingsTab(ttk.Frame):
                             self.console_print_func(f"❌ Error parsing result for {marker_label}.")
                             self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_mhz:.3f}", 'FAILED'))
                     self.console_print_func("✅ Marker operation successful. Results displayed in table.")
+                    self._save_settings_handler()
                 else:
                     self.console_print_func(f"❌ Invalid response format. Expected 6 values, got {len(y_values)}.")
                     debug_log(f"Invalid response format from instrument. Expected 6 values, got {len(y_values)}. What a pain!",
@@ -165,3 +171,36 @@ class MarkerSettingsTab(ttk.Frame):
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
+
+    def _save_settings_handler(self):
+        """Handles saving the instrument marker settings to the config file."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"⚙️ 💾 Entering {current_function}. Time to save the instrument marker settings! 📍",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+
+        try:
+            # Call the specific save function from the modular config manager
+            _save_marker_tab_settings(
+                config=self.app_instance.program_config,
+                showtime_tab=self,
+                console_print_func=self.console_print_func
+            )
+            # Call the main config save function to write the changes to the file
+            save_config(
+                app_instance=self.app_instance,
+                config=self.app_instance.program_config,
+                config_file_path=self.app_instance.config_file_path,
+                console_print_func=self.console_print_func
+            )
+            debug_log("⚙️ ✅ Instrument marker settings saved successfully. Mission accomplished!",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+        except Exception as e:
+            debug_log(f"❌ Error saving instrument marker settings: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            self.console_print_func(f"❌ Error saving instrument marker settings: {e}")

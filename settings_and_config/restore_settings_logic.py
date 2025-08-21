@@ -57,7 +57,7 @@ def restore_default_settings(app_instance, console_print_func):
     
     console_print_func("⚠️ Restoring all settings to factory defaults. This is a big one!.")
     
-    from settings_and_config.program_default_values import DEFAULT_CONFIG_VALUES, CONFIG_FILE_PATH
+    from ref.ref_program_default_values import DEFAULT_CONFIG_VALUES, CONFIG_FILE_PATH
 
     try:
         default_config = ConfigParser()
@@ -106,7 +106,7 @@ def restore_last_used_settings(app_instance, console_print_func):
     
     console_print_func("✅ Attempting to restore last used settings...")
     
-    from settings_and_config.program_default_values import CONFIG_FILE_PATH
+    from ref.ref_file_paths import CONFIG_FILE_PATH
 
     try:
         # Load the configuration from the file

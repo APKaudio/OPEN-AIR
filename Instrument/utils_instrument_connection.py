@@ -1,4 +1,4 @@
-# tabs/Instrument/utils_instrument_connection.py
+# Instrument/utils_instrument_connection.py
 #
 # This module provides low-level functions specifically for managing VISA instrument
 # connections: listing available resources, connecting to an instrument, and

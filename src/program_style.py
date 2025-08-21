@@ -26,6 +26,7 @@ import os
 
 # FIXED: Explicitly import ttkthemes to make the themes available to the style engine
 import ttkthemes
+from ttkthemes import ThemedStyle
 
 from display.debug_logic import debug_log
 
@@ -95,7 +96,6 @@ def _revert_to_default_styles(style):
     style.map('TButton', background=[('active', 'gray')])
     style.map('TCheckbutton', background=[('active', 'gray')])
     style.map('TEntry', fieldbackground=[('disabled', 'lightgrey')], foreground=[('disabled', 'darkgrey')])
-
 def apply_styles(style, debug_log_func, current_app_version):
     """Applies custom Tkinter ttk styles for a consistent dark theme."""
     current_function = inspect.currentframe().f_code.co_name
@@ -105,7 +105,10 @@ def apply_styles(style, debug_log_func, current_app_version):
                    function=current_function, special=True)
 
     try:
-        # Check if the 'dark' theme from ttkthemes is available
+        # If the style is not a ThemedStyle, replace it with one to access ttkthemes
+        if not isinstance(style, ThemedStyle):
+            root = style.master if hasattr(style, 'master') else None
+            style = ThemedStyle(root)
         available_themes = style.theme_names()
         if 'dark' in available_themes:
             style.theme_use('dark')
@@ -114,7 +117,7 @@ def apply_styles(style, debug_log_func, current_app_version):
                              file=f"{os.path.basename(__file__)} - {current_app_version}",
                              version=current_app_version,
                              function=current_function)
-            # Fallback to a standard theme if 'dark' is not found
+            # Fallback to a standard theme if 'clam' is not found
             if 'clam' in available_themes:
                 style.theme_use('clam')
             else:
@@ -127,6 +130,7 @@ def apply_styles(style, debug_log_func, current_app_version):
                          function=current_function)
         _revert_to_default_styles(style)
         
+    style.configure('.', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
     style.configure('.', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
 
     # --- General Styles ---

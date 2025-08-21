@@ -14,13 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250819.004500.1
-# REFACTORED: Simplified averaging UI to a single toggle button and count dropdown for Trace 1.
-# FIXED: Corrected the import path for the `handle_bandwidth_settings_nab` handler.
-# FIXED: Corrected the `YakSet` command format in the `set_trace_averaging_count` handler.
+# Version 20250821.141100.1
+# UPDATED: Added a new handler to save instrument bandwidth settings to the configuration file
+#          after a successful update from the GUI or an instrument query.
 
-current_version = "20250819.004500.1"
-current_version_hash = 20250819 * 4500 * 1
+current_version = "20250821.141100.1"
+current_version_hash = 20250821 * 141100 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -41,6 +40,11 @@ from ref.ref_scanner_setting_lists import (
 )
 # FIXED: Corrected the import path for the NAB handler
 from yak.utils_yaknab_handler import handle_bandwidth_settings_nab
+
+# ADDED: Imports for the configuration manager
+from settings_and_config.config_manager_instruments import _save_instrument_settings
+from settings_and_config.config_manager import save_config
+
 
 class BandwidthSettingsTab(ttk.Frame):
     """
@@ -254,7 +258,7 @@ class BandwidthSettingsTab(ttk.Frame):
         This function now calls the NAB handler to get the current state from the instrument.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Entering {current_function}. Syncing UI from app state. �",
+        debug_log(f"Entering {current_function}. Syncing UI from app state. 🎨",
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
@@ -265,22 +269,15 @@ class BandwidthSettingsTab(ttk.Frame):
                       version=current_version,
                       function=current_function)
             # Fall back to app_instance variables if not connected
-            if hasattr(self.app_instance, 'rbw_hz_var'):
-                self.rbw_hz_var.set(self.app_instance.rbw_hz_var.get())
-            if hasattr(self.app_instance, 'vbw_hz_var'):
-                self.vbw_hz_var.set(self.app_instance.vbw_hz_var.get())
+            if hasattr(self.app_instance, 'rbw_mhz_var'):
+                self.rbw_hz_var.set(self.app_instance.rbw_mhz_var.get() * 1_000_000)
+            if hasattr(self.app_instance, 'vbw_mhz_var'):
+                self.vbw_hz_var.set(self.app_instance.vbw_mhz_var.get() * 1_000_000)
             if hasattr(self.app_instance, 'vbw_auto_on_var'):
                 self.vbw_auto_state_var.set(self.app_instance.vbw_auto_on_var.get())
             if hasattr(self.app_instance, 'initiate_continuous_on_var'):
-                self.continuous_mode_var.set(self.app_instance.initiate_continuous_on_var.get())
+                self.continuous_mode_var.set("ON" if self.app_instance.initiate_continuous_on_var.get() else "OFF")
             
-            # NEW: Set averaging vars from app_instance
-            if hasattr(self.app_instance, 'trace1_average_on_var'):
-                self.average_on_var.set(self.app_instance.trace1_average_on_var.get())
-            if hasattr(self.app_instance, 'trace1_average_count_var'):
-                self.average_count_var.set(self.app_instance.trace1_average_count_var.get())
-
-
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
             self._update_toggle_button_style(self.vbw_auto_toggle_button, self.vbw_auto_state_var.get())
@@ -311,16 +308,6 @@ class BandwidthSettingsTab(ttk.Frame):
             self.vbw_auto_state_var.set(settings["VBW_Auto_On"])
             self.continuous_mode_var.set("ON" if settings["Continuous_Mode_On"] else "OFF")
             
-            # NEW: Update averaging vars from NAB response for Trace 1 only
-            avg_on, avg_count = utils_yak_setting_handler.get_trace_averaging_settings(self.app_instance, 1, self.console_print_func)
-            
-            # Update the state toggle button
-            self.average_on_var.set(avg_on)
-            self._update_toggle_button_style(self.average_on_button, avg_on)
-            
-            # Update the count dropdown
-            self.average_count_var.set(avg_count)
-            
             # Update the combobox displays
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
@@ -339,16 +326,10 @@ class BandwidthSettingsTab(ttk.Frame):
                       version=current_version,
                       function=current_function)
             # If the NAB call failed, fall back to app_instance variables
-            self.rbw_hz_var.set(self.app_instance.rbw_hz_var.get())
-            self.vbw_hz_var.set(self.app_instance.vbw_hz_var.get())
+            self.rbw_hz_var.set(self.app_instance.rbw_mhz_var.get() * 1_000_000)
+            self.vbw_hz_var.set(self.app_instance.vbw_mhz_var.get() * 1_000_000)
             self.vbw_auto_state_var.set(self.app_instance.vbw_auto_on_var.get())
-            self.continuous_mode_var.set(self.app_instance.initiate_continuous_on_var.get())
-            
-            # NEW: Set averaging vars from app_instance
-            if hasattr(self.app_instance, 'trace1_average_on_var'):
-                self.average_on_var.set(self.app_instance.trace1_average_on_var.get())
-            if hasattr(self.app_instance, 'trace1_average_count_var'):
-                self.average_count_var.set(self.app_instance.trace1_average_count_var.get())
+            self.continuous_mode_var.set("ON" if self.app_instance.initiate_continuous_on_var.get() else "OFF")
 
             self._update_rbw_combobox_display()
             self._update_vbw_combobox_display()
@@ -414,6 +395,7 @@ class BandwidthSettingsTab(ttk.Frame):
         ):
             # No longer setting individual variables here, we call the NAB handler instead
             self._sync_ui_from_app_state()
+            self._save_settings_handler()
         else:
             # If the set failed, resync from the instrument to show the real value.
             self._sync_ui_from_app_state()
@@ -446,6 +428,7 @@ class BandwidthSettingsTab(ttk.Frame):
         ):
             # No longer setting individual variables here, we call the NAB handler instead
             self._sync_ui_from_app_state()
+            self._save_settings_handler()
         else:
             # If the set failed, resync from the instrument to show the real value.
             self._sync_ui_from_app_state()
@@ -466,6 +449,7 @@ class BandwidthSettingsTab(ttk.Frame):
         ):
             # No longer setting individual variables here, we call the NAB handler instead
             self._sync_ui_from_app_state()
+            self._save_settings_handler()
         else:
             # If the toggle failed, resync from the instrument to show the real value.
             self._sync_ui_from_app_state()
@@ -486,6 +470,40 @@ class BandwidthSettingsTab(ttk.Frame):
         ):
             # No longer setting individual variables here, we call the NAB handler instead
             self._sync_ui_from_app_state()
+            self._save_settings_handler()
         else:
             # If the set failed, resync from the instrument to show the real value.
             self._sync_ui_from_app_state()
+
+    def _save_settings_handler(self):
+        """Handles saving the instrument bandwidth settings to the config file."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"⚙️ 💾 Entering {current_function}. Time to save the instrument bandwidth settings! 🚀",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        try:
+            # Call the specific save function from the modular config manager
+            _save_instrument_settings(
+                config=self.app_instance.program_config,
+                app_instance=self.app_instance,
+                console_print_func=self.console_print_func
+            )
+            # Call the main config save function to write the changes to the file
+            save_config(
+                app_instance=self.app_instance,
+                config=self.app_instance.program_config,
+                config_file_path=self.app_instance.config_file_path,
+                console_print_func=self.console_print_func
+            )
+            debug_log("⚙️ ✅ Instrument bandwidth settings saved successfully. Mission accomplished!",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+        except Exception as e:
+            debug_log(f"❌ Error saving instrument bandwidth settings: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            self.console_print_func(f"❌ Error saving instrument bandwidth settings: {e}")

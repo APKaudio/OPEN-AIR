@@ -24,7 +24,7 @@ import os
 from datetime import datetime
 
 # Import the main frequency bands data
-from ref.frequency_bands import SCAN_BAND_RANGES
+from ref.ref_frequency_bands import SCAN_BAND_RANGES
 
 
 # --- Version Information ---
@@ -37,16 +37,7 @@ current_version_hash = (w * x * y)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Global Paths ---
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
-DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
-
-CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
-PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'presets.json')
-MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'markers.json')
-VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.log')
-DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'debug.log')
 
 # --- Default Settings ---
 DEFAULT_CONFIG = {
@@ -121,7 +112,7 @@ DEFAULT_CONFIG = {
         'device_selected_center': '',
     },
     'Scan': {
-        'output_folder': os.path.join(DATA_FOLDER_PATH, 'SCANS'),
+        'output_folder': "c:\documents",
         'scan_name': 'DefaultScan',
         'rbw_step_size_hz': '20000',
         'num_scan_cycles': '1',

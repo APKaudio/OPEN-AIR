@@ -30,7 +30,7 @@ from display.console_logic import console_log
 # NEW: Import YakSet and YakDo to use the new command protocol
 from yak.Yakety_Yak import YakSet, YakDo
 
-from ref.frequency_bands import MHZ_TO_HZ # Import MHZ_TO_HZ for conversions
+from ref.ref_frequency_bands import MHZ_TO_HZ # Import MHZ_TO_HZ for conversions
 
 def push_preset_logic(app_instance, console_print_func, preset_data):
     """

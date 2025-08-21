@@ -35,6 +35,7 @@ from display.console_logic import console_log
 from Presets.utils_preset_csv_process import load_user_presets_from_csv
 from src.program_style import COLOR_PALETTE # NEW: Import COLOR_PALETTE directly
 from settings_and_config.config_manager import save_config # Explicit import of save_config
+from ref.ref_file_paths import CONFIG_FILE_PATH, PRESETS_FILE_PATH
 
 class LocalPresetsTab(ttk.Frame):
     """
@@ -328,7 +329,7 @@ class LocalPresetsTab(ttk.Frame):
             var.set("N/A")
 
 
-        self.user_presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+        self.user_presets_data = load_user_presets_from_csv(PRESETS_FILE_PATH, self.console_print_func)
 
         if not self.user_presets_data:
             ttk.Label(self.scrollable_frame, text="No local presets found.", style='TLabel').grid(row=0, column=0, columnspan=self.max_cols, padx=10, pady=10)
@@ -436,7 +437,7 @@ class LocalPresetsTab(ttk.Frame):
                         function=current_function)
             
             # CRITICAL FIX: The import of push_preset_logic is moved here to resolve the circular dependency.
-            from tabs.Presets.utils_push_preset import push_preset_logic
+            from Presets.utils_push_preset import push_preset_logic
             
             success_push_to_instrument = push_preset_logic(self.app_instance, self.console_print_func, preset_data)
         

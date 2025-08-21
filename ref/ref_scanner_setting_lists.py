@@ -537,3 +537,22 @@ PRESET_AVERAGING = [
         "handler": "set_averaging"
     }
 ]
+
+# ADDED: This preset dictionary was missing and is required for FrequencySettingsTab.
+PRESET_FREQUENCY_SPAN_MHZ = {
+    'Max': {
+        'center_mhz': 1500.0,
+        'span_mhz': 3000.0,
+        'description': 'Sets a full frequency range from 0 to 3 GHz.'
+    },
+    'FM Radio': {
+        'center_mhz': 98.0,
+        'span_mhz': 20.0,
+        'description': 'Tunes to the standard FM radio band (88-108 MHz).'
+    },
+    'UHF TV': {
+        'center_mhz': 600.0,
+        'span_mhz': 500.0,
+        'description': 'Tuning to the UHF TV broadcast band (470-806 MHz).'
+    }
+}

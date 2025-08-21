@@ -36,6 +36,7 @@ from .utils_preset_csv_process import (
     overwrite_user_presets_csv
 )
 from Instrument.instrument_logic import query_current_settings_logic
+from ref.ref_file_paths import PRESETS_FILE_PATH
 
 class PresetEditorLogic:
     def __init__(self, app_instance, console_print_func, columns):
@@ -53,7 +54,7 @@ class PresetEditorLogic:
                     version=current_version,
                     function=current_function)
         
-        self.presets_data = load_user_presets_from_csv(self.app_instance.CONFIG_FILE_PATH, self.console_print_func)
+        self.presets_data = load_user_presets_from_csv(PRESETS_FILE_PATH, self.console_print_func)
         self.has_unsaved_changes = False
 
     def save_presets(self):

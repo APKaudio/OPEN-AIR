@@ -34,8 +34,8 @@ from settings_and_config.config_manager import save_config
 
 # Import new modules for functionality - CORRECTED PATHS
 from process_math.google_maps_lookup import get_location_from_google_maps
-from ref.Antenna_type import antenna_types
-from ref.antenna_amplifier_type import antenna_amplifier_types
+from ref.ref_antenna_type import antenna_types
+from ref.ref_antenna_amplifier_type import antenna_amplifier_types
 
 
 class ScanMetaDataTab(ttk.Frame):

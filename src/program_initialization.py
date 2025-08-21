@@ -14,9 +14,9 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250821.111700.1
-# FIXED: Corrected the call to 'load_config' by passing the correct arguments. This
-#        resolves the 'str' object has no attribute 'items' AttributeError.
+# Version 20250821.143200.3
+# FIXED: The call to `restore_last_used_settings` was corrected to pass the required
+#        `console_print_func` argument, resolving the TypeError.
 
 import os
 import inspect
@@ -25,15 +25,17 @@ import tkinter as tk
 # Local application imports
 from display.debug_logic import debug_log, set_debug_mode, set_log_visa_commands_mode, set_debug_to_file_mode, set_include_console_messages_to_debug_file_mode, set_log_truncation_mode, set_include_visa_messages_to_debug_file_mode
 from display.console_logic import console_log
-from settings_and_config.program_default_values import DATA_FOLDER_PATH, CONFIG_FILE_PATH, DEFAULT_CONFIG
-from settings_and_config.config_manager import load_config, save_config
+from ref.ref_program_default_values import DEFAULT_CONFIG
+from ref.ref_file_paths import DATA_FOLDER_PATH
+
+from settings_and_config.config_manager import load_config, save_config, CONFIG_FILE_PATH # ADDED IMPORT for CONFIG_FILE_PATH
 from settings_and_config.restore_settings_logic import restore_last_used_settings
 from src.program_shared_values import setup_shared_values
 
 
 # --- Version Information ---
-current_version = "20250821.111700.1"
-current_version_hash = 20250821 * 111700 * 1
+current_version = "20250821.143200.3"
+current_version_hash = 20250821 * 143200 * 3
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -57,10 +59,12 @@ def initialize_program_environment(app_instance):
     # The load_config function will create a default if one doesn't exist.
     # FIXED: The load_config function now takes two arguments: the default config and the file path.
     # The previous call was incorrect and caused an AttributeError.
-    app_instance.config, app_instance.CONFIG_FILE_PATH, app_instance.DATA_FOLDER_PATH = load_config(
+    app_instance.program_config = load_config(
         default_config=DEFAULT_CONFIG,
-        config_file_path=CONFIG_FILE_PATH
+        file_path=CONFIG_FILE_PATH
     )
+    app_instance.config_file_path = CONFIG_FILE_PATH
+    app_instance.data_folder_path = DATA_FOLDER_PATH
     
     # After loading the config file, apply the last used settings to the Tkinter variables.
     restore_last_used_settings(app_instance, console_log)
@@ -116,7 +120,7 @@ def _create_necessary_folders():
                   file=os.path.basename(__file__),
                   version=current_version,
                   function=current_function)
-                  
+                
     debug_log(f"⚙️ ✅ Exiting {current_function}",
               file=os.path.basename(__file__),
               version=current_version,
@@ -132,7 +136,7 @@ def _setup_initial_settings(app_instance):
               file=os.path.basename(__file__),
               version=current_version,
               function=current_function)
-              
+                
     setup_shared_values(app_instance)
     
     # Initialize a placeholder for the showtime parent tab so the config manager

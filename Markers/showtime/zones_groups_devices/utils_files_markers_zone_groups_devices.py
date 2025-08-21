@@ -26,10 +26,9 @@ import numpy as np
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from settings_and_config.program_default_values import DATA_FOLDER_PATH
+from ref.ref_file_paths import MARKERS_FILE_PATH
 
-# Define the path to the markers file
-MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.CSV')
+
 
 def load_and_structure_markers_data():
     # The main function to load, parse, and structure data from MARKERS.CSV.

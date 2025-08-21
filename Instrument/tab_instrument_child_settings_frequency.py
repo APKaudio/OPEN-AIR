@@ -14,10 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250819.002000.2 (UPDATED: Added labels above the start and stop sections and right-justified the center frequency and span labels to align them with the entry boxes.)
+# Version 20250821.222800.1
+# FIXED: The _save_settings_handler was corrected to import and use the CONFIG_FILE_PATH
+#        from config_manager.py, resolving the AttributeError.
 
-current_version = "20250819.002000.2"
-current_version_hash = 20250819 * 2000 * 2
+current_version = "20250821.222800.1"
+current_version_hash = 20250821 * 222800 * 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -28,7 +30,10 @@ import numpy as np
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_start_stop_beg, handle_freq_center_span_beg
-from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN
+from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN_MHZ
+from settings_and_config.config_manager_instruments import _save_instrument_settings
+from settings_and_config.config_manager import save_config, load_config, CONFIG_FILE_PATH # ADDED IMPORT
+from ref.ref_program_default_values import DEFAULT_CONFIG
 
 
 class FrequencySettingsTab(ttk.Frame):
@@ -193,7 +198,6 @@ class FrequencySettingsTab(ttk.Frame):
 
         # Span Slider & Entry
         ttk.Label(freq_cs_frame, text="Span:", justify=tk.RIGHT).grid(row=2, column=0, padx=5, pady=2, sticky="e")
-        # FIXED: Updated slider range from 0 to 500 MHz
         span_scale = ttk.Scale(freq_cs_frame, from_=0, to=500, orient=tk.HORIZONTAL, variable=self.freq_span_var, style='InteractionBars.TScale')
         span_scale.grid(row=3, column=0, columnspan=2, padx=5, pady=2, sticky="ew")
         span_scale.bind("<ButtonRelease-1>", lambda e: self._on_freq_center_span_beg())
@@ -213,7 +217,6 @@ class FrequencySettingsTab(ttk.Frame):
         common_result_frame = ttk.Frame(self, padding=10)
         common_result_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
         common_result_frame.grid_columnconfigure(0, weight=1)
-        # REVERTED: The Label now uses the default style, without custom options
         ttk.Label(common_result_frame,
                   textvariable=self.freq_common_result_var,
                   justify=tk.LEFT
@@ -230,17 +233,17 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
 
         try:
-            for i, preset in enumerate(PRESET_FREQUENCY_SPAN):
+            for i, (label, preset) in enumerate(PRESET_FREQUENCY_SPAN_MHZ.items()):
                 # Use a format string with two decimal places for better display and rely on grid for sizing.
-                button_text = f"{preset['label']}\n{preset['value'] / 1e6:.2f} MHz"
+                button_text = f"{label}\n{preset['span_mhz']:.2f} MHz"
                 button = ttk.Button(parent_frame,
                                     text=button_text,
                                     command=lambda p=preset: self._on_span_preset_button_click(preset=p))
                 button.grid(row=0, column=i, sticky="ew", padx=2, pady=5)
-                self.span_buttons[preset['label']] = button
+                self.span_buttons[label] = button
 
             parent_frame.grid_rowconfigure(0, weight=1)
-            for i in range(len(PRESET_FREQUENCY_SPAN)):
+            for i in range(len(PRESET_FREQUENCY_SPAN_MHZ)):
                 parent_frame.grid_columnconfigure(i, weight=1)
 
             console_log(message="✅ Span preset buttons created successfully.", function=current_function)
@@ -262,11 +265,12 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
         try:
             self.is_tracing = True
-            self.freq_span_var.set(preset['value'] / 1e6)
+            self.freq_span_var.set(preset['span_mhz'])
+            self.freq_center_var.set(preset['center_mhz']) # Also set center frequency
             self.is_tracing = False
             self._update_span_button_styles()
-            self._on_freq_center_span_beg() # NEW: Trigger YakBeg after button click
-            console_log(message=f"✅ Span set to {preset['label']} ({self.freq_span_var.get()} MHz).", function=current_function)
+            self._on_freq_center_span_beg() # Trigger YakBeg after button click
+            console_log(message=f"✅ Span set to {preset['span_mhz']} MHz).", function=current_function)
         except Exception as e:
             console_log(message=f"❌ Error in {current_function}: {e}")
             debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
@@ -297,10 +301,10 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
         try:
             current_span_mhz = self.freq_span_var.get()
-            for preset in PRESET_FREQUENCY_SPAN:
-                button = self.span_buttons.get(preset['label'])
+            for label, preset in PRESET_FREQUENCY_SPAN_MHZ.items():
+                button = self.span_buttons.get(label)
                 if button:
-                    if np.isclose(current_span_mhz, preset['value'] / 1e6):
+                    if np.isclose(current_span_mhz, preset['span_mhz']):
                         button.configure(style='Orange.TButton')
                     else:
                         button.configure(style='Blue.TButton')
@@ -378,11 +382,12 @@ class FrequencySettingsTab(ttk.Frame):
                 # UPDATED: Format the result string to match the requested layout
                 result_message = (
                     f"Center: {center_resp_mhz:.3f} MHz\n"
-                    f"Space: {span_resp_mhz:.3f} MHz\n\n\n"
+                    f"Span: {span_resp_mhz:.3f} MHz\n\n\n"
                     f"Start: {start_resp_mhz:.3f} MHz\n"
                     f"Stop: {stop_resp_mhz:.3f} MHz"
                 )
                 self.freq_common_result_var.set(value=result_message)
+                self._save_settings_handler()
             else:
                 self.freq_common_result_var.set(value="Result: FAILED")
 
@@ -440,6 +445,7 @@ class FrequencySettingsTab(ttk.Frame):
                     f"Stop: {stop_resp_mhz:.3f} MHz"
                 )
                 self.freq_common_result_var.set(value=result_message)
+                self._save_settings_handler()
             else:
                 self.freq_common_result_var.set(value="Result: FAILED")
 
@@ -449,3 +455,43 @@ class FrequencySettingsTab(ttk.Frame):
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
+
+    def _save_settings_handler(self):
+        """
+        Handles saving the instrument frequency settings to the config file.
+        This handler now directly loads and saves the configuration to resolve
+        the AttributeError.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"⚙️ 💾 Entering {current_function}. Time to save the instrument frequency configuration! 🚀",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        try:
+            # Load the configuration file
+            config = load_config(config_file_path=CONFIG_FILE_PATH, default_config=DEFAULT_CONFIG)
+
+            # Call the specific save function from the modular config manager
+            _save_instrument_settings(
+                config=config,
+                app_instance=self.app_instance,
+                console_print_func=self.console_print_func
+            )
+            # Call the main config save function to write the changes to the file
+            save_config(
+                app_instance=self.app_instance,
+                config=config,
+                config_file_path=CONFIG_FILE_PATH,
+                console_print_func=self.console_print_func
+            )
+            debug_log("⚙️ ✅ Instrument frequency settings saved successfully. Mission accomplished!",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+        except Exception as e:
+            debug_log(f"❌ Error saving instrument frequency settings: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            self.console_print_func(f"❌ Error saving instrument frequency settings: {e}")

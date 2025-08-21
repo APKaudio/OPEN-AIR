@@ -29,6 +29,7 @@ import time
 from tkinter import messagebox
 from display.debug_logic import debug_log, log_visa_command
 from display.console_logic import console_log
+from ref.ref_file_paths import VISA_COMMANDS_FILE_PATH
 
 # FIXED: Import the low-level read/write functions from the correct location
 from yak.utils_yak_visa import write_safe, query_safe
@@ -286,7 +287,7 @@ def YakGet(app_instance, command_type, console_print_func):
                 version=current_version,
                 function=current_function)
     
-    _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
+    _load_commands_from_file(VISA_COMMANDS_FILE_PATH)
     
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()
@@ -397,7 +398,7 @@ def YakDo(app_instance, command_type, console_print_func):
                 version=current_version,
                 function=current_function)
 
-    _load_commands_from_file(app_instance.VISA_COMMANDS_FILE_PATH)
+    _load_commands_from_file(VISA_COMMANDS_FILE_PATH)
     
     manufacturer = app_instance.connected_instrument_manufacturer.get()
     model = app_instance.connected_instrument_model.get()

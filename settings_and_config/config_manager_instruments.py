@@ -14,8 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.093800.1
-# REFACTORED: Created a new, dedicated module for saving instrument settings.
+# Version 20250821.135600.2
+# FIXED: Updated the variable name from 'visa_resource_var' to 'instrument_visa_resource_var'
+#        to align with the new modular variable system, preventing an AttributeError.
 
 import os
 import inspect
@@ -25,9 +26,9 @@ from display.console_logic import console_log
 
 # --- Versioning ---
 w = 20250821
-x_str = '093800'
+x_str = '135600'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
-y = 1
+y = 2
 current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
 current_file = f"{os.path.basename(__file__)}"
@@ -46,8 +47,9 @@ def _save_instrument_settings(config, app_instance, console_print_func):
     
     try:
         # Save Instrument values
-        if hasattr(app_instance, 'visa_resource_var'):
-            new_value = str(app_instance.visa_resource_var.get())
+        # FIXED: Corrected variable name from visa_resource_var
+        if hasattr(app_instance, 'instrument_visa_resource_var'):
+            new_value = str(app_instance.instrument_visa_resource_var.get())
             if config.get(section_inst, 'visa_resource', fallback=None) != new_value:
                 config.set(section_inst, 'visa_resource', new_value)
                 debug_log(f"🔧💾📝 {section_inst} - Changed 'visa_resource' to '{new_value}' from {current_function}", file=current_file, version=current_version, function=current_function)

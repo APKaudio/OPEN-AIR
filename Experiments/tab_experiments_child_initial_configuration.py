@@ -31,7 +31,8 @@ from display.console_logic import console_log
 
 # Import config management functions
 from settings_and_config.config_manager import load_config, save_config
-from settings_and_config.program_default_values import DEFAULT_CONFIG, DATA_FOLDER_PATH
+from ref.ref_program_default_values import DEFAULT_CONFIG
+from ref.ref_file_paths import DATA_FOLDER_PATH, CONFIG_FILE_PATH
 
 # --- Version Information ---
 w = 20250821
@@ -66,7 +67,7 @@ class InitialConfigurationTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
         self.style_obj = style_obj
-        self.config_file_path = self.app_instance.CONFIG_FILE_PATH
+        self.config_file_path = CONFIG_FILE_PATH
         self.config_data = None
         self.config_text_widget = None
 

@@ -14,14 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250815.113414.3
-# NEW: Added YakBeg functionality for traces from the old YakBegTab.
-# FIX: Moved the corresponding methods to this file to resolve the AttributeError.
-# FIX: Changed TraceSettingsTab to use local StringVar objects for trace modes to resolve update issue.
-# NEW: Added a new handler and UI to retrieve all three traces at once via a NAB command.
+# Version 20250821.141200.1
+# UPDATED: Added a new handler to save instrument trace settings to the configuration file
+#          after a successful update from the GUI or an instrument query.
 
-current_version = "20250815.113414.3"
-current_version_hash = 20250815 * 113414 * 3
+current_version = "20250821.141200.1"
+current_version_hash = 20250821 * 141200 * 1
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext
@@ -36,6 +34,10 @@ from yak.utils_yaknab_handler import handle_all_traces_nab
 
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot, clear_monitor_plots
 from display.utils_scan_view import update_single_plot
+
+# ADDED: Imports for the configuration manager
+from settings_and_config.config_manager_instruments import _save_instrument_settings
+from settings_and_config.config_manager import save_config
 
 class TraceSettingsTab(ttk.Frame):
     """
@@ -272,6 +274,9 @@ class TraceSettingsTab(ttk.Frame):
             # NEW: Switch to the Scan Monitor tab automatically
             self.app_instance.display_parent_tab.change_display_tab("Monitor")
 
+            # ADDED: Call the save handler
+            self._save_settings_handler()
+
         else:
             self.all_traces_start_freq_display_var.set("N/A")
             self.all_traces_stop_freq_display_var.set("N/A")
@@ -300,7 +305,10 @@ class TraceSettingsTab(ttk.Frame):
         
         response = handle_trace_modes_beg(self.app_instance, trace_modes, self.console_print_func)
         self.trace_modes_result_var.set(f"Result: {response}")
-
+        
+        if response != "FAILED":
+            # ADDED: Call the save handler
+            self._save_settings_handler()
 
     def _on_trace_data_beg(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -446,3 +454,36 @@ class TraceSettingsTab(ttk.Frame):
                   file=f"{os.path.basename(__file__)}",
                   version=current_version,
                   function=current_function)
+
+    def _save_settings_handler(self):
+        """Handles saving the instrument trace settings to the config file."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"⚙️ 💾 Entering {current_function}. Time to save the instrument trace settings! 📈",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        try:
+            # Call the specific save function from the modular config manager
+            _save_instrument_settings(
+                config=self.app_instance.program_config,
+                app_instance=self.app_instance,
+                console_print_func=self.console_print_func
+            )
+            # Call the main config save function to write the changes to the file
+            save_config(
+                app_instance=self.app_instance,
+                config=self.app_instance.program_config,
+                config_file_path=self.app_instance.config_file_path,
+                console_print_func=self.console_print_func
+            )
+            debug_log("⚙️ ✅ Instrument trace settings saved successfully. Mission accomplished!",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+        except Exception as e:
+            debug_log(f"❌ Error saving instrument trace settings: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            self.console_print_func(f"❌ Error saving instrument trace settings: {e}")

@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250818.205500.1 (UPDATED: Added a new 'Power Cycle' button and corresponding logic to safely perform a device power reset, handle the disconnection state, and require manual reconnection.)
+# Version 20250818.205500.2 (FIXED: Corrected the Tkinter variable name to prevent AttributeError.)
 
-current_version = "20250818.205500.1"
-current_version_hash = 20250818 * 205500 * 1
+current_version = "20250818.205500.2"
+current_version_hash = 20250818 * 205500 * 2
 
 import tkinter as tk
 from tkinter import ttk, messagebox
@@ -66,6 +66,7 @@ class InstrumentTab(ttk.Frame):
         self.populate_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Dropdown for VISA resources
+        # FIXED: Changed variable name to app_instance.instrument_visa_resource_var
         self.resource_combobox = ttk.Combobox(main_frame, textvariable=self.app_instance.instrument_visa_resource_var, style='TCombobox', state='readonly')
         self.resource_combobox.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
@@ -107,7 +108,7 @@ class InstrumentTab(ttk.Frame):
 
         self.app_instance.is_connected.trace_add('write', self._update_connection_status)
         
-        debug_log(f"Simplified widgets for Connection Tab created. Ready to go! �",
+        debug_log(f"Simplified widgets for Connection Tab created. Ready to go! ",
                     file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function)
@@ -219,3 +220,4 @@ class InstrumentTab(ttk.Frame):
         is_connected = self.app_instance.is_connected.get()
         if not is_connected:
             self._populate_resources()
+

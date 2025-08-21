@@ -28,7 +28,7 @@ import inspect
 import os
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from ref.frequency_bands import MHZ_TO_HZ
+from ref.ref_frequency_bands import MHZ_TO_HZ
 from process_math.math_frequency_translation import format_hz
 from settings_and_config.config_manager import save_config
 

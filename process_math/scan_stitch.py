@@ -29,7 +29,7 @@ import csv # Added for writing CSV
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from ref.frequency_bands import MHZ_TO_HZ # Import for frequency conversion
+from ref.ref_frequency_bands import MHZ_TO_HZ # Import for frequency conversion
 
 
 def process_and_stitch_scan_data(raw_data, overall_start_freq_hz, overall_stop_freq_hz, console_print_func=None):

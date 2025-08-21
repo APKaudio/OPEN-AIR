@@ -1,4 +1,4 @@
-# tabs/Instrument/tab_instrument_child_settings_amplitude.py
+# # Instrument/tab_instrument_child_settings_amplitude.py
 #
 # This file defines the AmplitudeSettingsTab, a Tkinter Frame for controlling a spectrum
 # analyzer's amplitude-related settings. The layout now mirrors the Frequency tab
@@ -15,13 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250816.123518.35
-# FIX: The sliders now correctly use the `InteractionBars.TScale` style.
-# FIX: The layout has been restructured to ensure the description labels expand to
-#      the full width of their container, preventing text wrapping.
+# Version 20250816.123518.36
+# UPDATED: Added a new handler to save instrument amplitude settings to the configuration file
+#          after a successful update from the GUI or an instrument query.
 
-current_version = "Version 20250816.123518.35"
-current_version_hash = (20250816 * 123518 * 35)
+current_version = "Version 20250816.123518.36"
+current_version_hash = (20250816 * 123518 * 36)
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,6 +32,11 @@ from display.console_logic import console_log
 from yak import utils_yak_setting_handler
 from ref.ref_scanner_setting_lists import PRESET_AMPLITUDE_REFERENCE_LEVEL, PRESET_AMPLITUDE_POWER_ATTENUATION, PRESET_AMPLITUDE_PREAMP_STATE, PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE
 from yak.Yakety_Yak import YakGet
+
+# ADDED: Imports for the configuration manager
+from settings_and_config.config_manager_instruments import _save_instrument_settings
+from settings_and_config.config_manager import save_config
+
 
 class AmplitudeSettingsTab(ttk.Frame):
     """
@@ -217,7 +221,10 @@ class AmplitudeSettingsTab(ttk.Frame):
             utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
 
         ref_level = int(self._find_closest_preset_value(self.app_instance.ref_level_dbm_var.get(), PRESET_AMPLITUDE_REFERENCE_LEVEL))
-        utils_yak_setting_handler.set_reference_level(tab_instance=self, app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func)
+        if utils_yak_setting_handler.set_reference_level(tab_instance=self, app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func):
+            self._save_settings_handler()
+        else:
+            self.console_print_func("❌ Failed to set Reference Level on instrument.")
 
     def _on_power_attenuation_change(self, event):
         """Updates the power attenuation and pushes the setting on slider release."""
@@ -233,7 +240,10 @@ class AmplitudeSettingsTab(ttk.Frame):
             utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
 
         power_attenuation = int(self._find_closest_preset_value(self.app_instance.power_attenuation_db_var.get(), PRESET_AMPLITUDE_POWER_ATTENUATION))
-        utils_yak_setting_handler.set_power_attenuation(tab_instance=self, app_instance=self.app_instance, value=power_attenuation, console_print_func=self.console_print_func)
+        if utils_yak_setting_handler.set_power_attenuation(tab_instance=self, app_instance=self.app_instance, value=power_attenuation, console_print_func=self.console_print_func):
+            self._save_settings_handler()
+        else:
+            self.console_print_func("❌ Failed to set Power Attenuation on instrument.")
 
     def _update_toggle_button_style(self, button, state):
         """Updates the style and text of a toggle button based on its state."""
@@ -303,3 +313,36 @@ class AmplitudeSettingsTab(ttk.Frame):
                       file=os.path.basename(__file__),
                       version=current_version,
                       function=current_function)
+
+    def _save_settings_handler(self):
+        """Handles saving the instrument amplitude settings to the config file."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"Entering {current_function}. It's time to save the instrument amplitude configuration! 💾",
+                  file=os.path.basename(__file__),
+                  version=current_version,
+                  function=current_function)
+        
+        try:
+            # Call the specific save function from the modular config manager
+            _save_instrument_settings(
+                config=self.app_instance.program_config,
+                app_instance=self.app_instance,
+                console_print_func=self.console_print_func
+            )
+            # Call the main config save function to write the changes to the file
+            save_config(
+                app_instance=self.app_instance,
+                config=self.app_instance.program_config,
+                config_file_path=self.app_instance.config_file_path,
+                console_print_func=self.console_print_func
+            )
+            debug_log("Instrument amplitude settings saved successfully. 🚀",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+        except Exception as e:
+            debug_log(f"❌ Error saving instrument amplitude settings: {e}",
+                      file=os.path.basename(__file__),
+                      version=current_version,
+                      function=current_function)
+            self.console_print_func(f"❌ Error saving instrument amplitude settings: {e}")

@@ -36,7 +36,7 @@ from display.console_logic import console_log
 
 # Import plotting functions and constants
 from Plotting.utils_plotting import plot_multi_trace_data, _open_plot_in_browser
-from ref.frequency_bands import (
+from ref.ref_frequency_bands import (
     MHZ_TO_HZ,
     TV_PLOT_BAND_MARKERS,
     GOV_PLOT_BAND_MARKERS

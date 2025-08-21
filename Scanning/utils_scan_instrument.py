@@ -33,7 +33,7 @@ from process_math.scan_stitch import stitch_and_save_scan_data
 from src.connection_status_logic import update_connection_status_logic
 
 from utils.utils_csv_writer import write_scan_data_to_csv
-from ref.frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO
+from ref.ref_frequency_bands import MHZ_TO_HZ, VBW_RBW_RATIO
 
 current_version = "20250813.160010.1"
 current_version_hash = (20250813 * 160010 * 1)

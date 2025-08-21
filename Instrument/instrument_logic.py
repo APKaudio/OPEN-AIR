@@ -1,4 +1,5 @@
-# tabs/Instrument/instrument_logic.py
+
+# Instrument/instrument_logic.py
 #
 # This file contains the core logic for managing the connection to and interaction
 # with a VISA instrument, such as a spectrum analyzer. It provides high-level
@@ -228,3 +229,4 @@ def query_current_settings_logic(app_instance, console_print_func):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
         return None
+

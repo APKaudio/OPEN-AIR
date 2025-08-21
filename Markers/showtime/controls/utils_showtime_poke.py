@@ -22,7 +22,7 @@
 import os
 import inspect
 import pandas as pd
-from ref.frequency_bands import MHZ_TO_HZ
+from ref.ref_frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
