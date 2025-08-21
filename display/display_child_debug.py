@@ -16,16 +16,18 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.014000.1
+# Version 20250824.014000.2
 # NEW: Implemented a log filter dropdown to display log messages based on their emoji prefix.
 # FIXED: Corrected the log filtering logic to properly handle the 'All' option and
 #        correctly filter lines that start with the selected emoji.
 # FIXED: The log display now updates in real-time and correctly applies the filter
 #        to new content without re-reading the entire file on every poll.
 # FIXED: Resolved AttributeError by correctly placing methods inside the DebugTab class.
+# FIXED: Resolved AttributeError from DISPLAY_PARENT by assigning app_instance.gui_debug
+#        only after the widget is created.
 
-current_version = "20250824.014000.1"
-current_version_hash = 20250824 * 14000 * 1
+current_version = "20250824.014000.2"
+current_version_hash = 20250824 * 14000 * 2
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext, filedialog
@@ -61,7 +63,7 @@ class DebugTab(ttk.Frame):
         # Inputs to this function
         #   master (tk.Widget): The parent widget, typically a ttk.Notebook.
         #   app_instance (object): A reference to the main application instance
-        #                          to access shared variables and methods.
+        #                      to access shared variables and methods.
         #   **kwargs: Arbitrary keyword arguments for Tkinter Frame.
         #
         # Outputs of this function
@@ -93,7 +95,11 @@ class DebugTab(ttk.Frame):
 
         self._create_widgets()
         
-        debug_log(f"DebugTab initialized. The debug controls and log viewers are ready for action!",
+        # CRITICAL FIX: The debug_text widget is created in _create_widgets, so we assign it here.
+        # This resolves the race condition and the AttributeError.
+        self.app_instance.gui_debug = self.software_log_text
+        
+        debug_log(f"DebugTab initialized. The debug controls and log viewers are ready for action! 🛡️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -102,8 +108,8 @@ class DebugTab(ttk.Frame):
         # This function description tells me what this function does
         # Creates and arranges the widgets for the Debug tab.
         # This includes a master debug toggle button, checkboxes for various debug flags,
-        # buttons to clear logs and open the data folder, and two ScrolledText widgets
-        # to display the log file contents.
+        # buttons for file management, and two ScrolledText widgets to display
+        # the contents of the debug log files in real-time.
         #
         # Inputs to this function
         #   None.
@@ -231,7 +237,7 @@ class DebugTab(ttk.Frame):
                                               style='Dark.TLabel.Value')
         self.last_save_time_label.grid(row=1, column=0, padx=5, pady=2, sticky="e")
 
-        debug_log(f"DebugTab widgets created. Log viewers are a go!",
+        debug_log(f"DebugTab widgets created. Log viewers are a go! 🛡️",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -474,7 +480,7 @@ class DebugTab(ttk.Frame):
         # Outputs of this function
         #   None.
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"DebugTab selected. Initializing log monitoring.",
+        debug_log(f"ConsoleTab selected. Initializing log monitoring.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
@@ -494,7 +500,7 @@ class DebugTab(ttk.Frame):
                 self.visa_log_text.config(state=tk.NORMAL)
                 self.visa_log_text.delete("1.0", tk.END)
                 self.visa_log_text.insert(tk.END, visa_content)
-                self.visa_log_text.config(state=tk.DISABLED)
+            self.visa_log_text.config(state=tk.DISABLED)
             self.last_visa_log_size = os.path.getsize(VISA_FILE_PATH)
         except FileNotFoundError:
             self.visa_log_text.config(state=tk.NORMAL)

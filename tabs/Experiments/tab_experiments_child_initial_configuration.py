@@ -1,438 +1,330 @@
-# tabs/Presets/tab_presets_child_initial_configuration.py
+# tabs/Experiments/tab_experiments_child_initial_configuration.py
 #
-# This file defines the InitialConfigurationTab, a Tkinter Frame that provides
-# functionality to manage application configuration settings from config.ini.
-# It allows loading default/previous configurations, saving current settings
-# to a new file, and viewing/editing the current config directly within the GUI.
+# This file defines the InitialConfigurationTab, a child tab within the Experiments
+# parent tab. It provides a user interface for viewing and editing application
+# settings stored in the config.ini file, as well as loading and saving configurations.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250813.013444.1
-#
-# Version 20250802.1701.20 (Removed style_obj from kwargs passed to super().__init__.)
+# Version 20250824.110500.1
+# REFACTORED: Converted to use the new `restore_settings_logic` for saving/loading.
+# FIXED: Replaced old `config_manager` functions with new `restore_settings` functions.
+# FIXED: Corrected the KeyError that occurred when accessing non-existent dictionary keys.
 
-current_version = "20250813.013444.1"
-current_version_hash = 20250813 * 13444 * 1
-
-import tkinter as tk
-from tkinter import ttk, filedialog, simpledialog
-import inspect
 import os
+import inspect
+from tkinter import ttk, filedialog
+import tkinter as tk
+from datetime import datetime
 import configparser
-import datetime
 import numpy as np
 
-# Updated imports for new logging functions
-from display.debug_logic import debug_log
 from display.console_logic import console_log
+from display.debug_logic import debug_log
+from src.settings_and_config.config_manager import load_config, save_config
+from src.settings_and_config.program_default_values import CONFIG_FILE_PATH, DATA_FOLDER_PATH
+# FIXED: Corrected import names from `restore_settings_logic`
+from src.settings_and_config.restore_settings_logic import restore_default_settings, restore_last_used_settings
+from src.program_style import COLOR_PALETTE
 
-from src.settings_and_config.restore_settings_logic import restore_default_settings_logic, restore_last_used_settings_logic
-from src.settings_and_config.config_manager import save_config_as_new_file, save_config
+
+# --- Versioning ---
+w = 20250824
+x_str = '110500'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"{w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
+
 
 class InitialConfigurationTab(ttk.Frame):
     """
-    A Tkinter Frame that provides functionality to manage application configuration
-    settings from config.ini. It allows loading default/previous configurations,
-    saving current settings to a new file, and viewing/editing the current config.
+    A tab for viewing and editing the application's configuration.
     """
-    def __init__(self, master=None, app_instance=None, console_print_func=None, style_obj=None, **kwargs):
-        # Filter out style_obj from kwargs before passing to super()
-        filtered_kwargs = {k: v for k, v in kwargs.items() if k != 'style_obj'}
-        super().__init__(master, **filtered_kwargs)
-        self.app_instance = app_instance
-        self.console_print_func = console_print_func if console_print_func else console_log
-        self.style_obj = style_obj
-
+    def __init__(self, master, app_instance, console_print_func, style_obj):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Initializing InitialConfigurationTab. Version: {current_version}. Let's get this config sorted!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-
-        self.edit_entry = None
-        self.current_edit_cell = None
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        super().__init__(master, style='TFrame')
+        self.master = master
+        self.app_instance = app_instance
+        self.console_print_func = console_print_func
+        self.style_obj = style_obj
+        self.config_data = None
+        self.editor = None
+        self.config_file_path = CONFIG_FILE_PATH
 
         self._create_widgets()
         self._populate_config_table()
-
-        # Bindings are now on the widget itself, not the class.
-        # This prevents the AttributeError when the method is not found.
-        # The correct binding logic is within _start_edit
         
-        debug_log(f"InitialConfigurationTab initialized. Version: {current_version}. Ready for configuration!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
+        self.master.bind('<<NotebookTabChanged>>', self._on_tab_selected, add='+')
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
     def _create_widgets(self):
+        """
+        Builds the UI elements for the configuration tab.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Creating InitialConfigurationTab widgets... Building the interface!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        # Main layout
         self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(2, weight=0)
-        self.grid_rowconfigure(3, weight=0)
-
-        button_frame = ttk.Frame(self)
-        button_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-        button_frame.grid_columnconfigure(0, weight=1)
-        button_frame.grid_columnconfigure(1, weight=1)
-        button_frame.grid_columnconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)
         
-        ttk.Button(button_frame, text="Save Running Configuration", command=self._save_running_config).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Button(button_frame, text="Load Default Configuration", command=self._load_default_config).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
-        ttk.Button(button_frame, text="Load Previous Configuration", command=self._load_previous_config).grid(row=0, column=2, padx=5, pady=5, sticky="ew")
-
-        config_table_frame = ttk.LabelFrame(self, text="Current config.ini Contents (Editable)")
-        config_table_frame.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
-        config_table_frame.grid_columnconfigure(0, weight=1)
-        config_table_frame.grid_rowconfigure(0, weight=1)
-
-        self.config_tree = ttk.Treeview(config_table_frame, columns=("Key", "Value"), show="headings")
-        self.config_tree.heading("Key", text="Key", anchor="w")
-        self.config_tree.heading("Value", text="Value", anchor="w")
-
-        self.config_tree.column("Key", width=200, stretch=True)
-        self.config_tree.column("Value", width=300, stretch=True)
-
-        self.config_tree.grid(row=0, column=0, sticky="nsew")
-
-        tree_scrollbar = ttk.Scrollbar(config_table_frame, orient="vertical", command=self.config_tree.yview)
-        tree_scrollbar.grid(row=0, column=1, sticky="ns")
-        self.config_tree.configure(yscrollcommand=tree_scrollbar.set)
+        # Controls Frame
+        control_frame = ttk.Frame(self, style='TFrame')
+        control_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=5)
         
-        push_save_frame = ttk.Frame(self)
-        push_save_frame.grid(row=2, column=0, padx=10, pady=5, sticky="ew")
-        push_save_frame.grid_columnconfigure(0, weight=1)
-        push_save_frame.grid_columnconfigure(1, weight=1)
+        # Buttons
+        ttk.Button(control_frame, text="Load Default Config", command=self._load_default_config).pack(side=tk.LEFT, padx=5, pady=5)
+        ttk.Button(control_frame, text="Load Last Used Config", command=self._load_previous_config).pack(side=tk.LEFT, padx=5, pady=5)
+        ttk.Button(control_frame, text="Save Running Config", command=self._save_running_config).pack(side=tk.LEFT, padx=5, pady=5)
+        ttk.Button(control_frame, text="Save Config As New File", command=self._save_current_config_as_new_file).pack(side=tk.LEFT, padx=5, pady=5)
+        ttk.Button(control_frame, text="Push Edits to File", command=self._push_edits_to_file).pack(side=tk.LEFT, padx=5, pady=5)
         
-        ttk.Button(push_save_frame, text="Push Edits to config.ini", command=self._push_edits_to_file).grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        ttk.Button(push_save_frame, text="Save Current Config as New File", command=self._save_current_config_as_new_file).grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        # Treeview for config display
+        tree_frame = ttk.Frame(self, style='TFrame')
+        tree_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=5)
+        tree_frame.grid_rowconfigure(0, weight=1)
+        tree_frame.grid_columnconfigure(0, weight=1)
 
-        debug_log("InitialConfigurationTab widgets created. Looking good!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-    
-    def _push_edits_to_file(self):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Pushing edits to config.ini. Initiating explicit save. 💾",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
+        self.tree = ttk.Treeview(tree_frame, columns=("Parameter", "Value", "Notes"), show="headings", style='Dark.Treeview')
+        self.tree.heading("Parameter", text="Parameter")
+        self.tree.heading("Value", text="Value")
+        self.tree.heading("Notes", text="Notes")
         
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        self.console_print_func("✅ Edits pushed to config.ini successfully.")
+        self.tree.column("Parameter", width=250)
+        self.tree.column("Value", width=200)
+        self.tree.column("Notes", width=400)
 
-    def _on_focus_out(self, event):
-        if hasattr(self, 'edit_entry') and self.edit_entry and self.edit_entry.winfo_exists():
-            editor_bbox = self.edit_entry.winfo_rootx(), self.edit_entry.winfo_rooty(), self.edit_entry.winfo_rootx() + self.edit_entry.winfo_width(), self.edit_entry.winfo_rooty() + self.edit_entry.winfo_height()
-            x, y = self.winfo_pointerx(), self.winfo_pointery()
-            if not (editor_bbox[0] <= x <= editor_bbox[2] and editor_bbox[1] <= y <= editor_bbox[3]):
-                self._end_edit()
-    
+        self.tree.grid(row=0, column=0, sticky="nsew")
+
+        # Scrollbar
+        scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
+        self.tree.configure(yscrollcommand=scrollbar.set)
+        scrollbar.grid(row=0, column=1, sticky="ns")
+
+        self.tree.bind("<Double-1>", self._on_double_click_edit)
+        self.tree.bind("<Return>", self._on_edit_return)
+        self.tree.bind("<Escape>", self._on_edit_escape)
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+
     def _populate_config_table(self):
+        """
+        Loads the current config into the treeview.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Populating config table... Filling with data!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
-        for item in self.config_tree.get_children():
-            self.config_tree.delete(item)
+        self.config_data = load_config(self.config_file_path, self.console_print_func)
+        
+        for section in self.config_data.sections():
+            self.tree.insert("", "end", text=section, values=(section, "", ""), open=False)
+            section_id = self.tree.get_children()[-1]
+            for key, value in self.config_data.items(section):
+                self.tree.insert(section_id, "end", values=(key, value, ""))
 
-        for section in self.app_instance.config.sections():
-            section_id = self.config_tree.insert("", "end", text=f"[{section}]", open=True, tags=("section",))
-            self.config_tree.tag_configure("section", font=("Helvetica", 10, "bold"))
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
-            for key, value in self.app_instance.config.items(section):
-                self.config_tree.insert(section_id, "end", values=(key, value), tags=("editable",))
-        debug_log("Config table populated. All set!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-    
     def _on_double_click_edit(self, event):
+        """
+        Enables in-cell editing on double-click.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        region = self.config_tree.identify("region", event.x, event.y)
-        if region == "heading":
-            debug_log("Attempted to edit heading. Not allowed, you cheeky bastard!",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_function)
-            return
-        column = self.config_tree.identify_column(event.x)
-        if column != "#2":
-            debug_log("Attempted to edit non-value column. Stick to the values!",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_function)
-            return
-        item_id = self.config_tree.identify_row(event.y)
-        if not item_id:
-            debug_log("No item selected for editing. Pick something!",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_function)
-            return
-        if "section" in self.config_tree.item(item_id, "tags"):
-            debug_log("Attempted to edit section header. That's a no-go!",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_function)
-            return
-
-        self._start_edit(item_id, column)
-
-    def _start_edit(self, item_id, column_id):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Starting edit for a cell. A temporary editor will appear.",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
         
-        if hasattr(self, 'edit_entry') and self.edit_entry and self.edit_entry.winfo_exists():
-            self._end_edit()
+        item_id = self.tree.identify_row(event.y)
+        column_id = self.tree.identify_column(event.x)
         
-        x, y, width, height = self.config_tree.bbox(item_id, column_id)
-        current_value = self.config_tree.item(item_id, 'values')[1]
-
-        self.edit_entry = ttk.Entry(self.config_tree, style='TEntry')
-        self.edit_entry.place(x=x, y=y, width=width, height=height, anchor="nw")
-        self.edit_entry.insert(0, current_value)
-        self.edit_entry.focus_set()
-        self.edit_entry.select_range(0, tk.END)
-
-        self.current_edit_cell = (item_id, column_id)
+        if not item_id or column_id != "#2":
+            return
+            
+        column_index = int(column_id.replace('#', '')) - 1
+        item_values = self.tree.item(item_id, 'values')
         
-        self.edit_entry.bind("<Return>", self._on_edit_return)
-        self.edit_entry.bind("<FocusOut>", self._on_focus_out_editor)
-        self.edit_entry.bind("<Escape>", self._on_edit_escape)
+        if self.tree.parent(item_id):  # Only allow editing for child items (key-value pairs)
+            self._start_edit(item_id, column_index, item_values)
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
     
-    def _on_edit_return(self, event):
-        self._end_edit()
-        if self.current_edit_cell:
-            self._navigate_and_edit(self.current_edit_cell[0], self.current_edit_cell[1], "down")
-
-    def _on_edit_escape(self, event):
-        if self.edit_entry and self.edit_entry.winfo_exists():
-            self.edit_entry.destroy()
-            self.current_edit_cell = None
-            self.config_tree.focus_set()
-
-    def _on_focus_out_editor(self, event):
-        self._end_edit()
+    def _start_edit(self, item_id, column_index, item_values):
+        """
+        Creates an entry widget for editing a cell's value.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        x, y, width, height = self.tree.bbox(item_id, column=column_index)
+        
+        # Check if an editor already exists
+        if self.editor:
+            self.editor.destroy()
+            
+        self.editor = ttk.Entry(self.tree, style='TEntry')
+        self.editor.insert(0, item_values[column_index])
+        self.editor.bind("<Return>", lambda e, item_id=item_id, column_index=column_index: self._on_edit_return(e, item_id, column_index))
+        self.editor.bind("<Escape>", self._on_edit_escape)
+        self.editor.place(x=x, y=y, width=width, height=height)
+        self.editor.focus_set()
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
     def _end_edit(self):
+        """
+        Destroys the editor widget.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        if not hasattr(self, 'edit_entry') or not self.edit_entry or not self.edit_entry.winfo_exists() or not self.current_edit_cell:
-            return
-        
-        item_id, column_id = self.current_edit_cell
-        new_value = self.edit_entry.get()
-        self.edit_entry.destroy()
-        self.current_edit_cell = None
-        
-        self._save_edit(item_id, column_id, new_value)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        if self.editor:
+            self.editor.destroy()
+            self.editor = None
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
-    def _save_edit(self, item_id, column_id, new_value):
+    def _on_edit_return(self, event, item_id=None, column_index=None):
+        """
+        Saves the edited value and updates the treeview.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        
-        values = list(self.config_tree.item(item_id, 'values'))
-        old_value = values[1]
-        
-        if new_value == old_value:
-            return
-            
-        values[1] = new_value
-        self.config_tree.item(item_id, values=values)
-        
-        key = values[0]
-        parent_id = self.config_tree.parent(item_id)
-        section_name = self.config_tree.item(parent_id, "text").strip('[]')
-        
-        self.app_instance.config[section_name][key] = new_value
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
 
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        self._update_tkinter_var_from_config(section_name, key, new_value)
+        new_value = self.editor.get()
+        item = self.tree.focus()
+        
+        self._save_edit(item, 1, new_value) # Column index 1 is the 'Value' column
+        self._end_edit()
 
-        self.console_print_func(f"✅ Updated config: [{section_name}]{key} = {new_value}. Saved to file.")
-        debug_log(f"Config updated for [{section_name}]{key}. Saved to file. ✅",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-
-    def _navigate_and_edit(self, current_item_id, current_col_id, direction):
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+        
+    def _on_edit_escape(self, event):
+        """
+        Discards the edit and destroys the editor.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Navigating to the next cell and starting a new edit. 🏃‍♀️", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        self._end_edit()
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+
+    def _save_edit(self, item_id, column_index, new_value):
+        """
+        Updates the treeview and the in-memory config object.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
         
-        parent = self.config_tree.parent(current_item_id)
-        children = self.config_tree.get_children(parent)
-        
-        try:
-            current_index = children.index(current_item_id)
-            next_index = current_index + 1
-            
-            if next_index < len(children):
-                next_item_id = children[next_index]
-                self.config_tree.selection_set(next_item_id)
-                self.config_tree.focus(next_item_id)
-                self._start_edit(next_item_id, current_col_id)
+        parent_id = self.tree.parent(item_id)
+        if parent_id:
+            section = self.tree.item(parent_id, 'values')[0]
+            key = self.tree.item(item_id, 'values')[0]
+            old_value = self.tree.item(item_id, 'values')[column_index]
+
+            if self.config_data.has_section(section) and self.config_data.has_option(section, key):
+                self.config_data.set(section, key, new_value)
+                self.tree.item(item_id, values=(key, new_value, ""))
+                self.console_print_func(f"✅ Changed setting '{key}' from '{old_value}' to '{new_value}' in section '{section}'.")
+                debug_log(message=f"📘📝 Saved edit for key '{key}' in section '{section}' to value '{new_value}'.", file=current_file, version=current_version, function=current_function)
             else:
-                self.console_print_func("ℹ️ End of section reached. No more cells to edit.")
-                debug_log("End of section reached. No more cells to edit.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-
-        except ValueError:
-            self.console_print_func("❌ Error during navigation. The selected item could not be found.")
-            debug_log("ValueError: The selected item could not be found in its parent's children. 🤯", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-    
-    def _update_tkinter_var_from_config(self, section_name, key, new_value_str):
-        current_function = inspect.currentframe().f_code.co_name
+                self.console_print_func(f"❌ Error: Key '{key}' not found in section '{section}'. Cannot save.")
         
-        found_match = False
-        for var_key, var_info in self.app_instance.setting_var_map.items():
-            if var_info['section'] == section_name and var_info['key'] == key:
-                found_match = True
-                try:
-                    tk_var_instance = var_info['var']
-                    if isinstance(tk_var_instance, tk.BooleanVar):
-                        tk_var_instance.set(new_value_str.lower() == 'true')
-                    elif isinstance(tk_var_instance, tk.IntVar):
-                        tk_var_instance.set(int(float(new_value_str)))
-                    elif isinstance(tk_var_instance, tk.DoubleVar):
-                        tk_var_instance.set(float(new_value_str))
-                    elif isinstance(tk_var_instance, tk.StringVar):
-                        tk_var_instance.set(new_value_str)
-                    
-                    debug_log(f"Synced Tkinter var '{var_key}' to '{new_value_str}'. GUI updated! ✅",
-                                file=f"{os.path.basename(__file__)}",
-                                version=current_version,
-                                function=current_function)
-                    
-                    if var_key == 'notes_var' and hasattr(self.app_instance, 'scanning_parent_tab') and hasattr(self.app_instance.scanning_parent_tab, 'scan_meta_data_tab'):
-                        notes_widget = self.app_instance.scanning_parent_tab.scan_meta_data_tab.notes_text
-                        notes_widget.delete("1.0", tk.END)
-                        notes_widget.insert("1.0", new_value_str)
-                        debug_log("Updated notes_text_widget from config edit. Looking good! 👍",
-                                    file=f"{os.path.basename(__file__)}",
-                                    version=current_version,
-                                    function=current_function)
-                    
-                    break
-                except ValueError as e:
-                    self.console_print_func(f"❌ Error syncing Tkinter var '{var_key}': {e}. Invalid value!")
-                    debug_log(f"Error syncing Tkinter var '{var_key}': {e}. What a pain! 🤯",
-                                file=f"{os.path.basename(__file__)}",
-                                version=current_version,
-                                function=current_function)
-                    
-                except Exception as e:
-                    self.console_print_func(f"❌ Unexpected error syncing Tkinter var '{var_key}': {e}. This is a disaster!")
-                    debug_log(f"Unexpected error syncing Tkinter var '{var_key}': {e}. Fucking hell! 💥",
-                                file=f"{os.path.basename(__file__)}",
-                                version=current_version,
-                                function=current_function)
-        
-        if not found_match:
-            debug_log(f"No corresponding Tkinter variable found in setting_var_map for key '{key}' in section '{section_name}'. Skipping sync. 🤷‍♀️", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
-
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
     def _load_default_config(self):
+        """
+        Loads the factory default configuration into the application.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Loading default configuration... Getting back to basics!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-        restore_default_settings_logic(self.app_instance, self.console_print_func)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        # CORRECTED: Use the correct function name.
+        restore_default_settings(self.app_instance, self.console_print_func)
         self._populate_config_table()
-        self.console_print_func("✅ Default configuration loaded and applied. Fresh start!")
-        self.app_instance.update_idletasks()
-        for parent_tab_name, parent_tab_widget in self.app_instance.parent_tab_widgets.items():
-            if hasattr(parent_tab_widget, '_on_tab_selected'):
-                parent_tab_widget._on_tab_selected(None)
-        debug_log("Default config loaded and GUI refreshed. All good!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-
-
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+        
     def _load_previous_config(self):
+        """
+        Loads the last used configuration into the application.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Loading previous configuration... Back to where we were!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-        restore_last_used_settings_logic(self.app_instance, self.console_print_func)
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        # CORRECTED: Use the correct function name.
+        restore_last_used_settings(self.app_instance, self.console_print_func)
         self._populate_config_table()
-        self.console_print_func("✅ Previous configuration loaded and applied. Familiar territory!")
-        self.app_instance.update_idletasks()
-        for parent_tab_name, parent_tab_widget in self.app_instance.parent_tab_widgets.items():
-            if hasattr(parent_tab_widget, '_on_tab_selected'):
-                parent_tab_widget._on_tab_selected(None)
-        debug_log("Previous config loaded and GUI refreshed. Good to be back!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+        
+    def _save_running_config(self):
+        """
+        Saves the currently loaded configuration to the main config file.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
 
+        save_config(self.config_data, self.config_file_path, self.console_print_func, self.app_instance)
+        
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
 
     def _save_current_config_as_new_file(self):
+        """
+        Saves the currently loaded configuration to a new file.
+        """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log("Saving current config as new file... Let's make a copy!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
         file_path = filedialog.asksaveasfilename(
             defaultextension=".ini",
-            filetypes=[("INI files", "*.ini"), ("All files", "*.*")],
-            title="Save Configuration As",
-            initialfile="custom_config.ini"
+            initialdir=DATA_FOLDER_PATH,
+            title="Save Configuration As...",
+            filetypes=[("INI files", "*.ini"), ("All files", "*.*")]
         )
-        if file_path:
-            try:
-                save_config_as_new_file(self.app_instance.config, file_path, self.console_print_func)
-                self.console_print_func(f"✅ Configuration saved to: {file_path}. Success!")
-                debug_log(f"Configuration saved to new file: {file_path}. File created!",
-                            file=f"{os.path.basename(__file__)}",
-                            version=current_version,
-                            function=current_function)
-            except Exception as e:
-                self.console_print_func(f"❌ Error saving configuration to new file: {e}. This is a disaster!")
-                debug_log(f"Error saving configuration to new file '{file_path}': {e}. Fucking hell!",
-                            file=f"{os.path.basename(__file__)}",
-                            version=current_version,
-                            function=current_function)
-        else:
-            self.console_print_func("ℹ️ Configuration save cancelled. Fine, be that way!")
-            debug_log("Configuration save cancelled. What a waste!",
-                        file=f"{os.path.basename(__file__)}",
-                        version=current_version,
-                        function=current_function)
-
-    def _on_tab_selected(self, event):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log("Initial Configuration Tab selected. Refreshing table... Let's get this updated!",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
-        self._populate_config_table()
-
-    def _save_running_config(self):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"Manual save of running configuration requested. Triggering immediate save. 💾",
-                    file=f"{os.path.basename(__file__)}",
-                    version=current_version,
-                    function=current_function)
         
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
-        self.console_print_func("✅ Running configuration saved successfully.")
-        self._populate_config_table()
+        if file_path:
+            save_config(self.config_data, file_path, self.console_print_func, self.app_instance)
+            
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+
+    def _push_edits_to_file(self):
+        """
+        Pushes all in-memory changes to the config file.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        try:
+            with open(self.config_file_path, 'w') as configfile:
+                self.config_data.write(configfile)
+            self.console_print_func("✅ In-memory changes saved to config.ini.")
+            debug_log(message=f"📘📝 All in-memory edits written to '{self.config_file_path}'.", file=current_file, version=current_version, function=current_function)
+        except Exception as e:
+            self.console_print_func(f"❌ Error saving changes to file: {e}")
+            debug_log(message=f"📘❌ Failed to push in-memory changes to file. Error: {e}", file=current_file, version=current_version, function=current_function)
+            
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+        
+    def _on_tab_selected(self, event):
+        """
+        Handles the tab selection event for this notebook.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(message=f"📘🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+        
+        selected_tab_id = self.master.select()
+        selected_tab_name = self.master.tab(selected_tab_id, "text")
+
+        if selected_tab_name == "Initial Configuration":
+            self._populate_config_table()
+            
+        debug_log(message=f"📘✅ Exiting {current_function}", file=current_file, version=current_version, function=current_function)

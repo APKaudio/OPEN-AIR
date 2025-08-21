@@ -60,6 +60,8 @@ DEFAULT_CONFIG = {
         'debug_to_file': 'True',
         'include_console_messages_to_debug_file': 'True',
         'log_visa_commands_enabled': 'False',
+        'log_truncation_enabled': 'True',
+        'include_visa_messages_to_debug_file': 'True',
     },
     'Instrument': {
         'visa_resource': 'TCPIP0::192.168.1.100::inst0::INSTR',
@@ -95,7 +97,7 @@ DEFAULT_CONFIG = {
         'trace_max_hold': 'False',
         'trace_min_hold': 'False',
         'buffer_mhz': '3.0',
-        'poke_mhz': '444.444444',
+        'poke_freq_mhz': '444.444444',
         'buffered_start_var': '0.0',
         'buffered_stop_var': '0.0',
         'zone_selected': 'None',
@@ -165,9 +167,9 @@ DEFAULT_CONFIG = {
         'scanner_type': 'Generic RF Scanner',
     },
     'Plotting': {
-        'avg_include_tv_markers': 'True',
-        'avg_include_gov_markers': 'True',
-        'avg_include_markers': 'True',
-        'avg_include_intermod_markers': 'True',
+        'current_style_theme': 'dark',
+        'plot_grid_on': 'True',
+        'plot_grid_alpha': '0.5',
+        'plot_grid_color': 'gray',
     },
 }

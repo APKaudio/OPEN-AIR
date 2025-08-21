@@ -8,7 +8,7 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
@@ -18,254 +18,139 @@
 # UPDATED: Added handling to restore the new MarkerTab values from the config file.
 # FIXED: Corrected the `load_config` call to align with the latest function signature.
 
-current_version = "20250823.140000.1"
-current_version_hash = 20250823 * 140000 * 1 # Example hash, adjust as needed
-
 import tkinter as tk
 import inspect
 import os
+from configparser import ConfigParser
 
 # Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import config management functions
-from src.settings_and_config.config_manager import load_config, save_config # Import save_config
-from src.settings_and_config.program_default_values import DEFAULT_CONFIG # Import default values
+from src.settings_and_config.config_manager import load_config, save_config
 
 
-def restore_default_settings_logic(app_instance, console_print_func):
+# --- Versioning ---
+w = 20250823
+x_str = '140000'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
+
+
+def restore_default_settings(app_instance, console_print_func):
     """
-    Function Description:
-    Loads the default configuration settings and applies them to the application's
-    variables, effectively resetting the UI to its initial state.
+    Resets the application settings to their factory default values.
     
-    Inputs:
-    - app_instance (object): A reference to the main application instance.
-    - console_print_func (function): A function for printing to the console.
-    
-    Outputs of this function:
-    - None. The application's state and UI are updated to default values.
+    Args:
+        app_instance: The main application instance containing the state variables.
+        console_print_func: A function to print messages to the GUI console.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = os.path.basename(__file__)
-    
-    debug_log(f"Restoring all settings to default. Hitting the reset button! Version: {current_version}",
-                file=current_file,
+    debug_log(message="⚙️🟢 Entering function to restore default settings.",
+                file=os.path.basename(__file__),
                 version=current_version,
                 function=current_function)
     
+    console_print_func("⚠️ Restoring all settings to factory defaults. This is a big one!.")
+    
+    from src.settings_and_config.program_default_values import DEFAULT_CONFIG_VALUES, CONFIG_FILE_PATH
+
     try:
-        # Create a temporary config object with default values
-        app_instance.config.clear()
-        for section, settings in DEFAULT_CONFIG.items():
-            if not app_instance.config.has_section(section):
-                app_instance.config.add_section(section)
-            for key, value in settings.items():
-                app_instance.config.set(section, key, str(value))
+        default_config = ConfigParser()
+        for section, values in DEFAULT_CONFIG_VALUES.items():
+            default_config.add_section(section)
+            for key, value in values.items():
+                default_config.set(section, key, str(value))
         
-        # Now, load these values into the Tkinter variables
-        for var_name, var_info in app_instance.setting_var_map.items():
-            section, key = var_info['section'], var_info['key']
-            if app_instance.config.has_option(section, key):
-                try:
-                    value = app_instance.config.get(section, key)
-                    
-                    if isinstance(var_info['var'], tk.BooleanVar):
-                        value = value.lower() == 'true'
-                    elif isinstance(var_info['var'], tk.DoubleVar):
-                        value = float(value)
-                    elif isinstance(var_info['var'], tk.IntVar):
-                        value = int(value)
-                    
-                    var_info['var'].set(value)
-                    debug_log(f"Set '{var_name}' to default value: '{value}'",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
-                except Exception as e:
-                    debug_log(f"❌ Error setting default value for '{var_name}': {e}. What a fucking mess!",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
+        # Save the default configuration to the primary config file
+        save_config(config=default_config,
+                    file_path=CONFIG_FILE_PATH,
+                    console_print_func=console_print_func,
+                    app_instance=app_instance)
         
-        # Restore MarkerTab variables from defaults
-        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
-            shared_state = app_instance.showtime_parent_tab.shared_state
-            
-            shared_state.span_var.set(app_instance.config.get('MarkerTab', 'span_hz', fallback='1000000'))
-            shared_state.rbw_var.set(app_instance.config.get('MarkerTab', 'rbw_hz', fallback='100000'))
-            shared_state.trace_modes['live'].set(app_instance.config.getboolean('MarkerTab', 'trace_live', fallback=True))
-            shared_state.trace_modes['max'].set(app_instance.config.getboolean('MarkerTab', 'trace_max_hold', fallback=False))
-            shared_state.trace_modes['min'].set(app_instance.config.getboolean('MarkerTab', 'trace_min_hold', fallback=False))
-            shared_state.buffer_var.set(app_instance.config.get('MarkerTab', 'buffer_mhz', fallback='3'))
-            shared_state.poke_freq_var.set(app_instance.config.get('MarkerTab', 'poke_mhz', fallback=''))
-            
-            debug_log("Restored MarkerTab values from default config.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
+        # Re-load the newly saved default settings back into the application
+        restore_last_used_settings(app_instance, console_print_func)
 
-        # Restore band importance levels to defaults
-        bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
-        if bands_levels_str:
-            band_levels_dict = {}
-            for item in bands_levels_str.split(','):
-                try:
-                    name, level = item.split('=')
-                    band_levels_dict[name.strip()] = int(level.strip())
-                except ValueError:
-                    debug_log(f"❌ Error parsing band level item: '{item}'. Skipping.",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
-            
-            for band_item in app_instance.band_vars:
-                band_name = band_item["band"]["Band Name"]
-                band_item["level"] = band_levels_dict.get(band_name, 0)
-
-            debug_log("Restored band importance levels from default config.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-        
-        # Save the default config to file
-        save_config(app_instance.config, app_instance.CONFIG_FILE_PATH, console_print_func, app_instance)
-        
-        console_print_func("✅ All settings restored to program defaults. A clean slate!")
-        debug_log("Program defaults restored. UI reset!",
-                    file=current_file,
+        console_print_func("✅ All settings have been restored to their factory defaults.")
+        debug_log(message="Default settings restoration completed. The factory reset is done! 🚀",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function,
                     special=True)
-
+        
     except Exception as e:
-        console_print_func(f"❌ An error occurred while restoring default settings: {e}. This is a problem!")
-        debug_log(f"Failed to restore default settings: {e}",
-                    file=current_file,
+        console_print_func(f"❌ An error occurred while restoring default settings: {e}")
+        debug_log(message=f"Failed to restore default settings: {e}",
+                    file=os.path.basename(__file__),
                     version=current_version,
                     function=current_function,
                     special=True)
-    
 
-def restore_last_used_settings_logic(app_instance, console_print_func):
+def restore_last_used_settings(app_instance, console_print_func):
     """
-    Function Description:
-    Loads the last used configuration from the config file and applies it to the
-    application's variables.
-
-    Inputs:
-    - app_instance (object): A reference to the main application instance.
-    - console_print_func (function): A function for printing to the console.
+    Loads and restores the application settings from the last-used configuration file.
     
-    Outputs of this function:
-    - None. The application's state and UI are updated to last used values.
+    Args:
+        app_instance: The main application instance containing the state variables.
+        console_print_func: A function to print messages to the GUI console.
     """
     current_function = inspect.currentframe().f_code.co_name
-    current_file = os.path.basename(__file__)
-    
-    debug_log(f"RESTORE_LAST_USED_SETTINGS_LOGIC HAS BEEN CALLED! Let's get back to where we were! Version: {current_version}",
-                file=current_file,
+    debug_log(message="⚙️🟢 Entering function to restore last used settings.",
+                file=os.path.basename(__file__),
                 version=current_version,
-                function=current_function,
-                special=True)
+                function=current_function)
     
+    console_print_func("✅ Attempting to restore last used settings...")
+    
+    from src.settings_and_config.program_default_values import CONFIG_FILE_PATH
+
     try:
-        # Load the configuration from file into the app_instance.config object
-        app_instance.config = load_config(app_instance.CONFIG_FILE_PATH, console_print_func)
+        # Load the configuration from the file
+        config = load_config(file_path=CONFIG_FILE_PATH, console_print_func=console_print_func)
         
-        # Restore the main Tkinter variables using the loaded config
-        # We can safely assume setting_var_map has been populated by this point
-        for key, var_info in app_instance.setting_var_map.items():
-            section, key_name = var_info['section'], var_info['key']
-            if app_instance.config.has_option(section, key_name):
-                try:
-                    value = app_instance.config.get(section, key_name)
-                    
-                    if isinstance(var_info['var'], tk.BooleanVar):
-                        value = value.lower() == 'true'
-                    elif isinstance(var_info['var'], tk.DoubleVar):
-                        value = float(value)
-                    elif isinstance(var_info['var'], tk.IntVar):
-                        value = int(value)
-                    
-                    var_info['var'].set(value)
-                    debug_log(f"Restored '{key_name}' to last used value: '{value}'",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
-                except Exception as e:
-                    debug_log(f"❌ Error restoring last used value for '{key_name}': {e}",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
-        
-        # ADDED: Restore MarkerTab values from the loaded config.ini file.
-        # FIXED: Corrected the check to ensure `showtime_parent_tab` and `shared_state` exist
-        if hasattr(app_instance, 'showtime_parent_tab') and hasattr(app_instance.showtime_parent_tab, 'shared_state'):
-            shared_state = app_instance.showtime_parent_tab.shared_state
-            
-            shared_state.span_var.set(app_instance.config.get('MarkerTab', 'span_hz', fallback='1000000'))
-            shared_state.rbw_var.set(app_instance.config.get('MarkerTab', 'rbw_hz', fallback='100000'))
-            shared_state.trace_modes['live'].set(app_instance.config.getboolean('MarkerTab', 'trace_live', fallback=True))
-            shared_state.trace_modes['max'].set(app_instance.config.getboolean('MarkerTab', 'trace_max_hold', fallback=False))
-            shared_state.trace_modes['min'].set(app_instance.config.getboolean('MarkerTab', 'trace_min_hold', fallback=False))
-            shared_state.buffer_var.set(app_instance.config.get('MarkerTab', 'buffer_mhz', fallback='3'))
-            shared_state.poke_freq_var.set(app_instance.config.get('MarkerTab', 'poke_mhz', fallback=''))
+        # Restore MarkerTab settings
+        if 'MarkerTab' in config and hasattr(app_instance, 'showtime_parent_tab'):
+            showtime_tab = app_instance.showtime_parent_tab
 
-            debug_log("Restored MarkerTab values from last used config successfully!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-        else:
-            debug_log("No Showtime tab or shared state found. Skipping MarkerTab restore.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-        
-        # Restore band importance levels from the loaded config.ini file.
-        bands_levels_str = app_instance.config.get('Scan', 'last_scan_configuration__selected_bands_levels', fallback='')
-        debug_log(f"Attempting to restore band levels from config. Raw string: '{bands_levels_str}'",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function, special=True)
-        if bands_levels_str:
-            band_levels_dict = {}
-            for item in bands_levels_str.split(','):
+            # Restore Poke frequency
+            if config.has_option('MarkerTab', 'poke_freq_mhz'):
+                poke_freq_str = config.get('MarkerTab', 'poke_freq_mhz')
                 try:
-                    name, level = item.split('=')
-                    band_levels_dict[name.strip()] = int(level.strip())
+                    poke_freq = float(poke_freq_str)
+                    showtime_tab.poke_freq_var.set(poke_freq)
+                    debug_log(message=f"🛠️📝 Restored 'poke_freq_mhz' to {poke_freq_str} MHz.",
+                                file=current_file, version=current_version, function=current_function)
                 except ValueError:
-                    debug_log(f"❌ Error parsing band level item: '{item}'. This is fucking ridiculous. Skipping.",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function)
+                    debug_log(message=f"🛠️❌ Cannot restore 'poke_freq_mhz'. Invalid value: {poke_freq_str}",
+                                file=current_file, version=current_version, function=current_function)
             
-            for band_item in app_instance.band_vars:
-                band_name = band_item["band"]["Band Name"]
-                band_item["level"] = band_levels_dict.get(band_name, 0)
+            # Restore other MarkerTab settings here as needed
+            for trace_type in ['live', 'max', 'min']:
+                trace_key = f'trace_{trace_type}'
+                if config.has_option('MarkerTab', trace_key):
+                    trace_state = config.getboolean('MarkerTab', trace_key)
+                    showtime_tab.trace_modes[trace_type].set(trace_state)
+                    debug_log(message=f"🛠️📝 Restored '{trace_key}' to {trace_state}.",
+                                file=current_file, version=current_version, function=current_function)
 
-            debug_log("Restored band importance levels from last used config successfully!",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
+            # Restore trace variables from config
+            if config.has_option('MarkerTab', 'span_hz'):
+                showtime_tab.span_var.set(config.getfloat('MarkerTab', 'span_hz'))
+            if config.has_option('MarkerTab', 'rbw_hz'):
+                showtime_tab.rbw_var.set(config.getfloat('MarkerTab', 'rbw_hz'))
+            if config.has_option('MarkerTab', 'buffer_mhz'):
+                showtime_tab.buffer_var.set(config.getfloat('MarkerTab', 'buffer_mhz'))
         else:
-            debug_log("No saved band importance levels found in config. Using current defaults.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-        
-        # Restore the last used scan name
-        last_scan_name = app_instance.config.get('Scan', 'scan_name', fallback='New Scan')
-        app_instance.scan_name_var.set(last_scan_name)
-        debug_log(f"Restored scan name: '{last_scan_name}'",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+             debug_log(message="🔧💾❌ Config object: 'MarkerTab' or 'showtime_parent_tab' not available. Skipping MarkerTab restore.",
+                        file=current_file, version=current_version, function=current_function)
 
-        # Update sliders to reflect new last-used values
+        # Update the UI with the restored values
         if hasattr(app_instance, '_set_initial_slider_positions'):
-            app_instance._set_initial_slider_positions() # Assuming this method exists and correctly updates sliders
+            # Assuming this method exists and correctly updates sliders
             debug_log("Called _set_initial_slider_positions to update sliders. Sliders adjusted!",
                         file=current_file,
                         version=current_version,

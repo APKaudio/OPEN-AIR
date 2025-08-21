@@ -1,8 +1,7 @@
 # src/program_gui_utils.py
 #
-# This module is responsible for constructing the main graphical user interface (GUI)
-# for the application. It creates the main window layout, including the paned window,
-# and populates it with the main tab container and the display/control panes.
+# This file provides utility functions for creating and managing the main application GUI layout,
+# including the main window layout, the tab container, and other top-level widgets.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,71 +14,123 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.113100.1
+# Version 20250821.105800.1 (FIXED: Removed the redundant theme_use call to prevent TclError.)
 
-current_version = "20250814.113100.1"
-current_version_hash = (20250814 * 113100 * 1)
-
+import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
-import os
+from datetime import datetime
 
-# --- Import Parent Containers ---
-from tabs.TABS_PARENT import TABS_PARENT
-from display.DISPLAY_PARENT import TAB_DISPLAY_PARENT
-from display.console_logic import console_log
+# Import logging functions
 from display.debug_logic import debug_log
+from display.console_logic import console_log
+
+# Import other components
+from tabs.TABS_PARENT import TABS_PARENT
+from display.DISPLAY_PARENT import DISPLAY_PARENT
+
+# Import styling functions
+from src.program_style import apply_styles
+
+# --- Version Information ---
+current_version = "20250821.105800.1"
+current_version_hash = (20250821 * 105800 * 1)
+current_file = f"{os.path.basename(__file__)}"
+
 
 def apply_saved_geometry(app_instance):
-    # Applies the last saved window geometry and state.
+    """
+    Applies the last-used window geometry and state from the config file.
+    """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Applying saved window geometry and state.",
-                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
-    try:
-        last_geometry = app_instance.config.get('Application', 'geometry', fallback='1200x800+100+100')
-        last_state = app_instance.config.get('Application', 'window_state', fallback='normal')
-        app_instance.geometry(last_geometry)
-        app_instance.state(last_state)
-    except Exception as e:
-        console_log(f"❌ Error applying saved geometry: {e}")
+    debug_log(f"⚙️ 🟢 Entering {current_function}",
+                file=current_file, version=current_version, function=current_function)
+    
+    config = app_instance.config
+    geometry = config.get('Application', 'geometry', fallback=None)
+    window_state = config.get('Application', 'window_state', fallback='normal')
+
+    if geometry:
+        try:
+            app_instance.geometry(geometry)
+            debug_log(f"✅ Applied saved geometry: {geometry}",
+                        file=current_file, version=current_version, function=current_function)
+        except tk.TclError:
+            debug_log(f"❌ Failed to apply saved geometry: {geometry}. Invalid format.",
+                        file=current_file, version=current_version, function=current_function)
+    
+    if window_state == 'zoomed':
+        app_instance.state('zoomed')
+        debug_log(f"✅ Applied saved window state: {window_state}",
+                    file=current_file, version=current_version, function=current_function)
+    
+    debug_log(f"⚙️ ✅ Exiting {current_function}",
+                file=current_file, version=current_version, function=current_function)
 
 
 def create_main_layout_and_widgets(app_instance, orchestrator_logic):
-    # Constructs the main GUI layout with a horizontal PanedWindow.
+    """
+    Creates the main UI layout and widgets for the application.
+    This function should be called after program initialization is complete.
+    
+    Args:
+        app_instance (tk.Tk): The main application instance.
+        orchestrator_logic: The instance of the OrchestratorLogic.
+    """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log("Creating main layout: Left (TABS_PARENT) and Right (TAB_DISPLAY_PARENT).",
-                file=f"{os.path.basename(__file__)} - {current_version}", function=current_function)
-
-    main_paned_window = ttk.PanedWindow(app_instance, orient=tk.HORIZONTAL)
-    main_paned_window.pack(expand=True, fill='both')
-    app_instance.paned_window = main_paned_window
-
-    # --- Left Pane ---
-    left_frame = ttk.Frame(main_paned_window, style='TFrame')
-    main_paned_window.add(left_frame, weight=1)
-
-    # --- Right Pane ---
-    right_frame = ttk.Frame(main_paned_window, style='TFrame')
-    main_paned_window.add(right_frame, weight=1)
+    debug_log(f"⚙️ 🟢 Entering {current_function}",
+                file=current_file, version=current_version, function=current_function)
     
-    # --- Populate Panes ---
-    app_instance.tabs_parent = TABS_PARENT(left_frame, app_instance)
-    app_instance.tabs_parent.pack(expand=True, fill='both')
-    
-    # Pass the orchestrator_logic to the display parent
-    app_instance.display_parent_tab = TAB_DISPLAY_PARENT(right_frame, app_instance, orchestrator_logic)
-    app_instance.display_parent_tab.pack(expand=True, fill='both')
-
-    # --- Set Sash Position After Panes are Populated ---
-    app_instance.update_idletasks() 
     try:
-        sash_pos_percent = app_instance.config.getfloat('Application', 'paned_window_sash_position_percentage', fallback=50)
-        sash_pos = int(main_paned_window.winfo_width() * (sash_pos_percent / 100.0))
-        main_paned_window.sashpos(0, sash_pos)
+        # Create a style object and apply the theme from the config
+        app_instance.style_obj = ttk.Style(app_instance)
+        
+        # Main window layout
+        app_instance.rowconfigure(0, weight=1)
+        app_instance.columnconfigure(0, weight=1)
+
+        # Create a PanedWindow to hold the left and right panes
+        paned_window = ttk.PanedWindow(app_instance, orient=tk.HORIZONTAL)
+        paned_window.grid(row=0, column=0, sticky="nsew")
+
+        # Left pane for the tabs
+        left_frame = ttk.Frame(paned_window, style='TFrame')
+        left_frame.grid_rowconfigure(0, weight=1)
+        left_frame.grid_columnconfigure(0, weight=1)
+        paned_window.add(left_frame, weight=1)
+        
+        # Right pane for the display and console
+        right_frame = ttk.Frame(paned_window, style='TFrame')
+        right_frame.grid_rowconfigure(0, weight=1)
+        right_frame.grid_columnconfigure(0, weight=1)
+        paned_window.add(right_frame, weight=1)
+
+        # Initialize the tabs and display panes
+        app_instance.tabs_parent = TABS_PARENT(left_frame, app_instance, app_instance.style_obj)
+        app_instance.tabs_parent.grid(row=0, column=0, sticky="nsew")
+
+        app_instance.display_parent_tab = DISPLAY_PARENT(right_frame, app_instance, app_instance.style_obj)
+        app_instance.display_parent_tab.grid(row=0, column=0, sticky="nsew")
+
+        # Set the sash position
+        sash_position_percentage = int(app_instance.config.get('Application', 'paned_window_sash_position_percentage', fallback='45'))
+        paned_window.sashpos(0, (app_instance.winfo_width() * sash_position_percentage) // 100)
+
+        # Apply the geometry settings after the widgets are created
+        apply_saved_geometry(app_instance)
+
+        # Set the parent notebook for the display pane's children
+        app_instance.display_parent_tab.set_parent_notebook(app_instance.display_parent_tab.notebook)
+        
+        # REMOVED: This is a duplicate call and causes the TclError
+        # app_instance.style_obj.theme_use(app_instance.current_style_theme_var.get())
+
     except Exception as e:
-        console_log(f"⚠️ Could not set sash position from config: {e}. Using default.")
-        initial_sash_pos = int(app_instance.winfo_width() / 2)
-        main_paned_window.sashpos(0, initial_sash_pos)
-    
-    console_log("✅ Main GUI layout created successfully.")
+        console_log(f"❌ Error creating main layout: {e}")
+        debug_log(f"❌ Failed to create main layout. Error: {e}",
+                  file=current_file, version=current_version, function=current_function)
+        raise
+
+    debug_log(f"⚙️ ✅ Exiting {current_function}. GUI is built and ready.",
+                file=current_file, version=current_version, function=current_function)

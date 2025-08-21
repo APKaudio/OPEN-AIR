@@ -34,7 +34,7 @@ from display.console_logic import console_log
 
 # Import shared utility functions
 from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import set_span_to_group
-from .utils_display_showtime_shared import _update_zone_zoom_tab, _save_showtime_state_to_config, on_group_deselected
+from .utils_display_showtime_shared import _update_zone_zoom_tab, _save_showtime_state_to_config
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
 
@@ -86,6 +86,7 @@ def on_device_selected(zgd_frame_instance, device_info):
     
     if showtime_tab.selected_device_info and id(showtime_tab.selected_device_info) == id(device_info):
         console_log(f"EVENT: Device '{device_name}' deselected.")
+        from .utils_display_showtime_groups import on_group_deselected # Correctly moved here
         on_device_deselected(zgd_frame_instance)
         debug_log(message=f"🛠️🟢 Exiting {current_function} after deselecting device.", file=current_file, version=current_version, function=current_function)
         return

@@ -34,8 +34,9 @@ from display.console_logic import console_log
 
 # Import shared utility functions
 from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import set_span_to_zone
-from .utils_display_showtime_shared import no_zone_grou_device_selected, _update_zone_zoom_tab, _save_showtime_state_to_config
-from .utils_display_showtime_shared import on_group_deselected
+# FIXED: Updated the import statement to reflect the new location of no_zone_grou_device_selected.
+from .utils_display_showtime_shared import _update_zone_zoom_tab, _save_showtime_state_to_config
+from .utils_display_showtime_all import no_zone_grou_device_selected
 
 
 # --- Versioning ---
@@ -115,4 +116,3 @@ def on_zone_selected(zgd_frame_instance, zone_name):
         _save_showtime_state_to_config(showtime_tab)
 
     debug_log(message=f"🛠️🟢 Exiting {current_function}", file=current_file, version=current_version, function=current_function)
-

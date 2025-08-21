@@ -39,13 +39,14 @@ class TABS_PARENT(ttk.Frame):
     A parent container for all the main functional tabs of the application.
     This consolidates the tab switching logic and UI into a single component for the left pane.
     """
-    def __init__(self, parent, app_instance):
+    def __init__(self, parent, app_instance, style_obj):
         # Function Description
         # Initializes the master tab container, creating the tab button bar and the content frame
         # that will hold all the main functional tabs like Instruments, Markers, etc.
         super().__init__(parent)
         self.app_instance = app_instance
         self.console_print_func = console_log
+        self.style_obj = style_obj
 
         # FIXED: Move imports inside __init__ to prevent circular dependency on startup.
         from tabs.Instrument.TAB_INSTRUMENT_PARENT import TAB_INSTRUMENT_PARENT
@@ -96,7 +97,12 @@ class TABS_PARENT(ttk.Frame):
             button.grid(row=0, column=i, sticky='ew')
             self.tab_buttons[name] = button
 
-            content = content_class(content_frame, self.app_instance, self.console_print_func)
+            # CORRECTED: Pass the style_obj to the ExperimentsParentTab constructor.
+            if name == "Experiments":
+                content = content_class(content_frame, self.app_instance, self.console_print_func, self.style_obj)
+            else:
+                content = content_class(content_frame, self.app_instance, self.console_print_func)
+
             content.grid(row=0, column=0, sticky='nsew')
             self.tab_content_frames[name] = content
 

@@ -14,15 +14,18 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250818.232000.2 (FIXED: Reverted the problematic custom style, and updated the selected text highlight color for entry widgets to be more visible.)
+# Version 20250821.110100.1 (FIXED: Added the missing import of 'ttkthemes' to resolve the TclError.)
 
-current_version = "20250818.232000.2"
-current_version_hash = (20250818 * 232000 * 2)
+current_version = "20250821.110100.1"
+current_version_hash = (20250821 * 110100 * 1)
 
 import tkinter as tk
 from tkinter import ttk, TclError
 import inspect
 import os
+
+# FIXED: Explicitly import ttkthemes to make the themes available to the style engine
+import ttkthemes
 
 from display.debug_logic import debug_log
 
@@ -71,16 +74,60 @@ def _get_dark_color(hex_color):
     r, g, b = tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
     r = int(r * 0.5); g = int(g * 0.5); b = int(b * 0.5)
     return f'#{r:02x}{g:02x}{b:02x}'
+    
+def _revert_to_default_styles(style):
+    """
+    Reverts to the default Tkinter styles if a TclError occurs.
+    """
+    style.configure('.', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
+    style.configure('TFrame', background=COLOR_PALETTE['background'])
+    style.configure('TLabelFrame', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
+    style.configure('TLabel', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
+    style.configure('TButton', background='lightgrey', foreground='black')
+    style.configure('TCheckbutton', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
+    style.configure('TEntry', fieldbackground='white', foreground='black')
+    style.configure('TCombobox', fieldbackground='white', foreground='black')
+    style.configure('TPanedwindow', background=COLOR_PALETTE['background'])
+    style.configure('Treeview', background='white', foreground='black', fieldbackground='white')
+    style.configure('Treeview.Heading', background='lightgrey', foreground='black')
+    style.configure('Vertical.TScrollbar', troughcolor='lightgrey', background='darkgrey')
+    style.configure('Horizontal.TScrollbar', troughcolor='lightgrey', background='darkgrey')
+    style.map('TButton', background=[('active', 'gray')])
+    style.map('TCheckbutton', background=[('active', 'gray')])
+    style.map('TEntry', fieldbackground=[('disabled', 'lightgrey')], foreground=[('disabled', 'darkgrey')])
 
 def apply_styles(style, debug_log_func, current_app_version):
     """Applies custom Tkinter ttk styles for a consistent dark theme."""
-    style.theme_use('clam')
-
     current_function = inspect.currentframe().f_code.co_name
     debug_log_func(f"Entering {current_function}. Applying all application-wide widget styles. 🎨",
                    file=f"{os.path.basename(__file__)} - {current_app_version}",
                    version=current_app_version,
                    function=current_function, special=True)
+
+    try:
+        # Check if the 'dark' theme from ttkthemes is available
+        available_themes = style.theme_names()
+        if 'dark' in available_themes:
+            style.theme_use('dark')
+        else:
+            debug_log_func("❌ `dark` theme not found. Attempting to use a standard theme.",
+                             file=f"{os.path.basename(__file__)} - {current_app_version}",
+                             version=current_app_version,
+                             function=current_function)
+            # Fallback to a standard theme if 'dark' is not found
+            if 'clam' in available_themes:
+                style.theme_use('clam')
+            else:
+                style.theme_use('default')
+
+    except TclError as e:
+        debug_log_func(f"❌ TclError: {e}. Reverting to default styles.",
+                         file=f"{os.path.basename(__file__)} - {current_app_version}",
+                         version=current_app_version,
+                         function=current_function)
+        _revert_to_default_styles(style)
+        
+    style.configure('.', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
 
     # --- General Styles ---
     style.configure('TFrame', background=COLOR_PALETTE['background'])
@@ -355,3 +402,8 @@ def apply_styles(style, debug_log_func, current_app_version):
     # UPDATED: Changed font size for Treeview headings to 13pt
     style.configure("Treeview.Heading", font=("Helvetica", 13, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
     style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])
+
+    debug_log_func(f"✅ Exiting {current_function}. All widget styles have been applied.",
+                     file=f"{os.path.basename(__file__)} - {current_app_version}",
+                     version=current_app_version,
+                     function=current_function, special=True)

@@ -118,7 +118,7 @@ class PlottingTab(ttk.Frame):
 
         # Link to app_instance variables
         ttk.Checkbutton(html_output_options_frame, text="Plot the HTML after every scan", variable=self.app_instance.open_html_after_complete_var).grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Checkbutton(html_output_options_frame, text="Create HTML", variable=self.app_instance.create_html_var,
+        ttk.Checkbutton(html_output_options_frame, text="Create HTML", variable=self.app_instance.create_html_report_var,
                         command=self._on_create_html_checkbox_changed).grid(row=1, column=0, padx=5, pady=2, sticky="w")
 
 

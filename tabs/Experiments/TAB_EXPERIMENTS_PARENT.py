@@ -43,7 +43,7 @@ class ExperimentsParentTab(tk.Frame):
     This is the parent tab for all experiment-related functionalities. It is a container
     for multiple child tabs that each handle a specific experiment or process.
     """
-    def __init__(self, parent_notebook, app_instance, console_print_func, *args, **kwargs):
+    def __init__(self, parent_notebook, app_instance, console_print_func, style_obj, *args, **kwargs):
         # [A brief, one-sentence description of the function's purpose.]
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Entering ExperimentsParentTab.__init__.",
@@ -56,6 +56,7 @@ class ExperimentsParentTab(tk.Frame):
             self.app_instance = app_instance
             self.console_print_func = console_print_func
             self.parent_notebook = parent_notebook
+            self.style_obj = style_obj
 
             # Create a Notebook to hold the child tabs
             self.child_notebook = ttk.Notebook(self)
@@ -74,7 +75,7 @@ class ExperimentsParentTab(tk.Frame):
             self.colouring_tab = ColouringTab(self.child_notebook, self.app_instance, self.console_print_func)
             self.child_notebook.add(self.colouring_tab, text="Colouring")
 
-            self.initial_config_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func)
+            self.initial_config_tab = InitialConfigurationTab(self.child_notebook, self.app_instance, self.console_print_func, self.style_obj)
             self.child_notebook.add(self.initial_config_tab, text="Initial Config")
 
             self.yakbeg_tab = YakBegTab(self.child_notebook, self.app_instance, self.console_print_func)

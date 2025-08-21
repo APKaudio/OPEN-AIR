@@ -1,3 +1,18 @@
+import sys
+import subprocess
+
+print("--- Python Environment Diagnostics ---")
+print(f"Python Executable: {sys.executable}")
+
+try:
+    print("\nInstalled Packages:")
+    subprocess.run([sys.executable, "-m", "pip", "list"], check=True)
+except FileNotFoundError:
+    print("❌ Pip not found for this interpreter.")
+
+print("--- End Diagnostics ---")
+
+
 # src/check_Dependancies.py
 #
 # This file contains a standalone function to check for and install necessary

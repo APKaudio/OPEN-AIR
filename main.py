@@ -1,3 +1,6 @@
+
+
+
 # FolderName/main_app.py
 #
 # This is the main entry point for the RF Spectrum Analyzer Controller application.
@@ -30,7 +33,7 @@ from datetime import datetime
 # Import functions from refactored modules
 from src.program_check_Dependancies import check_and_install_dependencies
 from src.program_initialization import initialize_program_environment
-from src.program_shared_values import setup_tkinter_variables
+from src.program_shared_values import setup_shared_values
 from src.program_style import apply_styles
 from src.program_gui_utils import create_main_layout_and_widgets, apply_saved_geometry
 from src.settings_and_config.config_manager import save_config
@@ -96,7 +99,7 @@ class App(tk.Tk):
         apply_styles(self.style, debug_log, self.current_version)
         
         # These need to be called before the GUI is created as they set Tkinter vars
-        setup_tkinter_variables(self) 
+        setup_shared_values(self) 
         
         # This call needs to happen before the GUI is created to load config values
         initialize_program_environment(self) 

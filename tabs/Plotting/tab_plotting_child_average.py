@@ -172,13 +172,13 @@ class AveragingTab(ttk.Frame):
         markers_to_plot_frame.grid_columnconfigure(0, weight=1) # Make column expandable
 
         # Link to app_instance variables for average markers
-        ttk.Checkbutton(markers_to_plot_frame, text="Include TV Band Markers", variable=self.app_instance.avg_include_tv_markers_var,
+        ttk.Checkbutton(markers_to_plot_frame, text="Include TV Band Markers", variable=self.app_instance.include_tv_markers_var,
                         command=self._on_multi_file_marker_checkbox_changed).grid(row=0, column=0, padx=5, pady=2, sticky="w")
-        ttk.Checkbutton(markers_to_plot_frame, text="Include Government Band Markers", variable=self.app_instance.avg_include_gov_markers_var,
+        ttk.Checkbutton(markers_to_plot_frame, text="Include Government Band Markers", variable=self.app_instance.include_gov_markers_var,
                         command=self._on_multi_file_marker_checkbox_changed).grid(row=1, column=0, padx=5, pady=2, sticky="w")
-        ttk.Checkbutton(markers_to_plot_frame, text="Include Markers", variable=self.app_instance.avg_include_markers_var,
+        ttk.Checkbutton(markers_to_plot_frame, text="Include Markers", variable=self.app_instance.include_markers_var,
                         command=self._on_multi_file_marker_checkbox_changed).grid(row=2, column=0, padx=5, pady=2, sticky="w")
-        ttk.Checkbutton(markers_to_plot_frame, text="Include Intermodulations", variable=self.app_instance.avg_include_intermod_markers_var,
+        ttk.Checkbutton(markers_to_plot_frame, text="Include Intermodulations", variable=self.app_instance.include_scan_intermod_markers_var,
                         command=self._on_multi_file_marker_checkbox_changed).grid(row=3, column=0, padx=5, pady=2, sticky="w")
 
 

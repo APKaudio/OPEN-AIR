@@ -66,7 +66,7 @@ class InstrumentTab(ttk.Frame):
         self.populate_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Dropdown for VISA resources
-        self.resource_combobox = ttk.Combobox(main_frame, textvariable=self.app_instance.visa_resource_var, style='TCombobox', state='readonly')
+        self.resource_combobox = ttk.Combobox(main_frame, textvariable=self.app_instance.instrument_visa_resource_var, style='TCombobox', state='readonly')
         self.resource_combobox.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         # Connect/Disconnect button
