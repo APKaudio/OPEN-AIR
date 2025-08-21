@@ -49,6 +49,7 @@ current_file = file=f"{os.path.basename(__file__)}"
 
 
 def on_group_selected(zgd_frame_instance, group_name):
+    
     current_function = inspect.currentframe().f_code.co_name
     debug_log(message=f"🛠️🟢 Entering {current_function} for group: {group_name}", file=current_file, version=current_version, function=current_function)
 
@@ -131,4 +132,36 @@ def on_group_selected(zgd_frame_instance, group_name):
     set_span_to_group(showtime_tab_instance=showtime_tab, zone_zoom_tab=showtime_tab.controls_frame.zone_zoom_tab)
     _save_showtime_state_to_config(showtime_tab)
 
+    debug_log(message=f"🛠️🟢 Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+
+
+    
+def on_group_deselected(zgd_frame_instance):
+    # [Handles the logic for when a group is deselected.]
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"🛠️🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+    
+    showtime_tab = zgd_frame_instance.showtime_tab_instance
+
+    if zgd_frame_instance.active_group_button and zgd_frame_instance.active_group_button.winfo_exists():
+        zgd_frame_instance.active_group_button.config(style='ControlButton.Inactive.TButton')
+        zgd_frame_instance.active_group_button = None
+        
+    # 📝 Write Data: Reset selected state variables.
+    debug_log(message=f"🛠️📝 Writing to state: Resetting selected group and related info.", file=current_file, version=current_version, function=current_function)
+    showtime_tab.selected_group = None
+    showtime_tab.last_selected_type = 'zone'
+    showtime_tab.selected_group_info = {
+        'min_freq': 0.0,
+        'max_freq': 0.0,
+        'device_count': 0
+    }
+    zgd_frame_instance._make_device_buttons()
+    
+    _update_zone_zoom_tab(zgd_frame_instance)
+    _save_showtime_state_to_config(showtime_tab)
+    
+    if hasattr(showtime_tab.controls_frame, 'switch_to_tab'):
+        showtime_tab.controls_frame.switch_to_tab("Zone Zoom")
+        
     debug_log(message=f"🛠️🟢 Exiting {current_function}", file=current_file, version=current_version, function=current_function)

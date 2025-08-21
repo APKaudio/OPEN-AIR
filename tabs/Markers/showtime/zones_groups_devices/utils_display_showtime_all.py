@@ -31,7 +31,8 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import shared utility functions
-from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import set_span_to_all_markers
+from tabs.Markers.showtime.controls.utils_showtime_zone_zoom import set_span_to_all_markers, set_span_to_group
+
 from .utils_display_showtime_shared import _update_zone_zoom_tab, _save_showtime_state_to_config
 
 
@@ -98,3 +99,48 @@ def on_all_markers_selected(zgd_frame_instance):
     _save_showtime_state_to_config(showtime_tab)
 
     debug_log(message=f"🛠️🟢 Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+
+
+
+  
+
+
+    
+def no_zone_grou_device_selected(zgd_frame_instance):
+    # [Handles the logic for when no zone, group, or device is selected.]
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(message=f"🛠️🟢 Entering {current_function}", file=current_file, version=current_version, function=current_function)
+    
+    console_log(f"EVENT: No zone, group, or device selected. Displaying all devices. ")
+    
+    # Access and update parent's state variables directly
+    showtime_tab = zgd_frame_instance.showtime_tab_instance
+    # 📝 Write Data: Reset selected state variables.
+    debug_log(message=f"🛠️📝 Writing to state: Resetting selected state variables.", file=current_file, version=current_version, function=current_function)
+    showtime_tab.selected_zone = None
+    showtime_tab.selected_group = None
+    showtime_tab.selected_device_info = None
+    showtime_tab.last_selected_type = None
+
+    if zgd_frame_instance.active_zone_button and zgd_frame_instance.active_zone_button.winfo_exists():
+        zgd_frame_instance.active_zone_button.config(style='ControlButton.Inactive.TButton')
+        zgd_frame_instance.active_zone_button = None
+        
+    if zgd_frame_instance.active_group_button and zgd_frame_instance.active_group_button.winfo_exists():
+        zgd_frame_instance.active_group_button.config(style='ControlButton.Inactive.TButton')
+        zgd_frame_instance.active_group_button = None
+        
+    if showtime_tab.active_device_button and showtime_tab.active_device_button.winfo_exists():
+        showtime_tab.active_device_button.config(style='DeviceButton.Inactive.TButton')
+    showtime_tab.active_device_button = None
+    
+    # FIXED: Revert the view to the parent group when a device is deselected.
+    set_span_to_group(showtime_tab_instance=showtime_tab, zone_zoom_tab=showtime_tab.controls_frame.zone_zoom_tab)
+    _update_zone_zoom_tab(zgd_frame_instance)
+    _save_showtime_state_to_config(showtime_tab)
+    
+    if hasattr(showtime_tab.controls_frame, 'switch_to_tab'):
+        showtime_tab.controls_frame.switch_to_tab("Zone Zoom")
+        
+    debug_log(message=f"🛠️🟢 Exiting {current_function}", file=current_file, version=current_version, function=current_function)
+  
