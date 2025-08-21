@@ -15,9 +15,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.230000.1
-# UPDATED: `on_poke_action` now correctly reads the new `poke_mhz` variable from the shared state.
-# FIXED: Added a call to `save_config` to ensure the new poke value is persisted.
+# Version 20250824.002500.1
+# REFACTORED: Removed dependency on `shared_state` object. State is now accessed
+#             from the `showtime_tab_instance`.
 
 import os
 import inspect
@@ -33,8 +33,11 @@ from tabs.Markers.showtime.controls.utils_showtime_span import format_hz
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 
 # --- Versioning ---
-current_version = "20250822.230000.1"
-current_version_hash = (20250822 * 230000 * 1)
+w = 20250824
+x = 2500
+y = 1
+current_version = f"Version {w}.{x}.{y}"
+current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 def on_poke_action(showtime_tab_instance):
@@ -44,9 +47,9 @@ def on_poke_action(showtime_tab_instance):
     
     try:
         # 📖 Read Data: Retrieve poke and span values.
-        center_freq_mhz = float(showtime_tab_instance.shared_state.poke_freq_var.get())
-        span_hz = int(showtime_tab_instance.shared_state.span_var.get())
-        debug_log(message=f"📖 Reading shared state: poke_freq_var = {center_freq_mhz} MHz, span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        center_freq_mhz = float(showtime_tab_instance.poke_freq_var.get())
+        span_hz = int(showtime_tab_instance.span_var.get())
+        debug_log(message=f"📖 Reading state: poke_freq_var = {center_freq_mhz} MHz, span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
         center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
         

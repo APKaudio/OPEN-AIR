@@ -14,12 +14,11 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.210502.1
-# REFACTORED: Restored the original, feature-rich display logic, including the
-#             scrollable device canvas, multi-line device buttons with signal
-#             indicators, grid layout, and dynamic frame titles.
-# FIXED: Merged original functionality with the new `shared_state` architecture.
-# UPDATED: Updated versioning and file header to adhere to new standards.
+# Version 20250824.110500.1
+# REFACTORED: This file has been refactored to serve exclusively as a UI component.
+#             The event handler functions have been moved to their own dedicated
+#             utility files, thereby eliminating circular dependencies.
+# UPDATED: The class now correctly uses `partial` to call the external handler functions.
 
 import tkinter as tk
 from tkinter import ttk
@@ -28,29 +27,36 @@ import os
 import inspect
 from datetime import datetime
 
-# Import utility functions
+# Import utility functions from their dedicated files
 from .utils_files_markers_zone_groups_devices import load_and_structure_markers_data
 from .utils_button_volume_level import create_signal_level_indicator
-from .utils_display_showtime_zone_groups_devices import on_zone_selected, on_group_selected, on_device_selected
+
+# Import the specific selection handlers for each button type
+from .utils_display_showtime_zones import on_zone_selected
+from .utils_display_showtime_groups import on_group_selected
+from .utils_display_showtime_devices import on_device_selected
+from .utils_display_showtime_all import on_all_markers_selected
+
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from src.program_style import COLOR_PALETTE
 
+
 # --- Versioning ---
-w = 20250821
-x_str = '210502'
+w = 20250824
+x_str = '110500'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
 current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
+
 class ZoneGroupsDevicesFrame(ttk.Frame):
-    def __init__(self, parent_frame, showtime_tab_instance, shared_state):
+    def __init__(self, parent_frame, showtime_tab_instance):
         # [Initializes the frame, restoring the original grid layout and scrollable device list.]
         super().__init__(parent_frame, style='TFrame')
         self.showtime_tab_instance = showtime_tab_instance
-        self.shared_state = shared_state
         self.structured_data = None
         self.grid(row=0, column=0, sticky="nsew")
 
@@ -114,6 +120,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         max_columns = 6
         for i, zone_name in enumerate(self.structured_data.keys()):
             row, col = divmod(i, max_columns)
+            # Calls the external function from utils_display_showtime_zones.py
             btn = ttk.Button(self.zones_frame, text=zone_name, style='ControlButton.Inactive.TButton', command=partial(on_zone_selected, self, zone_name))
             btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
             self.zones_frame.columnconfigure(col, weight=1)
@@ -124,10 +131,10 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             widget.destroy()
         self.groups_frame.grid_remove() # Hide by default
 
-        if not self.shared_state.selected_zone or not self.structured_data:
+        if not self.showtime_tab_instance.selected_zone or not self.structured_data:
             return
 
-        groups = self.structured_data.get(self.shared_state.selected_zone, {})
+        groups = self.structured_data.get(self.showtime_tab_instance.selected_zone, {})
         # Show frame only if there are meaningful groups to select
         if len(groups) > 1 or (len(groups) == 1 and next(iter(groups)) not in ['Ungrouped', 'No Group']):
             self.groups_frame.grid()
@@ -137,6 +144,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         max_columns = 6
         for i, group_name in enumerate(groups.keys()):
             row, col = divmod(i, max_columns)
+            # Calls the external function from utils_display_showtime_groups.py
             btn = ttk.Button(self.groups_frame, text=group_name, style='ControlButton.Inactive.TButton', command=partial(on_group_selected, self, group_name))
             btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
             self.groups_frame.columnconfigure(col, weight=1)
@@ -145,7 +153,7 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
         # [Creates the detailed, multi-line device buttons in the scrollable frame.]
         for widget in self.devices_scrollable_frame.winfo_children():
             widget.destroy()
-        self.shared_state.device_buttons.clear()
+        self.showtime_tab_instance.device_buttons.clear()
 
         devices_to_display = self._get_devices_to_display()
         self.devices_outer_frame.config(text=f"Devices ({len(devices_to_display)})")
@@ -163,20 +171,21 @@ class ZoneGroupsDevicesFrame(ttk.Frame):
             progress_bar = create_signal_level_indicator(peak)
             btn_text = f"{name}\n{device_type}\n{center} MHz\n{peak} dBm\n{progress_bar}"
             
+            # Calls the external function from utils_display_showtime_devices.py
             btn = ttk.Button(self.devices_scrollable_frame, text=btn_text, style='DeviceButton.Inactive.TButton', command=partial(on_device_selected, self, device))
-            self.shared_state.device_buttons[id(device)] = btn
+            self.showtime_tab_instance.device_buttons[id(device)] = btn
             
             row, col = divmod(i, max_cols)
             btn.grid(row=row, column=col, padx=5, pady=2, sticky="ew")
 
     def _get_devices_to_display(self):
         # [Helper to determine which list of devices to show based on selection.]
-        if self.shared_state.selected_zone:
-            zone_data = self.structured_data.get(self.shared_state.selected_zone, {})
-            if self.shared_state.selected_group:
-                return zone_data.get(self.shared_state.selected_group, [])
+        if self.showtime_tab_instance.selected_zone:
+            zone_data = self.structured_data.get(self.showtime_tab_instance.selected_zone, {})
+            if self.showtime_tab_instance.selected_group:
+                return zone_data.get(self.showtime_tab_instance.selected_group, [])
             else:
-                return self._get_all_devices_in_zone(self.structured_data, self.shared_state.selected_zone)
+                return self._get_all_devices_in_zone(self.structured_data, self.showtime_tab_instance.selected_zone)
         return self._get_all_devices_in_zone(self.structured_data, None)
 
     def _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix):

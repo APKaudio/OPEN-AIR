@@ -16,10 +16,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250814.224000.1 (FIXED: The Debug toggle button's initial state is now correctly set based on the config.ini file, resolving a UI synchronization bug. All checkbox toggles now explicitly call save_config to persist changes.)
+# Version 20250824.014000.1
+# NEW: Implemented a log filter dropdown to display log messages based on their emoji prefix.
+# FIXED: Corrected the log filtering logic to properly handle the 'All' option and
+#        correctly filter lines that start with the selected emoji.
+# FIXED: The log display now updates in real-time and correctly applies the filter
+#        to new content without re-reading the entire file on every poll.
+# FIXED: Resolved AttributeError by correctly placing methods inside the DebugTab class.
 
-current_version = "20250814.224000.1"
-current_version_hash = 20250814 * 224000 * 1
+current_version = "20250824.014000.1"
+current_version_hash = 20250824 * 14000 * 1
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext, filedialog
@@ -73,6 +79,17 @@ class DebugTab(ttk.Frame):
         self.last_visa_log_size = 0
         self.read_log_thread = None
         self.stop_thread = threading.Event()
+        
+        self.software_log_lines = []
+        
+        self.log_filter_var = tk.StringVar(value="All")
+        self.log_filter_map = {
+            "All": None,  # Use None to indicate no filter
+            "🐐 YAK": "🐐",
+            "💾 Saves": "💾",
+            "🖥️ displays": "🖥️",
+            "🛠️ utilities": "🛠️"
+        }
 
         self._create_widgets()
         
@@ -126,7 +143,7 @@ class DebugTab(ttk.Frame):
         software_log_frame = ttk.LabelFrame(log_paned_window, text="Software Debug Log")
         log_paned_window.add(software_log_frame, weight=1)
         software_log_frame.grid_columnconfigure(0, weight=1)
-        software_log_frame.grid_rowconfigure(2, weight=1)
+        software_log_frame.grid_rowconfigure(3, weight=1)
 
         # File logging controls for software log
         file_log_controls_frame = ttk.Frame(software_log_frame, style='Dark.TFrame')
@@ -163,8 +180,20 @@ class DebugTab(ttk.Frame):
                                                  style='Red.TButton')
         self.clear_debug_log_button.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
+        # NEW: Log Filter Dropdown
+        filter_frame = ttk.Frame(software_log_frame)
+        filter_frame.grid(row=2, column=0, padx=5, pady=5, sticky="ew")
+        filter_frame.grid_columnconfigure(1, weight=1)
+        
+        ttk.Label(filter_frame, text="Filter Log:").grid(row=0, column=0, padx=(0, 5), sticky="w")
+        self.log_filter_dropdown = ttk.Combobox(filter_frame, textvariable=self.log_filter_var, state="readonly")
+        self.log_filter_dropdown['values'] = list(self.log_filter_map.keys())
+        self.log_filter_dropdown.current(0)
+        self.log_filter_dropdown.bind("<<ComboboxSelected>>", self._filter_and_display_log)
+        self.log_filter_dropdown.grid(row=0, column=1, sticky="ew")
+        
         self.software_log_text = scrolledtext.ScrolledText(software_log_frame, wrap="word", height=10, bg="#2b2b2b", fg="#cccccc", insertbackground="white")
-        self.software_log_text.grid(row=2, column=0, sticky="nsew")
+        self.software_log_text.grid(row=3, column=0, sticky="nsew")
         self.software_log_text.config(state=tk.DISABLED)
 
         # Frame for VISA Log
@@ -206,6 +235,28 @@ class DebugTab(ttk.Frame):
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
                     function=current_function)
+    
+    def _filter_and_display_log(self, event=None):
+        """Filters the log content based on the dropdown selection and updates the display."""
+        current_function = inspect.currentframe().f_code.co_name
+        
+        selected_filter = self.log_filter_var.get()
+        filter_emoji = self.log_filter_map.get(selected_filter)
+        
+        # This function should only be called by the event handler, so we can
+        # operate on the full log content that is already in memory.
+        
+        filtered_lines = []
+        for line in self.software_log_lines:
+            if filter_emoji is None or line.strip().startswith(filter_emoji):
+                filtered_lines.append(line)
+        
+        self.software_log_text.config(state=tk.NORMAL)
+        self.software_log_text.delete("1.0", tk.END)
+        self.software_log_text.insert(tk.END, "".join(filtered_lines))
+        self.software_log_text.config(state=tk.DISABLED)
+        self.software_log_text.see(tk.END)
+
 
     def _toggle_debug_mode(self):
         """Toggles the global debug mode and updates the button's appearance."""
@@ -303,6 +354,9 @@ class DebugTab(ttk.Frame):
         
         console_log(f"Debug log files cleared. Fucking finally!", function=current_function)
         
+        # Clear the in-memory log lines as well
+        self.software_log_lines = []
+        
         # Clear the display widgets immediately without waiting for the poller
         self.software_log_text.config(state=tk.NORMAL)
         self.software_log_text.delete("1.0", tk.END)
@@ -339,10 +393,10 @@ class DebugTab(ttk.Frame):
         else:
             console_log(f"❌ Data folder not found at: {data_path}", function=current_function)
 
-    def _read_and_display_log(self, text_widget, file_path, start_pos):
-        """Reads new lines from a file starting from a given position."""
+    def _read_new_log_content(self, file_path, start_pos):
+        """Reads new lines from a file starting from a given position and returns them."""
         if not os.path.exists(file_path):
-            return start_pos
+            return ""
         
         new_content = ""
         try:
@@ -354,15 +408,9 @@ class DebugTab(ttk.Frame):
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=inspect.currentframe().f_code.co_name)
-            return start_pos
-
-        if new_content:
-            text_widget.config(state=tk.NORMAL)
-            text_widget.insert(tk.END, new_content)
-            text_widget.config(state=tk.DISABLED)
-            text_widget.see(tk.END)
+            return ""
         
-        return start_pos + len(new_content)
+        return new_content
 
     def _check_log_files(self):
         """Checks for new content in the log files and updates the displays."""
@@ -373,12 +421,15 @@ class DebugTab(ttk.Frame):
         try:
             current_size = os.path.getsize(DEBUG_FILE_PATH)
             if current_size > self.last_software_log_size:
-                self.last_software_log_size = self._read_and_display_log(self.software_log_text, DEBUG_FILE_PATH, self.last_software_log_size)
-            elif current_size < self.last_software_log_size: # File was cleared
-                self.software_log_text.config(state=tk.NORMAL)
-                self.software_log_text.delete("1.0", tk.END)
-                self.software_log_text.config(state=tk.DISABLED)
+                new_content = self._read_new_log_content(DEBUG_FILE_PATH, self.last_software_log_size)
+                if new_content:
+                    self.software_log_lines.extend(new_content.splitlines(keepends=True))
+                    self._filter_and_display_log()
                 self.last_software_log_size = current_size
+            elif current_size < self.last_software_log_size: # File was cleared
+                self.software_log_lines = []
+                self.last_software_log_size = current_size
+                self._filter_and_display_log()
         except FileNotFoundError:
             pass
         except Exception as e:
@@ -391,7 +442,13 @@ class DebugTab(ttk.Frame):
         try:
             current_size = os.path.getsize(VISA_FILE_PATH)
             if current_size > self.last_visa_log_size:
-                self.last_visa_log_size = self._read_and_display_log(self.visa_log_text, VISA_FILE_PATH, self.last_visa_log_size)
+                new_content = self._read_new_log_content(VISA_FILE_PATH, self.last_visa_log_size)
+                if new_content:
+                    self.visa_log_text.config(state=tk.NORMAL)
+                    self.visa_log_text.insert(tk.END, new_content)
+                    self.visa_log_text.config(state=tk.DISABLED)
+                    self.visa_log_text.see(tk.END)
+                self.last_visa_log_size = current_size
             elif current_size < self.last_visa_log_size: # File was cleared
                 self.visa_log_text.config(state=tk.NORMAL)
                 self.visa_log_text.delete("1.0", tk.END)
@@ -423,17 +480,30 @@ class DebugTab(ttk.Frame):
                     function=current_function)
         
         # Populate initial log content and set file size pointers
-        self.software_log_text.config(state=tk.NORMAL)
-        self.software_log_text.delete("1.0", tk.END)
-        self.visa_log_text.config(state=tk.NORMAL)
-        self.visa_log_text.delete("1.0", tk.END)
+        try:
+            with open(DEBUG_FILE_PATH, 'r', encoding='utf-8', errors='ignore') as f:
+                self.software_log_lines = f.readlines()
+            self.last_software_log_size = os.path.getsize(DEBUG_FILE_PATH)
+        except FileNotFoundError:
+            self.software_log_lines = ["❌ Log file not found. It's an empty void of nothingness!"]
+            self.last_software_log_size = 0
+            
+        try:
+            with open(VISA_FILE_PATH, 'r', encoding='utf-8', errors='ignore') as f:
+                visa_content = f.read()
+                self.visa_log_text.config(state=tk.NORMAL)
+                self.visa_log_text.delete("1.0", tk.END)
+                self.visa_log_text.insert(tk.END, visa_content)
+                self.visa_log_text.config(state=tk.DISABLED)
+            self.last_visa_log_size = os.path.getsize(VISA_FILE_PATH)
+        except FileNotFoundError:
+            self.visa_log_text.config(state=tk.NORMAL)
+            self.visa_log_text.delete("1.0", tk.END)
+            self.visa_log_text.insert(tk.END, "❌ VISA log file not found. It's an empty void of nothingness!")
+            self.visa_log_text.config(state=tk.DISABLED)
+            self.last_visa_log_size = 0
+
+        self._filter_and_display_log()
         
-        self.last_software_log_size = self._read_and_display_log(self.software_log_text, DEBUG_FILE_PATH, 0)
-        self.last_visa_log_size = self._read_and_display_log(self.visa_log_text, VISA_FILE_PATH, 0)
-
-        self.software_log_text.config(state=tk.DISABLED)
-        self.visa_log_text.config(state=tk.DISABLED)
-
         # Start the polling loop for live updates
         self.after(500, self._check_log_files)
-    

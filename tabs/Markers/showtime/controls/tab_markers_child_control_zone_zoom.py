@@ -8,16 +8,13 @@
 # Professional services for customizing and tailoring this software to your specific
 # application can be negotiated. There is no charge to use, modify, or fork this software.
 #
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
+# Build Log: [https://like.audio/category/software/spectrum-scanner/](https://like.audio/category/software/spectrum-scanner/)
+# Source Code: [https://github.com/APKaudio/](https://github.com/APKaudio/)
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.103000.1
-# REFACTORED: The _sync_ui_from_state method now correctly reads the buffered start/stop
-#             frequencies from the shared state and updates the labels, fixing a critical bug.
-# UPDATED: File header and versioning adhere to new standards.
-# UPDATED: All debug messages now include the correct emoji prefixes.
+# Version 20250824.001000.1
+# REFACTORED: Removed dependency on `shared_state` object. State is now accessed from the `showtime_tab_instance`.
 
 import os
 import inspect
@@ -28,8 +25,8 @@ from datetime import datetime
 from display.debug_logic import debug_log
 
 # --- Versioning ---
-w = 20250822
-x_str = '103000'
+w = 20250824
+x_str = '001000'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
@@ -37,7 +34,7 @@ current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 class ZoneZoomTab(ttk.Frame):
-    def __init__(self, parent_notebook, showtime_tab_instance, shared_state):
+    def __init__(self, parent_notebook, showtime_tab_instance):
         # [Initializes the Zone Zoom control tab.]
         debug_log(f"🖥️ 🟢 Entering __init__",
                     file=current_file,
@@ -46,7 +43,6 @@ class ZoneZoomTab(ttk.Frame):
         
         super().__init__(parent_notebook)
         self.showtime_tab_instance = showtime_tab_instance
-        self.shared_state = shared_state
         self._create_widgets()
         
         debug_log(f"🖥️ 🟢 Exiting __init__",
@@ -84,11 +80,11 @@ class ZoneZoomTab(ttk.Frame):
             ("All Markers", lambda: set_span_to_all_markers(self.showtime_tab_instance, self))
         ]
 
-        self.shared_state.zone_zoom_buttons.clear()
+        self.showtime_tab_instance.zone_zoom_buttons.clear()
         for i, (text, command) in enumerate(buttons_config):
             btn = ttk.Button(button_frame, text=text, style='ControlButton.TButton', command=command, width=12)
             btn.grid(row=0, column=i, sticky='ew', padx=2, pady=2)
-            self.shared_state.zone_zoom_buttons[text.lower()] = btn
+            self.showtime_tab_instance.zone_zoom_buttons[text.lower()] = btn
         button_frame.grid_columnconfigure(list(range(len(buttons_config))), weight=1)
 
         # Frame for the new "Window Buffer" dropdown
@@ -98,9 +94,9 @@ class ZoneZoomTab(ttk.Frame):
         
         ttk.Label(buffer_frame, text="Window Buffer (MHz):").grid(row=0, column=0, sticky="w", padx=5, pady=2)
         buffer_options = ["1", "3", "10", "30"]
-        self.buffer_dropdown = ttk.Combobox(buffer_frame, textvariable=self.shared_state.buffer_var, values=buffer_options, state="readonly")
+        self.buffer_dropdown = ttk.Combobox(buffer_frame, textvariable=self.showtime_tab_instance.buffer_var, values=buffer_options, state="readonly")
         self.buffer_dropdown.grid(row=0, column=1, sticky="ew", padx=5, pady=2)
-        self.buffer_dropdown.set(self.shared_state.buffer_var.get())
+        self.buffer_dropdown.set(self.showtime_tab_instance.buffer_var.get())
 
         # Right side frame for labels, allowing it to expand
         right_frame = ttk.Frame(self, style='TFrame')
@@ -112,9 +108,9 @@ class ZoneZoomTab(ttk.Frame):
         label_frame.grid(row=0, column=0, sticky="nsew")
 
         # The labels now have a vertical layout
-        self.label_left = ttk.Label(label_frame, textvariable=self.shared_state.zone_zoom_label_left_var, style='TLabel')
-        self.label_center = ttk.Label(label_frame, textvariable=self.shared_state.zone_zoom_label_center_var, style='TLabel')
-        self.label_right = ttk.Label(label_frame, textvariable=self.shared_state.zone_zoom_label_right_var, style='TLabel')
+        self.label_left = ttk.Label(label_frame, textvariable=self.showtime_tab_instance.zone_zoom_label_left_var, style='TLabel')
+        self.label_center = ttk.Label(label_frame, textvariable=self.showtime_tab_instance.zone_zoom_label_center_var, style='TLabel')
+        self.label_right = ttk.Label(label_frame, textvariable=self.showtime_tab_instance.zone_zoom_label_right_var, style='TLabel')
 
         self.label_left.pack(anchor="w", padx=5)
         self.label_center.pack(anchor="w", padx=5)
@@ -133,46 +129,46 @@ class ZoneZoomTab(ttk.Frame):
                     function=inspect.currentframe().f_code.co_name)
         
         # Reset all buttons to inactive first
-        for btn in self.shared_state.zone_zoom_buttons.values():
+        for btn in self.showtime_tab_instance.zone_zoom_buttons.values():
             btn.config(style='ControlButton.Inactive.TButton')
             
         # Set the active button based on the last selected type
-        if self.shared_state.last_selected_type:
-            active_btn = self.shared_state.zone_zoom_buttons.get(self.shared_state.last_selected_type.lower())
+        if self.showtime_tab_instance.last_selected_type:
+            active_btn = self.showtime_tab_instance.zone_zoom_buttons.get(self.showtime_tab_instance.last_selected_type.lower())
             if active_btn:
                 active_btn.config(style='ControlButton.Active.TButton')
         else: # Default to "All Markers" if nothing is selected
-            all_markers_btn = self.shared_state.zone_zoom_buttons.get('all markers')
+            all_markers_btn = self.showtime_tab_instance.zone_zoom_buttons.get('all markers')
             if all_markers_btn:
                 all_markers_btn.config(style='ControlButton.Active.TButton')
 
         # Update the labels from the values stored in the shared state
-        buffered_start = self.shared_state.buffered_start_var.get()
-        buffered_stop = self.shared_state.buffered_stop_var.get()
+        buffered_start = self.showtime_tab_instance.buffered_start_var.get()
+        buffered_stop = self.showtime_tab_instance.buffered_stop_var.get()
 
-        if self.shared_state.last_selected_type == 'zone':
-            zone_info = self.shared_state.selected_zone_info
+        if self.showtime_tab_instance.last_selected_type == 'zone':
+            zone_info = self.showtime_tab_instance.selected_zone_info
             count = zone_info.get('device_count', 0)
-            self.shared_state.zone_zoom_label_left_var.set(f"Zone ({count} Devices)")
-            self.shared_state.zone_zoom_label_center_var.set(f"Name: {self.shared_state.selected_zone}")
-            self.shared_state.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
-        elif self.shared_state.last_selected_type == 'group':
-            group_info = self.shared_state.selected_group_info
+            self.showtime_tab_instance.zone_zoom_label_left_var.set(f"Zone ({count} Devices)")
+            self.showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {self.showtime_tab_instance.selected_zone}")
+            self.showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
+        elif self.showtime_tab_instance.last_selected_type == 'group':
+            group_info = self.showtime_tab_instance.selected_group_info
             count = group_info.get('device_count', 0)
-            self.shared_state.zone_zoom_label_left_var.set(f"Group ({count} Devices)")
-            self.shared_state.zone_zoom_label_center_var.set(f"Name: {self.shared_state.selected_group}")
-            self.shared_state.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
-        elif self.shared_state.last_selected_type == 'device':
-            device_info = self.shared_state.selected_device_info
-            self.shared_state.zone_zoom_label_left_var.set(f"Device: {device_info.get('NAME')}")
-            self.shared_state.zone_zoom_label_center_var.set(f"Name: {device_info.get('NAME')}")
-            self.shared_state.zone_zoom_label_right_var.set(f"Center: {device_info.get('CENTER'):.3f} MHz\nStart: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
+            self.showtime_tab_instance.zone_zoom_label_left_var.set(f"Group ({count} Devices)")
+            self.showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {self.showtime_tab_instance.selected_group}")
+            self.showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
+        elif self.showtime_tab_instance.last_selected_type == 'device':
+            device_info = self.showtime_tab_instance.selected_device_info
+            self.showtime_tab_instance.zone_zoom_label_left_var.set(f"Device: {device_info.get('NAME')}")
+            self.showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {device_info.get('NAME')}")
+            self.showtime_tab_instance.zone_zoom_label_right_var.set(f"Center: {device_info.get('CENTER'):.3f} MHz\nStart: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
         else: # All markers
             all_devices = self.showtime_tab_instance.zgd_frame._get_all_devices_in_zone(self.showtime_tab_instance.zgd_frame.structured_data, None)
             count = len(all_devices) if all_devices else 0
-            self.shared_state.zone_zoom_label_left_var.set("All Markers")
-            self.shared_state.zone_zoom_label_center_var.set(f"({count} Devices)")
-            self.shared_state.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
+            self.showtime_tab_instance.zone_zoom_label_left_var.set("All Markers")
+            self.showtime_tab_instance.zone_zoom_label_center_var.set(f"({count} Devices)")
+            self.showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start:.3f} MHz\nStop: {buffered_stop:.3f} MHz")
 
         debug_log(f"🖥️ ✅ UI synced successfully.",
                     file=current_file,

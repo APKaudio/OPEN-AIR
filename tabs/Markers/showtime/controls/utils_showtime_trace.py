@@ -15,10 +15,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.003000.1
-# UPDATED: File header and versioning adhere to new standards.
+# Version 20250824.010400.1
+# UPDATED: The execute_trace_action function now correctly calls handle_trace_modes_beg to set the new mode on the instrument before fetching data.
 # UPDATED: The trace mode mapping now correctly uses the mode strings defined in the new MarkerTab config.
 # FIXED: The execute_trace_action function now saves the config after changing trace modes.
+# FIXED: Corrected the AttributeErrors in `_get_and_plot_traces` by retrieving
+#        frequency and span values from the `app_instance.config` object.
 
 import os
 import inspect
@@ -37,9 +39,13 @@ from tabs.Markers.showtime.controls.utils_showtime_plot import plot_all_traces
 from process_math.math_frequency_translation import MHZ_TO_HZ
 
 # --- Versioning ---
-current_version = "20250823.003000.1"
-current_version_hash = (20250823 * 3000 * 1)
-current_file = file=f"{os.path.basename(__file__)}"
+w = 20250824
+x_str = '010400'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
 
 def sync_trace_modes(traces_tab_instance):
     # [Synchronizes the trace mode buttons with the instrument's current state.]
@@ -53,11 +59,11 @@ def sync_trace_modes(traces_tab_instance):
     # Placeholder for getting current trace modes from instrument
     current_modes = ['Live', 'Max Hold', 'Min Hold']
     
-    for button_name in traces_tab_instance.shared_state.trace_buttons.keys():
+    for button_name in traces_tab_instance.trace_buttons.keys():
         if button_name in current_modes:
-            traces_tab_instance.shared_state.trace_buttons[button_name].config(style='ControlButton.Active.TButton')
+            traces_tab_instance.trace_buttons[button_name].config(style='ControlButton.Active.TButton')
         else:
-            traces_tab_instance.shared_state.trace_buttons[button_name].config(style='ControlButton.Inactive.TButton')
+            traces_tab_instance.trace_buttons[button_name].config(style='ControlButton.Inactive.TButton')
             
     debug_log(f"Exiting {current_function}", file=f"{os.path.basename(__file__)}", version=current_version, function="sync_trace_modes")
 
@@ -71,16 +77,20 @@ def execute_trace_action(traces_tab_instance, action_type):
 
     # Set the instrument's trace mode based on the button clicked
     trace_mode_map = {
-        'all': ['Live', 'Max Hold', 'Min Hold'],
-        'live': ['Live'],
-        'max': ['Max Hold'],
-        'min': ['Min Hold']
+        'all': ['WRITE', 'MAXHold', 'MINHold'],
+        'live': ['WRITE', 'BLANK', 'BLANK', 'BLANK'],
+        'max': ['BLANK', 'MAXHold', 'BLANK', 'BLANK'],
+        'min': ['BLANK', 'BLANK', 'MINHold', 'BLANK']
     }
     
     selected_modes = trace_mode_map.get(action_type, [])
     
-    # Placeholder for calling Yaknab handler to set trace modes on the instrument
-    # handle_trace_modes_beg(showtime_tab.app_instance, selected_modes, showtime_tab.console_print_func)
+    # NEW: Call handle_trace_modes_beg to set the modes on the instrument
+    debug_log(f"Calling YakBeg to set trace modes on the instrument. ⚡",
+                file=f"{os.path.basename(__file__)}",
+                version=current_version,
+                function=current_function)
+    handle_trace_modes_beg(showtime_tab.app_instance, selected_modes, showtime_tab.console_print_func)
     
     # FIXED: Pass the action_type to _get_and_plot_traces
     _get_and_plot_traces(traces_tab_instance, action_type)
@@ -103,9 +113,13 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
     app_instance = showtime_tab.app_instance
     console_print_func = showtime_tab.console_print_func
     
-    # Corrected references to get scan variables from the orchestrator logic
-    start_freq_mhz = (app_instance.orchestrator_logic.scan_center_freq_var.get() - app_instance.orchestrator_logic.scan_span_freq_var.get() / 2) / 1000000
-    stop_freq_mhz = (app_instance.orchestrator_logic.scan_center_freq_var.get() + app_instance.orchestrator_logic.scan_span_freq_var.get() / 2) / 1000000
+    # CORRECTED: Retrieve center and span values from the config file, which is the correct source of truth.
+    # The previous code was trying to access attributes on orchestrator_logic that do not exist.
+    center_freq_mhz = float(app_instance.config.get('InstrumentSettings', 'center_freq_mhz', fallback='1500'))
+    span_freq_mhz = float(app_instance.config.get('InstrumentSettings', 'span_freq_mhz', fallback='3000'))
+    
+    start_freq_mhz = (center_freq_mhz - span_freq_mhz / 2)
+    stop_freq_mhz = (center_freq_mhz + span_freq_mhz / 2)
     
     try:
         # 📖 Read Data: Fetch the data from the instrument.

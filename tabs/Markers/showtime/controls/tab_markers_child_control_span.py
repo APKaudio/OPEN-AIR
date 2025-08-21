@@ -8,15 +8,13 @@
 # Professional services for customizing and tailoring this software to your specific
 # application can be negotiated. There is no charge to use, modify, or fork this software.
 #
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
+# Build Log: [https://like.audio/category/software/spectrum-scanner/](https://like.audio/category/software/spectrum-scanner/)
+# Source Code: [https://github.com/APKaudio/](https://github.com/APKaudio/)
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.003000.1
-# UPDATED: File header and versioning adhere to new standards.
-# UPDATED: The span buttons are now correctly linked to the shared state.
-# FIXED: The span button click now saves the config after a successful operation.
+# Version 20250824.001000.1
+# REFACTORED: Removed dependency on `shared_state` object. State is now accessed from the `showtime_tab_instance`.
 
 import os
 import inspect
@@ -29,8 +27,8 @@ from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN
 from .utils_showtime_span import on_span_button_click
 
 # --- Versioning ---
-w = 20250823
-x = 3000
+w = 20250824
+x = 1000
 y = 1
 current_version = f"Version {w}.{x}.{y}"
 current_version_hash = (w * x * y)
@@ -40,7 +38,7 @@ current_file = file=f"{os.path.basename(__file__)}"
 MHZ_TO_HZ = 1_000_000
 
 class SpanTab(ttk.Frame):
-    def __init__(self, parent_notebook, showtime_tab_instance, shared_state):
+    def __init__(self, parent_notebook, showtime_tab_instance):
         # [Initializes the Span control tab.]
         debug_log(f"🖥️ 🟢 Entering __init__",
                     file=current_file,
@@ -49,7 +47,6 @@ class SpanTab(ttk.Frame):
         
         super().__init__(parent_notebook)
         self.showtime_tab_instance = showtime_tab_instance
-        self.shared_state = shared_state
         self._create_widgets()
         
         debug_log(f"🖥️ 🟢 Exiting __init__",
@@ -64,7 +61,7 @@ class SpanTab(ttk.Frame):
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
         
-        self.shared_state.span_buttons.clear()
+        self.showtime_tab_instance.span_buttons.clear()
 
         for i, span_data in enumerate(PRESET_FREQUENCY_SPAN):
             label = span_data.get("label", "N/A")
@@ -78,7 +75,7 @@ class SpanTab(ttk.Frame):
                 command=lambda v=value: on_span_button_click(self.showtime_tab_instance, v)
             )
             btn.grid(row=0, column=i, sticky='ew', padx=2, pady=2)
-            self.shared_state.span_buttons[str(value)] = btn
+            self.showtime_tab_instance.span_buttons[str(value)] = btn
 
         self.grid_columnconfigure(list(range(len(PRESET_FREQUENCY_SPAN))), weight=1)
 

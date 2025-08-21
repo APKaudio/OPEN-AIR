@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.120100.4
+# Version 20250824.003000.1
 # FIXED: The plotting functions are now correctly imported from `utils_display_monitor.py`
 #        and `utils_scan_view.py` instead of being defined here, resolving the issue
 #        of displaying plots on the monitor tab.
@@ -34,9 +34,9 @@ from display.console_logic import console_log
 from display.utils_display_monitor import update_top_plot, update_middle_plot, update_bottom_plot
 
 # --- Versioning ---
-w = 20250821
-x = 120100
-y = 4
+w = 20250824
+x = 3000
+y = 1
 current_version = f"Version {w}.{x}.{y}"
 current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"

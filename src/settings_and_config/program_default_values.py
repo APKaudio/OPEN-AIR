@@ -15,10 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.003000.1
+# Version 20250823.140000.1
 # FIXED: The BASE_DIR calculation has been corrected to properly point to the
 #        root 'OPEN-AIR' directory, resolving the 'config.ini' pathing error.
-# NEW: Added new MarkerTab configuration keys.
+# UPDATED: Added new MarkerTab configuration keys for a more comprehensive default state.
 
 import os
 from datetime import datetime
@@ -28,7 +28,7 @@ from ref.frequency_bands import SCAN_BAND_RANGES
 
 # --- Version Information ---
 w = 20250823
-x_str = '003000'
+x_str = '140000'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"{w}.{x_str}.{y}"
@@ -96,6 +96,24 @@ DEFAULT_CONFIG = {
         'trace_min_hold': 'False',
         'buffer_mhz': '3.0',
         'poke_mhz': '444.444444',
+        'buffered_start_var': '0.0',
+        'buffered_stop_var': '0.0',
+        'zone_selected': 'None',
+        'zone_zoom_button_selected_name': '',
+        'zone_zoom_label': '',
+        'zone_zoom_start': '',
+        'zone_zoom_stop': '',
+        'zone_device_count': '0',
+        'zone_group_count': '0',
+        'group_selected': 'None',
+        'group_zoom_button_selected': '',
+        'group_zoom_label': '',
+        'group_zoom_start': '',
+        'group_zoom_stop': '',
+        'group_device_count': '0',
+        'device_selected_name': '',
+        'device_selected_device_type': '',
+        'device_selected_center': '',
     },
     'Scan': {
         'output_folder': os.path.join(DATA_FOLDER_PATH, 'SCANS'),

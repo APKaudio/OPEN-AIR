@@ -14,10 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.140800.1
-# FIXED: The grid layout was corrected to ensure the controls_frame is
-#        properly anchored to the bottom of the window.
-# FIXED: Updated versioning to adhere to project standards.
+# Version 20250823.235500.1
+# REFACTORED: The ControlsFrame constructor call no longer passes a `shared_state`
+#             parameter, resolving a `TypeError` and aligning with the new architecture.
 
 import tkinter as tk
 from tkinter import ttk
@@ -33,8 +32,8 @@ from tabs.Markers.showtime.zones_groups_devices.tab_markers_child_zone_groups_de
 from tabs.Markers.showtime.controls.tab_markers_parent_bottom_controls import ControlsFrame
 
 # --- Versioning ---
-w = 20250821
-x_str = '140800'
+w = 20250823
+x_str = '235500'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
@@ -48,6 +47,60 @@ class ShowtimeParentTab(ttk.Frame):
         self.app_instance = app_instance
         self.console_print_func = console_print_func
         
+        # --- UI Element References ---
+        self.span_buttons = {}
+        self.rbw_buttons = {}
+        self.trace_buttons = {}
+        self.device_buttons = {}
+        self.zone_zoom_buttons = {}
+
+        # --- Tkinter State Variables ---
+        self.span_var = tk.StringVar(value="1M")
+        self.rbw_var = tk.StringVar(value="300k")
+        self.poke_freq_var = tk.StringVar(value="")
+        self.follow_zone_span_var = tk.BooleanVar(value=False)
+        
+        # Labels for the Zone Zoom functionality
+        self.zone_zoom_label_left_var = tk.StringVar(value="Select Zone/Group/Device")
+        self.zone_zoom_label_center_var = tk.StringVar(value="N/A")
+        self.zone_zoom_label_right_var = tk.StringVar(value="N/A")
+
+        # Toggles for trace modes
+        self.toggle_get_all_traces = tk.BooleanVar(value=False)
+        self.toggle_get_live_trace = tk.BooleanVar(value=True)
+        self.toggle_get_max_traces = tk.BooleanVar(value=False)
+        
+        self.trace_modes = {
+            'live': self.toggle_get_live_trace,
+            'max': self.toggle_get_max_traces,
+            'all': self.toggle_get_all_traces
+        }
+
+        # --- Selection State ---
+        self.selected_zone = None
+        self.selected_group = None
+        self.selected_device_info = None
+        self.last_selected_button = None
+        self.active_device_button = None
+        self.last_selected_type = None
+
+        # NEW: Variables to store information about the selected zone/group
+        self.selected_zone_info = {
+            'min_freq': 0.0,
+            'max_freq': 0.0,
+            'device_count': 0
+        }
+
+        self.selected_group_info = {
+            'min_freq': 0.0,
+            'max_freq': 0.0,
+            'device_count': 0
+        }
+        
+        # NEW: Variables for the window buffer
+        self.buffer_var = tk.StringVar(value="3")
+        self.buffered_start_var = tk.DoubleVar(value=0.0)
+        self.buffered_stop_var = tk.DoubleVar(value=0.0)
 
         self._create_widgets()
         self.bind("<<NotebookTabChanged>>", self._on_tab_selected)
@@ -64,14 +117,13 @@ class ShowtimeParentTab(ttk.Frame):
         self.zgd_frame = ZoneGroupsDevicesFrame(
             parent_frame=content_frame,
             showtime_tab_instance=self,
-            
         )
         self.zgd_frame.grid(row=0, column=0, sticky="nsew")
 
+        # FIXED: Removed the now-defunct 'shared_state' argument from the constructor.
         self.controls_frame = ControlsFrame(
             parent_frame=content_frame,
-            showtime_tab_instance=self,
-            shared_state=self.shared_state
+            showtime_tab_instance=self
         )
         self.controls_frame.grid(row=1, column=0, sticky="ew")
 

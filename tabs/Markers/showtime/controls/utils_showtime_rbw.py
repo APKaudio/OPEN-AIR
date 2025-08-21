@@ -15,11 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.230000.1
-# UPDATED: File header and versioning adhere to new standards.
-# UPDATED: `on_rbw_button_click` now correctly uses `showtime_tab` to access the `shared_state`
-#          and triggers a button style update, ensuring UI consistency.
-# FIXED: The `on_rbw_button_click` function now saves the config after a successful operation.
+# Version 20250824.010200.1
+# REFACTORED: The logic has been streamlined to ensure that UI updates,
+#             instrument commands, and configuration saving are consistently
+#             handled by the on_rbw_button_click function.
 
 import os
 import inspect
@@ -35,9 +34,13 @@ from src.settings_and_config.config_manager import save_config
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
-current_version = "20250822.230000.1"
-current_version_hash = (20250822 * 230000 * 1)
-current_file = file=f"{os.path.basename(__file__)}"
+w = 20250824
+x_str = '010200'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
 
 def set_rbw_logic(app_instance, rbw_hz, console_print_func):
     # [Sets the resolution bandwidth of the instrument and reports back.]
@@ -58,13 +61,13 @@ def on_rbw_button_click(showtime_tab, rbw_hz):
               function=current_function)
     
     try:
-        # 📝 Write Data: Update the shared RBW variable on the parent instance.
-        showtime_tab.shared_state.rbw_var.set(str(rbw_hz))
-        debug_log(message=f"📝 Writing shared state: rbw_var = {rbw_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        # 📝 Write Data: Update the RBW variable on the parent instance.
+        showtime_tab.rbw_var.set(str(rbw_hz))
+        debug_log(message=f"📝 Writing state: rbw_var = {rbw_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
         # Re-sync the RBW button styles
-        for value_str, btn in showtime_tab.shared_state.rbw_buttons.items():
-            if value_str == showtime_tab.shared_state.rbw_var.get():
+        for value_str, btn in showtime_tab.rbw_buttons.items():
+            if value_str == showtime_tab.rbw_var.get():
                 btn.config(style='ControlButton.Active.TButton')
             else:
                 btn.config(style='ControlButton.Inactive.TButton')

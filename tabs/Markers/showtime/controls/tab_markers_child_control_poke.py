@@ -13,10 +13,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.003000.1
-# UPDATED: File header and versioning adhere to new standards.
-# UPDATED: The poke entry is now correctly linked to the `shared_state` object.
-# FIXED: The poke action now saves the config after a successful operation.
+# Version 20250824.000100.1
+# REFACTORED: Removed dependency on `shared_state` object. State is now accessed from the `showtime_tab_instance`.
 
 import os
 import inspect
@@ -28,8 +26,8 @@ from display.debug_logic import debug_log
 from .utils_showtime_poke import on_poke_action
 
 # --- Versioning ---
-w = 20250823
-x_str = '003000'
+w = 20250824
+x_str = '000100'
 x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
 y = 1
 current_version = f"Version {w}.{x_str}.{y}"
@@ -37,7 +35,7 @@ current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 class PokeTab(ttk.Frame):
-    def __init__(self, parent_notebook, showtime_tab_instance, shared_state):
+    def __init__(self, parent_notebook, showtime_tab_instance):
         # [Initializes the Poke control tab.]
         debug_log(f"🖥️ 🟢 Entering __init__",
                     file=current_file,
@@ -46,7 +44,6 @@ class PokeTab(ttk.Frame):
         
         super().__init__(parent_notebook)
         self.showtime_tab_instance = showtime_tab_instance
-        self.shared_state = shared_state
         self._create_widgets()
         
         debug_log(f"🖥️ 🟢 Exiting __init__",
@@ -61,8 +58,7 @@ class PokeTab(ttk.Frame):
                     version=current_version,
                     function=inspect.currentframe().f_code.co_name)
         
-        # The poke_freq_var is now properly linked to the shared state
-        self.poke_entry = ttk.Entry(self, textvariable=self.shared_state.poke_freq_var, style='TEntry')
+        self.poke_entry = ttk.Entry(self, textvariable=self.showtime_tab_instance.poke_freq_var, style='TEntry')
         self.poke_button = ttk.Button(
             self, text="Poke", style='ControlButton.TButton',
             command=lambda: on_poke_action(self.showtime_tab_instance)

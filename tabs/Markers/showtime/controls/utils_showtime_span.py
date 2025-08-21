@@ -15,11 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.003000.1
+# Version 20250824.010500.1
 # UPDATED: File header and versioning adhere to new standards.
-# UPDATED: `on_span_button_click` now correctly uses `showtime_tab_instance` to access the
-#          `shared_state` and triggers a button style update, ensuring UI consistency.
-# FIXED: The `on_span_button_click` function now saves the config after a successful operation.
+# FIXED: The `on_span_button_click` function now correctly captures the RBW value
+#        from the device response and updates the UI and config accordingly.
 
 import os
 import inspect
@@ -28,13 +27,18 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 from yak.utils_yak_setting_handler import set_span_frequency
+from yak.utils_yaknab_handler import handle_bandwidth_settings_nab
 from src.settings_and_config.config_manager import save_config
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
-current_version = "20250823.003000.1"
-current_version_hash = (20250823 * 3000 * 1)
+w = 20250824
+x = 10500
+y = 1
+current_version = f"Version {w}.{x}.{y}"
+current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
+
 
 def on_span_button_click(showtime_tab_instance, span_hz):
     # [Handles the event when a Span button is clicked.]
@@ -46,23 +50,34 @@ def on_span_button_click(showtime_tab_instance, span_hz):
     
     try:
         # Check if the user wants to follow the zone span
-        showtime_tab_instance.shared_state.follow_zone_span_var.set(False)
+        showtime_tab_instance.follow_zone_span_var.set(False)
 
-        # 📝 Write Data: Update the shared span variable on the parent instance.
-        showtime_tab_instance.shared_state.span_var.set(str(span_hz))
-        debug_log(message=f"📝 Writing shared state: span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        # 📝 Write Data: Update the span variable on the parent instance.
+        showtime_tab_instance.span_var.set(str(span_hz))
+        debug_log(message=f"📝 Writing state: span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
 
         # Re-sync all the control buttons
-        showtime_tab_instance.controls_frame._update_control_styles()
+        showtime_tab_instance.controls_frame._update_control_buttons()
         
         showtime_tab_instance.console_print_func(f"✅ Span set to {format_hz(span_hz)}.")
 
         # Trigger the handler to send the new span to the instrument.
         # It should use the current center frequency and the new span.
         
+        # CORRECTED: Capture the response from the device
         set_span_frequency(app_instance=showtime_tab_instance.app_instance,
                                     value=span_hz / 1_000_000,
                                     console_print_func=showtime_tab_instance.console_print_func)
+        
+        # NEW LOGIC: Get the current bandwidth settings from the device and update the state.
+        device_bandwidth_settings = handle_bandwidth_settings_nab(app_instance=showtime_tab_instance.app_instance,
+                                                                    console_print_func=showtime_tab_instance.console_print_func)
+        
+        if device_bandwidth_settings and device_bandwidth_settings.get('RBW_Hz') is not None:
+            rbw_from_device = device_bandwidth_settings['RBW_Hz']
+            showtime_tab_instance.rbw_var.set(str(rbw_from_device))
+            showtime_tab_instance.console_print_func(f"✅ RBW automatically updated to {format_hz(rbw_from_device)}.")
+            debug_log(message=f"📝 Writing state: rbw_var updated from device response to {rbw_from_device} Hz.", file=current_file, version=current_version, function=current_function)
         
         # FIXED: Save config after a successful span change
         save_config(config=showtime_tab_instance.app_instance.config,
