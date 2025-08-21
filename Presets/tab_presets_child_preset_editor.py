@@ -36,7 +36,7 @@ from display.console_logic import console_log
 # Import the new utility file
 from .utils_presets_editor import PresetEditorLogic
 
-from Instrument.instrument_logic import query_current_settings_logic
+from Instrument.connection.instrument_logic import query_current_settings_logic
 from src.program_style import COLOR_PALETTE
 
 

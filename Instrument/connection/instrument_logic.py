@@ -36,7 +36,7 @@ from display.console_logic import console_log
 
 # Import low-level VISA utilities
 from yak.Yakety_Yak import YakGet, YakSet, YakDo, query_safe, write_safe
-from Instrument.utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
+from .utils_instrument_connection import connect_to_instrument, disconnect_instrument, list_visa_resources
 
 
 def populate_resources_logic(app_instance, combobox_widget, console_print_func):

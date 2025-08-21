@@ -25,7 +25,7 @@ import os
 from datetime import datetime
 import inspect
 import re
-
+from ref.ref_file_paths import DEBUG_COMMANDS_FILE_PATH, VISA_COMMANDS_FILE_PATH
 # Global variables for debug control - SET TO FALSE BY DEFAULT!
 DEBUG_MODE = False
 LOG_VISA_COMMANDS = False
@@ -36,10 +36,8 @@ DEBUG_TO_GUI_CONSOLE = False
 INCLUDE_VISA_MESSAGES_TO_DEBUG_FILE = False
 
 
-# Define log file paths relative to the project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEBUG_FILE_PATH = os.path.join(PROJECT_ROOT, 'DATA', 'DEBUG_SOFTWARE.log')
-VISA_FILE_PATH = os.path.join(PROJECT_ROOT, 'DATA', 'DEBUG_VISA_COMMANDS.log')
+DEBUG_FILE_PATH = DEBUG_COMMANDS_FILE_PATH
+VISA_FILE_PATH = VISA_COMMANDS_FILE_PATH
 
 # Reference to the GUI console TextRedirector or original stdout/stderr
 _gui_console_stdout_redirector = None

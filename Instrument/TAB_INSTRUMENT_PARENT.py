@@ -26,9 +26,9 @@ import inspect
 import os
 from datetime import datetime
 
-from .tab_instrument_child_connection import InstrumentTab
-from .tab_instrument_child_visa_interpreter import VisaInterpreterTab
-from .tab_instrument_child_settings import SettingsParentTab
+from .connection.tab_instrument_child_connection import InstrumentTab
+from .visa.tab_instrument_child_visa_interpreter import VisaInterpreterTab
+from .settings.tab_instrument_child_settings import SettingsParentTab
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log

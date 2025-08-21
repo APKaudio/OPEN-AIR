@@ -132,3 +132,4 @@ def check_and_install_dependencies(current_app_version):
                     file=current_file,
                     version=current_version,
                     function=current_function)
+                    

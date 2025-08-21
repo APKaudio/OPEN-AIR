@@ -227,18 +227,19 @@ class YakBegTab(ttk.Frame):
         # New button to push data to monitor
         ttk.Button(self, text="Push Trace Data to Monitor", command=self._on_push_to_monitor, style="Green.TButton").grid(row=7, column=0, padx=10, pady=5, sticky="ew")
 
-
     def _on_freq_start_stop_beg(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"YakBeg for FREQUENCY/START-STOP triggered.",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     function=current_function)
-        
+
+        from yak.utils_yakbeg_handler import handle_freq_start_stop_beg # Lazy import
+
         start_freq = self.freq_start_var.get()
         stop_freq = self.freq_stop_var.get()
-        
-        start_resp, stop_resp = handle_freq_start_stop_beg(self.app_instance, start_freq, stop_freq, self.console_print_func)
-        
+
+        start_resp, stop_resp, span_resp, center_resp = handle_freq_start_stop_beg(self.app_instance, start_freq, stop_freq, self.console_print_func)
+
         if start_resp is not None and stop_resp is not None:
             self.freq_start_var.set(start_resp)
             self.freq_stop_var.set(stop_resp)
@@ -340,4 +341,4 @@ class YakBegTab(ttk.Frame):
         start_freq_mhz = self.trace_data_start_freq_var.get()
         stop_freq_mhz = self.trace_data_stop_freq_var.get()
         
-        handle_push_to_monitor(self.app_instance, self.trace_select_var, self.trace_data_tree, start_freq_mhz, stop_freq_mhz, self.console_print_func)
+      # handle_push_to_monitor(self.app_instance, self.trace_select_var, self.trace_data_tree, start_freq_mhz, stop_freq_mhz, self.console_print_func)

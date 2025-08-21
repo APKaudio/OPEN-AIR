@@ -35,7 +35,7 @@ from .utils_preset_csv_process import (
     load_user_presets_from_csv,
     overwrite_user_presets_csv
 )
-from Instrument.instrument_logic import query_current_settings_logic
+from Instrument.connection.instrument_logic import query_current_settings_logic
 from ref.ref_file_paths import PRESETS_FILE_PATH
 
 class PresetEditorLogic:

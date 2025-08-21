@@ -7,30 +7,36 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250812.004000.1 (FIXED: The push_preset_logic now correctly uses YakSet and YakDo with proper command types and includes all missing preset variables and trace configurations.)
-
-current_version = "20250812.004000.1"
-current_version_hash = 20250812 * 4000 * 1
+# Version 20250821.173331.1
+# UPDATED: The push_preset_logic now correctly uses YakSet and YakDo with proper command types
+#          and includes all missing preset variables and trace configurations.
 
 import os
-import inspect # Import inspect module
-import re # For regular expressions to match instrument model
+import inspect
+import re
 
-# Updated imports for new logging functions
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-# NEW: Import YakSet and YakDo to use the new command protocol
 from yak.Yakety_Yak import YakSet, YakDo
+from ref.ref_frequency_bands import MHZ_TO_HZ
 
-from ref.ref_frequency_bands import MHZ_TO_HZ # Import MHZ_TO_HZ for conversions
+# --- Versioning ---
+w = 20250821
+x_str = '173331'
+x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
+y = 1
+current_version = f"Version {w}.{x_str}.{y}"
+current_version_hash = (w * x * y)
+current_file = f"{os.path.basename(__file__)}"
+
 
 def push_preset_logic(app_instance, console_print_func, preset_data):
     """
@@ -58,21 +64,20 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Applying settings to instrument with the Yak Attack! Version: {current_version}",
-                file=f"{os.path.basename(__file__)}",
+                file=current_file,
                 version=current_version,
                 function=current_function)
 
     if not app_instance.inst:
         console_print_func("❌ No instrument connected. Please connect to an instrument first. What are you doing?!")
         debug_log("No instrument connected. Cannot apply settings.",
-                    file=f"{os.path.basename(__file__)}",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         return False
 
     success = True
     try:
-        # Retrieve values from preset_data, handling potential missing keys or empty strings
         center_freq_mhz_str = preset_data.get('Center', '').strip()
         center_freq_hz = float(center_freq_mhz_str) * MHZ_TO_HZ if center_freq_mhz_str else None
 
@@ -114,82 +119,77 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
 
         console_print_func("💬 Applying settings to instrument using Yak commands...")
 
-        # Apply Center, Span, and Attenuation using YakSet
         if center_freq_hz is not None:
             if YakSet(app_instance, "FREQUENCY/CENTER", str(int(center_freq_hz)), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Center Frequency: {int(center_freq_hz)} Hz.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Center Frequency: {int(center_freq_hz)} Hz.", file=current_file, version=current_version, function=current_function)
         if span_hz is not None:
             if YakSet(app_instance, "FREQUENCY/SPAN", str(int(span_hz)), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Span Frequency: {int(span_hz)} Hz.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Span Frequency: {int(span_hz)} Hz.", file=current_file, version=current_version, function=current_function)
         if attenuation_db is not None:
             if YakSet(app_instance, "AMPLITUDE/POWER/ATTENUATION", str(attenuation_db), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Attenuation: {attenuation_db} dB.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Attenuation: {attenuation_db} dB.", file=current_file, version=current_version, function=current_function)
 
-        # Apply RBW and VBW
         if rbw_hz is not None:
             if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(int(rbw_hz)), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied RBW: {int(rbw_hz)} Hz.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied RBW: {int(rbw_hz)} Hz.", file=current_file, version=current_version, function=current_function)
         if vbw_hz is not None:
             if YakSet(app_instance, "BANDWIDTH/VIDEO", str(int(vbw_hz)), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied VBW: {int(vbw_hz)} Hz.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied VBW: {int(vbw_hz)} Hz.", file=current_file, version=current_version, function=current_function)
 
-        # Apply Reference Level
         if reference_level_dbm is not None:
             if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{reference_level_dbm}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Reference Level: {reference_level_dbm} dBm.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Reference Level: {reference_level_dbm} dBm.", file=current_file, version=current_version, function=current_function)
 
         if high_sensitivity_on is not None:
             if YakSet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", 'ON' if high_sensitivity_on else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied High Sensitivity: {'ON' if high_sensitivity_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied High Sensitivity: {'ON' if high_sensitivity_on else 'OFF'}.", file=current_file, version=current_version, function=current_function)
         if preamp_on is not None:
             if YakSet(app_instance, "AMPLITUDE/POWER/GAIN", 'ON' if preamp_on else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Preamp: {'ON' if preamp_on else 'OFF'}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Preamp: {'ON' if preamp_on else 'OFF'}.", file=current_file, version=current_version, function=current_function)
         
-        # Apply Trace Modes (N9340B specific)
         if trace1_mode:
             if YakDo(app_instance, f"TRACE/1/MODE/{trace1_mode}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Trace 1 Mode: {trace1_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Trace 1 Mode: {trace1_mode}.", file=current_file, version=current_version, function=current_function)
         if trace2_mode:
             if YakDo(app_instance, f"TRACE/2/MODE/{trace2_mode}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Trace 2 Mode: {trace2_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Trace 2 Mode: {trace2_mode}.", file=current_file, version=current_version, function=current_function)
         if trace3_mode:
             if YakDo(app_instance, f"TRACE/3/MODE/{trace3_mode}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Trace 3 Mode: {trace3_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Trace 3 Mode: {trace3_mode}.", file=current_file, version=current_version, function=current_function)
         if trace4_mode:
             if YakDo(app_instance, f"TRACE/4/MODE/{trace4_mode}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Trace 4 Mode: {trace4_mode}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Trace 4 Mode: {trace4_mode}.", file=current_file, version=current_version, function=current_function)
 
-        # Apply Marker Max settings (N9340B specific)
         if marker1_max:
             if YakSet(app_instance, "MARKER/1/CALCULATE/MAX", 'ON' if marker1_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 1 Max: {marker1_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 1 Max: {marker1_max}.", file=current_file, version=current_version, function=current_function)
         if marker2_max:
             if YakSet(app_instance, "MARKER/2/CALCULATE/MAX", 'ON' if marker2_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 2 Max: {marker2_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 2 Max: {marker2_max}.", file=current_file, version=current_version, function=current_function)
         if marker3_max:
             if YakSet(app_instance, "MARKER/3/CALCULATE/MAX", 'ON' if marker3_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 3 Max: {marker3_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 3 Max: {marker3_max}.", file=current_file, version=current_version, function=current_function)
         if marker4_max:
             if YakSet(app_instance, "MARKER/4/CALCULATE/MAX", 'ON' if marker4_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 4 Max: {marker4_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 4 Max: {marker4_max}.", file=current_file, version=current_version, function=current_function)
         if marker5_max:
             if YakSet(app_instance, "MARKER/5/CALCULATE/MAX", 'ON' if marker5_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 5 Max: {marker5_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 5 Max: {marker5_max}.", file=current_file, version=current_version, function=current_function)
         if marker6_max:
             if YakSet(app_instance, "MARKER/6/CALCULATE/MAX", 'ON' if marker6_max.upper() == 'WRITE' else 'OFF', console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Marker 6 Max: {marker6_max}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+            debug_log(f"Applied Marker 6 Max: {marker6_max}.", file=current_file, version=current_version, function=current_function)
 
 
         if success:
             console_print_func("✅ All settings applied successfully. Boom!")
             debug_log("All settings applied to instrument. Fucking awesome!",
-                        file=f"{os.path.basename(__file__)}",
+                        file=current_file,
                         version=current_version,
                         function=current_function)
         else:
             console_print_func("❌ Failed to apply all settings. This thing is a pain in the ass!")
             debug_log("Failed to apply all settings.",
-                        file=f"{os.path.basename(__file__)}",
+                        file=current_file,
                         version=current_version,
                         function=current_function)
 
@@ -197,14 +197,14 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
     except ValueError as e:
         console_print_func(f"❌ Invalid setting value: {e}. Please check your inputs. You entered some garbage!")
         debug_log(f"ValueError applying settings: {e}. User entered some crap.",
-                    file=f"{os.path.basename(__file__)}",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         return False
     except Exception as e:
         console_print_func(f"❌ An unexpected error occurred while applying settings: {e}. This thing is a pain in the ass!")
         debug_log(f"An unexpected error occurred applying settings: {e}. Fucking hell!",
-                    file=f"{os.path.basename(__file__)}",
+                    file=current_file,
                     version=current_version,
                     function=current_function)
         return False

@@ -55,7 +55,6 @@ current_version_hash = (20250821 * 144000 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- File Paths ---
-
 # The base directory is assumed to be one level above this file's location.
 # This ensures that the paths are relative to the project root.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -65,7 +64,8 @@ DATA_FOLDER_PATH = os.path.join(BASE_DIR, 'DATA')
 
 # Specific file paths within the data folder.
 CONFIG_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'config.ini')
-PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'presets.json')
-MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'markers.json')
-VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'visa_commands.log')
+PRESETS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'PRESETS.csv')
+MARKERS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'MARKERS.csv')
+# CORRECTED: This path now points to a .csv file as per your instructions.
+VISA_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'VISA_COMMANDS.csv')
 DEBUG_COMMANDS_FILE_PATH = os.path.join(DATA_FOLDER_PATH, 'debug.log')

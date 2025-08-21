@@ -15,9 +15,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.145100.8
-# FIXED: Removed the continuous save on window move/resize. The window state is now
-#        only saved on graceful exit. The sash position continues to be saved on release.
+# Version 20250821.171500.9
+# FIXED: Removed the save on closing. Sash position is now ONLY saved on mouse button release.
 
 import sys
 import tkinter as tk
@@ -34,7 +33,7 @@ from src.gui_elements import _print_inst_ascii, _print_marks_ascii, _print_prese
 
 from src.program_initialization import initialize_program_environment
 from src.program_style import apply_styles
-from src.program_gui_utils import create_main_layout_and_widgets, create_app_menu, apply_saved_geometry
+from src.program_gui_utils import create_main_layout_and_widgets,  apply_saved_geometry
 from settings_and_config.config_manager import save_config
 from ref.ref_file_paths import VISA_COMMANDS_FILE_PATH
 
@@ -45,7 +44,7 @@ class App(tk.Tk):
         # Initializing core application variables
         current_function = inspect.currentframe().f_code.co_name
         self.current_file = os.path.basename(__file__)
-        self.current_version = "20250821.145100.8" # INCREMENTED VERSION
+        self.current_version = "20250821.171500.9" # INCREMENTED VERSION
 
         # FIXED: Initialize the `inst` attribute here to prevent an AttributeError later.
         self.inst = None
@@ -98,7 +97,7 @@ class App(tk.Tk):
         # self.tabs_parent, and self.display_parent attributes.
         self.paned_window, self.tabs_parent, self.display_parent = create_main_layout_and_widgets(self, self.style_obj) # CORRECTED: Pass the style_obj
         
-        create_app_menu(self)
+        
         
         debug_log(f"⚙️ ✅ Exiting {current_function}",
                   file=self.current_file, version=self.current_version, function=current_function)
@@ -126,8 +125,7 @@ class App(tk.Tk):
                 debug_log(f"✅ Paned window sash position restored to {sash_pos_percentage}",
                           file=self.current_file, version=self.current_version, function=current_function, special=True)
         
-        # REVERTED: Removed the continuous saving of geometry.
-        # The paned_window sash position is still saved on button release.
+        # This is the correct binding. It will only save the sash position when the mouse button is released.
         self.paned_window.bind("<ButtonRelease-1>", self._save_sash_position)
 
     def _set_console_redirectors(self):
@@ -165,6 +163,7 @@ class App(tk.Tk):
     def on_closing(self):
         """
         Handles the graceful shutdown of the application.
+        This function no longer saves the geometry or sash position.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(f"Closing application. Time for a long nap! 😴",
@@ -174,18 +173,13 @@ class App(tk.Tk):
             current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.program_config.set('Application', 'last_config_save_time', current_time)
             
-            # Get the current window state and geometry and save it
-            self.program_config.set('Application', 'window_state', self.state())
-            self.program_config.set('Application', 'geometry', self.winfo_geometry())
-            
-            # Get the current sash position and save it to the config
-            if hasattr(self, 'paned_window') and self.paned_window and self.winfo_width() > 0:
-                sash_pos = self.paned_window.sashpos(0)
-                sash_pos_percentage = int((sash_pos / self.winfo_width()) * 100)
-                self.program_config.set('Application', 'paned_window_sash_position_percentage', str(sash_pos_percentage))
+            # The following lines have been removed as per your request:
+            # self.program_config.set('Application', 'window_state', self.state())
+            # self.program_config.set('Application', 'geometry', self.winfo_geometry())
+            # self.program_config.set('Application', 'paned_window_sash_position_percentage', ...)
             
             save_config(config=self.program_config, console_print_func=console_log, app_instance=self)
-            console_log("✅ Configuration saved successfully on shutdown.")
+            console_log("✅ Final configuration saved on shutdown.")
         self.destroy()
 
 if __name__ == "__main__":

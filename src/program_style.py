@@ -8,25 +8,21 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-runner/
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250821.110100.1 (FIXED: Added the missing import of 'ttkthemes' to resolve the TclError.)
+# Version 20250821.110100.2 (UPDATED: Removed dependency on ttkthemes and defined all styles manually.)
 
-current_version = "20250821.110100.1"
-current_version_hash = (20250821 * 110100 * 1)
+current_version = "20250821.110100.2"
+current_version_hash = (20250821 * 110100 * 2)
 
 import tkinter as tk
 from tkinter import ttk, TclError
 import inspect
 import os
-
-# FIXED: Explicitly import ttkthemes to make the themes available to the style engine
-import ttkthemes
-from ttkthemes import ThemedStyle
 
 from display.debug_logic import debug_log
 
@@ -96,6 +92,7 @@ def _revert_to_default_styles(style):
     style.map('TButton', background=[('active', 'gray')])
     style.map('TCheckbutton', background=[('active', 'gray')])
     style.map('TEntry', fieldbackground=[('disabled', 'lightgrey')], foreground=[('disabled', 'darkgrey')])
+
 def apply_styles(style, debug_log_func, current_app_version):
     """Applies custom Tkinter ttk styles for a consistent dark theme."""
     current_function = inspect.currentframe().f_code.co_name
@@ -105,23 +102,11 @@ def apply_styles(style, debug_log_func, current_app_version):
                    function=current_function, special=True)
 
     try:
-        # If the style is not a ThemedStyle, replace it with one to access ttkthemes
-        if not isinstance(style, ThemedStyle):
-            root = style.master if hasattr(style, 'master') else None
-            style = ThemedStyle(root)
-        available_themes = style.theme_names()
-        if 'dark' in available_themes:
-            style.theme_use('dark')
-        else:
-            debug_log_func("❌ `dark` theme not found. Attempting to use a standard theme.",
-                             file=f"{os.path.basename(__file__)} - {current_app_version}",
-                             version=current_app_version,
-                             function=current_function)
-            # Fallback to a standard theme if 'clam' is not found
-            if 'clam' in available_themes:
-                style.theme_use('clam')
-            else:
-                style.theme_use('default')
+        # We no longer rely on ttkthemes, so just use the default style or 'clam' if available.
+        try:
+            style.theme_use('clam')
+        except TclError:
+            style.theme_use('default')
 
     except TclError as e:
         debug_log_func(f"❌ TclError: {e}. Reverting to default styles.",

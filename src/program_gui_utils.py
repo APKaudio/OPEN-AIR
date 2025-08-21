@@ -83,23 +83,6 @@ def create_main_layout_and_widgets(app_instance, style_obj):
                   file=current_file, version=current_version, function=current_function)
         raise
 
-def create_app_menu(app_instance):
-    """
-    Creates the application's menu bar.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"⚙️ 🟢 Entering {current_function} to create the app menu. 📋",
-              file=current_file, version=current_version, function=current_function)
-    
-    menu_bar = tk.Menu(app_instance)
-    app_instance.config(menu=menu_bar)
-
-    file_menu = tk.Menu(menu_bar, tearoff=0)
-    menu_bar.add_cascade(label="File", menu=file_menu)
-    file_menu.add_command(label="Exit", command=app_instance.on_closing)
-
-    debug_log(f"⚙️ ✅ Exiting {current_function}",
-              file=current_file, version=current_version, function=current_function)
               
 def apply_saved_geometry(app_instance):
     """

@@ -20,7 +20,7 @@
 current_version = "20250812.215500.1"
 current_version_hash = 20250812 * 215500 * 1
 
-def get_default_commands():
+def get_default_visa_commands():
     """
     Returns a list of default VISA commands.
     Each entry is a tuple: (Manufacturer, Model, Command Type, Action, VISA Command, Default Value for Variable, Validated).
