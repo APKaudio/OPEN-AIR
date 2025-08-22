@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.013000.13
+# Version 20250822.011800.11
 
 import os
 import inspect
@@ -35,7 +35,7 @@ from styling.style import THEMES, DEFAULT_THEME
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
 CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
 CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 13 # Incremented revision
+REVISION_NUMBER = 11 # Incremented revision
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
@@ -90,7 +90,7 @@ class Application(tk.Tk):
         Applies the specified theme to the entire application using ttk.Style.
         """
         colors = THEMES.get(theme_name, THEMES["dark"])
-        self.theme_colors = colors
+        self.theme_colors = colors # Store colors for later use
         
         style = ttk.Style(self)
         style.theme_use("clam")
@@ -110,26 +110,19 @@ class Application(tk.Tk):
                         bordercolor=colors["primary"],
                         borderwidth=0)
         
-        # --- CORRECTED: Create numbered styles with valid names ---
-        accent_colors = colors.get("accent_colors", [])
-        for i, color in enumerate(accent_colors):
-            style_name = f'Color{i}.TNotebook.Tab'
-            style.configure(style_name,
-                            padding=[10, 5],
-                            font=('Helvetica', 11, 'bold'),
-                            borderwidth=0)
-            style.map(style_name,
-                      background=[('selected', color), ('!selected', colors["secondary"])],
-                      foreground=[('selected', colors["text"]), ('!selected', colors["fg"])])
-
-        # Create a default style for any tabs that don't have a number
-        style.configure('Default.TNotebook.Tab',
+        # --- UPDATED: Configure a single, uniform tab style ---
+        style.configure('TNotebook.Tab',
                         padding=[10, 5],
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
-        style.map('Default.TNotebook.Tab',
+        style.map('TNotebook.Tab',
                   background=[('selected', colors["accent"]), ('!selected', colors["secondary"])],
                   foreground=[('selected', colors["text"]), ('!selected', colors["fg"])])
+
+        # --- NEW: Create colored frame styles to use as tab backgrounds ---
+        accent_colors = colors.get("accent_colors", [])
+        for i, color in enumerate(accent_colors):
+            style.configure(f'TabFrame{i}.TFrame', background=color)
 
         style.configure('TButton',
                         background=colors["accent"],
@@ -213,19 +206,20 @@ class Application(tk.Tk):
                     tab_number_from_name = get_tab_sort_key(tab_dir)
                     tab_index = tab_number_from_name - 1 if isinstance(tab_number_from_name, int) else -1
                     
-                    tab_frame = ttk.Frame(notebook, style='TFrame')
+                    # --- UPDATED: Apply colored style to the frame, not the tab ---
+                    frame_style = f'TabFrame{tab_index}.TFrame' if 0 <= tab_index < len(self.theme_colors["accent_colors"]) else 'TFrame'
+                    tab_frame = ttk.Frame(notebook, style=frame_style)
                     
                     start_index = next((i for i, part in enumerate(parts) if part.isdigit()), -1)
                     display_name = " ".join(parts[start_index + 1:]).title() if start_index != -1 else tab_dir.name
                     
                     notebook.add(tab_frame, text=display_name)
-                    
-                    # --- CORRECTED: Use valid style name ---
-                    style_name = f'Color{tab_index}.TNotebook.Tab' if 0 <= tab_index < len(self.theme_colors["accent_colors"]) else 'Default.TNotebook.Tab'
-                    last_tab_id = notebook.tabs()[-1]
-                    notebook.tab(last_tab_id, style=style_name)
 
-                    self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
+                    # --- NEW: Add an inner frame for content, creating a colored border effect ---
+                    content_frame = ttk.Frame(tab_frame, style='TFrame')
+                    content_frame.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+
+                    self._build_from_directory(path=tab_dir, parent_widget=content_frame)
                 return
 
             for sub_dir in sub_dirs:
