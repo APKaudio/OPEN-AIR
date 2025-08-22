@@ -74,7 +74,7 @@ class Application(tk.Tk):
             # Storing the theme colors as an instance variable for access by other methods
             self.theme_colors = self._apply_styles(theme_name=DEFAULT_THEME)
 
-            self._build_from_directory(path=pathlib.Path("display"), parent_widget=self)
+            self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
             console_log("✅ Celebration of success!")
 
