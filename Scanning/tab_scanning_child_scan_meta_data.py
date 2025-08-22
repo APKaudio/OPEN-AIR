@@ -30,7 +30,7 @@ import subprocess # For opening folders
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 # Import new modules for functionality - CORRECTED PATHS
 from process_math.google_maps_lookup import get_location_from_google_maps
@@ -275,7 +275,7 @@ class ScanMetaDataTab(ttk.Frame):
         #   1. Retrieves the current text from the ScrolledText widget.
         #   2. Sets the `app_instance.notes_var` with the retrieved text.
         #   3. Prints a debug message with the updated notes.
-        #   4. Calls `save_config` to persist the changes.
+        #   4. Calls `save_program_config ` to persist the changes.
         #
         # Outputs of this function
         #   None. Updates an internal Tkinter variable and saves application configuration.
@@ -290,8 +290,8 @@ class ScanMetaDataTab(ttk.Frame):
                     file=__file__,
                     version=current_version,
                     function=current_function)
-        # Corrected call to save_config with all required arguments
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        # Corrected call to save_program_config  with all required arguments
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
 
     def _on_tab_selected(self, event):
@@ -383,7 +383,7 @@ class ScanMetaDataTab(ttk.Frame):
         #   4. Calls `get_location_from_google_maps` with the postal code.
         #   5. Updates `app_instance.address_field_var`, `app_instance.city_var`,
         #      and `app_instance.province_var` with the returned values.
-        #   6. Calls `save_config` to persist the updated location data.
+        #   6. Calls `save_program_config ` to persist the updated location data.
         #
         # Outputs of this function
         #   None. Updates Tkinter variables and saves configuration.
@@ -403,8 +403,8 @@ class ScanMetaDataTab(ttk.Frame):
             self.app_instance.address_field_var.set("")
             self.app_instance.city_var.set("")
             self.app_instance.province_var.set("")
-            # Corrected call to save_config with all required arguments
-            save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            # Corrected call to save_program_config  with all required arguments
+            save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
             debug_log(f"Postal code was empty. Lookup aborted. Version: {current_version}",
                         file=__file__,
                         version=current_version,
@@ -418,8 +418,8 @@ class ScanMetaDataTab(ttk.Frame):
         self.app_instance.city_var.set(city if city else "") # Changed N/A to empty string
         self.app_instance.province_var.set(province if province else "") # Changed N/A to empty string
         
-        # Corrected call to save_config with all required arguments
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        # Corrected call to save_program_config  with all required arguments
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         self.console_print_func("✅ Postal code lookup complete and fields updated. Location found!")
         debug_log(f"Postal code lookup complete and fields updated. Version: {current_version}",
                     file=__file__,
@@ -443,7 +443,7 @@ class ScanMetaDataTab(ttk.Frame):
         #   4. If a match is found, updates `antenna_description_var` and `antenna_use_var`
         #      with the corresponding description and use.
         #   5. If no match is found, clears the description and use fields.
-        #   6. Calls `save_config` to persist the selected antenna type.
+        #   6. Calls `save_program_config ` to persist the selected antenna type.
         #
         # Outputs of this function
         #   None. Updates Tkinter variables and saves configuration.
@@ -480,8 +480,8 @@ class ScanMetaDataTab(ttk.Frame):
                         version=current_version,
                         function=current_function)
         
-        # Corrected call to save_config with all required arguments
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        # Corrected call to save_program_config  with all required arguments
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         debug_log(f"Antenna type updated and config saved. Version: {current_version}",
                     file=__file__,
                     version=current_version,
@@ -506,7 +506,7 @@ class ScanMetaDataTab(ttk.Frame):
         #   5. If a match is found, updates `amplifier_description_var` and `amplifier_use_var`
         #      with the corresponding description and use.
         #   6. If no match is found, clears the description and use fields.
-        #   7. Calls `save_config` to persist the selected amplifier type and its details.
+        #   7. Calls `save_program_config ` to persist the selected amplifier type and its details.
         #
         # Outputs of this function
         #   None. Updates Tkinter variables and saves configuration.
@@ -548,8 +548,8 @@ class ScanMetaDataTab(ttk.Frame):
                         version=current_version,
                         function=current_function)
 
-        # Corrected call to save_config with all required arguments
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        # Corrected call to save_program_config  with all required arguments
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         debug_log(f"Updated antenna amplifier to: {selected_type}. Config saved! Version: {current_version}",
                     file=__file__,
                     version=current_version,

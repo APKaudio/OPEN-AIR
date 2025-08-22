@@ -28,7 +28,7 @@ from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_center_span_beg
 from yak.utils_yak_setting_handler import set_span_frequency
 from yak.utils_yaknab_handler import handle_bandwidth_settings_nab
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 from process_math.math_frequency_translation import format_hz
 
 # --- Versioning ---
@@ -80,7 +80,7 @@ def on_span_button_click(showtime_tab_instance, span_hz):
             debug_log(message=f"📝 Writing state: rbw_var updated from device response to {rbw_from_device} Hz.", file=current_file, version=current_version, function=current_function)
         
         # FIXED: Save config after a successful span change
-        save_config(config=showtime_tab_instance.app_instance.config,
+        save_program_config (config=showtime_tab_instance.app_instance.config,
                     file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab_instance.console_print_func,
                     app_instance=showtime_tab_instance.app_instance)

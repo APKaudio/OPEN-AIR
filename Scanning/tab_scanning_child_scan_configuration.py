@@ -31,7 +31,7 @@ from tkinter import filedialog
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 # Import presets that have associated handlers
 from ref.ref_scanner_setting_lists import (
@@ -198,7 +198,7 @@ class ScanTab(ttk.Frame):
         if found_item:
             app_var.set(found_item['value'])
             description_var.set(found_item['description'])
-            save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _on_boolean_combobox_select(self, event, app_var):
         """Handler specifically for 'Yes'/'No' comboboxes."""
@@ -210,7 +210,7 @@ class ScanTab(ttk.Frame):
         
         is_yes = event.widget.get() == "Yes"
         app_var.set(is_yes)
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _set_combobox_display_from_value(self, key):
         """Helper to find and set the display text and description for a given raw value."""
@@ -275,7 +275,7 @@ class ScanTab(ttk.Frame):
         folder = filedialog.askdirectory()
         if folder:
             self.app_instance.output_folder_var.set(folder)
-            save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+            save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
 
     def _open_output_folder(self):
         # This function description tells me what this function does

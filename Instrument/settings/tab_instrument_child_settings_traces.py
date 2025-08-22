@@ -37,7 +37,7 @@ from display.utils_scan_view import update_single_plot
 
 # ADDED: Imports for the configuration manager
 from settings_and_config.config_manager_instruments import _save_instrument_settings
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config
 
 class TraceSettingsTab(ttk.Frame):
     """
@@ -471,7 +471,7 @@ class TraceSettingsTab(ttk.Frame):
                 console_print_func=self.console_print_func
             )
             # Call the main config save function to write the changes to the file
-            save_config(
+            save_program_config(
                 app_instance=self.app_instance,
                 config=self.app_instance.program_config,
                 config_file_path=self.app_instance.config_file_path,

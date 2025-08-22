@@ -26,7 +26,7 @@ from ref.ref_frequency_bands import MHZ_TO_HZ
 from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 # Import dedicated utility functions from their respective modules
 from .utils_showtime_span import format_hz
@@ -68,7 +68,7 @@ def on_poke_action(showtime_tab_instance):
                 f"✅ Instrument Confirmed: Center={returned_center / MHZ_TO_HZ:.3f} MHz, Span={format_hz(returned_span)}"
             )
             # FIXED: Save config after a successful poke action
-            save_config(config=showtime_tab_instance.app_instance.config,
+            save_program_config (config=showtime_tab_instance.app_instance.config,
                         file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                         console_print_func=showtime_tab_instance.console_print_func,
                         app_instance=showtime_tab_instance.app_instance)

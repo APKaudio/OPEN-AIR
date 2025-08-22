@@ -29,7 +29,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from yak.Yakety_Yak import YakSet
 from yak.utils_yak_setting_handler import set_resolution_bandwidth
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 from process_math.math_frequency_translation import format_hz
 
@@ -78,7 +78,7 @@ def on_rbw_button_click(showtime_tab, rbw_hz):
         set_resolution_bandwidth(app_instance=showtime_tab.app_instance, value=int(rbw_hz), console_print_func=showtime_tab.console_print_func)
         
         # FIXED: Save config after a successful RBW change
-        save_config(config=showtime_tab.app_instance.config,
+        save_program_config (config=showtime_tab.app_instance.config,
                     file_path=showtime_tab.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab.console_print_func,
                     app_instance=showtime_tab.app_instance)

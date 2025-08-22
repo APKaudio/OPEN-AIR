@@ -32,7 +32,8 @@ from display.console_logic import console_log
 from yak.utils_yakbeg_handler import handle_freq_start_stop_beg, handle_freq_center_span_beg
 from ref.ref_scanner_setting_lists import PRESET_FREQUENCY_SPAN_MHZ
 from settings_and_config.config_manager_instruments import _save_instrument_settings
-from settings_and_config.config_manager import save_config, load_config, CONFIG_FILE_PATH # ADDED IMPORT
+from settings_and_config.config_manager_save import load_program_config, save_program_config
+from ref.ref_file_paths import CONFIG_FILE_PATH # ADDED IMPORT
 from ref.ref_program_default_values import DEFAULT_CONFIG
 
 
@@ -470,7 +471,7 @@ class FrequencySettingsTab(ttk.Frame):
         
         try:
             # Load the configuration file
-            config = load_config(config_file_path=CONFIG_FILE_PATH, default_config=DEFAULT_CONFIG)
+            config = load_program_config(config_file_path=CONFIG_FILE_PATH, default_config=DEFAULT_CONFIG)
 
             # Call the specific save function from the modular config manager
             _save_instrument_settings(
@@ -479,7 +480,7 @@ class FrequencySettingsTab(ttk.Frame):
                 console_print_func=self.console_print_func
             )
             # Call the main config save function to write the changes to the file
-            save_config(
+            save_program_config(
                 app_instance=self.app_instance,
                 config=config,
                 config_file_path=CONFIG_FILE_PATH,

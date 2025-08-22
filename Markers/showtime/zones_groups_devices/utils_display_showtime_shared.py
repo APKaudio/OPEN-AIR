@@ -33,7 +33,7 @@ import threading
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config
 
 # Import shared utility functions
 from Markers.showtime.controls.utils_showtime_zone_zoom import _buffer_start_stop_frequencies, set_span_to_group
@@ -117,7 +117,7 @@ def _save_showtime_state_to_config(showtime_tab):
         config.set('MarkerTab', 'group_device_count', str(group_info.get('device_count', 0)))
         
         
-        save_config(config=config,
+        save_program_config(config=config,
                     file_path=showtime_tab.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab.console_print_func,
                     app_instance=showtime_tab.app_instance)

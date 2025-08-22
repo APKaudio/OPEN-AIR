@@ -32,7 +32,7 @@ from display.console_logic import console_log
 # Import functions from preset utility modules
 from Presets.utils_preset_csv_process import load_user_presets_from_csv
 from src.program_style import COLOR_PALETTE
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 from ref.ref_file_paths import CONFIG_FILE_PATH, PRESETS_FILE_PATH
 from Presets.utils_preset_query_and_load import load_selected_preset_logic
 
@@ -405,7 +405,7 @@ class LocalPresetsTab(ttk.Frame):
                         function=current_function)
             
             try:
-                save_config(self.app_instance.program_config, self.console_print_func, self.app_instance)
+                save_program_config (self.app_instance.program_config, self.console_print_func, self.app_instance)
             except Exception as e:
                 debug_log(f"CRITICAL ERROR: Could not save config after preset load: {e}. Config not saved!", file=current_file,
                             version=current_version,

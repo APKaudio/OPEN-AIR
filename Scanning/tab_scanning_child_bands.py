@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250810.220100.5 (FIXED: Removed redundant save_config call from _on_tab_selected to prevent overwriting saved settings on app startup.)
+# Version 20250810.220100.5 (FIXED: Removed redundant save_program_config  call from _on_tab_selected to prevent overwriting saved settings on app startup.)
 
 current_version = "20250810.220100.5"
 current_version_hash = 20250810 * 220100 * 5 # Example hash, adjust as needed
@@ -31,7 +31,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 from display.debug_logic import debug_log
 from display.console_logic import console_log
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 class BandsTab(ttk.Frame):
     """
@@ -231,7 +231,7 @@ class BandsTab(ttk.Frame):
         self._update_button_style(band_item["widget"], new_level)
         
         # This is the correct place to save the config, AFTER a user action.
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         
         self._update_band_table()
         self._update_band_chart()
@@ -395,7 +395,7 @@ class BandsTab(ttk.Frame):
             band_item["level"] = 3 # High importance
         
         self._update_all_band_button_styles()
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         self._update_band_table()
         self._update_band_chart()
 
@@ -421,7 +421,7 @@ class BandsTab(ttk.Frame):
             band_item["level"] = 0 # Unselected
         
         self._update_all_band_button_styles()
-        save_config(self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
+        save_program_config (self.app_instance.config, self.app_instance.CONFIG_FILE_PATH, self.console_print_func, self.app_instance)
         self._update_band_table()
         self._update_band_chart()
 

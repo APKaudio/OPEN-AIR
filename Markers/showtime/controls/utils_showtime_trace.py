@@ -33,7 +33,7 @@ from display.console_logic import console_log
 
 from yak.utils_yaknab_handler import handle_all_traces_nab
 from yak.utils_yakbeg_handler import handle_trace_modes_beg
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config 
 
 from .utils_showtime_plot import plot_all_traces
 from process_math.math_frequency_translation import MHZ_TO_HZ
@@ -96,7 +96,7 @@ def execute_trace_action(traces_tab_instance, action_type):
     _get_and_plot_traces(traces_tab_instance, action_type)
     
     # FIXED: Save config after a successful trace action
-    save_config(config=showtime_tab.app_instance.config,
+    save_program_config (config=showtime_tab.app_instance.config,
                 file_path=showtime_tab.app_instance.CONFIG_FILE_PATH,
                 console_print_func=showtime_tab.console_print_func,
                 app_instance=showtime_tab.app_instance)

@@ -20,7 +20,7 @@
 #          from the shared state, ensuring consistency between the UI state and calculations.
 # UPDATED: All debug logs now include the correct emoji prefixes.
 # UPDATED: Versioning and file header adhere to new standards.
-# FIXED: Added `save_config` calls to all functions that modify state.
+# FIXED: Added `save_program_config` calls to all functions that modify state.
 # FIXED: Corrected the AttributeErrors in all functions by retrieving state
 #        variables directly from the `showtime_tab_instance` object.
 
@@ -30,7 +30,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 from ref.ref_frequency_bands import MHZ_TO_HZ
 from process_math.math_frequency_translation import format_hz
-from settings_and_config.config_manager import save_config
+from settings_and_config.config_manager_save import save_program_config
 
 # Import the YakBeg handlers for direct instrument control
 from yak.utils_yakbeg_handler import handle_freq_start_stop_beg, handle_freq_center_span_beg
@@ -110,8 +110,8 @@ def set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab):
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated all markers span and UI.", file=current_file, version=current_version, function=current_function)
         
-        # FIXED: Add save_config call
-        save_config(config=showtime_tab_instance.app_instance.config,
+        # FIXED: Add save_program_config call
+        save_program_config(config=showtime_tab_instance.app_instance.config,
                     file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab_instance.console_print_func,
                     app_instance=showtime_tab_instance.app_instance)
@@ -172,8 +172,8 @@ def set_span_to_zone(showtime_tab_instance, zone_zoom_tab):
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated zone span and UI.", file=current_file, version=current_version, function=current_function)
         
-        # FIXED: Add save_config call
-        save_config(config=showtime_tab_instance.app_instance.config,
+        # FIXED: Add save_program_config call
+        save_program_config(config=showtime_tab_instance.app_instance.config,
                     file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab_instance.console_print_func,
                     app_instance=showtime_tab_instance.app_instance)
@@ -235,8 +235,8 @@ def set_span_to_group(showtime_tab_instance, zone_zoom_tab):
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated group span and UI.", file=current_file, version=current_version, function=current_function)
         
-        # FIXED: Add save_config call
-        save_config(config=showtime_tab_instance.app_instance.config,
+        # FIXED: Add save_program_config call
+        save_program_config(config=showtime_tab_instance.app_instance.config,
                     file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab_instance.console_print_func,
                     app_instance=showtime_tab_instance.app_instance)
@@ -301,8 +301,8 @@ def set_span_to_device(showtime_tab_instance, zone_zoom_tab):
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated device span and UI.", file=current_file, version=current_version, function=current_function)
         
-        # FIXED: Add save_config call
-        save_config(config=showtime_tab_instance.app_instance.config,
+        # FIXED: Add save_program_config call
+        save_program_config(config=showtime_tab_instance.app_instance.config,
                     file_path=showtime_tab_instance.app_instance.CONFIG_FILE_PATH,
                     console_print_func=showtime_tab_instance.console_print_func,
                     app_instance=showtime_tab_instance.app_instance)

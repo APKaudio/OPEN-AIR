@@ -14,10 +14,10 @@
 # Source Code: https://github.com/APKaudio/
 #
 #
-# Version 20250821.110100.2 (UPDATED: Removed dependency on ttkthemes and defined all styles manually.)
+# Version 20250821.110100.3 (FIXED: Added check for debug_log_func to prevent TypeError on startup.)
 
-current_version = "20250821.110100.2"
-current_version_hash = (20250821 * 110100 * 2)
+current_version = "20250821.110100.3"
+current_version_hash = (20250821 * 110100 * 3)
 
 import tkinter as tk
 from tkinter import ttk, TclError
@@ -96,23 +96,29 @@ def _revert_to_default_styles(style):
 def apply_styles(style, debug_log_func, current_app_version):
     """Applies custom Tkinter ttk styles for a consistent dark theme."""
     current_function = inspect.currentframe().f_code.co_name
-    debug_log_func(f"Entering {current_function}. Applying all application-wide widget styles. 🎨",
-                   file=f"{os.path.basename(__file__)} - {current_app_version}",
-                   version=current_app_version,
-                   function=current_function, special=True)
+    if debug_log_func:
+        debug_log_func(f"Entering {current_function}. Applying all application-wide widget styles. 🎨",
+                       file=f"{os.path.basename(__file__)} - {current_app_version}",
+                       version=current_app_version,
+                       function=current_function, special=True)
+    else:
+        # Use standard print as fallback if debug_log_func is not provided
+        print(f"Entering {current_function}. Applying all application-wide widget styles. 🎨")
 
     try:
-        # We no longer rely on ttkthemes, so just use the default style or 'clam' if available.
         try:
             style.theme_use('clam')
         except TclError:
             style.theme_use('default')
 
     except TclError as e:
-        debug_log_func(f"❌ TclError: {e}. Reverting to default styles.",
-                         file=f"{os.path.basename(__file__)} - {current_app_version}",
-                         version=current_app_version,
-                         function=current_function)
+        if debug_log_func:
+             debug_log_func(f"❌ TclError: {e}. Reverting to default styles.",
+                            file=f"{os.path.basename(__file__)} - {current_app_version}",
+                            version=current_app_version,
+                            function=current_function)
+        else:
+            print(f"❌ TclError: {e}. Reverting to default styles.")
         _revert_to_default_styles(style)
         
     style.configure('.', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['foreground'])
@@ -135,7 +141,10 @@ def apply_styles(style, debug_log_func, current_app_version):
             style.layout('Dark.TLabel.Value', tlabel_layout)
             style.layout('Red.TLabel.Value', tlabel_layout)
     except TclError as e:
-        debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=os.path.basename(__file__), version=current_app_version, function="apply_styles")
+        if debug_log_func:
+            debug_log_func(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}", file=os.path.basename(__file__), version=current_app_version, function="apply_styles")
+        else:
+            print(f"CRITICAL ERROR: Failed to copy TLabel layout: {e}")
 
     style.configure('Dark.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['value_fg'], font=('Helvetica', 10, 'bold'))
     style.configure('Red.TLabel.Value', background=COLOR_PALETTE['background'], foreground=COLOR_PALETTE['red_btn'], font=('Helvetica', 10, 'bold'))
@@ -392,7 +401,10 @@ def apply_styles(style, debug_log_func, current_app_version):
     style.configure("Treeview.Heading", font=("Helvetica", 13, "bold"), background=COLOR_PALETTE['active_bg'], foreground=COLOR_PALETTE['foreground'], relief="flat")
     style.map("Treeview.Heading", background=[('active', COLOR_PALETTE['active_bg'])])
 
-    debug_log_func(f"✅ Exiting {current_function}. All widget styles have been applied.",
-                     file=f"{os.path.basename(__file__)} - {current_app_version}",
-                     version=current_app_version,
-                     function=current_function, special=True)
+    if debug_log_func:
+        debug_log_func(f"✅ Exiting {current_function}. All widget styles have been applied.",
+                         file=f"{os.path.basename(__file__)} - {current_app_version}",
+                         version=current_app_version,
+                         function=current_function, special=True)
+    else:
+        print(f"✅ Exiting {current_function}. All widget styles have been applied.")

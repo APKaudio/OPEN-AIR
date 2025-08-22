@@ -1,4 +1,4 @@
-# src/settings_and_config/program_default_values.py
+# ref/ref_program_default_values.py
 #
 # This file contains the default configuration settings for the application.
 # It defines the structure and initial values for the config.ini file,
@@ -8,44 +8,31 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.110500.1
-# FIXED: The BASE_DIR calculation has been corrected to properly point to the
-#        root 'OPEN-AIR' directory, resolving the 'config.ini' pathing error.
-# UPDATED: Added new MarkerTab configuration keys for a more comprehensive default state.
+# Version 20250821.220000.1 (Synchronized with config.ini)
 
 import os
 from datetime import datetime
-
-# Import the main frequency bands data
 from ref.ref_frequency_bands import SCAN_BAND_RANGES
 
-
 # --- Version Information ---
-w = 20250821
-x_str = '110500'
-x = int(x_str) if not x_str.startswith('0') else int(x_str[1:])
-y = 1
-current_version = f"{w}.{x_str}.{y}"
-current_version_hash = (w * x * y)
+current_version = "20250821.220000.1"
+current_version_hash = (20250821 * 220000 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-# --- Global Paths ---
-
-
-# --- Default Settings ---
+# --- DEFINITIVE FIX: This dictionary now perfectly mirrors the provided config.ini and vars files ---
 DEFAULT_CONFIG = {
     'Application': {
-        'geometry': '1600x900+100+100',
-        'window_state': 'normal',
+        'geometry': '1920x1127+1912+32',
+        'window_state': 'zoomed',
         'last_config_save_time': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'paned_window_sash_position_percentage': '45',
+        'paned_window_sash_position_percentage': '40',
     },
     'Debug': {
         'general_debug_enabled': 'True',
@@ -58,6 +45,8 @@ DEFAULT_CONFIG = {
         'include_visa_messages_to_debug_file': 'True',
     },
     'Instrument': {
+        'brand': 'Keysight',
+        'series': 'E440xB',
         'visa_resource': 'TCPIP0::192.168.1.100::inst0::INSTR',
     },
     'InstrumentSettings': {
@@ -73,18 +62,10 @@ DEFAULT_CONFIG = {
         'preamp_on': 'False',
         'power_attenuation_db': '10',
         'high_sensitivity_on': 'False',
-        'trace1_mode': 'WRITE',
-        'trace2_mode': 'MAXHOLD',
-        'trace3_mode': 'BLANK',
-        'trace4_mode': 'BLANK',
-        'marker1_on': 'False',
-        'marker2_on': 'False',
-        'marker3_on': 'False',
-        'marker4_on': 'False',
-        'marker5_on': 'False',
-        'marker6_on': 'False',
+        'high_pass_filter_on': 'False', # Added from vars file
     },
     'MarkerTab': {
+        'showtime_mode': 'buffered',
         'span_hz': '1000000',
         'rbw_hz': '100000',
         'trace_live': 'True',
@@ -94,33 +75,15 @@ DEFAULT_CONFIG = {
         'poke_freq_mhz': '444.444444',
         'buffered_start_var': '0.0',
         'buffered_stop_var': '0.0',
-        'zone_selected': 'None',
-        'zone_zoom_button_selected_name': '',
-        'zone_zoom_label': '',
-        'zone_zoom_start': '',
-        'zone_zoom_stop': '',
-        'zone_device_count': '0',
-        'zone_group_count': '0',
-        'group_selected': 'None',
-        'group_zoom_button_selected': '',
-        'group_zoom_label': '',
-        'group_zoom_start': '',
-        'group_zoom_stop': '',
-        'group_device_count': '0',
-        'device_selected_name': '',
-        'device_selected_device_type': '',
-        'device_selected_center': '',
     },
     'Scan': {
-        'output_folder': "c:\documents",
-        'scan_name': 'DefaultScan',
-        'rbw_step_size_hz': '20000',
-        'num_scan_cycles': '1',
-        'cycle_wait_time_seconds': '0',
-        'maxhold_enabled': 'False',
-        'maxhold_time_seconds': '10',
-        'desired_default_focus_width': '5000000',
-        'create_html': 'True',
+        'output_folder': 'c:\\documents',
+        'output_filename': 'DefaultScan',
+        'start_freq_mhz': '0.0',
+        'stop_freq_mhz': '3000.0',
+        'step_freq_khz': '100.0',
+        'dwell_time_ms': '100.0',
+        'scan_band_selection': 'All',
         'open_html_after_complete': 'True',
         'include_markers': 'True',
         'include_gov_markers': 'True',
@@ -131,10 +94,7 @@ DEFAULT_CONFIG = {
         'math_variance': 'True',
         'math_standard_deviation': 'True',
         'math_range': 'True',
-        'math_psd': 'True',
-        'last_scan_configuration__selected_bands_levels': ','.join(
-            [f"{band['Band Name']}=1" for band in SCAN_BAND_RANGES]
-        ),
+        'math_percentile': 'True',
     },
     'Antenna': {
         'selected_antenna_type': 'Generic',
@@ -152,18 +112,18 @@ DEFAULT_CONFIG = {
         'operator_name': 'RF Technician',
         'operator_contact': 'tech@example.com',
         'venue_name': 'Default Venue',
-        'address_field': '123 Main St',
-        'city': 'Anytown',
-        'province': 'ON',
+        'venue_address': '123 Main St',
+        'venue_city': 'Anytown',
+        'venue_province': 'ON',
         'venue_postal_code': 'A1B 2C3',
         'notes': 'This is a default report generated by the OPEN-AIR software.',
-        'freq_shift': '0',
         'scanner_type': 'Generic RF Scanner',
     },
     'Plotting': {
         'current_style_theme': 'dark',
         'plot_grid_on': 'True',
-        'plot_grid_alpha': '0.5',
-        'plot_grid_color': 'gray',
+        'plot_legend_on': 'True',
+        'plot_title_on': 'True',
+        'plot_title_text': 'RF Scan',
     },
 }

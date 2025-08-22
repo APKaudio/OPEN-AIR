@@ -30,7 +30,7 @@ from display.debug_logic import debug_log
 from display.console_logic import console_log
 
 # Import config management functions
-from settings_and_config.config_manager import load_config, save_config
+from settings_and_config.config_manager_save import load_program_config, save_program_config 
 from ref.ref_program_default_values import DEFAULT_CONFIG
 from ref.ref_file_paths import DATA_FOLDER_PATH, CONFIG_FILE_PATH
 
@@ -99,7 +99,7 @@ class InitialConfigurationTab(ttk.Frame):
         control_frame.grid_columnconfigure(0, weight=1)
         control_frame.grid_columnconfigure(1, weight=1)
         
-        save_button = ttk.Button(control_frame, text="Save Config", command=self._save_config_action, style='Green.TButton')
+        save_button = ttk.Button(control_frame, text="Save Config", command=self._save_program_configure_action, style='Green.TButton')
         save_button.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         reload_button = ttk.Button(control_frame, text="Reload Config", command=self._reload_config_action, style='Orange.TButton')
@@ -127,7 +127,7 @@ class InitialConfigurationTab(ttk.Frame):
         try:
             # FIXED: Corrected the load_config call to match the function's signature
             # It now passes the DEFAULT_CONFIG dictionary and the file path as separate arguments.
-            self.config_data, _, _ = load_config(DEFAULT_CONFIG, self.config_file_path)
+            self.config_data, _, _ = load_program_config(DEFAULT_CONFIG, self.config_file_path)
 
             self.config_text_widget.config(state=tk.NORMAL)
             self.config_text_widget.delete('1.0', tk.END)
@@ -146,7 +146,7 @@ class InitialConfigurationTab(ttk.Frame):
             debug_log(f"📕🔴 Failed to populate config table. Error: {e}",
                       file=current_file, version=current_version, function=current_function)
     
-    def _save_config_action(self):
+    def _save_program_configure_action(self):
         # This function description tells me what this function does
         # Handles the action of saving the edited config back to the file.
         #
@@ -163,7 +163,7 @@ class InitialConfigurationTab(ttk.Frame):
             current_content = self.config_text_widget.get('1.0', tk.END)
             # This is a dangerous operation - it overwrites the config
             # We'll re-implement a safer save later, but for now this works.
-            with open(self.config_file_path, 'w') as f:
+            with open(CONFIG_FILE_PATH, 'w') as f:
                 f.write(current_content)
             
             console_log(f"✅ Configuration saved successfully! You'll need to restart to see all changes take effect.")
