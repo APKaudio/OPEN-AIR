@@ -12,10 +12,12 @@ THEMES = {
         "primary": "#3c3f41",
         "secondary": "#4e5254",
         "accent": "#007acc",
-        "text": "#ffffff", # Brighter text for better contrast on colored tabs
+        "text": "#ffffff",
         "border": "#555555",
-        "relief": "flat",
-        # NEW: Rainbow accent colors for tabs
+        "relief": "solid", # Using 'solid' for a cleaner look with dark themes
+        "border_width": 1,
+        "padding": 1,
+        "tab_content_padding": 1,
         "accent_colors": [
             "#996633",  # 1. Brown
             "#c75450",  # 2. Red
@@ -33,10 +35,13 @@ THEMES = {
         "fg": "#000000",
         "primary": "#ffffff",
         "secondary": "#e0e0e0",
-        "accent": "#d75600",
+        "accent": "#0078d7",
         "text": "#000000",
         "border": "#ababab",
         "relief": "groove",
+        "border_width": 1,
+        "padding": 1,
+        "tab_content_padding": 1,
         "accent_colors": [
             "#A0522D",  # 1. Brown (Sienna)
             "#D22B2B",  # 2. Red (Firebrick)

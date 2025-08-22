@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.011800.11
+# Version 20250822.010900.8
 
 import os
 import inspect
@@ -26,6 +26,7 @@ import sys
 import pathlib
 
 # --- Style Import ---
+# We need to add the parent directory to the path for this import to work
 if str(pathlib.Path(__file__).resolve().parent.parent) not in sys.path:
     sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))
 from styling.style import THEMES, DEFAULT_THEME
@@ -35,7 +36,7 @@ from styling.style import THEMES, DEFAULT_THEME
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
 CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
 CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 11 # Incremented revision
+REVISION_NUMBER = 8 # Incremented revision
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
@@ -69,8 +70,10 @@ class Application(tk.Tk):
             self.title("OPEN-AIR 2")
             self.geometry("1000x700")
 
-            self.theme_name = DEFAULT_THEME
-            self._apply_styles(theme_name=self.theme_name)
+            # --- NEW: Apply the selected theme ---
+            # Storing the theme colors as an instance variable for access by other methods
+            self.theme_colors = self._apply_styles(theme_name=DEFAULT_THEME)
+
             self._build_from_directory(path=pathlib.Path("display"), parent_widget=self)
             
             console_log("✅ Celebration of success!")
@@ -89,52 +92,53 @@ class Application(tk.Tk):
         """
         Applies the specified theme to the entire application using ttk.Style.
         """
-        colors = THEMES.get(theme_name, THEMES["dark"])
-        self.theme_colors = colors # Store colors for later use
+        colors = THEMES.get(theme_name, THEMES["dark"]) # Fallback to dark theme
         
         style = ttk.Style(self)
-        style.theme_use("clam")
+        style.theme_use("clam") # A good base theme for customization
 
+        # --- Configure widget styles ---
+        # UPDATED: Applying padding and border_width from the theme to general widgets
         style.configure('.',
                         background=colors["bg"],
                         foreground=colors["fg"],
-                        font=('Helvetica', 10))
+                        font=('Helvetica', 10),
+                        padding=colors["padding"],
+                        borderwidth=colors["border_width"])
 
         style.configure('TFrame',
-                        background=colors["bg"],
-                        bordercolor=colors["border"],
-                        borderwidth=2)
+                        background=colors["bg"])
 
         style.configure('TNotebook',
                         background=colors["primary"],
-                        bordercolor=colors["primary"],
                         borderwidth=0)
         
-        # --- UPDATED: Configure a single, uniform tab style ---
-        style.configure('TNotebook.Tab',
-                        padding=[10, 5],
-                        font=('Helvetica', 11, 'bold'),
-                        borderwidth=0)
         style.map('TNotebook.Tab',
                   background=[('selected', colors["accent"]), ('!selected', colors["secondary"])],
                   foreground=[('selected', colors["text"]), ('!selected', colors["fg"])])
 
-        # --- NEW: Create colored frame styles to use as tab backgrounds ---
-        accent_colors = colors.get("accent_colors", [])
-        for i, color in enumerate(accent_colors):
-            style.configure(f'TabFrame{i}.TFrame', background=color)
+        # UPDATED: Applying padding from the theme to notebook tabs
+        tab_padding = [colors["padding"] * 10, colors["padding"] * 5]
+        style.configure('TNotebook.Tab',
+                        padding=tab_padding,
+                        font=('Helvetica', 11, 'bold'),
+                        borderwidth=0)
 
+        # UPDATED: Applying padding and border_width from the theme to buttons
         style.configure('TButton',
                         background=colors["accent"],
                         foreground=colors["text"],
-                        padding=5,
+                        padding=colors["padding"] * 5, # Buttons need more padding
                         relief=colors["relief"],
-                        borderwidth=2)
+                        borderwidth=colors["border_width"] * 2) # Buttons need a more prominent border
         
         style.map('TButton',
                   background=[('active', colors["secondary"])])
 
+        # --- Configure the main window background ---
         self.configure(background=colors["bg"])
+        
+        return colors
 
 
     def _build_from_directory(self, path: pathlib.Path, parent_widget):
@@ -144,7 +148,7 @@ class Application(tk.Tk):
         current_function_name = inspect.currentframe().f_code.co_name
         
         try:
-            sub_dirs = [d for d in path.iterdir() if d.is_dir()]
+            sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
             layout_dirs = [d for d in sub_dirs if d.name.split('_')[0] in ['left', 'right', 'top', 'bottom']]
             
             if layout_dirs:
@@ -165,7 +169,9 @@ class Application(tk.Tk):
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
                             rel_width = percentage / 100.0
-                            new_frame = ttk.Frame(parent_widget, relief=self.theme_colors["relief"])
+                            # Use ttk.Frame for styling
+                            # UPDATED: Using borderwidth and relief from the theme
+                            new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             new_frame.place(relx=current_relx, rely=0, relwidth=rel_width, relheight=1.0)
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                             current_relx += rel_width
@@ -179,7 +185,9 @@ class Application(tk.Tk):
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
                             rel_height = percentage / 100.0
-                            new_frame = ttk.Frame(parent_widget, relief=self.theme_colors["relief"])
+                            # Use ttk.Frame for styling
+                            # UPDATED: Using borderwidth and relief from the theme
+                            new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             new_frame.place(relx=0, rely=current_rely, relwidth=1.0, relheight=rel_height)
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                             current_rely += rel_height
@@ -192,34 +200,15 @@ class Application(tk.Tk):
                 notebook = ttk.Notebook(parent_widget)
                 notebook.pack(fill=tk.BOTH, expand=True)
                 
-                def get_tab_sort_key(dir_path):
-                    parts = dir_path.name.split('_')
-                    numeric_part = next((p for p in parts if p.isdigit()), None)
-                    return int(numeric_part) if numeric_part else float('inf')
-
                 tab_dirs = [d for d in sub_dirs if d.name.startswith("tab_") or d.name.startswith("sub_tab_")]
-                sorted_tab_dirs = sorted(tab_dirs, key=get_tab_sort_key)
-                
-                for tab_dir in sorted_tab_dirs:
+                for tab_dir in tab_dirs:
+                    # Use ttk.Frame for styling
+                    tab_frame = ttk.Frame(notebook)
                     parts = tab_dir.name.split('_')
-                    
-                    tab_number_from_name = get_tab_sort_key(tab_dir)
-                    tab_index = tab_number_from_name - 1 if isinstance(tab_number_from_name, int) else -1
-                    
-                    # --- UPDATED: Apply colored style to the frame, not the tab ---
-                    frame_style = f'TabFrame{tab_index}.TFrame' if 0 <= tab_index < len(self.theme_colors["accent_colors"]) else 'TFrame'
-                    tab_frame = ttk.Frame(notebook, style=frame_style)
-                    
                     start_index = next((i for i, part in enumerate(parts) if part.isdigit()), -1)
                     display_name = " ".join(parts[start_index + 1:]).title() if start_index != -1 else tab_dir.name
-                    
                     notebook.add(tab_frame, text=display_name)
-
-                    # --- NEW: Add an inner frame for content, creating a colored border effect ---
-                    content_frame = ttk.Frame(tab_frame, style='TFrame')
-                    content_frame.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
-
-                    self._build_from_directory(path=tab_dir, parent_widget=content_frame)
+                    self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
                 return
 
             for sub_dir in sub_dirs:
