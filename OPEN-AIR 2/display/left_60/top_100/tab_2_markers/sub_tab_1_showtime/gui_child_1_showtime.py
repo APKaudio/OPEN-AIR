@@ -1,361 +1,190 @@
-# display/base_gui_component.py
+# tabs/Markers/showtime/zones_groups_devices/tab_markers_child_zone_groups_devices.py
 #
-# A base class for common GUI components, re-written to work with the centralized orchestrator.
-# This version corrects the styling of tables and entry widgets for a more cohesive look.
+# This file defines the ZoneGroupsDevicesFrame as a standalone ttk.Frame.
+# All GUI elements are directly connected to MQTT publishing, with all
+# complex logic for data handling and rendering removed.
 #
 # Author: Anthony Peter Kuzub
-# Blog: www.Like.audio (Contributor to this project)
 #
-# Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
-#
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
-#
-#
-# Version 20250823.001500.20
+# Version 20250824.180000.1
 
-import os
-import inspect
-import datetime
 import tkinter as tk
 from tkinter import ttk
+import os
 import pathlib
-import sys
 import json
-import paho.mqtt.client as mqtt
+import inspect
+import threading
+from datetime import datetime
+from collections import defaultdict
 
-# --- Module Imports ---
+# Import core utilities and style module
 from configuration.logging import debug_log, console_log
 from utils.mqtt_controller_util import MqttControllerUtility
-from display.styling.style import THEMES, DEFAULT_THEME
-
-# --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-CURRENT_TIME_HASH = 1500
-REVISION_NUMBER = 20
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
-# Dynamically get the file path relative to the project root
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+from styling.style import THEMES, DEFAULT_THEME
 
 
-class BaseGUIFrame(ttk.Frame):
+class ZoneGroupsDevicesFrame(ttk.Frame):
     """
-    A reusable base class for GUI frames with common button-driven logging and MQTT functionality.
-    This class is now designed as a self-contained "island" that manages its own MQTT state.
+    A standalone Tkinter Frame that provides a user interface for selecting
+    zones, groups, and devices, with all interactions connected to MQTT.
     """
-    def __init__(self, parent, mqtt_util, *args, **kwargs):
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        debug_log(
-            message="🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        try:
-            # --- Function logic goes here ---
-            super().__init__(parent, *args, **kwargs)
-            self.pack(fill=tk.BOTH, expand=True)
+    def __init__(self, parent_frame, mqtt_util, **kwargs):
+        super().__init__(parent_frame, **kwargs)
+        self.pack(fill=tk.BOTH, expand=True)
 
-            # Fix for the bug: Assign global variables as instance attributes
-            self.current_file = current_file
-            self.current_version = current_version
-            self.current_version_hash = current_version_hash
+        self.mqtt_util = mqtt_util
+        self.current_topic_prefix = self._get_topic_prefix()
 
-            # We now accept a shared MQTT utility instance from the orchestrator.
-            self.mqtt_util = mqtt_util
+        self.structured_data = {
+            'Zone A': {
+                'Group 1': [{'NAME': 'Device 1', 'DEVICE': 'Type A', 'CENTER': '100.0', 'PEAK': -50.0}, {'NAME': 'Device 2', 'DEVICE': 'Type A', 'CENTER': '101.0', 'PEAK': -60.0}],
+                'Group 2': [{'NAME': 'Device 3', 'DEVICE': 'Type B', 'CENTER': '150.0', 'PEAK': -45.0}]
+            },
+            'Zone B': {
+                'Group 3': [{'NAME': 'Device 4', 'DEVICE': 'Type C', 'CENTER': '200.0', 'PEAK': -70.0}]
+            }
+        }
+        self.active_zone_button = None
+        self.active_group_button = None
 
-            # We apply the style at the top of the __init__ to affect all child widgets.
-            self._apply_styles(theme_name=DEFAULT_THEME)
+        self._apply_styles(theme_name=DEFAULT_THEME)
+        self._create_widgets()
 
-            # Create a label for the frame
-            frame_label = ttk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
-            frame_label.pack(pady=10)
-            
-            # --- New MQTT Section ---
-            mqtt_frame = ttk.LabelFrame(self, text="MQTT Controls")
-            mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
-
-            # Button 3: Publish Version
-            self.publish_version_button = ttk.Button(
-                mqtt_frame,
-                text="Publish Version",
-                command=self._publish_version_message
-            )
-            self.publish_version_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Custom MQTT Publish
-            self.custom_topic_entry = ttk.Entry(mqtt_frame, style="Custom.TEntry")
-            self.custom_topic_entry.insert(0, f"Custom Message")
-            self.custom_topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-            
-            self.publish_custom_button = ttk.Button(
-                mqtt_frame,
-                text="Publish Custom",
-                command=self._publish_custom_message
-            )
-            self.publish_custom_button.pack(side=tk.LEFT, padx=5, pady=5)
-            
-            # Subscription label
-            self.mqtt_topic_var = tk.StringVar(value="Waiting for MQTT message...")
-            self.subscription_label = ttk.Label(mqtt_frame, textvariable=self.mqtt_topic_var)
-            self.subscription_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # We now register our callback with the central utility instead of overwriting the client's callback.
-            parent_folder = str(pathlib.Path(self.current_file).parent)
-            subscription_topic = f"{parent_folder.replace('\\', '/')}/#"
-            self.mqtt_util.add_subscriber(topic_filter=subscription_topic, callback_func=self._on_mqtt_message)
-
-
-            # --- New MQTT Message Log Table ---
-            self.subscriptions_table_frame = ttk.Frame(self)
-            self.subscriptions_table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
-            self.subscriptions_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Topic", "Message Content"), show="headings", style="Custom.Treeview")
-            self.subscriptions_table.heading("Topic", text="Topic")
-            self.subscriptions_table.heading("Message Content", text="Message Content")
-            self.subscriptions_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-            table_scrollbar = ttk.Scrollbar(self.subscriptions_table_frame, orient=tk.VERTICAL, command=self.subscriptions_table.yview)
-            self.subscriptions_table.configure(yscrollcommand=table_scrollbar.set)
-            table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-            
-            # New frame for log buttons, placed at the bottom below the table.
-            log_button_frame = ttk.Frame(self)
-            log_button_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
-
-            # Button 1: Log
-            self.log_button = ttk.Button(
-                log_button_frame, 
-                text="Log", 
-                command=self.log_button_press
-            )
-            self.log_button.pack(side=tk.LEFT, padx=10, pady=10)
-            
-            # Button 2: Debug
-            self.debug_button = ttk.Button(
-                log_button_frame, 
-                text="Debug", 
-                command=self.debug_button_press
-            )
-            self.debug_button.pack(side=tk.LEFT, padx=10, pady=10)
-            
-            # --- New Status Bar at the bottom ---
-            status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
-            status_bar.pack(side=tk.BOTTOM, fill=tk.X, expand=False)
-            
-            # Extract folder and file name from the dynamic path
-            file_parts = self.current_file.rsplit('/', 1)
-            file_folder = file_parts[0] if len(file_parts) > 1 else ""
-            file_name = file_parts[-1]
-
-            status_text = f"Version: {self.current_version} | Folder: {file_folder} | File: {file_name}"
-            status_label = ttk.Label(status_bar, text=status_text, anchor='w')
-            status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-            console_log("✅ Celebration of success!")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+    def _get_topic_prefix(self):
+        """Constructs the MQTT topic prefix based on the file path."""
+        relative_path = pathlib.Path(__file__).resolve().relative_to(pathlib.Path(__file__).resolve().parent.parent.parent.parent)
+        topic = str(relative_path).replace(os.sep, '/')
+        return os.path.splitext(topic)[0]
 
     def _apply_styles(self, theme_name: str):
-        """
-        Applies the specified theme to the GUI elements using ttk.Style.
-        """
-        colors = THEMES.get(theme_name, THEMES["dark"])
+        """Applies a theme based on the central style definition."""
+        colors = THEMES.get(theme_name)
         style = ttk.Style(self)
         style.theme_use("clam")
-        
-        # General widget styling
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+        style.configure('TButton', background=colors["accent"], foreground=colors["text"])
+        style.map('Orange.TButton', background=[('!active', 'orange'), ('active', 'orange')])
+        style.map('Blue.TButton', background=[('!active', colors['accent']), ('active', colors['secondary'])])
+        style.map('TButton', background=[('active', colors['secondary'])])
+        style.map('Red.TButton', background=[('!active', 'red'), ('active', 'darkred')])
+        style.map('Green.TButton', background=[('!active', 'green'), ('active', 'darkgreen')])
+        style.configure('Dark.TLabelframe', background=colors["bg"], foreground=colors["fg"])
+        style.configure('Dark.TLabel.Value', background=colors["bg"], foreground=colors["fg"])
 
-        # Table (Treeview) styling
-        style.configure('Custom.Treeview',
-                        background=colors["table_bg"],
-                        foreground=colors["table_fg"],
-                        fieldbackground=colors["table_bg"],
-                        bordercolor=colors["table_border"],
-                        borderwidth=colors["border_width"])
-
-        style.configure('Custom.Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
-
-        # Entry (textbox) styling
-        style.configure('Custom.TEntry',
-                        fieldbackground=colors["entry_bg"],
-                        foreground=colors["entry_fg"],
-                        bordercolor=colors["table_border"])
+    def _create_widgets(self):
+        """Creates the main layout with zones, groups, and the scrollable device frame."""
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(2, weight=1)
         
-    def log_button_press(self):
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
+        self.zones_frame = ttk.LabelFrame(self, text="Zones")
+        self.zones_frame.grid(row=0, column=0, sticky="ew", padx=10, pady=5)
+        self._make_zone_buttons()
         
-        # Entry log
-        debug_log(
-            message="🖥️🟢 Entering 'log_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-        try:
-            # --- Function logic goes here ---
-            console_log(f"Left button was clicked in {self.current_file}. Initiating a standard log entry.")
-            console_log("✅ Log entry recorded successfully!")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def debug_button_press(self):
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
+        self.groups_frame = ttk.LabelFrame(self, text="Groups")
+        self.groups_frame.grid(row=1, column=0, sticky="ew", padx=10, pady=5)
+        self._make_group_buttons('Zone A')
         
-        # Entry log
-        debug_log(
-            message="🖥️🟢 Entering 'debug_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        self.devices_outer_frame = ttk.LabelFrame(self, text="Devices")
+        self.devices_outer_frame.grid(row=2, column=0, sticky="nsew", padx=10, pady=5)
+        self.devices_outer_frame.grid_rowconfigure(0, weight=1)
+        self.devices_outer_frame.grid_columnconfigure(0, weight=1)
+        
+        self.canvas = tk.Canvas(self.devices_outer_frame, borderwidth=0, highlightthickness=0)
+        scrollbar = ttk.Scrollbar(self.devices_outer_frame, orient="vertical", command=self.canvas.yview)
+        self.devices_scrollable_frame = ttk.Frame(self.canvas)
+        self.devices_scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+        
+        self.canvas.create_window((0, 0), window=self.devices_scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        
+        self.canvas.grid(row=0, column=0, sticky="nsew")
+        scrollbar.grid(row=0, column=1, sticky="ns")
 
-        try:
-            # --- Function logic goes here ---
-            debug_log(
-                message="🔍🔵 The right button was clicked! Time for a deeper inspection!",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+        self._make_device_buttons('Zone A', 'Group 1')
+
+    def _make_zone_buttons(self):
+        """Creates the zone selection buttons in a grid."""
+        for widget in self.zones_frame.winfo_children():
+            widget.destroy()
+
+        max_columns = 6
+        for i, zone_name in enumerate(self.structured_data.keys()):
+            row, col = divmod(i, max_columns)
+            btn = ttk.Button(self.zones_frame, text=zone_name,
+                             command=lambda z=zone_name: self._publish_value("zone_selected", z))
+            btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
+            self.zones_frame.columnconfigure(col, weight=1)
+
+    def _make_group_buttons(self, zone_name):
+        """Creates group buttons, dynamically showing/hiding the frame."""
+        for widget in self.groups_frame.winfo_children():
+            widget.destroy()
+
+        groups = self.structured_data.get(zone_name, {})
+        max_columns = 6
+        for i, group_name in enumerate(groups.keys()):
+            row, col = divmod(i, max_columns)
+            btn = ttk.Button(self.groups_frame, text=group_name,
+                             command=lambda g=group_name: self._publish_value("group_selected", g))
+            btn.grid(row=row, column=col, padx=2, pady=2, sticky="ew")
+            self.groups_frame.columnconfigure(col, weight=1)
+
+    def _make_device_buttons(self, zone_name, group_name):
+        """Creates the detailed, multi-line device buttons in the scrollable frame."""
+        for widget in self.devices_scrollable_frame.winfo_children():
+            widget.destroy()
+        
+        devices_to_display = self.structured_data.get(zone_name, {}).get(group_name, [])
+        self.devices_outer_frame.config(text=f"Devices ({len(devices_to_display)})")
+
+        max_cols = 4
+        for col in range(max_cols):
+            self.devices_scrollable_frame.grid_columnconfigure(col, weight=1)
+            
+        for i, device in enumerate(devices_to_display):
+            name = device.get('NAME', 'N/A')
+            device_type = device.get('DEVICE', 'N/A')
+            center = device.get('CENTER', 'N/A')
+            peak = device.get('PEAK', -120.0)
+            
+            btn_text = f"{name}\n{device_type}\n{center} MHz\n{peak} dBm"
+            
+            btn = ttk.Button(self.devices_scrollable_frame, text=btn_text,
+                             command=lambda d=device: self._publish_value("device_selected", d.get('NAME', 'N/A')))
+            
+            row, col = divmod(i, max_cols)
+            btn.grid(row=row, column=col, padx=5, pady=2, sticky="ew")
+
+    def _publish_value(self, element_name, value):
+        """Publishes a value to a topic based on the file path and element name."""
+        if self.mqtt_util:
+            self.mqtt_util.publish_message(
+                topic=self.current_topic_prefix,
+                subtopic=element_name,
+                value=value
             )
-            console_log(f"✅ Debug entry recorded successfully in {self.current_file}!")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _publish_version_message(self):
-        # Publishes the file's version to MQTT.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Entering '{current_function_name}' to publish the version.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            # The topic is now the file path itself, and the subtopic is "version"
-            topic = self.current_file
-            message = self.current_version
-            self.mqtt_util.publish_message(topic=topic, subtopic="version", value=message)
-            console_log("✅ Version message published successfully!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _on_mqtt_message(self, topic, payload):
-        # Callback for when an MQTT message is received.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            message_content = json.loads(payload)["value"]
-            self.subscriptions_table.insert('', 'end', values=(topic, message_content))
-            self.subscriptions_table.yview_moveto(1) # Scroll to the bottom
-            self.mqtt_topic_var.set(f"Last Message: {topic} -> {message_content}")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _publish_custom_message(self):
-        # Publishes a custom message from the wildcard text box.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Entering '{current_function_name}' to publish a custom message.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            # The topic is the file path, and the subtopic is "textbox"
-            topic = self.current_file
-            subtopic = "textbox"
-            message = self.custom_topic_entry.get()
-            self.mqtt_util.publish_message(topic=topic, subtopic=subtopic, value=message)
-            console_log(f"✅ Custom message published successfully to '{topic}/{subtopic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
 
 if __name__ == "__main__":
+    # Example for standalone testing
     root = tk.Tk()
-    root.title("Base Component Test")
-    
-    # We now must manually create and pass the MQTT utility instance for the standalone test.
-    mqtt_utility = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
-    mqtt_utility.connect_mqtt()
+    root.title("Standalone GUI Demo")
+    root.geometry("800x600")
 
-    app_frame = BaseGUIFrame(parent=root, mqtt_util=mqtt_utility)
+    class MockMqttUtil:
+        def __init__(self):
+            self.subscribers = defaultdict(list)
+            self._message_id = 0
+            self.lock = threading.Lock()
+
+        def add_subscriber(self, topic_filter, callback_func):
+            pass
+
+        def publish_message(self, topic, subtopic, value):
+            full_topic = f"{topic}/{subtopic}" if subtopic else topic
+            print(f"MOCK MQTT PUBLISH: Topic='{full_topic}', Value='{value}'")
     
+    mqtt_utility = MockMqttUtil()
+    app_frame = ZoneGroupsDevicesFrame(parent_frame=root, mqtt_util=mqtt_utility)
     root.mainloop()

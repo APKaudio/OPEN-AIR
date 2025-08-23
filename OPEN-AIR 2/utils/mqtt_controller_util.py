@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.231500.2
+# Version 20250823.123548.2
 
 import os
 import inspect
@@ -31,9 +31,8 @@ import sys
 from configuration.logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20250822.231500.2"
-# The hash calculation drops the leading zero from the hour, but 21 has no leading zero.
-current_version_hash = (20250822 * 231500 * 2)
+current_version = "20250823.123548.2"
+current_version_hash = (20250823 * 123548 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
@@ -68,7 +67,7 @@ class MqttControllerUtility:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=print_to_gui_func
         )
-    
+        
         try:
             # --- Function logic goes here ---
             self.mosquitto_process = None
@@ -91,6 +90,15 @@ class MqttControllerUtility:
             
     def add_subscriber(self, topic_filter: str, callback_func):
         """Adds a callback function to be triggered for a specific topic filter."""
+        # A brief, one-sentence description of the function's purpose.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🟢 New subscriber added for topic filter: '{topic_filter}'.",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=self._print_to_gui_console
+        )
         self._subscribers[topic_filter] = callback_func
         # This is the single place we subscribe to a topic.
         self.mqtt_client.subscribe(topic_filter)
@@ -98,7 +106,7 @@ class MqttControllerUtility:
             message=f"🛠️🟢 New subscriber added for topic filter: '{topic_filter}'.",
             file=current_file,
             version=current_version,
-            function="add_subscriber",
+            function=f"{self.__class__.__name__}.add_subscriber",
             console_print_func=self._print_to_gui_console
         )
 
@@ -215,7 +223,8 @@ class MqttControllerUtility:
         self.topics_seen.add(topic)
         
         # Now we dispatch the message to all registered subscribers.
-        for topic_filter, callback_func in self._subscribers.items():
+        # FIX: Iterate over a copy of the dictionary to prevent RuntimeError.
+        for topic_filter, callback_func in list(self._subscribers.items()):
             # The paho-mqtt library provides a topic_matches_sub function to check for wildcards.
             if mqtt.topic_matches_sub(topic_filter, topic):
                 debug_log(
@@ -299,16 +308,19 @@ class MqttControllerUtility:
             console_print_func=self._print_to_gui_console
         )
         try:
-            if not topic or not subtopic:
+            # FIX: We now check only for a valid topic and value.
+            if not topic or not value:
                 self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}")
                 return
 
-            full_topic = f"{topic}/{subtopic}"
+            # FIX: We construct the full topic based on whether a subtopic is provided.
+            full_topic = f"{topic}/{subtopic}" if subtopic else topic
             payload = json.dumps({"value": value})
 
             if self.mqtt_client:
                 self.mqtt_client.publish(full_topic, payload)
                 self._print_to_gui_console(f"Published to {full_topic}: {payload}")
+                # The console log is moved here to prevent the false success message.
                 console_log(f"✅ Published message to topic '{full_topic}'.")
             else:
                 self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
