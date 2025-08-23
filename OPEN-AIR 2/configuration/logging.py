@@ -1,4 +1,4 @@
-# configuration/logging/logging.py
+# configuration/logging.py
 #
 # A simple utility file to provide standardized debugging functions for the application.
 #
@@ -57,7 +57,7 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     current_function_name = inspect.currentframe().f_code.co_name
     
     try:
-        log_message = f"MAD SCIENTIST LOG: {message} (File: {file}, v{version}, Func: {function})"
+        log_message = f"💡📝{message} 📄{file}🏷️{version}🌀{function})"
 
         # --- Function logic goes here ---
         if LOG_TO_TERMINAL:
