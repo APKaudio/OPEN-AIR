@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250821.235900.1
+# Version 20250822.222400.1
 
 import os
 import inspect
@@ -22,9 +22,23 @@ import sys
 import pathlib
 
 # Add the project's root directory to the system path to allow for imports from
-# all sub-folders (e.g., 'configuration' and 'display').
-if str(pathlib.Path(__file__).resolve().parent) not in sys.path:
-    sys.path.append(str(pathlib.Path(__file__).resolve().parent))
+# all sub-folders (e.g., 'configuration' and 'display'). This is a robust way to handle imports.
+try:
+    project_root = str(pathlib.Path(__file__).resolve().parent)
+    if project_root not in sys.path:
+        sys.path.append(project_root)
+except Exception as e:
+    # Fallback in case of an issue with pathlib
+    print(f"Error adding project root to sys.path: {e}")
+
+# This block ensures the console can handle UTF-8 characters, preventing encoding errors.
+if os.name == 'nt':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stderr.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Fallback for older Python versions that don't have reconfigure
+        pass
 
 # Import core application modules
 from configuration.logging import console_log, debug_log
@@ -142,4 +156,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

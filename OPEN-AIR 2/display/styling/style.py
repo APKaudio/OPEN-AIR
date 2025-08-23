@@ -42,7 +42,7 @@ THEMES = {
         # "bg" (background): The main, default background color for the application.
         "bg": "#2b2b2b",
         # "fg" (foreground): The main, default text color for most elements.
-        "fg": "#dcdcdc",
+        "fg": "#686868",
         # "primary": The background color for major containers and frames.
         "primary": "#3c3f41",
         # "secondary": A slightly lighter background color for nested containers or inactive tabs.

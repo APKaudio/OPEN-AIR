@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.212000.1
+# Version 20250822.230500.2
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 # os: Provides a way to interact with the operating system, like getting file names.
@@ -37,15 +37,10 @@ import sys
 import pathlib
 
 # --- Module Imports ---
-# 🏡 We need to add the parent directory to the path so our code can find the 'styling'
-# and 'configuration' modules, as they are siblings to the 'display' directory.
-if str(pathlib.Path(__file__).resolve().parent.parent) not in sys.path:
-    # Appending the absolute path of the directory that contains this script's folder.
-    sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent))
-
-# Now that the path is set, we can confidently import our theme and logging data!
-from styling.style import THEMES, DEFAULT_THEME
+# We no longer need to add the parent directory to the path as this is handled in main.py
+from display.styling.style import THEMES, DEFAULT_THEME
 from configuration.logging import debug_log, console_log
+from utils.mqtt_controller_util import MqttControllerUtility
 
 
 # --- Global Scope Variables ---
@@ -54,13 +49,13 @@ from configuration.logging import debug_log, console_log
 # This represents the date (YYYYMMDD) of file creation.
 CURRENT_DATE = 20250822
 # This represents the time (HHMMSS) of file creation.
-CURRENT_TIME = 212000
+CURRENT_TIME = 230500
 # This is a numeric hash of the time, useful for unique IDs.
-CURRENT_TIME_HASH = 212000
+CURRENT_TIME_HASH = 230500
 # Our project's current revision number, which is manually incremented.
-REVISION_NUMBER = 1
+REVISION_NUMBER = 2
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250822.212000.1"
+current_version = "20250822.230500.2"
 # Creating a unique integer hash for the current version for internal tracking.
 current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs, ensuring it's always accurate.
@@ -88,7 +83,7 @@ class Application(tk.Tk):
         
         # 🚀 A celebratory log message to mark the start of our journey!
         debug_log(
-            message="🖥️🟢 The grand orchestrator is waking up! Let's get this GUI built!",
+            message="🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -115,12 +110,16 @@ class Application(tk.Tk):
             # We call a helper method to apply our chosen theme and store the color palette.
             self.theme_colors = self._apply_styles(theme_name=DEFAULT_THEME)
 
+            # --- NEW: Initialize a single MQTT utility instance here (Orchestration Layer) ---
+            self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
+            self.mqtt_util.connect_mqtt()
+
             # 🏗️ Let the dynamic building begin! We call our recursive builder function,
             # starting from the directory where this script resides.
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
             # 🎉 A final cheer for a job well done!
-            console_log("✅ Celebration of success!")
+            console_log("✅ Celebration of success! The application's core has been built.")
 
         except Exception as e:
             # 🆘 Oh no, an error! We catch it here to prevent the app from crashing.
@@ -393,7 +392,8 @@ class Application(tk.Tk):
                     # This is much more flexible than hardcoding a specific class name like "GUIFrame"!
                     if issubclass(obj, ttk.Frame):
                         # If we find a matching class, we instantiate it with the `parent_widget`.
-                        frame_instance = obj(parent_widget)
+                        # We pass the shared mqtt_util instance here!
+                        frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util)
                         # We pack the new frame to make it visible and fill its parent.
                         frame_instance.pack(fill=tk.BOTH, expand=True)
                         # We've found our class and built the frame, so we can break the loop and return.
@@ -406,7 +406,6 @@ class Application(tk.Tk):
                     if name == "create_yo_button_frame":
                         obj(parent_widget)
                         return # We've found and run the function, so we're done here.
-
             # 🚨 If we get here, it means we couldn't find a valid class or function in the imported module.
             raise AttributeError(f"Module '{module_name}' needs a class that inherits from 'ttk.Frame' or a 'create_yo_button_frame' function.")
 
@@ -440,7 +439,6 @@ class Application(tk.Tk):
             tab_id = notebook.identify(event.x, event.y)
             if not tab_id:
                 return # No tab was clicked, so we do nothing.
-            
             # 🎯 FIX: We need to use the `id` of the widget, not its text label.
             # This is the unique internal identifier for the tab's content frame.
             frame_id = notebook.tab(tab_id, "id")
@@ -471,7 +469,7 @@ class Application(tk.Tk):
             # We bind the new window's close button to our re-attachment function.
             new_window.protocol("WM_DELETE_WINDOW", lambda: self._re_attach_tab(frame_id))
 
-            console_log(f"✅ Celebration of success! Tab '{tab_title}' has been detached.")
+            console_log(f"✅ Celebration of success! Tab '{tab_title}' has been detached and is now a new window.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -498,7 +496,6 @@ class Application(tk.Tk):
         try:
             if frame not in self._detached_windows:
                 return # Frame is not detached, so we do nothing.
-            
             # We retrieve the notebook and title from our state dictionary.
             state = self._detached_windows[frame]
             notebook = state["notebook"]

@@ -13,20 +13,18 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.234100.2
+# Version 20250822.215200.1
 
 import os
 import inspect
 import datetime
 
 # --- Global Scope Variables ---
-CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
-CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
-# Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
-CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 2
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
+# ⏰ As requested, the version is now hardcoded to the time this file was generated.
+# The version strings and numbers below are static and will not change at runtime.
+current_version = "20250822.215200.1"
+# The hash calculation drops the leading zero from the hour, but 21 has no leading zero.
+current_version_hash = (20250822 * 215200 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Logging Toggles ---
@@ -57,18 +55,18 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     current_function_name = inspect.currentframe().f_code.co_name
     
     try:
-        log_message = f"💡📝{message} 📄{file}🏷️{version}🌀{function})"
+        # Re-formatting the message to better match the 'mad scientist' persona
+        log_message = f"💡📝{message} | {file} | {version} Function: {function}"
 
         # --- Function logic goes here ---
         if LOG_TO_TERMINAL:
             console_print_func(log_message)
 
         if LOG_TO_FILE:
-            with open(FILE_LOG_PATH, "a") as log_file:
+            # We explicitly open the log file with UTF-8 encoding to support emojis
+            with open(FILE_LOG_PATH, "a", encoding="utf-8") as log_file:
                 log_file.write(log_message + "\n")
 
     except Exception as e:
         if LOG_TO_TERMINAL:
             console_print_func(f"❌ Error in {current_function_name}: {e}")
-            console_print_func(f"Arrr, the code be capsized! The error be: {e}")
-

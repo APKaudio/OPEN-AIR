@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.235500.15
+# Version 20250822.235900.16
 
 import os
 import inspect
@@ -29,12 +29,13 @@ import paho.mqtt.client as mqtt
 # --- Module Imports ---
 from configuration.logging import debug_log, console_log
 from utils.mqtt_controller_util import MqttControllerUtility
+from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250822
-CURRENT_TIME = 235500
-CURRENT_TIME_HASH = 235500
-REVISION_NUMBER = 15
+CURRENT_TIME = 235900
+CURRENT_TIME_HASH = 235900
+REVISION_NUMBER = 16
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -73,12 +74,19 @@ class BaseGUIFrame(ttk.Frame):
             # We now accept a shared MQTT utility instance from the orchestrator.
             self.mqtt_util = mqtt_util
 
+            # Apply the theme from our style module
+            self.theme_colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
+            style = ttk.Style(self)
+            style.theme_use("clam")
+            style.configure('TFrame', background=self.theme_colors["bg"])
+            style.configure('TLabel', background=self.theme_colors["bg"], foreground=self.theme_colors["fg"])
+
             # Create a label for the frame
-            frame_label = tk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
+            frame_label = ttk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
             frame_label.pack(pady=10)
             
             # Button 1: Log
-            self.log_button = tk.Button(
+            self.log_button = ttk.Button(
                 self, 
                 text="Log", 
                 command=self.log_button_press
@@ -86,7 +94,7 @@ class BaseGUIFrame(ttk.Frame):
             self.log_button.pack(side=tk.LEFT, padx=10, pady=10)
             
             # Button 2: Debug
-            self.debug_button = tk.Button(
+            self.debug_button = ttk.Button(
                 self, 
                 text="Debug", 
                 command=self.debug_button_press
@@ -98,7 +106,7 @@ class BaseGUIFrame(ttk.Frame):
             mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
 
             # Button 3: Publish Version
-            self.publish_version_button = tk.Button(
+            self.publish_version_button = ttk.Button(
                 mqtt_frame,
                 text="Publish Version",
                 command=self._publish_version_message
@@ -110,7 +118,7 @@ class BaseGUIFrame(ttk.Frame):
             self.custom_topic_entry.insert(0, f"Custom Message")
             self.custom_topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
             
-            self.publish_custom_button = tk.Button(
+            self.publish_custom_button = ttk.Button(
                 mqtt_frame,
                 text="Publish Custom",
                 command=self._publish_custom_message
@@ -123,7 +131,6 @@ class BaseGUIFrame(ttk.Frame):
             self.subscription_label.pack(side=tk.LEFT, padx=5, pady=5)
 
             # We now register our callback with the central utility instead of overwriting the client's callback.
-            # We will subscribe to all topics within the immediate parent directory.
             parent_folder = str(pathlib.Path(self.current_file).parent)
             subscription_topic = f"{parent_folder.replace('\\', '/')}/#"
             self.mqtt_util.add_subscriber(topic_filter=subscription_topic, callback_func=self._on_mqtt_message)
