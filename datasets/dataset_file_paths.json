@@ -1,0 +1,14 @@
+{
+  "CONFIG_PATH_MAIN": "config/program_config.ini",
+  "CONFIG_PATH_INSTRUMENT": "config/instrument_config.ini",
+  "CONFIG_PATH_MARKER": "config/marker_config.ini",
+  "CONFIG_PATH_LOG_FILES": "logs/",
+  "DATA_PATH_MAIN": "DATA/",
+  "DATA_PATH_SCANS": "DATA/Scans/",
+  "DATA_PATH_PLOTS": "DATA/Plots/",
+  "DATA_PATH_PRESETS": "DATA/Presets/",
+  "DATA_PATH_PRESETS_CSV": "DATA/Presets/presets.csv",
+  "DATA_PATH_MARKERS": "DATA/Markers/",
+  "DATA_PATH_IMD_LOG": "DATA/Imd/",
+  "DATA_PATH_VISA_COMMANDS": "DATA/Visa_Commands/"
+}

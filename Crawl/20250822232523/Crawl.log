@@ -1,0 +1,524 @@
+--- Crawl Log Started: 2025-08-22 23:25:23 ---
+
+--- Crawl Log Started: 2025-08-22 23:25:23 ---
+
+Crawling directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2
+
+Crawling directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2
+
+  ├── DATA
+  ├── DATA
+  ├── configuration
+  ├── configuration
+  ├── device_interfacing
+  ├── device_interfacing
+  ├── display
+  ├── display
+  ├── utils
+  ├── utils
+  ├── debug.log (Lines: 3366)
+  ├── debug.log
+  └── main.py (Lines: 158)
+  └── main.py
+    [PY] Analysis for main.py:
+    [PY] Analysis for main.py:
+      Imports: configuration.logging, datetime, display.gui_display, inspect, os, pathlib, sys
+      Imports: configuration.logging, datetime, display.gui_display, inspect, os, pathlib, sys
+      Functions: action_check_configuration(), action_check_dependancies(), action_open_display(), main()
+      Functions: action_check_configuration(), action_check_dependancies(), action_open_display(), main()
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\configuration\__pycache__
+
+└── configuration\
+
+└── configuration\
+      └── logging.py (Lines: 72)
+      └── logging.py
+    [PY] Analysis for logging.py:
+    [PY] Analysis for logging.py:
+      Imports: datetime, inspect, os
+      Imports: datetime, inspect, os
+      Functions: console_log(message), debug_log(message, file, version, function, console_print_func)
+      Functions: console_log(message), debug_log(message, file, version, function, console_print_func)
+
+└── DATA\
+
+└── DATA\
+
+└── device_interfacing\
+
+└── device_interfacing\
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\__pycache__
+
+└── display\
+
+└── display\
+      ├── left_60
+      ├── left_60
+      ├── right_40
+      ├── right_40
+      ├── styling
+      ├── styling
+      ├── debug.log (Lines: 0)
+      ├── debug.log
+      └── gui_display.py (Lines: 588)
+      └── gui_display.py
+    [PY] Analysis for gui_display.py:
+    [PY] Analysis for gui_display.py:
+      Imports: configuration.logging, datetime, display.styling.style, importlib.util, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, display.styling.style, importlib.util, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: Application
+      Classes: Application
+      Functions: __init__(self), _apply_styles(self, theme_name), _build_child_container(self, path, parent_widget), _build_from_directory(self, path, parent_widget), _on_tab_change(self, event), _re_attach_tab(self, frame), _tear_off_tab(self, event)
+      Functions: __init__(self), _apply_styles(self, theme_name), _build_child_container(self, path, parent_widget), _build_from_directory(self, path, parent_widget), _on_tab_change(self, event), _re_attach_tab(self, frame), _tear_off_tab(self, event)
+
+└── display\left_60\
+
+└── display\left_60\
+          └── top_100
+          └── top_100
+
+└── display\left_60\top_100\
+
+└── display\left_60\top_100\
+              ├── tab_1_instrument
+              ├── tab_1_instrument
+              ├── tab_2_markers
+              ├── tab_2_markers
+              ├── tab_3_presets
+              ├── tab_3_presets
+              ├── tab_4_intermod
+              ├── tab_4_intermod
+              ├── tab_5_sweeping
+              ├── tab_5_sweeping
+              ├── tab_6_graphing
+              ├── tab_6_graphing
+              └── tab_7_exepriment
+              └── tab_7_exepriment
+
+└── display\left_60\top_100\tab_1_instrument\
+
+└── display\left_60\top_100\tab_1_instrument\
+                  ├── sub_tab_1_connection
+                  ├── sub_tab_1_connection
+                  ├── sub_tab_2_settings
+                  ├── sub_tab_2_settings
+                  └── sub_tab_3_translator
+                  └── sub_tab_3_translator
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\
+                      └── gui_connection.py (Lines: 325)
+                      └── gui_connection.py
+    [PY] Analysis for gui_connection.py:
+    [PY] Analysis for gui_connection.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\
+                      └── gui_settings.py (Lines: 325)
+                      └── gui_settings.py
+    [PY] Analysis for gui_settings.py:
+    [PY] Analysis for gui_settings.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\
+                      └── gui_translator.py (Lines: 325)
+                      └── gui_translator.py
+    [PY] Analysis for gui_translator.py:
+    [PY] Analysis for gui_translator.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_2_markers\
+
+└── display\left_60\top_100\tab_2_markers\
+                  ├── sub_tab_1_showtime
+                  ├── sub_tab_1_showtime
+                  └── sub_tab_2_editor
+                  └── sub_tab_2_editor
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\__pycache__
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\
+                      └── gui_child_1_showtime.py (Lines: 321)
+                      └── gui_child_1_showtime.py
+    [PY] Analysis for gui_child_1_showtime.py:
+    [PY] Analysis for gui_child_1_showtime.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_2_markers\sub_tab_2_editor\__pycache__
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_2_editor\
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_2_editor\
+                      └── gui_child_2_editor.py (Lines: 321)
+                      └── gui_child_2_editor.py
+    [PY] Analysis for gui_child_2_editor.py:
+    [PY] Analysis for gui_child_2_editor.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_3_presets\
+
+└── display\left_60\top_100\tab_3_presets\
+                  ├── sub_tab_1_pusher
+                  ├── sub_tab_1_pusher
+                  ├── sub_tab_2_editor
+                  ├── sub_tab_2_editor
+                  └── sub_tab_3_collector
+                  └── sub_tab_3_collector
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\
+                      └── gui_child_1_pusher.py (Lines: 321)
+                      └── gui_child_1_pusher.py
+    [PY] Analysis for gui_child_1_pusher.py:
+    [PY] Analysis for gui_child_1_pusher.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_2_editor\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_2_editor\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_2_editor\
+                      └── gui_child_2_editor.py (Lines: 321)
+                      └── gui_child_2_editor.py
+    [PY] Analysis for gui_child_2_editor.py:
+    [PY] Analysis for gui_child_2_editor.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_3_collector\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_3_collector\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_3_collector\
+                      └── gui_child_3_collector.py (Lines: 321)
+                      └── gui_child_3_collector.py
+    [PY] Analysis for gui_child_3_collector.py:
+    [PY] Analysis for gui_child_3_collector.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, topic, payload), _on_mqtt_message_direct(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_4_intermod\
+
+└── display\left_60\top_100\tab_4_intermod\
+                  ├── sub_tab_1_calculator
+                  ├── sub_tab_1_calculator
+                  └── sub_tab_2_future
+                  └── sub_tab_2_future
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\__pycache__
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\
+                      └── gui_child_1_calculator.py (Lines: 303)
+                      └── gui_child_1_calculator.py
+    [PY] Analysis for gui_child_1_calculator.py:
+    [PY] Analysis for gui_child_1_calculator.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_4_intermod\sub_tab_2_future\__pycache__
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_2_future\
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_2_future\
+                      ├── gui_1_top.py (Lines: 303)
+                      ├── gui_1_top.py
+    [PY] Analysis for gui_1_top.py:
+    [PY] Analysis for gui_1_top.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+                      ├── gui_2_bottom copy.py (Lines: 303)
+                      ├── gui_2_bottom copy.py
+    [PY] Analysis for gui_2_bottom copy.py:
+    [PY] Analysis for gui_2_bottom copy.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+                      └── gui_44_last.py (Lines: 303)
+                      └── gui_44_last.py
+    [PY] Analysis for gui_44_last.py:
+    [PY] Analysis for gui_44_last.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_5_sweeping\
+
+└── display\left_60\top_100\tab_5_sweeping\
+                  ├── sub_tab_1_single
+                  ├── sub_tab_1_single
+                  └── sub_tab_2_statistical
+                  └── sub_tab_2_statistical
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\
+                      └── gui_child_1_single.py (Lines: 303)
+                      └── gui_child_1_single.py
+    [PY] Analysis for gui_child_1_single.py:
+    [PY] Analysis for gui_child_1_single.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\
+                      └── gui_child_2_statistical.py (Lines: 303)
+                      └── gui_child_2_statistical.py
+    [PY] Analysis for gui_child_2_statistical.py:
+    [PY] Analysis for gui_child_2_statistical.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_6_graphing\
+
+└── display\left_60\top_100\tab_6_graphing\
+                  └── sub_tab_1_from_file
+                  └── sub_tab_1_from_file
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\__pycache__
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\
+                      └── gui_child1_from_file.py (Lines: 303)
+                      └── gui_child1_from_file.py
+    [PY] Analysis for gui_child1_from_file.py:
+    [PY] Analysis for gui_child1_from_file.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_7_exepriment\
+
+└── display\left_60\top_100\tab_7_exepriment\
+                  └── sub_tab_1_mosquitto
+                  └── sub_tab_1_mosquitto
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\__pycache__
+
+└── display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\
+
+└── display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\
+                      └── gui_7_experiment.py (Lines: 303)
+                      └── gui_7_experiment.py
+    [PY] Analysis for gui_7_experiment.py:
+    [PY] Analysis for gui_7_experiment.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\right_40\
+
+└── display\right_40\
+          ├── bottom_90
+          ├── bottom_90
+          └── top_10
+          └── top_10
+
+└── display\right_40\bottom_90\
+
+└── display\right_40\bottom_90\
+              ├── tab_1_scan
+              ├── tab_1_scan
+              ├── tab_2_monitors
+              ├── tab_2_monitors
+              ├── tab_3_debug
+              ├── tab_3_debug
+              ├── tab_4_conductor
+              ├── tab_4_conductor
+              └── tab_5_configuration
+              └── tab_5_configuration
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_1_scan\__pycache__
+
+└── display\right_40\bottom_90\tab_1_scan\
+
+└── display\right_40\bottom_90\tab_1_scan\
+                  └── gui_tab_1_scan.py (Lines: 303)
+                  └── gui_tab_1_scan.py
+    [PY] Analysis for gui_tab_1_scan.py:
+    [PY] Analysis for gui_tab_1_scan.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_2_monitors\__pycache__
+
+└── display\right_40\bottom_90\tab_2_monitors\
+
+└── display\right_40\bottom_90\tab_2_monitors\
+                  └── gui_tab_2_monitors.py (Lines: 303)
+                  └── gui_tab_2_monitors.py
+    [PY] Analysis for gui_tab_2_monitors.py:
+    [PY] Analysis for gui_tab_2_monitors.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_3_debug\__pycache__
+
+└── display\right_40\bottom_90\tab_3_debug\
+
+└── display\right_40\bottom_90\tab_3_debug\
+                  └── gui_tab_3_debug.py (Lines: 303)
+                  └── gui_tab_3_debug.py
+    [PY] Analysis for gui_tab_3_debug.py:
+    [PY] Analysis for gui_tab_3_debug.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_4_conductor\__pycache__
+
+└── display\right_40\bottom_90\tab_4_conductor\
+
+└── display\right_40\bottom_90\tab_4_conductor\
+                  └── gui_child_1_mqtt_conductor.py (Lines: 275)
+                  └── gui_child_1_mqtt_conductor.py
+    [PY] Analysis for gui_child_1_mqtt_conductor.py:
+    [PY] Analysis for gui_child_1_mqtt_conductor.py:
+      Imports: configuration.logging, datetime, inspect, os, styling.style, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, styling.style, tkinter, utils.mqtt_controller_util
+      Classes: MqttConductorFrame
+      Classes: MqttConductorFrame
+      Functions: __init__(self, parent), _apply_styles(self, theme_name), create_widgets(self), log_to_gui(self, message), log_to_table(self, topic, message), update_slider_label(self)
+      Functions: __init__(self, parent), _apply_styles(self, theme_name), create_widgets(self), log_to_gui(self, message), log_to_table(self, topic, message), update_slider_label(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_5_configuration\__pycache__
+
+└── display\right_40\bottom_90\tab_5_configuration\
+
+└── display\right_40\bottom_90\tab_5_configuration\
+                  └── gui_tab_5_configuration.py (Lines: 320)
+                  └── gui_tab_5_configuration.py
+    [PY] Analysis for gui_tab_5_configuration.py:
+    [PY] Analysis for gui_tab_5_configuration.py:
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Imports: configuration.logging, datetime, inspect, os, pathlib, sys, tkinter, utils.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _on_mqtt_message(self, client, userdata, msg), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\top_10\__pycache__
+
+└── display\right_40\top_10\
+
+└── display\right_40\top_10\
+              └── gui_right_side.py (Lines: 201)
+              └── gui_right_side.py
+    [PY] Analysis for gui_right_side.py:
+    [PY] Analysis for gui_right_side.py:
+      Imports: configuration.logging, datetime, inspect, os, tkinter
+      Imports: configuration.logging, datetime, inspect, os, tkinter
+      Classes: Start_stop
+      Classes: Start_stop
+      Functions: __init__(self, parent), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\styling\__pycache__
+
+└── display\styling\
+
+└── display\styling\
+          └── style.py (Lines: 117)
+          └── style.py
+    [PY] Analysis for style.py:
+    [PY] Analysis for style.py:
+      Imports: os
+      Imports: os
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\utils\__pycache__
+
+└── utils\
+
+└── utils\
+      └── mqtt_controller_util.py (Lines: 324)
+      └── mqtt_controller_util.py
+    [PY] Analysis for mqtt_controller_util.py:
+    [PY] Analysis for mqtt_controller_util.py:
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, subprocess, sys, threading
+      Imports: configuration.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, subprocess, sys, threading
+      Classes: MqttControllerUtility
+      Classes: MqttControllerUtility
+      Functions: __init__(self, print_to_gui_func, log_treeview_func), add_subscriber(self, topic_filter, callback_func), check_status(self), connect_mqtt(self), on_connect(self, client, userdata, flags, rc), on_message(self, client, userdata, msg), publish_message(self, topic, subtopic, value), show_topics(self), start_mosquitto(self), stop_mosquitto(self)
+      Functions: __init__(self, print_to_gui_func, log_treeview_func), add_subscriber(self, topic_filter, callback_func), check_status(self), connect_mqtt(self), on_connect(self, client, userdata, flags, rc), on_message(self, client, userdata, msg), publish_message(self, topic, subtopic, value), show_topics(self), start_mosquitto(self), stop_mosquitto(self)
+
+--- Crawl complete for C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2. 👍 ---
+
+--- Crawl complete for C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2. 👍 ---

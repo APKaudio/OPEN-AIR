@@ -1,0 +1,52 @@
+{
+  "bands_of_interest": {
+    "VHF_V_Low_Band": {
+      "Name": "VHF V Low Band",
+      "Start_MHz": 30.0,
+      "End_MHz": 50.0,
+      "Description": "Vehicle and short range communications."
+    },
+    "VHF_Low_Band": {
+      "Name": "VHF Low Band",
+      "Start_MHz": 50.0,
+      "End_MHz": 150.0,
+      "Description": "FM Radio, Television, Amateur Radio, Public Safety, Aircraft Communication, Weather Radio."
+    },
+    "VHF_High_Band": {
+      "Name": "VHF High Band",
+      "Start_MHz": 150.0,
+      "End_MHz": 300.0,
+      "Description": "Two-way radio communications, aircraft, amateur radio."
+    },
+    "UHF_Band_I": {
+      "Name": "UHF Band I",
+      "Start_MHz": 300.0,
+      "End_MHz": 470.0,
+      "Description": "Wireless microphones, Public Safety, Land Mobile Radio."
+    },
+    "UHF_Band_II": {
+      "Name": "UHF Band II",
+      "Start_MHz": 470.0,
+      "End_MHz": 500.0,
+      "Description": "Television."
+    },
+    "UHF_Band_III": {
+      "Name": "UHF Band III",
+      "Start_MHz": 500.0,
+      "End_MHz": 700.0,
+      "Description": "Television, Wireless Microphones."
+    },
+    "UHF_Band_IV": {
+      "Name": "UHF Band IV",
+      "Start_MHz": 700.0,
+      "End_MHz": 800.0,
+      "Description": "Wireless Microphones, Cellular, Public Safety."
+    },
+    "UHF_Band_V": {
+      "Name": "UHF Band V",
+      "Start_MHz": 800.0,
+      "End_MHz": 900.0,
+      "Description": "Cellular, Public Safety."
+    }
+  }
+}

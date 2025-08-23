@@ -1,0 +1,40 @@
+{
+  "header": "# ref/Antenna_type.py\n#\n# This file contains a Python list of dictionaries, each describing a type of antenna.\n#\n# Author: Anthony Peter Kuzub\n# Blog: www.Like.audio (Contributor to this project)\n#\n# Professional services for customizing and tailoring this software to your specific\n# application can be negotiated. There is no change to use, modify, or fork this software.\n#\n# Build Log: https://like.audio/category/software/spectrum-scanner/\n# Source Code: https://github.com/APKaudio/\n#\n#\n# Version 1.0 (Initial version)\n",
+  "antenna_types": {
+    "Omnidirectional_Dipole": {
+      "Type": "Omnidirectional (Dipole)",
+      "Description": "Radiates and receives signals equally well in all horizontal directions. Simple and widely used.",
+      "Use": "FM radio, Wi-Fi routers, short-range communication, general broadcasting."
+    },
+    "Omnidirectional_Ground_Plane": {
+      "Type": "Omnidirectional (Ground Plane)",
+      "Description": "A vertical radiator with horizontal radials acting as a ground plane, providing omnidirectional coverage.",
+      "Use": "VHF/UHF communication, amateur radio, base stations for mobile radio."
+    },
+    "Directional_Yagi_Uda": {
+      "Type": "Directional (Yagi-Uda)",
+      "Description": "Consists of a driven element, a reflector, and one or more directors. Highly directional with good gain.",
+      "Use": "TV reception, amateur radio, point-to-point communication, long-distance communication."
+    },
+    "Directional_Parabolic_Dish": {
+      "Type": "Directional (Parabolic Dish)",
+      "Description": "A large, curved reflector that focuses electromagnetic waves to or from a feed antenna at its focal point, providing very high gain and narrow beamwidth.",
+      "Use": "Satellite communication, radar, radio astronomy, microwave links."
+    },
+    "Loop_Antenna": {
+      "Type": "Loop Antenna",
+      "Description": "A closed-loop conductor. Can be small (resonant) or large (non-resonant), with varying directional properties depending on size and configuration.",
+      "Use": "AM radio reception, RFID, direction finding, amateur radio (especially for lower frequencies)."
+    },
+    "Patch_Antenna": {
+      "Type": "Patch Antenna",
+      "Description": "A flat, rectangular or circular metal patch mounted over a ground plane. Compact and low-profile.",
+      "Use": "GPS devices, mobile phones, satellite communication, Wi-Fi access points."
+    },
+    "Horn_Antenna": {
+      "Type": "Horn Antenna",
+      "Description": "A flared metal waveguide, used for directing radio waves in a beam. High gain and good impedance matching.",
+      "Use": "Microwave communication, radar, satellite tracking, measurement systems."
+    }
+  }
+}

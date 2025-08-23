@@ -1,0 +1,1589 @@
+--- Crawl Log Started: 2025-08-23 10:46:29 ---
+
+--- Crawl Log Started: 2025-08-23 10:46:29 ---
+
+Crawling directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2
+
+Crawling directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2
+
+  ├── DATA
+  ├── DATA
+  ├── agents
+  ├── agents
+  ├── configuration
+  ├── configuration
+  ├── datasets
+  ├── datasets
+  ├── display
+  ├── display
+  ├── utils
+  ├── utils
+  ├── workers
+  ├── workers
+  ├── debug.log (Lines: 63478)
+  ├── debug.log
+  └── main.py (Lines: 158)
+  └── main.py
+    [PY] Analysis for main.py:
+    [PY] Analysis for main.py:
+      Imports: datasets.logging, datetime, display.gui_display, inspect, os, pathlib, sys
+      Imports: datasets.logging, datetime, display.gui_display, inspect, os, pathlib, sys
+      Functions: action_check_configuration(), action_check_dependancies(), action_open_display(), main()
+      Functions: action_check_configuration(), action_check_dependancies(), action_open_display(), main()
+
+└── agents\
+
+└── agents\
+      └── yak
+      └── yak
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\agents\yak\__pycache__
+
+└── agents\yak\
+
+└── agents\yak\
+          ├── Yakety_Yak.py (Lines: 568)
+          ├── Yakety_Yak.py
+    [PY] Analysis for Yakety_Yak.py:
+    [PY] Analysis for Yakety_Yak.py:
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os, pyvisa, ref.ref_file_paths, time, tkinter, yak.utils_yak_visa
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os, pyvisa, ref.ref_file_paths, time, tkinter, yak.utils_yak_visa
+      Functions: YakBeg(app_instance, command_type, console_print_func), YakDo(app_instance, command_type, console_print_func), YakGet(app_instance, command_type, console_print_func), YakNab(app_instance, command_type, console_print_func), YakRig(app_instance, command_type, console_print_func), YakSet(app_instance, command_type, variable_value, console_print_func), _find_command(command_type, action_type, model), _load_commands_from_file(file_path), execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func, num_reads)
+      Functions: YakBeg(app_instance, command_type, console_print_func), YakDo(app_instance, command_type, console_print_func), YakGet(app_instance, command_type, console_print_func), YakNab(app_instance, command_type, console_print_func), YakRig(app_instance, command_type, console_print_func), YakSet(app_instance, command_type, variable_value, console_print_func), _find_command(command_type, action_type, model), _load_commands_from_file(file_path), execute_visa_command(app_instance, action_type, visa_command, variable_value, console_print_func, num_reads)
+          ├── utils_yak_setting_handler.py (Lines: 833)
+          ├── utils_yak_setting_handler.py
+    [PY] Analysis for utils_yak_setting_handler.py:
+    [PY] Analysis for utils_yak_setting_handler.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, threading, time, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, threading, time, yak.Yakety_Yak
+      Functions: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func), _trigger_gui_refresh(app_instance), do_immediate_initiate(app_instance, console_print_func), do_peak_search(app_instance, console_print_func), do_power_cycle(app_instance, console_print_func), do_turn_all_markers_on(app_instance, console_print_func), get_all_marker_values_logic(app_instance, console_print_func), get_trace_averaging_settings(app_instance, trace_number, console_print_func), get_trace_data_logic(app_instance, console_print_func), refresh_all_from_instrument(app_instance, console_print_func), reset_device(app_instance, console_print_func), set_center_frequency(app_instance, value, console_print_func), set_continuous_initiate_mode(app_instance, mode, console_print_func), set_power_attenuation(tab_instance, app_instance, value, console_print_func), set_reference_level(tab_instance, app_instance, value, console_print_func), set_resolution_bandwidth(app_instance, value, console_print_func), set_span_frequency(app_instance, value, console_print_func), set_start_frequency(app_instance, value, console_print_func), set_stop_frequency(app_instance, value, console_print_func), set_trace_averaging_count(app_instance, trace_number, count, console_print_func), set_trace_mode(app_instance, trace_number, mode, console_print_func), set_video_bandwidth(app_instance, value, console_print_func), toggle_high_sensitivity(tab_instance, app_instance, console_print_func), toggle_marker_state(app_instance, marker_number, state, console_print_func), toggle_preamp(tab_instance, app_instance, console_print_func), toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func), toggle_vbw_auto(app_instance, console_print_func)
+      Functions: _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_print_func), _trigger_gui_refresh(app_instance), do_immediate_initiate(app_instance, console_print_func), do_peak_search(app_instance, console_print_func), do_power_cycle(app_instance, console_print_func), do_turn_all_markers_on(app_instance, console_print_func), get_all_marker_values_logic(app_instance, console_print_func), get_trace_averaging_settings(app_instance, trace_number, console_print_func), get_trace_data_logic(app_instance, console_print_func), refresh_all_from_instrument(app_instance, console_print_func), reset_device(app_instance, console_print_func), set_center_frequency(app_instance, value, console_print_func), set_continuous_initiate_mode(app_instance, mode, console_print_func), set_power_attenuation(tab_instance, app_instance, value, console_print_func), set_reference_level(tab_instance, app_instance, value, console_print_func), set_resolution_bandwidth(app_instance, value, console_print_func), set_span_frequency(app_instance, value, console_print_func), set_start_frequency(app_instance, value, console_print_func), set_stop_frequency(app_instance, value, console_print_func), set_trace_averaging_count(app_instance, trace_number, count, console_print_func), set_trace_mode(app_instance, trace_number, mode, console_print_func), set_video_bandwidth(app_instance, value, console_print_func), toggle_high_sensitivity(tab_instance, app_instance, console_print_func), toggle_marker_state(app_instance, marker_number, state, console_print_func), toggle_preamp(tab_instance, app_instance, console_print_func), toggle_trace_averaging(app_instance, trace_number, is_on, console_print_func), toggle_vbw_auto(app_instance, console_print_func)
+          ├── utils_yak_visa.py (Lines: 264)
+          ├── utils_yak_visa.py
+    [PY] Analysis for utils_yak_visa.py:
+    [PY] Analysis for utils_yak_visa.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa, time
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa, time
+      Functions: _reset_device(inst, console_print_func), _wait_for_opc(inst, console_print_func, timeout), query_safe(inst, command, console_print_func), set_safe(inst, command, value, console_print_func), write_safe(inst, command, console_print_func)
+      Functions: _reset_device(inst, console_print_func), _wait_for_opc(inst, console_print_func, timeout), query_safe(inst, command, console_print_func), set_safe(inst, command, value, console_print_func), write_safe(inst, command, console_print_func)
+          ├── utils_yakbeg_handler.py (Lines: 201)
+          ├── utils_yakbeg_handler.py
+    [PY] Analysis for utils_yakbeg_handler.py:
+    [PY] Analysis for utils_yakbeg_handler.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, typing, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, typing, yak.Yakety_Yak
+      Functions: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func), handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func), handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func), handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func), handle_trace_modes_beg(app_instance, trace_modes, console_print_func)
+      Functions: handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func), handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func), handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func), handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func), handle_trace_modes_beg(app_instance, trace_modes, console_print_func)
+          └── utils_yaknab_handler.py (Lines: 215)
+          └── utils_yaknab_handler.py
+    [PY] Analysis for utils_yaknab_handler.py:
+    [PY] Analysis for utils_yaknab_handler.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, typing, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, typing, yak.Yakety_Yak
+      Functions: handle_all_traces_nab(app_instance, console_print_func), handle_amplitude_settings_nab(app_instance, console_print_func), handle_bandwidth_settings_nab(app_instance, console_print_func)
+      Functions: handle_all_traces_nab(app_instance, console_print_func), handle_amplitude_settings_nab(app_instance, console_print_func), handle_bandwidth_settings_nab(app_instance, console_print_func)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\configuration\__pycache__
+
+└── configuration\
+
+└── configuration\
+
+└── DATA\
+
+└── DATA\
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\datasets\__pycache__
+
+└── datasets\
+
+└── datasets\
+      ├── dataset_devices.json (Lines: 4062)
+      ├── dataset_devices.json
+      ├── dataset_devices_amplifier_type.json (Lines: 40)
+      ├── dataset_devices_amplifier_type.json
+      ├── dataset_devices_antenna_type.json (Lines: 40)
+      ├── dataset_devices_antenna_type.json
+      ├── dataset_file_paths.json (Lines: 12)
+      ├── dataset_file_paths.json
+      ├── dataset_frequency_bands_of_interest.json (Lines: 681)
+      ├── dataset_frequency_bands_of_interest.json
+      ├── dataset_frequency_government.json (Lines: 191)
+      ├── dataset_frequency_government.json
+      ├── dataset_frequency_tv_bands.json (Lines: 427)
+      ├── dataset_frequency_tv_bands.json
+      ├── dataset_publisher.py (Lines: 76)
+      ├── dataset_publisher.py
+    [PY] Analysis for dataset_publisher.py:
+    [PY] Analysis for dataset_publisher.py:
+      Imports: os, sys, workers.mqtt_controller_util
+      Imports: os, sys, workers.mqtt_controller_util
+      Functions: log_treeview_func(message), main(), print_to_gui_func(message)
+      Functions: log_treeview_func(message), main(), print_to_gui_func(message)
+      ├── dataset_scanning_presets.json (Lines: 329)
+      ├── dataset_scanning_presets.json
+      ├── dataset_spectrum_analyzer_setting_lists.json (Lines: 522)
+      ├── dataset_spectrum_analyzer_setting_lists.json
+      ├── datasets_constants.json (Lines: 56)
+      ├── datasets_constants.json
+      ├── logging.py (Lines: 72)
+      ├── logging.py
+    [PY] Analysis for logging.py:
+    [PY] Analysis for logging.py:
+      Imports: datetime, inspect, os
+      Imports: datetime, inspect, os
+      Functions: console_log(message), debug_log(message, file, version, function, console_print_func)
+      Functions: console_log(message), debug_log(message, file, version, function, console_print_func)
+      └── north star - ref_program_default_values.py (Lines: 103)
+      └── north star - ref_program_default_values.py
+    [PY] No functions, classes, or imports found in north star - ref_program_default_values.py
+    [PY] No functions, classes, or imports found in north star - ref_program_default_values.py
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\__pycache__
+
+└── display\
+
+└── display\
+      ├── left_60
+      ├── left_60
+      ├── prototype
+      ├── prototype
+      ├── right_40
+      ├── right_40
+      ├── styling
+      ├── styling
+      ├── base_gui_component_rebuilt.py (Lines: 96)
+      ├── base_gui_component_rebuilt.py
+    [PY] Analysis for base_gui_component_rebuilt.py:
+    [PY] Analysis for base_gui_component_rebuilt.py:
+      Imports: datasets.logging, inspect, json, os, pathlib, styling.style, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, inspect, json, os, pathlib, styling.style, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util, console_print_func), _apply_styles(self, theme_name), _get_topic_prefix(self), _publish_value(self, element_name, value)
+      Functions: __init__(self, parent, mqtt_util, console_print_func), _apply_styles(self, theme_name), _get_topic_prefix(self), _publish_value(self, element_name, value)
+      ├── debug.log (Lines: 0)
+      ├── debug.log
+      └── gui_display.py (Lines: 588)
+      └── gui_display.py
+    [PY] Analysis for gui_display.py:
+    [PY] Analysis for gui_display.py:
+      Imports: datasets.logging, datetime, display.styling.style, importlib.util, inspect, os, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, importlib.util, inspect, os, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: Application
+      Classes: Application
+      Functions: __init__(self), _apply_styles(self, theme_name), _build_child_container(self, path, parent_widget), _build_from_directory(self, path, parent_widget), _on_tab_change(self, event), _re_attach_tab(self, frame), _tear_off_tab(self, event)
+      Functions: __init__(self), _apply_styles(self, theme_name), _build_child_container(self, path, parent_widget), _build_from_directory(self, path, parent_widget), _on_tab_change(self, event), _re_attach_tab(self, frame), _tear_off_tab(self, event)
+
+└── display\left_60\
+
+└── display\left_60\
+          └── top_100
+          └── top_100
+
+└── display\left_60\top_100\
+
+└── display\left_60\top_100\
+              ├── tab_1_instrument
+              ├── tab_1_instrument
+              ├── tab_2_markers
+              ├── tab_2_markers
+              ├── tab_3_presets
+              ├── tab_3_presets
+              ├── tab_4_intermod
+              ├── tab_4_intermod
+              ├── tab_5_sweeping
+              ├── tab_5_sweeping
+              ├── tab_6_graphing
+              ├── tab_6_graphing
+              └── tab_7_exepriment
+              └── tab_7_exepriment
+
+└── display\left_60\top_100\tab_1_instrument\
+
+└── display\left_60\top_100\tab_1_instrument\
+                  ├── sub_tab_1_connection
+                  ├── sub_tab_1_connection
+                  ├── sub_tab_2_settings
+                  ├── sub_tab_2_settings
+                  └── sub_tab_3_translator
+                  └── sub_tab_3_translator
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_1_connection\
+                      └── gui_connection.py (Lines: 300)
+                      └── gui_connection.py
+    [PY] Analysis for gui_connection.py:
+    [PY] Analysis for gui_connection.py:
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Classes: InstrumentTab, MockMqttUtil
+      Classes: InstrumentTab, MockMqttUtil
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _toggle_connection(self), _update_button_style(self, button_id, value), _update_connection_status(self, is_connected), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _toggle_connection(self), _update_button_style(self, button_id, value), _update_connection_status(self, is_connected), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\
+                      ├── sub_tab_1_frequency
+                      ├── sub_tab_1_frequency
+                      ├── sub_tab_2_bandwidth
+                      ├── sub_tab_2_bandwidth
+                      ├── sub_tab_3_amplitude
+                      ├── sub_tab_3_amplitude
+                      ├── sub_tab_4_markers
+                      ├── sub_tab_4_markers
+                      └── sub_tab_5_traces
+                      └── sub_tab_5_traces
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_1_frequency\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_1_frequency\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_1_frequency\
+                          └── gui_frequency.py (Lines: 197)
+                          └── gui_frequency.py
+    [PY] Analysis for gui_frequency.py:
+    [PY] Analysis for gui_frequency.py:
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Classes: FrequencySettingsTab, MockMqttUtil
+      Classes: FrequencySettingsTab, MockMqttUtil
+      Functions: __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_span_preset_buttons(self, parent_frame), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_span_preset_buttons(self, parent_frame), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_2_bandwidth\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_2_bandwidth\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_2_bandwidth\
+                          └── gui_bandwidth.py (Lines: 336)
+                          └── gui_bandwidth.py
+    [PY] Analysis for gui_bandwidth.py:
+    [PY] Analysis for gui_bandwidth.py:
+      Imports: collections, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, re, threading, tkinter
+      Imports: collections, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, re, threading, tkinter
+      Classes: BandwidthSettingsTab, MockMqttUtil
+      Classes: BandwidthSettingsTab, MockMqttUtil
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, event, button_id), _update_button_style(self, button_id, value), add_subscriber(self, topic_filter, callback_func), console_log(message), debug_log(message, file, version, function, console_print_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, event, button_id), _update_button_style(self, button_id, value), add_subscriber(self, topic_filter, callback_func), console_log(message), debug_log(message, file, version, function, console_print_func), publish_message(self, topic, subtopic, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_3_amplitude\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_3_amplitude\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_3_amplitude\
+                          └── gui_amplitude.py (Lines: 390)
+                          └── gui_amplitude.py
+    [PY] Analysis for gui_amplitude.py:
+    [PY] Analysis for gui_amplitude.py:
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, numpy, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, numpy, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Classes: AmplitudeSettingsTab
+      Classes: AmplitudeSettingsTab
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _find_closest_preset_value(self, value, preset_list), _on_message(self, topic, payload), _on_toggle_button_press(self, button_id), _publish_test_message(self, button_id), _update_button_style(self, button_id, value), _update_descriptions(self, value, preset_list, label, var), _update_toggle_button_style(self, button, state)
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _find_closest_preset_value(self, value, preset_list), _on_message(self, topic, payload), _on_toggle_button_press(self, button_id), _publish_test_message(self, button_id), _update_button_style(self, button_id, value), _update_descriptions(self, value, preset_list, label, var), _update_toggle_button_style(self, button, state)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_4_markers\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_4_markers\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_4_markers\
+                          └── gui_markers.py (Lines: 188)
+                          └── gui_markers.py
+    [PY] Analysis for gui_markers.py:
+    [PY] Analysis for gui_markers.py:
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, numpy, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, numpy, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Classes: MarkerSettingsTab
+      Classes: MarkerSettingsTab
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _update_button_style(self, button_id, value)
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _update_button_style(self, button_id, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_5_traces\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_5_traces\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_2_settings\sub_tab_5_traces\
+                          └── gui_traces.py (Lines: 279)
+                          └── gui_traces.py
+    [PY] Analysis for gui_traces.py:
+    [PY] Analysis for gui_traces.py:
+      Imports: collections, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pandas, threading, tkinter
+      Imports: collections, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pandas, threading, tkinter
+      Classes: MockMqttUtil, TraceSettingsTab
+      Classes: MockMqttUtil, TraceSettingsTab
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _update_button_style(self, button_id, value), add_subscriber(self, topic_filter, callback_func), console_log(message), debug_log(message, file, version, function, console_print_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self), __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _on_message(self, topic, payload), _publish_test_message(self, button_id), _update_button_style(self, button_id, value), add_subscriber(self, topic_filter, callback_func), console_log(message), debug_log(message, file, version, function, console_print_func), publish_message(self, topic, subtopic, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\__pycache__
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\
+
+└── display\left_60\top_100\tab_1_instrument\sub_tab_3_translator\
+                      └── gui_translator.py (Lines: 186)
+                      └── gui_translator.py
+    [PY] Analysis for gui_translator.py:
+    [PY] Analysis for gui_translator.py:
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Classes: MockMqttUtil, VisaInterpreterTab
+      Classes: MockMqttUtil, VisaInterpreterTab
+      Functions: __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _load_data_to_treeview(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _load_data_to_treeview(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+
+└── display\left_60\top_100\tab_2_markers\
+
+└── display\left_60\top_100\tab_2_markers\
+                  ├── sub_tab_1_showtime
+                  ├── sub_tab_1_showtime
+                  └── sub_tab_2_editor
+                  └── sub_tab_2_editor
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\__pycache__
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_1_showtime\
+                      └── gui_child_1_showtime.py (Lines: 190)
+                      └── gui_child_1_showtime.py
+    [PY] Analysis for gui_child_1_showtime.py:
+    [PY] Analysis for gui_child_1_showtime.py:
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, inspect, json, os, pathlib, styling.style, threading, tkinter, workers.mqtt_controller_util
+      Classes: MockMqttUtil, ZoneGroupsDevicesFrame
+      Classes: MockMqttUtil, ZoneGroupsDevicesFrame
+      Functions: __init__(self), __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _make_device_buttons(self, zone_name, group_name), _make_group_buttons(self, zone_name), _make_zone_buttons(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+      Functions: __init__(self), __init__(self, parent_frame, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _make_device_buttons(self, zone_name, group_name), _make_group_buttons(self, zone_name), _make_zone_buttons(self), _publish_value(self, element_name, value), add_subscriber(self, topic_filter, callback_func), publish_message(self, topic, subtopic, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_2_markers\sub_tab_2_editor\__pycache__
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_2_editor\
+
+└── display\left_60\top_100\tab_2_markers\sub_tab_2_editor\
+                      └── gui_child_2_editor.py (Lines: 361)
+                      └── gui_child_2_editor.py
+    [PY] Analysis for gui_child_2_editor.py:
+    [PY] Analysis for gui_child_2_editor.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_3_presets\
+
+└── display\left_60\top_100\tab_3_presets\
+                  ├── sub_tab_1_pusher
+                  ├── sub_tab_1_pusher
+                  ├── sub_tab_2_editor
+                  ├── sub_tab_2_editor
+                  └── sub_tab_3_collector
+                  └── sub_tab_3_collector
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_1_pusher\
+                      └── gui_child_1_pusher.py (Lines: 71)
+                      └── gui_child_1_pusher.py
+    [PY] Analysis for gui_child_1_pusher.py:
+    [PY] Analysis for gui_child_1_pusher.py:
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: LocalPresetsTab
+      Classes: LocalPresetsTab
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self)
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_2_editor\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_2_editor\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_2_editor\
+                      └── gui_child_2_editor.py (Lines: 90)
+                      └── gui_child_2_editor.py
+    [PY] Analysis for gui_child_2_editor.py:
+    [PY] Analysis for gui_child_2_editor.py:
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: PresetEditorTab
+      Classes: PresetEditorTab
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self), on_double_click(event)
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self), on_double_click(event)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_3_presets\sub_tab_3_collector\__pycache__
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_3_collector\
+
+└── display\left_60\top_100\tab_3_presets\sub_tab_3_collector\
+                      └── gui_child_3_collector.py (Lines: 233)
+                      └── gui_child_3_collector.py
+    [PY] Analysis for gui_child_3_collector.py:
+    [PY] Analysis for gui_child_3_collector.py:
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, threading, tkinter, workers.mqtt_controller_util
+      Classes: DevicePresetsTab, MockMqttUtil
+      Classes: DevicePresetsTab, MockMqttUtil
+      Functions: __init__(self), __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_message(self, topic, payload), _publish_test_message(self, event, button_id), add_subscriber(self, topic_filter, callback_func), create_widgets(self), publish_message(self, topic, subtopic, value), setup_layout(self)
+      Functions: __init__(self), __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_message(self, topic, payload), _publish_test_message(self, event, button_id), add_subscriber(self, topic_filter, callback_func), create_widgets(self), publish_message(self, topic, subtopic, value), setup_layout(self)
+
+└── display\left_60\top_100\tab_4_intermod\
+
+└── display\left_60\top_100\tab_4_intermod\
+                  ├── sub_tab_1_calculator
+                  ├── sub_tab_1_calculator
+                  └── sub_tab_2_future
+                  └── sub_tab_2_future
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\__pycache__
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_1_calculator\
+                      └── gui_child_1_calculator.py (Lines: 361)
+                      └── gui_child_1_calculator.py
+    [PY] Analysis for gui_child_1_calculator.py:
+    [PY] Analysis for gui_child_1_calculator.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_4_intermod\sub_tab_2_future\__pycache__
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_2_future\
+
+└── display\left_60\top_100\tab_4_intermod\sub_tab_2_future\
+                      ├── gui_1_top.py (Lines: 361)
+                      ├── gui_1_top.py
+    [PY] Analysis for gui_1_top.py:
+    [PY] Analysis for gui_1_top.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+                      ├── gui_2_bottom copy.py (Lines: 361)
+                      ├── gui_2_bottom copy.py
+    [PY] Analysis for gui_2_bottom copy.py:
+    [PY] Analysis for gui_2_bottom copy.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+                      └── gui_44_last.py (Lines: 361)
+                      └── gui_44_last.py
+    [PY] Analysis for gui_44_last.py:
+    [PY] Analysis for gui_44_last.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_5_sweeping\
+
+└── display\left_60\top_100\tab_5_sweeping\
+                  ├── sub_tab_0_bands
+                  ├── sub_tab_0_bands
+                  ├── sub_tab_0_configuration
+                  ├── sub_tab_0_configuration
+                  ├── sub_tab_1_single
+                  ├── sub_tab_1_single
+                  ├── sub_tab_2_meta_data
+                  ├── sub_tab_2_meta_data
+                  ├── sub_tab_2_statistical
+                  ├── sub_tab_2_statistical
+                  ├── sub_tab_3_averaging
+                  ├── sub_tab_3_averaging
+                  └── gui_child_1_single.py (Lines: 84)
+                  └── gui_child_1_single.py
+    [PY] Analysis for gui_child_1_single.py:
+    [PY] Analysis for gui_child_1_single.py:
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: Plotting3DTab
+      Classes: Plotting3DTab
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_0_bands\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_0_bands\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_0_bands\
+                      └── gui_bands.py (Lines: 361)
+                      └── gui_bands.py
+    [PY] Analysis for gui_bands.py:
+    [PY] Analysis for gui_bands.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_0_configuration\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_0_configuration\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_0_configuration\
+                      └── gui_configureation.py (Lines: 97)
+                      └── gui_configureation.py
+    [PY] Analysis for gui_configureation.py:
+    [PY] Analysis for gui_configureation.py:
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: ScanTab
+      Classes: ScanTab
+      Functions: __init__(self, master, mqtt_util), _create_setting_row(self, parent, row, key, label_text, data_list, mqtt_topic_suffix), _create_widgets(self)
+      Functions: __init__(self, master, mqtt_util), _create_setting_row(self, parent, row, key, label_text, data_list, mqtt_topic_suffix), _create_widgets(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_1_single\
+                      └── gui_child_1_single.py (Lines: 97)
+                      └── gui_child_1_single.py
+    [PY] Analysis for gui_child_1_single.py:
+    [PY] Analysis for gui_child_1_single.py:
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: PlottingTab
+      Classes: PlottingTab
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_2_meta_data\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_meta_data\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_meta_data\
+                      └── gui_metadata.py (Lines: 73)
+                      └── gui_metadata.py
+    [PY] Analysis for gui_metadata.py:
+    [PY] Analysis for gui_metadata.py:
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.base_gui_component_rebuilt, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: BandsTab
+      Classes: BandsTab
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self)
+      Functions: __init__(self, master, mqtt_util), _create_widgets(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_2_statistical\
+                      └── gui_child_2_statistical.py (Lines: 361)
+                      └── gui_child_2_statistical.py
+    [PY] Analysis for gui_child_2_statistical.py:
+    [PY] Analysis for gui_child_2_statistical.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_5_sweeping\sub_tab_3_averaging\__pycache__
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_3_averaging\
+
+└── display\left_60\top_100\tab_5_sweeping\sub_tab_3_averaging\
+                      └── gui_averaging.py (Lines: 128)
+                      └── gui_averaging.py
+    [PY] Analysis for gui_averaging.py:
+    [PY] Analysis for gui_averaging.py:
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, display.styling.style, os, pathlib, tkinter, workers.mqtt_controller_util
+      Classes: AveragingTab
+      Classes: AveragingTab
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+      Functions: __init__(self, master, mqtt_util), _apply_styles(self, theme_name), _create_widgets(self), _get_topic_prefix(self), _publish_value(self, element_name, value)
+
+└── display\left_60\top_100\tab_6_graphing\
+
+└── display\left_60\top_100\tab_6_graphing\
+                  ├── sub_tab_1_from_file
+                  ├── sub_tab_1_from_file
+                  └── sub_tab_2_3d
+                  └── sub_tab_2_3d
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\__pycache__
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_1_from_file\
+                      └── gui_child1_from_file.py (Lines: 361)
+                      └── gui_child1_from_file.py
+    [PY] Analysis for gui_child1_from_file.py:
+    [PY] Analysis for gui_child1_from_file.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_6_graphing\sub_tab_2_3d\__pycache__
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_2_3d\
+
+└── display\left_60\top_100\tab_6_graphing\sub_tab_2_3d\
+                      └── gui_3d.py (Lines: 361)
+                      └── gui_3d.py
+    [PY] Analysis for gui_3d.py:
+    [PY] Analysis for gui_3d.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\left_60\top_100\tab_7_exepriment\
+
+└── display\left_60\top_100\tab_7_exepriment\
+                  └── sub_tab_1_mosquitto
+                  └── sub_tab_1_mosquitto
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\__pycache__
+
+└── display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\
+
+└── display\left_60\top_100\tab_7_exepriment\sub_tab_1_mosquitto\
+                      └── gui_7_experiment.py (Lines: 361)
+                      └── gui_7_experiment.py
+    [PY] Analysis for gui_7_experiment.py:
+    [PY] Analysis for gui_7_experiment.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\prototype\
+
+└── display\prototype\
+          └── gui_translator.py (Lines: 361)
+          └── gui_translator.py
+    [PY] Analysis for gui_translator.py:
+    [PY] Analysis for gui_translator.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+
+└── display\right_40\
+
+└── display\right_40\
+          ├── bottom_90
+          ├── bottom_90
+          └── top_10
+          └── top_10
+
+└── display\right_40\bottom_90\
+
+└── display\right_40\bottom_90\
+              ├── tab_1_scan
+              ├── tab_1_scan
+              ├── tab_2_monitors
+              ├── tab_2_monitors
+              ├── tab_3_debug
+              ├── tab_3_debug
+              ├── tab_4_conductor
+              ├── tab_4_conductor
+              └── tab_5_configuration
+              └── tab_5_configuration
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_1_scan\__pycache__
+
+└── display\right_40\bottom_90\tab_1_scan\
+
+└── display\right_40\bottom_90\tab_1_scan\
+                  ├── display_child_scan_view.py (Lines: 102)
+                  ├── display_child_scan_view.py
+    [PY] Analysis for display_child_scan_view.py:
+    [PY] Analysis for display_child_scan_view.py:
+      Imports: display.console_logic, display.debug_logic, display.utils_scan_view, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, pandas, tkinter
+      Imports: display.console_logic, display.debug_logic, display.utils_scan_view, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, pandas, tkinter
+      Classes: ScanViewTab
+      Classes: ScanViewTab
+      Functions: __init__(self, master, app_instance), _create_widgets(self)
+      Functions: __init__(self, master, app_instance), _create_widgets(self)
+                  └── gui_tab_1_scan.py (Lines: 361)
+                  └── gui_tab_1_scan.py
+    [PY] Analysis for gui_tab_1_scan.py:
+    [PY] Analysis for gui_tab_1_scan.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_2_monitors\__pycache__
+
+└── display\right_40\bottom_90\tab_2_monitors\
+
+└── display\right_40\bottom_90\tab_2_monitors\
+                  ├── display_child_scan_monitor.py (Lines: 153)
+                  ├── display_child_scan_monitor.py
+    [PY] Analysis for display_child_scan_monitor.py:
+    [PY] Analysis for display_child_scan_monitor.py:
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, tkinter
+      Classes: ScanMonitorTab
+      Classes: ScanMonitorTab
+      Functions: __init__(self, master, app_instance), _create_widgets(self)
+      Functions: __init__(self, master, app_instance), _create_widgets(self)
+                  └── gui_tab_2_monitors.py (Lines: 361)
+                  └── gui_tab_2_monitors.py
+    [PY] Analysis for gui_tab_2_monitors.py:
+    [PY] Analysis for gui_tab_2_monitors.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_3_debug\__pycache__
+
+└── display\right_40\bottom_90\tab_3_debug\
+
+└── display\right_40\bottom_90\tab_3_debug\
+                  ├── display_child_application_console.py (Lines: 181)
+                  ├── display_child_application_console.py
+    [PY] Analysis for display_child_application_console.py:
+    [PY] Analysis for display_child_application_console.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, src.gui_elements, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, src.gui_elements, tkinter
+      Classes: ConsoleTab
+      Classes: ConsoleTab
+      Functions: __init__(self, master, app_instance), _clear_applications_console_action(self), _create_widgets(self), _on_tab_selected(self, event)
+      Functions: __init__(self, master, app_instance), _clear_applications_console_action(self), _create_widgets(self), _on_tab_selected(self, event)
+                  ├── display_child_debug.py (Lines: 376)
+                  ├── display_child_debug.py
+    [PY] Analysis for display_child_debug.py:
+    [PY] Analysis for display_child_debug.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, settings_and_config.config_manager_save, subprocess, sys, threading, time, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, settings_and_config.config_manager_save, subprocess, sys, threading, time, tkinter
+      Classes: DebugTab
+      Classes: DebugTab
+      Functions: __init__(self, master, app_instance), _check_log_files(self), _clear_debug_log_file_action(self), _create_widgets(self), _filter_and_display_log(self, event), _on_tab_selected(self, event), _open_data_folder_action(self), _read_new_log_content(self, file_path, start_pos), _toggle_debug_mode(self), _toggle_debug_to_file_mode(self), _toggle_include_console_messages_to_debug_file_mode(self), _toggle_include_visa_messages_to_debug_file_mode(self), _toggle_log_truncation_mode(self), _toggle_visa_logging_mode(self)
+      Functions: __init__(self, master, app_instance), _check_log_files(self), _clear_debug_log_file_action(self), _create_widgets(self), _filter_and_display_log(self, event), _on_tab_selected(self, event), _open_data_folder_action(self), _read_new_log_content(self, file_path, start_pos), _toggle_debug_mode(self), _toggle_debug_to_file_mode(self), _toggle_include_console_messages_to_debug_file_mode(self), _toggle_include_visa_messages_to_debug_file_mode(self), _toggle_log_truncation_mode(self), _toggle_visa_logging_mode(self)
+                  └── gui_tab_3_debug.py (Lines: 361)
+                  └── gui_tab_3_debug.py
+    [PY] Analysis for gui_tab_3_debug.py:
+    [PY] Analysis for gui_tab_3_debug.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_4_conductor\__pycache__
+
+└── display\right_40\bottom_90\tab_4_conductor\
+
+└── display\right_40\bottom_90\tab_4_conductor\
+                  └── gui_mqtt_conductor.py (Lines: 374)
+                  └── gui_mqtt_conductor.py
+    [PY] Analysis for gui_mqtt_conductor.py:
+    [PY] Analysis for gui_mqtt_conductor.py:
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, itertools, json, os, paho.mqtt.client, subprocess, threading, tkinter, workers.mqtt_controller_util
+      Imports: collections, datasets.logging, datetime, display.styling.style, inspect, itertools, json, os, paho.mqtt.client, subprocess, threading, tkinter, workers.mqtt_controller_util
+      Classes: MqttConductorFrame
+      Classes: MqttConductorFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _clear_log(self), _create_widgets(self), _on_message(self, topic, payload), _on_sys_message(self, topic, payload), _publish_custom_message(self), log_to_gui(self, message), log_to_table(self, topic, message)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _clear_log(self), _create_widgets(self), _on_message(self, topic, payload), _on_sys_message(self, topic, payload), _publish_custom_message(self), log_to_gui(self, message), log_to_table(self, topic, message)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\bottom_90\tab_5_configuration\__pycache__
+
+└── display\right_40\bottom_90\tab_5_configuration\
+
+└── display\right_40\bottom_90\tab_5_configuration\
+                  └── gui_tab_5_configuration.py (Lines: 176)
+                  └── gui_tab_5_configuration.py
+    [PY] Analysis for gui_tab_5_configuration.py:
+    [PY] Analysis for gui_tab_5_configuration.py:
+✅ Opened Crawl Folder: C:\Users\4483\OneDrive\Documents\GitHub\Spectrum-Automation---ZAP\50 - Python Code\OPEN-AIR\Crawl
+      Imports: datetime, inspect, os, tkinter
+      Imports: datetime, inspect, os, tkinter
+      Classes: InitialConfigurationTab
+      Classes: InitialConfigurationTab
+      Functions: __init__(self, master), _create_widgets(self), _populate_config_table(self), _reload_config_action(self), _save_program_configure_action(self), console_log(message), debug_log(message, file, version, function)
+      Functions: __init__(self, master), _create_widgets(self), _populate_config_table(self), _reload_config_action(self), _save_program_configure_action(self), console_log(message), debug_log(message, file, version, function)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\right_40\top_10\__pycache__
+
+└── display\right_40\top_10\
+
+└── display\right_40\top_10\
+              └── gui_start_stop.py (Lines: 361)
+              └── gui_start_stop.py
+    [PY] Analysis for gui_start_stop.py:
+    [PY] Analysis for gui_start_stop.py:
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Imports: datasets.logging, datetime, display.styling.style, inspect, json, os, paho.mqtt.client, pathlib, sys, tkinter, workers.mqtt_controller_util
+      Classes: BaseGUIFrame
+      Classes: BaseGUIFrame
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+      Functions: __init__(self, parent, mqtt_util), _apply_styles(self, theme_name), _on_mqtt_message(self, topic, payload), _publish_custom_message(self), _publish_version_message(self), debug_button_press(self), log_button_press(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\display\styling\__pycache__
+
+└── display\styling\
+
+└── display\styling\
+          └── style.py (Lines: 112)
+          └── style.py
+    [PY] Analysis for style.py:
+    [PY] Analysis for style.py:
+      Imports: os
+      Imports: os
+
+└── utils\
+
+└── utils\
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\__pycache__
+
+└── workers\
+
+└── workers\
+      ├── Experiments
+      ├── Experiments
+      ├── Instrument
+      ├── Instrument
+      ├── Marker_files
+      ├── Marker_files
+      ├── Plotting
+      ├── Plotting
+      ├── Presets
+      ├── Presets
+      ├── Scanning
+      ├── Scanning
+      ├── controls
+      ├── controls
+      ├── orchestrator
+      ├── orchestrator
+      ├── zones_groups_devices
+      ├── zones_groups_devices
+      ├── connection_status_logic.py (Lines: 78)
+      ├── connection_status_logic.py
+    [PY] Analysis for connection_status_logic.py:
+    [PY] Analysis for connection_status_logic.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, tkinter
+      Functions: update_connection_status_logic(app_instance, is_connected, is_running, console_print_func)
+      Functions: update_connection_status_logic(app_instance, is_connected, is_running, console_print_func)
+      ├── mqtt_controller_util.py (Lines: 336)
+      ├── mqtt_controller_util.py
+    [PY] Analysis for mqtt_controller_util.py:
+    [PY] Analysis for mqtt_controller_util.py:
+      Imports: datasets.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, subprocess, sys, threading
+      Imports: datasets.logging, datetime, inspect, json, os, paho.mqtt.client, pathlib, subprocess, sys, threading
+      Classes: MqttControllerUtility
+      Classes: MqttControllerUtility
+      Functions: __init__(self, print_to_gui_func, log_treeview_func), add_subscriber(self, topic_filter, callback_func), check_status(self), connect_mqtt(self), on_connect(self, client, userdata, flags, rc), on_message(self, client, userdata, msg), publish_message(self, topic, subtopic, value), show_topics(self), start_mosquitto(self), stop_mosquitto(self)
+      Functions: __init__(self, print_to_gui_func, log_treeview_func), add_subscriber(self, topic_filter, callback_func), check_status(self), connect_mqtt(self), on_connect(self, client, userdata, flags, rc), on_message(self, client, userdata, msg), publish_message(self, topic, subtopic, value), show_topics(self), start_mosquitto(self), stop_mosquitto(self)
+      ├── utils_csv_writer.py (Lines: 125)
+      ├── utils_csv_writer.py
+    [PY] Analysis for utils_csv_writer.py:
+    [PY] Analysis for utils_csv_writer.py:
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os
+      Functions: write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode, console_print_func)
+      Functions: write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode, console_print_func)
+      ├── utils_display_monitor.py (Lines: 325)
+      ├── utils_display_monitor.py
+    [PY] Analysis for utils_display_monitor.py:
+    [PY] Analysis for utils_display_monitor.py:
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.offsetbox, numpy, os, traceback
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.offsetbox, numpy, os, traceback
+      Functions: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz), _setup_zoom_events(ax, canvas, original_xlim), clear_monitor_plots(scan_monitor_tab_instance), on_double_click(event), on_press(event), on_release(event), reset_zoom(ax, canvas), update_annot(event), update_annot(event), update_annot(event), update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title), update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title), update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+      Functions: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz), _setup_zoom_events(ax, canvas, original_xlim), clear_monitor_plots(scan_monitor_tab_instance), on_double_click(event), on_press(event), on_release(event), reset_zoom(ax, canvas), update_annot(event), update_annot(event), update_annot(event), update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title), update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title), update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title)
+      └── utils_scan_view.py (Lines: 182)
+      └── utils_scan_view.py
+    [PY] Analysis for utils_scan_view.py:
+    [PY] Analysis for utils_scan_view.py:
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.offsetbox, numpy, os, traceback
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.offsetbox, numpy, os, traceback
+      Functions: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz), _setup_zoom_events(ax, canvas, original_xlim), on_double_click(event), on_press(event), on_release(event), reset_zoom(ax, canvas), update_annot(event), update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title, line_color)
+      Functions: _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz), _setup_zoom_events(ax, canvas, original_xlim), on_double_click(event), on_press(event), on_release(event), reset_zoom(ax, canvas), update_annot(event), update_single_plot(scan_view_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title, line_color)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\controls\__pycache__
+
+└── workers\controls\
+
+└── workers\controls\
+          ├── tab_markers_child_control_poke.py (Lines: 72)
+          ├── tab_markers_child_control_poke.py
+    [PY] Analysis for tab_markers_child_control_poke.py:
+    [PY] Analysis for tab_markers_child_control_poke.py:
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_poke
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_poke
+      Classes: PokeTab
+      Classes: PokeTab
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+          ├── tab_markers_child_control_rbw.py (Lines: 85)
+          ├── tab_markers_child_control_rbw.py
+    [PY] Analysis for tab_markers_child_control_rbw.py:
+    [PY] Analysis for tab_markers_child_control_rbw.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, tkinter, utils_showtime_rbw
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, tkinter, utils_showtime_rbw
+      Classes: RBWTab
+      Classes: RBWTab
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+          ├── tab_markers_child_control_span.py (Lines: 85)
+          ├── tab_markers_child_control_span.py
+    [PY] Analysis for tab_markers_child_control_span.py:
+    [PY] Analysis for tab_markers_child_control_span.py:
+      Imports: datetime, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, tkinter, utils_showtime_span
+      Imports: datetime, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, tkinter, utils_showtime_span
+      Classes: SpanTab
+      Classes: SpanTab
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self)
+          ├── tab_markers_child_control_traces.py (Lines: 143)
+          ├── tab_markers_child_control_traces.py
+    [PY] Analysis for tab_markers_child_control_traces.py:
+    [PY] Analysis for tab_markers_child_control_traces.py:
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_trace
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_trace
+      Classes: TracesTab
+      Classes: TracesTab
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self), _toggle_and_execute(self, button_type), _update_button_styles(self)
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self), _toggle_and_execute(self, button_type), _update_button_styles(self)
+          ├── tab_markers_child_control_zone_zoom.py (Lines: 188)
+          ├── tab_markers_child_control_zone_zoom.py
+    [PY] Analysis for tab_markers_child_control_zone_zoom.py:
+    [PY] Analysis for tab_markers_child_control_zone_zoom.py:
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_zone_zoom
+      Imports: datetime, display.debug_logic, inspect, os, tkinter, utils_showtime_zone_zoom
+      Classes: ZoneZoomTab
+      Classes: ZoneZoomTab
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self), _on_tab_selected(self, event), _sync_ui_from_state(self)
+      Functions: __init__(self, parent_notebook, showtime_tab_instance), _create_widgets(self), _on_tab_selected(self, event), _sync_ui_from_state(self)
+          ├── tab_markers_parent_bottom_controls.py (Lines: 214)
+          ├── tab_markers_parent_bottom_controls.py
+    [PY] Analysis for tab_markers_parent_bottom_controls.py:
+    [PY] Analysis for tab_markers_parent_bottom_controls.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, src.program_style, tab_markers_child_control_poke, tab_markers_child_control_rbw, tab_markers_child_control_span, tab_markers_child_control_traces, tab_markers_child_control_zone_zoom, tkinter
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, src.program_style, tab_markers_child_control_poke, tab_markers_child_control_rbw, tab_markers_child_control_span, tab_markers_child_control_traces, tab_markers_child_control_zone_zoom, tkinter
+      Classes: ControlsFrame
+      Classes: ControlsFrame
+      Functions: __init__(self, parent_frame, showtime_tab_instance), _create_widgets(self), _on_tab_selected(self, event), _update_control_buttons(self), switch_to_tab(self, tab_name)
+      Functions: __init__(self, parent_frame, showtime_tab_instance), _create_widgets(self), _on_tab_selected(self, event), _update_control_buttons(self), switch_to_tab(self, tab_name)
+          ├── utils_showtime_plot.py (Lines: 76)
+          ├── utils_showtime_plot.py
+    [PY] Analysis for utils_showtime_plot.py:
+    [PY] Analysis for utils_showtime_plot.py:
+      Imports: display.console_logic, display.debug_logic, display.utils_display_monitor, inspect, os, pandas, ref.ref_frequency_bands, tkinter
+      Imports: display.console_logic, display.debug_logic, display.utils_display_monitor, inspect, os, pandas, ref.ref_frequency_bands, tkinter
+      Functions: plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_freq_mhz, stop_freq_mhz)
+      Functions: plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_freq_mhz, stop_freq_mhz)
+          ├── utils_showtime_poke.py (Lines: 86)
+          ├── utils_showtime_poke.py
+    [PY] Analysis for utils_showtime_poke.py:
+    [PY] Analysis for utils_showtime_poke.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, pandas, ref.ref_frequency_bands, settings_and_config.config_manager_save, utils_showtime_span, yak.Yakety_Yak, yak.utils_yakbeg_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, pandas, ref.ref_frequency_bands, settings_and_config.config_manager_save, utils_showtime_span, yak.Yakety_Yak, yak.utils_yakbeg_handler
+      Functions: on_poke_action(showtime_tab_instance)
+      Functions: on_poke_action(showtime_tab_instance)
+          ├── utils_showtime_rbw.py (Lines: 91)
+          ├── utils_showtime_rbw.py
+    [PY] Analysis for utils_showtime_rbw.py:
+    [PY] Analysis for utils_showtime_rbw.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, settings_and_config.config_manager_save, tkinter, yak.Yakety_Yak, yak.utils_yak_setting_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, settings_and_config.config_manager_save, tkinter, yak.Yakety_Yak, yak.utils_yak_setting_handler
+      Functions: on_rbw_button_click(showtime_tab, rbw_hz), set_rbw_logic(app_instance, rbw_hz, console_print_func)
+      Functions: on_rbw_button_click(showtime_tab, rbw_hz), set_rbw_logic(app_instance, rbw_hz, console_print_func)
+          ├── utils_showtime_span.py (Lines: 93)
+          ├── utils_showtime_span.py
+    [PY] Analysis for utils_showtime_span.py:
+    [PY] Analysis for utils_showtime_span.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, settings_and_config.config_manager_save, yak.utils_yak_setting_handler, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, settings_and_config.config_manager_save, yak.utils_yak_setting_handler, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Functions: on_span_button_click(showtime_tab_instance, span_hz)
+      Functions: on_span_button_click(showtime_tab_instance, span_hz)
+          ├── utils_showtime_trace.py (Lines: 138)
+          ├── utils_showtime_trace.py
+    [PY] Analysis for utils_showtime_trace.py:
+    [PY] Analysis for utils_showtime_trace.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, pandas, process_math.math_frequency_translation, settings_and_config.config_manager_save, tkinter, utils_showtime_plot, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, pandas, process_math.math_frequency_translation, settings_and_config.config_manager_save, tkinter, utils_showtime_plot, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Functions: _get_and_plot_traces(traces_tab_instance, view_name), execute_trace_action(traces_tab_instance, action_type), sync_trace_modes(traces_tab_instance)
+      Functions: _get_and_plot_traces(traces_tab_instance, view_name), execute_trace_action(traces_tab_instance, action_type), sync_trace_modes(traces_tab_instance)
+          └── utils_showtime_zone_zoom.py (Lines: 312)
+          └── utils_showtime_zone_zoom.py
+    [PY] Analysis for utils_showtime_zone_zoom.py:
+    [PY] Analysis for utils_showtime_zone_zoom.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, ref.ref_frequency_bands, settings_and_config.config_manager_save, yak.utils_yakbeg_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.math_frequency_translation, ref.ref_frequency_bands, settings_and_config.config_manager_save, yak.utils_yakbeg_handler
+      Functions: _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz), set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab), set_span_to_device(showtime_tab_instance, zone_zoom_tab), set_span_to_group(showtime_tab_instance, zone_zoom_tab), set_span_to_zone(showtime_tab_instance, zone_zoom_tab)
+      Functions: _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz), set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab), set_span_to_device(showtime_tab_instance, zone_zoom_tab), set_span_to_group(showtime_tab_instance, zone_zoom_tab), set_span_to_zone(showtime_tab_instance, zone_zoom_tab)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Experiments\__pycache__
+
+└── workers\Experiments\
+
+└── workers\Experiments\
+          ├── __init__.py (Lines: 24)
+          ├── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+          ├── tab_experiments_child_JSON_api.py (Lines: 489)
+          ├── tab_experiments_child_JSON_api.py
+    [PY] Analysis for tab_experiments_child_JSON_api.py:
+    [PY] Analysis for tab_experiments_child_JSON_api.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, requests, subprocess, sys, threading, time, tkinter, webbrowser
+      Imports: display.console_logic, display.debug_logic, inspect, os, requests, subprocess, sys, threading, time, tkinter, webbrowser
+      Classes: JsonApiTab
+      Classes: JsonApiTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_tab_selected(self, event), _open_all_api_scans(self), _open_api_scan_data(self, filename), _open_latest_api_scan(self), _open_markers_api(self), _open_scan_in_progress_api(self), _run_json_api_thread_target(self), _start_json_api(self), _stop_json_api(self), _update_api_button_states(self), fetch_and_display()
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_tab_selected(self, event), _open_all_api_scans(self), _open_api_scan_data(self, filename), _open_latest_api_scan(self), _open_markers_api(self), _open_scan_in_progress_api(self), _run_json_api_thread_target(self), _start_json_api(self), _stop_json_api(self), _update_api_button_states(self), fetch_and_display()
+          ├── tab_experiments_child_credits.py (Lines: 152)
+          ├── tab_experiments_child_credits.py
+    [PY] Analysis for tab_experiments_child_credits.py:
+    [PY] Analysis for tab_experiments_child_credits.py:
+      Imports: PIL, display.console_logic, display.debug_logic, inspect, os, src.program_style, tkinter, webbrowser
+      Imports: PIL, display.console_logic, display.debug_logic, inspect, os, src.program_style, tkinter, webbrowser
+      Classes: CreditsTab
+      Classes: CreditsTab
+      Functions: __init__(self, parent_notebook, app_instance, console_print_func), _on_tab_selected(self, event), _open_github_link(self)
+      Functions: __init__(self, parent_notebook, app_instance, console_print_func), _on_tab_selected(self, event), _open_github_link(self)
+          ├── tab_experiments_child_initial_configuration.py (Lines: 195)
+          ├── tab_experiments_child_initial_configuration.py
+    [PY] Analysis for tab_experiments_child_initial_configuration.py:
+    [PY] Analysis for tab_experiments_child_initial_configuration.py:
+      Imports: configparser, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, ref.ref_program_default_values, settings_and_config.config_manager_save, tkinter
+      Imports: configparser, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, ref.ref_program_default_values, settings_and_config.config_manager_save, tkinter
+      Classes: InitialConfigurationTab
+      Classes: InitialConfigurationTab
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _populate_config_table(self), _reload_config_action(self), _save_program_configure_action(self)
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _populate_config_table(self), _reload_config_action(self), _save_program_configure_action(self)
+          ├── tab_experiments_child_intermod.py (Lines: 680)
+          ├── tab_experiments_child_intermod.py
+    [PY] Analysis for tab_experiments_child_intermod.py:
+    [PY] Analysis for tab_experiments_child_intermod.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, pandas, process_math.calculate_intermod, process_math.ploting_intermod_zones, random, subprocess, sys, tkinter, tkinter.font, typing
+      Imports: display.console_logic, display.debug_logic, inspect, os, pandas, process_math.calculate_intermod, process_math.ploting_intermod_zones, random, subprocess, sys, tkinter, tkinter.font, typing
+      Classes: InterModTab
+      Classes: InterModTab
+      Functions: __init__(self, master, app_instance, console_print_func), _browse_markers_file(self), _create_widgets(self), _display_imd_results(self, df), _load_intermod_csv(self), _on_tab_selected(self, event), _on_treeview_header_click(self, event), _open_intermod_csv(self), _open_intermod_map(self), _parse_markers_csv(self, csv_path), _plot_imd_results(self), _process_imd(self), _sort_treeview(self, col_name, order)
+      Functions: __init__(self, master, app_instance, console_print_func), _browse_markers_file(self), _create_widgets(self), _display_imd_results(self, df), _load_intermod_csv(self), _on_tab_selected(self, event), _on_treeview_header_click(self, event), _open_intermod_csv(self), _open_intermod_map(self), _parse_markers_csv(self, csv_path), _plot_imd_results(self), _process_imd(self), _sort_treeview(self, col_name, order)
+          ├── tab_experiments_child_yak_beg.py (Lines: 344)
+          ├── tab_experiments_child_yak_beg.py
+    [PY] Analysis for tab_experiments_child_yak_beg.py:
+    [PY] Analysis for tab_experiments_child_yak_beg.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, tkinter, yak.utils_yakbeg_handler
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, tkinter, yak.utils_yakbeg_handler
+      Classes: YakBegTab
+      Classes: YakBegTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_freq_center_span_beg(self), _on_freq_start_stop_beg(self), _on_marker_place_all_beg(self), _on_push_to_monitor(self), _on_tab_selected(self, event), _on_trace_data_beg(self), _on_trace_modes_beg(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_freq_center_span_beg(self), _on_freq_start_stop_beg(self), _on_marker_place_all_beg(self), _on_push_to_monitor(self), _on_tab_selected(self, event), _on_trace_data_beg(self), _on_trace_modes_beg(self)
+          └── tab_experiments_colouring.py (Lines: 306)
+          └── tab_experiments_colouring.py
+    [PY] Analysis for tab_experiments_colouring.py:
+    [PY] Analysis for tab_experiments_colouring.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, src.program_style, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, src.program_style, tkinter
+      Classes: ColouringTab
+      Classes: ColouringTab
+      Functions: __init__(self, master, app_instance, console_print_func), _add_color_display_row(self, parent_frame, text, hex_color, row_idx, indent), _create_widgets(self), _on_mousewheel(self, event), _on_tab_selected(self, event), _populate_content(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _add_color_display_row(self, parent_frame, text, hex_color, row_idx, indent), _create_widgets(self), _on_mousewheel(self, event), _on_tab_selected(self, event), _populate_content(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Instrument\__pycache__
+
+└── workers\Instrument\
+
+└── workers\Instrument\
+          ├── connection
+          ├── connection
+          ├── settings
+          ├── settings
+          ├── visa
+          ├── visa
+          ├── TAB_INSTRUMENT_PARENT.py (Lines: 49)
+          ├── TAB_INSTRUMENT_PARENT.py
+    [PY] Analysis for TAB_INSTRUMENT_PARENT.py:
+    [PY] Analysis for TAB_INSTRUMENT_PARENT.py:
+      Imports: connection.tab_instrument_child_connection, inspect, os, settings.tab_instrument_child_settings, tkinter, visa.tab_instrument_child_visa_interpreter
+      Imports: connection.tab_instrument_child_connection, inspect, os, settings.tab_instrument_child_settings, tkinter, visa.tab_instrument_child_visa_interpreter
+      Classes: TAB_INSTRUMENT_PARENT
+      Classes: TAB_INSTRUMENT_PARENT
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+          └── __init__.py (Lines: 0)
+          └── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Instrument\connection\__pycache__
+
+└── workers\Instrument\connection\
+
+└── workers\Instrument\connection\
+              ├── instrument_logic.py (Lines: 232)
+              ├── instrument_logic.py
+    [PY] Analysis for instrument_logic.py:
+    [PY] Analysis for instrument_logic.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa, sys, time, tkinter, traceback, utils_instrument_connection, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa, sys, time, tkinter, traceback, utils_instrument_connection, yak.Yakety_Yak
+      Functions: connect_instrument_logic(app_instance, console_print_func), disconnect_instrument_logic(app_instance, console_print_func), populate_resources_logic(app_instance, combobox_widget, console_print_func), query_current_settings_logic(app_instance, console_print_func)
+      Functions: connect_instrument_logic(app_instance, console_print_func), disconnect_instrument_logic(app_instance, console_print_func), populate_resources_logic(app_instance, combobox_widget, console_print_func), query_current_settings_logic(app_instance, console_print_func)
+              ├── tab_instrument_child_connection.py (Lines: 223)
+              ├── tab_instrument_child_connection.py
+    [PY] Analysis for tab_instrument_child_connection.py:
+    [PY] Analysis for tab_instrument_child_connection.py:
+      Imports: display.console_logic, display.debug_logic, inspect, instrument_logic, os, threading, time, tkinter, yak.utils_yak_setting_handler
+      Imports: display.console_logic, display.debug_logic, inspect, instrument_logic, os, threading, time, tkinter, yak.utils_yak_setting_handler
+      Classes: InstrumentTab
+      Classes: InstrumentTab
+      Functions: __init__(self, master, app_instance, console_print_func, parent_notebook_ref), _connect_instrument(self), _create_widgets(self), _disconnect_instrument(self), _on_tab_selected(self, event), _populate_resources(self), _power_cycle_instrument(self), _reset_instrument(self), _toggle_connection(self), _update_connection_status(self)
+      Functions: __init__(self, master, app_instance, console_print_func, parent_notebook_ref), _connect_instrument(self), _create_widgets(self), _disconnect_instrument(self), _on_tab_selected(self, event), _populate_resources(self), _power_cycle_instrument(self), _reset_instrument(self), _toggle_connection(self), _update_connection_status(self)
+              └── utils_instrument_connection.py (Lines: 194)
+              └── utils_instrument_connection.py
+    [PY] Analysis for utils_instrument_connection.py:
+    [PY] Analysis for utils_instrument_connection.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa
+      Imports: display.console_logic, display.debug_logic, inspect, os, pyvisa
+      Functions: connect_to_instrument(resource_name, console_print_func), disconnect_instrument(inst, console_print_func), list_visa_resources(console_print_func)
+      Functions: connect_to_instrument(resource_name, console_print_func), disconnect_instrument(inst, console_print_func), list_visa_resources(console_print_func)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Instrument\settings\__pycache__
+
+└── workers\Instrument\settings\
+
+└── workers\Instrument\settings\
+              ├── tab_instrument_child_settings.py (Lines: 120)
+              ├── tab_instrument_child_settings.py
+    [PY] Analysis for tab_instrument_child_settings.py:
+    [PY] Analysis for tab_instrument_child_settings.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, src.program_style, tab_instrument_child_settings_amplitude, tab_instrument_child_settings_bandwidth, tab_instrument_child_settings_frequency, tab_instrument_child_settings_markers, tab_instrument_child_settings_traces, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, src.program_style, tab_instrument_child_settings_amplitude, tab_instrument_child_settings_bandwidth, tab_instrument_child_settings_frequency, tab_instrument_child_settings_markers, tab_instrument_child_settings_traces, tkinter
+      Classes: SettingsParentTab
+      Classes: SettingsParentTab
+      Functions: __init__(self, master, app_instance, console_print_func), _on_tab_selected(self, event), refresh_all_child_tabs(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _on_tab_selected(self, event), refresh_all_child_tabs(self)
+              ├── tab_instrument_child_settings_amplitude.py (Lines: 348)
+              ├── tab_instrument_child_settings_amplitude.py
+    [PY] Analysis for tab_instrument_child_settings_amplitude.py:
+    [PY] Analysis for tab_instrument_child_settings_amplitude.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak, yak.Yakety_Yak
+      Classes: AmplitudeSettingsTab
+      Classes: AmplitudeSettingsTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _find_closest_preset_value(self, value, preset_list), _on_power_attenuation_change(self, event), _on_ref_level_change(self, event), _on_resize(self, event), _save_settings_handler(self), _set_ui_initial_state(self), _update_descriptions(self, value, preset_list, label, var), _update_power_attenuation_display(self, value), _update_ref_level_display(self, value), _update_toggle_button_style(self, button, state)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _find_closest_preset_value(self, value, preset_list), _on_power_attenuation_change(self, event), _on_ref_level_change(self, event), _on_resize(self, event), _save_settings_handler(self), _set_ui_initial_state(self), _update_descriptions(self, value, preset_list, label, var), _update_power_attenuation_display(self, value), _update_ref_level_display(self, value), _update_toggle_button_style(self, button, state)
+              ├── tab_instrument_child_settings_bandwidth.py (Lines: 509)
+              ├── tab_instrument_child_settings_bandwidth.py
+    [PY] Analysis for tab_instrument_child_settings_bandwidth.py:
+    [PY] Analysis for tab_instrument_child_settings_bandwidth.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak, yak.utils_yaknab_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak, yak.utils_yaknab_handler
+      Classes: BandwidthSettingsTab
+      Classes: BandwidthSettingsTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_averaging_count_selected(self, event, trace_number), _on_averaging_toggle(self, trace_number, state), _on_continuous_mode_change(self, event), _on_rbw_selected(self, event), _on_tab_selected(self, event), _on_vbw_auto_toggle(self), _on_vbw_selected(self, event), _save_settings_handler(self), _sync_ui_from_app_state(self), _update_rbw_combobox_display(self), _update_toggle_button_style(self, button, state), _update_vbw_combobox_display(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_averaging_count_selected(self, event, trace_number), _on_averaging_toggle(self, trace_number, state), _on_continuous_mode_change(self, event), _on_rbw_selected(self, event), _on_tab_selected(self, event), _on_vbw_auto_toggle(self), _on_vbw_selected(self, event), _save_settings_handler(self), _sync_ui_from_app_state(self), _update_rbw_combobox_display(self), _update_toggle_button_style(self, button, state), _update_vbw_combobox_display(self)
+              ├── tab_instrument_child_settings_frequency.py (Lines: 498)
+              ├── tab_instrument_child_settings_frequency.py
+    [PY] Analysis for tab_instrument_child_settings_frequency.py:
+    [PY] Analysis for tab_instrument_child_settings_frequency.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, ref.ref_file_paths, ref.ref_program_default_values, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, ref.ref_file_paths, ref.ref_program_default_values, ref.ref_scanner_setting_lists, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler
+      Classes: FrequencySettingsTab
+      Classes: FrequencySettingsTab
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_span_preset_buttons(self, parent_frame), _create_widgets(self), _on_freq_center_span_beg(self), _on_freq_start_stop_beg(self), _on_span_preset_button_click(self, preset), _on_span_variable_change(self), _round_variables(self), _save_settings_handler(self), _set_default_variables(self), _update_span_button_styles(self), truncate_float(f)
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_span_preset_buttons(self, parent_frame), _create_widgets(self), _on_freq_center_span_beg(self), _on_freq_start_stop_beg(self), _on_span_preset_button_click(self, preset), _on_span_variable_change(self), _round_variables(self), _save_settings_handler(self), _set_default_variables(self), _update_span_button_styles(self), truncate_float(f)
+              ├── tab_instrument_child_settings_markers.py (Lines: 206)
+              ├── tab_instrument_child_settings_markers.py
+    [PY] Analysis for tab_instrument_child_settings_markers.py:
+    [PY] Analysis for tab_instrument_child_settings_markers.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, settings_and_config.config_manager_marker, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler
+      Imports: display.console_logic, display.debug_logic, inspect, os, settings_and_config.config_manager_marker, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler
+      Classes: MarkerSettingsTab
+      Classes: MarkerSettingsTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_marker_place_all_beg(self), _save_settings_handler(self), _set_default_variables(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_marker_place_all_beg(self), _save_settings_handler(self), _set_default_variables(self)
+              └── tab_instrument_child_settings_traces.py (Lines: 489)
+              └── tab_instrument_child_settings_traces.py
+    [PY] Analysis for tab_instrument_child_settings_traces.py:
+    [PY] Analysis for tab_instrument_child_settings_traces.py:
+      Imports: display.console_logic, display.debug_logic, display.utils_display_monitor, display.utils_scan_view, inspect, os, pandas, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Imports: display.console_logic, display.debug_logic, display.utils_display_monitor, display.utils_scan_view, inspect, os, pandas, settings_and_config.config_manager_instruments, settings_and_config.config_manager_save, tkinter, yak.utils_yakbeg_handler, yak.utils_yaknab_handler
+      Classes: TraceSettingsTab
+      Classes: TraceSettingsTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_all_traces_nab(self), _on_push_to_monitor(self), _on_tab_selected(self, event), _on_trace_data_beg(self), _on_trace_modes_beg(self), _plot_all_traces_to_monitor(self), _save_settings_handler(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _on_all_traces_nab(self), _on_push_to_monitor(self), _on_tab_selected(self, event), _on_trace_data_beg(self), _on_trace_modes_beg(self), _plot_all_traces_to_monitor(self), _save_settings_handler(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Instrument\visa\__pycache__
+
+└── workers\Instrument\visa\
+
+└── workers\Instrument\visa\
+              ├── ref_visa_commands.py (Lines: 411)
+              ├── ref_visa_commands.py
+    [PY] Analysis for ref_visa_commands.py:
+    [PY] Analysis for ref_visa_commands.py:
+      Functions: get_default_visa_commands()
+      Functions: get_default_visa_commands()
+              ├── tab_instrument_child_visa_interpreter.py (Lines: 417)
+              ├── tab_instrument_child_visa_interpreter.py
+    [PY] Analysis for tab_instrument_child_visa_interpreter.py:
+    [PY] Analysis for tab_instrument_child_visa_interpreter.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, src.program_style, threading, time, tkinter, utils_visa_interpreter_commands, utils_visa_interpreter_files
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, src.program_style, threading, time, tkinter, utils_visa_interpreter_commands, utils_visa_interpreter_files
+      Classes: VisaInterpreterTab
+      Classes: VisaInterpreterTab
+      Functions: __init__(self, parent, app_instance, console_print_func), _add_new_row(self), _delete_selected_row(self), _edit_cell(self, item, col_index), _handle_connection_status_change_event(self, event), _on_double_click(self, event), _on_treeview_focus(self, event), _on_treeview_select(self, event), _refresh_data(self), _save_data_to_csv(self), _set_ui_initial_state(self), _sort_treeview(self, tv, col), bind_events(self), create_widgets(self), load_data_to_treeview(self), numeric_sort_key(x), on_entry_change(e), on_focus_out(e), setup_layout(self)
+      Functions: __init__(self, parent, app_instance, console_print_func), _add_new_row(self), _delete_selected_row(self), _edit_cell(self, item, col_index), _handle_connection_status_change_event(self, event), _on_double_click(self, event), _on_treeview_focus(self, event), _on_treeview_select(self, event), _refresh_data(self), _save_data_to_csv(self), _set_ui_initial_state(self), _sort_treeview(self, tv, col), bind_events(self), create_widgets(self), load_data_to_treeview(self), numeric_sort_key(x), on_entry_change(e), on_focus_out(e), setup_layout(self)
+              ├── utils_visa_interpreter_commands.py (Lines: 122)
+              ├── utils_visa_interpreter_commands.py
+    [PY] Analysis for utils_visa_interpreter_commands.py:
+    [PY] Analysis for utils_visa_interpreter_commands.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, tkinter, yak.utils_yak_visa
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, tkinter, yak.utils_yak_visa
+      Classes: VisaCommandExecutor
+      Classes: VisaCommandExecutor
+      Functions: __init__(self, app_instance, console_print_func), _get_instrument_status(self), on_do_command(self, command), on_execute_command(self, command), on_query_command(self, command), on_set_command(self, command)
+      Functions: __init__(self, app_instance, console_print_func), _get_instrument_status(self), on_do_command(self, command), on_execute_command(self, command), on_query_command(self, command), on_set_command(self, command)
+              └── utils_visa_interpreter_files.py (Lines: 182)
+              └── utils_visa_interpreter_files.py
+    [PY] Analysis for utils_visa_interpreter_files.py:
+    [PY] Analysis for utils_visa_interpreter_files.py:
+      Imports: csv, datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, ref_visa_commands
+      Imports: csv, datetime, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, ref_visa_commands
+      Functions: create_default_data_file(data_file), initialize_data_file_and_load(), load_visa_commands_data(data_file), save_visa_commands_data(data_file, data)
+      Functions: create_default_data_file(data_file), initialize_data_file_and_load(), load_visa_commands_data(data_file), save_visa_commands_data(data_file, data)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Marker_files\__pycache__
+
+└── workers\Marker_files\
+
+└── workers\Marker_files\
+          ├── tab_markers_child_import_and_edit.py (Lines: 847)
+          ├── tab_markers_child_import_and_edit.py
+    [PY] Analysis for tab_markers_child_import_and_edit.py:
+    [PY] Analysis for tab_markers_child_import_and_edit.py:
+      Imports: csv, datetime, display.console_logic, display.debug_logic, files.utils_marker_report_converter, inspect, json, os, re, src.gui_elements, sys, threading, tkinter, xml.etree.ElementTree
+      Imports: csv, datetime, display.console_logic, display.debug_logic, files.utils_marker_report_converter, inspect, json, os, re, src.gui_elements, sys, threading, tkinter, xml.etree.ElementTree
+      Classes: ReportConverterTab
+      Classes: ReportConverterTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _disable_buttons(self), _enable_buttons(self), _increment_string_with_trailing_digits(self, text), _initiate_conversion(self, file_type), _load_markers_file(self), _navigate_cells(self, current_item, current_col_index, direction), _on_tab_selected(self, event), _on_tree_double_click(self, event), _on_tree_header_click(self, event), _perform_conversion(self, file_path, file_type), _populate_marker_tree(self), _save_markers_file_internally(self), _save_open_air_csv(self), _sort_treeview(self, column_name, ascending), _start_editing_cell(self, item, col_index, initial_value), _update_markers_display_tab_data(self), get_sort_key(item), on_edit_complete_and_navigate(event, navigate_direction)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _disable_buttons(self), _enable_buttons(self), _increment_string_with_trailing_digits(self, text), _initiate_conversion(self, file_type), _load_markers_file(self), _navigate_cells(self, current_item, current_col_index, direction), _on_tab_selected(self, event), _on_tree_double_click(self, event), _on_tree_header_click(self, event), _perform_conversion(self, file_path, file_type), _populate_marker_tree(self), _save_markers_file_internally(self), _save_open_air_csv(self), _sort_treeview(self, column_name, ascending), _start_editing_cell(self, item, col_index, initial_value), _update_markers_display_tab_data(self), get_sort_key(item), on_edit_complete_and_navigate(event, navigate_direction)
+          ├── utils_file_markers_handling.py (Lines: 141)
+          ├── utils_file_markers_handling.py
+    [PY] Analysis for utils_file_markers_handling.py:
+    [PY] Analysis for utils_file_markers_handling.py:
+      Imports: display.debug_logic, inspect, numpy, os, pandas
+      Imports: display.debug_logic, inspect, numpy, os, pandas
+      Functions: _group_by_zone_and_group(data), load_and_process_markers(app_instance, console_print_func), load_markers_data(app_instance, console_print_func)
+      Functions: _group_by_zone_and_group(data), load_and_process_markers(app_instance, console_print_func), load_markers_data(app_instance, console_print_func)
+          └── utils_marker_report_converter.py (Lines: 462)
+          └── utils_marker_report_converter.py
+    [PY] Analysis for utils_marker_report_converter.py:
+    [PY] Analysis for utils_marker_report_converter.py:
+      Imports: bs4, csv, display.console_logic, display.debug_logic, inspect, numpy, os, pdfplumber, re, subprocess, sys, xml.etree.ElementTree
+      Imports: bs4, csv, display.console_logic, display.debug_logic, inspect, numpy, os, pdfplumber, re, subprocess, sys, xml.etree.ElementTree
+      Functions: convert_html_report_to_csv(html_content, console_print_func), convert_pdf_report_to_csv(pdf_file_path, console_print_func), generate_csv_from_shw(xml_file_path, console_print_func)
+      Functions: convert_html_report_to_csv(html_content, console_print_func), convert_pdf_report_to_csv(pdf_file_path, console_print_func), generate_csv_from_shw(xml_file_path, console_print_func)
+
+└── workers\orchestrator\
+
+└── workers\orchestrator\
+          ├── __init__.py (Lines: 60)
+          ├── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+          ├── display_child_orchestrator_tasks.py (Lines: 122)
+          ├── display_child_orchestrator_tasks.py
+    [PY] Analysis for display_child_orchestrator_tasks.py:
+    [PY] Analysis for display_child_orchestrator_tasks.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, tkinter
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, tkinter
+      Classes: OrchestratorTasksTab
+      Classes: OrchestratorTasksTab
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), log_event(self, source, event), update_status_display(self, is_running, is_paused)
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), log_event(self, source, event), update_status_display(self, is_running, is_paused)
+          ├── orchestrator_gui.py (Lines: 94)
+          ├── orchestrator_gui.py
+    [PY] Analysis for orchestrator_gui.py:
+    [PY] Analysis for orchestrator_gui.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, tkinter
+      Classes: OrchestratorGUI
+      Classes: OrchestratorGUI
+      Functions: __init__(self, parent, app_instance, orchestrator_logic), _create_widgets(self), update_button_states(self)
+      Functions: __init__(self, parent, app_instance, orchestrator_logic), _create_widgets(self), update_button_states(self)
+          └── orchestrator_logic.py (Lines: 98)
+          └── orchestrator_logic.py
+    [PY] Analysis for orchestrator_logic.py:
+    [PY] Analysis for orchestrator_logic.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os
+      Imports: display.console_logic, display.debug_logic, inspect, os
+      Classes: OrchestratorLogic
+      Classes: OrchestratorLogic
+      Functions: __init__(self, app_instance, gui), get_status(self), log_check_in(self, source_file), log_task_event(self, source_file, event), start_orchestrator(self), stop_orchestrator(self), toggle_pause(self)
+      Functions: __init__(self, app_instance, gui), get_status(self), log_check_in(self, source_file), log_task_event(self, source_file, event), start_orchestrator(self), stop_orchestrator(self), toggle_pause(self)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Plotting\__pycache__
+
+└── workers\Plotting\
+
+└── workers\Plotting\
+          ├── TAB_PLOTTING_PARENT.py (Lines: 45)
+          ├── TAB_PLOTTING_PARENT.py
+    [PY] Analysis for TAB_PLOTTING_PARENT.py:
+    [PY] Analysis for TAB_PLOTTING_PARENT.py:
+      Imports: inspect, tab_plotting_child_3D, tab_plotting_child_Single, tab_plotting_child_average, tkinter
+      Imports: inspect, tab_plotting_child_3D, tab_plotting_child_Single, tab_plotting_child_average, tkinter
+      Classes: TAB_PLOTTING_PARENT
+      Classes: TAB_PLOTTING_PARENT
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+          ├── __init__.py (Lines: 24)
+          ├── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+          ├── tab_plotting_child_3D.py (Lines: 540)
+          ├── tab_plotting_child_3D.py
+    [PY] Analysis for tab_plotting_child_3D.py:
+    [PY] Analysis for tab_plotting_child_3D.py:
+      Imports: datetime, display.console_logic, display.debug_logic, glob, inspect, numpy, os, pandas, platform, re, tkinter, utils_plotting_scans_over_time, webbrowser
+      Imports: datetime, display.console_logic, display.debug_logic, glob, inspect, numpy, os, pandas, platform, re, tkinter, utils_plotting_scans_over_time, webbrowser
+      Classes: Plotting3DTab
+      Classes: Plotting3DTab
+      Functions: __init__(self, master, app_instance, console_print_func), _clear_dynamic_3d_buttons(self), _create_widgets(self), _find_and_group_csv_files_3d(self, folder_path), _generate_plot_scans_over_time(self), _on_tab_selected(self, event), _open_folder_for_3d_plotting(self), _select_group_for_3d_plotting(self, prefix)
+      Functions: __init__(self, master, app_instance, console_print_func), _clear_dynamic_3d_buttons(self), _create_widgets(self), _find_and_group_csv_files_3d(self, folder_path), _generate_plot_scans_over_time(self), _on_tab_selected(self, event), _open_folder_for_3d_plotting(self), _select_group_for_3d_plotting(self, prefix)
+          ├── tab_plotting_child_Single.py (Lines: 670)
+          ├── tab_plotting_child_Single.py
+    [PY] Analysis for tab_plotting_child_Single.py:
+    [PY] Analysis for tab_plotting_child_Single.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, tkinter, utils_plotting, webbrowser
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, tkinter, utils_plotting, webbrowser
+      Classes: PlottingTab
+      Classes: PlottingTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _local_calculate_average(df), _local_calculate_median(df), _local_calculate_psd(df, rbw_values_list), _local_calculate_range(df), _local_calculate_std_dev(df), _local_calculate_variance(df), _on_create_html_checkbox_changed(self), _on_scan_marker_checkbox_changed(self), _on_tab_selected(self, event), _open_last_plot(self), _plot_current_cycle_average(self), _plot_single_scan(self)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _local_calculate_average(df), _local_calculate_median(df), _local_calculate_psd(df, rbw_values_list), _local_calculate_range(df), _local_calculate_std_dev(df), _local_calculate_variance(df), _on_create_html_checkbox_changed(self), _on_scan_marker_checkbox_changed(self), _on_tab_selected(self, event), _open_last_plot(self), _plot_current_cycle_average(self), _plot_single_scan(self)
+          ├── tab_plotting_child_average.py (Lines: 1067)
+          ├── tab_plotting_child_average.py
+    [PY] Analysis for tab_plotting_child_average.py:
+    [PY] Analysis for tab_plotting_child_average.py:
+      Imports: datetime, display.console_logic, display.debug_logic, glob, inspect, numpy, os, pandas, platform, process_math.averaging_utils, re, subprocess, tkinter, utils_plotting, webbrowser
+      Imports: datetime, display.console_logic, display.debug_logic, glob, inspect, numpy, os, pandas, platform, process_math.averaging_utils, re, subprocess, tkinter, utils_plotting, webbrowser
+      Classes: AveragingTab
+      Classes: AveragingTab
+      Functions: __init__(self, master, app_instance, console_print_func), _clear_dynamic_buttons(self), _create_widgets(self), _find_and_group_csv_files(self, folder_path), _generate_csv_selected_series(self), _generate_multi_average_plot(self, include_scans), _on_avg_type_checkbox_changed(self), _on_multi_file_marker_checkbox_changed(self), _on_tab_selected(self, event), _open_applied_math_folder(self), _open_folder_for_averaging(self), _select_group_for_plotting(self, prefix)
+      Functions: __init__(self, master, app_instance, console_print_func), _clear_dynamic_buttons(self), _create_widgets(self), _find_and_group_csv_files(self, folder_path), _generate_csv_selected_series(self), _generate_multi_average_plot(self, include_scans), _on_avg_type_checkbox_changed(self), _on_multi_file_marker_checkbox_changed(self), _on_tab_selected(self, event), _open_applied_math_folder(self), _open_folder_for_averaging(self), _select_group_for_plotting(self, prefix)
+          ├── utils_plotting.py (Lines: 675)
+          ├── utils_plotting.py
+    [PY] Analysis for utils_plotting.py:
+    [PY] Analysis for utils_plotting.py:
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os, pandas, plotly.express, plotly.graph_objects, re, webbrowser
+      Imports: csv, display.console_logic, display.debug_logic, inspect, os, pandas, plotly.express, plotly.graph_objects, re, webbrowser
+      Functions: _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, MHZ_TO_HZ, console_print_func), _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_print_func), _add_markers_from_csv(fig, markers_csv_path, MHZ_TO_HZ, console_print_func), _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE), _open_plot_in_browser(html_file_path, console_print_func), plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, historical_dfs_with_names, individual_scan_dfs_with_names, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE), plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE)
+      Functions: _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix, MHZ_TO_HZ, console_print_func), _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_print_func), _add_markers_from_csv(fig, markers_csv_path, MHZ_TO_HZ, console_print_func), _create_spectrum_plot(data_traces, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE), _open_plot_in_browser(html_file_path, console_print_func), plot_multi_trace_data(df_aggregated, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, historical_dfs_with_names, individual_scan_dfs_with_names, output_html_path, y_range_min_override, y_range_max_override, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE), plot_single_scan_data(df_scan, plot_title, include_tv_markers, include_gov_markers, include_markers, include_intermod_markers, output_html_path, console_print_func, scan_data_folder, MHZ_TO_HZ, TV_BAND_MARKERS_MHZ, GOVERNMENT_BAND_MARKERS_MHZ, DEFAULT_MARKERS_FILE, DEFAULT_INTERMOD_FILE)
+          └── utils_plotting_scans_over_time.py (Lines: 303)
+          └── utils_plotting_scans_over_time.py
+    [PY] Analysis for utils_plotting_scans_over_time.py:
+    [PY] Analysis for utils_plotting_scans_over_time.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, pandas, plotly.colors, plotly.graph_objects, re, ref.ref_frequency_bands, webbrowser
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, os, pandas, plotly.colors, plotly.graph_objects, re, ref.ref_frequency_bands, webbrowser
+      Functions: plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder, amplitude_threshold_dbm, console_print_func)
+      Functions: plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder, amplitude_threshold_dbm, console_print_func)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Presets\__pycache__
+
+└── workers\Presets\
+
+└── workers\Presets\
+          ├── TAB_PRESETS_PARENT.py (Lines: 47)
+          ├── TAB_PRESETS_PARENT.py
+    [PY] Analysis for TAB_PRESETS_PARENT.py:
+    [PY] Analysis for TAB_PRESETS_PARENT.py:
+      Imports: inspect, os, tab_presets_child_device, tab_presets_child_local, tab_presets_child_preset_editor, tkinter
+      Imports: inspect, os, tab_presets_child_device, tab_presets_child_local, tab_presets_child_preset_editor, tkinter
+      Classes: TAB_PRESETS_PARENT
+      Classes: TAB_PRESETS_PARENT
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+          ├── __init__.py (Lines: 24)
+          ├── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+          ├── tab_presets_child_device.py (Lines: 353)
+          ├── tab_presets_child_device.py
+    [PY] Analysis for tab_presets_child_device.py:
+    [PY] Analysis for tab_presets_child_device.py:
+      Imports: Instrument.connection.instrument_logic, Presets.utils_preset_csv_process, Presets.utils_preset_query_and_load, Presets.utils_push_preset, csv, datetime, display.console_logic, display.debug_logic, inspect, os, src.program_style, tkinter
+      Imports: Instrument.connection.instrument_logic, Presets.utils_preset_csv_process, Presets.utils_preset_query_and_load, Presets.utils_push_preset, csv, datetime, display.console_logic, display.debug_logic, inspect, os, src.program_style, tkinter
+      Classes: DevicePresetsTab
+      Classes: DevicePresetsTab
+      Functions: __init__(self, parent, app_instance, console_print_func, style_obj), __load_selected_preset_logic(self, selected_preset_name, is_device_preset, preset_data_dict), _handle_connection_status_change_event(self, event), _load_selected_device_preset(self), _on_connection_status_changed(self, is_connected, instrument_model), _on_device_preset_select(self, event), _populate_device_preset_listboxes(self, presets), _query_and_populate_device_presets(self), bind_events(self), create_widgets(self), save_current_settings_as_user_preset(self), setup_layout(self)
+      Functions: __init__(self, parent, app_instance, console_print_func, style_obj), __load_selected_preset_logic(self, selected_preset_name, is_device_preset, preset_data_dict), _handle_connection_status_change_event(self, event), _load_selected_device_preset(self), _on_connection_status_changed(self, is_connected, instrument_model), _on_device_preset_select(self, event), _populate_device_preset_listboxes(self, presets), _query_and_populate_device_presets(self), bind_events(self), create_widgets(self), save_current_settings_as_user_preset(self), setup_layout(self)
+          ├── tab_presets_child_local.py (Lines: 569)
+          ├── tab_presets_child_local.py
+    [PY] Analysis for tab_presets_child_local.py:
+    [PY] Analysis for tab_presets_child_local.py:
+      Imports: Presets.utils_preset_csv_process, Presets.utils_preset_query_and_load, Presets.utils_push_preset, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, settings_and_config.config_manager_save, src.program_style, tkinter
+      Imports: Presets.utils_preset_csv_process, Presets.utils_preset_query_and_load, Presets.utils_push_preset, display.console_logic, display.debug_logic, inspect, os, ref.ref_file_paths, settings_and_config.config_manager_save, src.program_style, tkinter
+      Classes: LocalPresetsTab
+      Classes: LocalPresetsTab
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _on_mousewheel(self, event), _on_preset_button_click(self, preset_data, clicked_button), _on_tab_selected(self, event), _update_gui_from_preset_data(self, preset_data), get_and_set_app_var(preset_key, app_attr_name, conversion_func, scale_factor), get_and_set_bool_app_var(preset_key, app_attr_name), populate_local_presets_list(self), set_display_var(tk_var, key, format_str, conversion_func, default_val)
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _on_mousewheel(self, event), _on_preset_button_click(self, preset_data, clicked_button), _on_tab_selected(self, event), _update_gui_from_preset_data(self, preset_data), get_and_set_app_var(preset_key, app_attr_name, conversion_func, scale_factor), get_and_set_bool_app_var(preset_key, app_attr_name), populate_local_presets_list(self), set_display_var(tk_var, key, format_str, conversion_func, default_val)
+          ├── tab_presets_child_preset_editor.py (Lines: 356)
+          ├── tab_presets_child_preset_editor.py
+    [PY] Analysis for tab_presets_child_preset_editor.py:
+    [PY] Analysis for tab_presets_child_preset_editor.py:
+      Imports: Instrument.connection.instrument_logic, datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, src.program_style, tkinter, utils_presets_editor
+      Imports: Instrument.connection.instrument_logic, datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, src.program_style, tkinter, utils_presets_editor
+      Classes: PresetEditorTab
+      Classes: PresetEditorTab
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _add_current_settings(self), _add_new_empty_row(self), _create_widgets(self), _delete_selected_preset(self), _end_edit(self, event), _export_presets(self), _import_presets(self), _move_preset_down(self), _move_preset_up(self), _on_double_click(self, event), _on_edit_escape(self, event), _on_edit_return(self, event), _on_tab_selected(self, event), _on_tree_select(self, event), _on_window_focus_in(self, event), _save_presets_to_csv(self), _start_edit(self, item_id, col_index), populate_presets_table(self)
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _add_current_settings(self), _add_new_empty_row(self), _create_widgets(self), _delete_selected_preset(self), _end_edit(self, event), _export_presets(self), _import_presets(self), _move_preset_down(self), _move_preset_up(self), _on_double_click(self, event), _on_edit_escape(self, event), _on_edit_return(self, event), _on_tab_selected(self, event), _on_tree_select(self, event), _on_window_focus_in(self, event), _save_presets_to_csv(self), _start_edit(self, item_id, col_index), populate_presets_table(self)
+          ├── utils_preset_csv_process.py (Lines: 269)
+          ├── utils_preset_csv_process.py
+    [PY] Analysis for utils_preset_csv_process.py:
+    [PY] Analysis for utils_preset_csv_process.py:
+      Imports: csv, display.console_logic, display.debug_logic, inspect, numpy, os, pandas
+      Imports: csv, display.console_logic, display.debug_logic, inspect, numpy, os, pandas
+      Functions: get_presets_csv_path(config_file_path, console_print_func), load_user_presets_from_csv(config_file_path, console_print_func), overwrite_user_presets_csv(config_file_path, presets_data, console_print_func, fieldnames)
+      Functions: get_presets_csv_path(config_file_path, console_print_func), load_user_presets_from_csv(config_file_path, console_print_func), overwrite_user_presets_csv(config_file_path, presets_data, console_print_func, fieldnames)
+          ├── utils_preset_query_and_load.py (Lines: 271)
+          ├── utils_preset_query_and_load.py
+    [PY] Analysis for utils_preset_query_and_load.py:
+    [PY] Analysis for utils_preset_query_and_load.py:
+      Imports: Instrument.connection.instrument_logic, Presets.utils_push_preset, csv, datetime, display.console_logic, display.debug_logic, inspect, os, pandas, pyvisa, ref.ref_frequency_bands, time, yak.Yakety_Yak
+      Imports: Instrument.connection.instrument_logic, Presets.utils_push_preset, csv, datetime, display.console_logic, display.debug_logic, inspect, os, pandas, pyvisa, ref.ref_frequency_bands, time, yak.Yakety_Yak
+      Functions: load_selected_preset_logic(app_instance, selected_preset_name, console_print_func, is_device_preset, preset_data_dict), query_current_instrument_settings_for_preset(inst, console_print_func), query_device_presets_logic(app_instance, console_print_func)
+      Functions: load_selected_preset_logic(app_instance, selected_preset_name, console_print_func, is_device_preset, preset_data_dict), query_current_instrument_settings_for_preset(inst, console_print_func), query_device_presets_logic(app_instance, console_print_func)
+          ├── utils_presets_editor.py (Lines: 267)
+          ├── utils_presets_editor.py
+    [PY] Analysis for utils_presets_editor.py:
+    [PY] Analysis for utils_presets_editor.py:
+      Imports: Instrument.connection.instrument_logic, csv, datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, ref.ref_file_paths, shutil, utils_preset_csv_process
+      Imports: Instrument.connection.instrument_logic, csv, datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, ref.ref_file_paths, shutil, utils_preset_csv_process
+      Classes: PresetEditorLogic
+      Classes: PresetEditorLogic
+      Functions: __init__(self, app_instance, console_print_func, columns), add_current_settings(self), add_new_empty_row(self), delete_presets(self, selected_filenames), export_presets(self, file_path), import_presets(self, file_path), load_presets(self), move_preset_down(self, filename), move_preset_up(self, filename), save_presets(self), update_preset_value(self, filename, column_name, new_value)
+      Functions: __init__(self, app_instance, console_print_func, columns), add_current_settings(self), add_new_empty_row(self), delete_presets(self, selected_filenames), export_presets(self, file_path), import_presets(self, file_path), load_presets(self), move_preset_down(self, filename), move_preset_up(self, filename), save_presets(self), update_preset_value(self, filename, column_name, new_value)
+          └── utils_push_preset.py (Lines: 210)
+          └── utils_push_preset.py
+    [PY] Analysis for utils_push_preset.py:
+    [PY] Analysis for utils_push_preset.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, ref.ref_frequency_bands, yak.Yakety_Yak
+      Imports: display.console_logic, display.debug_logic, inspect, os, re, ref.ref_frequency_bands, yak.Yakety_Yak
+      Functions: push_preset_logic(app_instance, console_print_func, preset_data)
+      Functions: push_preset_logic(app_instance, console_print_func, preset_data)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\Scanning\__pycache__
+
+└── workers\Scanning\
+
+└── workers\Scanning\
+          ├── TAB_SCANNING_PARENT.py (Lines: 47)
+          ├── TAB_SCANNING_PARENT.py
+    [PY] Analysis for TAB_SCANNING_PARENT.py:
+    [PY] Analysis for TAB_SCANNING_PARENT.py:
+      Imports: inspect, os, tab_scanning_child_bands, tab_scanning_child_scan_configuration, tab_scanning_child_scan_meta_data, tkinter
+      Imports: inspect, os, tab_scanning_child_bands, tab_scanning_child_scan_configuration, tab_scanning_child_scan_meta_data, tkinter
+      Classes: TAB_SCANNING_PARENT
+      Classes: TAB_SCANNING_PARENT
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+      Functions: __init__(self, parent, app_instance), _create_widgets(self), _on_child_tab_selected(self, event), _on_parent_tab_selected(self, event)
+          ├── __init__.py (Lines: 24)
+          ├── __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+    [INFO] Ignoring __init__.py: __init__.py
+          ├── tab_scanning_child_bands.py (Lines: 450)
+          ├── tab_scanning_child_bands.py
+    [PY] Analysis for tab_scanning_child_bands.py:
+    [PY] Analysis for tab_scanning_child_bands.py:
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, settings_and_config.config_manager_save, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, matplotlib.backends.backend_tkagg, matplotlib.figure, numpy, os, settings_and_config.config_manager_save, tkinter
+      Classes: BandsTab
+      Classes: BandsTab
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _deselect_all_bands(self), _on_band_button_toggle(self, band_item), _on_tab_selected(self, event), _populate_band_buttons(self), _select_all_bands(self), _update_all_band_button_styles(self), _update_band_chart(self), _update_band_table(self), _update_button_style(self, button, level)
+      Functions: __init__(self, master, app_instance, console_print_func), _create_widgets(self), _deselect_all_bands(self), _on_band_button_toggle(self, band_item), _on_tab_selected(self, event), _populate_band_buttons(self), _select_all_bands(self), _update_all_band_button_styles(self), _update_band_chart(self), _update_band_table(self), _update_button_style(self, button, level)
+          ├── tab_scanning_child_scan_configuration.py (Lines: 319)
+          ├── tab_scanning_child_scan_configuration.py
+    [PY] Analysis for tab_scanning_child_scan_configuration.py:
+    [PY] Analysis for tab_scanning_child_scan_configuration.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, ref.ref_scanning_setting, settings_and_config.config_manager_save, subprocess, sys, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, ref.ref_scanner_setting_lists, ref.ref_scanning_setting, settings_and_config.config_manager_save, subprocess, sys, tkinter
+      Classes: ScanTab
+      Classes: ScanTab
+      Functions: __init__(self, master, app_instance, console_print_func), _browse_output_folder(self), _create_setting_row(self, parent, row, key, label_text, app_var, data_list, unit), _create_widgets(self), _load_settings_into_ui(self), _on_boolean_combobox_select(self, event, app_var), _on_combobox_select(self, event, app_var, data_list, description_var, unit), _on_tab_selected(self, event), _open_output_folder(self), _set_combobox_display_from_value(self, key)
+      Functions: __init__(self, master, app_instance, console_print_func), _browse_output_folder(self), _create_setting_row(self, parent, row, key, label_text, app_var, data_list, unit), _create_widgets(self), _load_settings_into_ui(self), _on_boolean_combobox_select(self, event, app_var), _on_combobox_select(self, event, app_var, data_list, description_var, unit), _on_tab_selected(self, event), _open_output_folder(self), _set_combobox_display_from_value(self, key)
+          ├── tab_scanning_child_scan_meta_data.py (Lines: 556)
+          ├── tab_scanning_child_scan_meta_data.py
+    [PY] Analysis for tab_scanning_child_scan_meta_data.py:
+    [PY] Analysis for tab_scanning_child_scan_meta_data.py:
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.google_maps_lookup, ref.ref_antenna_amplifier_type, ref.ref_antenna_type, settings_and_config.config_manager_save, subprocess, tkinter
+      Imports: display.console_logic, display.debug_logic, inspect, os, process_math.google_maps_lookup, ref.ref_antenna_amplifier_type, ref.ref_antenna_type, settings_and_config.config_manager_save, subprocess, tkinter
+      Classes: ScanMetaDataTab
+      Classes: ScanMetaDataTab
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _lookup_postal_code(self), _on_amplifier_type_selected(self, event), _on_antenna_type_selected(self, event), _on_notes_change(self, event), _on_tab_selected(self, event)
+      Functions: __init__(self, master, app_instance, console_print_func, style_obj), _create_widgets(self), _lookup_postal_code(self), _on_amplifier_type_selected(self, event), _on_antenna_type_selected(self, event), _on_notes_change(self, event), _on_tab_selected(self, event)
+          └── utils_scan_instrument.py (Lines: 481)
+          └── utils_scan_instrument.py
+    [PY] Analysis for utils_scan_instrument.py:
+    [PY] Analysis for utils_scan_instrument.py:
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, process_math.scan_stitch, pyvisa, re, ref.ref_frequency_bands, src.connection_status_logic, threading, time, utils.utils_csv_writer
+      Imports: datetime, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, process_math.scan_stitch, pyvisa, re, ref.ref_frequency_bands, src.connection_status_logic, threading, time, utils.utils_csv_writer
+      Functions: _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func), configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity_on, preamp_on, app_instance_ref, app_console_update_func), initiate_scan_thread(app_instance, console_print_func, stop_event, pause_event, update_progress_func), perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, maxhold_enabled, max_hold_time, app_instance_ref, pause_event, stop_event, segment_counter, total_segments_in_band, band_name, app_console_update_func, current_segment_start_freq_hz), perform_single_sweep(inst, app_instance_ref, app_console_update_func), query_safe(inst, command, app_instance_ref, app_console_update_func), scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func), write_safe(inst, command, app_instance_ref, app_console_update_func)
+      Functions: _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, console_print_func, update_progress_func), configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dbm, freq_shift_hz, high_sensitivity_on, preamp_on, app_instance_ref, app_console_update_func), initiate_scan_thread(app_instance, console_print_func, stop_event, pause_event, update_progress_func), perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, maxhold_enabled, max_hold_time, app_instance_ref, pause_event, stop_event, segment_counter, total_segments_in_band, band_name, app_console_update_func, current_segment_start_freq_hz), perform_single_sweep(inst, app_instance_ref, app_console_update_func), query_safe(inst, command, app_instance_ref, app_console_update_func), scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func), write_safe(inst, command, app_instance_ref, app_console_update_func)
+  [DELETING] Found and deleted __pycache__ directory: C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2\workers\zones_groups_devices\__pycache__
+
+└── workers\zones_groups_devices\
+
+└── workers\zones_groups_devices\
+          ├── tab_markers_child_zone_groups_devices.py (Lines: 211)
+          ├── tab_markers_child_zone_groups_devices.py
+    [PY] Analysis for tab_markers_child_zone_groups_devices.py:
+    [PY] Analysis for tab_markers_child_zone_groups_devices.py:
+      Imports: datetime, display.console_logic, display.debug_logic, functools, inspect, os, src.program_style, tkinter, utils_button_volume_level, utils_display_showtime_all, utils_display_showtime_devices, utils_display_showtime_groups, utils_display_showtime_zones, utils_files_markers_zone_groups_devices
+      Imports: datetime, display.console_logic, display.debug_logic, functools, inspect, os, src.program_style, tkinter, utils_button_volume_level, utils_display_showtime_all, utils_display_showtime_devices, utils_display_showtime_groups, utils_display_showtime_zones, utils_files_markers_zone_groups_devices
+      Classes: ZoneGroupsDevicesFrame
+      Classes: ZoneGroupsDevicesFrame
+      Functions: __init__(self, parent_frame, showtime_tab_instance), _create_device_frame(self, parent), _create_layout(self), _get_all_devices_in_zone(self, structured_data, zone_name), _get_devices_to_display(self), _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix), _make_device_buttons(self), _make_group_buttons(self), _make_zone_buttons(self), load_and_display_data(self)
+      Functions: __init__(self, parent_frame, showtime_tab_instance), _create_device_frame(self, parent), _create_layout(self), _get_all_devices_in_zone(self, structured_data, zone_name), _get_devices_to_display(self), _get_min_max_freq_and_update_title(self, frame_widget, devices, title_prefix), _make_device_buttons(self), _make_group_buttons(self), _make_zone_buttons(self), load_and_display_data(self)
+          ├── utils_button_volume_level.py (Lines: 73)
+          ├── utils_button_volume_level.py
+    [PY] Analysis for utils_button_volume_level.py:
+    [PY] Analysis for utils_button_volume_level.py:
+      Imports: datetime, display.debug_logic, inspect, math, os
+      Imports: datetime, display.debug_logic, inspect, math, os
+      Functions: create_signal_level_indicator(value, min_val, max_val, width)
+      Functions: create_signal_level_indicator(value, min_val, max_val, width)
+          ├── utils_display_showtime_all.py (Lines: 146)
+          ├── utils_display_showtime_all.py
+    [PY] Analysis for utils_display_showtime_all.py:
+    [PY] Analysis for utils_display_showtime_all.py:
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, tkinter, utils_display_showtime_shared
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, numpy, os, pandas, tkinter, utils_display_showtime_shared
+      Functions: no_zone_grou_device_selected(zgd_frame_instance), on_all_markers_selected(zgd_frame_instance)
+      Functions: no_zone_grou_device_selected(zgd_frame_instance), on_all_markers_selected(zgd_frame_instance)
+          ├── utils_display_showtime_devices.py (Lines: 154)
+          ├── utils_display_showtime_devices.py
+    [PY] Analysis for utils_display_showtime_devices.py:
+    [PY] Analysis for utils_display_showtime_devices.py:
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, utils_display_showtime_groups, utils_display_showtime_shared, yak.utils_yakbeg_handler
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, utils_display_showtime_groups, utils_display_showtime_shared, yak.utils_yakbeg_handler
+      Functions: on_device_deselected(zgd_frame_instance), on_device_selected(zgd_frame_instance, device_info)
+      Functions: on_device_deselected(zgd_frame_instance), on_device_selected(zgd_frame_instance, device_info)
+          ├── utils_display_showtime_groups.py (Lines: 202)
+          ├── utils_display_showtime_groups.py
+    [PY] Analysis for utils_display_showtime_groups.py:
+    [PY] Analysis for utils_display_showtime_groups.py:
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, tkinter, utils_display_showtime_devices, utils_display_showtime_shared
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, tkinter, utils_display_showtime_devices, utils_display_showtime_shared
+      Functions: no_zone_grou_device_selected(zgd_frame_instance), on_group_deselected(zgd_frame_instance), on_group_selected(zgd_frame_instance, group_name)
+      Functions: no_zone_grou_device_selected(zgd_frame_instance), on_group_deselected(zgd_frame_instance), on_group_selected(zgd_frame_instance, group_name)
+          ├── utils_display_showtime_shared.py (Lines: 278)
+          ├── utils_display_showtime_shared.py
+    [PY] Analysis for utils_display_showtime_shared.py:
+    [PY] Analysis for utils_display_showtime_shared.py:
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, settings_and_config.config_manager_save, threading, tkinter
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, settings_and_config.config_manager_save, threading, tkinter
+      Functions: _save_showtime_state_to_config(showtime_tab), _update_zone_zoom_tab(zgd_frame_instance), get_current_view_details(zgd_frame_instance)
+      Functions: _save_showtime_state_to_config(showtime_tab), _update_zone_zoom_tab(zgd_frame_instance), get_current_view_details(zgd_frame_instance)
+          ├── utils_display_showtime_zones.py (Lines: 118)
+          ├── utils_display_showtime_zones.py
+    [PY] Analysis for utils_display_showtime_zones.py:
+    [PY] Analysis for utils_display_showtime_zones.py:
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, tkinter, utils_display_showtime_all, utils_display_showtime_shared
+      Imports: Markers.showtime.controls.utils_showtime_zone_zoom, display.console_logic, display.debug_logic, inspect, math, numpy, os, pandas, tkinter, utils_display_showtime_all, utils_display_showtime_shared
+      Functions: on_zone_selected(zgd_frame_instance, zone_name)
+      Functions: on_zone_selected(zgd_frame_instance, zone_name)
+          └── utils_files_markers_zone_groups_devices.py (Lines: 100)
+          └── utils_files_markers_zone_groups_devices.py
+    [PY] Analysis for utils_files_markers_zone_groups_devices.py:
+    [PY] Analysis for utils_files_markers_zone_groups_devices.py:
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, pandas, ref.ref_file_paths
+      Imports: display.console_logic, display.debug_logic, inspect, numpy, os, pandas, ref.ref_file_paths
+      Functions: load_and_structure_markers_data()
+      Functions: load_and_structure_markers_data()
+
+--- Crawl complete for C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2. 👍 ---
+
+--- Crawl complete for C:/Users/4483/OneDrive/Documents/GitHub/Spectrum-Automation---ZAP/50 - Python Code/OPEN-AIR/OPEN-AIR 2. 👍 ---

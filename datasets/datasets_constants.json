@@ -1,0 +1,56 @@
+{
+  "header": "# frequency_bands.py\n#\n# This module defines constants and data structures related to frequency bands\n# relevant to RF spectrum analysis. It separates the bands used for instrument\n# scanning from those used purely for plotting markers (e.g., TV channels,\n# government/commercial bands), enhancing modularity and clarity.\n#\n# Author: Anthony Peter Kuzub\n# Blog: www.Like.audio (Contributor to this project)\n#\n# Professional services for customizing and tailoring this software to your specific\n# application can be negotiated. There is no change to use, modify, or fork this software.\n#\n# Build Log: https://like.audio/category/software/spectrum-scanner/\n# Source Code: https://github.com/APKaudio/\n#\n# Conversion factor from MHz to Hz\n",
+  "constants": {
+    "MHZ_TO_HZ": 1000000,
+    "KHZ_TO_HZ": 1000,
+    "VBW_RBW_RATIO": 0.3333333333333333
+  },
+  "options": {
+    "RBW_OPTIONS": [
+      10,
+      100,
+      1000,
+      3000,
+      10000,
+      30000,
+      100000,
+      300000,
+      1000000,
+      3000000
+    ],
+    "VBW_RBW_RATIO_OPTIONS": [
+      0.001,
+      0.003,
+      0.01,
+      0.03,
+      0.1,
+      0.3,
+      1,
+      3,
+      10
+    ],
+    "DEFAULT_REF_LEVEL_OPTIONS": [
+      -100,
+      -90,
+      -80,
+      -70,
+      -60,
+      -50,
+      -40,
+      -30,
+      -20,
+      -10,
+      0,
+      10,
+      20,
+      30
+    ],
+    "DEFAULT_FREQ_SHIFT_OPTIONS": [
+      0,
+      1000000,
+      2000000,
+      5000000,
+      10000000
+    ]
+  }
+}
