@@ -1,7 +1,7 @@
 # display/base_gui_component.py
 #
 # A base class for common GUI components, re-written to work with the centralized orchestrator.
-# This version accepts a shared MQTT connection and message handling to prevent log spam.
+# This version corrects the styling of tables and entry widgets for a more cohesive look.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.235500.15
+# Version 20250823.001500.20
 
 import os
 import inspect
@@ -29,12 +29,13 @@ import paho.mqtt.client as mqtt
 # --- Module Imports ---
 from configuration.logging import debug_log, console_log
 from utils.mqtt_controller_util import MqttControllerUtility
+from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250822
-CURRENT_TIME = 235500
-CURRENT_TIME_HASH = 235500
-REVISION_NUMBER = 15
+CURRENT_DATE = 20250823
+CURRENT_TIME = 1500
+CURRENT_TIME_HASH = 1500
+REVISION_NUMBER = 20
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -73,32 +74,19 @@ class BaseGUIFrame(ttk.Frame):
             # We now accept a shared MQTT utility instance from the orchestrator.
             self.mqtt_util = mqtt_util
 
+            # We apply the style at the top of the __init__ to affect all child widgets.
+            self._apply_styles(theme_name=DEFAULT_THEME)
+
             # Create a label for the frame
-            frame_label = tk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
+            frame_label = ttk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
             frame_label.pack(pady=10)
             
-            # Button 1: Log
-            self.log_button = tk.Button(
-                self, 
-                text="Log", 
-                command=self.log_button_press
-            )
-            self.log_button.pack(side=tk.LEFT, padx=10, pady=10)
-            
-            # Button 2: Debug
-            self.debug_button = tk.Button(
-                self, 
-                text="Debug", 
-                command=self.debug_button_press
-            )
-            self.debug_button.pack(side=tk.LEFT, padx=10, pady=10)
-
             # --- New MQTT Section ---
             mqtt_frame = ttk.LabelFrame(self, text="MQTT Controls")
             mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
 
             # Button 3: Publish Version
-            self.publish_version_button = tk.Button(
+            self.publish_version_button = ttk.Button(
                 mqtt_frame,
                 text="Publish Version",
                 command=self._publish_version_message
@@ -106,11 +94,11 @@ class BaseGUIFrame(ttk.Frame):
             self.publish_version_button.pack(side=tk.LEFT, padx=5, pady=5)
 
             # Custom MQTT Publish
-            self.custom_topic_entry = ttk.Entry(mqtt_frame)
+            self.custom_topic_entry = ttk.Entry(mqtt_frame, style="Custom.TEntry")
             self.custom_topic_entry.insert(0, f"Custom Message")
             self.custom_topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
             
-            self.publish_custom_button = tk.Button(
+            self.publish_custom_button = ttk.Button(
                 mqtt_frame,
                 text="Publish Custom",
                 command=self._publish_custom_message
@@ -123,7 +111,6 @@ class BaseGUIFrame(ttk.Frame):
             self.subscription_label.pack(side=tk.LEFT, padx=5, pady=5)
 
             # We now register our callback with the central utility instead of overwriting the client's callback.
-            # We will subscribe to all topics within the immediate parent directory.
             parent_folder = str(pathlib.Path(self.current_file).parent)
             subscription_topic = f"{parent_folder.replace('\\', '/')}/#"
             self.mqtt_util.add_subscriber(topic_filter=subscription_topic, callback_func=self._on_mqtt_message)
@@ -133,7 +120,7 @@ class BaseGUIFrame(ttk.Frame):
             self.subscriptions_table_frame = ttk.Frame(self)
             self.subscriptions_table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
             
-            self.subscriptions_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Topic", "Message Content"), show="headings")
+            self.subscriptions_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Topic", "Message Content"), show="headings", style="Custom.Treeview")
             self.subscriptions_table.heading("Topic", text="Topic")
             self.subscriptions_table.heading("Message Content", text="Message Content")
             self.subscriptions_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -142,6 +129,25 @@ class BaseGUIFrame(ttk.Frame):
             self.subscriptions_table.configure(yscrollcommand=table_scrollbar.set)
             table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             
+            # New frame for log buttons, placed at the bottom below the table.
+            log_button_frame = ttk.Frame(self)
+            log_button_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=5)
+
+            # Button 1: Log
+            self.log_button = ttk.Button(
+                log_button_frame, 
+                text="Log", 
+                command=self.log_button_press
+            )
+            self.log_button.pack(side=tk.LEFT, padx=10, pady=10)
+            
+            # Button 2: Debug
+            self.debug_button = ttk.Button(
+                log_button_frame, 
+                text="Debug", 
+                command=self.debug_button_press
+            )
+            self.debug_button.pack(side=tk.LEFT, padx=10, pady=10)
             
             # --- New Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
@@ -168,6 +174,39 @@ class BaseGUIFrame(ttk.Frame):
                 console_print_func=console_log
             )
 
+    def _apply_styles(self, theme_name: str):
+        """
+        Applies the specified theme to the GUI elements using ttk.Style.
+        """
+        colors = THEMES.get(theme_name, THEMES["dark"])
+        style = ttk.Style(self)
+        style.theme_use("clam")
+        
+        # General widget styling
+        style.configure('TFrame', background=colors["bg"])
+        style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
+        style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+
+        # Table (Treeview) styling
+        style.configure('Custom.Treeview',
+                        background=colors["table_bg"],
+                        foreground=colors["table_fg"],
+                        fieldbackground=colors["table_bg"],
+                        bordercolor=colors["table_border"],
+                        borderwidth=colors["border_width"])
+
+        style.configure('Custom.Treeview.Heading',
+                        background=colors["table_heading_bg"],
+                        foreground=colors["fg"],
+                        relief=colors["relief"],
+                        borderwidth=colors["border_width"])
+
+        # Entry (textbox) styling
+        style.configure('Custom.TEntry',
+                        fieldbackground=colors["entry_bg"],
+                        foreground=colors["entry_fg"],
+                        bordercolor=colors["table_border"])
+        
     def log_button_press(self):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
