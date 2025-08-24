@@ -1,6 +1,5 @@
 {
-  "header": "# ref/ref_scanning_setting.py\n#\n# This file contains predefined lists of settings that are primarily used\n# for UI configuration and do not have a direct handler for instrument control.\n#\n# Author: Anthony Peter Kuzub\n# Blog: www.Like.audio (Contributor to this project)\n#\n# Professional services for customizing and tailoring this software to your specific\n# application can be negotiated. There is no change to use, modify, or fork this software.\n#\n# Build Log: https://like.audio/category/software/spectrum-scanner/\n# Source Code: https://github.com/APKaudio/\n# Feature Requests can be emailed to i @ like . audio\n#\n#\n# Version 20250815.151240.13\n# NEW: Created a new file to house UI-specific scanner presets.\n",
-  "presets": {
+    "presets": {
     "PRESET_DISPLAY_GRAPH_QUALITY": {
       "Ultra_Low": {
         "value": 1000000,
@@ -41,13 +40,13 @@
       "Ludacris": {
         "value": 1000,
         "label": "Ludacris",
-        "description": "So fine, even Ludacris said “Damn.”",
+        "description": "So fine, even Ludacris said \"Damn.\"",
         "handler": null
       },
       "Ridonkulous": {
         "value": 500,
         "label": "Ridonkulous",
-        "description": "“I can see the atoms in your waveform.”",
+        "description": "\"I can see the atoms in your waveform.\"",
         "handler": null
       },
       "Quantum_Foam": {
@@ -59,7 +58,7 @@
       "This_is_Fine": {
         "value": 10,
         "label": "This is Fine",
-        "description": "The scanner cries, but it's worth it. 🔥",
+        "description": "The scanner cries, but it's worth it.",
         "handler": null
       }
     },
@@ -259,7 +258,7 @@
       "Glacier_Mode": {
         "value": 10.0,
         "label": "Glacier Mode",
-        "description": "For scientists, spies, and patient people. 🧊",
+        "description": "For scientists, spies, and patient people.",
         "handler": "set_sweep_time"
       }
     },
@@ -303,7 +302,7 @@
       "Scientific_Grade": {
         "value": 100,
         "label": "Scientific Grade",
-        "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection. 🔬",
+        "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection.",
         "handler": "set_averaging"
       },
       "Crystal_Clear": {
@@ -321,7 +320,7 @@
       "Meditative_Mode": {
         "value": 1000,
         "label": "Meditative Mode",
-        "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis. 🧘‍♂️",
+        "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis.",
         "handler": "set_averaging"
       }
     }

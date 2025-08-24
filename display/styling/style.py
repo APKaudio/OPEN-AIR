@@ -15,32 +15,30 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.235900.3
+# Version 20250823.212500.1
 
-# 📚 Standard library import for the global variables.
+# Standard library import for the global variables.
 import os
 
 # --- Global Scope Variables ---
-# W: The date of the chat session in YYYYMMDD format.
-CURRENT_DATE = 20250822
-# X: The time of the chat session in HHMMSS format.
-# FIX: Removed the leading zero to resolve the SyntaxError.
-CURRENT_TIME = 235900
+# The date of the chat session in YYYYMMDD format.
+CURRENT_DATE = 20250823
+# The time of the chat session in HHMMSS format.
+CURRENT_TIME = 212500
 # A numeric hash of the time, useful for unique IDs.
-# FIX: Updated to a decimal literal.
-CURRENT_TIME_HASH = 235900
-# Y: The revision number within the current session.
-REVISION_NUMBER = 3
+CURRENT_TIME_HASH = 212500
+# The revision number within the current session.
+REVISION_NUMBER = 1
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250822.235900.3"
+current_version = "20250823.212500.1"
 # Creating a unique integer hash for the current version for internal tracking.
 current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs.
 current_file = f"{os.path.basename(__file__)}"
 
-# 🎨 THEMES is a dictionary that holds all our color palettes.
+# THEMES is a dictionary that holds all our color palettes.
 THEMES = {
-    # 🌑 The "dark" theme, inspired by dark IDE color schemes.
+    # The "dark" theme, inspired by dark IDE color schemes.
     "dark": {
         "bg": "#2b2b2b",
         "fg": "#dcdcdc",
@@ -50,7 +48,7 @@ THEMES = {
         "text": "#ffffff",
         "border": "#555555",
         "relief": "solid",
-        "border_width": 1,
+        "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
         # --- New Styling Variables for Tables and Entries ---
@@ -73,7 +71,7 @@ THEMES = {
             "#b5cea8",  # 9. Gray-Green
         ]
     },
-    # 🌞 The "light" theme, providing a high-contrast alternative.
+    # The "light" theme, providing a high-contrast alternative.
     "light": {
         "bg": "#f0f0f0",
         "fg": "#000000",
@@ -83,7 +81,7 @@ THEMES = {
         "text": "#000000",
         "border": "#ababab",
         "relief": "groove",
-        "border_width": 1,
+        "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
         # --- New Styling Variables for Tables and Entries ---
@@ -108,5 +106,5 @@ THEMES = {
     }
 }
 
-# 🛠️ The default theme to use. This can be changed here to easily switch the entire application's style.
+# The default theme to use. This can be changed here to easily switch the entire application's style.
 DEFAULT_THEME = "dark"

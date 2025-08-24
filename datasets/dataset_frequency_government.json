@@ -1,6 +1,6 @@
 {
   "Canadian Government": {
-    "GOV_CANADA_PLOT_BAND_MARKERS": {
+
       "Amateur_Radio_6m": {
         "Band Name": "Amateur Radio 6m",
         "Start MHz": 50,
@@ -188,4 +188,3 @@
       }
     }
   }
-}

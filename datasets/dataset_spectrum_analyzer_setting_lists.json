@@ -1,6 +1,5 @@
 {
-  "header": "# ref/ref_scanner_setting_lists.py\n#\n# This file contains predefined lists of settings for various scanner parameters.\n# These lists are used to populate dropdown menus in the GUI, providing users\n# with a selection of common or recommended values along with descriptive text.\n#\n# Author: Anthony Peter Kuzub\n# Blog: www.Like.audio (Contributor to this project)\n#\n# Professional services for customizing and tailoring this software to your specific\n# application can be negotiated. There is no change to use, modify, or fork this software.\n#\n# Build Log: https://like.audio/category/software/spectrum-scanner/\n# Source Code: https://github.com/APKaudio/\n# Feature Requests can be emailed to i @ like . audio\n#\n#\n# Version 20250816.224500.1\n# UPDATED: Rebuilt the PRESET_BANDWIDTH_VIDEO list with a correct handler value.\n",
-  "presets": {
+    "presets": {
     "PRESET_AMPLITUDE_REFERENCE_LEVEL": {
       "Extremely_Low": {
         "value": -120,
@@ -449,7 +448,7 @@
       "Light_Filter": {
         "value": 5,
         "label": "Light Filter",
-        "description": "A very mild smoothing of the signal, removing some of the jitter. It’s like putting a slight damper on the noise, making the trace a little easier to read.",
+        "description": "A very mild smoothing of the signal, removing some of the jitter. It's like putting a slight damper on the noise, making the trace a little easier to read.",
         "handler": "set_averaging"
       },
       "Getting_Clear": {
@@ -467,7 +466,7 @@
       "Steady_Hands": {
         "value": 50,
         "label": "Steady Hands",
-        "description": "The noise floor is now very stable and appears as a thin line. You’re only seeing the most consistent signals and cutting out most of the random interference.",
+        "description": "The noise floor is now very stable and appears as a thin line. You're only seeing the most consistent signals and cutting out most of the random interference.",
         "handler": "set_averaging"
       },
       "Deep_Dive": {
@@ -479,7 +478,7 @@
       "Scientific_Grade": {
         "value": 100,
         "label": "Scientific Grade",
-        "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection. 🔬",
+        "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection.",
         "handler": "set_averaging"
       },
       "Crystal_Clear": {
@@ -497,25 +496,8 @@
       "Meditative_Mode": {
         "value": 1000,
         "label": "Meditative Mode",
-        "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis. 🧘‍♂️",
+        "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis.",
         "handler": "set_averaging"
-      }
-    },
-    "PRESET_FREQUENCY_SPAN_MHZ": {
-      "Max": {
-        "center_mhz": 1500,
-        "span_mhz": 3000,
-        "description": "Sets a full frequency range from 0 to 3 GHz."
-      },
-      "FM_Radio": {
-        "center_mhz": 98,
-        "span_mhz": 20,
-        "description": "Tunes to the standard FM radio band (88-108 MHz)."
-      },
-      "UHF_TV": {
-        "center_mhz": 600,
-        "span_mhz": 500,
-        "description": "Tuning to the UHF TV broadcast band (470-806 MHz)."
       }
     }
   }

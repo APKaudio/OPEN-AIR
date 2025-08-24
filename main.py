@@ -24,8 +24,10 @@ import pathlib
 
 # Project-specific Imports
 from workers.mqtt_controller_util import MqttControllerUtility
-from datasets.logging import debug_log, console_log
-from datasets.dataset_publisher import main as dataset_publisher_main
+from workers.worker_logging import debug_log, console_log
+from datasets.worker_dataset_publisher import main as dataset_publisher_main
+from display.styling.style import THEMES, DEFAULT_THEME
+
 
 # Add the project's root directory to the system path to allow for imports from
 # all sub-folders (e.g., 'configuration' and 'display'). This is a robust way to handle imports.
@@ -47,7 +49,7 @@ if os.name == 'nt':
         pass
 
 # Import core application modules
-from datasets.logging import console_log, debug_log
+from workers.worker_logging import console_log, debug_log
 from display.gui_display import Application
 
 
