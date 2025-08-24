@@ -1,6 +1,5 @@
 {
-  "header": "# ref/Amplifier_type.py\n#\n# This file contains a Python list of dictionaries, each describing a type of antenna.\n#\n# Author: Anthony Peter Kuzub\n# Blog: www.Like.audio (Contributor to this project)\n#\n# Professional services for customizing and tailoring this software to your specific\n# application can be negotiated. There is no charge to use, modify, or fork this software.\n#\n# Build Log: https://like.audio/category/software/spectrum-scanner/\n# Source Code: https://github.com/APKaudio/\n#\n#\n# Version 1.0 (Initial version)\n",
-  "amplifier_types": {
+  
     "Broadband": {
       "Type": "Broadband",
       "Description": "An amplifier designed to provide gain over a wide range of frequencies, from DC to several GHz, suitable for general-purpose signal boosting.",
@@ -27,4 +26,3 @@
       "Use": "Radar receivers, RF power detectors, and spectrum analyzers to display a wide range of signal levels (e.g., in dBm)."
     }
   }
-}

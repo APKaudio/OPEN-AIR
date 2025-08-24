@@ -1,0 +1,495 @@
+{
+    
+        "North America": {
+            "Selected": "no",
+            "TV_Channel_2": {
+                "Band Name": "TV Channel 2",
+                "Start MHz": 54,
+                "Stop MHz": 60,
+                "Selected": "no"
+            },
+            "TV_Channel_3": {
+                "Band Name": "TV Channel 3",
+                "Start MHz": 60,
+                "Stop MHz": 66,
+                "Selected": "no"
+            },
+            "TV_Channel_4": {
+                "Band Name": "TV Channel 4",
+                "Start MHz": 66,
+                "Stop MHz": 72,
+                "Selected": "no"
+            },
+            "TV_Channel_5": {
+                "Band Name": "TV Channel 5",
+                "Start MHz": 76,
+                "Stop MHz": 82,
+                "Selected": "no"
+            },
+            "TV_Channel_6": {
+                "Band Name": "TV Channel 6",
+                "Start MHz": 82,
+                "Stop MHz": 88,
+                "Selected": "no"
+            },
+            "TV_Channel_7": {
+                "Band Name": "TV Channel 7",
+                "Start MHz": 174,
+                "Stop MHz": 180,
+                "Selected": "no"
+            },
+            "TV_Channel_8": {
+                "Band Name": "TV Channel 8",
+                "Start MHz": 180,
+                "Stop MHz": 186,
+                "Selected": "no"
+            },
+            "TV_Channel_9": {
+                "Band Name": "TV Channel 9",
+                "Start MHz": 186,
+                "Stop MHz": 192,
+                "Selected": "no"
+            },
+            "TV_Channel_10": {
+                "Band Name": "TV Channel 10",
+                "Start MHz": 192,
+                "Stop MHz": 198,
+                "Selected": "no"
+            },
+            "TV_Channel_11": {
+                "Band Name": "TV Channel 11",
+                "Start MHz": 198,
+                "Stop MHz": 204,
+                "Selected": "no"
+            },
+            "TV_Channel_12": {
+                "Band Name": "TV Channel 12",
+                "Start MHz": 204,
+                "Stop MHz": 210,
+                "Selected": "no"
+            },
+            "TV_Channel_13": {
+                "Band Name": "TV Channel 13",
+                "Start MHz": 210,
+                "Stop MHz": 216,
+                "Selected": "no"
+            },
+            "TV_Channel_14": {
+                "Band Name": "TV Channel 14",
+                "Start MHz": 470,
+                "Stop MHz": 476,
+                "Selected": "no"
+            },
+            "TV_Channel_15": {
+                "Band Name": "TV Channel 15",
+                "Start MHz": 476,
+                "Stop MHz": 482,
+                "Selected": "no"
+            },
+            "TV_Channel_16": {
+                "Band Name": "TV Channel 16",
+                "Start MHz": 482,
+                "Stop MHz": 488,
+                "Selected": "no"
+            },
+            "TV_Channel_17": {
+                "Band Name": "TV Channel 17",
+                "Start MHz": 488,
+                "Stop MHz": 494,
+                "Selected": "no"
+            },
+            "TV_Channel_18": {
+                "Band Name": "TV Channel 18",
+                "Start MHz": 494,
+                "Stop MHz": 500,
+                "Selected": "no"
+            },
+            "TV_Channel_19": {
+                "Band Name": "TV Channel 19",
+                "Start MHz": 500,
+                "Stop MHz": 506,
+                "Selected": "no"
+            },
+            "TV_Channel_20": {
+                "Band Name": "TV Channel 20",
+                "Start MHz": 506,
+                "Stop MHz": 512,
+                "Selected": "no"
+            },
+            "TV_Channel_21": {
+                "Band Name": "TV Channel 21",
+                "Start MHz": 512,
+                "Stop MHz": 518,
+                "Selected": "no"
+            },
+            "TV_Channel_22": {
+                "Band Name": "TV Channel 22",
+                "Start MHz": 518,
+                "Stop MHz": 524,
+                "Selected": "no"
+            },
+            "TV_Channel_23": {
+                "Band Name": "TV Channel 23",
+                "Start MHz": 524,
+                "Stop MHz": 530,
+                "Selected": "no"
+            },
+            "TV_Channel_24": {
+                "Band Name": "TV Channel 24",
+                "Start MHz": 530,
+                "Stop MHz": 536,
+                "Selected": "no"
+            },
+            "TV_Channel_25": {
+                "Band Name": "TV Channel 25",
+                "Start MHz": 536,
+                "Stop MHz": 542,
+                "Selected": "no"
+            },
+            "TV_Channel_26": {
+                "Band Name": "TV Channel 26",
+                "Start MHz": 542,
+                "Stop MHz": 548,
+                "Selected": "no"
+            },
+            "TV_Channel_27": {
+                "Band Name": "TV Channel 27",
+                "Start MHz": 548,
+                "Stop MHz": 554,
+                "Selected": "no"
+            },
+            "TV_Channel_28": {
+                "Band Name": "TV Channel 28",
+                "Start MHz": 554,
+                "Stop MHz": 560,
+                "Selected": "no"
+            },
+            "TV_Channel_29": {
+                "Band Name": "TV Channel 29",
+                "Start MHz": 560,
+                "Stop MHz": 566,
+                "Selected": "no"
+            },
+            "TV_Channel_30": {
+                "Band Name": "TV Channel 30",
+                "Start MHz": 566,
+                "Stop MHz": 572,
+                "Selected": "no"
+            },
+            "TV_Channel_31": {
+                "Band Name": "TV Channel 31",
+                "Start MHz": 572,
+                "Stop MHz": 578,
+                "Selected": "no"
+            },
+            "TV_Channel_32": {
+                "Band Name": "TV Channel 32",
+                "Start MHz": 578,
+                "Stop MHz": 584,
+                "Selected": "no"
+            },
+            "TV_Channel_33": {
+                "Band Name": "TV Channel 33",
+                "Start MHz": 584,
+                "Stop MHz": 590,
+                "Selected": "no"
+            },
+            "TV_Channel_34": {
+                "Band Name": "TV Channel 34",
+                "Start MHz": 590,
+                "Stop MHz": 596,
+                "Selected": "no"
+            },
+            "TV_Channel_35": {
+                "Band Name": "TV Channel 35",
+                "Start MHz": 596,
+                "Stop MHz": 602,
+                "Selected": "no"
+            },
+            "TV_Channel_36": {
+                "Band Name": "TV Channel 36",
+                "Start MHz": 602,
+                "Stop MHz": 608,
+                "Selected": "no"
+            },
+            "TV_Channel_37_Radio_Astronomy": {
+                "Band Name": "TV Channel 37 (Radio Astronomy)",
+                "Start MHz": 608,
+                "Stop MHz": 614,
+                "Selected": "no"
+            },
+            "TV_Channel_38": {
+                "Band Name": "TV Channel 38",
+                "Start MHz": 614,
+                "Stop MHz": 620,
+                "Selected": "no"
+            },
+            "TV_Channel_39": {
+                "Band Name": "TV Channel 39",
+                "Start MHz": 620,
+                "Stop MHz": 626,
+                "Selected": "no"
+            },
+            "TV_Channel_40": {
+                "Band Name": "TV Channel 40",
+                "Start MHz": 626,
+                "Stop MHz": 630,
+                "Selected": "no"
+            },
+            "TV_Channel_41": {
+                "Band Name": "TV Channel 41",
+                "Start MHz": 630,
+                "Stop MHz": 638,
+                "Selected": "no"
+            },
+            "TV_Channel_42": {
+                "Band Name": "TV Channel 42",
+                "Start MHz": 638,
+                "Stop MHz": 646,
+                "Selected": "no"
+            },
+            "TV_Channel_43": {
+                "Band Name": "TV Channel 43",
+                "Start MHz": 646,
+                "Stop MHz": 654,
+                "Selected": "no"
+            },
+            "TV_Channel_44": {
+                "Band Name": "TV Channel 44",
+                "Start MHz": 654,
+                "Stop MHz": 662,
+                "Selected": "no"
+            },
+            "TV_Channel_45": {
+                "Band Name": "TV Channel 45",
+                "Start MHz": 662,
+                "Stop MHz": 670,
+                "Selected": "no"
+            },
+            "TV_Channel_46": {
+                "Band Name": "TV Channel 46",
+                "Start MHz": 670,
+                "Stop MHz": 678,
+                "Selected": "no"
+            },
+            "TV_Channel_47": {
+                "Band Name": "TV Channel 47",
+                "Start MHz": 678,
+                "Stop MHz": 686,
+                "Selected": "no"
+            },
+            "TV_Channel_48": {
+                "Band Name": "TV Channel 48",
+                "Start MHz": 686,
+                "Stop MHz": 694,
+                "Selected": "no"
+            }
+        },
+        "EuroPean Union": {
+            "Selected": "no",
+            "TV_Channel_E5": {
+                "Band Name": "TV Channel E5",
+                "Start MHz": 174,
+                "Stop MHz": 181,
+                "Selected": "no"
+            },
+            "TV_Channel_E6": {
+                "Band Name": "TV Channel E6",
+                "Start MHz": 181,
+                "Stop MHz": 188,
+                "Selected": "no"
+            },
+            "TV_Channel_E7": {
+                "Band Name": "TV Channel E7",
+                "Start MHz": 188,
+                "Stop MHz": 195,
+                "Selected": "no"
+            },
+            "TV_Channel_E8": {
+                "Band Name": "TV Channel E8",
+                "Start MHz": 195,
+                "Stop MHz": 202,
+                "Selected": "no"
+            },
+            "TV_Channel_E9": {
+                "Band Name": "TV Channel E9",
+                "Start MHz": 202,
+                "Stop MHz": 209,
+                "Selected": "no"
+            },
+            "TV_Channel_E10": {
+                "Band Name": "TV Channel E10",
+                "Start MHz": 209,
+                "Stop MHz": 216,
+                "Selected": "no"
+            },
+            "TV_Channel_E21": {
+                "Band Name": "TV Channel E21",
+                "Start MHz": 470,
+                "Stop MHz": 478,
+                "Selected": "no"
+            },
+            "TV_Channel_E22": {
+                "Band Name": "TV Channel E22",
+                "Start MHz": 478,
+                "Stop MHz": 486,
+                "Selected": "no"
+            },
+            "TV_Channel_E23": {
+                "Band Name": "TV Channel E23",
+                "Start MHz": 486,
+                "Stop MHz": 494,
+                "Selected": "no"
+            },
+            "TV_Channel_E24": {
+                "Band Name": "TV Channel E24",
+                "Start MHz": 494,
+                "Stop MHz": 502,
+                "Selected": "no"
+            },
+            "TV_Channel_E25": {
+                "Band Name": "TV Channel E25",
+                "Start MHz": 502,
+                "Stop MHz": 510,
+                "Selected": "no"
+            },
+            "TV_Channel_E26": {
+                "Band Name": "TV Channel E26",
+                "Start MHz": 510,
+                "Stop MHz": 518,
+                "Selected": "no"
+            },
+            "TV_Channel_E27": {
+                "Band Name": "TV Channel E27",
+                "Start MHz": 518,
+                "Stop MHz": 526,
+                "Selected": "no"
+            },
+            "TV_Channel_E28": {
+                "Band Name": "TV Channel E28",
+                "Start MHz": 526,
+                "Stop MHz": 534,
+                "Selected": "no"
+            },
+            "TV_Channel_E29": {
+                "Band Name": "TV Channel E29",
+                "Start MHz": 534,
+                "Stop MHz": 542,
+                "Selected": "no"
+            },
+            "TV_Channel_E30": {
+                "Band Name": "TV Channel E30",
+                "Start MHz": 542,
+                "Stop MHz": 550,
+                "Selected": "no"
+            },
+            "TV_Channel_E31": {
+                "Band Name": "TV Channel E31",
+                "Start MHz": 550,
+                "Stop MHz": 558,
+                "Selected": "no"
+            },
+            "TV_Channel_E32": {
+                "Band Name": "TV Channel E32",
+                "Start MHz": 558,
+                "Stop MHz": 566,
+                "Selected": "no"
+            },
+            "TV_Channel_E33": {
+                "Band Name": "TV Channel E33",
+                "Start MHz": 566,
+                "Stop MHz": 574,
+                "Selected": "no"
+            },
+            "TV_Channel_E34": {
+                "Band Name": "TV Channel E34",
+                "Start MHz": 574,
+                "Stop MHz": 582,
+                "Selected": "no"
+            },
+            "TV_Channel_E35": {
+                "Band Name": "TV Channel E35",
+                "Start MHz": 582,
+                "Stop MHz": 590,
+                "Selected": "no"
+            },
+            "TV_Channel_E36": {
+                "Band Name": "TV Channel E36",
+                "Start MHz": 590,
+                "Stop MHz": 598,
+                "Selected": "no"
+            },
+            "TV_Channel_E37": {
+                "Band Name": "TV Channel E37",
+                "Start MHz": 598,
+                "Stop MHz": 606,
+                "Selected": "no"
+            },
+            "TV_Channel_E38": {
+                "Band Name": "TV Channel E38",
+                "Start MHz": 606,
+                "Stop MHz": 614,
+                "Selected": "no"
+            },
+            "TV_Channel_E39": {
+                "Band Name": "TV Channel E39",
+                "Start MHz": 614,
+                "Stop MHz": 622,
+                "Selected": "no"
+            },
+            "TV_Channel_E40": {
+                "Band Name": "TV Channel E40",
+                "Start MHz": 622,
+                "Stop MHz": 630,
+                "Selected": "no"
+            },
+            "TV_Channel_E41": {
+                "Band Name": "TV Channel E41",
+                "Start MHz": 630,
+                "Stop MHz": 638,
+                "Selected": "no"
+            },
+            "TV_Channel_E42": {
+                "Band Name": "TV Channel E42",
+                "Start MHz": 638,
+                "Stop MHz": 646,
+                "Selected": "no"
+            },
+            "TV_Channel_E43": {
+                "Band Name": "TV Channel E43",
+                "Start MHz": 646,
+                "Stop MHz": 654,
+                "Selected": "no"
+            },
+            "TV_Channel_E44": {
+                "Band Name": "TV Channel E44",
+                "Start MHz": 654,
+                "Stop MHz": 662,
+                "Selected": "no"
+            },
+            "TV_Channel_E45": {
+                "Band Name": "TV Channel E45",
+                "Start MHz": 662,
+                "Stop MHz": 670,
+                "Selected": "no"
+            },
+            "TV_Channel_E46": {
+                "Band Name": "TV Channel E46",
+                "Start MHz": 670,
+                "Stop MHz": 678,
+                "Selected": "no"
+            },
+            "TV_Channel_E47": {
+                "Band Name": "TV Channel E47",
+                "Start MHz": 678,
+                "Stop MHz": 686,
+                "Selected": "no"
+            },
+            "TV_Channel_E48": {
+                "Band Name": "TV Channel E48",
+                "Start MHz": 686,
+                "Stop MHz": 694,
+                "Selected": "no"
+            }
+        }
+    }

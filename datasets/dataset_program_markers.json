@@ -1,0 +1,4795 @@
+
+
+        [
+                {
+                    "DEVICE 001": {
+                        "ZONE": "00.TechStores",
+                        "GROUP": "GROUP NAME",
+                        "DEVICE.1": "Sennheiser - EM6000 - A1A4",
+                        "NAME": " Sennheiser 4",
+                        "NICKNAKE": "nickname",
+                        "icon ": "icon ",
+                        "FREQ": "523.475",
+                        "PEAK": "-100",
+                        "FUTURE 1": "FUTURE 1",
+                        "FUTURE 2": "FUTURE 2",
+                        "FUTURE 3": "FUTURE 3",
+                        "FUTURE 4": "FUTURE 4"
+                    }
+                },
+                {
+                    "DEVICE 002": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "530.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 003": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "531.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 004": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "531.65",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 005": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "532.1",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 006": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "531.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 007": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "532.525",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 008": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "532.925",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 009": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "DSQENG-8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "533.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 010": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G6",
+                "NAME": "IEM - MOB 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "490.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 011": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G6",
+                "NAME": "IEM - MOB 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "500.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 012": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "515.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 013": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "513.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 014": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "513.625",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 015": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-01",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "470.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 016": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-02",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "470.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 017": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-03",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "471.4",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 018": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-04",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "471.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 019": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-05",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "473.925",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 020": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-06",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "474.475",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 021": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-07",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "475.275",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 022": {
+                "ZONE": "10.ST.41.ROGERS.IFB14.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-08",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "475.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 023": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-09",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "476.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 024": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-10",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "476.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 025": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-11",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "477.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 026": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-12",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "477.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 027": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-13",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "480.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 028": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-14",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "480.625",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 029": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-15",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "481.375",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 030": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-16",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "481.875",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 031": {
+                "ZONE": "10.ST.41.ROGERS.IFB16.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-17",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "482.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 032": {
+                "ZONE": "10.ST.41.ROGERS.IFB16.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-18",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "482.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 033": {
+                "ZONE": "10.ST.41.ROGERS.IFB16.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-19",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "483.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 034": {
+                "ZONE": "10.ST.41.ROGERS.IFB16.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "IFB-20",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "484.9",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 035": {
+                "ZONE": "10.ST.41.ROGERS.IFB.J8E",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - PSM1000 - J8E",
+                "NAME": "IFB-22",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 036": {
+                "ZONE": "10.ST.41.ROGERS.IFB.J8E",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - PSM1000 - J8E",
+                "NAME": "IFB-23",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "579.6",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 037": {
+                "ZONE": "10.ST.41.ROGERS.IFB.J8E",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - PSM1000 - J8E",
+                "NAME": "IFB-24",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "582.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 038": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G6",
+                "NAME": "IN RACK",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "476.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 039": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - ULXD4 - G50",
+                "NAME": "IN RACK ",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "530.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 040": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "LAV 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "575.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 041": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "LAV 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "582.85",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 042": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "LAV 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "581",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 043": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "LAV 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 044": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "LAV 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "579.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 045": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - ULXD4 - G50",
+                "NAME": "MOBILE 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "531.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 046": {
+                "ZONE": "06.ST.211.RADIO RECORDING",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - ULXD4 - G50",
+                "NAME": "MOBILE 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "532.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 047": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "535.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 048": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "530.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 049": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "529.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 050": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "534.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 051": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "533.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 052": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "534.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 053": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "535.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 054": {
+                "ZONE": "10.ST.41.ROGERS.ENG.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
+                "NAME": "OMPENG-8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "535.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 055": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-01",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "598.9",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 056": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-02",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "599.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 057": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-03",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "597.375",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 058": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-04",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "598.1",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 059": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-05",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "594.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 060": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-06",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "595.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 061": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-07",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "591.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 062": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-08",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "592.2",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 063": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-09",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "590.8",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 064": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-10",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "591.4",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 065": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-11",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "601.475",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 066": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-12",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "587.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 067": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-14",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.425",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 068": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-15",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "585.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 069": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-16",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "585.65",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 070": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-17",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "584.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 071": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4D-A - Gw",
+                "NAME": "R-MC-17",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "584.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 072": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-18",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "584.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 073": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-19",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "582.525",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 074": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-20",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "583.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 075": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-21",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "587.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 076": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-22",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "581.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 077": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-23",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "579.8",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 078": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-24",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "580.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 079": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-25",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "576.875",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 080": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-26",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "579.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 081": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-27",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.125",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 082": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-28",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 083": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-S1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "600.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 084": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-S2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "600.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 085": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-S3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "601.1",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 086": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "Shure - AD4D-A - G57",
+                "NAME": "R-MC-S4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "572.475",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 087": {
+                "ZONE": "06.ST.38.WEATHER CENTER",
+                "GROUP": "06.WeatherStudi",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "594.28",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 088": {
+                "ZONE": "06.ST.38.WEATHER CENTER",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "588.19",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 089": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "654.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 090": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "657.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 091": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "658.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 092": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "660.6",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 093": {
+                "ZONE": "06.ST.38.WEATHER CENTER",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "590.08",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 094": {
+                "ZONE": "06.ST.38.WEATHER CENTER",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "591.64",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 095": {
+                "ZONE": "06.ST.38.WEATHER CENTER",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Aw",
+                "NAME": "Sennheiser",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "537.6",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 096": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser - IEM - 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "653.875",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 097": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser - IEM - 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "655.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 098": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser - IEM - 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "655.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 099": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2050 - Bw",
+                "NAME": "Sennheiser - IEM - 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "659.15",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 100": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Bw",
+                "NAME": "Sennheiser - IEM 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "654.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 101": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Bw",
+                "NAME": "Sennheiser - IEM 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "659.425",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 102": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Gw",
+                "NAME": "Sennheiser - IEM 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "598.275",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 103": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Gw",
+                "NAME": "Sennheiser - IEM 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "601.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 104": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - SR 2000 - Gw",
+                "NAME": "Sennheiser - IEM 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "616.325",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 105": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.88",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 106": {
+                "ZONE": "04.WB13.ST.F.LOCAL NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 1 - BKUP",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.835",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 107": {
+                "ZONE": "04.WB13.ST.F.LOCAL NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 1 - PRI",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "582.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 108": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "575.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 109": {
+                "ZONE": "04.WB13.ST.F.LOCAL NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "594.69",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 110": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2000 - Aw",
+                "NAME": "Sennheiser - MIC 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "532.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 111": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "575.885",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 112": {
+                "ZONE": "04.WB13.ST.F.LOCAL NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "599.895",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 113": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2000 - Aw",
+                "NAME": "Sennheiser - MIC 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "554.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 114": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "579.86",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 115": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2000 - Aw",
+                "NAME": "Sennheiser - MIC 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "517.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 116": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "585.76",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 117": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "590.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 118": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "592.995",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 119": {
+                "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - MIC 8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "616.61",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 120": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732 - C",
+                "NAME": "Sennheiser - RF 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "580.115",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 121": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732 - C",
+                "NAME": "Sennheiser - RF 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.52",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 122": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - RF 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.58",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 123": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser - RF 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.84",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 124": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732 - C",
+                "NAME": "Sennheiser - RF 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "590.28",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 125": {
+                "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732 - C",
+                "NAME": "Sennheiser - RF 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "616.135",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 126": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM6000 - A1A4",
+                "NAME": "Sennheiser 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "528.675",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 127": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "472.125",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 128": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "470.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 129": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM6000 - A1A4",
+                "NAME": "Sennheiser 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "530.275",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 130": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "473.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 131": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "471.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 132": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM6000 - A1A4",
+                "NAME": "Sennheiser 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "527.8",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 133": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "474.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 134": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "474.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 135": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "477.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 136": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "478.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 137": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "480.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 138": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "482.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 139": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "481.925",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 140": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "484.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 141": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "483.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 142": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "485.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 143": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "487.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 144": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 9046 - A1",
+                "NAME": "Sennheiser 8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "487.85",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 145": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2050 - Gw",
+                "NAME": "Sennheiser IFB 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "572.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 146": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2050 - Gw",
+                "NAME": "Sennheiser IFB 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "577.5",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 147": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2050 - Gw",
+                "NAME": "Sennheiser IFB 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "580.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 148": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2050 - Gw",
+                "NAME": "Sennheiser IFB 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "581.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 149": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 2050 - Gw",
+                "NAME": "Sennheiser IFB 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "593.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 150": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 01",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "572.71",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 151": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 02",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "573.085",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 152": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 03",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "573.995",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 153": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 04",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "578.205",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 154": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 05",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "581.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 155": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 06",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.42",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 156": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 07",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "590.18",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 157": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 08",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "597.31",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 158": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 09",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "599.86",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 159": {
+                "ZONE": "10.SYS.2 SENN.MOBILE MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 1 - MIC 10",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "601.675",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 160": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 01",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "574.455",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 161": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 02",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "575.305",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 162": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 03",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "576.73",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 163": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 04",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "578.655",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 164": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 05",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "583.4",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 165": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 06",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.325",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 166": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 07",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "593.7",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 167": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 08",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "596.465",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 168": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sennheiser - EM 3732-II - L",
+                "NAME": "Sennheiser SYS 2 - MIC 09",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "597.715",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 169": {
+                "ZONE": "09.CONF.DIGITAL SERVICES",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - BLX4 - H10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "571.675",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 170": {
+                "ZONE": "09.CONF.DIGITAL SERVICES",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - BLX4 - H9",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "537",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 171": {
+                "ZONE": "09.CONF.DIGITAL SERVICES",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - BLX4 - H9",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "534.85",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 172": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "576.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 173": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "576.5",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 174": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.925",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 175": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "588.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 176": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 177": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 178": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "593.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 179": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "593.65",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 180": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "595.65",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 181": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "596.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 182": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "596.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 183": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "598.525",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 184": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "516.475",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 185": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "523.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 186": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "526.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 187": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "527.525",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 188": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM1000 - G10",
+                "NAME": "Shure",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "512.475",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 189": {
+                "ZONE": "10.CONF.ARTIST LOUNGE",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - SLX_master_list - G5",
+                "NAME": "Shure - MIC 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "494.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 190": {
+                "ZONE": "10.CONF.ARTIST LOUNGE",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - SLX_master_list - G5",
+                "NAME": "Shure - MIC 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "496.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 191": {
+                "ZONE": "10.CONF.ARTIST LOUNGE",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - SLX_master_list - G5",
+                "NAME": "Shure - MIC 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "498.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 192": {
+                "ZONE": "10.CONF.ARTIST LOUNGE",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - SLX_master_list - G5",
+                "NAME": "Shure - MIC 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "499.8",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 193": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G7",
+                "NAME": "Shure IEM 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "513.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 194": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G7",
+                "NAME": "Shure IEM 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "514.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 195": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - PSM900 - G7",
+                "NAME": "Shure IEM 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "525.6",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 196": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 34-36",
+                "NAME": "Sony - MIC 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "592.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 197": {
+                "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 34-36",
+                "NAME": "Sony - MIC 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "594.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 198": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "654.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 199": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "661.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 200": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "656.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 201": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "642.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 202": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "657.2",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 203": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "643.25",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 204": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 42",
+                "NAME": "Sony Mic 7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "660.45",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 205": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02DN - 43",
+                "NAME": "Sony Mic 8",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "645.5",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 206": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02D - 42-45",
+                "NAME": "Sony Rental 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "654.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 207": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02D - 42-45",
+                "NAME": "Sony Rental 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "656.825",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 208": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02D - 42-45",
+                "NAME": "Sony Rental 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "661.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 209": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Sony - DWR-R02D - 42-45",
+                "NAME": "Sony Rental 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "661.8",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 210": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 1",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "581.675",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 211": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 2",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "585.6",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 212": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 3",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "582.425",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 213": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 4",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "584.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 214": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 5",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 215": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 6",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "577.65",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 216": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "Shure - AD4Q-A - G57",
+                "NAME": "STICK 7",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "578.1",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 217": {
+                "ZONE": "10.ST.41.ROGERS.IFB.J8E",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "None - None - J8E",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "592.325",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 218": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "10.Rogers 2020",
+                "DEVICE.1": "None - None - G57",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "586.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 219": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "472.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 220": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "473.525",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 221": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "478.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 222": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "479.05",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 223": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "483.15",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 224": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "484.225",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 225": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "486.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 226": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G7",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "515.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 227": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - 42",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "653.075",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 228": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "521.325",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 229": {
+                "ZONE": "10.ST.41.ROGERS.IFB15.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "528.775",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 230": {
+                "ZONE": "10.ST.41.ROGERS.MICS.20",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G57",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "599.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 231": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "519.3",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 232": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "520.2",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 233": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "520.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 234": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "521.575",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 235": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "522.925",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 236": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "524.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 237": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "525.125",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 238": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "527",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 239": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "527.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 240": {
+                "ZONE": "STATION ENG",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - TV14-36",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "528.85",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 241": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - 43",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "654.75",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 242": {
+                "ZONE": "01.STUDIO.55.FLOOR.K",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - 43",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "658.025",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 243": {
+                "ZONE": "10.ST.41.ROGERS.IFB.J8E",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - J8E",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "616.95",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 244": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - L",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "589.28",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 245": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - L",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "593.725",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 246": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - L",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "595.83",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 247": {
+                "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - L",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "616.99",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 248": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - A1A4",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "522.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 249": {
+                "ZONE": "00.TechStores",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - A1A4",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "526.35",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 250": {
+                "ZONE": "10.SYS.1.GOULD MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - L",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "601.55",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 251": {
+                "ZONE": "10 STATION AXIENT MICS",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - G10",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "515.175",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 252": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - Gw",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "595.625",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 253": {
+                "ZONE": "01.STUDIO.ATRIUM",
+                "GROUP": "GROUP NAME",
+                "DEVICE.1": "None - None - Gw",
+                "NAME": "ASSET NAME",
+                "NICKNAKE": "nickname",
+                "icon ": "icon ",
+                "FREQ": "600.975",
+                "PEAK": "-100",
+                "FUTURE 1": "FUTURE 1",
+                "FUTURE 2": "FUTURE 2",
+                "FUTURE 3": "FUTURE 3",
+                "FUTURE 4": "FUTURE 4"
+            }
+        },
+        {
+            "DEVICE 254": {}
+        },
+        {
+            "DEVICE 255": {}
+        },
+        {
+            "DEVICE 256": {}
+        },
+        {
+            "DEVICE 257": {}
+        },
+        {
+            "DEVICE 258": {}
+        },
+        {
+            "DEVICE 259": {}
+        },
+        {
+            "DEVICE 260": {}
+        },
+        {
+            "DEVICE 261": {}
+        },
+        {
+            "DEVICE 262": {}
+        },
+        {
+            "DEVICE 263": {}
+        },
+        {
+            "DEVICE 264": {}
+        },
+        {
+            "DEVICE 265": {}
+        },
+        {
+            "DEVICE 266": {}
+        },
+        {
+            "DEVICE 267": {}
+        },
+        {
+            "DEVICE 268": {}
+        },
+        {
+            "DEVICE 269": {}
+        },
+        {
+            "DEVICE 270": {}
+        },
+        {
+            "DEVICE 271": {}
+        },
+        {
+            "DEVICE 272": {}
+        },
+        {
+            "DEVICE 273": {}
+        },
+        {
+            "DEVICE 274": {}
+        },
+        {
+            "DEVICE 275": {}
+        },
+        {
+            "DEVICE 276": {}
+        },
+        {
+            "DEVICE 277": {}
+        },
+        {
+            "DEVICE 278": {}
+        },
+        {
+            "DEVICE 279": {}
+        },
+        {
+            "DEVICE 280": {}
+        },
+        {
+            "DEVICE 281": {}
+        },
+        {
+            "DEVICE 282": {}
+        },
+        {
+            "DEVICE 283": {}
+        },
+        {
+            "DEVICE 284": {}
+        },
+        {
+            "DEVICE 285": {}
+        },
+        {
+            "DEVICE 286": {}
+        },
+        {
+            "DEVICE 287": {}
+        },
+        {
+            "DEVICE 288": {}
+        },
+        {
+            "DEVICE 289": {}
+        },
+        {
+            "DEVICE 290": {}
+        },
+        {
+            "DEVICE 291": {}
+        },
+        {
+            "DEVICE 292": {}
+        },
+        {
+            "DEVICE 293": {}
+        },
+        {
+            "DEVICE 294": {}
+        },
+        {
+            "DEVICE 295": {}
+        },
+        {
+            "DEVICE 296": {}
+        },
+        {
+            "DEVICE 297": {}
+        },
+        {
+            "DEVICE 298": {}
+        },
+        {
+            "DEVICE 299": {}
+        },
+        {
+            "DEVICE 300": {}
+        },
+        {
+            "DEVICE 301": {}
+        },
+        {
+            "DEVICE 302": {}
+        },
+        {
+            "DEVICE 303": {}
+        },
+        {
+            "DEVICE 304": {}
+        },
+        {
+            "DEVICE 305": {}
+        },
+        {
+            "DEVICE 306": {}
+        },
+        {
+            "DEVICE 307": {}
+        },
+        {
+            "DEVICE 308": {}
+        },
+        {
+            "DEVICE 309": {}
+        },
+        {
+            "DEVICE 310": {}
+        },
+        {
+            "DEVICE 311": {}
+        },
+        {
+            "DEVICE 312": {}
+        },
+        {
+            "DEVICE 313": {}
+        },
+        {
+            "DEVICE 314": {}
+        },
+        {
+            "DEVICE 315": {}
+        },
+        {
+            "DEVICE 316": {}
+        },
+        {
+            "DEVICE 317": {}
+        },
+        {
+            "DEVICE 318": {}
+        },
+        {
+            "DEVICE 319": {}
+        },
+        {
+            "DEVICE 320": {}
+        },
+        {
+            "DEVICE 321": {}
+        },
+        {
+            "DEVICE 322": {}
+        },
+        {
+            "DEVICE 323": {}
+        },
+        {
+            "DEVICE 324": {}
+        },
+        {
+            "DEVICE 325": {}
+        },
+        {
+            "DEVICE 326": {}
+        },
+        {
+            "DEVICE 327": {}
+        },
+        {
+            "DEVICE 328": {}
+        },
+        {
+            "DEVICE 329": {}
+        },
+        {
+            "DEVICE 330": {}
+        },
+        {
+            "DEVICE 331": {}
+        },
+        {
+            "DEVICE 332": {}
+        },
+        {
+            "DEVICE 333": {}
+        },
+        {
+            "DEVICE 334": {}
+        },
+        {
+            "DEVICE 335": {}
+        },
+        {
+            "DEVICE 336": {}
+        },
+        {
+            "DEVICE 337": {}
+        },
+        {
+            "DEVICE 338": {}
+        },
+        {
+            "DEVICE 339": {}
+        },
+        {
+            "DEVICE 340": {}
+        },
+        {
+            "DEVICE 341": {}
+        },
+        {
+            "DEVICE 342": {}
+        },
+        {
+            "DEVICE 343": {}
+        },
+        {
+            "DEVICE 344": {}
+        },
+        {
+            "DEVICE 345": {}
+        },
+        {
+            "DEVICE 346": {}
+        },
+        {
+            "DEVICE 347": {}
+        },
+        {
+            "DEVICE 348": {}
+        },
+        {
+            "DEVICE 349": {}
+        },
+        {
+            "DEVICE 350": {}
+        },
+        {
+            "DEVICE 351": {}
+        },
+        {
+            "DEVICE 352": {}
+        },
+        {
+            "DEVICE 353": {}
+        },
+        {
+            "DEVICE 354": {}
+        },
+        {
+            "DEVICE 355": {}
+        },
+        {
+            "DEVICE 356": {}
+        },
+        {
+            "DEVICE 357": {}
+        },
+        {
+            "DEVICE 358": {}
+        },
+        {
+            "DEVICE 359": {}
+        },
+        {
+            "DEVICE 360": {}
+        },
+        {
+            "DEVICE 361": {}
+        },
+        {
+            "DEVICE 362": {}
+        },
+        {
+            "DEVICE 363": {}
+        },
+        {
+            "DEVICE 364": {}
+        },
+        {
+            "DEVICE 365": {}
+        },
+        {
+            "DEVICE 366": {}
+        },
+        {
+            "DEVICE 367": {}
+        },
+        {
+            "DEVICE 368": {}
+        },
+        {
+            "DEVICE 369": {}
+        },
+        {
+            "DEVICE 370": {}
+        },
+        {
+            "DEVICE 371": {}
+        },
+        {
+            "DEVICE 372": {}
+        },
+        {
+            "DEVICE 373": {}
+        },
+        {
+            "DEVICE 374": {}
+        },
+        {
+            "DEVICE 375": {}
+        },
+        {
+            "DEVICE 376": {}
+        },
+        {
+            "DEVICE 377": {}
+        },
+        {
+            "DEVICE 378": {}
+        },
+        {
+            "DEVICE 379": {}
+        },
+        {
+            "DEVICE 380": {}
+        },
+        {
+            "DEVICE 381": {}
+        },
+        {
+            "DEVICE 382": {}
+        },
+        {
+            "DEVICE 383": {}
+        },
+        {
+            "DEVICE 384": {}
+        },
+        {
+            "DEVICE 385": {}
+        },
+        {
+            "DEVICE 386": {}
+        },
+        {
+            "DEVICE 387": {}
+        },
+        {
+            "DEVICE 388": {}
+        },
+        {
+            "DEVICE 389": {}
+        },
+        {
+            "DEVICE 390": {}
+        },
+        {
+            "DEVICE 391": {}
+        },
+        {
+            "DEVICE 392": {}
+        },
+        {
+            "DEVICE 393": {}
+        },
+        {
+            "DEVICE 394": {}
+        },
+        {
+            "DEVICE 395": {}
+        },
+        {
+            "DEVICE 396": {}
+        },
+        {
+            "DEVICE 397": {}
+        },
+        {
+            "DEVICE 398": {}
+        },
+        {
+            "DEVICE 399": {}
+        },
+        {
+            "DEVICE 400": {}
+        },
+        {
+            "DEVICE 401": {}
+        },
+        {
+            "DEVICE 402": {}
+        },
+        {
+            "DEVICE 403": {}
+        },
+        {
+            "DEVICE 404": {}
+        },
+        {
+            "DEVICE 405": {}
+        },
+        {
+            "DEVICE 406": {}
+        },
+        {
+            "DEVICE 407": {}
+        },
+        {
+            "DEVICE 408": {}
+        },
+        {
+            "DEVICE 409": {}
+        },
+        {
+            "DEVICE 410": {}
+        },
+        {
+            "DEVICE 411": {}
+        },
+        {
+            "DEVICE 412": {}
+        },
+        {
+            "DEVICE 413": {}
+        },
+        {
+            "DEVICE 414": {}
+        },
+        {
+            "DEVICE 415": {}
+        },
+        {
+            "DEVICE 416": {}
+        },
+        {
+            "DEVICE 417": {}
+        },
+        {
+            "DEVICE 418": {}
+        },
+        {
+            "DEVICE 419": {}
+        },
+        {
+            "DEVICE 420": {}
+        },
+        {
+            "DEVICE 421": {}
+        },
+        {
+            "DEVICE 422": {}
+        },
+        {
+            "DEVICE 423": {}
+        },
+        {
+            "DEVICE 424": {}
+        },
+        {
+            "DEVICE 425": {}
+        },
+        {
+            "DEVICE 426": {}
+        },
+        {
+            "DEVICE 427": {}
+        },
+        {
+            "DEVICE 428": {}
+        },
+        {
+            "DEVICE 429": {}
+        },
+        {
+            "DEVICE 430": {}
+        },
+        {
+            "DEVICE 431": {}
+        },
+        {
+            "DEVICE 432": {}
+        },
+        {
+            "DEVICE 433": {}
+        },
+        {
+            "DEVICE 434": {}
+        },
+        {
+            "DEVICE 435": {}
+        },
+        {
+            "DEVICE 436": {}
+        },
+        {
+            "DEVICE 437": {}
+        },
+        {
+            "DEVICE 438": {}
+        },
+        {
+            "DEVICE 439": {}
+        },
+        {
+            "DEVICE 440": {}
+        },
+        {
+            "DEVICE 441": {}
+        },
+        {
+            "DEVICE 442": {}
+        },
+        {
+            "DEVICE 443": {}
+        },
+        {
+            "DEVICE 444": {}
+        },
+        {
+            "DEVICE 445": {}
+        },
+        {
+            "DEVICE 446": {}
+        },
+        {
+            "DEVICE 447": {}
+        },
+        {
+            "DEVICE 448": {}
+        },
+        {
+            "DEVICE 449": {}
+        },
+        {
+            "DEVICE 450": {}
+        },
+        {
+            "DEVICE 451": {}
+        },
+        {
+            "DEVICE 452": {}
+        },
+        {
+            "DEVICE 453": {}
+        },
+        {
+            "DEVICE 454": {}
+        },
+        {
+            "DEVICE 455": {}
+        },
+        {
+            "DEVICE 456": {}
+        },
+        {
+            "DEVICE 457": {}
+        },
+        {
+            "DEVICE 458": {}
+        },
+        {
+            "DEVICE 459": {}
+        },
+        {
+            "DEVICE 460": {}
+        },
+        {
+            "DEVICE 461": {}
+        },
+        {
+            "DEVICE 462": {}
+        },
+        {
+            "DEVICE 463": {}
+        },
+        {
+            "DEVICE 464": {}
+        },
+        {
+            "DEVICE 465": {}
+        },
+        {
+            "DEVICE 466": {}
+        },
+        {
+            "DEVICE 467": {}
+        },
+        {
+            "DEVICE 468": {}
+        },
+        {
+            "DEVICE 469": {}
+        },
+        {
+            "DEVICE 470": {}
+        },
+        {
+            "DEVICE 471": {}
+        },
+        {
+            "DEVICE 472": {}
+        },
+        {
+            "DEVICE 473": {}
+        },
+        {
+            "DEVICE 474": {}
+        },
+        {
+            "DEVICE 475": {}
+        },
+        {
+            "DEVICE 476": {}
+        },
+        {
+            "DEVICE 477": {}
+        },
+        {
+            "DEVICE 478": {}
+        },
+        {
+            "DEVICE 479": {}
+        },
+        {
+            "DEVICE 480": {}
+        },
+        {
+            "DEVICE 481": {}
+        },
+        {
+            "DEVICE 482": {}
+        },
+        {
+            "DEVICE 483": {}
+        },
+        {
+            "DEVICE 484": {}
+        },
+        {
+            "DEVICE 485": {}
+        },
+        {
+            "DEVICE 486": {}
+        },
+        {
+            "DEVICE 487": {}
+        },
+        {
+            "DEVICE 488": {}
+        },
+        {
+            "DEVICE 489": {}
+        },
+        {
+            "DEVICE 490": {}
+        },
+        {
+            "DEVICE 491": {}
+        },
+        {
+            "DEVICE 492": {}
+        },
+        {
+            "DEVICE 493": {}
+        },
+        {
+            "DEVICE 494": {}
+        },
+        {
+            "DEVICE 495": {}
+        },
+        {
+            "DEVICE 496": {}
+        },
+        {
+            "DEVICE 497": {}
+        },
+        {
+            "DEVICE 498": {}
+        },
+        {
+            "DEVICE 499": {}
+        },
+        {
+            "DEVICE 500": {}
+        }
+    
+
+    ]

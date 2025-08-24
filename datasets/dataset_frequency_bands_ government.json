@@ -1,0 +1,190 @@
+{
+  "Canadian Government": {
+
+      "Amateur_Radio_6m": {
+        "Band Name": "Amateur Radio 6m",
+        "Start MHz": 50,
+        "Stop MHz": 54
+      },
+      "FM_Broadcast": {
+        "Band Name": "FM Broadcast",
+        "Start MHz": 88,
+        "Stop MHz": 108
+      },
+      "Air_Traffic_Control": {
+        "Band Name": "Air Traffic Control",
+        "Start MHz": 108,
+        "Stop MHz": 137
+      },
+      "VHF_Marine_Radio": {
+        "Band Name": "VHF Marine Radio",
+        "Start MHz": 156,
+        "Stop MHz": 162.025
+      },
+      "Amateur_Radio_2m": {
+        "Band Name": "Amateur Radio 2m",
+        "Start MHz": 144,
+        "Stop MHz": 148
+      },
+      "Paging_Land_Mobile": {
+        "Band Name": "Paging/Land Mobile",
+        "Start MHz": 150,
+        "Stop MHz": 174
+      },
+      "Public_Safety_Land_Mobile": {
+        "Band Name": "Public Safety/Land Mobile",
+        "Start MHz": 450,
+        "Stop MHz": 470
+      },
+      "Amateur_Radio_70cm": {
+        "Band Name": "Amateur Radio 70cm",
+        "Start MHz": 420,
+        "Stop MHz": 450
+      },
+      "FRS_GMRS": {
+        "Band Name": "FRS/GMRS",
+        "Start MHz": 462.5,
+        "Stop MHz": 467.7625
+      },
+      "LTE_Band_13_Uplink": {
+        "Band Name": "LTE Band 13 (Uplink)",
+        "Start MHz": 777,
+        "Stop MHz": 787
+      },
+      "LTE_Band_13_Downlink": {
+        "Band Name": "LTE Band 13 (Downlink)",
+        "Start MHz": 746,
+        "Stop MHz": 756
+      },
+      "Public_Safety_700_MHz": {
+        "Band Name": "Public Safety 700 MHz",
+        "Start MHz": 764,
+        "Stop MHz": 776
+      },
+      "Public_Safety_800_MHz": {
+        "Band Name": "Public Safety 800 MHz",
+        "Start MHz": 851,
+        "Stop MHz": 869
+      },
+      "LTE_Band_5_Uplink": {
+        "Band Name": "LTE Band 5 (Uplink)",
+        "Start MHz": 824,
+        "Stop MHz": 849
+      },
+      "LTE_Band_5_Downlink": {
+        "Band Name": "LTE Band 5 (Downlink)",
+        "Start MHz": 869,
+        "Stop MHz": 894
+      },
+      "GSM_850_Uplink": {
+        "Band Name": "GSM 850 (Uplink)",
+        "Start MHz": 824,
+        "Stop MHz": 849
+      },
+      "GSM_850_Downlink": {
+        "Band Name": "GSM 850 (Downlink)",
+        "Start MHz": 869,
+        "Stop MHz": 894
+      },
+      "Amateur_Radio_33cm": {
+        "Band Name": "Amateur Radio 33cm",
+        "Start MHz": 902,
+        "Stop MHz": 928
+      },
+      "ISM_900_MHz": {
+        "Band Name": "ISM 900 MHz",
+        "Start MHz": 902,
+        "Stop MHz": 928
+      },
+      "LTE_Band_2_25_Uplink": {
+        "Band Name": "LTE Band 2/25 (Uplink)",
+        "Start MHz": 1850,
+        "Stop MHz": 1915
+      },
+      "LTE_Band_2_25_Downlink": {
+        "Band Name": "LTE Band 2/25 (Downlink)",
+        "Start MHz": 1930,
+        "Stop MHz": 1995
+      },
+      "PCS_Uplink": {
+        "Band Name": "PCS (Uplink)",
+        "Start MHz": 1850,
+        "Stop MHz": 1910
+      },
+      "PCS_Downlink": {
+        "Band Name": "PCS (Downlink)",
+        "Start MHz": 1930,
+        "Stop MHz": 1990
+      },
+      "LTE_Band_4_Uplink": {
+        "Band Name": "LTE Band 4 (Uplink)",
+        "Start MHz": 1710,
+        "Stop MHz": 1755
+      },
+      "LTE_Band_4_Downlink": {
+        "Band Name": "LTE Band 4 (Downlink)",
+        "Start MHz": 2110,
+        "Stop MHz": 2155
+      },
+      "AWS-1_Uplink": {
+        "Band Name": "AWS-1 (Uplink)",
+        "Start MHz": 1710,
+        "Stop MHz": 1755
+      },
+      "AWS-1_Downlink": {
+        "Band Name": "AWS-1 (Downlink)",
+        "Start MHz": 2110,
+        "Stop MHz": 2155
+      },
+      "Amateur_Radio_23cm": {
+        "Band Name": "Amateur Radio 23cm",
+        "Start MHz": 1240,
+        "Stop MHz": 1300
+      },
+      "GPS_L1": {
+        "Band Name": "GPS L1",
+        "Start MHz": 1575.42,
+        "Stop MHz": 1575.42
+      },
+      "GPS_L2": {
+        "Band Name": "GPS L2",
+        "Start MHz": 1227.6,
+        "Stop MHz": 1227.6
+      },
+      "Bluetooth": {
+        "Band Name": "Bluetooth",
+        "Start MHz": 2400,
+        "Stop MHz": 2483.5
+      },
+      "Wi-Fi_2.4_GHz": {
+        "Band Name": "Wi-Fi 2.4 GHz",
+        "Start MHz": 2400,
+        "Stop MHz": 2483.5
+      },
+      "ISM_2.4_GHz": {
+        "Band Name": "ISM 2.4 GHz",
+        "Start MHz": 2400,
+        "Stop MHz": 2500
+      },
+      "LTE_Band_7_Uplink": {
+        "Band Name": "LTE Band 7 (Uplink)",
+        "Start MHz": 2500,
+        "Stop MHz": 2570
+      },
+      "LTE_Band_7_Downlink": {
+        "Band Name": "LTE Band 7 (Downlink)",
+        "Start MHz": 2620,
+        "Stop MHz": 2690
+      },
+      "Amateur_Radio_13cm": {
+        "Band Name": "Amateur Radio 13cm",
+        "Start MHz": 2300,
+        "Stop MHz": 2450
+      },
+      "Amateur_Radio_13cm_cont": {
+        "Band Name": "Amateur Radio 13cm (cont)",
+        "Start MHz": 2400,
+        "Stop MHz": 2450
+      }
+    }
+  }

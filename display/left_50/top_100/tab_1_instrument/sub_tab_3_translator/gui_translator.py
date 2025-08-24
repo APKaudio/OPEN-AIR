@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.001500.20
+# Version 20250824.130600.4
 
 import os
 import inspect
@@ -32,10 +32,10 @@ from workers.mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-CURRENT_TIME_HASH = 1500
-REVISION_NUMBER = 20
+CURRENT_DATE = 20250824
+CURRENT_TIME = 130600
+CURRENT_TIME_HASH = 130600
+REVISION_NUMBER = 4
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -78,7 +78,7 @@ class TranslatorGUI(ttk.Frame):
             self.get_config_button = ttk.Button(
                 mqtt_frame,
                 text="Get Configuration",
-                command=lambda: self._publish_translator_message("GET_CONFIG", "request")
+                command=self._get_config_mqtt_request
             )
             self.get_config_button.pack(side=tk.LEFT, padx=5, pady=5)
 
@@ -113,8 +113,8 @@ class TranslatorGUI(ttk.Frame):
 
             # Treeview table for commands
             self.commands_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Parameter", "Function", "Description"), show="headings", style="Custom.Treeview")
-            self.commands_table.heading("Parameter", text="Parameter")
-            self.commands_table.heading("Function", text="Function")
+            self.commands_table.heading("Parameter", text="Topic")
+            self.commands_table.heading("Function", text="Value")
             self.commands_table.heading("Description", text="Description")
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -123,7 +123,7 @@ class TranslatorGUI(ttk.Frame):
             table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
             # We now register our callback with the central utility.
-            self.mqtt_util.add_subscriber(topic_filter="datasets/dataset_visa_commands/COMMANDS/list_item", callback_func=self._on_commands_message)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/devices/scpi/COMMANDS/#", callback_func=self._on_commands_message)
 
 
             # --- New Status Bar at the bottom ---
@@ -183,6 +183,36 @@ class TranslatorGUI(ttk.Frame):
                         foreground=colors["entry_fg"],
                         bordercolor=colors["table_border"])
 
+    def _get_config_mqtt_request(self):
+        """
+        Publishes a message to the specific MQTT topic for a configuration request.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        topic_parts = "OPEN-AIR/devices/scpi/COMMANDS".split("/")
+        root_topic = topic_parts[0]
+        subtopic = "/".join(topic_parts[1:])
+        message = "request"
+
+        debug_log(
+            message=f"🖥️🟢 Publishing '{message}' to specific MQTT topic '{root_topic}/{subtopic}'.",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            self.mqtt_util.publish_message(topic=root_topic, subtopic=subtopic, value=message)
+            console_log(f"✅ Command '{message}' published successfully to '{root_topic}/{subtopic}'!")
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
     def _publish_translator_message(self, child_topic: str, message: str):
         """
         Publishes a message to the instrument translator topic with a specific child topic.
@@ -224,15 +254,30 @@ class TranslatorGUI(ttk.Frame):
             console_print_func=console_log
         )
         try:
-            # Clear existing data
-            self.commands_table.delete(*self.commands_table.get_children())
+            # Create a new top-level node for this specific MQTT topic
+            root_node = self.commands_table.insert('', 'end', text=topic, values=(topic, ""), open=True)
             
-            commands_list = json.loads(payload)["value"]
-            if isinstance(commands_list, list):
-                for item in commands_list:
-                    if isinstance(item, dict) and 'parameter' in item and 'function' in item and 'description' in item:
-                        self.commands_table.insert('', 'end', values=(item['parameter'], item['function'], item['description']))
+            def _populate_treeview_from_json(parent_item, data_node, parent_topic_path=""):
+                """A recursive helper to populate the Treeview with hierarchical data."""
+                if isinstance(data_node, dict):
+                    for key, value in data_node.items():
+                        new_topic_path = f"{parent_topic_path}/{key}" if parent_topic_path else key
+                        new_item = self.commands_table.insert(parent_item, 'end', text=key, values=(new_topic_path, ""))
+                        _populate_treeview_from_json(new_item, value, new_topic_path)
+                elif isinstance(data_node, list):
+                    for i, item in enumerate(data_node):
+                        new_topic_path = f"{parent_topic_path}/[{i}]"
+                        if isinstance(item, (dict, list)):
+                            new_item = self.commands_table.insert(parent_item, 'end', text=f"[{i}]", values=(new_topic_path, ""))
+                            _populate_treeview_from_json(new_item, item, new_topic_path)
+                        else:
+                            self.commands_table.insert(parent_item, 'end', values=(new_topic_path, str(item)))
+                else:
+                    self.commands_table.set(parent_item, "Function", str(data_node))
             
+            commands_data = json.loads(payload)
+            _populate_treeview_from_json(root_node, commands_data)
+
             console_log("✅ Commands table updated with new data!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

@@ -1,0 +1,131 @@
+[
+    {
+        "Name": "VHF V Low Band",
+        "Start_MHz": 30.0,
+        "End_MHz": 50.0,
+        "Description": "Vehicle and short range communications.",
+        "Selected": "no"
+    },
+    {
+        "Name": "VHF Low Band",
+        "Start_MHz": 50.0,
+        "End_MHz": 150.0,
+        "Description": "FM Radio, Television, Amateur Radio, Public Safety, Aircraft Communication, Weather Radio.",
+        "Selected": "no"
+    },
+    {
+        "Name": "VHF High Band",
+        "Start_MHz": 150.0,
+        "End_MHz": 300.0,
+        "Description": "Two-way radio communications, aircraft, amateur radio.",
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF Band I",
+        "Start_MHz": 300.0,
+        "End_MHz": 470.0,
+        "Description": "Wireless microphones, Public Safety, Land Mobile Radio.",
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF Band II",
+        "Start_MHz": 470.0,
+        "End_MHz": 500.0,
+        "Description": "Television.",
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF Band III",
+        "Start_MHz": 500.0,
+        "End_MHz": 700.0,
+        "Description": "Television, Wireless Microphones.",
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF Band IV",
+        "Start_MHz": 700.0,
+        "End_MHz": 800.0,
+        "Description": "Wireless Microphones, Cellular, Public Safety.",
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF Band V",
+        "Start_MHz": 800.0,
+        "End_MHz": 900.0,
+        "Description": "Cellular, Public Safety.",
+        "Selected": "no"
+    },
+    {
+        "Name": "Low VHF+FM",
+        "Start_MHz": 50.0,
+        "End_MHz": 110.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "High VHF+216",
+        "Start_MHz": 170.0,
+        "End_MHz": 220.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF 400-500",
+        "Start_MHz": 400.0,
+        "End_MHz": 500.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF 500-600",
+        "Start_MHz": 500.0,
+        "End_MHz": 600.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF 600-700",
+        "Start_MHz": 600.0,
+        "End_MHz": 700.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF 700-800",
+        "Start_MHz": 700.0,
+        "End_MHz": 800.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "UHF 800-900",
+        "Start_MHz": 800.0,
+        "End_MHz": 900.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "ISM-STL 900-970",
+        "Start_MHz": 900.0,
+        "End_MHz": 970.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "AFTRCC 1430-1540",
+        "Start_MHz": 1430.0,
+        "End_MHz": 1540.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "DECT-ALL 1880-2000",
+        "Start_MHz": 1880.0,
+        "End_MHz": 2000.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "Cams Lower 2G-2.2G",
+        "Start_MHz": 2000.0,
+        "End_MHz": 2200.0,
+        "Selected": "no"
+    },
+    {
+        "Name": "Cams Upper 2.4G-2.4G",
+        "Start_MHz": 2200.0,
+        "End_MHz": 2400.0,
+        "Selected": "no"
+    }
+]
+    

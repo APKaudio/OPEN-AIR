@@ -76,12 +76,12 @@ def publish_recursive(mqtt_util, base_topic, data):
                     new_topic = f"{base_topic}/{item_name}"
                 else:
                     # Fallback to a generic, numbered topic if no descriptive key is found
-                    new_topic = f"{base_topic}/list_item"
+                    new_topic = f"{base_topic}"
                 
                 publish_recursive(mqtt_util, new_topic, item)
             else:
                 # Handle non-dictionary list items (e.g., strings or numbers)
-                new_topic = f"{base_topic}/item"
+                new_topic = f"{base_topic}"
                 publish_recursive(mqtt_util, new_topic, item)
                 
     else:
@@ -119,8 +119,20 @@ def main(mqtt_util: MqttControllerUtility):
 
         for file_name in json_files:
             file_path = os.path.join(current_directory, file_name)
-            root_topic = f"datasets/{os.path.splitext(file_name)[0]}"
-
+            
+            # Remove the ".json" extension and any "dataset_" prefix.
+            base_name = os.path.splitext(file_name)[0]
+            if base_name.startswith("dataset_"):
+                base_name = base_name.replace("dataset_", "", 1)
+            
+            # Split the remaining name by underscores to create topic hierarchy
+            topic_levels = base_name.split('_')
+            
+            # Join the levels with a forward slash to form the topic
+            file_topic_path = "/".join(topic_levels)
+            
+            root_topic = f"OPEN-AIR/{file_topic_path}"
+            
             try:
                 debug_log(
                     message=f"🔍🔵 Processing file: '{file_name}'",
@@ -140,7 +152,6 @@ def main(mqtt_util: MqttControllerUtility):
             except Exception as e:
                 print(f"An unexpected error occurred while processing '{file_name}': {e}")
             
-
     
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
@@ -151,3 +162,8 @@ def main(mqtt_util: MqttControllerUtility):
             function=f"dataset_publisher.{current_function_name}",
             console_print_func=console_log
         )
+
+if __name__ == "__main__":
+    # This block would typically be called from a main application script
+    # For standalone testing, you'd need to mock MqttControllerUtility
+    print("This script is designed to be imported as a module. Exiting.")

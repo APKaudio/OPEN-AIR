@@ -146,26 +146,11 @@ class CSVToJSONApp(tk.Tk):
             df = pd.read_csv(self.csv_filepath, nrows=1, keep_default_na=False)
             self.headers = list(df.columns)
             
-            # Default configuration from the screenshot
-            default_config = {
-                'KeyLevel_1': {'role': 'Value as Key', 'nested_under': 'root'},
-                'KeyLevel_2': {'role': 'Value as Key', 'nested_under': 'KeyLevel_1'},
-                'KeyLevel_3': {'role': 'Value as Key', 'nested_under': 'KeyLevel_2'},
-                'KeyLevel_4': {'role': 'Value as Key', 'nested_under': 'KeyLevel_3'},
-                'KeyLevel_5': {'role': 'Value as Key', 'nested_under': 'KeyLevel_4'},
-                'default_value': {'role': 'Simple Value', 'nested_under': 'KeyLevel_5'},
-                'Manufacturer_value': {'role': 'Hierarchical Key', 'nested_under': 'KeyLevel_5', 'part_name': 'parts'},
-                'Device': {'role': 'Hierarchical Key', 'nested_under': 'Manufacturer_value', 'part_name': 'parts'},
-                'VISA Command': {'role': 'Simple Value', 'nested_under': 'Device'},
-                'validated': {'role': 'Simple Value', 'nested_under': 'Device'},
-            }
-
             # Create a row of controls for each header
             tk.Label(self.headers_frame, text="JSON Key Name", font=("Arial", 10, "bold")).grid(row=0, column=0, padx=5, pady=2)
             tk.Label(self.headers_frame, text="Role", font=("Arial", 10, "bold")).grid(row=0, column=1, padx=5, pady=2)
             tk.Label(self.headers_frame, text="Nested Under", font=("Arial", 10, "bold")).grid(row=0, column=2, padx=5, pady=2)
             tk.Label(self.headers_frame, text="Part Name (e.g., 'contents')", font=("Arial", 10, "bold")).grid(row=0, column=3, padx=5, pady=2)
-
 
             for i, header in enumerate(self.headers):
                 row_num = i + 1
@@ -175,8 +160,9 @@ class CSVToJSONApp(tk.Tk):
                 header_entry.grid(row=row_num, column=0, sticky="W", padx=5, pady=2)
                 
                 role_var = tk.StringVar()
+                # ADDING THE NEW ROLE
                 role_dropdown = ttk.Combobox(self.headers_frame, textvariable=role_var, state="readonly",
-                                             values=["Hierarchical Key", "Sub Key", "Simple Value", "Value as Key", "Skip"])
+                                             values=["Hierarchical Key", "Sub Key", "Simple Value", "Value as Key", "Key Name and Value", "Skip"])
                 role_dropdown.grid(row=row_num, column=1, padx=5, pady=2)
                 
                 nested_under_var = tk.StringVar()
@@ -194,17 +180,9 @@ class CSVToJSONApp(tk.Tk):
                     "part_name_entry": part_name_entry
                 }
 
-                # Apply default configuration if it exists
-                if header in default_config:
-                    config = default_config[header]
-                    role_var.set(config['role'])
-                    nested_under_var.set(config['nested_under'])
-                    if 'part_name' in config:
-                        part_name_entry.insert(0, config['part_name'])
-
                 def toggle_widgets(event):
                     role = role_dropdown.get()
-                    if role == "Hierarchical Key":
+                    if role in ["Hierarchical Key", "Key Name and Value"]:
                         part_name_entry['state'] = 'normal'
                     else:
                         part_name_entry.delete(0, tk.END)
@@ -228,7 +206,8 @@ class CSVToJSONApp(tk.Tk):
         parents = ["root"]
         for header, widgets in self.header_widgets.items():
             role = widgets['role_var'].get()
-            if role == "Hierarchical Key" or role == "Value as Key":
+            # ADDING THE NEW ROLE TO THE PARENTS
+            if role in ["Hierarchical Key", "Value as Key", "Key Name and Value"]:
                 parents.append(header)
         
         for header, widgets in self.header_widgets.items():
@@ -260,7 +239,7 @@ class CSVToJSONApp(tk.Tk):
                     "role": role,
                     "nested_under": nested_under
                 }
-                if role == "Hierarchical Key":
+                if role in ["Hierarchical Key", "Key Name and Value"]:
                     config["part_name"] = widgets["part_name_entry"].get() or "parts"
                     sort_by_columns.append(original_header)
                 elif role == "Value as Key":
@@ -378,7 +357,7 @@ class CSVToJSONApp(tk.Tk):
         )
 
         # Find the first grouping key for this level
-        first_grouping_key_config = next((h for h in current_level_configs if h['role'] in ["Hierarchical Key", "Value as Key"]), None)
+        first_grouping_key_config = next((h for h in current_level_configs if h['role'] in ["Hierarchical Key", "Value as Key", "Key Name and Value"]), None)
         
         # Base case: No more grouping keys at this level
         if first_grouping_key_config is None:
@@ -410,11 +389,7 @@ class CSVToJSONApp(tk.Tk):
             
             # Build the current node based on the first grouping key
             if first_grouping_key_config['role'] == "Value as Key":
-                # Recursively build the children under this node
                 children = self.build_json_hierarchy(group, header_map, first_grouping_key)
-                
-                # We need to correctly handle the children returned from the recursive call.
-                # If there are multiple, they should be merged into a single dictionary.
                 merged_children = {}
                 if children and isinstance(children, list):
                     for child_dict in children:
@@ -425,13 +400,22 @@ class CSVToJSONApp(tk.Tk):
                 node[key_value] = merged_children
                 
             elif first_grouping_key_config['role'] == "Hierarchical Key":
-                # Proactively convert key_value to string if it's a boolean
                 if isinstance(key_value, bool):
                     key_value = str(key_value).lower()
                 
                 node[first_grouping_key_config['json_key']] = key_value
                 node[first_grouping_key_config['part_name']] = self.build_json_hierarchy(group, header_map, first_grouping_key)
                 
+            # NEW LOGIC FOR "KEY NAME AND VALUE"
+            elif first_grouping_key_config['role'] == "Key Name and Value":
+                part_name = first_grouping_key_config['part_name']
+                # Create a key with the header's JSON Key Name
+                # The value is a dictionary with the part_name holding the CSV value
+                node[first_grouping_key_config['json_key']] = {
+                    part_name: key_value,
+                    "parts": self.build_json_hierarchy(group, header_map, first_grouping_key)
+                }
+
             output_list.append(node)
         
         return output_list

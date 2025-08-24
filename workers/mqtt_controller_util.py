@@ -188,7 +188,7 @@ class MqttControllerUtility:
                 console_log(f"❌ {BROKER_NOT_RUNNING_MSG}")
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,
@@ -296,8 +296,8 @@ class MqttControllerUtility:
                 console_print_func=self._print_to_gui_console
             )
 
-    def publish_message(self, topic: str, subtopic: str, value):
-        """Publishes a message to a topic via the MQTT client."""
+    def publish_message(self, topic: str, subtopic: str, value, retain=False):
+        """Publishes a message to a topic via the MQTT client, with an optional retain flag."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -308,20 +308,18 @@ class MqttControllerUtility:
             console_print_func=self._print_to_gui_console
         )
         try:
-            # FIX: We now check only for a valid topic and value.
             if not topic or not value:
                 self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}")
                 return
 
-            # FIX: We construct the full topic based on whether a subtopic is provided.
             full_topic = f"{topic}/{subtopic}" if subtopic else topic
             payload = json.dumps({"value": value})
 
             if self.mqtt_client:
-                self.mqtt_client.publish(full_topic, payload)
-                self._print_to_gui_console(f"Published to {full_topic}: {payload}")
-                # The console log is moved here to prevent the false success message.
-                console_log(f"✅ Published message to topic '{full_topic}'.")
+                # The key change is here: adding the `retain=retain` argument.
+                self.mqtt_client.publish(full_topic, payload, retain=retain)
+                self._print_to_gui_console(f"Published to {full_topic}: {payload} with retain={retain}")
+                console_log(f"✅ Published message to topic '{full_topic}' with retain flag set to '{retain}'.")
             else:
                 self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
 

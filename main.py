@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.222400.1
+# Version 20250824.125100.2
 
 import os
 import inspect
@@ -58,7 +58,7 @@ CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
 CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
 # Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
 CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 1
+REVISION_NUMBER = 2
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
@@ -108,13 +108,6 @@ def action_check_configuration():
 
     try:
         
-                # Assuming you have an instance of MqttControllerUtility
-        mqtt_util_instance = MqttControllerUtility(console_log, console_log)
-        mqtt_util_instance.start_mosquitto()
-        mqtt_util_instance.connect_mqtt()
-        dataset_publisher_main(mqtt_util_instance)
-
-
         # Placeholder for configuration validation
         console_log("✅ Excellent! The configuration is quite, quite brilliant.")
         return True
@@ -130,8 +123,8 @@ def action_check_configuration():
         )
         return False
 
-def action_open_display():
-    # Initializes and opens the main graphical user interface.
+def action_open_display(mqtt_util_instance):
+    # Initializes and opens the main graphical user interface and then publishes the dataset.
     current_function_name = inspect.currentframe().f_code.co_name
     debug_log(
         message=f"🖥️🟢 The final step! Activating the main display in '{current_function_name}'!",
@@ -144,6 +137,8 @@ def action_open_display():
     try:
         # --- Function logic goes here ---
         app = Application()
+        # Publish the dataset after the GUI is created but before mainloop() starts
+        dataset_publisher_main(mqtt_util_instance)
         app.mainloop()
         console_log("✅ The grand spectacle begins! GUI is now open.")
         return True
@@ -165,7 +160,10 @@ def main():
 
     if action_check_dependancies():
         if action_check_configuration():
-            action_open_display()
+            mqtt_util_instance = MqttControllerUtility(console_log, console_log)
+            mqtt_util_instance.start_mosquitto()
+            mqtt_util_instance.connect_mqtt()
+            action_open_display(mqtt_util_instance)
         else:
             console_log("❌ Halting startup due to configuration errors.")
     else:
