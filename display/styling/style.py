@@ -44,7 +44,7 @@ THEMES = {
         "fg": "#dcdcdc",
         "primary": "#3c3f41",
         "secondary": "#4e5254",
-        "accent": "#007acc",
+        "accent": "#cc5c00",
         "text": "#ffffff",
         "border": "#555555",
         "relief": "solid",

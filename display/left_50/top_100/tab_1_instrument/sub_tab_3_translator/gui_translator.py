@@ -1,7 +1,7 @@
-#gui_translatorcomponent.py
+# gui_translator.py
 #
-# A base class for common GUI components, re-written to work with the centralized orchestrator.
-# This version corrects the styling of tables and entry widgets for a more cohesive look.
+# A GUI component for interacting with the instrument translator via MQTT.
+# This version now correctly parses the incoming JSON payload to populate the table.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.130800.5
+# Version 20250824.122045.1
 
 import os
 import inspect
@@ -25,17 +25,20 @@ import pathlib
 import sys
 import json
 import paho.mqtt.client as mqtt
+from tkinter import filedialog
+import csv
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
-CURRENT_TIME = 130800
-CURRENT_TIME_HASH = 130800
-REVISION_NUMBER = 5
+CURRENT_TIME = 122045
+CURRENT_TIME_HASH = 122045
+REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -67,10 +70,10 @@ class TranslatorGUI(ttk.Frame):
             self.current_version = current_version
             self.current_version_hash = current_version_hash
             self.mqtt_util = mqtt_util
-
+            self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
             self._apply_styles(theme_name=DEFAULT_THEME)
 
-            # --- New MQTT Buttons Section ---
+            # --- MQTT Buttons Section ---
             mqtt_frame = ttk.LabelFrame(self, text="MQTT Translator Controls")
             mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
 
@@ -98,27 +101,36 @@ class TranslatorGUI(ttk.Frame):
             )
             self.subscribe_button.pack(side=tk.LEFT, padx=5, pady=5)
             
-            # Button 4: Future functionality
-            self.future_button = ttk.Button(
+            # Button 4: Export to CSV
+            self.export_button = ttk.Button(
                 mqtt_frame,
-                text="Future",
-                command=lambda: self._publish_translator_message("FUTURE", "request")
+                text="Export to CSV",
+                command=self._export_table_data
             )
-            self.future_button.pack(side=tk.LEFT, padx=5, pady=5)
+            self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+            # --- MQTT Message Log Table ---
+            self.table_frame = ttk.Frame(self)
+            self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-            # --- New MQTT Message Log Table ---
-            self.subscriptions_table_frame = ttk.Frame(self)
-            self.subscriptions_table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-            # Treeview table for commands
-            self.commands_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Parameter", "Function", "Description"), show="headings", style="Custom.Treeview")
-            self.commands_table.heading("Parameter", text="Topic")
-            self.commands_table.heading("Function", text="Value")
+            # Updated columns to include 'Topic'
+            self.commands_table = ttk.Treeview(self.table_frame, columns=("Topic", "Parameter", "Value", "Description"), show="headings", style="Custom.Treeview")
+            
+            # Updated headings
+            self.commands_table.heading("Topic", text="Topic")
+            self.commands_table.heading("Parameter", text="Parameter")
+            self.commands_table.heading("Value", text="Value")
             self.commands_table.heading("Description", text="Description")
+            
+            # Setting column widths
+            self.commands_table.column("Topic", width=300, stretch=True)
+            self.commands_table.column("Parameter", width=150, stretch=True)
+            self.commands_table.column("Value", width=150, stretch=True)
+            self.commands_table.column("Description", width=300, stretch=True)
+
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-            table_scrollbar = ttk.Scrollbar(self.subscriptions_table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
+            table_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
             self.commands_table.configure(yscrollcommand=table_scrollbar.set)
             table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -126,7 +138,7 @@ class TranslatorGUI(ttk.Frame):
             self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/devices/scpi/COMMANDS/#", callback_func=self._on_commands_message)
 
 
-            # --- New Status Bar at the bottom ---
+            # --- Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
             status_bar.pack(side=tk.BOTTOM, fill=tk.X, expand=False)
 
@@ -162,8 +174,10 @@ class TranslatorGUI(ttk.Frame):
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
-
-        # Table (Treeview) styling
+        style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
+        style.map('TButton', background=[('active', colors["secondary"])])
+        
+        # Treeview styling for the new table
         style.configure('Custom.Treeview',
                         background=colors["table_bg"],
                         foreground=colors["table_fg"],
@@ -176,12 +190,6 @@ class TranslatorGUI(ttk.Frame):
                         foreground=colors["fg"],
                         relief=colors["relief"],
                         borderwidth=colors["border_width"])
-
-        # Entry (textbox) styling
-        style.configure('Custom.TEntry',
-                        fieldbackground=colors["entry_bg"],
-                        foreground=colors["entry_fg"],
-                        bordercolor=colors["table_border"])
 
     def _get_config_mqtt_request(self):
         """
@@ -247,52 +255,133 @@ class TranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'.",
+            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Populating the Treeview.",
+            file=self.current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            commands_data = json.loads(payload)
+            TRUNCATION_PREFIX = "OPEN-AIR/devices/scpi/COMMANDS/"
+
+            # This is the corrected parsing logic. We'll iterate through the items
+            # and insert them directly, assuming the payload is a flat dictionary.
+            for key, value in commands_data.items():
+                if isinstance(value, str):
+                    # For a simple key-value pair, we add it to the table.
+                    full_topic = topic
+                    parameter = key
+                    data_value = value
+                    description = "Description N/A"
+
+                    # Truncate the full topic for the 'Parameter' column
+                    if full_topic.startswith(TRUNCATION_PREFIX):
+                        truncated_topic = full_topic[len(TRUNCATION_PREFIX):]
+                    else:
+                        truncated_topic = full_topic
+
+                    # Debug log to verify the values before inserting
+                    debug_log(
+                        message=f"🔍 Inserting row: Topic='{full_topic}', Parameter='{truncated_topic}', Value='{data_value}', Description='{description}'",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+
+                    self.commands_table.insert('', tk.END, values=(full_topic, truncated_topic, data_value, description))
+
+                else:
+                    # If the value is not a simple string, it indicates a nested structure.
+                    # This is where we re-introduce a flattening helper function.
+                    def _flatten_nested_dict(d, parent_key='', sep='/'):
+                        items = []
+                        for k, v in d.items():
+                            new_key = parent_key + sep + k if parent_key else k
+                            if isinstance(v, dict):
+                                items.extend(_flatten_nested_dict(v, new_key, sep=sep).items())
+                            elif isinstance(v, list):
+                                for i, item in enumerate(v):
+                                    list_key = f"{new_key}/[{i}]"
+                                    if isinstance(item, dict):
+                                        items.extend(_flatten_nested_dict(item, list_key, sep=sep).items())
+                                    else:
+                                        items.append((list_key, item))
+                            else:
+                                items.append((new_key, v))
+                        return dict(items)
+
+                    # Flatten the nested dictionary
+                    flattened_data = _flatten_nested_dict(value)
+                    
+                    for nested_key, nested_value in flattened_data.items():
+                        full_topic = topic
+                        parameter = nested_key
+                        data_value = nested_value
+                        description = "Description N/A"
+
+                        if full_topic.startswith(TRUNCATION_PREFIX):
+                            truncated_topic = full_topic[len(TRUNCATION_PREFIX):]
+                        else:
+                            truncated_topic = full_topic
+
+                        debug_log(
+                            message=f"🔍 Inserting nested row: Topic='{full_topic}', Parameter='{truncated_topic}', Value='{data_value}', Description='{description}'",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
+                        
+                        self.commands_table.insert('', tk.END, values=(full_topic, truncated_topic, data_value, description))
+
+
+            console_log("✅ Commands table updated with new data!")
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _export_table_data(self):
+        """
+        Exports the data from the Treeview to a CSV file.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Preparing to export table data to CSV.",
             file=self.current_file,
             version=self.current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
+
         try:
-            # Parse the topic to remove the constant prefix and use the rest for the display
-            parsed_topic_parts = topic.split('/')[4:]
+            file_path = filedialog.asksaveasfilename(
+                initialdir=os.getcwd(),
+                title="Save Table Data as CSV",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                defaultextension=".csv"
+            )
             
-            # The root node's text will be the first segment of the parsed topic
-            root_node_text = parsed_topic_parts[0] if parsed_topic_parts else "No Topic"
-            
-            # Create a new top-level node for this parsed MQTT topic
-            root_node = self.commands_table.insert('', 'end', text=root_node_text, values=(topic, ""), open=True)
-            
-            def _populate_treeview_from_json(parent_item, data_node, parent_topic_path=""):
-                """A recursive helper to populate the Treeview with hierarchical data."""
-                if isinstance(data_node, dict):
-                    for key, value in data_node.items():
-                        new_topic_path = f"{parent_topic_path}/{key}" if parent_topic_path else key
-                        new_item = self.commands_table.insert(parent_item, 'end', text=key, values=(new_topic_path, ""))
-                        _populate_treeview_from_json(new_item, value, new_topic_path)
-                elif isinstance(data_node, list):
-                    for i, item in enumerate(data_node):
-                        new_topic_path = f"{parent_topic_path}/[{i}]"
-                        if isinstance(item, (dict, list)):
-                            new_item = self.commands_table.insert(parent_item, 'end', text=f"[{i}]", values=(new_topic_path, ""))
-                            _populate_treeview_from_json(new_item, item, new_topic_path)
-                        else:
-                            self.commands_table.insert(parent_item, 'end', values=(new_topic_path, str(item)))
-                else:
-                    self.commands_table.set(parent_item, "Function", str(data_node))
-            
-            commands_data = json.loads(payload)
-            
-            # Check for Manufacturer and Manufacturer_Device values and log them
-            # This is done here as a form of business logic that the GUI can manage.
-            if 'Manufacturer' in commands_data:
-                console_log(f"Found Manufacturer: {commands_data['Manufacturer']}. A new tab should be created.")
-            if 'Manufacturer_Device' in commands_data:
-                console_log(f"Found Manufacturer_Device: {commands_data['Manufacturer_Device']}. A new tab should be created.")
+            if file_path:
+                data = []
+                headers = self.commands_table["columns"]
+                for item_id in self.commands_table.get_children():
+                    row_values = self.commands_table.item(item_id, 'values')
+                    row_dict = dict(zip(headers, row_values))
+                    data.append(row_dict)
+                    
+                self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
+                console_log(f"✅ Data successfully exported to {file_path}!")
+            else:
+                console_log("🟡 CSV export canceled by user.")
 
-            _populate_treeview_from_json(root_node, commands_data)
-
-            console_log("✅ Commands table updated with new data!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
