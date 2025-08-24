@@ -108,7 +108,7 @@ class MqttConductorFrame(ttk.Frame):
             
             self.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-            console_log("✅ Celebration of success! The visual layout is complete.")
+            
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -229,7 +229,7 @@ class MqttConductorFrame(ttk.Frame):
         try:
             # The console_log function already exists globally.
             console_log(message)
-            console_log("✅ Celebration of success!")
+            
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -244,17 +244,17 @@ class MqttConductorFrame(ttk.Frame):
         """Allows the utility to log messages to the table."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🐐🔵 Entering '{current_function_name}' to add a message to the table.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+    #    debug_log(
+    #        message=f"🐐🔵 Entering '{current_function_name}' to add a message to the table.",
+    #        file=current_file,
+    #        version=current_version,
+    #        function=current_function_name,
+    #        console_print_func=console_log
+    #    )
         try:
             self.subscriptions_table.insert('', 'end', values=(topic, message))
             self.subscriptions_table.yview_moveto(1) # Scroll to the bottom
-            console_log("✅ Celebration of success!")
+            
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -269,13 +269,13 @@ class MqttConductorFrame(ttk.Frame):
         """Publishes the message from the GUI's text boxes."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🐐🟢 Entering '{current_function_name}' to publish a custom message.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        #debug_log(
+        #    message=f"🐐🟢 Entering '{current_function_name}' to publish a custom message.",
+        #    file=current_file,
+        #    version=current_version,
+        #    function=current_function_name,
+        #    console_print_func=console_log
+        #)
         try:
             topic = self.topic_entry.get()
             value = self.value_entry.get()
@@ -307,7 +307,7 @@ class MqttConductorFrame(ttk.Frame):
         )
         try:
             self.subscriptions_table.delete(*self.subscriptions_table.get_children())
-            console_log("✅ Log cleared successfully!")
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -321,16 +321,16 @@ class MqttConductorFrame(ttk.Frame):
     def _on_message(self, topic, payload):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🐐🔵 Entering '{current_function_name}' to process a general MQTT message.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+    #    debug_log(
+    #        message=f"🐐🔵 Entering '{current_function_name}' to process a general MQTT message.",
+    #        file=current_file,
+    #        version=current_version,
+    #        function=current_function_name,
+    #        console_print_func=console_log
+    #    )
         try:
             self.log_to_table(topic=topic, message=payload)
-            console_log("✅ General message logged to table!")
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -344,13 +344,13 @@ class MqttConductorFrame(ttk.Frame):
     def _on_sys_message(self, topic, payload):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"�🔵 Entering '{current_function_name}' to process a system status message.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+       # debug_log(
+       #     message=f"�🔵 Entering '{current_function_name}' to process a system status message.",
+       #     file=current_file,
+       #     version=current_version,
+       #     function=current_function_name,
+       #     console_print_func=console_log
+       # )
         try:
             if "$SYS/broker/version" in topic:
                 self.server_version_label.config(text=f"{SERVER_VERSION_TEXT} {payload}")
@@ -362,7 +362,7 @@ class MqttConductorFrame(ttk.Frame):
                 self.server_client_count_label.config(text=f"{CLIENT_COUNT_TEXT} {payload}")
             
             self.server_status_label.config(text=f"{SERVER_STATUS_TEXT} {STATUS_RUNNING_TEXT}")
-            console_log("✅ System status message processed and GUI updated.")
+            
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(

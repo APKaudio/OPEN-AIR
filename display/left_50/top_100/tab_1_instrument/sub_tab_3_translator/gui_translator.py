@@ -1,4 +1,4 @@
-# display/base_gui_component.py
+#gui_translatorcomponent.py
 #
 # A base class for common GUI components, re-written to work with the centralized orchestrator.
 # This version corrects the styling of tables and entry widgets for a more cohesive look.
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.130600.4
+# Version 20250824.130800.5
 
 import os
 import inspect
@@ -33,9 +33,9 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
-CURRENT_TIME = 130600
-CURRENT_TIME_HASH = 130600
-REVISION_NUMBER = 4
+CURRENT_TIME = 130800
+CURRENT_TIME_HASH = 130800
+REVISION_NUMBER = 5
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -254,8 +254,14 @@ class TranslatorGUI(ttk.Frame):
             console_print_func=console_log
         )
         try:
-            # Create a new top-level node for this specific MQTT topic
-            root_node = self.commands_table.insert('', 'end', text=topic, values=(topic, ""), open=True)
+            # Parse the topic to remove the constant prefix and use the rest for the display
+            parsed_topic_parts = topic.split('/')[4:]
+            
+            # The root node's text will be the first segment of the parsed topic
+            root_node_text = parsed_topic_parts[0] if parsed_topic_parts else "No Topic"
+            
+            # Create a new top-level node for this parsed MQTT topic
+            root_node = self.commands_table.insert('', 'end', text=root_node_text, values=(topic, ""), open=True)
             
             def _populate_treeview_from_json(parent_item, data_node, parent_topic_path=""):
                 """A recursive helper to populate the Treeview with hierarchical data."""
@@ -276,6 +282,14 @@ class TranslatorGUI(ttk.Frame):
                     self.commands_table.set(parent_item, "Function", str(data_node))
             
             commands_data = json.loads(payload)
+            
+            # Check for Manufacturer and Manufacturer_Device values and log them
+            # This is done here as a form of business logic that the GUI can manage.
+            if 'Manufacturer' in commands_data:
+                console_log(f"Found Manufacturer: {commands_data['Manufacturer']}. A new tab should be created.")
+            if 'Manufacturer_Device' in commands_data:
+                console_log(f"Found Manufacturer_Device: {commands_data['Manufacturer_Device']}. A new tab should be created.")
+
             _populate_treeview_from_json(root_node, commands_data)
 
             console_log("✅ Commands table updated with new data!")

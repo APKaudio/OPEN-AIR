@@ -201,13 +201,13 @@ class MqttControllerUtility:
         """Callback for when the MQTT client connects to the broker."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+      #  debug_log(
+      #      message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
+      #      file=current_file,
+      #      version=current_version,
+      #      function=f"{self.__class__.__name__}.{current_function_name}",
+      #      console_print_func=self._print_to_gui_console
+      #  )
         # We subscribe to a wildcard topic once to catch everything.
         client.subscribe("#")
         self._print_to_gui_console(f"Connected to broker with rc={rc}")
@@ -227,13 +227,13 @@ class MqttControllerUtility:
         for topic_filter, callback_func in list(self._subscribers.items()):
             # The paho-mqtt library provides a topic_matches_sub function to check for wildcards.
             if mqtt.topic_matches_sub(topic_filter, topic):
-                debug_log(
-                    message=f"🛠️🔵 Dispatching message to subscriber for topic '{topic_filter}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.on_message",
-                    console_print_func=self._print_to_gui_console
-                )
+                #debug_log(
+                #    message=f"🛠️🔵 Dispatching message to subscriber for topic '{topic_filter}'.",
+                #    file=current_file,
+                #    version=current_version,
+                #    function=f"{self.__class__.__name__}.on_message",
+                #    console_print_func=self._print_to_gui_console
+                #)
                 callback_func(topic, payload)
 
 
@@ -300,13 +300,13 @@ class MqttControllerUtility:
         """Publishes a message to a topic via the MQTT client, with an optional retain flag."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to publish a message.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        #debug_log(
+        #    message=f"🛠️🟢 Entering '{current_function_name}' to publish a message.",
+        #    file=current_file,
+        #    version=current_version,
+        #    function=f"{self.__class__.__name__}.{current_function_name}",
+        #    console_print_func=self._print_to_gui_console
+        #)
         try:
             if not topic or not value:
                 self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}")
@@ -319,7 +319,7 @@ class MqttControllerUtility:
                 # The key change is here: adding the `retain=retain` argument.
                 self.mqtt_client.publish(full_topic, payload, retain=retain)
                 self._print_to_gui_console(f"Published to {full_topic}: {payload} with retain={retain}")
-                console_log(f"✅ Published message to topic '{full_topic}' with retain flag set to '{retain}'.")
+#                console_log(f"✅ Published message to topic '{full_topic}' with retain flag set to '{retain}'.")
             else:
                 self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
 

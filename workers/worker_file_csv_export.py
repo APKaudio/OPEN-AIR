@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.230500.2
+# Version 20250824.012333.1
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 # os: Provides a way to interact with the operating system, like getting file names.
@@ -29,6 +29,8 @@ import datetime
 import tkinter as tk
 # ttk: The "themed Tkinter" module, providing a more modern, stylable set of widgets.
 from tkinter import ttk
+# filedialog: Provides common dialogs for file operations.
+from tkinter import filedialog
 # importlib.util: A powerful module for dynamic, programmatic importing of Python files.
 import importlib.util
 # sys: Provides access to system-specific parameters and functions, including the module search path.
@@ -41,21 +43,22 @@ import pathlib
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_file_csv_export import CsvExportUtility
 
 
 # --- Global Scope Variables ---
 # ⏰ As requested, the version is now hardcoded to the time this file was generated.
 # The version strings and numbers below are static and will not change at runtime.
 # This represents the date (YYYYMMDD) of file creation.
-CURRENT_DATE = 20250822
+CURRENT_DATE = 20250824
 # This represents the time (HHMMSS) of file creation.
-CURRENT_TIME = 230500
+CURRENT_TIME = 12333
 # This is a numeric hash of the time, useful for unique IDs.
-CURRENT_TIME_HASH = 230500
+CURRENT_TIME_HASH = 12333
 # Our project's current revision number, which is manually incremented.
-REVISION_NUMBER = 2
+REVISION_NUMBER = 1
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250822.230500.2"
+current_version = "20250824.012333.1"
 # Creating a unique integer hash for the current version for internal tracking.
 current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs, ensuring it's always accurate.
@@ -114,10 +117,19 @@ class Application(tk.Tk):
             self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
             self.mqtt_util.connect_mqtt()
 
+            # --- NEW: Initialize the CsvExportUtility ---
+            self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
+            
             # 🏗️ Let the dynamic building begin! We call our recursive builder function,
             # starting from the directory where this script resides.
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
+
+            # --- NEW: Add a temporary CSV Export button for testing ---
+            export_button = ttk.Button(self, text="Export Data to CSV", command=self._on_export_button_click)
+            export_button.pack(pady=10)
             
+            # 🎉 A final cheer for a job well done!
+            console_log("✅ Celebration of success! The application's core has been built.")
 
         except Exception as e:
             # 🆘 Oh no, an error! We catch it here to prevent the app from crashing.
@@ -554,8 +566,8 @@ class Application(tk.Tk):
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+                    console_print_func=console_log
+                )
             
             self.last_selected_tab_name = newly_selected_tab_name
             
@@ -571,6 +583,50 @@ class Application(tk.Tk):
                 console_print_func=console_log
             )
 
+    def _on_export_button_click(self):
+        """
+        Prompts the user for a file location and exports data to CSV.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Preparing to export data. The button has been pushed!",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+
+        try:
+            # We use the file dialog to get a save path from the user.
+            file_path = filedialog.asksaveasfilename(
+                initialdir=os.getcwd(),
+                title="Save CSV File",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                defaultextension=".csv"
+            )
+            
+            if file_path:
+                # Dummy data for demonstration purposes
+                dummy_data = [
+                    {"Zone": "A", "Group": "1", "Device": "D1", "Status": "Online"},
+                    {"Zone": "A", "Group": "1", "Device": "D2", "Status": "Offline"},
+                    {"Zone": "B", "Group": "2", "Device": "D3", "Status": "Online"},
+                ]
+                
+                # We call the utility function with named arguments.
+                self.csv_export_util.export_data_to_csv(data=dummy_data, file_path=file_path)
+            else:
+                console_log("🟡 CSV export canceled by user.")
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
 # 🏃 This is the standard entry point for a Python script.
 # The code inside this block only runs when the script is executed directly.
