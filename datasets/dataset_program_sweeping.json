@@ -1,129 +1,129 @@
 {
-    "presets": {
+
         "PRESET_DISPLAY_GRAPH_QUALITY": {
             "Ultra_Low": {
-                "value": 1000000,
+                "Active": true, "value": "1000000",
                 "label": "Ultra Low",
                 "description": "Blocky enough to be Minecraft.",
                 "handler": null,
                 "Selected": "no"
             },
             "Low": {
-                "value": 100000,
+                "Active": true, "value": "100000",
                 "label": "Low",
                 "description": "VHS quality RF — nostalgic but fuzzy.",
                 "handler": null,
                 "Selected": "no"
             },
             "Medium": {
-                "value": 50000,
+                "Active": true, "value": "50000",
                 "label": "Medium",
                 "description": "Standard definition TV of frequency.",
                 "handler": null,
                 "Selected": "no"
             },
             "Medium_Well": {
-                "value": 25000,
+                "Active": true, "value": "25000",
                 "label": "Medium Well",
                 "description": "Almost gourmet, but still quick-cook.",
                 "handler": null,
                 "Selected": "no"
             },
             "High": {
-                "value": 10000,
+                "Active": true, "value": "10000",
                 "label": "High",
                 "description": "RF with Wi-Fi smoothness.",
                 "handler": null,
                 "Selected": "no"
             },
             "Ultra_High": {
-                "value": 5000,
+                "Active": true, "value": "5000",
                 "label": "Ultra High",
                 "description": "Retina display for radio.",
                 "handler": null,
                 "Selected": "no"
             },
             "Ludacris": {
-                "value": 1000,
+                "Active": true, "value": "1000",
                 "label": "Ludacris",
                 "description": "So fine, even Ludacris said \"Damn.\"",
                 "handler": null,
                 "Selected": "no"
             },
             "Ridonkulous": {
-                "value": 500,
+                "Active": true, "value": "500",
                 "label": "Ridonkulous",
                 "description": "\"I can see the atoms in your waveform.\"",
                 "handler": null,
                 "Selected": "no"
             },
             "Quantum_Foam": {
-                "value": 100,
+                "Active": true, "value": "100",
                 "label": "Quantum Foam",
                 "description": "Where reality and noise floor blur.",
                 "handler": null,
                 "Selected": "no"
             },
             "This_is_Fine": {
-                "value": 10,
+                "Active": true, "value": "10",
                 "label": "This is Fine",
-                "description": "The scanner cries, but it's worth it.",
+                "description": "The sweeper cries, but it's worth it.",
                 "handler": null,
                 "Selected": "no"
             }
         },
         "PRESET_CYCLE_WAIT_TIME": {
             "Hold_Your_Horses": {
-                "value": 15,
+                "Active": true, "value": "15",
                 "label": "Hold Your Horses",
                 "description": "Just a moment — enough time to sneeze twice.",
                 "handler": null,
                 "Selected": "no"
             },
             "Wait-a-Second": {
-                "value": 30,
+                "Active": true, "value": "30",
                 "label": "Wait-a-Second",
                 "description": "Half a minute of suspense. Elevator music optional.",
                 "handler": null,
                 "Selected": "no"
             },
             "Microwave_Dinner": {
-                "value": 60,
+                "Active": true, "value": "60",
                 "label": "Microwave Dinner",
                 "description": "One full minute — perfect for impatient people.",
                 "handler": null,
                 "Selected": "no"
             },
             "Coffee_Break": {
-                "value": 300,
+                "Active": true, "value": "300",
                 "label": "Coffee Break",
                 "description": "Five minutes — time to stretch or grab caffeine.",
                 "handler": null,
                 "Selected": "no"
             },
             "Quarter_of_Shame": {
-                "value": 900,
+                "Active": true, "value": "900",
                 "label": "Quarter of Shame",
                 "description": "15 minutes of contemplation. Or buffering.",
                 "handler": null,
                 "Selected": "no"
             },
             "Netflix_Warmup": {
-                "value": 1800,
+                "Active": true, "value": "1800",
                 "label": "Netflix Warmup",
                 "description": "30 minutes — just long enough to not commit to a show.",
                 "handler": null,
                 "Selected": "no"
             },
             "Full_Commitment": {
-                "value": 3600,
+                "Active": true, "value": "3600",
                 "label": "Full Commitment",
                 "description": "1 hour — a true test of patience and faith in the process.",
                 "handler": null,
                 "Selected": "no"
             },
             "Eternal_Watcher": {
-                "value": 10800,
+                "Active": true, "value": "10800",
                 "label": "Eternal Watcher",
                 "description": "3 hours — were you expecting a callback?",
                 "handler": null,
@@ -132,128 +132,128 @@
         },
         "PRESET_FREQUENCY_SHIFT": {
             "No_Shift": {
-                "value": 0,
+                "Active": true, "value": "0",
                 "label": "No Shift",
                 "description": "don't touch that dial — stay put.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Wee_Bit": {
-                "value": 1000,
+                "Active": true, "value": "1000",
                 "label": "A Wee Bit",
                 "description": "Just a nudge — like adjusting your hat slightly.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Nudge": {
-                "value": 5000,
+                "Active": true, "value": "5000",
                 "label": "A Nudge",
                 "description": "A gentle push up or down the dial.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Whap": {
-                "value": 10000,
+                "Active": true, "value": "10000",
                 "label": "A Whap",
                 "description": "Noticeable thump — not subtle, not wild.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Scooch": {
-                "value": 25000,
+                "Active": true, "value": "25000",
                 "label": "A Scooch",
                 "description": "Just enough to dodge interference or hop channels.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Chunk": {
-                "value": 50000,
+                "Active": true, "value": "50000",
                 "label": "A Chunk",
                 "description": "A meaty move — shift the neighborhood.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Jump": {
-                "value": 100000,
+                "Active": true, "value": "100000",
                 "label": "A Jump",
                 "description": "You're not walking anymore — you're airborne.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Leap": {
-                "value": 250000,
+                "Active": true, "value": "250000",
                 "label": "A Leap",
                 "description": "Covering ground like a gazelle on caffeine.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Yeet": {
-                "value": 500000,
+                "Active": true, "value": "500000",
                 "label": "A Yeet",
                 "description": "Full send across the spectrum — no regrets.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Warp": {
-                "value": 1000000,
+                "Active": true, "value": "1000000",
                 "label": "A Warp",
                 "description": "Fold space and reappear in another RF galaxy.",
                 "handler": null,
                 "Selected": "no"
             }
         },
-        "PRESET_NUMBER_OF_SCANS": {
+        "PRESET_NUMBER_OF_SWEEPS": {
             "Just_a_Test": {
-                "value": 1,
+                "Active": true, "value": "1",
                 "label": "Just a Test",
                 "description": "See how she goes — one and done.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Whiff": {
-                "value": 2,
+                "Active": true, "value": "2",
                 "label": "A Whiff",
                 "description": "A quick sniff around the spectrum.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Bunch": {
-                "value": 10,
+                "Active": true, "value": "10",
                 "label": "A Bunch",
                 "description": "Enough to get a good feel.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Bushel": {
-                "value": 50,
+                "Active": true, "value": "50",
                 "label": "A Bushel",
                 "description": "A good harvest of data.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Shwack": {
-                "value": 75,
+                "Active": true, "value": "75",
                 "label": "A Shwack",
                 "description": "A hefty pile — things are serious now.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Ton": {
-                "value": 100,
+                "Active": true, "value": "100",
                 "label": "A Ton",
-                "description": "A solid chunk of scanning.",
+                "description": "A solid chunk of sweeping.",
                 "handler": null,
                 "Selected": "no"
             },
             "A_Tone": {
-                "value": 1000,
+                "Active": true, "value": "1000",
                 "label": "A Tone",
                 "description": "A big, noisy tone of scans.",
                 "handler": null,
                 "Selected": "no"
             },
             "Never-Ending_Story": {
-                "value": 99999999,
+                "Active": true, "value": "99999999",
                 "label": "Never-Ending Story",
                 "description": "Until you say stop or the program crashes spectacularly.",
                 "handler": null,
@@ -262,42 +262,42 @@
         },
         "PRESET_SWEEP_TIME": {
             "Crazy_Fast": {
-                "value": 0.5,
+                "Active": true, "value": "0.5",
                 "label": "Crazy Fast",
                 "description": "Blink and you’ll miss it. Best for wideband sweeps with minimal detail.",
                 "handler": "set_sweep_time",
                 "Selected": "no"
             },
             "Very_Fast": {
-                "value": 1.0,
+                "Active": true, "value": "1.0",
                 "label": "Very Fast",
-                "description": "Great for active scanning with basic detection.",
+                "description": "Great for active sweeping with basic detection.",
                 "handler": "set_sweep_time",
                 "Selected": "no"
             },
             "Standard": {
-                "value": 2.0,
+                "Active": true, "value": "2.0",
                 "label": "Standard",
                 "description": "Balanced scan — enough time for most signals to show.",
                 "handler": "set_sweep_time",
                 "Selected": "no"
             },
             "Long": {
-                "value": 3.0,
+                "Active": true, "value": "3.0",
                 "label": "Long",
                 "description": "Allows time to catch short bursts or weak signals.",
                 "handler": "set_sweep_time",
                 "Selected": "no"
             },
             "Very_Long": {
-                "value": 5.0,
+                "Active": true, "value": "5.0",
                 "label": "Very Long",
                 "description": "Camped out. Good for quiet bands or deep listening.",
                 "handler": "set_sweep_time",
                 "Selected": "no"
             },
             "Glacier_Mode": {
-                "value": 10.0,
+                "Active": true, "value": "10.0",
                 "label": "Glacier Mode",
                 "description": "For scientists, spies, and patient people.",
                 "handler": "set_sweep_time",
@@ -306,70 +306,70 @@
         },
         "PRESET_AVERAGING": {
             "Off": {
-                "value": "OFF",
+                "Active": true, "value": "OFF",
                 "label": "Off",
                 "description": "Just a raw, single sweep. Great for seeing fast changes and fleeting events, but the noise floor is high and the trace is very jittery.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Light_Filter": {
-                "value": 5,
+                "Active": true, "value": "5",
                 "label": "Light Filter",
                 "description": "A very mild smoothing of the signal, removing some of the jitter. It’s like putting a slight damper on the noise, making the trace a little easier to read.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Getting_Clear": {
-                "value": 10,
+                "Active": true, "value": "10",
                 "label": "Getting Clear",
                 "description": "The trace becomes noticeably less fuzzy. The random spikes of the noise floor start to settle down, revealing more consistent signals.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "The_Sweet_Spot": {
-                "value": 25,
+                "Active": true, "value": "25",
                 "label": "The Sweet Spot",
                 "description": "A good balance of noise reduction and display speed. The noise floor is clean, and low-level, stable signals are clearly visible.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Steady_Hands": {
-                "value": 50,
+                "Active": true, "value": "50",
                 "label": "Steady Hands",
                 "description": "The noise floor is now very stable and appears as a thin line. You’re only seeing the most consistent signals and cutting out most of the random interference.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Deep_Dive": {
-                "value": 75,
+                "Active": true, "value": "75",
                 "label": "Deep Dive",
                 "description": "This setting is for serious analysis. It's a highly stable trace that filters out a large portion of the ambient RF noise, allowing for precise measurements of continuous signals.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Scientific_Grade": {
-                "value": 100,
+                "Active": true, "value": "100",
                 "label": "Scientific Grade",
                 "description": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Crystal_Clear": {
-                "value": 200,
+                "Active": true, "value": "200",
                 "label": "Crystal Clear",
                 "description": "A deep and thorough look at the spectrum. All but the most stable signals are averaged out, offering a truly pristine view of the fundamental RF environment.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "The_Observer": {
-                "value": 500,
+                "Active": true, "value": "500",
                 "label": "The Observer",
                 "description": "An incredibly slow and deliberate pace. This is for long-term monitoring, allowing you to see the overall shape of the spectrum with almost all noise removed.",
                 "handler": "set_averaging",
                 "Selected": "no"
             },
             "Meditative_Mode": {
-                "value": 1000,
+                "Active": true, "value": "1000",
                 "label": "Meditative Mode",
                 "description": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis.",
                 "handler": "set_averaging",
@@ -377,4 +377,3 @@
             }
         }
     }
-}
