@@ -2,7 +2,7 @@
 
         [
                 {
-                    "DEVICE 001": {
+                    "DEVICE 001": {"Active": true,
                         "ZONE": "00.TechStores",
                         "GROUP": "GROUP NAME",
                         "DEVICE.1": "Sennheiser - EM6000 - A1A4",
@@ -18,7 +18,7 @@
                     }
                 },
                 {
-                    "DEVICE 002": {
+                    "DEVICE 002": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -34,7 +34,7 @@
             }
         },
         {
-            "DEVICE 003": {
+            "DEVICE 003": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -50,7 +50,7 @@
             }
         },
         {
-            "DEVICE 004": {
+            "DEVICE 004": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -66,7 +66,7 @@
             }
         },
         {
-            "DEVICE 005": {
+            "DEVICE 005": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -82,7 +82,7 @@
             }
         },
         {
-            "DEVICE 006": {
+            "DEVICE 006": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -98,7 +98,7 @@
             }
         },
         {
-            "DEVICE 007": {
+            "DEVICE 007": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -114,7 +114,7 @@
             }
         },
         {
-            "DEVICE 008": {
+            "DEVICE 008": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -130,7 +130,7 @@
             }
         },
         {
-            "DEVICE 009": {
+            "DEVICE 009": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -146,7 +146,7 @@
             }
         },
         {
-            "DEVICE 010": {
+            "DEVICE 010": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G6",
@@ -162,7 +162,7 @@
             }
         },
         {
-            "DEVICE 011": {
+            "DEVICE 011": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G6",
@@ -178,7 +178,7 @@
             }
         },
         {
-            "DEVICE 012": {
+            "DEVICE 012": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -194,7 +194,7 @@
             }
         },
         {
-            "DEVICE 013": {
+            "DEVICE 013": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -210,7 +210,7 @@
             }
         },
         {
-            "DEVICE 014": {
+            "DEVICE 014": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -226,7 +226,7 @@
             }
         },
         {
-            "DEVICE 015": {
+            "DEVICE 015": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -242,7 +242,7 @@
             }
         },
         {
-            "DEVICE 016": {
+            "DEVICE 016": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -258,7 +258,7 @@
             }
         },
         {
-            "DEVICE 017": {
+            "DEVICE 017": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -274,7 +274,7 @@
             }
         },
         {
-            "DEVICE 018": {
+            "DEVICE 018": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -290,7 +290,7 @@
             }
         },
         {
-            "DEVICE 019": {
+            "DEVICE 019": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -306,7 +306,7 @@
             }
         },
         {
-            "DEVICE 020": {
+            "DEVICE 020": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -322,7 +322,7 @@
             }
         },
         {
-            "DEVICE 021": {
+            "DEVICE 021": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -338,7 +338,7 @@
             }
         },
         {
-            "DEVICE 022": {
+            "DEVICE 022": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB14.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -354,7 +354,7 @@
             }
         },
         {
-            "DEVICE 023": {
+            "DEVICE 023": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -370,7 +370,7 @@
             }
         },
         {
-            "DEVICE 024": {
+            "DEVICE 024": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -386,7 +386,7 @@
             }
         },
         {
-            "DEVICE 025": {
+            "DEVICE 025": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -402,7 +402,7 @@
             }
         },
         {
-            "DEVICE 026": {
+            "DEVICE 026": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -418,7 +418,7 @@
             }
         },
         {
-            "DEVICE 027": {
+            "DEVICE 027": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -434,7 +434,7 @@
             }
         },
         {
-            "DEVICE 028": {
+            "DEVICE 028": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -450,7 +450,7 @@
             }
         },
         {
-            "DEVICE 029": {
+            "DEVICE 029": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -466,7 +466,7 @@
             }
         },
         {
-            "DEVICE 030": {
+            "DEVICE 030": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -482,7 +482,7 @@
             }
         },
         {
-            "DEVICE 031": {
+            "DEVICE 031": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB16.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -498,7 +498,7 @@
             }
         },
         {
-            "DEVICE 032": {
+            "DEVICE 032": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB16.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -514,7 +514,7 @@
             }
         },
         {
-            "DEVICE 033": {
+            "DEVICE 033": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB16.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -530,7 +530,7 @@
             }
         },
         {
-            "DEVICE 034": {
+            "DEVICE 034": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB16.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -546,7 +546,7 @@
             }
         },
         {
-            "DEVICE 035": {
+            "DEVICE 035": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB.J8E",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - PSM1000 - J8E",
@@ -562,7 +562,7 @@
             }
         },
         {
-            "DEVICE 036": {
+            "DEVICE 036": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB.J8E",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - PSM1000 - J8E",
@@ -578,7 +578,7 @@
             }
         },
         {
-            "DEVICE 037": {
+            "DEVICE 037": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB.J8E",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - PSM1000 - J8E",
@@ -594,7 +594,7 @@
             }
         },
         {
-            "DEVICE 038": {
+            "DEVICE 038": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G6",
@@ -610,7 +610,7 @@
             }
         },
         {
-            "DEVICE 039": {
+            "DEVICE 039": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - ULXD4 - G50",
@@ -626,7 +626,7 @@
             }
         },
         {
-            "DEVICE 040": {
+            "DEVICE 040": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -642,7 +642,7 @@
             }
         },
         {
-            "DEVICE 041": {
+            "DEVICE 041": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -658,7 +658,7 @@
             }
         },
         {
-            "DEVICE 042": {
+            "DEVICE 042": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -674,7 +674,7 @@
             }
         },
         {
-            "DEVICE 043": {
+            "DEVICE 043": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -690,7 +690,7 @@
             }
         },
         {
-            "DEVICE 044": {
+            "DEVICE 044": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -706,7 +706,7 @@
             }
         },
         {
-            "DEVICE 045": {
+            "DEVICE 045": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - ULXD4 - G50",
@@ -722,7 +722,7 @@
             }
         },
         {
-            "DEVICE 046": {
+            "DEVICE 046": {"Active": true,
                 "ZONE": "06.ST.211.RADIO RECORDING",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - ULXD4 - G50",
@@ -738,7 +738,7 @@
             }
         },
         {
-            "DEVICE 047": {
+            "DEVICE 047": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -754,7 +754,7 @@
             }
         },
         {
-            "DEVICE 048": {
+            "DEVICE 048": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -770,7 +770,7 @@
             }
         },
         {
-            "DEVICE 049": {
+            "DEVICE 049": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -786,7 +786,7 @@
             }
         },
         {
-            "DEVICE 050": {
+            "DEVICE 050": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -802,7 +802,7 @@
             }
         },
         {
-            "DEVICE 051": {
+            "DEVICE 051": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -818,7 +818,7 @@
             }
         },
         {
-            "DEVICE 052": {
+            "DEVICE 052": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -834,7 +834,7 @@
             }
         },
         {
-            "DEVICE 053": {
+            "DEVICE 053": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -850,7 +850,7 @@
             }
         },
         {
-            "DEVICE 054": {
+            "DEVICE 054": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.ENG.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-S02DN - TV22-25",
@@ -866,7 +866,7 @@
             }
         },
         {
-            "DEVICE 055": {
+            "DEVICE 055": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -882,7 +882,7 @@
             }
         },
         {
-            "DEVICE 056": {
+            "DEVICE 056": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -898,7 +898,7 @@
             }
         },
         {
-            "DEVICE 057": {
+            "DEVICE 057": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -914,7 +914,7 @@
             }
         },
         {
-            "DEVICE 058": {
+            "DEVICE 058": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -930,7 +930,7 @@
             }
         },
         {
-            "DEVICE 059": {
+            "DEVICE 059": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -946,7 +946,7 @@
             }
         },
         {
-            "DEVICE 060": {
+            "DEVICE 060": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -962,7 +962,7 @@
             }
         },
         {
-            "DEVICE 061": {
+            "DEVICE 061": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -978,7 +978,7 @@
             }
         },
         {
-            "DEVICE 062": {
+            "DEVICE 062": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -994,7 +994,7 @@
             }
         },
         {
-            "DEVICE 063": {
+            "DEVICE 063": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1010,7 +1010,7 @@
             }
         },
         {
-            "DEVICE 064": {
+            "DEVICE 064": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1026,7 +1026,7 @@
             }
         },
         {
-            "DEVICE 065": {
+            "DEVICE 065": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1042,7 +1042,7 @@
             }
         },
         {
-            "DEVICE 066": {
+            "DEVICE 066": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1058,7 +1058,7 @@
             }
         },
         {
-            "DEVICE 067": {
+            "DEVICE 067": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1074,7 +1074,7 @@
             }
         },
         {
-            "DEVICE 068": {
+            "DEVICE 068": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1090,7 +1090,7 @@
             }
         },
         {
-            "DEVICE 069": {
+            "DEVICE 069": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1106,7 +1106,7 @@
             }
         },
         {
-            "DEVICE 070": {
+            "DEVICE 070": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1122,7 +1122,7 @@
             }
         },
         {
-            "DEVICE 071": {
+            "DEVICE 071": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4D-A - Gw",
@@ -1138,7 +1138,7 @@
             }
         },
         {
-            "DEVICE 072": {
+            "DEVICE 072": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1154,7 +1154,7 @@
             }
         },
         {
-            "DEVICE 073": {
+            "DEVICE 073": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1170,7 +1170,7 @@
             }
         },
         {
-            "DEVICE 074": {
+            "DEVICE 074": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1186,7 +1186,7 @@
             }
         },
         {
-            "DEVICE 075": {
+            "DEVICE 075": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1202,7 +1202,7 @@
             }
         },
         {
-            "DEVICE 076": {
+            "DEVICE 076": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1218,7 +1218,7 @@
             }
         },
         {
-            "DEVICE 077": {
+            "DEVICE 077": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1234,7 +1234,7 @@
             }
         },
         {
-            "DEVICE 078": {
+            "DEVICE 078": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1250,7 +1250,7 @@
             }
         },
         {
-            "DEVICE 079": {
+            "DEVICE 079": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1266,7 +1266,7 @@
             }
         },
         {
-            "DEVICE 080": {
+            "DEVICE 080": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1282,7 +1282,7 @@
             }
         },
         {
-            "DEVICE 081": {
+            "DEVICE 081": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1298,7 +1298,7 @@
             }
         },
         {
-            "DEVICE 082": {
+            "DEVICE 082": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1314,7 +1314,7 @@
             }
         },
         {
-            "DEVICE 083": {
+            "DEVICE 083": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1330,7 +1330,7 @@
             }
         },
         {
-            "DEVICE 084": {
+            "DEVICE 084": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1346,7 +1346,7 @@
             }
         },
         {
-            "DEVICE 085": {
+            "DEVICE 085": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1362,7 +1362,7 @@
             }
         },
         {
-            "DEVICE 086": {
+            "DEVICE 086": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "Shure - AD4D-A - G57",
@@ -1378,7 +1378,7 @@
             }
         },
         {
-            "DEVICE 087": {
+            "DEVICE 087": {"Active": true,
                 "ZONE": "06.ST.38.WEATHER CENTER",
                 "GROUP": "06.WeatherStudi",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1394,7 +1394,7 @@
             }
         },
         {
-            "DEVICE 088": {
+            "DEVICE 088": {"Active": true,
                 "ZONE": "06.ST.38.WEATHER CENTER",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1410,7 +1410,7 @@
             }
         },
         {
-            "DEVICE 089": {
+            "DEVICE 089": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1426,7 +1426,7 @@
             }
         },
         {
-            "DEVICE 090": {
+            "DEVICE 090": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1442,7 +1442,7 @@
             }
         },
         {
-            "DEVICE 091": {
+            "DEVICE 091": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1458,7 +1458,7 @@
             }
         },
         {
-            "DEVICE 092": {
+            "DEVICE 092": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1474,7 +1474,7 @@
             }
         },
         {
-            "DEVICE 093": {
+            "DEVICE 093": {"Active": true,
                 "ZONE": "06.ST.38.WEATHER CENTER",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1490,7 +1490,7 @@
             }
         },
         {
-            "DEVICE 094": {
+            "DEVICE 094": {"Active": true,
                 "ZONE": "06.ST.38.WEATHER CENTER",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1506,7 +1506,7 @@
             }
         },
         {
-            "DEVICE 095": {
+            "DEVICE 095": {"Active": true,
                 "ZONE": "06.ST.38.WEATHER CENTER",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Aw",
@@ -1522,7 +1522,7 @@
             }
         },
         {
-            "DEVICE 096": {
+            "DEVICE 096": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1538,7 +1538,7 @@
             }
         },
         {
-            "DEVICE 097": {
+            "DEVICE 097": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1554,7 +1554,7 @@
             }
         },
         {
-            "DEVICE 098": {
+            "DEVICE 098": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1570,7 +1570,7 @@
             }
         },
         {
-            "DEVICE 099": {
+            "DEVICE 099": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2050 - Bw",
@@ -1586,7 +1586,7 @@
             }
         },
         {
-            "DEVICE 100": {
+            "DEVICE 100": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Bw",
@@ -1602,7 +1602,7 @@
             }
         },
         {
-            "DEVICE 101": {
+            "DEVICE 101": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Bw",
@@ -1618,7 +1618,7 @@
             }
         },
         {
-            "DEVICE 102": {
+            "DEVICE 102": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Gw",
@@ -1634,7 +1634,7 @@
             }
         },
         {
-            "DEVICE 103": {
+            "DEVICE 103": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Gw",
@@ -1650,7 +1650,7 @@
             }
         },
         {
-            "DEVICE 104": {
+            "DEVICE 104": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - SR 2000 - Gw",
@@ -1666,7 +1666,7 @@
             }
         },
         {
-            "DEVICE 105": {
+            "DEVICE 105": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1682,7 +1682,7 @@
             }
         },
         {
-            "DEVICE 106": {
+            "DEVICE 106": {"Active": true,
                 "ZONE": "04.WB13.ST.F.LOCAL NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1698,7 +1698,7 @@
             }
         },
         {
-            "DEVICE 107": {
+            "DEVICE 107": {"Active": true,
                 "ZONE": "04.WB13.ST.F.LOCAL NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1714,7 +1714,7 @@
             }
         },
         {
-            "DEVICE 108": {
+            "DEVICE 108": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1730,7 +1730,7 @@
             }
         },
         {
-            "DEVICE 109": {
+            "DEVICE 109": {"Active": true,
                 "ZONE": "04.WB13.ST.F.LOCAL NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1746,7 +1746,7 @@
             }
         },
         {
-            "DEVICE 110": {
+            "DEVICE 110": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2000 - Aw",
@@ -1762,7 +1762,7 @@
             }
         },
         {
-            "DEVICE 111": {
+            "DEVICE 111": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1778,7 +1778,7 @@
             }
         },
         {
-            "DEVICE 112": {
+            "DEVICE 112": {"Active": true,
                 "ZONE": "04.WB13.ST.F.LOCAL NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1794,7 +1794,7 @@
             }
         },
         {
-            "DEVICE 113": {
+            "DEVICE 113": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2000 - Aw",
@@ -1810,7 +1810,7 @@
             }
         },
         {
-            "DEVICE 114": {
+            "DEVICE 114": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1826,7 +1826,7 @@
             }
         },
         {
-            "DEVICE 115": {
+            "DEVICE 115": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2000 - Aw",
@@ -1842,7 +1842,7 @@
             }
         },
         {
-            "DEVICE 116": {
+            "DEVICE 116": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1858,7 +1858,7 @@
             }
         },
         {
-            "DEVICE 117": {
+            "DEVICE 117": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1874,7 +1874,7 @@
             }
         },
         {
-            "DEVICE 118": {
+            "DEVICE 118": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1890,7 +1890,7 @@
             }
         },
         {
-            "DEVICE 119": {
+            "DEVICE 119": {"Active": true,
                 "ZONE": "04.ST.50.FLOOR.A.NEWSNET",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1906,7 +1906,7 @@
             }
         },
         {
-            "DEVICE 120": {
+            "DEVICE 120": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732 - C",
@@ -1922,7 +1922,7 @@
             }
         },
         {
-            "DEVICE 121": {
+            "DEVICE 121": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732 - C",
@@ -1938,7 +1938,7 @@
             }
         },
         {
-            "DEVICE 122": {
+            "DEVICE 122": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1954,7 +1954,7 @@
             }
         },
         {
-            "DEVICE 123": {
+            "DEVICE 123": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -1970,7 +1970,7 @@
             }
         },
         {
-            "DEVICE 124": {
+            "DEVICE 124": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732 - C",
@@ -1986,7 +1986,7 @@
             }
         },
         {
-            "DEVICE 125": {
+            "DEVICE 125": {"Active": true,
                 "ZONE": "04.ST.55.FLOOR.D.NATIONAL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732 - C",
@@ -2002,7 +2002,7 @@
             }
         },
         {
-            "DEVICE 126": {
+            "DEVICE 126": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM6000 - A1A4",
@@ -2018,7 +2018,7 @@
             }
         },
         {
-            "DEVICE 127": {
+            "DEVICE 127": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2034,7 +2034,7 @@
             }
         },
         {
-            "DEVICE 128": {
+            "DEVICE 128": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2050,7 +2050,7 @@
             }
         },
         {
-            "DEVICE 129": {
+            "DEVICE 129": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM6000 - A1A4",
@@ -2066,7 +2066,7 @@
             }
         },
         {
-            "DEVICE 130": {
+            "DEVICE 130": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2082,7 +2082,7 @@
             }
         },
         {
-            "DEVICE 131": {
+            "DEVICE 131": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2098,7 +2098,7 @@
             }
         },
         {
-            "DEVICE 132": {
+            "DEVICE 132": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM6000 - A1A4",
@@ -2114,7 +2114,7 @@
             }
         },
         {
-            "DEVICE 133": {
+            "DEVICE 133": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2130,7 +2130,7 @@
             }
         },
         {
-            "DEVICE 134": {
+            "DEVICE 134": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2146,7 +2146,7 @@
             }
         },
         {
-            "DEVICE 135": {
+            "DEVICE 135": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2162,7 +2162,7 @@
             }
         },
         {
-            "DEVICE 136": {
+            "DEVICE 136": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2178,7 +2178,7 @@
             }
         },
         {
-            "DEVICE 137": {
+            "DEVICE 137": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2194,7 +2194,7 @@
             }
         },
         {
-            "DEVICE 138": {
+            "DEVICE 138": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2210,7 +2210,7 @@
             }
         },
         {
-            "DEVICE 139": {
+            "DEVICE 139": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2226,7 +2226,7 @@
             }
         },
         {
-            "DEVICE 140": {
+            "DEVICE 140": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2242,7 +2242,7 @@
             }
         },
         {
-            "DEVICE 141": {
+            "DEVICE 141": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2258,7 +2258,7 @@
             }
         },
         {
-            "DEVICE 142": {
+            "DEVICE 142": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2274,7 +2274,7 @@
             }
         },
         {
-            "DEVICE 143": {
+            "DEVICE 143": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2290,7 +2290,7 @@
             }
         },
         {
-            "DEVICE 144": {
+            "DEVICE 144": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 9046 - A1",
@@ -2306,7 +2306,7 @@
             }
         },
         {
-            "DEVICE 145": {
+            "DEVICE 145": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2050 - Gw",
@@ -2322,7 +2322,7 @@
             }
         },
         {
-            "DEVICE 146": {
+            "DEVICE 146": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2050 - Gw",
@@ -2338,7 +2338,7 @@
             }
         },
         {
-            "DEVICE 147": {
+            "DEVICE 147": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2050 - Gw",
@@ -2354,7 +2354,7 @@
             }
         },
         {
-            "DEVICE 148": {
+            "DEVICE 148": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2050 - Gw",
@@ -2370,7 +2370,7 @@
             }
         },
         {
-            "DEVICE 149": {
+            "DEVICE 149": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 2050 - Gw",
@@ -2386,7 +2386,7 @@
             }
         },
         {
-            "DEVICE 150": {
+            "DEVICE 150": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2402,7 +2402,7 @@
             }
         },
         {
-            "DEVICE 151": {
+            "DEVICE 151": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2418,7 +2418,7 @@
             }
         },
         {
-            "DEVICE 152": {
+            "DEVICE 152": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2434,7 +2434,7 @@
             }
         },
         {
-            "DEVICE 153": {
+            "DEVICE 153": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2450,7 +2450,7 @@
             }
         },
         {
-            "DEVICE 154": {
+            "DEVICE 154": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2466,7 +2466,7 @@
             }
         },
         {
-            "DEVICE 155": {
+            "DEVICE 155": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2482,7 +2482,7 @@
             }
         },
         {
-            "DEVICE 156": {
+            "DEVICE 156": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2498,7 +2498,7 @@
             }
         },
         {
-            "DEVICE 157": {
+            "DEVICE 157": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2514,7 +2514,7 @@
             }
         },
         {
-            "DEVICE 158": {
+            "DEVICE 158": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2530,7 +2530,7 @@
             }
         },
         {
-            "DEVICE 159": {
+            "DEVICE 159": {"Active": true,
                 "ZONE": "10.SYS.2 SENN.MOBILE MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2546,7 +2546,7 @@
             }
         },
         {
-            "DEVICE 160": {
+            "DEVICE 160": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2562,7 +2562,7 @@
             }
         },
         {
-            "DEVICE 161": {
+            "DEVICE 161": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2578,7 +2578,7 @@
             }
         },
         {
-            "DEVICE 162": {
+            "DEVICE 162": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2594,7 +2594,7 @@
             }
         },
         {
-            "DEVICE 163": {
+            "DEVICE 163": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2610,7 +2610,7 @@
             }
         },
         {
-            "DEVICE 164": {
+            "DEVICE 164": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2626,7 +2626,7 @@
             }
         },
         {
-            "DEVICE 165": {
+            "DEVICE 165": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2642,7 +2642,7 @@
             }
         },
         {
-            "DEVICE 166": {
+            "DEVICE 166": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2658,7 +2658,7 @@
             }
         },
         {
-            "DEVICE 167": {
+            "DEVICE 167": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2674,7 +2674,7 @@
             }
         },
         {
-            "DEVICE 168": {
+            "DEVICE 168": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sennheiser - EM 3732-II - L",
@@ -2690,7 +2690,7 @@
             }
         },
         {
-            "DEVICE 169": {
+            "DEVICE 169": {"Active": true,
                 "ZONE": "09.CONF.DIGITAL SERVICES",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - BLX4 - H10",
@@ -2706,7 +2706,7 @@
             }
         },
         {
-            "DEVICE 170": {
+            "DEVICE 170": {"Active": true,
                 "ZONE": "09.CONF.DIGITAL SERVICES",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - BLX4 - H9",
@@ -2722,7 +2722,7 @@
             }
         },
         {
-            "DEVICE 171": {
+            "DEVICE 171": {"Active": true,
                 "ZONE": "09.CONF.DIGITAL SERVICES",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - BLX4 - H9",
@@ -2738,7 +2738,7 @@
             }
         },
         {
-            "DEVICE 172": {
+            "DEVICE 172": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2754,7 +2754,7 @@
             }
         },
         {
-            "DEVICE 173": {
+            "DEVICE 173": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2770,7 +2770,7 @@
             }
         },
         {
-            "DEVICE 174": {
+            "DEVICE 174": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2786,7 +2786,7 @@
             }
         },
         {
-            "DEVICE 175": {
+            "DEVICE 175": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2802,7 +2802,7 @@
             }
         },
         {
-            "DEVICE 176": {
+            "DEVICE 176": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2818,7 +2818,7 @@
             }
         },
         {
-            "DEVICE 177": {
+            "DEVICE 177": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2834,7 +2834,7 @@
             }
         },
         {
-            "DEVICE 178": {
+            "DEVICE 178": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2850,7 +2850,7 @@
             }
         },
         {
-            "DEVICE 179": {
+            "DEVICE 179": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2866,7 +2866,7 @@
             }
         },
         {
-            "DEVICE 180": {
+            "DEVICE 180": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2882,7 +2882,7 @@
             }
         },
         {
-            "DEVICE 181": {
+            "DEVICE 181": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2898,7 +2898,7 @@
             }
         },
         {
-            "DEVICE 182": {
+            "DEVICE 182": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2914,7 +2914,7 @@
             }
         },
         {
-            "DEVICE 183": {
+            "DEVICE 183": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -2930,7 +2930,7 @@
             }
         },
         {
-            "DEVICE 184": {
+            "DEVICE 184": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -2946,7 +2946,7 @@
             }
         },
         {
-            "DEVICE 185": {
+            "DEVICE 185": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -2962,7 +2962,7 @@
             }
         },
         {
-            "DEVICE 186": {
+            "DEVICE 186": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -2978,7 +2978,7 @@
             }
         },
         {
-            "DEVICE 187": {
+            "DEVICE 187": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -2994,7 +2994,7 @@
             }
         },
         {
-            "DEVICE 188": {
+            "DEVICE 188": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM1000 - G10",
@@ -3010,7 +3010,7 @@
             }
         },
         {
-            "DEVICE 189": {
+            "DEVICE 189": {"Active": true,
                 "ZONE": "10.CONF.ARTIST LOUNGE",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - SLX_master_list - G5",
@@ -3026,7 +3026,7 @@
             }
         },
         {
-            "DEVICE 190": {
+            "DEVICE 190": {"Active": true,
                 "ZONE": "10.CONF.ARTIST LOUNGE",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - SLX_master_list - G5",
@@ -3042,7 +3042,7 @@
             }
         },
         {
-            "DEVICE 191": {
+            "DEVICE 191": {"Active": true,
                 "ZONE": "10.CONF.ARTIST LOUNGE",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - SLX_master_list - G5",
@@ -3058,7 +3058,7 @@
             }
         },
         {
-            "DEVICE 192": {
+            "DEVICE 192": {"Active": true,
                 "ZONE": "10.CONF.ARTIST LOUNGE",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - SLX_master_list - G5",
@@ -3074,7 +3074,7 @@
             }
         },
         {
-            "DEVICE 193": {
+            "DEVICE 193": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G7",
@@ -3090,7 +3090,7 @@
             }
         },
         {
-            "DEVICE 194": {
+            "DEVICE 194": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G7",
@@ -3106,7 +3106,7 @@
             }
         },
         {
-            "DEVICE 195": {
+            "DEVICE 195": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - PSM900 - G7",
@@ -3122,7 +3122,7 @@
             }
         },
         {
-            "DEVICE 196": {
+            "DEVICE 196": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 34-36",
@@ -3138,7 +3138,7 @@
             }
         },
         {
-            "DEVICE 197": {
+            "DEVICE 197": {"Active": true,
                 "ZONE": "05.ST.54.FLOOR.E.SRC NEWS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 34-36",
@@ -3154,7 +3154,7 @@
             }
         },
         {
-            "DEVICE 198": {
+            "DEVICE 198": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3170,7 +3170,7 @@
             }
         },
         {
-            "DEVICE 199": {
+            "DEVICE 199": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3186,7 +3186,7 @@
             }
         },
         {
-            "DEVICE 200": {
+            "DEVICE 200": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3202,7 +3202,7 @@
             }
         },
         {
-            "DEVICE 201": {
+            "DEVICE 201": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3218,7 +3218,7 @@
             }
         },
         {
-            "DEVICE 202": {
+            "DEVICE 202": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3234,7 +3234,7 @@
             }
         },
         {
-            "DEVICE 203": {
+            "DEVICE 203": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3250,7 +3250,7 @@
             }
         },
         {
-            "DEVICE 204": {
+            "DEVICE 204": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 42",
@@ -3266,7 +3266,7 @@
             }
         },
         {
-            "DEVICE 205": {
+            "DEVICE 205": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02DN - 43",
@@ -3282,7 +3282,7 @@
             }
         },
         {
-            "DEVICE 206": {
+            "DEVICE 206": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02D - 42-45",
@@ -3298,7 +3298,7 @@
             }
         },
         {
-            "DEVICE 207": {
+            "DEVICE 207": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02D - 42-45",
@@ -3314,7 +3314,7 @@
             }
         },
         {
-            "DEVICE 208": {
+            "DEVICE 208": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02D - 42-45",
@@ -3330,7 +3330,7 @@
             }
         },
         {
-            "DEVICE 209": {
+            "DEVICE 209": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Sony - DWR-R02D - 42-45",
@@ -3346,7 +3346,7 @@
             }
         },
         {
-            "DEVICE 210": {
+            "DEVICE 210": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3362,7 +3362,7 @@
             }
         },
         {
-            "DEVICE 211": {
+            "DEVICE 211": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3378,7 +3378,7 @@
             }
         },
         {
-            "DEVICE 212": {
+            "DEVICE 212": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3394,7 +3394,7 @@
             }
         },
         {
-            "DEVICE 213": {
+            "DEVICE 213": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3410,7 +3410,7 @@
             }
         },
         {
-            "DEVICE 214": {
+            "DEVICE 214": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3426,7 +3426,7 @@
             }
         },
         {
-            "DEVICE 215": {
+            "DEVICE 215": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3442,7 +3442,7 @@
             }
         },
         {
-            "DEVICE 216": {
+            "DEVICE 216": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "Shure - AD4Q-A - G57",
@@ -3458,7 +3458,7 @@
             }
         },
         {
-            "DEVICE 217": {
+            "DEVICE 217": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB.J8E",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "None - None - J8E",
@@ -3474,7 +3474,7 @@
             }
         },
         {
-            "DEVICE 218": {
+            "DEVICE 218": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "10.Rogers 2020",
                 "DEVICE.1": "None - None - G57",
@@ -3490,7 +3490,7 @@
             }
         },
         {
-            "DEVICE 219": {
+            "DEVICE 219": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3506,7 +3506,7 @@
             }
         },
         {
-            "DEVICE 220": {
+            "DEVICE 220": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3522,7 +3522,7 @@
             }
         },
         {
-            "DEVICE 221": {
+            "DEVICE 221": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3538,7 +3538,7 @@
             }
         },
         {
-            "DEVICE 222": {
+            "DEVICE 222": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3554,7 +3554,7 @@
             }
         },
         {
-            "DEVICE 223": {
+            "DEVICE 223": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3570,7 +3570,7 @@
             }
         },
         {
-            "DEVICE 224": {
+            "DEVICE 224": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3586,7 +3586,7 @@
             }
         },
         {
-            "DEVICE 225": {
+            "DEVICE 225": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3602,7 +3602,7 @@
             }
         },
         {
-            "DEVICE 226": {
+            "DEVICE 226": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G7",
@@ -3618,7 +3618,7 @@
             }
         },
         {
-            "DEVICE 227": {
+            "DEVICE 227": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - 42",
@@ -3634,7 +3634,7 @@
             }
         },
         {
-            "DEVICE 228": {
+            "DEVICE 228": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3650,7 +3650,7 @@
             }
         },
         {
-            "DEVICE 229": {
+            "DEVICE 229": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB15.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -3666,7 +3666,7 @@
             }
         },
         {
-            "DEVICE 230": {
+            "DEVICE 230": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.MICS.20",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G57",
@@ -3682,7 +3682,7 @@
             }
         },
         {
-            "DEVICE 231": {
+            "DEVICE 231": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3698,7 +3698,7 @@
             }
         },
         {
-            "DEVICE 232": {
+            "DEVICE 232": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3714,7 +3714,7 @@
             }
         },
         {
-            "DEVICE 233": {
+            "DEVICE 233": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3730,7 +3730,7 @@
             }
         },
         {
-            "DEVICE 234": {
+            "DEVICE 234": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3746,7 +3746,7 @@
             }
         },
         {
-            "DEVICE 235": {
+            "DEVICE 235": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3762,7 +3762,7 @@
             }
         },
         {
-            "DEVICE 236": {
+            "DEVICE 236": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3778,7 +3778,7 @@
             }
         },
         {
-            "DEVICE 237": {
+            "DEVICE 237": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3794,7 +3794,7 @@
             }
         },
         {
-            "DEVICE 238": {
+            "DEVICE 238": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3810,7 +3810,7 @@
             }
         },
         {
-            "DEVICE 239": {
+            "DEVICE 239": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3826,7 +3826,7 @@
             }
         },
         {
-            "DEVICE 240": {
+            "DEVICE 240": {"Active": true,
                 "ZONE": "STATION ENG",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - TV14-36",
@@ -3842,7 +3842,7 @@
             }
         },
         {
-            "DEVICE 241": {
+            "DEVICE 241": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - 43",
@@ -3858,7 +3858,7 @@
             }
         },
         {
-            "DEVICE 242": {
+            "DEVICE 242": {"Active": true,
                 "ZONE": "01.STUDIO.55.FLOOR.K",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - 43",
@@ -3874,7 +3874,7 @@
             }
         },
         {
-            "DEVICE 243": {
+            "DEVICE 243": {"Active": true,
                 "ZONE": "10.ST.41.ROGERS.IFB.J8E",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - J8E",
@@ -3890,7 +3890,7 @@
             }
         },
         {
-            "DEVICE 244": {
+            "DEVICE 244": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - L",
@@ -3906,7 +3906,7 @@
             }
         },
         {
-            "DEVICE 245": {
+            "DEVICE 245": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - L",
@@ -3922,7 +3922,7 @@
             }
         },
         {
-            "DEVICE 246": {
+            "DEVICE 246": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - L",
@@ -3938,7 +3938,7 @@
             }
         },
         {
-            "DEVICE 247": {
+            "DEVICE 247": {"Active": true,
                 "ZONE": "04.ST.53.FLOOR.B.FISHBOWL",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - L",
@@ -3954,7 +3954,7 @@
             }
         },
         {
-            "DEVICE 248": {
+            "DEVICE 248": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - A1A4",
@@ -3970,7 +3970,7 @@
             }
         },
         {
-            "DEVICE 249": {
+            "DEVICE 249": {"Active": true,
                 "ZONE": "00.TechStores",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - A1A4",
@@ -3986,7 +3986,7 @@
             }
         },
         {
-            "DEVICE 250": {
+            "DEVICE 250": {"Active": true,
                 "ZONE": "10.SYS.1.GOULD MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - L",
@@ -4002,7 +4002,7 @@
             }
         },
         {
-            "DEVICE 251": {
+            "DEVICE 251": {"Active": true,
                 "ZONE": "10 STATION AXIENT MICS",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - G10",
@@ -4018,7 +4018,7 @@
             }
         },
         {
-            "DEVICE 252": {
+            "DEVICE 252": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - Gw",
@@ -4034,7 +4034,7 @@
             }
         },
         {
-            "DEVICE 253": {
+            "DEVICE 253": {"Active": true,
                 "ZONE": "01.STUDIO.ATRIUM",
                 "GROUP": "GROUP NAME",
                 "DEVICE.1": "None - None - Gw",
@@ -4050,745 +4050,745 @@
             }
         },
         {
-            "DEVICE 254": {}
+            "DEVICE 254": {"Active": false}
         },
         {
-            "DEVICE 255": {}
+            "DEVICE 255": {"Active": false}
         },
         {
-            "DEVICE 256": {}
+            "DEVICE 256": {"Active": false}
         },
         {
-            "DEVICE 257": {}
+            "DEVICE 257": {"Active": false}
         },
         {
-            "DEVICE 258": {}
+            "DEVICE 258": {"Active": false}
         },
         {
-            "DEVICE 259": {}
+            "DEVICE 259": {"Active": false}
         },
         {
-            "DEVICE 260": {}
+            "DEVICE 260": {"Active": false}
         },
         {
-            "DEVICE 261": {}
+            "DEVICE 261": {"Active": false}
         },
         {
-            "DEVICE 262": {}
+            "DEVICE 262": {"Active": false}
         },
         {
-            "DEVICE 263": {}
+            "DEVICE 263": {"Active": false}
         },
         {
-            "DEVICE 264": {}
+            "DEVICE 264": {"Active": false}
         },
         {
-            "DEVICE 265": {}
+            "DEVICE 265": {"Active": false}
         },
         {
-            "DEVICE 266": {}
+            "DEVICE 266": {"Active": false}
         },
         {
-            "DEVICE 267": {}
+            "DEVICE 267": {"Active": false}
         },
         {
-            "DEVICE 268": {}
+            "DEVICE 268": {"Active": false}
         },
         {
-            "DEVICE 269": {}
+            "DEVICE 269": {"Active": false}
         },
         {
-            "DEVICE 270": {}
+            "DEVICE 270": {"Active": false}
         },
         {
-            "DEVICE 271": {}
+            "DEVICE 271": {"Active": false}
         },
         {
-            "DEVICE 272": {}
+            "DEVICE 272": {"Active": false}
         },
         {
-            "DEVICE 273": {}
+            "DEVICE 273": {"Active": false}
         },
         {
-            "DEVICE 274": {}
+            "DEVICE 274": {"Active": false}
         },
         {
-            "DEVICE 275": {}
+            "DEVICE 275": {"Active": false}
         },
         {
-            "DEVICE 276": {}
+            "DEVICE 276": {"Active": false}
         },
         {
-            "DEVICE 277": {}
+            "DEVICE 277": {"Active": false}
         },
         {
-            "DEVICE 278": {}
+            "DEVICE 278": {"Active": false}
         },
         {
-            "DEVICE 279": {}
+            "DEVICE 279": {"Active": false}
         },
         {
-            "DEVICE 280": {}
+            "DEVICE 280": {"Active": false}
         },
         {
-            "DEVICE 281": {}
+            "DEVICE 281": {"Active": false}
         },
         {
-            "DEVICE 282": {}
+            "DEVICE 282": {"Active": false}
         },
         {
-            "DEVICE 283": {}
+            "DEVICE 283": {"Active": false}
         },
         {
-            "DEVICE 284": {}
+            "DEVICE 284": {"Active": false}
         },
         {
-            "DEVICE 285": {}
+            "DEVICE 285": {"Active": false}
         },
         {
-            "DEVICE 286": {}
+            "DEVICE 286": {"Active": false}
         },
         {
-            "DEVICE 287": {}
+            "DEVICE 287": {"Active": false}
         },
         {
-            "DEVICE 288": {}
+            "DEVICE 288": {"Active": false}
         },
         {
-            "DEVICE 289": {}
+            "DEVICE 289": {"Active": false}
         },
         {
-            "DEVICE 290": {}
+            "DEVICE 290": {"Active": false}
         },
         {
-            "DEVICE 291": {}
+            "DEVICE 291": {"Active": false}
         },
         {
-            "DEVICE 292": {}
+            "DEVICE 292": {"Active": false}
         },
         {
-            "DEVICE 293": {}
+            "DEVICE 293": {"Active": false}
         },
         {
-            "DEVICE 294": {}
+            "DEVICE 294": {"Active": false}
         },
         {
-            "DEVICE 295": {}
+            "DEVICE 295": {"Active": false}
         },
         {
-            "DEVICE 296": {}
+            "DEVICE 296": {"Active": false}
         },
         {
-            "DEVICE 297": {}
+            "DEVICE 297": {"Active": false}
         },
         {
-            "DEVICE 298": {}
+            "DEVICE 298": {"Active": false}
         },
         {
-            "DEVICE 299": {}
+            "DEVICE 299": {"Active": false}
         },
         {
-            "DEVICE 300": {}
+            "DEVICE 300": {"Active": false}
         },
         {
-            "DEVICE 301": {}
+            "DEVICE 301": {"Active": false}
         },
         {
-            "DEVICE 302": {}
+            "DEVICE 302": {"Active": false}
         },
         {
-            "DEVICE 303": {}
+            "DEVICE 303": {"Active": false}
         },
         {
-            "DEVICE 304": {}
+            "DEVICE 304": {"Active": false}
         },
         {
-            "DEVICE 305": {}
+            "DEVICE 305": {"Active": false}
         },
         {
-            "DEVICE 306": {}
+            "DEVICE 306": {"Active": false}
         },
         {
-            "DEVICE 307": {}
+            "DEVICE 307": {"Active": false}
         },
         {
-            "DEVICE 308": {}
+            "DEVICE 308": {"Active": false}
         },
         {
-            "DEVICE 309": {}
+            "DEVICE 309": {"Active": false}
         },
         {
-            "DEVICE 310": {}
+            "DEVICE 310": {"Active": false}
         },
         {
-            "DEVICE 311": {}
+            "DEVICE 311": {"Active": false}
         },
         {
-            "DEVICE 312": {}
+            "DEVICE 312": {"Active": false}
         },
         {
-            "DEVICE 313": {}
+            "DEVICE 313": {"Active": false}
         },
         {
-            "DEVICE 314": {}
+            "DEVICE 314": {"Active": false}
         },
         {
-            "DEVICE 315": {}
+            "DEVICE 315": {"Active": false}
         },
         {
-            "DEVICE 316": {}
+            "DEVICE 316": {"Active": false}
         },
         {
-            "DEVICE 317": {}
+            "DEVICE 317": {"Active": false}
         },
         {
-            "DEVICE 318": {}
+            "DEVICE 318": {"Active": false}
         },
         {
-            "DEVICE 319": {}
+            "DEVICE 319": {"Active": false}
         },
         {
-            "DEVICE 320": {}
+            "DEVICE 320": {"Active": false}
         },
         {
-            "DEVICE 321": {}
+            "DEVICE 321": {"Active": false}
         },
         {
-            "DEVICE 322": {}
+            "DEVICE 322": {"Active": false}
         },
         {
-            "DEVICE 323": {}
+            "DEVICE 323": {"Active": false}
         },
         {
-            "DEVICE 324": {}
+            "DEVICE 324": {"Active": false}
         },
         {
-            "DEVICE 325": {}
+            "DEVICE 325": {"Active": false}
         },
         {
-            "DEVICE 326": {}
+            "DEVICE 326": {"Active": false}
         },
         {
-            "DEVICE 327": {}
+            "DEVICE 327": {"Active": false}
         },
         {
-            "DEVICE 328": {}
+            "DEVICE 328": {"Active": false}
         },
         {
-            "DEVICE 329": {}
+            "DEVICE 329": {"Active": false}
         },
         {
-            "DEVICE 330": {}
+            "DEVICE 330": {"Active": false}
         },
         {
-            "DEVICE 331": {}
+            "DEVICE 331": {"Active": false}
         },
         {
-            "DEVICE 332": {}
+            "DEVICE 332": {"Active": false}
         },
         {
-            "DEVICE 333": {}
+            "DEVICE 333": {"Active": false}
         },
         {
-            "DEVICE 334": {}
+            "DEVICE 334": {"Active": false}
         },
         {
-            "DEVICE 335": {}
+            "DEVICE 335": {"Active": false}
         },
         {
-            "DEVICE 336": {}
+            "DEVICE 336": {"Active": false}
         },
         {
-            "DEVICE 337": {}
+            "DEVICE 337": {"Active": false}
         },
         {
-            "DEVICE 338": {}
+            "DEVICE 338": {"Active": false}
         },
         {
-            "DEVICE 339": {}
+            "DEVICE 339": {"Active": false}
         },
         {
-            "DEVICE 340": {}
+            "DEVICE 340": {"Active": false}
         },
         {
-            "DEVICE 341": {}
+            "DEVICE 341": {"Active": false}
         },
         {
-            "DEVICE 342": {}
+            "DEVICE 342": {"Active": false}
         },
         {
-            "DEVICE 343": {}
+            "DEVICE 343": {"Active": false}
         },
         {
-            "DEVICE 344": {}
+            "DEVICE 344": {"Active": false}
         },
         {
-            "DEVICE 345": {}
+            "DEVICE 345": {"Active": false}
         },
         {
-            "DEVICE 346": {}
+            "DEVICE 346": {"Active": false}
         },
         {
-            "DEVICE 347": {}
+            "DEVICE 347": {"Active": false}
         },
         {
-            "DEVICE 348": {}
+            "DEVICE 348": {"Active": false}
         },
         {
-            "DEVICE 349": {}
+            "DEVICE 349": {"Active": false}
         },
         {
-            "DEVICE 350": {}
+            "DEVICE 350": {"Active": false}
         },
         {
-            "DEVICE 351": {}
+            "DEVICE 351": {"Active": false}
         },
         {
-            "DEVICE 352": {}
+            "DEVICE 352": {"Active": false}
         },
         {
-            "DEVICE 353": {}
+            "DEVICE 353": {"Active": false}
         },
         {
-            "DEVICE 354": {}
+            "DEVICE 354": {"Active": false}
         },
         {
-            "DEVICE 355": {}
+            "DEVICE 355": {"Active": false}
         },
         {
-            "DEVICE 356": {}
+            "DEVICE 356": {"Active": false}
         },
         {
-            "DEVICE 357": {}
+            "DEVICE 357": {"Active": false}
         },
         {
-            "DEVICE 358": {}
+            "DEVICE 358": {"Active": false}
         },
         {
-            "DEVICE 359": {}
+            "DEVICE 359": {"Active": false}
         },
         {
-            "DEVICE 360": {}
+            "DEVICE 360": {"Active": false}
         },
         {
-            "DEVICE 361": {}
+            "DEVICE 361": {"Active": false}
         },
         {
-            "DEVICE 362": {}
+            "DEVICE 362": {"Active": false}
         },
         {
-            "DEVICE 363": {}
+            "DEVICE 363": {"Active": false}
         },
         {
-            "DEVICE 364": {}
+            "DEVICE 364": {"Active": false}
         },
         {
-            "DEVICE 365": {}
+            "DEVICE 365": {"Active": false}
         },
         {
-            "DEVICE 366": {}
+            "DEVICE 366": {"Active": false}
         },
         {
-            "DEVICE 367": {}
+            "DEVICE 367": {"Active": false}
         },
         {
-            "DEVICE 368": {}
+            "DEVICE 368": {"Active": false}
         },
         {
-            "DEVICE 369": {}
+            "DEVICE 369": {"Active": false}
         },
         {
-            "DEVICE 370": {}
+            "DEVICE 370": {"Active": false}
         },
         {
-            "DEVICE 371": {}
+            "DEVICE 371": {"Active": false}
         },
         {
-            "DEVICE 372": {}
+            "DEVICE 372": {"Active": false}
         },
         {
-            "DEVICE 373": {}
+            "DEVICE 373": {"Active": false}
         },
         {
-            "DEVICE 374": {}
+            "DEVICE 374": {"Active": false}
         },
         {
-            "DEVICE 375": {}
+            "DEVICE 375": {"Active": false}
         },
         {
-            "DEVICE 376": {}
+            "DEVICE 376": {"Active": false}
         },
         {
-            "DEVICE 377": {}
+            "DEVICE 377": {"Active": false}
         },
         {
-            "DEVICE 378": {}
+            "DEVICE 378": {"Active": false}
         },
         {
-            "DEVICE 379": {}
+            "DEVICE 379": {"Active": false}
         },
         {
-            "DEVICE 380": {}
+            "DEVICE 380": {"Active": false}
         },
         {
-            "DEVICE 381": {}
+            "DEVICE 381": {"Active": false}
         },
         {
-            "DEVICE 382": {}
+            "DEVICE 382": {"Active": false}
         },
         {
-            "DEVICE 383": {}
+            "DEVICE 383": {"Active": false}
         },
         {
-            "DEVICE 384": {}
+            "DEVICE 384": {"Active": false}
         },
         {
-            "DEVICE 385": {}
+            "DEVICE 385": {"Active": false}
         },
         {
-            "DEVICE 386": {}
+            "DEVICE 386": {"Active": false}
         },
         {
-            "DEVICE 387": {}
+            "DEVICE 387": {"Active": false}
         },
         {
-            "DEVICE 388": {}
+            "DEVICE 388": {"Active": false}
         },
         {
-            "DEVICE 389": {}
+            "DEVICE 389": {"Active": false}
         },
         {
-            "DEVICE 390": {}
+            "DEVICE 390": {"Active": false}
         },
         {
-            "DEVICE 391": {}
+            "DEVICE 391": {"Active": false}
         },
         {
-            "DEVICE 392": {}
+            "DEVICE 392": {"Active": false}
         },
         {
-            "DEVICE 393": {}
+            "DEVICE 393": {"Active": false}
         },
         {
-            "DEVICE 394": {}
+            "DEVICE 394": {"Active": false}
         },
         {
-            "DEVICE 395": {}
+            "DEVICE 395": {"Active": false}
         },
         {
-            "DEVICE 396": {}
+            "DEVICE 396": {"Active": false}
         },
         {
-            "DEVICE 397": {}
+            "DEVICE 397": {"Active": false}
         },
         {
-            "DEVICE 398": {}
+            "DEVICE 398": {"Active": false}
         },
         {
-            "DEVICE 399": {}
+            "DEVICE 399": {"Active": false}
         },
         {
-            "DEVICE 400": {}
+            "DEVICE 400": {"Active": false}
         },
         {
-            "DEVICE 401": {}
+            "DEVICE 401": {"Active": false}
         },
         {
-            "DEVICE 402": {}
+            "DEVICE 402": {"Active": false}
         },
         {
-            "DEVICE 403": {}
+            "DEVICE 403": {"Active": false}
         },
         {
-            "DEVICE 404": {}
+            "DEVICE 404": {"Active": false}
         },
         {
-            "DEVICE 405": {}
+            "DEVICE 405": {"Active": false}
         },
         {
-            "DEVICE 406": {}
+            "DEVICE 406": {"Active": false}
         },
         {
-            "DEVICE 407": {}
+            "DEVICE 407": {"Active": false}
         },
         {
-            "DEVICE 408": {}
+            "DEVICE 408": {"Active": false}
         },
         {
-            "DEVICE 409": {}
+            "DEVICE 409": {"Active": false}
         },
         {
-            "DEVICE 410": {}
+            "DEVICE 410": {"Active": false}
         },
         {
-            "DEVICE 411": {}
+            "DEVICE 411": {"Active": false}
         },
         {
-            "DEVICE 412": {}
+            "DEVICE 412": {"Active": false}
         },
         {
-            "DEVICE 413": {}
+            "DEVICE 413": {"Active": false}
         },
         {
-            "DEVICE 414": {}
+            "DEVICE 414": {"Active": false}
         },
         {
-            "DEVICE 415": {}
+            "DEVICE 415": {"Active": false}
         },
         {
-            "DEVICE 416": {}
+            "DEVICE 416": {"Active": false}
         },
         {
-            "DEVICE 417": {}
+            "DEVICE 417": {"Active": false}
         },
         {
-            "DEVICE 418": {}
+            "DEVICE 418": {"Active": false}
         },
         {
-            "DEVICE 419": {}
+            "DEVICE 419": {"Active": false}
         },
         {
-            "DEVICE 420": {}
+            "DEVICE 420": {"Active": false}
         },
         {
-            "DEVICE 421": {}
+            "DEVICE 421": {"Active": false}
         },
         {
-            "DEVICE 422": {}
+            "DEVICE 422": {"Active": false}
         },
         {
-            "DEVICE 423": {}
+            "DEVICE 423": {"Active": false}
         },
         {
-            "DEVICE 424": {}
+            "DEVICE 424": {"Active": false}
         },
         {
-            "DEVICE 425": {}
+            "DEVICE 425": {"Active": false}
         },
         {
-            "DEVICE 426": {}
+            "DEVICE 426": {"Active": false}
         },
         {
-            "DEVICE 427": {}
+            "DEVICE 427": {"Active": false}
         },
         {
-            "DEVICE 428": {}
+            "DEVICE 428": {"Active": false}
         },
         {
-            "DEVICE 429": {}
+            "DEVICE 429": {"Active": false}
         },
         {
-            "DEVICE 430": {}
+            "DEVICE 430": {"Active": false}
         },
         {
-            "DEVICE 431": {}
+            "DEVICE 431": {"Active": false}
         },
         {
-            "DEVICE 432": {}
+            "DEVICE 432": {"Active": false}
         },
         {
-            "DEVICE 433": {}
+            "DEVICE 433": {"Active": false}
         },
         {
-            "DEVICE 434": {}
+            "DEVICE 434": {"Active": false}
         },
         {
-            "DEVICE 435": {}
+            "DEVICE 435": {"Active": false}
         },
         {
-            "DEVICE 436": {}
+            "DEVICE 436": {"Active": false}
         },
         {
-            "DEVICE 437": {}
+            "DEVICE 437": {"Active": false}
         },
         {
-            "DEVICE 438": {}
+            "DEVICE 438": {"Active": false}
         },
         {
-            "DEVICE 439": {}
+            "DEVICE 439": {"Active": false}
         },
         {
-            "DEVICE 440": {}
+            "DEVICE 440": {"Active": false}
         },
         {
-            "DEVICE 441": {}
+            "DEVICE 441": {"Active": false}
         },
         {
-            "DEVICE 442": {}
+            "DEVICE 442": {"Active": false}
         },
         {
-            "DEVICE 443": {}
+            "DEVICE 443": {"Active": false}
         },
         {
-            "DEVICE 444": {}
+            "DEVICE 444": {"Active": false}
         },
         {
-            "DEVICE 445": {}
+            "DEVICE 445": {"Active": false}
         },
         {
-            "DEVICE 446": {}
+            "DEVICE 446": {"Active": false}
         },
         {
-            "DEVICE 447": {}
+            "DEVICE 447": {"Active": false}
         },
         {
-            "DEVICE 448": {}
+            "DEVICE 448": {"Active": false}
         },
         {
-            "DEVICE 449": {}
+            "DEVICE 449": {"Active": false}
         },
         {
-            "DEVICE 450": {}
+            "DEVICE 450": {"Active": false}
         },
         {
-            "DEVICE 451": {}
+            "DEVICE 451": {"Active": false}
         },
         {
-            "DEVICE 452": {}
+            "DEVICE 452": {"Active": false}
         },
         {
-            "DEVICE 453": {}
+            "DEVICE 453": {"Active": false}
         },
         {
-            "DEVICE 454": {}
+            "DEVICE 454": {"Active": false}
         },
         {
-            "DEVICE 455": {}
+            "DEVICE 455": {"Active": false}
         },
         {
-            "DEVICE 456": {}
+            "DEVICE 456": {"Active": false}
         },
         {
-            "DEVICE 457": {}
+            "DEVICE 457": {"Active": false}
         },
         {
-            "DEVICE 458": {}
+            "DEVICE 458": {"Active": false}
         },
         {
-            "DEVICE 459": {}
+            "DEVICE 459": {"Active": false}
         },
         {
-            "DEVICE 460": {}
+            "DEVICE 460": {"Active": false}
         },
         {
-            "DEVICE 461": {}
+            "DEVICE 461": {"Active": false}
         },
         {
-            "DEVICE 462": {}
+            "DEVICE 462": {"Active": false}
         },
         {
-            "DEVICE 463": {}
+            "DEVICE 463": {"Active": false}
         },
         {
-            "DEVICE 464": {}
+            "DEVICE 464": {"Active": false}
         },
         {
-            "DEVICE 465": {}
+            "DEVICE 465": {"Active": false}
         },
         {
-            "DEVICE 466": {}
+            "DEVICE 466": {"Active": false}
         },
         {
-            "DEVICE 467": {}
+            "DEVICE 467": {"Active": false}
         },
         {
-            "DEVICE 468": {}
+            "DEVICE 468": {"Active": false}
         },
         {
-            "DEVICE 469": {}
+            "DEVICE 469": {"Active": false}
         },
         {
-            "DEVICE 470": {}
+            "DEVICE 470": {"Active": false}
         },
         {
-            "DEVICE 471": {}
+            "DEVICE 471": {"Active": false}
         },
         {
-            "DEVICE 472": {}
+            "DEVICE 472": {"Active": false}
         },
         {
-            "DEVICE 473": {}
+            "DEVICE 473": {"Active": false}
         },
         {
-            "DEVICE 474": {}
+            "DEVICE 474": {"Active": false}
         },
         {
-            "DEVICE 475": {}
+            "DEVICE 475": {"Active": false}
         },
         {
-            "DEVICE 476": {}
+            "DEVICE 476": {"Active": false}
         },
         {
-            "DEVICE 477": {}
+            "DEVICE 477": {"Active": false}
         },
         {
-            "DEVICE 478": {}
+            "DEVICE 478": {"Active": false}
         },
         {
-            "DEVICE 479": {}
+            "DEVICE 479": {"Active": false}
         },
         {
-            "DEVICE 480": {}
+            "DEVICE 480": {"Active": false}
         },
         {
-            "DEVICE 481": {}
+            "DEVICE 481": {"Active": false}
         },
         {
-            "DEVICE 482": {}
+            "DEVICE 482": {"Active": false}
         },
         {
-            "DEVICE 483": {}
+            "DEVICE 483": {"Active": false}
         },
         {
-            "DEVICE 484": {}
+            "DEVICE 484": {"Active": false}
         },
         {
-            "DEVICE 485": {}
+            "DEVICE 485": {"Active": false}
         },
         {
-            "DEVICE 486": {}
+            "DEVICE 486": {"Active": false}
         },
         {
-            "DEVICE 487": {}
+            "DEVICE 487": {"Active": false}
         },
         {
-            "DEVICE 488": {}
+            "DEVICE 488": {"Active": false}
         },
         {
-            "DEVICE 489": {}
+            "DEVICE 489": {"Active": false}
         },
         {
-            "DEVICE 490": {}
+            "DEVICE 490": {"Active": false}
         },
         {
-            "DEVICE 491": {}
+            "DEVICE 491": {"Active": false}
         },
         {
-            "DEVICE 492": {}
+            "DEVICE 492": {"Active": false}
         },
         {
-            "DEVICE 493": {}
+            "DEVICE 493": {"Active": false}
         },
         {
-            "DEVICE 494": {}
+            "DEVICE 494": {"Active": false}
         },
         {
-            "DEVICE 495": {}
+            "DEVICE 495": {"Active": false}
         },
         {
-            "DEVICE 496": {}
+            "DEVICE 496": {"Active": false}
         },
         {
-            "DEVICE 497": {}
+            "DEVICE 497": {"Active": false}
         },
         {
-            "DEVICE 498": {}
+            "DEVICE 498": {"Active": false}
         },
         {
-            "DEVICE 499": {}
+            "DEVICE 499": {"Active": false}
         },
         {
-            "DEVICE 500": {}
+            "DEVICE 500": {"Active": false}
         }
     
 

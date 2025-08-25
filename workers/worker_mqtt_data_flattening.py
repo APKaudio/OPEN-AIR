@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.211334.6
+# Version 20250825.013316.20
 
 import os
 import inspect
@@ -24,20 +24,27 @@ import json
 # --- Module Imports ---
 from .worker_logging import debug_log, console_log
 
-# --- Global Scope Variables (as per your instructions) ---
-current_version = "20250824.211334.6"
-current_version_hash = 25678125835296
+# --- Global Scope Variables ---
+CURRENT_DATE = 20250825
+CURRENT_TIME = 13316
+CURRENT_TIME_HASH = 13316
+REVISION_NUMBER = 20
+current_version = "20250825.013316.20"
+current_version_hash = 5393199714000
 current_file = f"{os.path.basename(__file__)}"
 
 
 class MqttDataFlattenerUtility:
     """
-    Manages the buffering and flattening of incoming MQTT messages.
+    Manages the buffering and flattening of incoming MQTT messages based on dynamic
+    topic identifiers.
     """
     def __init__(self, print_to_gui_func):
         self._print_to_gui_console = print_to_gui_func
         self.data_buffer = {}
         self.current_class_name = self.__class__.__name__
+        self.last_unique_identifier = None
+        self.FLUSH_COMMAND = "FLUSH_BUFFER"
 
     def clear_buffer(self):
         """
@@ -47,15 +54,16 @@ class MqttDataFlattenerUtility:
             message="🛠️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
             file=current_file,
             version=current_version,
-            function=f"{self.current_class_name}.clear_buffer",
+            function=f"{self.__class__.__name__}.clear_buffer",
             console_print_func=self._print_to_gui_console
         )
         self.data_buffer = {}
+        self.last_unique_identifier = None
 
     def process_mqtt_message_and_pivot(self, topic: str, payload: str, topic_prefix: str) -> list:
         """
-        Processes a single MQTT message. If it's the last message in a set,
-        it flattens the buffered data and returns a list of dictionaries.
+        Processes a single MQTT message. It triggers flattening when it detects the
+        start of a new data set based on the unique identifier.
 
         Args:
             topic (str): The MQTT topic of the message.
@@ -68,86 +76,52 @@ class MqttDataFlattenerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
-            message=f"🛠️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
-
+        # Check for the manual flush command
+        if payload == self.FLUSH_COMMAND:
+            if self.data_buffer:
+                return self._flush_buffer()
+            else:
+                debug_log(
+                    message="🛠️🟡 Flush command received, but buffer is empty. Nothing to do.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
+                return []
+        
         try:
             data = json.loads(payload)
+            
+            # --- FIXED STIPULATION: Skip if Active is false ---
+            if isinstance(data, dict) and 'Active' in data and data['Active'].get('value') == 'false':
+                console_log(f"🟡 Skipping transaction for '{topic}' because 'Active' is false.")
+                self.clear_buffer()
+                return []
+            
+            debug_log(
+                message=f"🛠️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
+
+            # Extract the unique data set identifier (the second-to-last node)
+            relative_topic = topic.replace(f"{topic_prefix}/", "", 1)
+            identifier_path = relative_topic.rsplit('/', 1)[0]
+            
+            # This is the primary trigger for a new data set.
+            if self.last_unique_identifier and identifier_path != self.last_unique_identifier:
+                return self._flush_buffer(new_topic=topic, new_data=data, new_identifier=identifier_path)
+            
+            # If this is the very first message, set the first key name and buffer it
+            if self.last_unique_identifier is None:
+                self.last_unique_identifier = identifier_path
+
+            # Add the message to the buffer
             self.data_buffer[topic] = data
 
-            if topic.endswith('validated_value'):
-                debug_log(
-                    message=f"🛠️🟢 Full data set received. Commencing pivoting and flattening!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
-                )
-                
-                flattened_data = {}
-                
-                # Use a more robust approach to determine the parameter path and key-value pairs
-                try:
-                    # Strip the topic prefix
-                    parameter_path_full = topic.replace(f"{topic_prefix}/", "", 1)
-                    
-                    # Split the path into parts, and the last part is the key (e.g., 'validated_value')
-                    path_parts = parameter_path_full.rsplit('/', 1)
-                    if len(path_parts) == 2:
-                        parameter_path, final_key = path_parts
-                        flattened_data['Parameter'] = parameter_path
-                    else:
-                        # Fallback in case of unexpected topic format
-                        flattened_data['Parameter'] = parameter_path_full
-                        final_key = ""
-
-                    # Iterate through the buffered data and process each key-value pair
-                    for t, p in self.data_buffer.items():
-                        key = t.rsplit('/', 1)[-1]
-                        
-                        value = None
-                        if isinstance(p, dict) and 'value' in p:
-                            value = p['value']
-                        elif isinstance(p, str):
-                            value = p
-                        
-                        if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
-                            value = value.strip('"')
-                        
-                        if value is not None:
-                            flattened_data[key] = value
-
-                except Exception as e:
-                    console_log(f"❌ Error during data pivoting: {e}")
-                    debug_log(
-                        message=f"🛠️🔴 An unholy terror! An error has occurred during data pivoting! The error be: {e}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=self._print_to_gui_console
-                    )
-                    self.clear_buffer()
-                    return []
-                
-                self.clear_buffer()
-                
-                debug_log(
-                    message="🛠️✅ Behold! I have transmogrified the data! The final payload is below.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
-                )
-                
-                console_log(json.dumps(flattened_data, indent=2))
-
-                return [flattened_data]
-            
             return []
             
         except json.JSONDecodeError as e:
@@ -156,9 +130,10 @@ class MqttDataFlattenerUtility:
                 message=f"🛠️🔴 The JSON be a-sailing to its doom! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
+                function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=self._print_to_gui_console
             )
+            self.clear_buffer()
             return []
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -166,7 +141,57 @@ class MqttDataFlattenerUtility:
                 message=f"🛠️🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
+                function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=self._print_to_gui_console
             )
+            self.clear_buffer()
             return []
+
+    def _flush_buffer(self, new_topic=None, new_data=None, new_identifier=None):
+        """
+        Processes and flattens the current buffer.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+
+        debug_log(
+            message="🛠️🟢 Processing buffer and commencing pivoting and flattening!",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=self._print_to_gui_console
+        )
+        
+        flattened_data = {}
+        flattened_data['Parameter'] = self.last_unique_identifier
+        
+        for t, p in self.data_buffer.items():
+            data_key = t.rsplit('/', 1)[-1]
+            
+            value = None
+            if isinstance(p, dict) and 'value' in p:
+                value = p['value']
+            elif isinstance(p, str):
+                value = p
+            
+            if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+                value = value.strip('"')
+            
+            if value is not None:
+                flattened_data[data_key] = value
+
+        self.clear_buffer()
+        
+        if new_topic and new_data:
+            self.data_buffer[new_topic] = new_data
+            self.last_unique_identifier = new_identifier
+        
+        debug_log(
+            message="🛠️✅ Behold! I have transmogrified the data! The final payload is below.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=self._print_to_gui_console
+        )
+        
+        console_log(json.dumps(flattened_data, indent=2))
+        return [flattened_data]

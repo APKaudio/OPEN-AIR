@@ -1,7 +1,7 @@
-# display/gui_translator.py
+# display/gui_preset_editor.py
 #
-# A GUI component for interacting with the instrument translator via MQTT.
-# This version now correctly parses the incoming JSON payload to populate the table.
+# A GUI component for editing presets, interacting via MQTT.
+# This version uses the updated data flattening utility.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.205035.10
+# Version 20250824.215521.1
 
 import os
 import inspect
@@ -37,29 +37,28 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
-CURRENT_TIME = 205035
-CURRENT_TIME_HASH = 205035
-REVISION_NUMBER = 10
-current_version = "20250824.205035.10"
-current_version_hash = 41521276988400
+CURRENT_TIME = 215521
+CURRENT_TIME_HASH = 215521
+REVISION_NUMBER = 1
+current_version = "20250824.215521.1"
+current_version_hash = 4326041775352
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
-# Removed MQTT_TOPIC_CONFIG_REQUEST to be replaced by the entry box value
 MQTT_TOPIC_TRANSLATOR = "Root: Instrument"
-MQTT_TOPIC_FILTER = "OPEN-AIR/devices/scpi/COMMANDS"
+MQTT_TOPIC_FILTER = "OPEN-AIR/program/presets"
 
-class TranslatorGUI(ttk.Frame):
+class gui_preset_editor(ttk.Frame):
     """
-    A GUI component for interacting with the instrument translator via MQTT.
+    A GUI component for editing presets, interacting via MQTT.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         current_function_name = inspect.currentframe().f_code.co_name
 
         debug_log(
-            message="🖥️🟢 Initializing the Translator GUI.",
+            message="🖥️🟢 Initializing the Preset Editor GUI.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -88,7 +87,7 @@ class TranslatorGUI(ttk.Frame):
             self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
 
             # --- MQTT Buttons Section ---
-            mqtt_frame = ttk.LabelFrame(self, text="MQTT Translator Controls")
+            mqtt_frame = ttk.LabelFrame(self, text="MQTT Controls")
             mqtt_frame.pack(fill=tk.X, padx=10, pady=5)
 
             # Button 1: Get Configuration
@@ -150,7 +149,7 @@ class TranslatorGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Translator GUI initialized successfully!")
+            console_log("✅ Preset Editor GUI initialized successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -229,7 +228,7 @@ class TranslatorGUI(ttk.Frame):
             message=f"🖥️🟢 Publishing '{message}' to specific MQTT topic '{root_topic}/{subtopic}'.",
             file=self.current_file,
             version=self.current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
+            function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
         try:
@@ -369,7 +368,7 @@ class TranslatorGUI(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Translator GUI Test")
+    root.title("Preset Editor Test")
     
     # This is a temporary placeholder for logging functions to make the file runnable
     def mock_debug_log(message, file, version, function, console_print_func):
@@ -431,11 +430,11 @@ if __name__ == "__main__":
     sys.modules['workers.worker_mqtt_data_flattening'] = MockMqttDataFlattenerUtility
     
     # Re-import the class now that the mocks are in place
-    from .gui_translator import TranslatorGUI
+    from .gui_preset_editor import gui_preset_editor
     
     mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log, log_treeview_func=lambda *args: None)
     mqtt_utility.connect_mqtt()
 
-    app_frame = TranslatorGUI(parent=root, mqtt_util=mqtt_utility)
+    app_frame = gui_preset_editor(parent=root, mqtt_util=mqtt_utility)
 
     root.mainloop()

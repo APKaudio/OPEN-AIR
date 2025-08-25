@@ -1,0 +1,144 @@
+💡📝🖥️🟢 Ah, good, we're entering 'action_check_dependancies'! Let's examine the raw materials, shall we? | main.py | 20250825.012457.2 Function: action_check_dependancies
+💡📝🖥️🟢 Ahem, commencing the configuration validation experiment in 'action_check_configuration'. | main.py | 20250825.012457.2 Function: action_check_configuration
+💡📝🛠️🟢 Initializing the 'MqttControllerUtility' utility class. Powering up the flux capacitor! | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.__init__
+💡📝🛠️🟢 Entering 'start_mosquitto' to start the broker. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.start_mosquitto
+💡📝❌🔴 Arrr, the code be capsized! The error be: [WinError 2] The system cannot find the file specified | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.start_mosquitto
+💡📝🛠️🟢 Entering 'connect_mqtt' to connect MQTT client. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.connect_mqtt
+💡📝🖥️🟢 The final step! Activating the main display in 'action_open_display'! | main.py | 20250825.012457.2 Function: action_open_display
+💡📝🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built! | gui_display.py | 20250822.230500.2 Function: Application.__init__
+💡📝🛠️🟢 Initializing the 'MqttControllerUtility' utility class. Powering up the flux capacitor! | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.__init__
+💡📝🛠️🟢 Entering 'connect_mqtt' to connect MQTT client. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.connect_mqtt
+💡📝Entering _create_widgets. Creating simplified widgets for the Connection Tab. 🛠️ | gui_connection.py | 20250825.012457.1 Function: _create_widgets
+💡📝❌🔴 Arrr, the code be capsized! The error be: Layout Dark.TLabel.Value not found | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝Initializing AmplitudeSettingsTab. Setting up the GUI and its logic. 💻 | gui_amplitude.py | 20250825.012457.1 Function: __init__
+💡📝Entering _create_widgets. The mad scientist is preparing the amplitude controls! 🔊🧪 | gui_amplitude.py | 20250825.012457.1 Function: _create_widgets
+💡📝Entering _update_descriptions. Seeking the closest preset for a value of 0.0... | gui_amplitude.py | 20250825.012457.1 Function: _update_descriptions
+💡📝Entering _find_closest_preset_value. Finding closest preset for value: 0.0 | gui_amplitude.py | 20250825.012457.1 Function: _find_closest_preset_value
+💡📝Found a description! ' General purpose level, standard for most signals. ' | gui_amplitude.py | 20250825.012457.1 Function: _update_descriptions
+💡📝Entering _update_descriptions. Seeking the closest preset for a value of 10.0... | gui_amplitude.py | 20250825.012457.1 Function: _update_descriptions
+💡📝Entering _find_closest_preset_value. Finding closest preset for value: 10.0 | gui_amplitude.py | 20250825.012457.1 Function: _find_closest_preset_value
+💡📝Found a description! ' Standard 10 dB attenuation. ' | gui_amplitude.py | 20250825.012457.1 Function: _update_descriptions
+💡📝Widgets for Amplitude Settings Tab created. The amplitude controls are ready! 📉� | gui_amplitude.py | 20250825.012457.1 Function: _create_widgets
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝Initializing MarkerSettingsTab. This should be a walk in the park! 🚶‍♀️ | gui_markers.py | 20250825.012457.1 Function: __init__
+💡📝Creating widgets for MarkerSettingsTab. The puzzle pieces are coming together! 🧩 | gui_markers.py | 20250825.012457.1 Function: _create_widgets
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing the Translator GUI. | tab_1_instrument/sub_tab_3_translator/gui_translator.py | 20250824.205035.10 Function: TranslatorGUI.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/devices/scpi/COMMANDS/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/devices/scpi/COMMANDS/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝❌🔴 Arrr, the code be capsized! The error be: No module named 'styling' | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝🖥️🟢 Initializing the Marker Editor GUI. | tab_2_markers/sub_tab_2_editor/gui_marker_editor.py | 20250825.000814.10 Function: gui_marker_editor.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/program/markers/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/program/markers/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝❌🔴 Arrr, the code be capsized! The error be: Module 'gui_child_1_pusher' needs a class that inherits from 'ttk.Frame' or a 'create_yo_button_frame' function. | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝🖥️🟢 Initializing the Preset Editor GUI. | tab_3_presets/sub_tab_2_editor/gui_preset_editor.py | 20250824.215521.1 Function: gui_preset_editor.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/program/presets/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'OPEN-AIR/program/presets/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'conductor/test/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_4_intermod/sub_tab_1_calculator/gui_child_1_calculator.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_1_calculator/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_1_calculator/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_4_intermod/sub_tab_2_future/gui_1_top.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_4_intermod/sub_tab_2_future/gui_2_bottom copy.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_4_intermod/sub_tab_2_future/gui_44_last.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_4_intermod/sub_tab_2_future/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_5_sweeping/sub_tab_0_bands/gui_bands.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_5_sweeping/sub_tab_0_bands/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_5_sweeping/sub_tab_0_bands/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝❌🔴 Arrr, the code be capsized! The error be: Module 'gui_configureation' needs a class that inherits from 'ttk.Frame' or a 'create_yo_button_frame' function. | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝❌🔴 Arrr, the code be capsized! The error be: module 'tkinter' has no attribute 'frame' | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_5_sweeping/sub_tab_2_statistical/gui_child_2_statistical.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_5_sweeping/sub_tab_2_statistical/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_5_sweeping/sub_tab_2_statistical/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_6_graphing/sub_tab_1_from_file/gui_child1_from_file.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_6_graphing/sub_tab_1_from_file/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_6_graphing/sub_tab_1_from_file/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_6_graphing/sub_tab_2_3d/gui_3d.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_6_graphing/sub_tab_2_3d/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_6_graphing/sub_tab_2_3d/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | tab_7_exepriment/sub_tab_1_mosquitto/gui_7_experiment.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_7_exepriment/sub_tab_1_mosquitto/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'tab_7_exepriment/sub_tab_1_mosquitto/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | right_50/top_10/gui_start_pause_stop.py | 20250823.2115.1 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'right_50/top_10/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'right_50/top_10/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_1_scan/gui_scan.py | 20250823.1500.22 Function: BaseGUIFrame.__init__
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_2_monitors/gui_monitor_1_top.py | 20250823.1500.21 Function: BaseGUIFrame.__init__
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_2_monitors/gui_monitor_2_middle.py | 20250823.195100.23 Function: BaseGUIFrame.__init__
+💡📝🖥️🟢 Creating BaseGUIFrame widgets. | bottom_90/tab_2_monitors/gui_monitor_2_middle.py | 20250823.195100.23 Function: BaseGUIFrame._create_widgets
+💡📝ScanViewTab widgets created. The placeholder is ready! | bottom_90/tab_2_monitors/gui_monitor_2_middle.py | 20250823.195100.23 Function: BaseGUIFrame._create_widgets
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_2_monitors/gui_monitor_3_bottom.py | 20250823.195100.23 Function: BaseGUIFrame.__init__
+💡📝🖥️🟢 Creating BaseGUIFrame widgets. | bottom_90/tab_2_monitors/gui_monitor_3_bottom.py | 20250823.195100.23 Function: BaseGUIFrame._create_widgets
+💡📝ScanViewTab widgets created. The placeholder is ready! | bottom_90/tab_2_monitors/gui_monitor_3_bottom.py | 20250823.195100.23 Function: BaseGUIFrame._create_widgets
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_3_debug/gui_tab_3_debug.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'bottom_90/tab_3_debug/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'bottom_90/tab_3_debug/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🐐🟢 Initializing the 'MqttConductorFrame' GUI frame. This one's a masterpiece of form over function! | display/right_40/bottom_90/tab_4_conductor/gui_mqtt_conductor.py | 20250825.012459.1 Function: MqttConductorFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: '#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: '#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: '$SYS/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: '$SYS/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝❌🔴 Arrr, the code be capsized! The error be: debug_log() missing 1 required positional argument: 'console_print_func' | gui_display.py | 20250822.230500.2 Function: Application._build_child_container
+💡📝🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand! | bottom_90/tab_6_prototype/gui_prototype.py | 20250823.1500.20 Function: BaseGUIFrame.__init__
+💡📝🛠️🟢 New subscriber added for topic filter: 'bottom_90/tab_6_prototype/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: add_subscriber
+💡📝🛠️🟢 New subscriber added for topic filter: 'bottom_90/tab_6_prototype/#'. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.add_subscriber
+💡📝🖥️🟢 Entering 'main' to publish JSON datasets. | OPEN-AIR/datasets/worker_dataset_publisher.py | 20250823.2015.2 Function: dataset_publisher.main
+💡📝🔍🔵 Processing file: 'dataset_devices_amplifier_type.json' | OPEN-AIR/datasets/worker_dataset_publisher.py | 20250823.2015.2 Function: dataset_publisher.main
+💡📝🔍🔵 Processing file: 'dataset_devices_antenna_type.json' | OPEN-AIR/datasets/worker_dataset_publisher.py | 20250823.2015.2 Function: dataset_publisher.main
+💡📝🔍🔵 Processing file: 'dataset_devices_iem_mics_type.json' | OPEN-AIR/datasets/worker_dataset_publisher.py | 20250823.2015.2 Function: dataset_publisher.main
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
+💡📝❌🔴 Arrr, the code be capsized! The error be: Publish topic cannot contain wildcards. | mqtt_controller_util.py | 20250823.123548.2 Function: MqttControllerUtility.publish_message
