@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.013316.20
+# Version 20250825.151032.21
 
 import os
 import inspect
@@ -26,11 +26,11 @@ from .worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
-CURRENT_TIME = 13316
-CURRENT_TIME_HASH = 13316
-REVISION_NUMBER = 20
-current_version = "20250825.013316.20"
-current_version_hash = 5393199714000
+CURRENT_TIME = 151032
+CURRENT_TIME_HASH = 151032
+REVISION_NUMBER = 21
+current_version = "20250825.151032.21"
+current_version_hash = 63895914278400
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -93,8 +93,8 @@ class MqttDataFlattenerUtility:
         try:
             data = json.loads(payload)
             
-            # --- FIXED STIPULATION: Skip if Active is false ---
-            if isinstance(data, dict) and 'Active' in data and data['Active'].get('value') == 'false':
+            # --- Corrected logic for 'Active' status check ---
+            if topic.endswith('/Active') and isinstance(data, dict) and data.get('value') == 'false':
                 console_log(f"🟡 Skipping transaction for '{topic}' because 'Active' is false.")
                 self.clear_buffer()
                 return []
@@ -114,6 +114,7 @@ class MqttDataFlattenerUtility:
             # This is the primary trigger for a new data set.
             if self.last_unique_identifier and identifier_path != self.last_unique_identifier:
                 return self._flush_buffer(new_topic=topic, new_data=data, new_identifier=identifier_path)
+
             
             # If this is the very first message, set the first key name and buffer it
             if self.last_unique_identifier is None:

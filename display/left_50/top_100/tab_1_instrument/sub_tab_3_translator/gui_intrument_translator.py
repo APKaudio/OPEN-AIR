@@ -1,7 +1,10 @@
-# display/gui_translator.py
+MQTT_TOPIC_FILTER = "OPEN-AIR/devices/scpi"
+
+
+# display/gui_instrument_translator.py
 #
-# A GUI component for interacting with the instrument translator via MQTT.
-# This version now correctly parses the incoming JSON payload to populate the table.
+# A GUI component for editing markers, designed to handle both full data sets
+# and single-value updates intelligently via MQTT.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,7 +17,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.205035.10
+# Version 20250825.170951.1
 
 import os
 import inspect
@@ -36,22 +39,21 @@ from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250824
-CURRENT_TIME = 205035
-CURRENT_TIME_HASH = 205035
-REVISION_NUMBER = 10
-current_version = "20250824.205035.10"
-current_version_hash = 41521276988400
+CURRENT_DATE = 20250825
+CURRENT_TIME = 170951
+REVISION_NUMBER = 1
+current_version = "20250825.170951.1"
+current_version_hash = 20250825 * 170951 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
-# Removed MQTT_TOPIC_CONFIG_REQUEST to be replaced by the entry box value
-MQTT_TOPIC_TRANSLATOR = "Root: Instrument"
-MQTT_TOPIC_FILTER = "OPEN-AIR/devices/scpi/COMMANDS"
 
-class TranslatorGUI(ttk.Frame):
+
+
+
+class gui_instrument_translator(ttk.Frame):
     """
     A GUI component for interacting with the instrument translator via MQTT.
     """
@@ -59,7 +61,7 @@ class TranslatorGUI(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
 
         debug_log(
-            message="🖥️🟢 Initializing the Translator GUI.",
+            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -86,57 +88,36 @@ class TranslatorGUI(ttk.Frame):
             self.topic_entry = ttk.Entry(topic_frame, width=80)
             self.topic_entry.insert(0, MQTT_TOPIC_FILTER)
             self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-
-            # --- MQTT Buttons Section ---
-            mqtt_frame = ttk.LabelFrame(self, text="MQTT Translator Controls")
-            mqtt_frame.pack(fill=tk.X, padx=10, pady=5)
-
-            # Button 1: Get Configuration
-            self.get_config_button = ttk.Button(
-                mqtt_frame,
-                text="Get Configuration",
-                command=self._get_config_mqtt_request
-            )
-            self.get_config_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Button 2: Test Configuration
-            self.test_config_button = ttk.Button(
-                mqtt_frame,
-                text="Test Configuration",
-                command=lambda: self._publish_translator_message("TEST_CONFIG", "request")
-            )
-            self.test_config_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Button 3: Subscribe to Commands
-            self.subscribe_button = ttk.Button(
-                mqtt_frame,
-                text="Subscribe to Commands",
-                command=self._subscribe_to_topic
-            )
-            self.subscribe_button.pack(side=tk.LEFT, padx=5, pady=5)
             
-            # Button 4: Export to CSV
+            # --- MQTT Message Log Table ---
+            self.table_frame = ttk.Frame(self)
+            self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+            horizontal_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.HORIZONTAL)
+            self.commands_table = ttk.Treeview(self.table_frame, xscrollcommand=horizontal_scrollbar.set, show="headings", style="Custom.Treeview")
+            horizontal_scrollbar.config(command=self.commands_table.xview)
+            
+            vertical_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
+            self.commands_table.config(yscrollcommand=vertical_scrollbar.set)
+
+            horizontal_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+            vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+            self.mqtt_util.add_subscriber(topic_filter=f"{self.topic_entry.get()}/#", callback_func=self._on_commands_message)
+
+            # --- File Controls Section ---
+            file_frame = ttk.LabelFrame(self, text="File")
+            file_frame.pack(fill=tk.X, padx=10, pady=5)
+           
+            # Button: Export to CSV
             self.export_button = ttk.Button(
-                mqtt_frame,
+                file_frame,
                 text="Export to CSV",
                 command=self._export_table_data
             )
             self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-            # --- MQTT Message Log Table ---
-            self.table_frame = ttk.Frame(self)
-            self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-            # The table is now created dynamically on the first data payload.
-            self.commands_table = ttk.Treeview(self.table_frame, show="headings", style="Custom.Treeview")
-            self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-            table_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
-            self.commands_table.configure(yscrollcommand=table_scrollbar.set)
-            table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
-            # Initial subscription is now done via a dedicated method.
-            self._subscribe_to_topic()
 
             # --- Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
@@ -150,7 +131,7 @@ class TranslatorGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Translator GUI initialized successfully!")
+            console_log("✅ Instrument Translator GUI initialized successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -162,25 +143,6 @@ class TranslatorGUI(ttk.Frame):
                 console_print_func=console_log
             )
     
-    def _subscribe_to_topic(self):
-        """
-        Subscribes to the MQTT topic specified in the topic entry box.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        topic_filter = f"{self.topic_entry.get()}/#"
-        try:
-            self.mqtt_util.add_subscriber(topic_filter=topic_filter, callback_func=self._on_commands_message)
-            console_log(f"✅ Subscribed to MQTT topic: '{topic_filter}'")
-        except Exception as e:
-            console_log(f"❌ Error subscribing to topic: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
     def _apply_styles(self, theme_name: str):
         """
         Applies the specified theme to the GUI elements using ttk.Style.
@@ -189,14 +151,12 @@ class TranslatorGUI(ttk.Frame):
         style = ttk.Style(self)
         style.theme_use("clam")
 
-        # General widget styling
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
         style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
         style.map('TButton', background=[('active', colors["secondary"])])
         
-        # Treeview styling for the new table
         style.configure('Custom.Treeview',
                         background=colors["table_bg"],
                         foreground=colors["table_fg"],
@@ -210,68 +170,6 @@ class TranslatorGUI(ttk.Frame):
                         relief=colors["relief"],
                         borderwidth=colors["border_width"])
 
-    def _get_config_mqtt_request(self):
-        """
-        Publishes a message to the specific MQTT topic for a configuration request.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        self.commands_table.delete(*self.commands_table.get_children())
-        self.data_flattener.clear_buffer()
-        console_log("Clearing table and data buffer before requesting new data...")
-
-        topic_parts = self.topic_entry.get().split("/")
-        root_topic = topic_parts[0]
-        subtopic = "/".join(topic_parts[1:])
-        message = "request"
-
-        debug_log(
-            message=f"🖥️🟢 Publishing '{message}' to specific MQTT topic '{root_topic}/{subtopic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            self.mqtt_util.publish_message(topic=root_topic, subtopic=subtopic, value=message)
-            console_log(f"✅ Command '{message}' published successfully to '{root_topic}/{subtopic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _publish_translator_message(self, child_topic: str, message: str):
-        """
-        Publishes a message to the instrument translator topic with a specific child topic.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        parent_topic = MQTT_TOPIC_TRANSLATOR
-        
-        debug_log(
-            message=f"🖥️🟢 Publishing '{message}' to MQTT topic '{parent_topic}/{child_topic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            self.mqtt_util.publish_message(topic=parent_topic, subtopic=f"TRANSLATOR/{child_topic}", value=message)
-            console_log(f"✅ Command '{message}' published successfully to '{parent_topic}/TRANSLATOR/{child_topic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
     def _on_commands_message(self, topic, payload):
         """
         Callback for when an MQTT message is received on the commands topic.
@@ -280,7 +178,7 @@ class TranslatorGUI(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         
         debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message one-by-one...",
+            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
             file=self.current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -294,24 +192,38 @@ class TranslatorGUI(ttk.Frame):
                 topic_prefix=self.topic_entry.get()
             )
 
-            # Check if the utility returned a non-empty list of rows
+            # The GUI's job is to simply react to the flattener's output.
             if pivoted_rows:
-                # Dynamically configure columns if this is the first data payload
+                # Dynamically configure columns ONLY IF this is the first data payload.
                 if not self.commands_table["columns"]:
                     new_headers = list(pivoted_rows[0].keys())
-                    self.commands_table["columns"] = new_headers
-                
-                    # Set headings for the new columns
+                    self.commands_table["columns"] = tuple(new_headers)
                     for col in new_headers:
                         self.commands_table.heading(col, text=col.replace("_", " ").title())
-                        # Adjust column widths if necessary
                         self.commands_table.column(col, width=150, stretch=True)
-                
-                # Insert the new pivoted data at the end of the table
-                for row in pivoted_rows:
-                    self.commands_table.insert('', tk.END, values=list(row.values()))
 
-                console_log("✅ Commands table updated with new, beautifully-pivoted data!")
+                # Iterate through each row of the new data to update or add
+                for row in pivoted_rows:
+                    parameter_path = row.get("Parameter")
+                    
+                    # Find if a row with this Parameter already exists
+                    item_id_to_update = None
+                    for item_id in self.commands_table.get_children():
+                        row_values = self.commands_table.item(item_id, 'values')
+                        if row_values and row_values[0] == parameter_path:
+                            item_id_to_update = item_id
+                            break
+                    
+                    if item_id_to_update:
+                        # Update the existing row
+                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
+                        self.commands_table.item(item_id_to_update, values=new_values)
+                        console_log(f"✅ Updated existing row for '{parameter_path}'.")
+                    else:
+                        # Insert a new row if it doesn't exist
+                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
+                        self.commands_table.insert('', tk.END, values=new_values)
+                        console_log(f"✅ Added new row for '{parameter_path}'.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -322,6 +234,14 @@ class TranslatorGUI(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+            
+    def _update_table_intelligently(self, topic: str, payload: str):
+        """
+        This function is now deprecated and is no longer used by the new workflow.
+        All updates are handled by the data flattener.
+        """
+        # This function is now deprecated and will not be used.
+        pass
 
     def _export_table_data(self):
         """
@@ -369,9 +289,8 @@ class TranslatorGUI(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Translator GUI Test")
+    root.title("Instrument Translator Test")
     
-    # This is a temporary placeholder for logging functions to make the file runnable
     def mock_debug_log(message, file, version, function, console_print_func):
         print(f"DEBUG: {message}")
 
@@ -379,63 +298,69 @@ if __name__ == "__main__":
         print(f"CONSOLE: {message}")
 
     class MockMqttControllerUtility:
-        def __init__(self, print_to_gui_func, log_treeview_func):
+        def __init__(self, print_to_gui_func):
             self.subscribers = {}
         def connect_mqtt(self):
             print("Mock MQTT connected.")
         def add_subscriber(self, topic_filter, callback_func):
             self.subscribers[topic_filter] = callback_func
-        def publish_message(self, topic, subtopic, value):
-            print(f"Mock MQTT published: {topic}/{subtopic} with value '{value}'")
+        def publish_message(self, topic, subtopic=None, value=None):
+            if subtopic:
+                full_topic = f"{topic}/{subtopic}"
+            else:
+                full_topic = topic
+            print(f"Mock MQTT published: {full_topic} with value '{value}'")
     
-    # Mocking the `worker_file_csv_export` to run the example
     class MockCsvExportUtility:
         def __init__(self, print_to_gui_func):
             pass
         def export_data_to_csv(self, data, file_path):
             print(f"Mock export to CSV: {len(data)} rows exported to {file_path}")
 
-    # Override the imports with our mocks
-    sys.modules['workers.worker_logging'] = type('Module', (), {'debug_log': mock_debug_log, 'console_log': mock_console_log})
-    sys.modules['workers.mqtt_controller_util'] = MockMqttControllerUtility
-    sys.modules['workers.worker_file_csv_export'] = MockCsvExportUtility
-    
-    # This is a mock implementation of the data flattening and pivoting
-    # It simulates the expected output for the `_on_commands_message` function
     class MockMqttDataFlattenerUtility:
         def __init__(self, print_to_gui_func):
             self._print_to_gui_console = print_to_gui_func
             self.data_buffer = {}
-            
+            self.first_key_name = None
+
         def clear_buffer(self):
             self.data_buffer = {}
+            self.first_key_name = None
 
         def process_mqtt_message_and_pivot(self, topic: str, payload: str, topic_prefix: str) -> list:
-            self.data_buffer[topic] = payload
-            if topic.endswith('validated_value'):
-                # Simulate the pivoting process
+            # Simple mock to simulate different payloads for testing
+            if "N9340B" in topic:
                 mock_pivoted_data = [
                     {
-                        "Topic": "OPEN-AIR/devices/scpi/COMMANDS/AMPLITUDE/DO/ATTENUATION/POWER/0DB",
-                        "Parameter": "AMPLITUDE/DO/ATTENUATION/POWER/0DB/ANY/ANY",
-                        "default_value": "0",
-                        "VISA_Command_value": ":POWer:ATTenuation",
-                        "validated_value": "NOT YET"
+                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9340B",
+                        "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF",
+                        "validated": "NOT YET"
                     }
                 ]
-                # Reset the buffer
-                self.data_buffer = {}
-                return mock_pivoted_data
-            return []
+            else:
+                mock_pivoted_data = [
+                    {
+                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9342CN",
+                        "Active": "true",
+                        "Default_value": "OFF",
+                        "VISA_Command": ":POWer:HSENsitive",
+                        "validated": "NOT YET"
+                    }
+                ]
+            return mock_pivoted_data
 
+    # Override the imports with mocks
+    sys.modules['workers.worker_logging'] = type('Module', (), {'debug_log': mock_debug_log, 'console_log': mock_console_log})
+    sys.modules['workers.mqtt_controller_util'] = MockMqttControllerUtility
+    sys.modules['workers.worker_file_csv_export'] = MockCsvExportUtility
     sys.modules['workers.worker_mqtt_data_flattening'] = MockMqttDataFlattenerUtility
     
-    # Re-import the class now that the mocks are in place
-    from .gui_translator import TranslatorGUI
+    from display.styling.style import THEMES, DEFAULT_THEME
     
-    mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log, log_treeview_func=lambda *args: None)
+    
+    mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log)
     mqtt_utility.connect_mqtt()
 
-    app_frame = TranslatorGUI(parent=root, mqtt_util=mqtt_utility)
-
+    app_frame = gui_instrument_translator(parent=root, mqtt_util=mqtt_utility)
+    
     root.mainloop()

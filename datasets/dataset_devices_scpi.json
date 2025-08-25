@@ -8,7 +8,7 @@
                             "0DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "0",
+                                        "Active": true, "Default_value": "0",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -17,7 +17,7 @@
                             "10DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "10",
+                                        "Active": true, "Default_value": "10",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -26,7 +26,7 @@
                             "20DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "20",
+                                        "Active": true, "Default_value": "20",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -35,7 +35,7 @@
                             "30DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "30",
+                                        "Active": true, "Default_value": "30",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -44,7 +44,7 @@
                             "40DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "40",
+                                        "Active": true, "Default_value": "40",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -53,7 +53,7 @@
                             "50DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "50",
+                                        "Active": true, "Default_value": "50",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -62,7 +62,7 @@
                             "60DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "60",
+                                        "Active": true, "Default_value": "60",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -71,7 +71,7 @@
                             "70DB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "70",
+                                        "Active": true, "Default_value": "70",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -82,7 +82,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":POWer:ATTenuation:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -91,7 +91,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":POWer:ATTenuation:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -104,7 +104,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":INPut:ATTenuation:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -113,7 +113,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":INPut:ATTenuation:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -126,7 +126,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":POWer:GAIN",
                                         "validated": "NOT YET"
                                     }
@@ -135,7 +135,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":POWer:GAIN",
                                         "validated": "NOT YET"
                                     }
@@ -152,7 +152,7 @@
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":POWer:HSENsitive",
                                         "validated": "NOT YET"
                                     }
@@ -165,7 +165,7 @@
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":POWer:HSENsitive",
                                         "validated": "NOT YET"
                                     }
@@ -178,7 +178,7 @@
                             "-10": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-10",
+                                        "Active": true, "Default_value": "-10",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -187,7 +187,7 @@
                             "-100": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-100",
+                                        "Active": true, "Default_value": "-100",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -196,7 +196,7 @@
                             "-105": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-105",
+                                        "Active": true, "Default_value": "-105",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -205,7 +205,7 @@
                             "-110": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-110",
+                                        "Active": true, "Default_value": "-110",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -214,7 +214,7 @@
                             "-115": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-115",
+                                        "Active": true, "Default_value": "-115",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -223,7 +223,7 @@
                             "-120": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-120",
+                                        "Active": true, "Default_value": "-120",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -232,7 +232,7 @@
                             "-15": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-15",
+                                        "Active": true, "Default_value": "-15",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -241,7 +241,7 @@
                             "-20": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-20",
+                                        "Active": true, "Default_value": "-20",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -250,7 +250,7 @@
                             "-25": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-25",
+                                        "Active": true, "Default_value": "-25",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -259,7 +259,7 @@
                             "-30": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-30",
+                                        "Active": true, "Default_value": "-30",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -268,7 +268,7 @@
                             "-35": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-35",
+                                        "Active": true, "Default_value": "-35",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -277,7 +277,7 @@
                             "-40": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-40",
+                                        "Active": true, "Default_value": "-40",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -286,7 +286,7 @@
                             "-45": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-45",
+                                        "Active": true, "Default_value": "-45",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -295,7 +295,7 @@
                             "-5": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-5",
+                                        "Active": true, "Default_value": "-5",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -304,7 +304,7 @@
                             "-50": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-50",
+                                        "Active": true, "Default_value": "-50",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -313,7 +313,7 @@
                             "-55": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-55",
+                                        "Active": true, "Default_value": "-55",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -322,7 +322,7 @@
                             "-60": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-60",
+                                        "Active": true, "Default_value": "-60",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -331,7 +331,7 @@
                             "-65": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-65",
+                                        "Active": true, "Default_value": "-65",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -340,7 +340,7 @@
                             "-70": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-70",
+                                        "Active": true, "Default_value": "-70",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -349,7 +349,7 @@
                             "-75": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-75",
+                                        "Active": true, "Default_value": "-75",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -358,7 +358,7 @@
                             "-80": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-80",
+                                        "Active": true, "Default_value": "-80",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -367,7 +367,7 @@
                             "-85": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-85",
+                                        "Active": true, "Default_value": "-85",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -376,7 +376,7 @@
                             "-90": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-90",
+                                        "Active": true, "Default_value": "-90",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -385,7 +385,7 @@
                             "-95": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "-95",
+                                        "Active": true, "Default_value": "-95",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -394,7 +394,7 @@
                             "0": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "0",
+                                        "Active": true, "Default_value": "0",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -407,7 +407,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":INPut:GAIN:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -416,7 +416,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":INPut:GAIN:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -431,7 +431,7 @@
                             "AUTO": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":INPut:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -442,7 +442,7 @@
                             "STATE": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":INPut:GAIN:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -453,7 +453,7 @@
                             "ATTENUATION": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":POWer:ATTenuation",
                                         "validated": "NOT YET"
                                     }
@@ -462,7 +462,7 @@
                             "GAIN": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":POWer:GAIN",
                                         "validated": "NOT YET"
                                     }
@@ -475,7 +475,7 @@
                             "Y": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated": "NOT YET"
                                     }
@@ -490,12 +490,12 @@
                             "HIGH SENSITIVE": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?",
                                         "validated": "NOT YET"
                                     }
@@ -514,7 +514,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":AVER:TRAC1:STAT",
                                         "validated": "NOT YET"
                                     }
@@ -523,7 +523,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":AVER:TRAC1:STAT",
                                         "validated": "NOT YET"
                                     }
@@ -535,10 +535,10 @@
                 "NAB": {
                     "TRACE": {
                         "STAT_COUNT": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":AVER:TRAC1:STAT?;:AVER:TRAC1:COUNT?",
                                         "validated": "NOT YET"
                                     }
@@ -550,10 +550,10 @@
                 "SET": {
                     "TRACE": {
                         "STAT_COUNT": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "25",
+                                        "Active": true, "Default_value": "25",
                                         "VISA_Command": ":AVER:TRAC1:COUNT",
                                         "validated": "NOT YET"
                                     }
@@ -572,7 +572,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":SENSe:BANDwidth:RESolution:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -585,7 +585,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -594,7 +594,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -609,7 +609,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:BANDwidth:RESolution",
                                         "validated": "NOT YET"
                                     }
@@ -622,7 +622,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:BANDwidth:VIDeo",
                                         "validated": "NOT YET"
                                     }
@@ -631,7 +631,7 @@
                             "AUTO": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -643,10 +643,10 @@
                 "NAB": {
                     "VBW": {
                         "SETTINGS": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "5",
+                                        "Active": true, "Default_value": "5",
                                         "VISA_Command": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?",
                                         "validated": "NOT YET"
                                     }
@@ -658,10 +658,10 @@
                 "SET": {
                     "VBW": {
                         "RESOLUTION": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "1000000",
+                                        "Active": true, "Default_value": "1000000",
                                         "VISA_Command": ":SENSe:BANDwidth:RESolution",
                                         "validated": "NOT YET"
                                     }
@@ -669,10 +669,10 @@
                             }
                         },
                         "VIDEO": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "1000000",
+                                        "Active": true, "Default_value": "1000000",
                                         "VISA_Command": ":SENSe:BANDwidth:VIDeo",
                                         "validated": "NOT YET"
                                     }
@@ -688,10 +688,10 @@
                 "BEG": {
                     "MEH": {
                         "CENTER-SPAN": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": "root/Action/instance/Manufacturer/device Model",
                                         "validated": "NOT YET"
                                     }
@@ -699,10 +699,10 @@
                             }
                         },
                         "START-STOP": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:FREQuency:STARt?;:FREQuency:STOP?;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?;",
                                         "validated": "NOT YET"
                                     }
@@ -717,7 +717,7 @@
                             "MEH": {
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "0",
+                                        "Active": true, "Default_value": "0",
                                         "VISA_Command": ":INPut:RFSense:FREQuency:SHIFt",
                                         "validated": "NOT YET"
                                     }
@@ -730,7 +730,7 @@
                             "FAST": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "FAST",
+                                        "Active": true, "Default_value": "FAST",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -739,7 +739,7 @@
                             "NORMAL": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "NORMAL",
+                                        "Active": true, "Default_value": "NORMAL",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -752,7 +752,7 @@
                             "LINEAR": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "LINear",
+                                        "Active": true, "Default_value": "LINear",
                                         "VISA_Command": ":SENSe:X:SPACing LINear",
                                         "validated": "NOT YET"
                                     }
@@ -765,7 +765,7 @@
                             "OFF": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":SENSe:SWEep:TDMode",
                                         "validated": "NOT YET"
                                     }
@@ -774,7 +774,7 @@
                             "ON": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":SENSe:SWEep:TDMode",
                                         "validated": "NOT YET"
                                     }
@@ -787,7 +787,7 @@
                             "AUTO OFF": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -796,7 +796,7 @@
                             "AUTO ON": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -805,7 +805,7 @@
                             "OFF": {
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -814,7 +814,7 @@
                             "ON": {
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -829,7 +829,7 @@
                             "ASK": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -842,7 +842,7 @@
                             "ASK": {
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":FREQuency:OFFSet",
                                         "validated": "NOT YET"
                                     }
@@ -853,7 +853,7 @@
                             "ASK": {
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":INPut:RFSense:FREQuency:SHIFt",
                                         "validated": "NOT YET"
                                     }
@@ -866,7 +866,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:POINts",
                                         "validated": "NOT YET"
                                     }
@@ -879,7 +879,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:FREQuency:CENTer",
                                         "validated": "NOT YET"
                                     }
@@ -890,7 +890,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:FREQuency:SPAN",
                                         "validated": "NOT YET"
                                     }
@@ -901,7 +901,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":FREQuency:STARt",
                                         "validated": "NOT YET"
                                     }
@@ -912,7 +912,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":FREQuency:STOP",
                                         "validated": "NOT YET"
                                     }
@@ -925,7 +925,7 @@
                             "ASK": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:TDMode",
                                         "validated": "NOT YET"
                                     }
@@ -938,14 +938,14 @@
                             "ASK": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:TIME",
                                         "validated": "NOT YET"
                                     }
                                 },
                                 "Keysight Technologies": {
                                     "N9342CN": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:TIME",
                                         "validated": "NOT YET"
                                     }
@@ -954,7 +954,7 @@
                             "AUTO": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SENSe:SWEep:TIME:AUTO",
                                         "validated": "NOT YET"
                                     }
@@ -969,7 +969,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?",
                                         "validated": "NOT YET"
                                     }
@@ -978,11 +978,11 @@
                         }
                     },
                     "START-STOP": {
-                        "Value": {
+                        "Active": true, "Default_value": {
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?",
                                         "validated": "NOT YET"
                                     }
@@ -993,11 +993,11 @@
                 },
                 "RIG": {
                     "CENTER-SPAN": {
-                        "Value": {
+                        "Active": true, "Default_value": {
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222;",
                                         "validated": "NOT YET"
                                     }
@@ -1006,11 +1006,11 @@
                         }
                     },
                     "START-STOP": {
-                        "Value": {
+                        "Active": true, "Default_value": {
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222",
                                         "validated": "NOT YET"
                                     }
@@ -1021,11 +1021,11 @@
                 },
                 "SET": {
                     "CENTER": {
-                        "Value": {
-                            "Value": {
+                        "Active": true, "Default_value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "1000",
+                                        "Active": true, "Default_value": "1000",
                                         "VISA_Command": ":SENSe:FREQuency:CENTer",
                                         "validated": "NOT YET"
                                     }
@@ -1034,11 +1034,11 @@
                         }
                     },
                     "SPAN": {
-                        "Value": {
-                            "Value": {
+                        "Active": true, "Default_value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "1000",
+                                        "Active": true, "Default_value": "1000",
                                         "VISA_Command": ":SENSe:FREQuency:SPAN",
                                         "validated": "NOT YET"
                                     }
@@ -1047,11 +1047,11 @@
                         }
                     },
                     "START": {
-                        "Value": {
-                            "Value": {
+                        "Active": true, "Default_value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "1000",
+                                        "Active": true, "Default_value": "1000",
                                         "VISA_Command": ":FREQuency:STARt",
                                         "validated": "NOT YET"
                                     }
@@ -1060,11 +1060,11 @@
                         }
                     },
                     "STOP": {
-                        "Value": {
-                            "Value": {
+                        "Active": true, "Default_value": {
+                            "Active": true, "Default_value": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "2000",
+                                        "Active": true, "Default_value": "2000",
                                         "VISA_Command": ":FREQuency:STOP",
                                         "validated": "NOT YET"
                                     }
@@ -1074,10 +1074,10 @@
                     },
                     "TIME": {
                         "SWEEP": {
-                            "Value": {
+                            "Active": true, "Default_value": {
                                 "Agilent Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":SENSe:SWEep:TIME",
                                         "validated": "NOT YET"
                                     }
@@ -1092,11 +1092,11 @@
             "INITIATE": {
                 "DO": {
                     "CONTINUOUS": {
-                        "Value": {
+                        "Active": true, "Default_value": {
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "Off",
+                                        "Active": true, "Default_value": "Off",
                                         "VISA_Command": ":INITiate:CONTinuous",
                                         "validated": "NOT YET"
                                     }
@@ -1121,7 +1121,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":INITiate:CONTinuous",
                                         "validated": "NOT YET"
                                     }
@@ -1136,7 +1136,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":INITiate:CONTinuous",
                                         "validated": "NOT YET"
                                     }
@@ -1155,7 +1155,7 @@
                             "BEG": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "6",
+                                        "Active": true, "Default_value": "6",
                                         "VISA_Command": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111;:CALCulate:MARKer2:X 222;:CALCulate:MARKer3:X 333;:CALCulate:MARKer4:X 444;:CALCulate:MARKer5:X 555;:CALCulate:MARKer6:X 666;:CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?",
                                         "validated": "NOT YET"
                                     }
@@ -1270,7 +1270,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer1:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1279,7 +1279,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer1:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1290,7 +1290,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer2:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1299,7 +1299,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer2:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1310,7 +1310,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer3:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1319,7 +1319,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer3:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1330,7 +1330,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer4:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1339,7 +1339,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer4:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1350,7 +1350,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer5:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1359,7 +1359,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer5:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1370,7 +1370,7 @@
                             "OFF": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "OFF",
+                                        "Active": true, "Default_value": "OFF",
                                         "VISA_Command": ":CALCulate:MARKer6:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1379,7 +1379,7 @@
                             "ON": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "ON",
+                                        "Active": true, "Default_value": "ON",
                                         "VISA_Command": ":CALCulate:MARKer6:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1424,7 +1424,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer1:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1433,7 +1433,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer2:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1442,7 +1442,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer3:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1451,7 +1451,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer4:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1460,7 +1460,7 @@
                             "5": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer5:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1469,7 +1469,7 @@
                             "6": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer6:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1480,7 +1480,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer1:X",
                                         "validated": "NOT YET"
                                     }
@@ -1489,7 +1489,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer2:X",
                                         "validated": "NOT YET"
                                     }
@@ -1498,7 +1498,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer3:X",
                                         "validated": "NOT YET"
                                     }
@@ -1507,7 +1507,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer4:X",
                                         "validated": "NOT YET"
                                     }
@@ -1516,7 +1516,7 @@
                             "5": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer5:X",
                                         "validated": "NOT YET"
                                     }
@@ -1525,7 +1525,7 @@
                             "6": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer6:X",
                                         "validated": "NOT YET"
                                     }
@@ -1536,7 +1536,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer1:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1545,7 +1545,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer2:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1554,7 +1554,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer3:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1563,7 +1563,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer4:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1572,7 +1572,7 @@
                             "5": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer5:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1581,7 +1581,7 @@
                             "6": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":CALCulate:MARKer6:Y",
                                         "validated": "NOT YET"
                                     }
@@ -1596,7 +1596,7 @@
                             "NAB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "6",
+                                        "Active": true, "Default_value": "6",
                                         "VISA_Command": ":CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer1:X?",
                                         "validated": "NOT YET"
                                     }
@@ -1607,7 +1607,7 @@
                             "NAB": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "6",
+                                        "Active": true, "Default_value": "6",
                                         "VISA_Command": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer1:Y?",
                                         "validated": "NOT YET"
                                     }
@@ -1622,7 +1622,7 @@
                             "SET ": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": ":CALCulate:MARKer2:X 222",
+                                        "Active": true, "Default_value": ":CALCulate:MARKer2:X 222",
                                         "VISA_Command": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111",
                                         "validated": "NOT YET"
                                     }
@@ -1637,7 +1637,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "111111",
+                                        "Active": true, "Default_value": "111111",
                                         "VISA_Command": ":CALCulate:MARKer1:X",
                                         "validated": "NOT YET"
                                     }
@@ -1646,7 +1646,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "222222",
+                                        "Active": true, "Default_value": "222222",
                                         "VISA_Command": ":CALCulate:MARKer2:X",
                                         "validated": "NOT YET"
                                     }
@@ -1655,7 +1655,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "333333",
+                                        "Active": true, "Default_value": "333333",
                                         "VISA_Command": ":CALCulate:MARKer3:X",
                                         "validated": "NOT YET"
                                     }
@@ -1664,7 +1664,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "444444",
+                                        "Active": true, "Default_value": "444444",
                                         "VISA_Command": ":CALCulate:MARKer4:X",
                                         "validated": "NOT YET"
                                     }
@@ -1673,7 +1673,7 @@
                             "5": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "555555",
+                                        "Active": true, "Default_value": "555555",
                                         "VISA_Command": ":CALCulate:MARKer5:X",
                                         "validated": "NOT YET"
                                     }
@@ -1682,7 +1682,7 @@
                             "6": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "666666",
+                                        "Active": true, "Default_value": "666666",
                                         "VISA_Command": ":CALCulate:MARKer6:X",
                                         "validated": "NOT YET"
                                     }
@@ -1701,7 +1701,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":MMEMory:CATalog:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1716,7 +1716,7 @@
                             "MEH": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "0",
+                                        "Active": true, "Default_value": "0",
                                         "VISA_Command": ":MMEMory:LOAD:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1729,7 +1729,7 @@
                             "MEH": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "0",
+                                        "Active": true, "Default_value": "0",
                                         "VISA_Command": ":MMEMory:STORe:STATe",
                                         "validated": "NOT YET"
                                     }
@@ -1784,7 +1784,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":SYSTem:ERRor",
                                         "validated": "NOT YET"
                                     }
@@ -1795,7 +1795,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": "ANYIDN",
                                         "validated": "NOT YET"
                                     }
@@ -1814,12 +1814,12 @@
                             "1": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe1:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE1",
                                         "validated": "NOT YET"
                                     }
@@ -1828,12 +1828,12 @@
                             "2": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe2:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE2",
                                         "validated": "NOT YET"
                                     }
@@ -1842,12 +1842,12 @@
                             "3": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe3:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE3",
                                         "validated": "NOT YET"
                                     }
@@ -1856,12 +1856,12 @@
                             "4": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe4:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "2",
+                                        "Active": true, "Default_value": "2",
                                         "VISA_Command": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE4",
                                         "validated": "NOT YET"
                                     }
@@ -1874,7 +1874,7 @@
                             "SET": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "4",
+                                        "Active": true, "Default_value": "4",
                                         "VISA_Command": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?",
                                         "validated": "NOT YET"
                                     }
@@ -1889,12 +1889,12 @@
                             "ASCII": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "ASCii",
+                                        "Active": true, "Default_value": "ASCii",
                                         "VISA_Command": ":FORMat:DATA",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "ASCii",
+                                        "Active": true, "Default_value": "ASCii",
                                         "VISA_Command": ":TRACe:FORMat:DATA",
                                         "validated": "NOT YET"
                                     }
@@ -1907,7 +1907,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "BLANk",
+                                        "Active": true, "Default_value": "BLANk",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1916,7 +1916,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "BLANk",
+                                        "Active": true, "Default_value": "BLANk",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1925,7 +1925,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "BLANk",
+                                        "Active": true, "Default_value": "BLANk",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1934,7 +1934,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "BLANk",
+                                        "Active": true, "Default_value": "BLANk",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1945,7 +1945,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MAXHold",
+                                        "Active": true, "Default_value": "MAXHold",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1954,7 +1954,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MAXHold",
+                                        "Active": true, "Default_value": "MAXHold",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1963,7 +1963,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MAXHold",
+                                        "Active": true, "Default_value": "MAXHold",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1972,7 +1972,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MAXHold",
+                                        "Active": true, "Default_value": "MAXHold",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1983,7 +1983,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MINHold",
+                                        "Active": true, "Default_value": "MINHold",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -1992,7 +1992,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MINHold",
+                                        "Active": true, "Default_value": "MINHold",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2001,7 +2001,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MINHold",
+                                        "Active": true, "Default_value": "MINHold",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2010,7 +2010,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "MINHold",
+                                        "Active": true, "Default_value": "MINHold",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2021,7 +2021,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "VIEW",
+                                        "Active": true, "Default_value": "VIEW",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2030,7 +2030,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "VIEW",
+                                        "Active": true, "Default_value": "VIEW",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2039,7 +2039,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "VIEW",
+                                        "Active": true, "Default_value": "VIEW",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2048,7 +2048,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "VIEW",
+                                        "Active": true, "Default_value": "VIEW",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2059,7 +2059,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "WRITe",
+                                        "Active": true, "Default_value": "WRITe",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2068,7 +2068,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "WRITe",
+                                        "Active": true, "Default_value": "WRITe",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2077,7 +2077,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "WRITe",
+                                        "Active": true, "Default_value": "WRITe",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2086,7 +2086,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "WRITe",
+                                        "Active": true, "Default_value": "WRITe",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2101,7 +2101,7 @@
                             "1": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRACe1:DATA",
                                         "validated": "NOT YET"
                                     },
@@ -2114,7 +2114,7 @@
                             "2": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRACe2:DATA",
                                         "validated": "NOT YET"
                                     },
@@ -2127,7 +2127,7 @@
                             "3": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRACe3:DATA",
                                         "validated": "NOT YET"
                                     },
@@ -2140,7 +2140,7 @@
                             "4": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRACe4:DATA",
                                         "validated": "NOT YET"
                                     },
@@ -2157,7 +2157,7 @@
                             "1": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRAC1:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2166,7 +2166,7 @@
                             "2": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRAC2:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2175,7 +2175,7 @@
                             "3": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRAC3:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2184,7 +2184,7 @@
                             "4": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":TRAC4:MODE",
                                         "validated": "NOT YET"
                                     }
@@ -2197,7 +2197,7 @@
                             "DISPLAY": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "?",
+                                        "Active": true, "Default_value": "?",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:TYPE",
                                         "validated": "NOT YET"
                                     }
@@ -2212,7 +2212,7 @@
                             "ASK": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "4",
+                                        "Active": true, "Default_value": "4",
                                         "VISA_Command": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?",
                                         "validated": "NOT YET"
                                     }
@@ -2223,12 +2223,12 @@
                             "1": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE1",
                                         "validated": "NOT YET"
                                     }
@@ -2237,12 +2237,12 @@
                             "2": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe2:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE2",
                                         "validated": "NOT YET"
                                     }
@@ -2251,12 +2251,12 @@
                             "3": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe3:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE3",
                                         "validated": "NOT YET"
                                     }
@@ -2265,12 +2265,12 @@
                             "4": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe4:DATA?",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "3",
+                                        "Active": true, "Default_value": "3",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE4",
                                         "validated": "NOT YET"
                                     }
@@ -2283,12 +2283,12 @@
                             "ALL": {
                                 "Keysight Technologies": {
                                     "N9340B": {
-                                        "Value": "8",
+                                        "Active": true, "Default_value": "8",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?;",
                                         "validated": "NOT YET"
                                     },
                                     "N9342CN": {
-                                        "Value": "8",
+                                        "Active": true, "Default_value": "8",
                                         "VISA_Command": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;",
                                         "validated": "NOT YET"
                                     }
@@ -2303,7 +2303,7 @@
                             "SET": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "4",
+                                        "Active": true, "Default_value": "4",
                                         "VISA_Command": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444",
                                         "validated": "NOT YET"
                                     }
@@ -2318,7 +2318,7 @@
                             "DISPLAY": {
                                 "ANY": {
                                     "ANY": {
-                                        "Value": "LOGarithmic",
+                                        "Active": true, "Default_value": "LOGarithmic",
                                         "VISA_Command": ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing",
                                         "validated": "NOT YET"
                                     }

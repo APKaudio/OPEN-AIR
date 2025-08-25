@@ -1,4 +1,6 @@
+MQTT_TOPIC_FILTER = "OPEN-AIR/program/markers"
 # display/gui_marker_editor.py
+
 #
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
@@ -14,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.000814.10
+# Version 20250825.170951.1
 
 import os
 import inspect
@@ -37,29 +39,28 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
-CURRENT_TIME = 814
-CURRENT_TIME_HASH = 814
-REVISION_NUMBER = 10
-current_version = "20250825.000814.10"
-current_version_hash = 164841715500
+CURRENT_TIME = 170951
+REVISION_NUMBER = 1
+current_version = "20250825.170951.1"
+current_version_hash = 20250825 * 170951 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
-MQTT_TOPIC_TRANSLATOR = "OPEN-AIR/program/GUI/Marker/Editor"
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/markers"
+
+
 
 
 class gui_marker_editor(ttk.Frame):
     """
-    A GUI component for editing markers, interacting via MQTT.
+    A GUI component for interacting with the instrument translator via MQTT.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         current_function_name = inspect.currentframe().f_code.co_name
 
         debug_log(
-            message="🖥️🟢 Initializing the Marker Editor GUI.",
+            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -86,43 +87,7 @@ class gui_marker_editor(ttk.Frame):
             self.topic_entry = ttk.Entry(topic_frame, width=80)
             self.topic_entry.insert(0, MQTT_TOPIC_FILTER)
             self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-
-            # --- MQTT Buttons Section ---
-            mqtt_frame = ttk.LabelFrame(self, text="MQTT Controls")
-            mqtt_frame.pack(fill=tk.X, padx=10, pady=5)
-
-            # Button 1: Get Configuration
-            self.get_config_button = ttk.Button(
-                mqtt_frame,
-                text="Get Configuration",
-                command=self._get_config_mqtt_request
-            )
-            self.get_config_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Button 2: Test Configuration
-            self.test_config_button = ttk.Button(
-                mqtt_frame,
-                text="Test Configuration",
-                command=lambda: self._publish_translator_message("TEST_CONFIG", "request")
-            )
-            self.test_config_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Button 3: Subscribe to Commands
-            self.subscribe_button = ttk.Button(
-                mqtt_frame,
-                text="Subscribe to Commands",
-                command=self._subscribe_to_topic
-            )
-            self.subscribe_button.pack(side=tk.LEFT, padx=5, pady=5)
             
-            # Button 4: Export to CSV
-            self.export_button = ttk.Button(
-                mqtt_frame,
-                text="Export to CSV",
-                command=self._export_table_data
-            )
-            self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
-
             # --- MQTT Message Log Table ---
             self.table_frame = ttk.Frame(self)
             self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
@@ -138,7 +103,20 @@ class gui_marker_editor(ttk.Frame):
             vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-            self._subscribe_to_topic()
+            self.mqtt_util.add_subscriber(topic_filter=f"{self.topic_entry.get()}/#", callback_func=self._on_commands_message)
+
+            # --- File Controls Section ---
+            file_frame = ttk.LabelFrame(self, text="File")
+            file_frame.pack(fill=tk.X, padx=10, pady=5)
+           
+            # Button: Export to CSV
+            self.export_button = ttk.Button(
+                file_frame,
+                text="Export to CSV",
+                command=self._export_table_data
+            )
+            self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
+
 
             # --- Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
@@ -152,7 +130,7 @@ class gui_marker_editor(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Marker Editor GUI initialized successfully!")
+            console_log("✅ Instrument Translator GUI initialized successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -164,25 +142,6 @@ class gui_marker_editor(ttk.Frame):
                 console_print_func=console_log
             )
     
-    def _subscribe_to_topic(self):
-        """
-        Subscribes to the MQTT topic specified in the topic entry box.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        topic_filter = f"{self.topic_entry.get()}/#"
-        try:
-            self.mqtt_util.add_subscriber(topic_filter=topic_filter, callback_func=self._on_commands_message)
-            console_log(f"✅ Subscribed to MQTT topic: '{topic_filter}'")
-        except Exception as e:
-            console_log(f"❌ Error subscribing to topic: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
     def _apply_styles(self, theme_name: str):
         """
         Applies the specified theme to the GUI elements using ttk.Style.
@@ -210,68 +169,6 @@ class gui_marker_editor(ttk.Frame):
                         relief=colors["relief"],
                         borderwidth=colors["border_width"])
 
-    def _get_config_mqtt_request(self):
-        """
-        Publishes a message to the specific MQTT topic for a configuration request.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        self.commands_table.delete(*self.commands_table.get_children())
-        self.data_flattener.clear_buffer()
-        console_log("Clearing table and data buffer before requesting new data...")
-
-        topic_parts = self.topic_entry.get().split("/")
-        root_topic = topic_parts[0]
-        subtopic = "/".join(topic_parts[1:])
-        message = "request"
-
-        debug_log(
-            message=f"🖥️🟢 Publishing '{message}' to specific MQTT topic '{root_topic}/{subtopic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            self.mqtt_util.publish_message(topic=root_topic, subtopic=subtopic, value=message)
-            console_log(f"✅ Command '{message}' published successfully to '{root_topic}/{subtopic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _publish_translator_message(self, child_topic: str, message: str):
-        """
-        Publishes a message to the instrument translator topic with a specific child topic.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        parent_topic = MQTT_TOPIC_TRANSLATOR
-        
-        debug_log(
-            message=f"🖥️🟢 Publishing '{message}' to MQTT topic '{parent_topic}/{child_topic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            self.mqtt_util.publish_message(topic=parent_topic, subtopic=f"TRANSLATOR/{child_topic}", value=message)
-            console_log(f"✅ Command '{message}' published successfully to '{parent_topic}/TRANSLATOR/{child_topic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
     def _on_commands_message(self, topic, payload):
         """
         Callback for when an MQTT message is received on the commands topic.
@@ -296,22 +193,15 @@ class gui_marker_editor(ttk.Frame):
 
             # The GUI's job is to simply react to the flattener's output.
             if pivoted_rows:
-                # Get the existing headers. The 'Parameter' header is always present.
-                current_headers = list(self.commands_table["columns"])
-                new_headers = list(pivoted_rows[0].keys())
-
-                # If the headers have changed, we need to update them
-                if new_headers != current_headers:
-                    # Clear existing headers and data before updating
-                    self.commands_table.delete(*self.commands_table.get_children())
-                    
-                    # Update the headers with the new set of keys
+                # Dynamically configure columns ONLY IF this is the first data payload.
+                if not self.commands_table["columns"]:
+                    new_headers = list(pivoted_rows[0].keys())
                     self.commands_table["columns"] = tuple(new_headers)
                     for col in new_headers:
                         self.commands_table.heading(col, text=col.replace("_", " ").title())
                         self.commands_table.column(col, width=150, stretch=True)
 
-                # Iterate through each row of the new data
+                # Iterate through each row of the new data to update or add
                 for row in pivoted_rows:
                     parameter_path = row.get("Parameter")
                     
@@ -398,7 +288,7 @@ class gui_marker_editor(ttk.Frame):
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("Marker Editor Test")
+    root.title("Instrument Translator Test")
     
     def mock_debug_log(message, file, version, function, console_print_func):
         print(f"DEBUG: {message}")
@@ -413,8 +303,12 @@ if __name__ == "__main__":
             print("Mock MQTT connected.")
         def add_subscriber(self, topic_filter, callback_func):
             self.subscribers[topic_filter] = callback_func
-        def publish_message(self, topic, subtopic, value):
-            print(f"Mock MQTT published: {topic}/{subtopic} with value '{value}'")
+        def publish_message(self, topic, subtopic=None, value=None):
+            if subtopic:
+                full_topic = f"{topic}/{subtopic}"
+            else:
+                full_topic = topic
+            print(f"Mock MQTT published: {full_topic} with value '{value}'")
     
     class MockCsvExportUtility:
         def __init__(self, print_to_gui_func):
@@ -433,18 +327,25 @@ if __name__ == "__main__":
             self.first_key_name = None
 
         def process_mqtt_message_and_pivot(self, topic: str, payload: str, topic_prefix: str) -> list:
-            mock_pivoted_data = [
-                {
-                    "Parameter": "PRESET 096",
-                    "FileName": "FileName",
-                    "NickName": "NickName"
-                },
-                {
-                    "Parameter": "PRESET 097",
-                    "FileName": "FileName",
-                    "NickName": "NickName"
-                }
-            ]
+            # Simple mock to simulate different payloads for testing
+            if "N9340B" in topic:
+                mock_pivoted_data = [
+                    {
+                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9340B",
+                        "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF",
+                        "validated": "NOT YET"
+                    }
+                ]
+            else:
+                mock_pivoted_data = [
+                    {
+                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9342CN",
+                        "Active": "true",
+                        "Default_value": "OFF",
+                        "VISA_Command": ":POWer:HSENsitive",
+                        "validated": "NOT YET"
+                    }
+                ]
             return mock_pivoted_data
 
     # Override the imports with mocks
@@ -454,11 +355,11 @@ if __name__ == "__main__":
     sys.modules['workers.worker_mqtt_data_flattening'] = MockMqttDataFlattenerUtility
     
     from display.styling.style import THEMES, DEFAULT_THEME
-    from .gui_marker_editor import gui_marker_editor
+    
     
     mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log)
     mqtt_utility.connect_mqtt()
 
-    app_frame = gui_marker_editor(parent=root, mqtt_utility=mqtt_utility)
+    app_frame = gui_marker_editor(parent=root, mqtt_util=mqtt_utility)
     
     root.mainloop()
