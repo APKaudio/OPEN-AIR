@@ -6,499 +6,421 @@
                     "ATTENUATION": {
                         "POWER": {
                             "0DB": {
-                                "default_value": "0",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "0",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "10DB": {
-                                "default_value": "10",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "10",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "20DB": {
-                                "default_value": "20",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "20",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "30DB": {
-                                "default_value": "30",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "30",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "40DB": {
-                                "default_value": "40",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "40",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "50DB": {
-                                "default_value": "50",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "50",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "60DB": {
-                                "default_value": "60",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "60",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "70DB": {
-                                "default_value": "70",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "70",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "POWER AUTO": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":POWer:ATTenuation:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":POWer:ATTenuation:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "AUTO": {
                         "ATTENUATION": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":INPut:ATTenuation:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":INPut:ATTenuation:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "GAIN": {
                         "POWER": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":POWer:GAIN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":POWer:GAIN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "HIGH SENSITIVE": {
                         "POWER": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF",
+                                        "validated_value": "NOT YET"
+                                    },
+                                    "N9342CN": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":POWer:HSENsitive",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON",
+                                        "validated_value": "NOT YET"
+                                    },
+                                    "N9342CN": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":POWer:HSENsitive",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "LEVEL": {
                         "REFERENCE": {
                             "-10": {
-                                "default_value": "-10",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-10",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-100": {
-                                "default_value": "-100",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-100",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-105": {
-                                "default_value": "-105",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-105",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-110": {
-                                "default_value": "-110",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-110",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-115": {
-                                "default_value": "-115",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-115",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-120": {
-                                "default_value": "-120",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-120",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-15": {
-                                "default_value": "-15",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-15",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-20": {
-                                "default_value": "-20",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-20",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-25": {
-                                "default_value": "-25",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-25",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-30": {
-                                "default_value": "-30",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-30",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-35": {
-                                "default_value": "-35",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-35",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-40": {
-                                "default_value": "-40",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-40",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-45": {
-                                "default_value": "-45",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-45",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-5": {
-                                "default_value": "-5",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-5",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-50": {
-                                "default_value": "-50",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-50",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-55": {
-                                "default_value": "-55",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-55",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-60": {
-                                "default_value": "-60",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-60",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-65": {
-                                "default_value": "-65",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-65",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-70": {
-                                "default_value": "-70",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-70",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-75": {
-                                "default_value": "-75",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-75",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-80": {
-                                "default_value": "-80",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-80",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-85": {
-                                "default_value": "-85",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-85",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-90": {
-                                "default_value": "-90",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-90",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "-95": {
-                                "default_value": "-95",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "-95",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "0": {
-                                "default_value": "0",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "0",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "STATE": {
                         "GAIN": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":INPut:GAIN:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":INPut:GAIN:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -507,139 +429,57 @@
                     "INPUT": {
                         "ATTENUATION": {
                             "AUTO": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":INPut:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":INPut:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "GAIN": {
                             "STATE": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":INPut:GAIN:STATe",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":INPut:GAIN:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "POWER": {
                             "ATTENUATION": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:ATTenuation",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":POWer:ATTenuation",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "GAIN": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":POWer:GAIN",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":POWer:GAIN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "REFERENCE LEVEL": {
                         "TRACE": {
                             "Y": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -648,21 +488,18 @@
                     "INPUT": {
                         "POWER": {
                             "HIGH SENSITIVE": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -675,26 +512,22 @@
                     "TRACE": {
                         "STAT": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":AVER:TRAC1:STAT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":AVER:TRAC1:STAT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -703,15 +536,13 @@
                     "TRACE": {
                         "STAT_COUNT": {
                             "VALUE": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":AVER:TRAC1:STAT?;:AVER:TRAC1:COUNT?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -720,15 +551,13 @@
                     "TRACE": {
                         "STAT_COUNT": {
                             "VALUE": {
-                                "default_value": "25",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "25",
                                         "VISA_Command_value": ":AVER:TRAC1:COUNT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -741,47 +570,35 @@
                     "RESOLUTION": {
                         "AUTO": {
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":SENSe:BANDwidth:RESolution:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "VIDEO": {
                         "AUTO": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":SENSe:BANDwidth:VIDeo:AUTO",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -790,53 +607,35 @@
                     "RBW": {
                         "RESOLUTION": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:BANDwidth:RESolution",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "VBW": {
                         "VIDEO": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":SENSe:BANDwidth:VIDeo",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:BANDwidth:VIDeo",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "AUTO": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":SENSe:BANDwidth:VIDeo:AUTO",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:BANDwidth:VIDeo:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -845,15 +644,13 @@
                     "VBW": {
                         "SETTINGS": {
                             "VALUE": {
-                                "default_value": "5",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "5",
                                         "VISA_Command_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -862,28 +659,24 @@
                     "VBW": {
                         "RESOLUTION": {
                             "VALUE": {
-                                "default_value": "1000000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "1000000",
                                         "VISA_Command_value": ":SENSe:BANDwidth:RESolution",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "VIDEO": {
                             "VALUE": {
-                                "default_value": "1000000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "1000000",
                                         "VISA_Command_value": ":SENSe:BANDwidth:VIDeo",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -893,31 +686,27 @@
         {
             "FREQUENCY": {
                 "BEG": {
-                    "": {
+                    "MEH": {
                         "CENTER-SPAN": {
                             "VALUE": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": "root/Action/instance/Manufacturer/device Model",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "START-STOP": {
                             "VALUE": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:FREQuency:STARt?;:FREQuency:STOP?;:SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?;",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -925,131 +714,111 @@
                 "DO": {
                     "0": {
                         "SHIFT": {
-                            "": {
-                                "default_value": "0",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                            "MEH": {
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "0",
                                         "VISA_Command_value": ":INPut:RFSense:FREQuency:SHIFt",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "MODE": {
                         "SWEEP": {
                             "FAST": {
-                                "default_value": "FAST",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "FAST",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "NORMAL": {
-                                "default_value": "NORMAL",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "NORMAL",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "SPACING": {
                         "SWEEP": {
                             "LINEAR": {
-                                "default_value": "LINear",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "LINear",
                                         "VISA_Command_value": ":SENSe:X:SPACing LINear",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TDMODE": {
                         "SWEEP": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":SENSe:SWEep:TDMode",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":SENSe:SWEep:TDMode",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TIME": {
                         "SWEEP": {
                             "AUTO OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "AUTO ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1058,189 +827,138 @@
                     "MODE": {
                         "SWEEP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "OFFSET": {
                         "OFFSET": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":FREQuency:OFFSet",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "SHIFT": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":INPut:RFSense:FREQuency:SHIFt",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "POINTS": {
                         "SWEEP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:SWEep:POINts",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "SENS": {
                         "CENTER": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:FREQuency:CENTer",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "SPAN": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:FREQuency:SPAN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "START": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":FREQuency:STARt",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STOP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":FREQuency:STOP",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TDMODE": {
                         "SWEEP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:SWEep:TDMode",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TIME": {
                         "SWEEP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                },
+                                "Keysight Technologies": {
+                                    "N9342CN": {
+                                        "default_value": "?",
+                                        "VISA_Command_value": ":SENSe:SWEep:TIME",
+                                        "validated_value": "NOT YET"
+                                    }
+                                }
                             },
                             "AUTO": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
-                                        "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME:AUTO",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1249,30 +967,26 @@
                     "OFFSET": {
                         "CENTER-SPAN": {
                             "ASK": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":SENSe:FREQuency:SPAN?;:SENSe:FREQuency:CENTer?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "START-STOP": {
                         "VALUE": {
                             "ASK": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1281,30 +995,26 @@
                     "CENTER-SPAN": {
                         "VALUE": {
                             "ASK": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":SENSe:FREQuency:CENTer 111;:SENSe:FREQuency:SPAN 222;",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "START-STOP": {
                         "VALUE": {
                             "ASK": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1313,75 +1023,65 @@
                     "CENTER": {
                         "VALUE": {
                             "VALUE": {
-                                "default_value": "1000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "1000",
                                         "VISA_Command_value": ":SENSe:FREQuency:CENTer",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "SPAN": {
                         "VALUE": {
                             "VALUE": {
-                                "default_value": "1000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "1000",
                                         "VISA_Command_value": ":SENSe:FREQuency:SPAN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "START": {
                         "VALUE": {
                             "VALUE": {
-                                "default_value": "1000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "1000",
                                         "VISA_Command_value": ":FREQuency:STARt",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "STOP": {
                         "VALUE": {
                             "VALUE": {
-                                "default_value": "2000",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "2000",
                                         "VISA_Command_value": ":FREQuency:STOP",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TIME": {
                         "SWEEP": {
                             "VALUE": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Agilent Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Agilent Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":SENSe:SWEep:TIME",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1394,45 +1094,38 @@
                     "CONTINUOUS": {
                         "VALUE": {
                             "OFF": {
-                                "default_value": "Off",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "Off",
                                         "VISA_Command_value": ":INITiate:CONTinuous",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "IMMEDIATE": {
                         "SCAN": {
                             "ACTION": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":INITiate:IMMediate",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "ON": {
                         "CONTINUOUS": {
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":INITiate:CONTinuous",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1441,21 +1134,13 @@
                     "CONTINUOUS": {
                         "SWEEP": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":INITiate:CONTinuous",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":INITiate:CONTinuous",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1468,15 +1153,13 @@
                     "ALL": {
                         "PLACE": {
                             "BEG": {
-                                "default_value": "6",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "6",
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111;:CALCulate:MARKer2:X 222;:CALCulate:MARKer3:X 333;:CALCulate:MARKer4:X 444;:CALCulate:MARKer5:X 555;:CALCulate:MARKer6:X 666;:CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1485,321 +1168,252 @@
                     "CALCULATE": {
                         "MAX": {
                             "1": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer1:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer2:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer3:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer4:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer5:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer6:MAX",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "NEXT": {
                             "1": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer1:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer2:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer3:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer4:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer5:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer6:NEXT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 1": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 2": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer2:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer2:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 3": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer3:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer3:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 4": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer4:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer4:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 5": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer5:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer5:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE 6": {
                             "OFF": {
-                                "default_value": "OFF",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "OFF",
                                         "VISA_Command_value": ":CALCulate:MARKer6:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "ON",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "ON",
                                         "VISA_Command_value": ":CALCulate:MARKer6:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "STATE ALL": {
                             "OFF": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "ON": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "SEARCH": {
                         "ALL": {
                             "PEAK": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -1808,206 +1422,170 @@
                     "CALCULATE": {
                         "STATE": {
                             "1": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer2:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer3:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer4:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer5:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer6:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "X": {
                             "1": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer1:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer2:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer3:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer4:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer5:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer6:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "Y": {
                             "1": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer1:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer2:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer3:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer4:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer5:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":CALCulate:MARKer6:Y",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2016,28 +1594,24 @@
                     "ALL": {
                         "X": {
                             "NAB": {
-                                "default_value": "6",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "6",
                                         "VISA_Command_value": ":CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer1:X?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "Y": {
                             "NAB": {
-                                "default_value": "6",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "6",
                                         "VISA_Command_value": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer1:Y?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2046,15 +1620,13 @@
                     "ALL": {
                         "MARKERS": {
                             "SET ": {
-                                "default_value": ":CALCulate:MARKer2:X 222",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": ":CALCulate:MARKer2:X 222",
                                         "VISA_Command_value": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X 111",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2063,70 +1635,58 @@
                     "PLACE": {
                         "X": {
                             "1": {
-                                "default_value": "111111",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "111111",
                                         "VISA_Command_value": ":CALCulate:MARKer1:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "222222",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "222222",
                                         "VISA_Command_value": ":CALCulate:MARKer2:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "333333",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "333333",
                                         "VISA_Command_value": ":CALCulate:MARKer3:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "444444",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "444444",
                                         "VISA_Command_value": ":CALCulate:MARKer4:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "5": {
-                                "default_value": "555555",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "555555",
                                         "VISA_Command_value": ":CALCulate:MARKer5:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "6": {
-                                "default_value": "666666",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "666666",
                                         "VISA_Command_value": ":CALCulate:MARKer6:X",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2139,15 +1699,13 @@
                     "CATALOG": {
                         "PRESET": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":MMEMory:CATalog:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2155,31 +1713,27 @@
                 "SET": {
                     "LOAD": {
                         "PRESET": {
-                            "": {
-                                "default_value": "0",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                            "MEH": {
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "0",
                                         "VISA_Command_value": ":MMEMory:LOAD:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "STORE": {
                         "PRESET": {
-                            "": {
-                                "default_value": "0",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                            "MEH": {
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "0",
                                         "VISA_Command_value": ":MMEMory:STORe:STATe",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2192,43 +1746,34 @@
                     "DISPLAY": {
                         "UPDATE": {
                             "UPDATE": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": ":SYSTem:DISPlay:UPDate",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "RESET": {
                         "HARD": {
                             "RESET": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": "ANYRST",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "SOFT": {
                             "RESET": {
-                                "default_value": "",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
                                         "VISA_Command_value": "SYSTem:POWer:RESet",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2237,28 +1782,24 @@
                     "DEVICE": {
                         "ERRORS": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":SYSTem:ERRor",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "ID": {
                             "ASK": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": "ANYIDN",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2271,87 +1812,73 @@
                     "DATA": {
                         "TRACE": {
                             "1": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe1:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE1",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe2:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE2",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe3:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE3",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "2",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe4:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "2",
                                         "VISA_Command_value": ":FREQuency:STARt 111;:FREQuency:STOP 222;:TRACe:DATA? TRACE4",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TRACE": {
                         "MODES": {
                             "SET": {
-                                "default_value": "4",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "4",
                                         "VISA_Command_value": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2360,301 +1887,210 @@
                     "DATA": {
                         "FORMAT": {
                             "ASCII": {
-                                "default_value": "ASCii",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "ASCii",
                                         "VISA_Command_value": ":FORMat:DATA",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "ASCii",
                                         "VISA_Command_value": ":TRACe:FORMat:DATA",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "MODE": {
                         "BLANK": {
                             "1": {
-                                "default_value": "BLANk",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "BLANk",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "BLANk",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "BLANk",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "BLANk",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "BLANk",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "BLANk",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "BLANk",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "MAXHOLD": {
                             "1": {
-                                "default_value": "MAXHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MAXHold",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "MAXHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MAXHold",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "MAXHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MAXHold",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "MAXHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MAXHold",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "MINHOLD": {
                             "1": {
-                                "default_value": "MINHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MINHold",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "MINHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MINHold",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "MINHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MINHold",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "MINHold",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "MINHold",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "VIEW": {
                             "1": {
-                                "default_value": "VIEW",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "VIEW",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "VIEW",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "VIEW",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "VIEW",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "VIEW",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "VIEW",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "VIEW",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "WRITE": {
                             "1": {
-                                "default_value": "WRITe",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "WRITe",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "WRITe",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC2:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC2:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "WRITe",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "WRITe",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC3:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC3:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "WRITe",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "WRITe",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC4:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC4:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "WRITe",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2663,183 +2099,109 @@
                     "DATA": {
                         "TRACE": {
                             "1": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRACe1:DATA",
                                         "validated_value": "NOT YET"
+                                    },
+                                    "N9342CN": {
+                                        "VISA_Command_value": ":TRACe:DATA? TRACE1",
+                                        "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRACe2:DATA",
                                         "validated_value": "NOT YET"
+                                    },
+                                    "N9342CN": {
+                                        "VISA_Command_value": ":TRACe:DATA? TRACE2",
+                                        "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRACe3:DATA",
                                         "validated_value": "NOT YET"
-                                    }
-                                ]
-                            },
-                            "4": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
-                                        "VISA_Command_value": ":TRACe4:DATA",
+                                    },
+                                    "N9342CN": {
+                                        "VISA_Command_value": ":TRACe:DATA? TRACE3",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
+                            },
+                            "4": {
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "?",
+                                        "VISA_Command_value": ":TRACe4:DATA",
+                                        "validated_value": "NOT YET"
+                                    },
+                                    "N9342CN": {
+                                        "VISA_Command_value": ":TRACe:DATA? TRACE4",
+                                        "validated_value": "NOT YET"
+                                    }
+                                }
                             }
                         }
                     },
                     "MODE": {
                         "TRACE": {
                             "1": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRAC1:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC2:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC2:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC2:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRAC2:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC3:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC3:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC3:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRAC3:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC4:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC4:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC4:MODE",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":TRAC4:MODE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "TYPE": {
                         "TRACE": {
                             "DISPLAY": {
-                                "default_value": "?",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "?",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:TYPE",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2848,112 +2210,89 @@
                     "DATA": {
                         "MODES": {
                             "ASK": {
-                                "default_value": "4",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
-                                        "VISA_Command_value": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?",
-                                        "validated_value": "NOT YET"
-                                    },
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "4",
                                         "VISA_Command_value": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         },
                         "Start_Stop_Trace": {
                             "1": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE1",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "2": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe2:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE2",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "3": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe3:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE3",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             },
                             "4": {
-                                "default_value": "3",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe4:DATA?",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "3",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:DATA? TRACE4",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     },
                     "ONETWOTHREE": {
                         "Start_Stop_Trace": {
                             "ALL": {
-                                "default_value": "8",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9340B",
+                                "Keysight Technologies": {
+                                    "N9340B": {
+                                        "default_value": "8",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?;",
                                         "validated_value": "NOT YET"
                                     },
-                                    {
-                                        "Manufacturer_value": "Keysight Technologies",
-                                        "Manufacturer_Device_value": "N9342CN",
+                                    "N9342CN": {
+                                        "default_value": "8",
                                         "VISA_Command_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3;",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2962,15 +2301,13 @@
                     "MODES": {
                         "SETTINGS": {
                             "SET": {
-                                "default_value": "4",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "4",
                                         "VISA_Command_value": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }
@@ -2979,15 +2316,13 @@
                     "Y SCALE": {
                         "SPACING": {
                             "DISPLAY": {
-                                "default_value": "LOGarithmic",
-                                "Model": [
-                                    {
-                                        "Manufacturer_value": "ANY",
-                                        "Manufacturer_Device_value": "ANY",
+                                "ANY": {
+                                    "ANY": {
+                                        "default_value": "LOGarithmic",
                                         "VISA_Command_value": ":DISPlay:WINDow:TRACe:Y:SCALe:SPACing",
                                         "validated_value": "NOT YET"
                                     }
-                                ]
+                                }
                             }
                         }
                     }

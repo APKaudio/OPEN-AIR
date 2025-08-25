@@ -18,6 +18,7 @@
 import os
 import inspect
 import datetime
+import pathlib
 
 # --- Global Scope Variables ---
 # ⏰ As requested, the version is now hardcoded to the time this file was generated.
@@ -30,8 +31,24 @@ current_file = f"{os.path.basename(__file__)}"
 # --- Logging Toggles ---
 LOG_TO_TERMINAL = True
 LOG_TO_FILE = True
-FILE_LOG_PATH = "debug.log"
+# The log file path is now relative to the parent directory.
+FILE_LOG_DIR = pathlib.Path("DATA")
 
+# Global variable to store the current log filename
+current_log_filename = None
+
+def get_log_filename():
+    """
+    Returns a unique filename based on the current date and minute.
+    """
+    global current_log_filename
+    
+    # Check if the filename needs to be updated (new minute)
+    current_minute = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    if current_log_filename is None or not current_log_filename.startswith(f"debug_log_{current_minute}"):
+        current_log_filename = f"debug_log_{current_minute}.log"
+        
+    return current_log_filename
 
 def console_log(message: str):
     """
@@ -64,7 +81,13 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
 
         if LOG_TO_FILE:
             # We explicitly open the log file with UTF-8 encoding to support emojis
-            with open(FILE_LOG_PATH, "a", encoding="utf-8") as log_file:
+            log_filename = get_log_filename()
+            log_path = FILE_LOG_DIR / log_filename
+            
+            # Create the DATA directory if it does not exist
+            FILE_LOG_DIR.mkdir(exist_ok=True)
+            
+            with open(log_path, "a", encoding="utf-8") as log_file:
                 log_file.write(log_message + "\n")
 
     except Exception as e:

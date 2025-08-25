@@ -1,4 +1,4 @@
-# gui_translator.py
+# display/gui_translator.py
 #
 # A GUI component for interacting with the instrument translator via MQTT.
 # This version now correctly parses the incoming JSON payload to populate the table.
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.122045.1
+# Version 20250824.210000.9
 
 import os
 import inspect
@@ -32,19 +32,23 @@ import csv
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
 from workers.worker_file_csv_export import CsvExportUtility
+from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
-CURRENT_TIME = 122045
-CURRENT_TIME_HASH = 122045
-REVISION_NUMBER = 1
+CURRENT_TIME = 210000
+CURRENT_TIME_HASH = 210000
+REVISION_NUMBER = 9
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
-# Dynamically get the file path relative to the project root
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+
+# --- No Magic Numbers (as per your instructions) ---
+MQTT_TOPIC_CONFIG_REQUEST = "OPEN-AIR/devices/scpi/COMMANDS"
+MQTT_TOPIC_TRANSLATOR = "Root: Instrument"
 
 
 class TranslatorGUI(ttk.Frame):
@@ -71,6 +75,9 @@ class TranslatorGUI(ttk.Frame):
             self.current_version_hash = current_version_hash
             self.mqtt_util = mqtt_util
             self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
+            self.data_flattener = MqttDataFlattenerUtility(print_to_gui_func=console_log)
+            self.current_class_name = self.__class__.__name__
+
             self._apply_styles(theme_name=DEFAULT_THEME)
 
             # --- MQTT Buttons Section ---
@@ -113,21 +120,9 @@ class TranslatorGUI(ttk.Frame):
             self.table_frame = ttk.Frame(self)
             self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
-            # Updated columns to include 'Topic'
-            self.commands_table = ttk.Treeview(self.table_frame, columns=("Topic", "Parameter", "Value", "Description"), show="headings", style="Custom.Treeview")
-            
-            # Updated headings
-            self.commands_table.heading("Topic", text="Topic")
-            self.commands_table.heading("Parameter", text="Parameter")
-            self.commands_table.heading("Value", text="Value")
-            self.commands_table.heading("Description", text="Description")
-            
-            # Setting column widths
-            self.commands_table.column("Topic", width=300, stretch=True)
-            self.commands_table.column("Parameter", width=150, stretch=True)
-            self.commands_table.column("Value", width=150, stretch=True)
-            self.commands_table.column("Description", width=300, stretch=True)
-
+            # The table is now created dynamically on the first data payload.
+            # It starts as an empty placeholder to be populated later.
+            self.commands_table = ttk.Treeview(self.table_frame, show="headings", style="Custom.Treeview")
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
             table_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
@@ -135,8 +130,7 @@ class TranslatorGUI(ttk.Frame):
             table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
             # We now register our callback with the central utility.
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/devices/scpi/COMMANDS/#", callback_func=self._on_commands_message)
-
+            self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_CONFIG_REQUEST}/#", callback_func=self._on_commands_message)
 
             # --- Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
@@ -196,7 +190,13 @@ class TranslatorGUI(ttk.Frame):
         Publishes a message to the specific MQTT topic for a configuration request.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        topic_parts = "OPEN-AIR/devices/scpi/COMMANDS".split("/")
+        
+        # FIX: Clear the table and the data buffer before sending the request.
+        self.commands_table.delete(*self.commands_table.get_children())
+        self.data_flattener.clear_buffer()
+        console_log("Clearing table and data buffer before requesting new data...")
+
+        topic_parts = MQTT_TOPIC_CONFIG_REQUEST.split("/")
         root_topic = topic_parts[0]
         subtopic = "/".join(topic_parts[1:])
         message = "request"
@@ -205,7 +205,7 @@ class TranslatorGUI(ttk.Frame):
             message=f"🖥️🟢 Publishing '{message}' to specific MQTT topic '{root_topic}/{subtopic}'.",
             file=self.current_file,
             version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
+            function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
         try:
@@ -217,7 +217,7 @@ class TranslatorGUI(ttk.Frame):
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
+                function=f"{self.current_class_name}.{current_function_name}",
                 console_print_func=console_log
             )
 
@@ -226,7 +226,7 @@ class TranslatorGUI(ttk.Frame):
         Publishes a message to the instrument translator topic with a specific child topic.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        parent_topic = "Root: Instrument"
+        parent_topic = MQTT_TOPIC_TRANSLATOR
         
         debug_log(
             message=f"🖥️🟢 Publishing '{message}' to MQTT topic '{parent_topic}/{child_topic}'.",
@@ -251,97 +251,48 @@ class TranslatorGUI(ttk.Frame):
     def _on_commands_message(self, topic, payload):
         """
         Callback for when an MQTT message is received on the commands topic.
-        Populates the Treeview table with the received list of commands.
+        Aggregates messages into a buffer before processing.
         """
         current_function_name = inspect.currentframe().f_code.co_name
+        
         debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Populating the Treeview.",
+            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message one-by-one...",
             file=self.current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
+        
         try:
-            commands_data = json.loads(payload)
-            TRUNCATION_PREFIX = "OPEN-AIR/devices/scpi/COMMANDS/"
+            pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
+                topic=topic,
+                payload=payload,
+                topic_prefix=MQTT_TOPIC_CONFIG_REQUEST
+            )
 
-            # This is the corrected parsing logic. We'll iterate through the items
-            # and insert them directly, assuming the payload is a flat dictionary.
-            for key, value in commands_data.items():
-                if isinstance(value, str):
-                    # For a simple key-value pair, we add it to the table.
-                    full_topic = topic
-                    parameter = key
-                    data_value = value
-                    description = "Description N/A"
+            # Check if the utility returned a non-empty list of rows
+            if pivoted_rows:
+                # Dynamically configure columns if this is the first data payload
+                if not self.commands_table["columns"]:
+                    new_headers = list(pivoted_rows[0].keys())
+                    self.commands_table["columns"] = new_headers
+                
+                    # Set headings for the new columns
+                    for col in new_headers:
+                        self.commands_table.heading(col, text=col.replace("_", " ").title())
+                        # Adjust column widths if necessary
+                        self.commands_table.column(col, width=150, stretch=True)
+                
+                # Insert the new pivoted data at the end of the table
+                for row in pivoted_rows:
+                    self.commands_table.insert('', tk.END, values=list(row.values()))
 
-                    # Truncate the full topic for the 'Parameter' column
-                    if full_topic.startswith(TRUNCATION_PREFIX):
-                        truncated_topic = full_topic[len(TRUNCATION_PREFIX):]
-                    else:
-                        truncated_topic = full_topic
+                console_log("✅ Commands table updated with new, beautifully-pivoted data!")
 
-                    # Debug log to verify the values before inserting
-                    debug_log(
-                        message=f"🔍 Inserting row: Topic='{full_topic}', Parameter='{truncated_topic}', Value='{data_value}', Description='{description}'",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
-
-                    self.commands_table.insert('', tk.END, values=(full_topic, truncated_topic, data_value, description))
-
-                else:
-                    # If the value is not a simple string, it indicates a nested structure.
-                    # This is where we re-introduce a flattening helper function.
-                    def _flatten_nested_dict(d, parent_key='', sep='/'):
-                        items = []
-                        for k, v in d.items():
-                            new_key = parent_key + sep + k if parent_key else k
-                            if isinstance(v, dict):
-                                items.extend(_flatten_nested_dict(v, new_key, sep=sep).items())
-                            elif isinstance(v, list):
-                                for i, item in enumerate(v):
-                                    list_key = f"{new_key}/[{i}]"
-                                    if isinstance(item, dict):
-                                        items.extend(_flatten_nested_dict(item, list_key, sep=sep).items())
-                                    else:
-                                        items.append((list_key, item))
-                            else:
-                                items.append((new_key, v))
-                        return dict(items)
-
-                    # Flatten the nested dictionary
-                    flattened_data = _flatten_nested_dict(value)
-                    
-                    for nested_key, nested_value in flattened_data.items():
-                        full_topic = topic
-                        parameter = nested_key
-                        data_value = nested_value
-                        description = "Description N/A"
-
-                        if full_topic.startswith(TRUNCATION_PREFIX):
-                            truncated_topic = full_topic[len(TRUNCATION_PREFIX):]
-                        else:
-                            truncated_topic = full_topic
-
-                        debug_log(
-                            message=f"🔍 Inserting nested row: Topic='{full_topic}', Parameter='{truncated_topic}', Value='{data_value}', Description='{description}'",
-                            file=current_file,
-                            version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
-                        )
-                        
-                        self.commands_table.insert('', tk.END, values=(full_topic, truncated_topic, data_value, description))
-
-
-            console_log("✅ Commands table updated with new data!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -395,8 +346,70 @@ class TranslatorGUI(ttk.Frame):
 if __name__ == "__main__":
     root = tk.Tk()
     root.title("Translator GUI Test")
+    
+    # This is a temporary placeholder for logging functions to make the file runnable
+    def mock_debug_log(message, file, version, function, console_print_func):
+        print(f"DEBUG: {message}")
 
-    mqtt_utility = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
+    def mock_console_log(message):
+        print(f"CONSOLE: {message}")
+
+    class MockMqttControllerUtility:
+        def __init__(self, print_to_gui_func, log_treeview_func):
+            self.subscribers = {}
+        def connect_mqtt(self):
+            print("Mock MQTT connected.")
+        def add_subscriber(self, topic_filter, callback_func):
+            self.subscribers[topic_filter] = callback_func
+        def publish_message(self, topic, subtopic, value):
+            print(f"Mock MQTT published: {topic}/{subtopic} with value '{value}'")
+    
+    # Mocking the `worker_file_csv_export` to run the example
+    class MockCsvExportUtility:
+        def __init__(self, print_to_gui_func):
+            pass
+        def export_data_to_csv(self, data, file_path):
+            print(f"Mock export to CSV: {len(data)} rows exported to {file_path}")
+
+    # Override the imports with our mocks
+    sys.modules['workers.worker_logging'] = type('Module', (), {'debug_log': mock_debug_log, 'console_log': mock_console_log})
+    sys.modules['workers.mqtt_controller_util'] = MockMqttControllerUtility
+    sys.modules['workers.worker_file_csv_export'] = MockCsvExportUtility
+    
+    # This is a mock implementation of the data flattening and pivoting
+    # It simulates the expected output for the `_on_commands_message` function
+    class MockMqttDataFlattenerUtility:
+        def __init__(self, print_to_gui_func):
+            self._print_to_gui_console = print_to_gui_func
+            self.data_buffer = {}
+            
+        def clear_buffer(self):
+            self.data_buffer = {}
+
+        def process_mqtt_message_and_pivot(self, topic: str, payload: str, topic_prefix: str) -> list:
+            self.data_buffer[topic] = payload
+            if topic.endswith('validated_value'):
+                # Simulate the pivoting process
+                mock_pivoted_data = [
+                    {
+                        "Topic": "OPEN-AIR/devices/scpi/COMMANDS/AMPLITUDE/DO/ATTENUATION/POWER/0DB",
+                        "Parameter": "AMPLITUDE/DO/ATTENUATION/POWER/0DB/ANY/ANY",
+                        "default_value": "0",
+                        "VISA_Command_value": ":POWer:ATTenuation",
+                        "validated_value": "NOT YET"
+                    }
+                ]
+                # Reset the buffer
+                self.data_buffer = {}
+                return mock_pivoted_data
+            return []
+
+    sys.modules['workers.worker_mqtt_data_flattening'] = MockMqttDataFlattenerUtility
+    
+    # Re-import the class now that the mocks are in place
+    from .gui_translator import TranslatorGUI
+    
+    mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log, log_treeview_func=lambda *args: None)
     mqtt_utility.connect_mqtt()
 
     app_frame = TranslatorGUI(parent=root, mqtt_util=mqtt_utility)
