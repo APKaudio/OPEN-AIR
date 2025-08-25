@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.210000.9
+# Version 20250824.205035.10
 
 import os
 import inspect
@@ -37,17 +37,17 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
-CURRENT_TIME = 210000
-CURRENT_TIME_HASH = 210000
-REVISION_NUMBER = 9
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
+CURRENT_TIME = 205035
+CURRENT_TIME_HASH = 205035
+REVISION_NUMBER = 10
+current_version = "20250824.205035.10"
+current_version_hash = 41521276988400
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
-MQTT_TOPIC_CONFIG_REQUEST = "OPEN-AIR/devices/scpi/COMMANDS"
+# Removed MQTT_TOPIC_CONFIG_REQUEST to be replaced by the entry box value
 MQTT_TOPIC_TRANSLATOR = "Root: Instrument"
 
 
@@ -80,9 +80,16 @@ class TranslatorGUI(ttk.Frame):
 
             self._apply_styles(theme_name=DEFAULT_THEME)
 
+            # --- MQTT Topic Entry Section ---
+            topic_frame = ttk.LabelFrame(self, text="MQTT Topic Filter")
+            topic_frame.pack(fill=tk.X, padx=10, pady=5)
+            self.topic_entry = ttk.Entry(topic_frame, width=80)
+            self.topic_entry.insert(0, "OPEN-AIR/devices/scpi/COMMANDS")
+            self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+
             # --- MQTT Buttons Section ---
             mqtt_frame = ttk.LabelFrame(self, text="MQTT Translator Controls")
-            mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
+            mqtt_frame.pack(fill=tk.X, padx=10, pady=5)
 
             # Button 1: Get Configuration
             self.get_config_button = ttk.Button(
@@ -104,7 +111,7 @@ class TranslatorGUI(ttk.Frame):
             self.subscribe_button = ttk.Button(
                 mqtt_frame,
                 text="Subscribe to Commands",
-                command=lambda: self._publish_translator_message("SUBSCRIBE", "request")
+                command=self._subscribe_to_topic
             )
             self.subscribe_button.pack(side=tk.LEFT, padx=5, pady=5)
             
@@ -121,7 +128,6 @@ class TranslatorGUI(ttk.Frame):
             self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
             # The table is now created dynamically on the first data payload.
-            # It starts as an empty placeholder to be populated later.
             self.commands_table = ttk.Treeview(self.table_frame, show="headings", style="Custom.Treeview")
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -129,8 +135,8 @@ class TranslatorGUI(ttk.Frame):
             self.commands_table.configure(yscrollcommand=table_scrollbar.set)
             table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            # We now register our callback with the central utility.
-            self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_CONFIG_REQUEST}/#", callback_func=self._on_commands_message)
+            # Initial subscription is now done via a dedicated method.
+            self._subscribe_to_topic()
 
             # --- Status Bar at the bottom ---
             status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
@@ -148,6 +154,25 @@ class TranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+    
+    def _subscribe_to_topic(self):
+        """
+        Subscribes to the MQTT topic specified in the topic entry box.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        topic_filter = f"{self.topic_entry.get()}/#"
+        try:
+            self.mqtt_util.add_subscriber(topic_filter=topic_filter, callback_func=self._on_commands_message)
+            console_log(f"✅ Subscribed to MQTT topic: '{topic_filter}'")
+        except Exception as e:
+            console_log(f"❌ Error subscribing to topic: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=self.current_file,
@@ -191,12 +216,11 @@ class TranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        # FIX: Clear the table and the data buffer before sending the request.
         self.commands_table.delete(*self.commands_table.get_children())
         self.data_flattener.clear_buffer()
         console_log("Clearing table and data buffer before requesting new data...")
 
-        topic_parts = MQTT_TOPIC_CONFIG_REQUEST.split("/")
+        topic_parts = self.topic_entry.get().split("/")
         root_topic = topic_parts[0]
         subtopic = "/".join(topic_parts[1:])
         message = "request"
@@ -217,7 +241,7 @@ class TranslatorGUI(ttk.Frame):
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
+                function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
 
@@ -267,7 +291,7 @@ class TranslatorGUI(ttk.Frame):
             pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
                 topic=topic,
                 payload=payload,
-                topic_prefix=MQTT_TOPIC_CONFIG_REQUEST
+                topic_prefix=self.topic_entry.get()
             )
 
             # Check if the utility returned a non-empty list of rows
