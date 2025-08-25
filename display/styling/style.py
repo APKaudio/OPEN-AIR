@@ -2,7 +2,6 @@
 #
 # Defines the color palettes for different UI themes, providing a centralized
 # source for application-wide style configurations.
-# This version corrects a SyntaxError caused by a leading zero in a numeric literal.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,26 +14,27 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.212500.1
+# Version 20250825.200123.1
 
 # Standard library import for the global variables.
 import os
 
 # --- Global Scope Variables ---
 # The date of the chat session in YYYYMMDD format.
-CURRENT_DATE = 20250823
+CURRENT_DATE = 20250825
 # The time of the chat session in HHMMSS format.
-CURRENT_TIME = 212500
-# A numeric hash of the time, useful for unique IDs.
-CURRENT_TIME_HASH = 212500
+CURRENT_TIME = 200123
 # The revision number within the current session.
 REVISION_NUMBER = 1
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250823.212500.1"
+current_version = "20250825.200123.1"
 # Creating a unique integer hash for the current version for internal tracking.
-current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
+current_version_hash = (CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs.
 current_file = f"{os.path.basename(__file__)}"
+
+# The default theme to use. This can be changed here to easily switch the entire application's style.
+DEFAULT_THEME = "dark"
 
 # THEMES is a dictionary that holds all our color palettes.
 THEMES = {
@@ -51,7 +51,7 @@ THEMES = {
         "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
-        # --- New Styling Variables for Tables and Entries ---
+        # --- Styling Variables for Tables and Entries ---
         "table_bg": "#3c3f41",
         "table_fg": "#dcdcdc",
         "table_heading_bg": "#4e5254",
@@ -59,6 +59,13 @@ THEMES = {
         "entry_bg": "#4e5254",
         "entry_fg": "#dcdcdc",
         # ----------------------------------------------------
+        "textbox_style": {
+            "Textbox_Font": "Segoe UI",
+            "Textbox_Font_size": 9,
+            "Textbox_Font_colour": "#ffffff",
+            "Textbox_border_colour": "#555555",
+            "Textbox_BG_colour": "#4e5254"
+        },
         "accent_colors": [
             "#996633",  # 1. Brown
             "#c75450",  # 2. Red
@@ -84,7 +91,7 @@ THEMES = {
         "border_width": 0,
         "padding": 1,
         "tab_content_padding": 1,
-        # --- New Styling Variables for Tables and Entries ---
+        # --- Styling Variables for Tables and Entries ---
         "table_bg": "#ffffff",
         "table_fg": "#000000",
         "table_heading_bg": "#e0e0e0",
@@ -92,6 +99,13 @@ THEMES = {
         "entry_bg": "#ffffff",
         "entry_fg": "#000000",
         # ----------------------------------------------------
+        "textbox_style": {
+            "Textbox_Font": "Segoe UI",
+            "Textbox_Font_size": 9,
+            "Textbox_Font_colour": "#000000",
+            "Textbox_border_colour": "#ababab",
+            "Textbox_BG_colour": "#ffffff"
+        },
         "accent_colors": [
             "#A0522D",  # 1. Brown (Sienna)
             "#D22B2B",  # 2. Red (Firebrick)
@@ -105,6 +119,3 @@ THEMES = {
         ]
     }
 }
-
-# The default theme to use. This can be changed here to easily switch the entire application's style.
-DEFAULT_THEME = "dark"

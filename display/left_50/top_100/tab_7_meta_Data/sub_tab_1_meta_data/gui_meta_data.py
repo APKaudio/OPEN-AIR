@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.195130.1
+# Version 20250825.200730.3
 
 import os
 import inspect
@@ -30,10 +30,10 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
-CURRENT_TIME = 195130
-REVISION_NUMBER = 1
-current_version = "20250825.195130.1"
-current_version_hash = 20250825 * 195130 * 1
+CURRENT_TIME = 200730
+REVISION_NUMBER = 3
+current_version = "20250825.200730.3"
+current_version_hash = 20250825 * 200730 * 3
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -77,13 +77,14 @@ class MetaDataGUI(ttk.Frame):
             self.topic_widgets = {}  # Dictionary to store widget references
 
             self._apply_styles(theme_name=DEFAULT_THEME)
+            colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
             # --- Main Content Frame (everything above the status bar) ---
             content_frame = ttk.Frame(self)
             content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
             # A canvas to hold the dynamic content and allow scrolling
-            self.canvas = tk.Canvas(content_frame, borderwidth=0, highlightthickness=0)
+            self.canvas = tk.Canvas(content_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
             self.scroll_frame = ttk.Frame(self.canvas)
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
@@ -143,18 +144,15 @@ class MetaDataGUI(ttk.Frame):
         style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
         style.map('TButton', background=[('active', colors["secondary"])])
         
-        style.configure('Treeview',
-                        background=colors["table_bg"],
-                        foreground=colors["table_fg"],
-                        fieldbackground=colors["table_bg"],
-                        bordercolor=colors["table_border"],
-                        borderwidth=colors["border_width"])
+        # New styling for the entry widgets based on the new dictionary
+        textbox_style = colors["textbox_style"]
+        style.configure('Custom.TEntry',
+                        font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
+                        foreground=textbox_style["Textbox_Font_colour"],
+                        background=textbox_style["Textbox_BG_colour"],
+                        fieldbackground=textbox_style["Textbox_BG_colour"],
+                        bordercolor=textbox_style["Textbox_border_colour"])
 
-        style.configure('Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
 
     def _on_entry_changed(self, event, topic, entry_widget):
         """
@@ -259,7 +257,8 @@ class MetaDataGUI(ttk.Frame):
                     label = ttk.Label(sub_frame, text=label_text)
                     label.pack(side=tk.LEFT, padx=(5, 5))
                     
-                    entry = ttk.Entry(sub_frame, width=80)
+                    # Entry widget now uses the new custom style
+                    entry = ttk.Entry(sub_frame, width=80, style="Custom.TEntry")
                     entry.insert(0, value_to_display)
                     entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 5))
                     
