@@ -1,6 +1,7 @@
 MQTT_TOPIC_FILTER = "OPEN-AIR/program/markers"
-# display/gui_marker_editor.py
 
+
+# display/gui_marker_editor.py
 #
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
@@ -16,7 +17,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/program/markers"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.170951.1
+# Version 20250825.181840.1
 
 import os
 import inspect
@@ -24,11 +25,7 @@ import datetime
 import tkinter as tk
 from tkinter import ttk
 import pathlib
-import sys
-import json
-import paho.mqtt.client as mqtt
 from tkinter import filedialog
-import csv
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
@@ -39,10 +36,10 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
-CURRENT_TIME = 170951
+CURRENT_TIME = 181840
 REVISION_NUMBER = 1
-current_version = "20250825.170951.1"
-current_version_hash = 20250825 * 170951 * 1
+current_version = "20250825.181840.1"
+current_version_hash = 20250825 * 181840 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -50,13 +47,18 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 # --- No Magic Numbers (as per your instructions) ---
 
 
-
-
-class gui_marker_editor(ttk.Frame):
+class InstrumentTranslatorGUI(ttk.Frame):
     """
-    A GUI component for interacting with the instrument translator via MQTT.
+    A GUI component for displaying MQTT data in a table and exporting it.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
+        """
+        Initializes the GUI, sets up the layout, and subscribes to the MQTT topic.
+        
+        Args:
+            parent (tk.Widget): The parent widget for this frame.
+            mqtt_util (MqttControllerUtility): The MQTT utility instance for communication.
+        """
         current_function_name = inspect.currentframe().f_code.co_name
 
         debug_log(
@@ -171,8 +173,8 @@ class gui_marker_editor(ttk.Frame):
 
     def _on_commands_message(self, topic, payload):
         """
-        Callback for when an MQTT message is received on the commands topic.
-        Aggregates messages into a buffer before processing.
+        Callback for when an MQTT message is received on the commands topic. 
+        It processes the message, flattens the data, and updates or adds rows to the table.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -191,7 +193,6 @@ class gui_marker_editor(ttk.Frame):
                 topic_prefix=self.topic_entry.get()
             )
 
-            # The GUI's job is to simply react to the flattener's output.
             if pivoted_rows:
                 # Dynamically configure columns ONLY IF this is the first data payload.
                 if not self.commands_table["columns"]:
@@ -233,18 +234,10 @@ class gui_marker_editor(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            
-    def _update_table_intelligently(self, topic: str, payload: str):
-        """
-        This function is now deprecated and is no longer used by the new workflow.
-        All updates are handled by the data flattener.
-        """
-        # This function is now deprecated and will not be used.
-        pass
 
     def _export_table_data(self):
         """
-        Exports the data from the Treeview to a CSV file.
+        Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -285,81 +278,3 @@ class gui_marker_editor(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Instrument Translator Test")
-    
-    def mock_debug_log(message, file, version, function, console_print_func):
-        print(f"DEBUG: {message}")
-
-    def mock_console_log(message):
-        print(f"CONSOLE: {message}")
-
-    class MockMqttControllerUtility:
-        def __init__(self, print_to_gui_func):
-            self.subscribers = {}
-        def connect_mqtt(self):
-            print("Mock MQTT connected.")
-        def add_subscriber(self, topic_filter, callback_func):
-            self.subscribers[topic_filter] = callback_func
-        def publish_message(self, topic, subtopic=None, value=None):
-            if subtopic:
-                full_topic = f"{topic}/{subtopic}"
-            else:
-                full_topic = topic
-            print(f"Mock MQTT published: {full_topic} with value '{value}'")
-    
-    class MockCsvExportUtility:
-        def __init__(self, print_to_gui_func):
-            pass
-        def export_data_to_csv(self, data, file_path):
-            print(f"Mock export to CSV: {len(data)} rows exported to {file_path}")
-
-    class MockMqttDataFlattenerUtility:
-        def __init__(self, print_to_gui_func):
-            self._print_to_gui_console = print_to_gui_func
-            self.data_buffer = {}
-            self.first_key_name = None
-
-        def clear_buffer(self):
-            self.data_buffer = {}
-            self.first_key_name = None
-
-        def process_mqtt_message_and_pivot(self, topic: str, payload: str, topic_prefix: str) -> list:
-            # Simple mock to simulate different payloads for testing
-            if "N9340B" in topic:
-                mock_pivoted_data = [
-                    {
-                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9340B",
-                        "VISA_Command": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF",
-                        "validated": "NOT YET"
-                    }
-                ]
-            else:
-                mock_pivoted_data = [
-                    {
-                        "Parameter": "COMMANDS/AMPLITUDE/DO/HIGH SENSITIVE/POWER/OFF/Keysight Technologies/N9342CN",
-                        "Active": "true",
-                        "Default_value": "OFF",
-                        "VISA_Command": ":POWer:HSENsitive",
-                        "validated": "NOT YET"
-                    }
-                ]
-            return mock_pivoted_data
-
-    # Override the imports with mocks
-    sys.modules['workers.worker_logging'] = type('Module', (), {'debug_log': mock_debug_log, 'console_log': mock_console_log})
-    sys.modules['workers.mqtt_controller_util'] = MockMqttControllerUtility
-    sys.modules['workers.worker_file_csv_export'] = MockCsvExportUtility
-    sys.modules['workers.worker_mqtt_data_flattening'] = MockMqttDataFlattenerUtility
-    
-    from display.styling.style import THEMES, DEFAULT_THEME
-    
-    
-    mqtt_utility = MockMqttControllerUtility(print_to_gui_func=mock_console_log)
-    mqtt_utility.connect_mqtt()
-
-    app_frame = gui_marker_editor(parent=root, mqtt_util=mqtt_utility)
-    
-    root.mainloop()
