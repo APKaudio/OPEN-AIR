@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/meta/devices/antenna"
+MQTT_TOPIC_FILTER = "OPEN-AIR/meta/components/amplifier"
 
 # display/gui_marker_editor.py
 #

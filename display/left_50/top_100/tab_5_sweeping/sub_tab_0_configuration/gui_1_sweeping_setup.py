@@ -1,6 +1,6 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/meta/devices/iem/mics"
+MQTT_TOPIC_FILTER = "OPEN-AIR/program/configuration/Scan"
 
-# display/gui_marker_editor.py
+# display/gui_sweeping_configuration.py
 #
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
@@ -46,7 +46,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 # --- No Magic Numbers (as per your instructions) ---
 
 
-class InstrumentTranslatorGUI(ttk.Frame):
+class gui_sweeping_configuration(ttk.Frame):
     """
     A GUI component for displaying MQTT data in a table and exporting it.
     """

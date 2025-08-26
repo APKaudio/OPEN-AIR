@@ -1,0 +1,1034 @@
+{
+    "North America": {
+        "Selected": "no",
+        "TV_Channel_2": {
+            "Value": "TV Channel 2",
+            "Start_MHz": "54",
+            "Stop_MHz": "60",
+            "Selected": "no"
+        },
+        "TV_Channel_3": {
+            "Value": "TV Channel 3",
+            "Start_MHz": "60",
+            "Stop_MHz": "66",
+            "Selected": "no"
+        },
+        "TV_Channel_4": {
+            "Value": "TV Channel 4",
+            "Start_MHz": "66",
+            "Stop_MHz": "72",
+            "Selected": "no"
+        },
+        "TV_Channel_5": {
+            "Value": "TV Channel 5",
+            "Start_MHz": "76",
+            "Stop_MHz": "82",
+            "Selected": "no"
+        },
+        "TV_Channel_6": {
+            "Value": "TV Channel 6",
+            "Start_MHz": "82",
+            "Stop_MHz": "88",
+            "Selected": "no"
+        },
+        "TV_Channel_7": {
+            "Value": "TV Channel 7",
+            "Start_MHz": "174",
+            "Stop_MHz": "180",
+            "Selected": "no"
+        },
+        "TV_Channel_8": {
+            "Value": "TV Channel 8",
+            "Start_MHz": "180",
+            "Stop_MHz": "186",
+            "Selected": "no"
+        },
+        "TV_Channel_9": {
+            "Value": "TV Channel 9",
+            "Start_MHz": "186",
+            "Stop_MHz": "192",
+            "Selected": "no"
+        },
+        "TV_Channel_10": {
+            "Value": "TV Channel 10",
+            "Start_MHz": "192",
+            "Stop_MHz": "198",
+            "Selected": "no"
+        },
+        "TV_Channel_11": {
+            "Value": "TV Channel 11",
+            "Start_MHz": "198",
+            "Stop_MHz": "204",
+            "Selected": "no"
+        },
+        "TV_Channel_12": {
+            "Value": "TV Channel 12",
+            "Start_MHz": "204",
+            "Stop_MHz": "210",
+            "Selected": "no"
+        },
+        "TV_Channel_13": {
+            "Value": "TV Channel 13",
+            "Start_MHz": "210",
+            "Stop_MHz": "216",
+            "Selected": "no"
+        },
+        "DTV_Channel_14": {
+            "Value": "TV Channel 14",
+            "Start_MHz": "470",
+            "Stop_MHz": "476",
+            "Selected": "no"
+        },
+        "DTV_Channel_15": {
+            "Value": "TV Channel 15",
+            "Start_MHz": "476",
+            "Stop_MHz": "482",
+            "Selected": "no"
+        },
+        "DTV_Channel_16": {
+            "Value": "TV Channel 16",
+            "Start_MHz": "482",
+            "Stop_MHz": "488",
+            "Selected": "no"
+        },
+        "DTV_Channel_17": {
+            "Value": "TV Channel 17",
+            "Start_MHz": "488",
+            "Stop_MHz": "494",
+            "Selected": "no"
+        },
+        "DTV_Channel_18": {
+            "Value": "TV Channel 18",
+            "Start_MHz": "494",
+            "Stop_MHz": "500",
+            "Selected": "no"
+        },
+        "DTV_Channel_19": {
+            "Value": "TV Channel 19",
+            "Start_MHz": "500",
+            "Stop_MHz": "506",
+            "Selected": "no"
+        },
+        "DTV_Channel_20": {
+            "Value": "TV Channel 20",
+            "Start_MHz": "506",
+            "Stop_MHz": "512",
+            "Selected": "no"
+        },
+        "DTV_Channel_21": {
+            "Value": "TV Channel 21",
+            "Start_MHz": "512",
+            "Stop_MHz": "518",
+            "Selected": "no"
+        },
+        "DTV_Channel_22": {
+            "Value": "TV Channel 22",
+            "Start_MHz": "518",
+            "Stop_MHz": "524",
+            "Selected": "no"
+        },
+        "DTV_Channel_23": {
+            "Value": "TV Channel 23",
+            "Start_MHz": "524",
+            "Stop_MHz": "530",
+            "Selected": "no"
+        },
+        "DTV_Channel_24": {
+            "Value": "TV Channel 24",
+            "Start_MHz": "530",
+            "Stop_MHz": "536",
+            "Selected": "no"
+        },
+        "DTV_Channel_25": {
+            "Value": "TV Channel 25",
+            "Start_MHz": "536",
+            "Stop_MHz": "542",
+            "Selected": "no"
+        },
+        "DTV_Channel_26": {
+            "Value": "TV Channel 26",
+            "Start_MHz": "542",
+            "Stop_MHz": "548",
+            "Selected": "no"
+        },
+        "DTV_Channel_27": {
+            "Value": "TV Channel 27",
+            "Start_MHz": "548",
+            "Stop_MHz": "554",
+            "Selected": "no"
+        },
+        "DTV_Channel_28": {
+            "Value": "TV Channel 28",
+            "Start_MHz": "554",
+            "Stop_MHz": "560",
+            "Selected": "no"
+        },
+        "DTV_Channel_29": {
+            "Value": "TV Channel 29",
+            "Start_MHz": "560",
+            "Stop_MHz": "566",
+            "Selected": "no"
+        },
+        "DTV_Channel_30": {
+            "Value": "TV Channel 30",
+            "Start_MHz": "566",
+            "Stop_MHz": "572",
+            "Selected": "no"
+        },
+        "DTV_Channel_31": {
+            "Value": "TV Channel 31",
+            "Start_MHz": "572",
+            "Stop_MHz": "578",
+            "Selected": "no"
+        },
+        "DTV_Channel_32": {
+            "Value": "TV Channel 32",
+            "Start_MHz": "578",
+            "Stop_MHz": "584",
+            "Selected": "no"
+        },
+        "DTV_Channel_33": {
+            "Value": "TV Channel 33",
+            "Start_MHz": "584",
+            "Stop_MHz": "590",
+            "Selected": "no"
+        },
+        "DTV_Channel_34": {
+            "Value": "TV Channel 34",
+            "Start_MHz": "590",
+            "Stop_MHz": "596",
+            "Selected": "no"
+        },
+        "DTV_Channel_35": {
+            "Value": "TV Channel 35",
+            "Start_MHz": "596",
+            "Stop_MHz": "602",
+            "Selected": "no"
+        },
+        "DTV_Channel_36": {
+            "Value": "TV Channel 36",
+            "Start_MHz": "602",
+            "Stop_MHz": "608",
+            "Selected": "no"
+        },
+        "DTV_Channel_37_Radio_Astronomy": {
+            "Value": "TV Channel 37 (Radio Astronomy)",
+            "Start_MHz": "608",
+            "Stop_MHz": "614",
+            "Selected": "no"
+        },
+        "DTV_Channel_38": {
+            "Value": "TV Channel 38",
+            "Start_MHz": "614",
+            "Stop_MHz": "620",
+            "Selected": "no"
+        },
+        "DTV_Channel_39": {
+            "Value": "TV Channel 39",
+            "Start_MHz": "620",
+            "Stop_MHz": "626",
+            "Selected": "no"
+        },
+        "DTV_Channel_40": {
+            "Value": "TV Channel 40",
+            "Start_MHz": "626",
+            "Stop_MHz": "630",
+            "Selected": "no"
+        },
+        "DTV_Channel_41": {
+            "Value": "TV Channel 41",
+            "Start_MHz": "630",
+            "Stop_MHz": "638",
+            "Selected": "no"
+        },
+        "DTV_Channel_42": {
+            "Value": "TV Channel 42",
+            "Start_MHz": "638",
+            "Stop_MHz": "646",
+            "Selected": "no"
+        },
+        "DTV_Channel_43": {
+            "Value": "TV Channel 43",
+            "Start_MHz": "646",
+            "Stop_MHz": "654",
+            "Selected": "no"
+        },
+        "DTV_Channel_44": {
+            "Value": "TV Channel 44",
+            "Start_MHz": "654",
+            "Stop_MHz": "662",
+            "Selected": "no"
+        },
+        "DTV_Channel_45": {
+            "Value": "TV Channel 45",
+            "Start_MHz": "662",
+            "Stop_MHz": "670",
+            "Selected": "no"
+        },
+        "DTV_Channel_46": {
+            "Value": "TV Channel 46",
+            "Start_MHz": "670",
+            "Stop_MHz": "678",
+            "Selected": "no"
+        },
+        "DTV_Channel_47": {
+            "Value": "TV Channel 47",
+            "Start_MHz": "678",
+            "Stop_MHz": "686",
+            "Selected": "no"
+        },
+        "DTV_Channel_48": {
+            "Value": "TV Channel 48",
+            "Start_MHz": "686",
+            "Stop_MHz": "694",
+            "Selected": "no"
+        }
+    },
+    "European Union": {
+        "Selected": "no",
+        "TV_Channel_E5": {
+            "Value": "TV Channel E5",
+            "Start_MHz": "174",
+            "Stop_MHz": "181",
+            "Selected": "no"
+        },
+        "TV_Channel_E6": {
+            "Value": "TV Channel E6",
+            "Start_MHz": "181",
+            "Stop_MHz": "188",
+            "Selected": "no"
+        },
+        "TV_Channel_E7": {
+            "Value": "TV Channel E7",
+            "Start_MHz": "188",
+            "Stop_MHz": "195",
+            "Selected": "no"
+        },
+        "TV_Channel_E8": {
+            "Value": "TV Channel E8",
+            "Start_MHz": "195",
+            "Stop_MHz": "202",
+            "Selected": "no"
+        },
+        "TV_Channel_E9": {
+            "Value": "TV Channel E9",
+            "Start_MHz": "202",
+            "Stop_MHz": "209",
+            "Selected": "no"
+        },
+        "TV_Channel_E10": {
+            "Value": "TV Channel E10",
+            "Start_MHz": "209",
+            "Stop_MHz": "216",
+            "Selected": "no"
+        },
+        "DTV_Channel_E21": {
+            "Value": "TV Channel E21",
+            "Start_MHz": "470",
+            "Stop_MHz": "478",
+            "Selected": "no"
+        },
+        "DTV_Channel_E22": {
+            "Value": "TV Channel E22",
+            "Start_MHz": "478",
+            "Stop_MHz": "486",
+            "Selected": "no"
+        },
+        "DTV_Channel_E23": {
+            "Value": "TV Channel E23",
+            "Start_MHz": "486",
+            "Stop_MHz": "494",
+            "Selected": "no"
+        },
+        "DTV_Channel_E24": {
+            "Value": "TV Channel E24",
+            "Start_MHz": "494",
+            "Stop_MHz": "502",
+            "Selected": "no"
+        },
+        "DTV_Channel_E25": {
+            "Value": "TV Channel E25",
+            "Start_MHz": "502",
+            "Stop_MHz": "510",
+            "Selected": "no"
+        },
+        "DTV_Channel_E26": {
+            "Value": "TV Channel E26",
+            "Start_MHz": "510",
+            "Stop_MHz": "518",
+            "Selected": "no"
+        },
+        "DTV_Channel_E27": {
+            "Value": "TV Channel E27",
+            "Start_MHz": "518",
+            "Stop_MHz": "526",
+            "Selected": "no"
+        },
+        "DTV_Channel_E28": {
+            "Value": "TV Channel E28",
+            "Start_MHz": "526",
+            "Stop_MHz": "534",
+            "Selected": "no"
+        },
+        "DTV_Channel_E29": {
+            "Value": "TV Channel E29",
+            "Start_MHz": "534",
+            "Stop_MHz": "542",
+            "Selected": "no"
+        },
+        "DTV_Channel_E30": {
+            "Value": "TV Channel E30",
+            "Start_MHz": "542",
+            "Stop_MHz": "550",
+            "Selected": "no"
+        },
+        "DTV_Channel_E31": {
+            "Value": "TV Channel E31",
+            "Start_MHz": "550",
+            "Stop_MHz": "558",
+            "Selected": "no"
+        },
+        "DTV_Channel_E32": {
+            "Value": "TV Channel E32",
+            "Start_MHz": "558",
+            "Stop_MHz": "566",
+            "Selected": "no"
+        },
+        "DTV_Channel_E33": {
+            "Value": "TV Channel E33",
+            "Start_MHz": "566",
+            "Stop_MHz": "574",
+            "Selected": "no"
+        },
+        "DTV_Channel_E34": {
+            "Value": "TV Channel E34",
+            "Start_MHz": "574",
+            "Stop_MHz": "582",
+            "Selected": "no"
+        },
+        "DTV_Channel_E35": {
+            "Value": "TV Channel E35",
+            "Start_MHz": "582",
+            "Stop_MHz": "590",
+            "Selected": "no"
+        },
+        "DTV_Channel_E36": {
+            "Value": "TV Channel E36",
+            "Start_MHz": "590",
+            "Stop_MHz": "598",
+            "Selected": "no"
+        },
+        "DTV_Channel_E37": {
+            "Value": "TV Channel E37",
+            "Start_MHz": "598",
+            "Stop_MHz": "606",
+            "Selected": "no"
+        },
+        "DTV_Channel_E38": {
+            "Value": "TV Channel E38",
+            "Start_MHz": "606",
+            "Stop_MHz": "614",
+            "Selected": "no"
+        },
+        "DTV_Channel_E39": {
+            "Value": "TV Channel E39",
+            "Start_MHz": "614",
+            "Stop_MHz": "622",
+            "Selected": "no"
+        },
+        "DTV_Channel_E40": {
+            "Value": "TV Channel E40",
+            "Start_MHz": "622",
+            "Stop_MHz": "630",
+            "Selected": "no"
+        },
+        "DTV_Channel_E41": {
+            "Value": "TV Channel E41",
+            "Start_MHz": "630",
+            "Stop_MHz": "638",
+            "Selected": "no"
+        },
+        "DTV_Channel_E42": {
+            "Value": "TV Channel E42",
+            "Start_MHz": "638",
+            "Stop_MHz": "646",
+            "Selected": "no"
+        },
+        "DTV_Channel_E43": {
+            "Value": "TV Channel E43",
+            "Start_MHz": "646",
+            "Stop_MHz": "654",
+            "Selected": "no"
+        },
+        "DTV_Channel_E44": {
+            "Value": "TV Channel E44",
+            "Start_MHz": "654",
+            "Stop_MHz": "662",
+            "Selected": "no"
+        },
+        "DTV_Channel_E45": {
+            "Value": "TV Channel E45",
+            "Start_MHz": "662",
+            "Stop_MHz": "670",
+            "Selected": "no"
+        },
+        "DTV_Channel_E46": {
+            "Value": "TV Channel E46",
+            "Start_MHz": "670",
+            "Stop_MHz": "678",
+            "Selected": "no"
+        },
+        "DTV_Channel_E47": {
+            "Value": "TV Channel E47",
+            "Start_MHz": "678",
+            "Stop_MHz": "686",
+            "Selected": "no"
+        },
+        "DTV_Channel_E48": {
+            "Value": "TV Channel E48",
+            "Start_MHz": "686",
+            "Stop_MHz": "694",
+            "Selected": "no"
+        }
+    },
+    "Australia": {
+        "Selected": "no",
+        "TV_Channel_1": {
+            "Value": "TV Channel 1",
+            "Start_MHz": "56.5",
+            "Stop_MHz": "63.5",
+            "Selected": "no"
+        },
+        "TV_Channel_2": {
+            "Value": "TV Channel 2",
+            "Start_MHz": "63.5",
+            "Stop_MHz": "70.5",
+            "Selected": "no"
+        },
+        "TV_Channel_3": {
+            "Value": "TV Channel 3",
+            "Start_MHz": "84.5",
+            "Stop_MHz": "91.5",
+            "Selected": "no"
+        },
+        "TV_Channel_4": {
+            "Value": "TV Channel 4",
+            "Start_MHz": "91.5",
+            "Stop_MHz": "98.5",
+            "Selected": "no"
+        },
+        "DTV_Channel_7": {
+            "Value": "DTV Channel 7",
+            "Start_MHz": "181",
+            "Stop_MHz": "188",
+            "Selected": "no"
+        },
+        "DTV_Channel_8": {
+            "Value": "DTV Channel 8",
+            "Start_MHz": "188",
+            "Stop_MHz": "195",
+            "Selected": "no"
+        },
+        "DTV_Channel_9": {
+            "Value": "DTV Channel 9",
+            "Start_MHz": "195",
+            "Stop_MHz": "202",
+            "Selected": "no"
+        },
+        "DTV_Channel_10": {
+            "Value": "DTV Channel 10",
+            "Start_MHz": "216",
+            "Stop_MHz": "223",
+            "Selected": "no"
+        },
+        "DTV_Channel_11": {
+            "Value": "DTV Channel 11",
+            "Start_MHz": "223",
+            "Stop_MHz": "230",
+            "Selected": "no"
+        },
+        "DTV_Channel_28": {
+            "Value": "DTV Channel 28",
+            "Start_MHz": "526",
+            "Stop_MHz": "533",
+            "Selected": "no"
+        },
+        "DTV_Channel_29": {
+            "Value": "DTV Channel 29",
+            "Start_MHz": "533",
+            "Stop_MHz": "540",
+            "Selected": "no"
+        },
+        "DTV_Channel_30": {
+            "Value": "DTV Channel 30",
+            "Start_MHz": "540",
+            "Stop_MHz": "547",
+            "Selected": "no"
+        },
+        "DTV_Channel_31": {
+            "Value": "DTV Channel 31",
+            "Start_MHz": "547",
+            "Stop_MHz": "554",
+            "Selected": "no"
+        },
+        "DTV_Channel_32": {
+            "Value": "DTV Channel 32",
+            "Start_MHz": "554",
+            "Stop_MHz": "561",
+            "Selected": "no"
+        },
+        "DTV_Channel_33": {
+            "Value": "DTV Channel 33",
+            "Start_MHz": "561",
+            "Stop_MHz": "568",
+            "Selected": "no"
+        },
+        "DTV_Channel_34": {
+            "Value": "DTV Channel 34",
+            "Start_MHz": "568",
+            "Stop_MHz": "575",
+            "Selected": "no"
+        },
+        "DTV_Channel_35": {
+            "Value": "DTV Channel 35",
+            "Start_MHz": "575",
+            "Stop_MHz": "582",
+            "Selected": "no"
+        },
+        "DTV_Channel_36": {
+            "Value": "DTV Channel 36",
+            "Start_MHz": "582",
+            "Stop_MHz": "589",
+            "Selected": "no"
+        },
+        "DTV_Channel_37": {
+            "Value": "DTV Channel 37",
+            "Start_MHz": "589",
+            "Stop_MHz": "596",
+            "Selected": "no"
+        },
+        "DTV_Channel_38": {
+            "Value": "DTV Channel 38",
+            "Start_MHz": "596",
+            "Stop_MHz": "603",
+            "Selected": "no"
+        },
+        "DTV_Channel_39": {
+            "Value": "DTV Channel 39",
+            "Start_MHz": "603",
+            "Stop_MHz": "610",
+            "Selected": "no"
+        }
+    },
+    "Latin America": {
+        "Selected": "no",
+        "TV_Channel_2": {
+            "Value": "TV Channel 2",
+            "Start_MHz": "54",
+            "Stop_MHz": "60",
+            "Selected": "no"
+        },
+        "TV_Channel_3": {
+            "Value": "TV Channel 3",
+            "Start_MHz": "60",
+            "Stop_MHz": "66",
+            "Selected": "no"
+        },
+        "TV_Channel_4": {
+            "Value": "TV Channel 4",
+            "Start_MHz": "66",
+            "Stop_MHz": "72",
+            "Selected": "no"
+        },
+        "TV_Channel_5": {
+            "Value": "TV Channel 5",
+            "Start_MHz": "76",
+            "Stop_MHz": "82",
+            "Selected": "no"
+        },
+        "TV_Channel_6": {
+            "Value": "TV Channel 6",
+            "Start_MHz": "82",
+            "Stop_MHz": "88",
+            "Selected": "no"
+        },
+        "TV_Channel_7": {
+            "Value": "TV Channel 7",
+            "Start_MHz": "174",
+            "Stop_MHz": "180",
+            "Selected": "no"
+        },
+        "TV_Channel_8": {
+            "Value": "TV Channel 8",
+            "Start_MHz": "180",
+            "Stop_MHz": "186",
+            "Selected": "no"
+        },
+        "TV_Channel_9": {
+            "Value": "TV Channel 9",
+            "Start_MHz": "186",
+            "Stop_MHz": "192",
+            "Selected": "no"
+        },
+        "TV_Channel_10": {
+            "Value": "TV Channel 10",
+            "Start_MHz": "192",
+            "Stop_MHz": "198",
+            "Selected": "no"
+        },
+        "TV_Channel_11": {
+            "Value": "TV Channel 11",
+            "Start_MHz": "198",
+            "Stop_MHz": "204",
+            "Selected": "no"
+        },
+        "TV_Channel_12": {
+            "Value": "TV Channel 12",
+            "Start_MHz": "204",
+            "Stop_MHz": "210",
+            "Selected": "no"
+        },
+        "TV_Channel_13": {
+            "Value": "TV Channel 13",
+            "Start_MHz": "210",
+            "Stop_MHz": "216",
+            "Selected": "no"
+        },
+        "DTV_Channel_14": {
+            "Value": "TV Channel 14",
+            "Start_MHz": "470",
+            "Stop_MHz": "476",
+            "Selected": "no"
+        },
+        "DTV_Channel_15": {
+            "Value": "TV Channel 15",
+            "Start_MHz": "476",
+            "Stop_MHz": "482",
+            "Selected": "no"
+        },
+        "DTV_Channel_16": {
+            "Value": "TV Channel 16",
+            "Start_MHz": "482",
+            "Stop_MHz": "488",
+            "Selected": "no"
+        },
+        "DTV_Channel_17": {
+            "Value": "TV Channel 17",
+            "Start_MHz": "488",
+            "Stop_MHz": "494",
+            "Selected": "no"
+        },
+        "DTV_Channel_18": {
+            "Value": "TV Channel 18",
+            "Start_MHz": "494",
+            "Stop_MHz": "500",
+            "Selected": "no"
+        },
+        "DTV_Channel_19": {
+            "Value": "TV Channel 19",
+            "Start_MHz": "500",
+            "Stop_MHz": "506",
+            "Selected": "no"
+        },
+        "DTV_Channel_20": {
+            "Value": "TV Channel 20",
+            "Start_MHz": "506",
+            "Stop_MHz": "512",
+            "Selected": "no"
+        },
+        "DTV_Channel_21": {
+            "Value": "TV Channel 21",
+            "Start_MHz": "512",
+            "Stop_MHz": "518",
+            "Selected": "no"
+        },
+        "DTV_Channel_22": {
+            "Value": "TV Channel 22",
+            "Start_MHz": "518",
+            "Stop_MHz": "524",
+            "Selected": "no"
+        },
+        "DTV_Channel_23": {
+            "Value": "TV Channel 23",
+            "Start_MHz": "524",
+            "Stop_MHz": "530",
+            "Selected": "no"
+        },
+        "DTV_Channel_24": {
+            "Value": "TV Channel 24",
+            "Start_MHz": "530",
+            "Stop_MHz": "536",
+            "Selected": "no"
+        },
+        "DTV_Channel_25": {
+            "Value": "TV Channel 25",
+            "Start_MHz": "536",
+            "Stop_MHz": "542",
+            "Selected": "no"
+        },
+        "DTV_Channel_26": {
+            "Value": "TV Channel 26",
+            "Start_MHz": "542",
+            "Stop_MHz": "548",
+            "Selected": "no"
+        },
+        "DTV_Channel_27": {
+            "Value": "TV Channel 27",
+            "Start_MHz": "548",
+            "Stop_MHz": "554",
+            "Selected": "no"
+        },
+        "DTV_Channel_28": {
+            "Value": "TV Channel 28",
+            "Start_MHz": "554",
+            "Stop_MHz": "560",
+            "Selected": "no"
+        },
+        "DTV_Channel_29": {
+            "Value": "TV Channel 29",
+            "Start_MHz": "560",
+            "Stop_MHz": "566",
+            "Selected": "no"
+        },
+        "DTV_Channel_30": {
+            "Value": "TV Channel 30",
+            "Start_MHz": "566",
+            "Stop_MHz": "572",
+            "Selected": "no"
+        },
+        "DTV_Channel_31": {
+            "Value": "TV Channel 31",
+            "Start_MHz": "572",
+            "Stop_MHz": "578",
+            "Selected": "no"
+        },
+        "DTV_Channel_32": {
+            "Value": "TV Channel 32",
+            "Start_MHz": "578",
+            "Stop_MHz": "584",
+            "Selected": "no"
+        },
+        "DTV_Channel_33": {
+            "Value": "TV Channel 33",
+            "Start_MHz": "584",
+            "Stop_MHz": "590",
+            "Selected": "no"
+        },
+        "DTV_Channel_34": {
+            "Value": "TV Channel 34",
+            "Start_MHz": "590",
+            "Stop_MHz": "596",
+            "Selected": "no"
+        },
+        "DTV_Channel_35": {
+            "Value": "TV Channel 35",
+            "Start_MHz": "596",
+            "Stop_MHz": "602",
+            "Selected": "no"
+        },
+        "DTV_Channel_36": {
+            "Value": "TV Channel 36",
+            "Start_MHz": "602",
+            "Stop_MHz": "608",
+            "Selected": "no"
+        },
+        "DTV_Channel_37": {
+            "Value": "TV Channel 37",
+            "Start_MHz": "608",
+            "Stop_MHz": "614",
+            "Selected": "no"
+        },
+        "DTV_Channel_38": {
+            "Value": "TV Channel 38",
+            "Start_MHz": "614",
+            "Stop_MHz": "620",
+            "Selected": "no"
+        },
+        "DTV_Channel_39": {
+            "Value": "TV Channel 39",
+            "Start_MHz": "620",
+            "Stop_MHz": "626",
+            "Selected": "no"
+        },
+        "DTV_Channel_40": {
+            "Value": "TV Channel 40",
+            "Start_MHz": "626",
+            "Stop_MHz": "632",
+            "Selected": "no"
+        },
+        "DTV_Channel_41": {
+            "Value": "TV Channel 41",
+            "Start_MHz": "632",
+            "Stop_MHz": "638",
+            "Selected": "no"
+        },
+        "DTV_Channel_42": {
+            "Value": "TV Channel 42",
+            "Start_MHz": "638",
+            "Stop_MHz": "644",
+            "Selected": "no"
+        },
+        "DTV_Channel_43": {
+            "Value": "TV Channel 43",
+            "Start_MHz": "644",
+            "Stop_MHz": "650",
+            "Selected": "no"
+        },
+        "DTV_Channel_44": {
+            "Value": "TV Channel 44",
+            "Start_MHz": "650",
+            "Stop_MHz": "656",
+            "Selected": "no"
+        },
+        "DTV_Channel_45": {
+            "Value": "TV Channel 45",
+            "Start_MHz": "656",
+            "Stop_MHz": "662",
+            "Selected": "no"
+        },
+        "DTV_Channel_46": {
+            "Value": "TV Channel 46",
+            "Start_MHz": "662",
+            "Stop_MHz": "668",
+            "Selected": "no"
+        },
+        "DTV_Channel_47": {
+            "Value": "TV Channel 47",
+            "Start_MHz": "668",
+            "Stop_MHz": "674",
+            "Selected": "no"
+        },
+        "DTV_Channel_48": {
+            "Value": "TV Channel 48",
+            "Start_MHz": "674",
+            "Stop_MHz": "680",
+            "Selected": "no"
+        },
+        "DTV_Channel_49": {
+            "Value": "TV Channel 49",
+            "Start_MHz": "680",
+            "Stop_MHz": "686",
+            "Selected": "no"
+        },
+        "DTV_Channel_50": {
+            "Value": "TV Channel 50",
+            "Start_MHz": "686",
+            "Stop_MHz": "692",
+            "Selected": "no"
+        },
+        "DTV_Channel_51": {
+            "Value": "TV Channel 51",
+            "Start_MHz": "692",
+            "Stop_MHz": "698",
+            "Selected": "no"
+        },
+        "DTV_Channel_52": {
+            "Value": "TV Channel 52",
+            "Start_MHz": "698",
+            "Stop_MHz": "704",
+            "Selected": "no"
+        },
+        "DTV_Channel_53": {
+            "Value": "TV Channel 53",
+            "Start_MHz": "704",
+            "Stop_MHz": "710",
+            "Selected": "no"
+        },
+        "DTV_Channel_54": {
+            "Value": "TV Channel 54",
+            "Start_MHz": "710",
+            "Stop_MHz": "716",
+            "Selected": "no"
+        },
+        "DTV_Channel_55": {
+            "Value": "TV Channel 55",
+            "Start_MHz": "716",
+            "Stop_MHz": "722",
+            "Selected": "no"
+        },
+        "DTV_Channel_56": {
+            "Value": "TV Channel 56",
+            "Start_MHz": "722",
+            "Stop_MHz": "728",
+            "Selected": "no"
+        },
+        "DTV_Channel_57": {
+            "Value": "TV Channel 57",
+            "Start_MHz": "728",
+            "Stop_MHz": "734",
+            "Selected": "no"
+        },
+        "DTV_Channel_58": {
+            "Value": "TV Channel 58",
+            "Start_MHz": "734",
+            "Stop_MHz": "740",
+            "Selected": "no"
+        },
+        "DTV_Channel_59": {
+            "Value": "TV Channel 59",
+            "Start_MHz": "740",
+            "Stop_MHz": "746",
+            "Selected": "no"
+        },
+        "DTV_Channel_60": {
+            "Value": "TV Channel 60",
+            "Start_MHz": "746",
+            "Stop_MHz": "752",
+            "Selected": "no"
+        },
+        "DTV_Channel_61": {
+            "Value": "TV Channel 61",
+            "Start_MHz": "752",
+            "Stop_MHz": "758",
+            "Selected": "no"
+        },
+        "DTV_Channel_62": {
+            "Value": "TV Channel 62",
+            "Start_MHz": "758",
+            "Stop_MHz": "764",
+            "Selected": "no"
+        },
+        "DTV_Channel_63": {
+            "Value": "TV Channel 63",
+            "Start_MHz": "764",
+            "Stop_MHz": "770",
+            "Selected": "no"
+        },
+        "DTV_Channel_64": {
+            "Value": "TV Channel 64",
+            "Start_MHz": "770",
+            "Stop_MHz": "776",
+            "Selected": "no"
+        },
+        "DTV_Channel_65": {
+            "Value": "TV Channel 65",
+            "Start_MHz": "776",
+            "Stop_MHz": "782",
+            "Selected": "no"
+        },
+        "DTV_Channel_66": {
+            "Value": "TV Channel 66",
+            "Start_MHz": "782",
+            "Stop_MHz": "788",
+            "Selected": "no"
+        },
+        "DTV_Channel_67": {
+            "Value": "TV Channel 67",
+            "Start_MHz": "788",
+            "Stop_MHz": "794",
+            "Selected": "no"
+        },
+        "DTV_Channel_68": {
+            "Value": "TV Channel 68",
+            "Start_MHz": "794",
+            "Stop_MHz": "800",
+            "Selected": "no"
+        },
+        "DTV_Channel_69": {
+            "Value": "TV Channel 69",
+            "Start_MHz": "800",
+            "Stop_MHz": "806",
+            "Selected": "no"
+        }
+    }
+}

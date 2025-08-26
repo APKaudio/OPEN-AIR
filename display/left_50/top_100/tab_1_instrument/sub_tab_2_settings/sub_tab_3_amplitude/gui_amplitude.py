@@ -1,8 +1,7 @@
-# tabs/Instrument/tab_instrument_child_settings_amplitude.py
+MQTT_TOPIC_FILTER = "OPEN-AIR/program/configuration/instrument/Settings/Amplitude_Settings"
+# display/gui_frequency.py
 #
-# This file defines the AmplitudeSettingsTab, a Tkinter Frame for controlling a spectrum
-# analyzer's amplitude-related settings. This version is now fully integrated into the
-# main application, using a shared MQTT utility for communication.
+# A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -15,375 +14,272 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.131230.1
+# Version 20250825.200730.3
 
 import os
 import inspect
 import datetime
 import tkinter as tk
 from tkinter import ttk
+import pathlib
 import json
-import paho.mqtt.client as mqtt
-import threading
-import numpy as np
-from collections import defaultdict
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
-from display.styling.style import THEMES, DEFAULT_THEME
 from workers.mqtt_controller_util import MqttControllerUtility
+from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
-CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
-CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 1
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
-current_file = f"tabs/Instrument/tab_instrument_child_settings_amplitude.py"
+CURRENT_DATE = 20250825
+CURRENT_TIME = 200730
+REVISION_NUMBER = 3
+current_version = "20250825.200730.3"
+current_version_hash = 20250825 * 200730 * 3
+current_file_path = pathlib.Path(__file__).resolve()
+project_root = current_file_path.parent.parent.parent
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
-# Mocked preset lists for the UI, as the original imports have been removed.
-PRESET_AMPLITUDE_REFERENCE_LEVEL = [
-    {"label": "-10", "value": -10.0, "description": "High signal level, good for strong signals."},
-    {"label": "0", "value": 0.0, "description": "General purpose level, standard for most signals."},
-    {"label": "10", "value": 10.0, "description": "Higher signal level, for stronger signals."},
-]
-PRESET_AMPLITUDE_POWER_ATTENUATION = [
-    {"label": "0", "value": 0.0, "description": "No attenuation, for very weak signals."},
-    {"label": "10", "value": 10.0, "description": "Standard 10 dB attenuation."},
-    {"label": "20", "value": 20.0, "description": "Higher 20 dB attenuation, for strong signals."},
-]
-PRESET_AMPLITUDE_PREAMP_STATE = [
-    {"label": "PREAMP ON", "value": "ON"},
-    {"label": "PREAMP OFF", "value": "OFF"}
-]
-PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE = [
-    {"label": "HIGH SENSITIVITY ON", "value": "ON"},
-    {"label": "HIGH SENSITIVITY OFF", "value": "OFF"}
-]
+# --- No Magic Numbers (as per your instructions) ---
+
+TOPIC_DELIMITER = "/"
 
 
-class AmplitudeSettingsTab(ttk.Frame):
+class gui_file_paths(ttk.Frame):
     """
-    A Tkinter Frame that provides a user interface for amplitude settings.
-    This version correctly uses a parent-provided MQTT utility class.
+    A GUI component for displaying MQTT data in a dynamic, hierarchical layout.
     """
-    def __init__(self, master=None, mqtt_util=None, *args, **kwargs):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Initializing AmplitudeSettingsTab. Setting up the GUI and its logic. 💻",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-
-        super().__init__(master, *args, **kwargs)
-        self.pack(fill="both", expand=True)
-
-        self.mqtt_util = mqtt_util
-        self._message_counter = 0
-        self._button_status = defaultdict(lambda: None)
+    def __init__(self, parent, mqtt_util, *args, **kwargs):
+        """
+        Initializes the GUI, sets up the layout, and subscribes to the MQTT topic.
         
-        self.is_ref_level_tracing = False
-        self.is_attenuation_tracing = False
-        
-        # Mock Tkinter variables for the UI
-        self.preamp_state_var = tk.BooleanVar(self, value=False)
-        self.high_sensitivity_state_var = tk.BooleanVar(self, value=False)
-        self.ref_level_dbm_var = tk.DoubleVar(self, value=PRESET_AMPLITUDE_REFERENCE_LEVEL[1]['value'])
-        self.power_attenuation_db_var = tk.DoubleVar(self, value=PRESET_AMPLITUDE_POWER_ATTENUATION[1]['value'])
-        self.mqtt_status_var = tk.StringVar(self, value="Last MQTT Payload: N/A")
+        Args:
+            parent (tk.Widget): The parent widget for this frame.
+            mqtt_util (MqttControllerUtility): The MQTT utility instance for communication.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
 
-        self._apply_styles(theme_name=DEFAULT_THEME)
-        self._create_widgets()
-        
-        if self.mqtt_util:
-            self.mqtt_util.add_subscriber(topic_filter="conductor/test/#", callback_func=self._on_message)
+        debug_log(
+            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
 
+        try:
+            super().__init__(parent, *args, **kwargs)
+            self.pack(fill=tk.BOTH, expand=True)
+
+            self.current_file = current_file
+            self.current_version = current_version
+            self.current_version_hash = current_version_hash
+            self.mqtt_util = mqtt_util
+            self.current_class_name = self.__class__.__name__
+            self.topic_widgets = {}  # Dictionary to store widget references
+
+            self._apply_styles(theme_name=DEFAULT_THEME)
+            colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
+
+            # --- Main Content Frame (everything above the status bar) ---
+            content_frame = ttk.Frame(self)
+            content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+            # A canvas to hold the dynamic content and allow scrolling
+            self.canvas = tk.Canvas(content_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
+            self.scroll_frame = ttk.Frame(self.canvas)
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
+            
+            scrollbar = ttk.Scrollbar(content_frame, orient=tk.VERTICAL, command=self.canvas.yview)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.canvas.configure(yscrollcommand=scrollbar.set)
+            
+            self.scroll_frame.bind(
+                "<Configure>",
+                lambda e: self.canvas.configure(
+                    scrollregion=self.canvas.bbox("all")
+                )
+            )
+
+            # This frame will hold the dynamic content
+            self.main_frame = ttk.LabelFrame(self.scroll_frame, text="MQTT Data")
+            self.main_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            
+            # --- Status Bar at the bottom ---
+            status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
+            status_bar.pack(side=tk.BOTTOM, fill=tk.X, expand=False)
+
+            file_parts = self.current_file.rsplit('/', 1)
+            file_folder = file_parts[0] if len(file_parts) > 1 else ""
+            file_name = file_parts[-1]
+
+            status_text = f"Version: {self.current_version} | Folder: {file_folder} | File: {file_name}"
+            status_label = ttk.Label(status_bar, text=status_text, anchor='w')
+            status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            
+            self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_FILTER}/#", callback_func=self._on_commands_message)
+
+            console_log("✅ Meta Data GUI initialized successfully!")
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+    
     def _apply_styles(self, theme_name: str):
-        """Applies a theme based on the central style definition."""
-        colors = THEMES.get(theme_name)
+        """
+        Applies the specified theme to the GUI elements using ttk.Style.
+        """
+        colors = THEMES.get(theme_name, THEMES["dark"])
         style = ttk.Style(self)
         style.theme_use("clam")
+
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TButton', background=colors["accent"], foreground=colors["text"])
-        style.map('Orange.TButton',
-                  background=[('!active', 'orange'), ('active', 'orange')])
-        style.map('Blue.TButton',
-                  background=[('!active', colors['accent']), ('active', colors['secondary'])])
-        style.map('TButton',
-                  background=[('active', colors['secondary'])])
-        style.map('Red.TButton',
-                  background=[('!active', 'red'), ('active', 'darkred')])
-        style.map('Green.TButton',
-                  background=[('!active', 'green'), ('active', 'darkgreen')])
-        style.configure('Description.TLabel', background=colors["bg"], foreground=colors["fg"], font=("Helvetica", 8, "italic"))
-        style.configure('InteractionBars.TScale', troughcolor=colors["secondary"], background=colors["accent"])
+        style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+        style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
+        style.map('TButton', background=[('active', colors["secondary"])])
+        
+        # New styling for the entry widgets based on the new dictionary
+        textbox_style = colors["textbox_style"]
+        style.configure('Custom.TEntry',
+                        font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
+                        foreground=textbox_style["Textbox_Font_colour"],
+                        background=textbox_style["Textbox_BG_colour"],
+                        fieldbackground=textbox_style["Textbox_BG_colour"],
+                        bordercolor=textbox_style["Textbox_border_colour"])
 
-    def _create_widgets(self):
+
+    def _on_entry_changed(self, event, topic, entry_widget):
         """
-        Creates and arranges the widgets for the Amplitude Settings tab.
+        Event handler for when a textbox's value changes and loses focus.
+        It publishes the new value back to the corresponding MQTT topic.
         """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. The mad scientist is preparing the amplitude controls! 🔊🧪",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-
-        self.grid_columnconfigure(0, weight=1)
+        current_function_name = inspect.currentframe().f_code.co_name
+        new_value = entry_widget.get()
         
-        # --- Top Buttons for Preamp and High Sensitivity ---
-        top_buttons_frame = ttk.Frame(self)
-        top_buttons_frame.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-        top_buttons_frame.grid_columnconfigure(0, weight=1)
-        top_buttons_frame.grid_columnconfigure(1, weight=1)
+        # Split the topic into the main topic and the subtopic
+        topic_parts = topic.split(TOPIC_DELIMITER)
+        main_topic = TOPIC_DELIMITER.join(topic_parts[:-1])
+        subtopic = topic_parts[-1]
         
-        self.preamp_toggle_button = ttk.Button(top_buttons_frame,
-                                               text="PREAMP OFF",
-                                               command=lambda: self._on_toggle_button_press(button_id="preamp"),
-                                               style='Red.TButton')
-        self.preamp_toggle_button.grid(row=0, column=0, padx=5, pady=2, sticky="ew")
-        self._button_status["preamp"] = self.preamp_toggle_button
+        debug_log(
+            message=f"🖥️🔵 Textbox changed for topic '{topic}'. Publishing new value: '{new_value}'.",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
 
-        self.hs_toggle_button = ttk.Button(top_buttons_frame,
-                                           text="HIGH SENSITIVITY OFF",
-                                           command=lambda: self._on_toggle_button_press(button_id="high_sensitivity"),
-                                           style='Red.TButton')
-        self.hs_toggle_button.grid(row=0, column=1, padx=5, pady=2, sticky="ew")
-        self._button_status["high_sensitivity"] = self.hs_toggle_button
-        
-        # --- Reference Level Controls (New layout) ---
-        ref_level_frame = ttk.Frame(self)
-        ref_level_frame.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
-        ref_level_frame.grid_columnconfigure(0, weight=1)
-
-        ref_level_title_frame = ttk.Frame(ref_level_frame)
-        ref_level_title_frame.grid(row=0, column=0, sticky="ew")
-        ref_level_title_frame.grid_columnconfigure(1, weight=1)
-        
-        ttk.Label(ref_level_title_frame, text="Reference Level (dBm):").grid(row=0, column=0, padx=5, sticky="w")
-        self.ref_level_value_label = ttk.Label(ref_level_title_frame, textvariable=self.ref_level_dbm_var)
-        self.ref_level_value_label.grid(row=0, column=1, padx=5, sticky="e")
-
-        ref_values = [p["value"] for p in PRESET_AMPLITUDE_REFERENCE_LEVEL]
-        ref_min = min(ref_values)
-        ref_max = max(ref_values)
-        self.ref_level_slider = ttk.Scale(ref_level_frame,
-                                          orient="horizontal",
-                                          variable=self.ref_level_dbm_var,
-                                          from_=ref_min,
-                                          to=ref_max,
-                                          command=lambda v: self._update_descriptions(value=float(v), preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.ref_level_dbm_var))
-        self.ref_level_slider.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        self.ref_level_slider.bind("<ButtonRelease-1>", lambda e: self._publish_test_message(button_id="ref_level_slider"))
-        self._button_status["ref_level_slider"] = self.ref_level_slider
-        
-        self.ref_level_description_label = ttk.Label(ref_level_frame, text="", style='Description.TLabel', anchor="center")
-        self.ref_level_description_label.grid(row=2, column=0, padx=5, pady=2, sticky="ew")
-        
-        # --- Spacer ---
-        ttk.Frame(self, height=10).grid(row=2, column=0)
-
-        # --- Power Attenuation Controls (New layout) ---
-        power_att_frame = ttk.Frame(self)
-        power_att_frame.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
-        power_att_frame.grid_columnconfigure(0, weight=1)
-
-        power_att_title_frame = ttk.Frame(power_att_frame)
-        power_att_title_frame.grid(row=0, column=0, sticky="ew")
-        power_att_title_frame.grid_columnconfigure(1, weight=1)
-        
-        ttk.Label(power_att_title_frame, text="Power Attenuation (dB):").grid(row=0, column=0, padx=5, sticky="w")
-        self.power_attenuation_value_label = ttk.Label(power_att_title_frame, textvariable=self.power_attenuation_db_var)
-        self.power_attenuation_value_label.grid(row=0, column=1, padx=5, sticky="e")
-
-        att_values = [p["value"] for p in PRESET_AMPLITUDE_POWER_ATTENUATION]
-        att_min = min(att_values)
-        att_max = max(att_values)
-        self.power_attenuation_slider = ttk.Scale(power_att_frame,
-                                                  orient="horizontal",
-                                                  variable=self.power_attenuation_db_var,
-                                                  from_=att_min,
-                                                  to=att_max,
-                                                  command=lambda v: self._update_descriptions(value=float(v), preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.power_attenuation_db_var))
-        self.power_attenuation_slider.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
-        self.power_attenuation_slider.bind("<ButtonRelease-1>", lambda e: self._publish_test_message(button_id="power_attenuation_slider"))
-        self._button_status["power_attenuation_slider"] = self.power_attenuation_slider
-
-        self.power_attenuation_description_label = ttk.Label(power_att_frame, text="", style='Description.TLabel', anchor="center")
-        self.power_attenuation_description_label.grid(row=2, column=0, padx=5, pady=2, sticky="ew")
-        
-        # --- NEW: MQTT Status Label ---
-        mqtt_status_frame = ttk.Frame(self)
-        mqtt_status_frame.grid(row=4, column=0, padx=10, pady=5, sticky="ew")
-        mqtt_status_frame.grid_columnconfigure(0, weight=1)
-        ttk.Label(mqtt_status_frame, textvariable=self.mqtt_status_var, anchor="center").grid(row=0, column=0, sticky="ew")
-
-        self._update_descriptions(value=self.ref_level_dbm_var.get(), preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.ref_level_dbm_var)
-        self._update_descriptions(value=self.power_attenuation_db_var.get(), preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.power_attenuation_db_var)
-
-        debug_log(message=f"Widgets for Amplitude Settings Tab created. The amplitude controls are ready! 📉�",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-
-
-    def _on_toggle_button_press(self, button_id):
-        """Toggles the state of a button and publishes a test message."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. Button ID: {button_id}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-        
-        if button_id == "preamp":
-            current_state = self.preamp_state_var.get()
-            self.preamp_state_var.set(not current_state)
-            self._update_toggle_button_style(button=self._button_status["preamp"], state=not current_state)
-        elif button_id == "high_sensitivity":
-            current_state = self.high_sensitivity_state_var.get()
-            self.high_sensitivity_state_var.set(not current_state)
-            self._update_toggle_button_style(button=self._button_status["high_sensitivity"], state=not current_state)
-
-        self._publish_test_message(button_id)
-        
-    def _find_closest_preset_value(self, value, preset_list):
-        """Finds the closest discrete preset value for a given float value."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. Finding closest preset for value: {value}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-
-        values = [p["value"] for p in preset_list]
-        return min(values, key=lambda x: abs(x - value))
-
-    def _update_descriptions(self, value, preset_list, label, var):
-        """
-        Updates a description label and the variable value based on the slider value
-        by finding the closest preset and snapping to it.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. Seeking the closest preset for a value of {value}...",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-        
-        closest_value = self._find_closest_preset_value(value, preset_list)
-        
-        closest_preset = next((preset for preset in preset_list if np.isclose(preset["value"], closest_value)), None)
-
-        if closest_preset:
-            var.set(closest_preset["value"])
-            label.config(text=closest_preset["description"])
-            debug_log(message=f"Found a description! ' {closest_preset['description']} '",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function,
-                      console_print_func=console_log)
-        else:
-            label.config(text="No matching description found.")
-            debug_log(message=f"Arrr, no description to be found! Shiver me timbers! 🏴‍☠️",
-                      file=os.path.basename(__file__),
-                      version=current_version,
-                      function=current_function,
-                      console_print_func=console_log)
-
-    def _update_button_style(self, button_id, value):
-        """A simple function to update button styles based on the received payload."""
-        button = self._button_status.get(button_id)
-        if button:
-            if value % 2 == 1:
-                if isinstance(button, ttk.Button):
-                    button.configure(style='Orange.TButton')
-                else:
-                    # Not a button, so we update the variable
-                    pass
-            else:
-                if isinstance(button, ttk.Button):
-                    button.configure(style='Blue.TButton')
-                else:
-                    # Not a button, so we update the variable
-                    pass
-
-    def _on_message(self, topic, payload):
-        """The callback for when a PUBLISH message is received from the server."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function} with arguments: topic: {topic}, payload: {payload}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
         try:
-            payload_data = json.loads(payload)
-            value = payload_data.get("value")
-            subtopic = topic.split('/')[-1]
-            self.mqtt_status_var.set(f"Last MQTT Payload: {value}")
-            
-            button_id = subtopic.split('_')[-1]
-            
-            if button_id == "preamp":
-                 if value % 2 == 1: # ON state
-                     self._update_toggle_button_style(self._button_status["preamp"], state=True)
-                 else: # OFF state
-                     self._update_toggle_button_style(self._button_status["preamp"], state=False)
-            elif button_id == "high_sensitivity":
-                 if value % 2 == 1: # ON state
-                     self._update_toggle_button_style(self._button_status["high_sensitivity"], state=True)
-                 else: # OFF state
-                     self._update_toggle_button_style(self._button_status["high_sensitivity"], state=False)
-            else:
-                self._update_button_style(button_id, value)
-            
-            console_log("✅ Received message and updated result label.")
-        except json.JSONDecodeError:
-            console_log("❌ Failed to decode message payload as JSON.")
-
-    def _publish_test_message(self, button_id):
-        """Publishes an incrementing test message to the MQTT broker."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function} with argument: button_id: {button_id}",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
-        
-        self._message_counter += 1
-        topic = "conductor/test"
-        payload = json.dumps({"value": self._message_counter})
-        
-        try:
-            self.mqtt_util.publish_message(topic=topic, subtopic=f"test_amplitude_{button_id}", value=payload)
-            console_log(f"✅ Published message to '{topic}/test_amplitude_{button_id}': {payload}")
+            # Pass the raw string value to the utility, letting it handle the JSON formatting.
+            self.mqtt_util.publish_message(topic=main_topic, subtopic=subtopic, value=new_value)
+            console_log(f"✅ Published updated value '{new_value}' to '{topic}'!")
         except Exception as e:
-            console_log(f"❌ Failed to publish message: {e}")
+            console_log(f"❌ Error publishing message to {topic}: {e}")
+            debug_log(
+                message=f"❌🔴 Failed to publish new value! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
-    def _update_toggle_button_style(self, button, state):
-        """Updates the style and text of a toggle button based on its state."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(message=f"Entering {current_function}. Updating button style for state: {state} 🤔",
-                  file=os.path.basename(__file__),
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
+    def _on_commands_message(self, topic, payload):
+        """
+        Processes an incoming MQTT message and dynamically updates the GUI layout.
+        The function removes the topic filter, splits the remaining topic path, and
+        either creates new nested LabelFrames and widgets or updates an existing Entry box.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
         
-        # Determine the correct preset list to use based on the button instance
-        preset_list = None
-        if button == self._button_status.get("preamp"):
-            preset_list = PRESET_AMPLITUDE_PREAMP_STATE
-            if state:
-                button.config(style='Green.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'ON'), "ON"))
-            else:
-                button.config(style='Red.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'OFF'), "OFF"))
-        elif button == self._button_status.get("high_sensitivity"):
-            preset_list = PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE
-            if state:
-                button.config(style='Green.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'ON'), "ON"))
-            else:
-                button.config(style='Red.TButton', text=next((p['label'] for p in preset_list if p['value'] == 'OFF'), "OFF"))
+        debug_log(
+            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        try:
+            # Safely parse the payload
+            try:
+                parsed_payload = json.loads(payload)
+                value_to_display = parsed_payload.get("value", payload)
+                # Strip the extra quotes if they exist
+                if isinstance(value_to_display, str) and value_to_display.startswith('"') and value_to_display.endswith('"'):
+                    value_to_display = value_to_display[1:-1]
+            except json.JSONDecodeError:
+                value_to_display = payload
 
+            # Check if the widget for this topic already exists
+            if topic in self.topic_widgets:
+                entry_widget = self.topic_widgets[topic]
+                entry_widget.delete(0, tk.END)
+                entry_widget.insert(0, value_to_display)
+                console_log(f"✅ Updated existing widget for '{topic}' with payload: '{value_to_display}'.")
+                return
+
+            # If it's a new topic, build the hierarchy
+            topic_prefix = MQTT_TOPIC_FILTER
+            topic_path = topic.replace(topic_prefix, "").strip(TOPIC_DELIMITER)
+            nodes = topic_path.split(TOPIC_DELIMITER)
+            
+            current_frame = self.main_frame
+            for i, node in enumerate(nodes):
+                
+                # Ignore the "Active" node as per your request
+                if node == "Active":
+                    continue
+                
+                is_last_node = (i == len(nodes) - 1)
+                
+                if not is_last_node:
+                    # This is a parent node, find or create the LabelFrame
+                    frame_name = f"frame_{node}"
+                    if not hasattr(current_frame, frame_name):
+                        new_frame = ttk.LabelFrame(current_frame, text=node.replace('_', ' ').title())
+                        setattr(current_frame, frame_name, new_frame)
+                        new_frame.pack(fill=tk.X, expand=True, padx=5, pady=5)
+                        current_frame = new_frame
+                    else:
+                        current_frame = getattr(current_frame, frame_name)
+                else:
+                    # This is the end node, create a label and entry box
+                    sub_frame = ttk.Frame(current_frame)
+                    sub_frame.pack(fill=tk.X, expand=True, padx=5, pady=2)
+                    
+                    label_text = node.replace('_', ' ').title()
+                    label = ttk.Label(sub_frame, text=label_text)
+                    label.pack(side=tk.LEFT, padx=(5, 5))
+                    
+                    # Entry widget now uses the new custom style
+                    entry = ttk.Entry(sub_frame, width=80, style="Custom.TEntry")
+                    entry.insert(0, value_to_display)
+                    entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 5))
+                    
+                    # Bind the FocusOut event to the new entry
+                    entry.bind("<FocusOut>", lambda e, t=topic, ew=entry: self._on_entry_changed(e, t, ew))
+                    
+                    # Store the entry widget for future updates
+                    self.topic_widgets[topic] = entry
+                    
+                    console_log(f"✅ Added new widget for '{topic}' with payload: '{value_to_display}'.")
+
+            # The scroll_frame needs to be updated after a new widget is added
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+            
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 The GUI construction has failed! A plague upon this error: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )

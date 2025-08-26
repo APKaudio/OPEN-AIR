@@ -3,188 +3,188 @@
 
       "Amateur_Radio_6m": {
         "Value": "Amateur Radio 6m",
-        "Start MHz": 50,
-        "Stop MHz": 54
+        "Start_MHz": 50,
+        "Stop_MHz": 54
       },
       "FM_Broadcast": {
         "Value": "FM Broadcast",
-        "Start MHz": 88,
-        "Stop MHz": 108
+        "Start_MHz": 88,
+        "Stop_MHz": 108
       },
       "Air_Traffic_Control": {
         "Value": "Air Traffic Control",
-        "Start MHz": 108,
-        "Stop MHz": 137
+        "Start_MHz": 108,
+        "Stop_MHz": 137
       },
       "VHF_Marine_Radio": {
         "Value": "VHF Marine Radio",
-        "Start MHz": 156,
-        "Stop MHz": 162.025
+        "Start_MHz": 156,
+        "Stop_MHz": 162.025
       },
       "Amateur_Radio_2m": {
         "Value": "Amateur Radio 2m",
-        "Start MHz": 144,
-        "Stop MHz": 148
+        "Start_MHz": 144,
+        "Stop_MHz": 148
       },
       "Paging_Land_Mobile": {
         "Value": "Paging/Land Mobile",
-        "Start MHz": 150,
-        "Stop MHz": 174
+        "Start_MHz": 150,
+        "Stop_MHz": 174
       },
       "Public_Safety_Land_Mobile": {
         "Value": "Public Safety/Land Mobile",
-        "Start MHz": 450,
-        "Stop MHz": 470
+        "Start_MHz": 450,
+        "Stop_MHz": 470
       },
       "Amateur_Radio_70cm": {
         "Value": "Amateur Radio 70cm",
-        "Start MHz": 420,
-        "Stop MHz": 450
+        "Start_MHz": 420,
+        "Stop_MHz": 450
       },
       "FRS_GMRS": {
         "Value": "FRS/GMRS",
-        "Start MHz": 462.5,
-        "Stop MHz": 467.7625
+        "Start_MHz": 462.5,
+        "Stop_MHz": 467.7625
       },
       "LTE_Band_13_Uplink": {
         "Value": "LTE Band 13 (Uplink)",
-        "Start MHz": 777,
-        "Stop MHz": 787
+        "Start_MHz": 777,
+        "Stop_MHz": 787
       },
       "LTE_Band_13_Downlink": {
         "Value": "LTE Band 13 (Downlink)",
-        "Start MHz": 746,
-        "Stop MHz": 756
+        "Start_MHz": 746,
+        "Stop_MHz": 756
       },
       "Public_Safety_700_MHz": {
         "Value": "Public Safety 700 MHz",
-        "Start MHz": 764,
-        "Stop MHz": 776
+        "Start_MHz": 764,
+        "Stop_MHz": 776
       },
       "Public_Safety_800_MHz": {
         "Value": "Public Safety 800 MHz",
-        "Start MHz": 851,
-        "Stop MHz": 869
+        "Start_MHz": 851,
+        "Stop_MHz": 869
       },
       "LTE_Band_5_Uplink": {
         "Value": "LTE Band 5 (Uplink)",
-        "Start MHz": 824,
-        "Stop MHz": 849
+        "Start_MHz": 824,
+        "Stop_MHz": 849
       },
       "LTE_Band_5_Downlink": {
         "Value": "LTE Band 5 (Downlink)",
-        "Start MHz": 869,
-        "Stop MHz": 894
+        "Start_MHz": 869,
+        "Stop_MHz": 894
       },
       "GSM_850_Uplink": {
         "Value": "GSM 850 (Uplink)",
-        "Start MHz": 824,
-        "Stop MHz": 849
+        "Start_MHz": 824,
+        "Stop_MHz": 849
       },
       "GSM_850_Downlink": {
         "Value": "GSM 850 (Downlink)",
-        "Start MHz": 869,
-        "Stop MHz": 894
+        "Start_MHz": 869,
+        "Stop_MHz": 894
       },
       "Amateur_Radio_33cm": {
         "Value": "Amateur Radio 33cm",
-        "Start MHz": 902,
-        "Stop MHz": 928
+        "Start_MHz": 902,
+        "Stop_MHz": 928
       },
       "ISM_900_MHz": {
         "Value": "ISM 900 MHz",
-        "Start MHz": 902,
-        "Stop MHz": 928
+        "Start_MHz": 902,
+        "Stop_MHz": 928
       },
       "LTE_Band_2_25_Uplink": {
         "Value": "LTE Band 2/25 (Uplink)",
-        "Start MHz": 1850,
-        "Stop MHz": 1915
+        "Start_MHz": 1850,
+        "Stop_MHz": 1915
       },
       "LTE_Band_2_25_Downlink": {
         "Value": "LTE Band 2/25 (Downlink)",
-        "Start MHz": 1930,
-        "Stop MHz": 1995
+        "Start_MHz": 1930,
+        "Stop_MHz": 1995
       },
       "PCS_Uplink": {
         "Value": "PCS (Uplink)",
-        "Start MHz": 1850,
-        "Stop MHz": 1910
+        "Start_MHz": 1850,
+        "Stop_MHz": 1910
       },
       "PCS_Downlink": {
         "Value": "PCS (Downlink)",
-        "Start MHz": 1930,
-        "Stop MHz": 1990
+        "Start_MHz": 1930,
+        "Stop_MHz": 1990
       },
       "LTE_Band_4_Uplink": {
         "Value": "LTE Band 4 (Uplink)",
-        "Start MHz": 1710,
-        "Stop MHz": 1755
+        "Start_MHz": 1710,
+        "Stop_MHz": 1755
       },
       "LTE_Band_4_Downlink": {
         "Value": "LTE Band 4 (Downlink)",
-        "Start MHz": 2110,
-        "Stop MHz": 2155
+        "Start_MHz": 2110,
+        "Stop_MHz": 2155
       },
       "AWS-1_Uplink": {
         "Value": "AWS-1 (Uplink)",
-        "Start MHz": 1710,
-        "Stop MHz": 1755
+        "Start_MHz": 1710,
+        "Stop_MHz": 1755
       },
       "AWS-1_Downlink": {
         "Value": "AWS-1 (Downlink)",
-        "Start MHz": 2110,
-        "Stop MHz": 2155
+        "Start_MHz": 2110,
+        "Stop_MHz": 2155
       },
       "Amateur_Radio_23cm": {
         "Value": "Amateur Radio 23cm",
-        "Start MHz": 1240,
-        "Stop MHz": 1300
+        "Start_MHz": 1240,
+        "Stop_MHz": 1300
       },
       "GPS_L1": {
         "Value": "GPS L1",
-        "Start MHz": 1575.42,
-        "Stop MHz": 1575.42
+        "Start_MHz": 1575.42,
+        "Stop_MHz": 1575.42
       },
       "GPS_L2": {
         "Value": "GPS L2",
-        "Start MHz": 1227.6,
-        "Stop MHz": 1227.6
+        "Start_MHz": 1227.6,
+        "Stop_MHz": 1227.6
       },
       "Bluetooth": {
         "Value": "Bluetooth",
-        "Start MHz": 2400,
-        "Stop MHz": 2483.5
+        "Start_MHz": 2400,
+        "Stop_MHz": 2483.5
       },
       "Wi-Fi_2.4_GHz": {
         "Value": "Wi-Fi 2.4 GHz",
-        "Start MHz": 2400,
-        "Stop MHz": 2483.5
+        "Start_MHz": 2400,
+        "Stop_MHz": 2483.5
       },
       "ISM_2.4_GHz": {
         "Value": "ISM 2.4 GHz",
-        "Start MHz": 2400,
-        "Stop MHz": 2500
+        "Start_MHz": 2400,
+        "Stop_MHz": 2500
       },
       "LTE_Band_7_Uplink": {
         "Value": "LTE Band 7 (Uplink)",
-        "Start MHz": 2500,
-        "Stop MHz": 2570
+        "Start_MHz": 2500,
+        "Stop_MHz": 2570
       },
       "LTE_Band_7_Downlink": {
         "Value": "LTE Band 7 (Downlink)",
-        "Start MHz": 2620,
-        "Stop MHz": 2690
+        "Start_MHz": 2620,
+        "Stop_MHz": 2690
       },
       "Amateur_Radio_13cm": {
         "Value": "Amateur Radio 13cm",
-        "Start MHz": 2300,
-        "Stop MHz": 2450
+        "Start_MHz": 2300,
+        "Stop_MHz": 2450
       },
       "Amateur_Radio_13cm_cont": {
         "Value": "Amateur Radio 13cm (cont)",
-        "Start MHz": 2400,
-        "Stop MHz": 2450
+        "Start_MHz": 2400,
+        "Stop_MHz": 2450
       }
     }
   }

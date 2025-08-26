@@ -1,0 +1,8 @@
+{
+    "Active": true,
+        "current_style_theme": "dark",
+        "plot_grid_on": true,
+        "plot_legend_on": true,
+        "plot_title_on": true,
+        "plot_title_text": "RF Scan"
+    }

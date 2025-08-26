@@ -1,0 +1,22 @@
+{
+    "Scan": {"Active": true,
+        "output_folder": "c:\\documents",
+        "output_filename": "DefaultScan",
+        "start_freq_mhz": 0.0,
+        "stop_freq_mhz": 3000.0,
+        "step_freq_khz": 100.0,
+        "dwell_time_ms": 100.0,
+        "scan_band_selection": "All",
+        "open_html_after_complete": true,
+        "include_markers": true,
+        "include_gov_markers": true,
+        "include_tv_markers": true,
+        "include_scan_intermod_markers": true,
+        "math_average": true,
+        "math_median": true,
+        "math_variance": true,
+        "math_standard_deviation": true,
+        "math_range": true,
+        "math_percentile": true
+    }
+}

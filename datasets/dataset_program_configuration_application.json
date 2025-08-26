@@ -1,0 +1,18 @@
+{
+    "Application": {"Active": true,
+        "geometry": "1920x1127+1912+32",
+        "window_state": "zoomed",
+        "last_config_save_time": "2025-08-23 21:33:40",
+        "paned_window_sash_position_percentage": "40"
+    },
+    "Debug": {"Active": true,
+        "general_debug_enabled": true,
+        "debug_to_gui_console": true,
+        "debug_to_terminal": false,
+        "debug_to_file": true,
+        "include_console_messages_to_debug_file": true,
+        "log_visa_commands_enabled": false,
+        "log_truncation_enabled": true,
+        "include_visa_messages_to_debug_file": true
+    }
+}
