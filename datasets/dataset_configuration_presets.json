@@ -1,0 +1,2177 @@
+{
+        "PRESET_AMPLITUDE_REFERENCE_LEVEL": {
+            "-120": {
+                "Value_dB": {
+                    "value": "-120",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Extremely Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The lowest possible reference level for hunting the weakest signals imaginable.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-115": {
+                "Value_dB": {
+                    "value": "-115",
+                    "control_type": "_Label",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Very Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Deep noise floor — ideal for weak signal hunting.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-110": {
+                "Value_dB": {
+                    "value": "-110",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Very Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Deep noise floor — ideal for weak signal hunting.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-105": {
+                "Value_dB": {
+                    "value": "-105",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Below typical ambient RF noise — for sensitive receivers.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-100": {
+                "Value_dB": {
+                    "value": "-100",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Below typical ambient RF noise — for sensitive receivers.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-95": {
+                "Value_dB": {
+                    "value": "-95",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Below typical ambient RF noise — for sensitive receivers.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-90": {
+                "Value_dB": {
+                    "value": "-90",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Below typical ambient RF noise — for sensitive receivers.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-85": {
+                "Value_dB": {
+                    "value": "-85",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Quiet environment, low-level signals clearly visible.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-80": {
+                "Value_dB": {
+                    "value": "-80",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Quiet environment, low-level signals clearly visible.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-75": {
+                "Value_dB": {
+                    "value": "-75",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Quiet environment, low-level signals clearly visible.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-70": {
+                "Value_dB": {
+                    "value": "-70",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium Low",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Quiet environment, low-level signals clearly visible.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-65": {
+                "Value_dB": {
+                    "value": "-65",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Good general-purpose reference level.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-60": {
+                "Value_dB": {
+                    "value": "-60",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Good general-purpose reference level.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-55": {
+                "Value_dB": {
+                    "value": "-55",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Good general-purpose reference level.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-50": {
+                "Value_dB": {
+                    "value": "-50",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Good general-purpose reference level.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-45": {
+                "Value_dB": {
+                    "value": "-45",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Stronger signals, moderate local RF traffic.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-40": {
+                "Value_dB": {
+                    "value": "-40",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Stronger signals, moderate local RF traffic.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-35": {
+                "Value_dB": {
+                    "value": "-35",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Stronger signals, moderate local RF traffic.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-30": {
+                "Value_dB": {
+                    "value": "-30",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Medium High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Stronger signals, moderate local RF traffic.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-25": {
+                "Value_dB": {
+                    "value": "-25",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For strong broadcast transmitters or test signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-20": {
+                "Value_dB": {
+                    "value": "-20",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For strong broadcast transmitters or test signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-15": {
+                "Value_dB": {
+                    "value": "-15",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For strong broadcast transmitters or test signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-10": {
+                "Value_dB": {
+                    "value": "-10",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For strong broadcast transmitters or test signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "-5": {
+                "Value_dB": {
+                    "value": "-5",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Very High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Max headroom — use with caution to avoid clipping.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "0": {
+                "Value_dB": {
+                    "value": "0",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "Very High",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Max headroom — use with caution to avoid clipping.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_reference_level",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_AMPLITUDE_PREAMP_STATE": {
+            "ON": {
+                "Value": {
+                    "value": "ON",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "PREAMP ON",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Turns on the pre-amplifier. A monstrous gain for weak signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "toggle_preamp",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "yes",
+                    "control_type": "_Label"
+                }
+            },
+            "OFF": {
+                "Value": {
+                    "value": "OFF",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "PREAMP OFF",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Turns off the pre-amplifier. The scanner returns to its natural, less monstrous state.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "toggle_preamp",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_AMPLITUDE_HIGH_SENSITIVITY_STATE": {
+            "ON": {
+                "Value_toggle": {
+                    "value": "ON",
+                    "control_type": "_buttonToggle"
+                },
+                "label": {
+                    "value": "HIGH SENSITIVITY ON",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Activates high-sensitivity mode. The scanner now listens for the whispers of the universe.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "toggle_high_sensitivity",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "OFF": {
+                "Value_toggle": {
+                    "value": "OFF",
+                    "control_type": "_buttonToggle"
+                },
+                "label": {
+                    "value": "HIGH SENSITIVITY OFF",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Deactivates high-sensitivity mode. The scanner's ears are no longer superhuman.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "toggle_high_sensitivity",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "yes",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_AMPLITUDE_POWER_ATTENUATION": {
+            "0": {
+                "Value_dB": {
+                    "value": "0",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "0 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "No attenuation. Full power! Use with caution.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "10": {
+                "Value_dB": {
+                    "value": "10",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "10 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A light filter, for when the signal is just a bit too spicy.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "20": {
+                "Value_dB": {
+                    "value": "20",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "20 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A good, solid filter for moderate signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "30": {
+                "Value_dB": {
+                    "value": "30",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "30 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A strong filter for powerful signals. Like wearing sunglasses to the beach.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "40": {
+                "Value_dB": {
+                    "value": "40",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "40 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A heavy filter for blaringly strong signals. It's like wearing a blindfold on a sunny day.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "50": {
+                "Value_dB": {
+                    "value": "50",
+                    "control_type": "_DropDownOption",
+                    "units": "dB"
+                },
+                "label": {
+                    "value": "50 dB",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Extreme attenuation for signals that could damage the instrument.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_power_attenuation",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_BANDWIDTH_RBW": {
+            "Fast": {
+                "Value_MHz": {
+                    "value": "1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Fast",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Like a race car: fast sweep, low detail. Best for catching fleeting signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Brisk": {
+                "Value_MHz": {
+                    "value": "0.3",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Brisk",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A jog through the spectrum; quick enough to see the sights without missing much.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Deliberate": {
+                "Value_MHz": {
+                    "value": "0.1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Deliberate",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The perfect balance of speed and fidelity. Not too fast, not too slow.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Steady": {
+                "Value_MHz": {
+                    "value": "0.03",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Steady",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A calm stroll, giving you time to appreciate the finer signal details.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Leisurely": {
+                "Value_MHz": {
+                    "value": "0.01",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Leisurely",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A slow saunter through the noise floor, where every waveform is a work of art.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Unhurried": {
+                "Value_MHz": {
+                    "value": "0.003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Unhurried",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For the patient scientist. You'll see things nobody else can, but it'll take a while.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Slothlike": {
+                "Value_MHz": {
+                    "value": "0.001",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Slothlike",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Slothlike_1": {
+                "Value_MHz": {
+                    "value": "0.0003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Slothlike",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_resolution_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_BANDWIDTH_VIDEO": {
+            "Ultra_Fast": {
+                "Value_MHz": {
+                    "value": "1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Ultra Fast",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A lightning-fast sweep. Filters are wide open, letting everything through.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Very_Fast": {
+                "Value_MHz": {
+                    "value": "0.3",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Very Fast",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A quick pass through the spectrum, ideal for fast-changing signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Fast": {
+                "Value_MHz": {
+                    "value": "0.1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Fast",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A balanced speed for general purpose monitoring and signal capture.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Normal": {
+                "Value_MHz": {
+                    "value": "0.03",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Normal",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard filter setting for most common analysis tasks. Not too much, not too little.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Slow": {
+                "Value_MHz": {
+                    "value": "0.01",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Slow",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A gentle filter, giving you more time to appreciate the finer details of a waveform.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Very_Slow": {
+                "Value_MHz": {
+                    "value": "0.003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Very Slow",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For the meticulous scientist. You'll filter out fast noise and jitter, but at the cost of speed.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Ultra_Slow": {
+                "Value_MHz": {
+                    "value": "0.001",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Ultra Slow",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A meditative pace. So slow you can practically see the electrons move, offering maximum stability and noise reduction.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Glacial": {
+                "Value_MHz": {
+                    "value": "0.0003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Glacial",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Glacial_1": {
+                "Value_MHz": {
+                    "value": "0.0001",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Glacial",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Sub-Glacial": {
+                "Value_MHz": {
+                    "value": "0.00003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Sub-Glacial",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Sub-Glacial_1": {
+                "Value_MHz": {
+                    "value": "0.00001",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Sub-Glacial",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Crazy_Slow": {
+                "Value_MHz": {
+                    "value": "0.000003",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Crazy Slow",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "Crazy_Slow_1": {
+                "Value_MHz": {
+                    "value": "0.000001",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Crazy Slow",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_video_bandwidth",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_FREQUENCY_SPAN": {
+            "0.01": {
+                "Value_MHz": {
+                    "value": "0.01",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Microscope",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "0.1": {
+                "Value_MHz": {
+                    "value": "0.1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Tight",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A narrow, focused view for getting up close and personal with signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "1": {
+                "Value_MHz": {
+                    "value": "1",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Normal",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard span, a balanced diet for most common analysis.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "10": {
+                "Value_MHz": {
+                    "value": "10",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Wide",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A broad, digestible view of the spectrum, great for general reconnaissance.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "100": {
+                "Value_MHz": {
+                    "value": "100",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "Ultra Wide",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "500": {
+                "Value_MHz": {
+                    "value": "500",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "From Space",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "1000": {
+                "Value_MHz": {
+                    "value": "1000",
+                    "control_type": "_buttonToggle",
+                    "units": "MHz"
+                },
+                "label": {
+                    "value": "From The Moon",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_span_frequency",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_TRACE_MODE_1": {
+            "WRITE": {
+                "Value": {
+                    "value": "WRITE",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "LIVE REALTIME",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MAXHOLD": {
+                "Value": {
+                    "value": "MAXHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MAX HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MINHOLD": {
+                "Value": {
+                    "value": "MINHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MIN HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "BLANK": {
+                "Value": {
+                    "value": "BLANK",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "BLANK",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "VIEW": {
+                "Value": {
+                    "value": "VIEW",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "VIEW",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard mode, simply viewing the current sweep data.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+                "PRESET_TRACE_MODE_2": {
+            "WRITE": {
+                "Value": {
+                    "value": "WRITE",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "LIVE REALTIME",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MAXHOLD": {
+                "Value": {
+                    "value": "MAXHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MAX HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MINHOLD": {
+                "Value": {
+                    "value": "MINHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MIN HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "BLANK": {
+                "Value": {
+                    "value": "BLANK",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "BLANK",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "VIEW": {
+                "Value": {
+                    "value": "VIEW",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "VIEW",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard mode, simply viewing the current sweep data.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+                "PRESET_TRACE_MODE_3": {
+            "WRITE": {
+                "Value": {
+                    "value": "WRITE",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "LIVE REALTIME",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MAXHOLD": {
+                "Value": {
+                    "value": "MAXHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MAX HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MINHOLD": {
+                "Value": {
+                    "value": "MINHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MIN HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "BLANK": {
+                "Value": {
+                    "value": "BLANK",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "BLANK",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "VIEW": {
+                "Value": {
+                    "value": "VIEW",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "VIEW",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard mode, simply viewing the current sweep data.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+                "PRESET_TRACE_MODE_4": {
+            "WRITE": {
+                "Value": {
+                    "value": "WRITE",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "LIVE REALTIME",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MAXHOLD": {
+                "Value": {
+                    "value": "MAXHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MAX HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "MINHOLD": {
+                "Value": {
+                    "value": "MINHOLD",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "MIN HOLD",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "BLANK": {
+                "Value": {
+                    "value": "BLANK",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "BLANK",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "VIEW": {
+                "Value": {
+                    "value": "VIEW",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "VIEW",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The standard mode, simply viewing the current sweep data.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "handle_trace_modes_beg",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_CONTINUOUS_MODE": {
+            "ON": {
+                "Value": {
+                    "value": "ON",
+                    "control_type": "_buttonToggle"
+                },
+                "label": {
+                    "value": "CONTINUOUS ON",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Turns on continuous sweep mode. The scanner never rests!",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_continuous_initiate_mode",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "OFF": {
+                "Value": {
+                    "value": "OFF",
+                    "control_type": "_buttonToggle"
+                },
+                "label": {
+                    "value": "CONTINUOUS OFF",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Turns off continuous sweep mode. The scanner will perform a single sweep and then rest.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_continuous_initiate_mode",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        },
+        "PRESET_AVERAGING": {
+            "0": {
+                "Value": {
+                    "value": "0",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Off",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "Just a raw, single sweep. Great for seeing fast changes and fleeting events, but the noise floor is high and the trace is very jittery.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "5": {
+                "Value": {
+                    "value": "5",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Light Filter",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A very mild smoothing of the signal, removing some of the jitter. It's like putting a slight damper on the noise, making the trace a little easier to read.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "10": {
+                "Value": {
+                    "value": "10",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Getting Clear",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The trace becomes noticeably less fuzzy. The random spikes of the noise floor start to settle down, revealing more consistent signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "25": {
+                "Value": {
+                    "value": "25",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "The Sweet Spot",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A good balance of noise reduction and display speed. The noise floor is clean, and low-level, stable signals are clearly visible.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "50": {
+                "Value": {
+                    "value": "50",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Steady Hands",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "The noise floor is now very stable and appears as a thin line. You're only seeing the most consistent signals and cutting out most of the random interference.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "75": {
+                "Value": {
+                    "value": "75",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Deep Dive",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "This setting is for serious analysis. It's a highly stable trace that filters out a large portion of the ambient RF noise, allowing for precise measurements of continuous signals.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "100": {
+                "Value": {
+                    "value": "100",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Scientific Grade",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For when only the cleanest signal will do. This high level of averaging provides a virtually noise-free display, perfect for scientific or very low-level signal detection.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "200": {
+                "Value": {
+                    "value": "200",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Crystal Clear",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "A deep and thorough look at the spectrum. All but the most stable signals are averaged out, offering a truly pristine view of the fundamental RF environment.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "500": {
+                "Value": {
+                    "value": "500",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "The Observer",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "An incredibly slow and deliberate pace. This is for long-term monitoring, allowing you to see the overall shape of the spectrum with almost all noise removed.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            },
+            "1000": {
+                "Value": {
+                    "value": "1000",
+                    "control_type": "_DropDownOption"
+                },
+                "label": {
+                    "value": "Meditative Mode",
+                    "control_type": "_Label"
+                },
+                "description": {
+                    "value": "For the patient and the meticulous. This is the ultimate level of noise reduction, yielding an exceptionally smooth and stable trace for the most demanding analysis.",
+                    "control_type": "_Label"
+                },
+                "handler": {
+                    "value": "set_averaging",
+                    "control_type": "_Label"
+                },
+                "Selected": {
+                    "value": "no",
+                    "control_type": "_Label"
+                }
+            }
+        }
+    }

@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/markers"
+MQTT_TOPIC_FILTER = "OPEN-AIR/collection/markers"
 
 
 # display/gui_marker_editor.py

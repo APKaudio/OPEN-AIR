@@ -1,5 +1,5 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/report"
-# display/gui_meta_data.py
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Settings/Active_Instrument"
+# display/gui_frequency.py
 #
 # A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
 #
@@ -44,7 +44,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 TOPIC_DELIMITER = "/"
 
 
-class MetaDataGUI(ttk.Frame):
+class gui_file_paths(ttk.Frame):
     """
     A GUI component for displaying MQTT data in a dynamic, hierarchical layout.
     """

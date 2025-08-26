@@ -50,12 +50,12 @@ def load_and_process_markers(app_instance, console_print_func):
     for index, row in df.iterrows():
         unique_name = row['NAME']
         try:
-            freq_mhz = float(row.get('FREQ', 0))
+            freq_MHz = float(row.get('FREQ', 0))
         except (ValueError, TypeError):
-            freq_mhz = 0
+            freq_MHz = 0
         
         markers_data_dict[unique_name] = {
-            'frequency_mhz': freq_mhz,
+            'frequency_MHz': freq_MHz,
             'zone': row.get('ZONE', 'Unknown'),
             'group': row.get('GROUP', 'Ungrouped'),
             'device': row.get('DEVICE', ''),

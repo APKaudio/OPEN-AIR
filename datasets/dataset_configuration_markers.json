@@ -5,8 +5,8 @@
         "trace_live": true,
         "trace_max_hold": false,
         "trace_min_hold": false,
-        "buffer_mhz": 3.0,
-        "poke_freq_mhz": 444.444444,
+        "buffer_MHz": 3.0,
+        "poke_freq_MHz": 444.444444,
         "buffered_start_var": 0.0,
         "buffered_stop_var": 0.0
     }

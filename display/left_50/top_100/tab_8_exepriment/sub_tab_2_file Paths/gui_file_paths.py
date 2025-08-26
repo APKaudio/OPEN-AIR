@@ -1,3 +1,4 @@
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/filepaths"
 # display/gui_frequency.py
 #
 # A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
@@ -39,7 +40,7 @@ project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
-MQTT_TOPIC_FILTER = "OPEN-AIR/file/paths"
+
 TOPIC_DELIMITER = "/"
 
 

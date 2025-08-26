@@ -42,7 +42,7 @@ current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 
-def plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_freq_mhz, stop_freq_mhz):
+def plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_freq_MHz, stop_freq_MHz):
     # [Updates the display plots with trace data from the instrument.]
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"Entering {current_function} with view_name: {view_name}",
@@ -54,13 +54,13 @@ def plot_all_traces(showtime_tab_instance, trace_data_dict, view_name, start_fre
         monitor_tab = showtime_tab_instance.app_instance.display_parent_tab.bottom_pane.scan_monitor_tab
         if monitor_tab:
             df1 = pd.DataFrame(trace_data_dict["TraceData"]["Trace1"], columns=['Frequency_Hz', 'Power_dBm'])
-            update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, f"Live Trace - {view_name}")
+            update_top_plot(monitor_tab, df1, start_freq_MHz, stop_freq_MHz, f"Live Trace - {view_name}")
             
             df2 = pd.DataFrame(trace_data_dict["TraceData"]["Trace2"], columns=['Frequency_Hz', 'Power_dBm'])
-            update_middle_plot(monitor_tab, df2, start_freq_mhz, stop_freq_mhz, f"Max Hold - {view_name}")
+            update_middle_plot(monitor_tab, df2, start_freq_MHz, stop_freq_MHz, f"Max Hold - {view_name}")
 
             df3 = pd.DataFrame(trace_data_dict["TraceData"]["Trace3"], columns=['Frequency_Hz', 'Power_dBm'])
-            update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, f"Min Hold - {view_name}")
+            update_bottom_plot(monitor_tab, df3, start_freq_MHz, stop_freq_MHz, f"Min Hold - {view_name}")
             
             showtime_tab_instance.console_print_func("✅ Successfully updated monitor with all three traces.")
             

@@ -161,9 +161,9 @@ def load_selected_preset_logic(app_instance, selected_preset_name, console_print
                     span_hz = settings.get('span_hz', 0.0)
                     rbw_hz = settings.get('rbw_hz', 0.0)
 
-                    app_instance.center_freq_mhz_var.set(center_freq_hz / MHZ_TO_HZ_CONVERSION)
-                    app_instance.span_freq_mhz_var.set(span_hz / MHZ_TO_HZ_CONVERSION)
-                    app_instance.rbw_mhz_var.set(rbw_hz / MHZ_TO_HZ_CONVERSION)
+                    app_instance.center_freq_MHz_var.set(center_freq_hz / MHZ_TO_HZ_CONVERSION)
+                    app_instance.span_freq_MHz_var.set(span_hz / MHZ_TO_HZ_CONVERSION)
+                    app_instance.rbw_MHz_var.set(rbw_hz / MHZ_TO_HZ_CONVERSION)
                     
                     console_print_func(f"GUI settings updated from device preset: Center Freq={center_freq_hz / MHZ_TO_HZ_CONVERSION:.3f} MHz, Span={span_hz / MHZ_TO_HZ_CONVERSION:.3f} MHz, RBW={rbw_hz / 1000:.1f} kHz. Looking good!")
                     debug_log(f"GUI settings updated from loaded device preset.",
@@ -216,7 +216,7 @@ def query_current_instrument_settings_for_preset(inst, console_print_func=None):
         console_print_func (function, optional): Function to print to the GUI console.
                                                Defaults to console_log if None.
     Outputs:
-        tuple: (center_freq_mhz, span_mhz, rbw_hz) or (None, None, None) on failure.
+        tuple: (center_freq_MHz, span_MHz, rbw_hz) or (None, None, None) on failure.
     """
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
@@ -250,17 +250,17 @@ def query_current_instrument_settings_for_preset(inst, console_print_func=None):
         if rbw_str:
             rbw_hz = float(rbw_str)
 
-        center_freq_mhz = center_freq_hz / 1_000_000 if center_freq_hz is not None else None
-        span_mhz = span_hz / 1_000_000 if span_hz is not None else None
+        center_freq_MHz = center_freq_hz / 1_000_000 if center_freq_hz is not None else None
+        span_MHz = span_hz / 1_000_000 if span_hz is not None else None
 
-        debug_log(f"Queried settings: Center Freq: {center_freq_mhz:.3f} MHz, Span: {span_mhz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
+        debug_log(f"Queried settings: Center Freq: {center_freq_MHz:.3f} MHz, Span: {span_MHz:.3f} MHz, RBW: {rbw_hz} Hz. Got the info!",
                     file=current_file,
                     version=current_version,
                     function=current_function)
 
-        console_print_func(f"✅ Queried settings: C: {center_freq_mhz:.3f} MHz, SP: {span_mhz:.3f} MHz, RBW: {rbw_hz / 1000:.1f} kHz. Details acquired!")
+        console_print_func(f"✅ Queried settings: C: {center_freq_MHz:.3f} MHz, SP: {span_MHz:.3f} MHz, RBW: {rbw_hz / 1000:.1f} kHz. Details acquired!")
 
-        return center_freq_mhz, span_mhz, rbw_hz
+        return center_freq_MHz, span_MHz, rbw_hz
 
     except Exception as e:
         debug_log(f"❌ Error querying current instrument settings: {e}. What a mess!",

@@ -141,35 +141,35 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
                                 channel_name = cells[2].get_text(strip=True)
                             
                             # Convert frequency string to MHz
-                            freq_mhz = "N/A"
+                            freq_MHz = "N/A"
                             try:
                                 freq_match = re.search(r'(\d+(\.\d+)?)\s*(kHz|MHz|GHz)', channel_frequency_str, re.IGNORECASE)
                                 if freq_match:
                                     value = float(freq_match.group(1))
                                     unit = freq_match.group(3).lower()
                                     if unit == 'mhz':
-                                        freq_mhz = value
+                                        freq_MHz = value
                                     elif unit == 'ghz':
-                                        freq_mhz = value * 1000 # GHz to MHz
+                                        freq_MHz = value * 1000 # GHz to MHz
                                     elif unit == 'khz':
-                                        freq_mhz = value / 1000 # kHz to MHz
-                                    debug_log(f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_mhz} MHz", file=current_file, function=current_function)
+                                        freq_MHz = value / 1000 # kHz to MHz
+                                    debug_log(f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
                                 else:
                                     # Fallback if regex doesn't match, assume MHz
-                                    freq_mhz = float(channel_frequency_str) # Assume it's already in MHz
+                                    freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
                                     _print(f"WARNING (HTML): No unit found for '{channel_frequency_str}'. Assuming MHz.")
-                                    debug_log(f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_mhz} MHz", file=current_file, function=current_function)
+                                    debug_log(f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
                             except ValueError:
                                 _print(f"WARNING (HTML): Could not convert frequency '{channel_frequency_str}' to float. Setting to 'Invalid Frequency'.")
                                 debug_log(f"HTML Freq conversion error: '{channel_frequency_str}'", file=current_file, function=current_function)
-                                freq_mhz = "Invalid Frequency"
+                                freq_MHz = "Invalid Frequency"
 
                             row_data = {
                                 "ZONE": current_zone_type,
                                 "GROUP": current_group_name,
                                 "DEVICE": band_type,
                                 "NAME": channel_name,
-                                "FREQ": freq_mhz, # Store in MHz
+                                "FREQ": freq_MHz, # Store in MHz
                                 "Peak": np.nan # NEW: Added Peak column
                             }
                             if band_type or channel_frequency_str or channel_name:
@@ -188,7 +188,7 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
                             channel_name = cells[2].get_text(strip=True)
 
                         # Convert frequency string to MHz
-                        freq_mhz = "N/A"
+                        freq_MHz = "N/A"
                         try:
                             freq_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:(k|m|g)?hz)?', channel_frequency_str, re.IGNORECASE)
                             if freq_match:
@@ -197,30 +197,30 @@ def convert_html_report_to_csv(html_content, console_print_func=None):
                                 if unit_group:
                                     unit = unit_group.lower()
                                     if unit == 'm': # MHz
-                                        freq_mhz = value
+                                        freq_MHz = value
                                     elif unit == 'g': # GHz
-                                        freq_mhz = value * 1000
+                                        freq_MHz = value * 1000
                                     elif unit == 'k': # kHz
-                                        freq_mhz = value / 1000
+                                        freq_MHz = value / 1000
                                 else: # No unit specified, assume MHz
-                                    freq_mhz = value
-                                debug_log(f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_mhz} MHz", file=current_file, function=current_function)
+                                    freq_MHz = value
+                                debug_log(f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
                             else:
                                 # Fallback if regex doesn't match, assume MHz
-                                freq_mhz = float(channel_frequency_str) # Assume it's already in MHz
+                                freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
                                 _print(f"WARNING (HTML): No unit found for '{channel_frequency_str}'. Assuming MHz.")
-                                debug_log(f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_mhz} MHz", file=current_file, function=current_function)
+                                debug_log(f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
                         except ValueError:
                             _print(f"WARNING (HTML): Could not convert frequency '{channel_frequency_str}' to float. Setting to 'Invalid Frequency'.")
                             debug_log(f"HTML Freq conversion error (direct td): '{channel_frequency_str}'", file=current_file, function=current_function)
-                            freq_mhz = "Invalid Frequency"
+                            freq_MHz = "Invalid Frequency"
 
                         row_data = {
                             "ZONE": current_zone_type,
                             "GROUP": current_group_name,
                             "DEVICE": band_type,
                             "NAME": channel_name,
-                            "FREQ": freq_mhz, # Store in MHz
+                            "FREQ": freq_MHz, # Store in MHz
                             "Peak": np.nan # NEW: Added Peak column
                         }
                         if band_type or channel_frequency_str or channel_name:
@@ -294,7 +294,7 @@ def generate_csv_from_shw(xml_file_path, console_print_func=None):
 
             # Extract FREQ from value. User states SHW files contain markers in KHZ.
             freq_element = freq_entry.find('value')
-            freq_mhz = "N/A"
+            freq_MHz = "N/A"
             if freq_element is not None and freq_element.text is not None:
                 freq_str = freq_element.text 
                 
@@ -302,19 +302,19 @@ def generate_csv_from_shw(xml_file_path, console_print_func=None):
 
                 try:
                     # Convert kHz to MHz as per user's clarification
-                    freq_mhz = float(freq_str) / 1000.0 
-                    debug_log(f"SHW Freq conversion: '{freq_str}' kHz -> {freq_mhz} MHz", file=current_file, function=current_function)
+                    freq_MHz = float(freq_str) / 1000.0 
+                    debug_log(f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz", file=current_file, function=current_function)
                 except ValueError:
                     _print(f"WARNING (SHW): Could not convert SHW frequency value '{freq_str}' to float. Setting to 'Invalid Frequency'.")
                     debug_log(f"SHW Freq conversion error: '{freq_str}'", file=current_file, function=current_function)
-                    freq_mhz = "Invalid Frequency"
+                    freq_MHz = "Invalid Frequency"
 
             csv_data.append({
                 "ZONE": zone,
                 "GROUP": group,
                 "DEVICE": device,
                 "NAME": name,
-                "FREQ": freq_mhz, # Store in MHz
+                "FREQ": freq_MHz, # Store in MHz
                 "Peak": np.nan # NEW: Added Peak column
             })
         _print(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.")
@@ -429,22 +429,22 @@ def convert_pdf_report_to_csv(pdf_file_path, console_print_func=None):
                         
                         name_csv = name_pdf # PDF Name -> CSV NAME
 
-                        freq_mhz_csv = "N/A"
+                        freq_MHz_csv = "N/A"
                         try:
                             # The frequency is already in MHz, so no conversion needed
-                            freq_mhz_csv = float(frequency_pdf_str)
-                            debug_log(f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_mhz_csv} MHz", file=current_file, function=current_function)
+                            freq_MHz_csv = float(frequency_pdf_str)
+                            debug_log(f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz", file=current_file, function=current_function)
                         except ValueError:
                             _print(f"WARNING (PDF): Could not convert PDF frequency value '{frequency_pdf_str}' to float (MHz). Setting to 'Invalid Frequency'.")
                             debug_log(f"PDF Freq conversion error: '{frequency_pdf_str}'", file=current_file, function=current_function)
-                            freq_mhz_csv = "Invalid Frequency"
+                            freq_MHz_csv = "Invalid Frequency"
 
                         csv_data.append({
                             "ZONE": zone_csv,
                             "GROUP": group_csv,
                             "DEVICE": device_csv,
                             "NAME": name_csv,
-                            "FREQ": freq_mhz_csv,
+                            "FREQ": freq_MHz_csv,
                             "Peak": np.nan # NEW: Added Peak column
                         })
                         debug_log(f"Added PDF row: {csv_data[-1]}", file=current_file, function=current_function)

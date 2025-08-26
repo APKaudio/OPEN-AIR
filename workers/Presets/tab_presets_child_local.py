@@ -303,19 +303,19 @@ class LocalPresetsTab(ttk.Frame):
         for preset in self.user_presets_data:
             nickname = preset.get('NickName', preset.get('Filename', 'Unnamed Preset'))
             
-            start_freq_mhz_display = "N/A"
-            stop_freq_mhz_display = "N/A"
+            start_freq_MHz_display = "N/A"
+            stop_freq_MHz_display = "N/A"
             try:
                 if preset.get('Start', '').strip():
-                    start_freq_mhz_display = f"{float(preset.get('Start')):.3f}"
+                    start_freq_MHz_display = f"{float(preset.get('Start')):.3f}"
                 if preset.get('Stop', '').strip():
-                    stop_freq_mhz_display = f"{float(preset.get('Stop')):.3f}"
+                    stop_freq_MHz_display = f"{float(preset.get('Stop')):.3f}"
             except ValueError:
                 debug_log(f"Warning: Could not convert Start/Stop for button text for preset '{nickname}'. What a mess!", file=current_file,
                             version=current_version,
                             function=current_function)
 
-            button_text = f"{nickname}\nStart: {start_freq_mhz_display} MHz\nStop: {stop_freq_mhz_display} MHz"
+            button_text = f"{nickname}\nStart: {start_freq_MHz_display} MHz\nStop: {stop_freq_MHz_display} MHz"
 
             preset_button = ttk.Button(self.scrollable_frame,
                                        text=button_text,
@@ -502,12 +502,12 @@ class LocalPresetsTab(ttk.Frame):
                             version=current_version,
                             function=current_function)
 
-        get_and_set_app_var('Center', 'center_freq_mhz_var', float, self.app_instance.MHZ_TO_HZ)
-        get_and_set_app_var('Span', 'span_freq_mhz_var', float, self.app_instance.MHZ_TO_HZ)
+        get_and_set_app_var('Center', 'center_freq_MHz_var', float, self.app_instance.MHZ_TO_HZ)
+        get_and_set_app_var('Span', 'span_freq_MHz_var', float, self.app_instance.MHZ_TO_HZ)
         get_and_set_app_var('RBW', 'rbw_hz_var', float)
         get_and_set_app_var('VBW', 'vbw_hz_var', float)
-        get_and_set_app_var('RefLevel', 'reference_level_dbm_var', float)
-        get_and_set_app_var('Attenuation', 'attenuation_db_var', int)
+        get_and_set_app_var('RefLevel', 'reference_level_dBm_var', float)
+        get_and_set_app_var('Attenuation', 'attenuation_dB_var', int)
         get_and_set_app_var('FreqShift', 'freq_shift_hz_var', float)
 
         def get_and_set_bool_app_var(preset_key, app_attr_name):
@@ -548,8 +548,8 @@ class LocalPresetsTab(ttk.Frame):
 
         self.app_instance.last_selected_preset_name_var.set(preset_data.get('NickName', preset_data.get('Filename', '')))
         
-        set_display_var(self.app_instance.last_loaded_preset_center_freq_mhz_var, 'Center', "{:.3f}", float)
-        set_display_var(self.app_instance.last_loaded_preset_span_mhz_var, 'Span', "{:.3f}", float)
+        set_display_var(self.app_instance.last_loaded_preset_center_freq_MHz_var, 'Center', "{:.3f}", float)
+        set_display_var(self.app_instance.last_loaded_preset_span_MHz_var, 'Span', "{:.3f}", float)
         set_display_var(self.app_instance.last_loaded_preset_rbw_hz_var, 'RBW', "{:.0f}", float)
 
 

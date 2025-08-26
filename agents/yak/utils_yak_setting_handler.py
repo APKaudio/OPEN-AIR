@@ -75,8 +75,8 @@ def refresh_all_from_instrument(app_instance, console_print_func):
 
         settings['initiate_continuous_on'] = YakGet(app_instance, "INITIATE/CONTINUOUS", console_print_func) in ["ON", "1"]
 
-        settings['ref_level_dbm'] = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
-        settings['power_attenuation_db'] = YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", console_print_func)
+        settings['ref_level_dBm'] = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
+        settings['power_attenuation_dB'] = YakGet(app_instance, "AMPLITUDE/POWER/ATTENUATION", console_print_func)
         settings['preamp_on'] = YakGet(app_instance, "AMPLITUDE/POWER/GAIN", console_print_func) in ["ON", "1"]
         settings['high_sensitivity_on'] = YakGet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func) in ["ON", "1"]
 
@@ -349,7 +349,7 @@ def set_reference_level(tab_instance, app_instance, value, console_print_func):
     try:
         int_value = int(float(value))
         if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{int_value}", console_print_func=console_print_func) == "PASSED":
-            app_instance.ref_level_dbm_var.set(value)
+            app_instance.ref_level_dBm_var.set(value)
             app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
             return True
         else:
@@ -433,9 +433,9 @@ def toggle_high_sensitivity(tab_instance, app_instance, console_print_func):
         
         results = YakNab(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", console_print_func=console_print_func)
         if results is not None and len(results) >= 3:
-            ref_level_dbm, attenuation_db, preamp_on = results
-            app_instance.ref_level_dbm_var.set(float(ref_level_dbm))
-            app_instance.power_attenuation_db_var.set(float(attenuation_db))
+            ref_level_dBm, attenuation_dB, preamp_on = results
+            app_instance.ref_level_dBm_var.set(float(ref_level_dBm))
+            app_instance.power_attenuation_dB_var.set(float(attenuation_dB))
             app_instance.preamp_on_var.set(int(preamp_on) == 1)
             tab_instance._set_ui_initial_state()
             console_print_func("✅ Updated UI with new values from instrument.")
@@ -463,7 +463,7 @@ def set_power_attenuation(tab_instance, app_instance, value, console_print_func)
         return False
     
     if YakDo(app_instance, f"AMPLITUDE/POWER/ATTENUATION/{value}DB", console_print_func=console_print_func) == "PASSED":
-        app_instance.power_attenuation_db_var.set(value)
+        app_instance.power_attenuation_dB_var.set(value)
         app_instance.after(0, lambda: _trigger_gui_refresh(app_instance))
         return True
     return False
@@ -679,16 +679,16 @@ def _process_trace_data(raw_data_string, start_freq_hz, end_freq_hz, console_pri
         return None
 
     try:
-        amplitudes_dbm = [float(val) for val in raw_data_string.split(',')]
+        amplitudes_dBm = [float(val) for val in raw_data_string.split(',')]
         
-        num_points = len(amplitudes_dbm)
+        num_points = len(amplitudes_dBm)
         if num_points <= 1:
             console_print_func("⚠️ Received insufficient data points from the instrument. Cannot create a meaningful trace.")
             return None
             
         freq_points = np.linspace(start_freq_hz, end_freq_hz, num_points)
         
-        processed_data = list(zip(freq_points / MHZ_TO_HZ_CONVERSION, amplitudes_dbm))
+        processed_data = list(zip(freq_points / MHZ_TO_HZ_CONVERSION, amplitudes_dBm))
 
         debug_log(f"🐐 ✅ Successfully processed trace data. First 5 points: {processed_data[:5]}...",
                   file=current_file,
@@ -800,9 +800,9 @@ def get_all_marker_values_logic(app_instance, console_print_func):
             y_value = YakGet(app_instance, f"MARKER/{i}/CALCULATE/Y", console_print_func)
 
             try:
-                x_value_mhz = float(x_value) / MHZ_TO_HZ_CONVERSION
-                y_value_dbm = float(y_value)
-                marker_values.append((x_value_mhz, y_value_dbm))
+                x_value_MHz = float(x_value) / MHZ_TO_HZ_CONVERSION
+                y_value_dBm = float(y_value)
+                marker_values.append((x_value_MHz, y_value_dBm))
             except (ValueError, TypeError):
                 console_print_func(f"⚠️ Could not parse marker {i} values.")
                 debug_log(f"🐐 ❌ Failed to parse marker {i} values. What a mess!",

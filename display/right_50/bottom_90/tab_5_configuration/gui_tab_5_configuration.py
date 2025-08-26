@@ -106,15 +106,15 @@ log_level = DEBUG
 
 [INSTRUMENT]
 visa_resource = ASRL1::INSTR
-ref_level_dbm = -20
-power_attenuation_db = 10
+ref_level_dBm = -20
+power_attenuation_dB = 10
 preamp_on = False
 high_sensitivity_on = False
 
 [MARKERS]
-marker1_freq_mhz = 111.0
-marker2_freq_mhz = 222.0
-marker3_freq_mhz = 333.0
+marker1_freq_MHz = 111.0
+marker2_freq_MHz = 222.0
+marker3_freq_MHz = 333.0
 """
             self.config_text_widget.config(state=tk.NORMAL)
             self.config_text_widget.delete('1.0', tk.END)

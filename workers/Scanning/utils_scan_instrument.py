@@ -87,7 +87,7 @@ def _scan_thread_target(app_instance, selected_bands, stop_event, pause_event, c
             inst=app_instance.inst,
             selected_bands=selected_bands,
             rbw_hz=float(app_instance.scan_rbw_hz_var.get()),
-            ref_level_dbm=float(app_instance.reference_level_dbm_var.get()),
+            ref_level_dBm=float(app_instance.reference_level_dBm_var.get()),
             freq_shift_hz=float(app_instance.freq_shift_hz_var.get()),
             maxhold_enabled=bool(app_instance.maxhold_enabled_var.get()),
             high_sensitivity=app_instance.high_sensitivity_var.get(),
@@ -192,7 +192,7 @@ def query_safe(inst, command, app_instance_ref, app_console_update_func):
         return None
 
 
-def configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dbm,
+def configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_level_dBm,
                                   freq_shift_hz, high_sensitivity_on, preamp_on,
                                   app_instance_ref, app_console_update_func):
     """Configures the spectrum analyzer with specified settings for a scan segment."""
@@ -222,7 +222,7 @@ def configure_instrument_for_scan(inst, center_freq_hz, span_hz, rbw_hz, ref_lev
     time.sleep(0.05)
     if not write_safe(inst, f":SENSe:BANDwidth:RESolution {rbw_hz}", app_instance_ref, app_console_update_func): success = False
     time.sleep(0.05)
-    if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {ref_level_dbm}DBM", app_instance_ref, app_console_update_func): success = False
+    if not write_safe(inst, f":DISPlay:WINDow:TRACe:Y:RLEVel {ref_level_dBm}DBM", app_instance_ref, app_console_update_func): success = False
     time.sleep(0.05)
     if not write_safe(inst, f":SENSe:FREQuency:RFShift {freq_shift_hz}", app_instance_ref, app_console_update_func): success = False
     time.sleep(0.05)
@@ -268,14 +268,14 @@ def perform_single_sweep(inst, app_instance_ref, app_console_update_func):
         if trace_response is None:
             app_instance_ref.after(0, lambda: app_console_update_func("❌ Failed to query trace data. This is frustrating!"))
             return None, None
-        power_dbm = [float(p) for p in trace_response.split(',')]
+        power_dBm = [float(p) for p in trace_response.split(',')]
 
-        if len(frequencies_hz) != len(power_dbm):
+        if len(frequencies_hz) != len(power_dBm):
             app_instance_ref.after(0, lambda: app_console_update_func("❌ Mismatch between frequency and power data points. Data corrupted!"))
             return None, None
 
         app_instance_ref.after(0, lambda: app_console_update_func(f"✅ Single sweep complete. Collected {len(frequencies_hz)} data points. Success!"))
-        return frequencies_hz, power_dbm
+        return frequencies_hz, power_dBm
 
     except Exception as e:
         app_instance_ref.after(0, lambda: app_console_update_func(f"❌ Error during single sweep: {e}. This is a disaster!"))
@@ -357,12 +357,12 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
         data_part = match.group(1) if match else trace_data_str
 
         if data_part:
-            amplitudes_dbm = [float(val) for val in data_part.split(',') if val.strip()]
-            num_points = len(amplitudes_dbm)
+            amplitudes_dBm = [float(val) for val in data_part.split(',') if val.strip()]
+            num_points = len(amplitudes_dBm)
             if num_points > 1:
                 frequencies_hz = np.linspace(segment_start_freq_hz, segment_stop_freq_hz, num_points)
-                if len(amplitudes_dbm) == len(frequencies_hz):
-                    segment_raw_data.extend(zip(frequencies_hz, amplitudes_dbm))
+                if len(amplitudes_dBm) == len(frequencies_hz):
+                    segment_raw_data.extend(zip(frequencies_hz, amplitudes_dBm))
     except Exception as e:
         app_instance_ref.after(0, lambda: app_console_update_func(f"🚨 Error in segment sweep: {e}"))
         return []
@@ -370,7 +370,7 @@ def perform_segment_sweep(inst, segment_start_freq_hz, segment_stop_freq_hz, max
     return segment_raw_data
 
 
-def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func):
+def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dBm, freq_shift_hz, maxhold_enabled, high_sensitivity, preamp_on, rbw_step_size_hz, max_hold_time_seconds, scan_name, output_folder, stop_event, pause_event, log_visa_commands_enabled, general_debug_enabled, app_console_update_func, initialize_instrument_func):
     """Orchestrates a full frequency scan across multiple specified bands."""
     # ... (function content is unchanged)
     current_function = inspect.currentframe().f_code.co_name
@@ -387,7 +387,7 @@ def scan_bands(app_instance_ref, inst, selected_bands, rbw_hz, ref_level_dbm, fr
   #  if not initialize_instrument_logic(
         #inst,
        # model_match=app_instance_ref.connected_instrument_model.get(),
-       # ref_level_dbm=ref_level_dbm,
+       # ref_level_dBm=ref_level_dBm,
       #  high_sensitivity_on=high_sensitivity,
      #   preamp_on=preamp_on,
     #    rbw_config_val=rbw_hz,

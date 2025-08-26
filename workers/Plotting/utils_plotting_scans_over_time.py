@@ -46,7 +46,7 @@ except ImportError:
 
 
 def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder,
-                         amplitude_threshold_dbm, console_print_func):
+                         amplitude_threshold_dBm, console_print_func):
     """
     Function Description:
     Generates an interactive 3D Plotly plot of spectrum analyzer scan data over time.
@@ -58,7 +58,7 @@ def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder
                                   lists of full file paths to CSV scan data.
         selected_group_prefix (str): The prefix of the group to be plotted.
         output_folder (str): The directory where the HTML plot file will be saved.
-        amplitude_threshold_dbm (float): The amplitude threshold (in dBm) for color-coding.
+        amplitude_threshold_dBm (float): The amplitude threshold (in dBm) for color-coding.
         console_print_func (function): Function to print messages to the GUI console.
 
     Process of this function:
@@ -73,7 +73,7 @@ def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder
            - X-axis: Frequency (Hz)
            - Y-axis: Time (numerical representation for plotting)
            - Z-axis: Power (dBm)
-           - Color: Based on `Power (dBm)` relative to `amplitude_threshold_dbm`.
+           - Color: Based on `Power (dBm)` relative to `amplitude_threshold_dBm`.
         6. Configures the 3D plot layout (title, axis labels, camera settings).
         7. Saves the figure to an HTML file in the specified `output_folder`.
         8. Logs progress and errors to the console and debug log.
@@ -85,7 +85,7 @@ def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder
     (2025-08-01) Change: Updated debug_print to debug_log.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Entering {current_function} for group '{selected_group_prefix}' with threshold {amplitude_threshold_dbm} dBm.",
+    debug_log(f"Entering {current_function} for group '{selected_group_prefix}' with threshold {amplitude_threshold_dBm} dBm.",
                 file=__file__,
                 version=current_version,
                 function=current_function)
@@ -169,14 +169,14 @@ def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder
     # Create a color scale based on the amplitude threshold
     colorscale = [
         [0, 'blue'], # Below threshold
-        [max(0.0, (amplitude_threshold_dbm + 100) / 100), 'green'], # Around threshold (adjust 100 based on expected power range)
-        [max(0.0, (amplitude_threshold_dbm + 50) / 100), 'yellow'],
-        [max(0.0, (amplitude_threshold_dbm + 20) / 100), 'orange'],
+        [max(0.0, (amplitude_threshold_dBm + 100) / 100), 'green'], # Around threshold (adjust 100 based on expected power range)
+        [max(0.0, (amplitude_threshold_dBm + 50) / 100), 'yellow'],
+        [max(0.0, (amplitude_threshold_dBm + 20) / 100), 'orange'],
         [1, 'red'] # Above threshold
     ]
     # Normalize the threshold to 0-1 range for colorscale mapping. Assuming power range -100 to 0 dBm
     # This might need adjustment based on typical power ranges.
-    normalized_threshold = (amplitude_threshold_dbm + 100) / 100.0
+    normalized_threshold = (amplitude_threshold_dBm + 100) / 100.0
     colorscale = [
         [0, 'blue'],
         [max(0.0, normalized_threshold - 0.05), 'green'], # Slightly below threshold
@@ -220,7 +220,7 @@ def plot_Scans_over_time(grouped_csv_files, selected_group_prefix, output_folder
     # Update layout
     fig.update_layout(
         title={
-            'text': f"3D Scans Over Time: {selected_group_prefix} (Threshold: {amplitude_threshold_dbm} dBm)",
+            'text': f"3D Scans Over Time: {selected_group_prefix} (Threshold: {amplitude_threshold_dBm} dBm)",
             'y':0.9,
             'x':0.5,
             'xanchor': 'center',

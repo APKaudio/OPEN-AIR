@@ -274,9 +274,9 @@ class YakBegTab(ttk.Frame):
                     function=current_function)
         
         # FIXED: Get the string value from each StringVar before passing to the handler.
-        marker_freqs_mhz = [v.get() for v in self.marker_freq_vars]
+        marker_freqs_MHz = [v.get() for v in self.marker_freq_vars]
         
-        response = handle_marker_place_all_beg(self.app_instance, marker_freqs_mhz, self.console_print_func)
+        response = handle_marker_place_all_beg(self.app_instance, marker_freqs_MHz, self.console_print_func)
         self.marker_place_all_result_var.set(f"Result: {response}")
 
 
@@ -304,10 +304,10 @@ class YakBegTab(ttk.Frame):
                     function=current_function)
         
         trace_number = self.trace_select_var.get()
-        start_freq_mhz = self.trace_data_start_freq_var.get()
-        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        start_freq_MHz = self.trace_data_start_freq_var.get()
+        stop_freq_MHz = self.trace_data_stop_freq_var.get()
         
-        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_mhz, stop_freq_mhz, self.console_print_func)
+        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_MHz, stop_freq_MHz, self.console_print_func)
 
         if processed_data:
             self.trace_data_count_var.set(str(len(processed_data)))
@@ -338,7 +338,7 @@ class YakBegTab(ttk.Frame):
             values = self.trace_data_tree.item(item, 'values')
             data.append((float(values[0]), float(values[1])))
         
-        start_freq_mhz = self.trace_data_start_freq_var.get()
-        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        start_freq_MHz = self.trace_data_start_freq_var.get()
+        stop_freq_MHz = self.trace_data_stop_freq_var.get()
         
-      # handle_push_to_monitor(self.app_instance, self.trace_select_var, self.trace_data_tree, start_freq_mhz, stop_freq_mhz, self.console_print_func)
+      # handle_push_to_monitor(self.app_instance, self.trace_select_var, self.trace_data_tree, start_freq_MHz, stop_freq_MHz, self.console_print_func)

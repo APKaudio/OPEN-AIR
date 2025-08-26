@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/sweeping"
+MQTT_TOPIC_FILTER = "OPEN-AIR/sweeping"
 
 # display/gui_sweeping_configuration.py
 #

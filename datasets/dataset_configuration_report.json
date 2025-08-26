@@ -12,7 +12,7 @@
         "scanner_type": "Generic RF Scanner"
     },
 
-    "Amplifier": {
+    "Amplifier_type": {
         "Broadband": {
             "Selected": "yes",
             "Type": "Broadband",
@@ -44,7 +44,7 @@
             "Use": "Radar receivers, RF power detectors, and spectrum analyzers to display a wide range of signal levels (e.g., in dBm)."
         }
     },
-    "Antenna": {
+    "Antenna_type": {
         "Omnidirectional_Dipole": {
             "Selected": "yes",
             "Type": "Omnidirectional (Dipole)",

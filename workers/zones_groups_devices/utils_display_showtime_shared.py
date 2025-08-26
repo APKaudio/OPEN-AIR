@@ -71,8 +71,8 @@ def _save_showtime_state_to_config(showtime_tab):
         config.set('MarkerTab', 'trace_live', str(showtime_tab.trace_modes['live'].get()))
         config.set('MarkerTab', 'trace_max_hold', str(showtime_tab.trace_modes['max'].get()))
         config.set('MarkerTab', 'trace_min_hold', str(showtime_tab.trace_modes['min'].get()))
-        config.set('MarkerTab', 'buffer_mhz', str(showtime_tab.buffer_var.get()))
-        config.set('MarkerTab', 'poke_mhz', str(showtime_tab.poke_freq_var.get()))
+        config.set('MarkerTab', 'buffer_MHz', str(showtime_tab.buffer_var.get()))
+        config.set('MarkerTab', 'poke_MHz', str(showtime_tab.poke_freq_var.get()))
         
         config.set('MarkerTab', 'buffered_start_var', str(showtime_tab.buffered_start_var.get()))
         config.set('MarkerTab', 'buffered_stop_var', str(showtime_tab.buffered_stop_var.get()))
@@ -138,43 +138,43 @@ def _update_zone_zoom_tab(zgd_frame_instance):
     try:
         # --- NEW LOGIC: Calculate buffered frequencies based on current selection state ---
         current_type = showtime_tab.last_selected_type
-        buffer_mhz = float(showtime_tab.buffer_var.get())
+        buffer_MHz = float(showtime_tab.buffer_var.get())
         
-        start_freq_mhz = 0.0
-        stop_freq_mhz = 0.0
+        start_freq_MHz = 0.0
+        stop_freq_MHz = 0.0
         
         if current_type == 'zone':
             zone_info = showtime_tab.selected_zone_info
-            start_freq_mhz = zone_info.get('min_freq', 0.0)
-            stop_freq_mhz = zone_info.get('max_freq', 0.0)
+            start_freq_MHz = zone_info.get('min_freq', 0.0)
+            stop_freq_MHz = zone_info.get('max_freq', 0.0)
         elif current_type == 'group':
             group_info = showtime_tab.selected_group_info
-            start_freq_mhz = group_info.get('min_freq', 0.0)
-            stop_freq_mhz = group_info.get('max_freq', 0.0)
+            start_freq_MHz = group_info.get('min_freq', 0.0)
+            stop_freq_MHz = group_info.get('max_freq', 0.0)
         elif current_type == 'device':
             device_info = showtime_tab.selected_device_info
             if device_info:
                 center_freq = device_info.get('CENTER', 0.0)
                 span_str = showtime_tab.span_var.get()
                 if 'M' in span_str:
-                    span_mhz = float(span_str.replace('M', ''))
+                    span_MHz = float(span_str.replace('M', ''))
                 else:
-                    span_mhz = float(span_str)
+                    span_MHz = float(span_str)
                 # FIXED: Calculate start/stop correctly for a device without buffer
-                start_freq_mhz = center_freq - (span_mhz / 2)
-                stop_freq_mhz = center_freq + (span_mhz / 2)
+                start_freq_MHz = center_freq - (span_MHz / 2)
+                stop_freq_MHz = center_freq + (span_MHz / 2)
         else: # All markers
             all_devices = zgd_frame_instance._get_all_devices_in_zone(zgd_frame_instance.structured_data, None)
             freqs = [float(d['CENTER']) for d in all_devices if isinstance(d.get('CENTER'), (int, float))]
             if freqs:
-                start_freq_mhz = min(freqs)
-                stop_freq_mhz = max(freqs)
+                start_freq_MHz = min(freqs)
+                stop_freq_MHz = max(freqs)
 
         # Calculate and write buffered frequencies to state. This fixes the main bug.
-        buffered_start_freq_mhz, buffered_stop_freq_mhz = _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz)
-        debug_log(message=f"🛠️📝 Writing state: buffered_start_var = {buffered_start_freq_mhz}, buffered_stop_var = {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
-        showtime_tab.buffered_start_var.set(buffered_start_freq_mhz)
-        showtime_tab.buffered_stop_var.set(buffered_stop_freq_mhz)
+        buffered_start_freq_MHz, buffered_stop_freq_MHz = _buffer_start_stop_frequencies(start_freq_MHz, stop_freq_MHz, buffer_MHz)
+        debug_log(message=f"🛠️📝 Writing state: buffered_start_var = {buffered_start_freq_MHz}, buffered_stop_var = {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
+        showtime_tab.buffered_start_var.set(buffered_start_freq_MHz)
+        showtime_tab.buffered_stop_var.set(buffered_stop_freq_MHz)
 
         # --- Update Labels based on the correct values from state ---
         buffered_start_freq = showtime_tab.buffered_start_var.get()

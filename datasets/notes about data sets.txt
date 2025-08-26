@@ -1,0 +1,29 @@
+_DropDownOption is a drop down with multiple options
+
+_Value is a text box tha can be edited and be bidirection
+
+_Label is an output only label
+
+_slider is a slider(min max provided)
+
+_sliderValue is a slider with a text box (min max provided)
+            "min": "1",
+            "max": "10",
+
+_toggle is an On Off
+
+_button is an event that happens one time
+
+_buttonToggle ius a toggle with a return (true false/ Off and on) 
+
+_buttonToggler is a series of buttons that that toggle
+
+_list - Just a list of data coming back 
+
+_container not used.... 
+
+_indicator on off toggle active inactive indicator 
+
+_progress indicator - %complete 
+
+_Vu meter - volum units representeing amplitude or {abosolute} amplitude

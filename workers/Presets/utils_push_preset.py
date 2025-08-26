@@ -78,11 +78,11 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
 
     success = True
     try:
-        center_freq_mhz_str = preset_data.get('Center', '').strip()
-        center_freq_hz = float(center_freq_mhz_str) * MHZ_TO_HZ if center_freq_mhz_str else None
+        center_freq_MHz_str = preset_data.get('Center', '').strip()
+        center_freq_hz = float(center_freq_MHz_str) * MHZ_TO_HZ if center_freq_MHz_str else None
 
-        span_mhz_str = preset_data.get('Span', '').strip()
-        span_hz = float(span_mhz_str) * MHZ_TO_HZ if span_mhz_str else None
+        span_MHz_str = preset_data.get('Span', '').strip()
+        span_hz = float(span_MHz_str) * MHZ_TO_HZ if span_MHz_str else None
 
         rbw_hz_str = preset_data.get('RBW', '').strip()
         rbw_hz = float(rbw_hz_str) if rbw_hz_str else None
@@ -91,10 +91,10 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
         vbw_hz = float(vbw_hz_str) if vbw_hz_str else None
 
         ref_level_str = preset_data.get('RefLevel', '').strip()
-        reference_level_dbm = ref_level_str if ref_level_str else None
+        reference_level_dBm = ref_level_str if ref_level_str else None
 
         attenuation_str = preset_data.get('Attenuation', '').strip()
-        attenuation_db = int(attenuation_str) if attenuation_str else None
+        attenuation_dB = int(attenuation_str) if attenuation_str else None
 
         maxhold_str = preset_data.get('MaxHold', '').strip()
         maxhold_enabled = maxhold_str.upper() == 'ON' if maxhold_str else None
@@ -125,9 +125,9 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
         if span_hz is not None:
             if YakSet(app_instance, "FREQUENCY/SPAN", str(int(span_hz)), console_print_func) == "FAILED": success = False
             debug_log(f"Applied Span Frequency: {int(span_hz)} Hz.", file=current_file, version=current_version, function=current_function)
-        if attenuation_db is not None:
-            if YakSet(app_instance, "AMPLITUDE/POWER/ATTENUATION", str(attenuation_db), console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Attenuation: {attenuation_db} dB.", file=current_file, version=current_version, function=current_function)
+        if attenuation_dB is not None:
+            if YakSet(app_instance, "AMPLITUDE/POWER/ATTENUATION", str(attenuation_dB), console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Attenuation: {attenuation_dB} dB.", file=current_file, version=current_version, function=current_function)
 
         if rbw_hz is not None:
             if YakSet(app_instance, "BANDWIDTH/RESOLUTION", str(int(rbw_hz)), console_print_func) == "FAILED": success = False
@@ -136,9 +136,9 @@ def push_preset_logic(app_instance, console_print_func, preset_data):
             if YakSet(app_instance, "BANDWIDTH/VIDEO", str(int(vbw_hz)), console_print_func) == "FAILED": success = False
             debug_log(f"Applied VBW: {int(vbw_hz)} Hz.", file=current_file, version=current_version, function=current_function)
 
-        if reference_level_dbm is not None:
-            if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{reference_level_dbm}", console_print_func) == "FAILED": success = False
-            debug_log(f"Applied Reference Level: {reference_level_dbm} dBm.", file=current_file, version=current_version, function=current_function)
+        if reference_level_dBm is not None:
+            if YakDo(app_instance, f"AMPLITUDE/REFERENCE LEVEL/{reference_level_dBm}", console_print_func) == "FAILED": success = False
+            debug_log(f"Applied Reference Level: {reference_level_dBm} dBm.", file=current_file, version=current_version, function=current_function)
 
         if high_sensitivity_on is not None:
             if YakSet(app_instance, "AMPLITUDE/POWER/HIGH SENSITIVE", 'ON' if high_sensitivity_on else 'OFF', console_print_func) == "FAILED": success = False

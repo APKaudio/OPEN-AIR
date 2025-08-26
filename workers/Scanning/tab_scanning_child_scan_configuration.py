@@ -137,7 +137,7 @@ class ScanTab(ttk.Frame):
         # self._create_setting_row(settings_frame, row_idx, "dwell_time", "DWELL (s):", self.app_instance.maxhold_time_seconds_var, dwell_time_drop_down, "s"); row_idx += 1
         # self._create_setting_row(settings_frame, row_idx, "max_hold_time", "Max Hold Time (s):", self.app_instance.cycle_wait_time_seconds_var, cycle_wait_time_presets, "s"); row_idx += 1
         # self._create_setting_row(settings_frame, row_idx, "scan_rbw", "Scan RBW (Hz):", self.app_instance.scan_rbw_hz_var, rbw_presets, "Hz"); row_idx += 1
-        # self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dbm_var, reference_level_drop_down, "dBm"); row_idx += 1
+        # self._create_setting_row(settings_frame, row_idx, "reference_level", "Reference Level (dBm):", self.app_instance.reference_level_dBm_var, reference_level_drop_down, "dBm"); row_idx += 1
         # self._create_setting_row(settings_frame, row_idx, "frequency_shift", "Frequency Shift (Hz):", self.app_instance.freq_shift_var, frequency_shift_presets, "Hz"); row_idx += 1
         # self._create_setting_row(settings_frame, row_idx, "num_scan_cycles", "Number of Scan Cycles:", self.app_instance.num_scan_cycles_var, number_of_scans_presets, "cycles"); row_idx += 1
 

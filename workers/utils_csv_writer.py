@@ -39,7 +39,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
         header (list or None): A list of strings representing the CSV header row.
                                If None, no header will be written.
         data (list): A list of lists or tuples, where each inner list/tuple represents
-                     a row of data (e.g., [frequency_mhz, level_dbm]).
+                     a row of data (e.g., [frequency_MHz, level_dBm]).
         app_instance_ref (object): A reference to the main application instance.
         append_mode (bool): If True, data will be appended to the file if it exists.
                             If False, the file will be overwritten.
@@ -97,8 +97,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
                             function=current_function)
             
             # Write data rows
-            for freq_mhz, level_dbm in data:
-                csv_writer.writerow([f"{freq_mhz:.3f}", f"{level_dbm:.3f}"])
+            for freq_MHz, level_dBm in data:
+                csv_writer.writerow([f"{freq_MHz:.3f}", f"{level_dBm:.3f}"])
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!"))
         debug_log(f"Scan data written to CSV: {file_path}. Mission accomplished!",

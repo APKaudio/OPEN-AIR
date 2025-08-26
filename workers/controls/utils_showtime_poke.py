@@ -47,13 +47,13 @@ def on_poke_action(showtime_tab_instance):
     
     try:
         # 📖 Read Data: Retrieve poke and span values.
-        center_freq_mhz = float(showtime_tab_instance.poke_freq_var.get())
+        center_freq_MHz = float(showtime_tab_instance.poke_freq_var.get())
         span_hz = int(showtime_tab_instance.span_var.get())
-        debug_log(message=f"📖 Reading state: poke_freq_var = {center_freq_mhz} MHz, span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
+        debug_log(message=f"📖 Reading state: poke_freq_var = {center_freq_MHz} MHz, span_var = {span_hz} Hz", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function)
         
-        center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
+        center_freq_hz = int(center_freq_MHz * MHZ_TO_HZ)
         
-        showtime_tab_instance.console_print_func(f"Poking instrument: Center={center_freq_mhz} MHz, Span={format_hz(span_hz)}...")
+        showtime_tab_instance.console_print_func(f"Poking instrument: Center={center_freq_MHz} MHz, Span={format_hz(span_hz)}...")
         
         response = handle_freq_center_span_beg(
             app_instance=showtime_tab_instance.app_instance, 

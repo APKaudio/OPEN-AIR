@@ -1,3 +1,4 @@
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/Application/#"
 # agents/agent_configuration.py
 #
 # A standalone agent to subscribe to the MQTT topic "OPEN-AIR/program/configuration/Application/"
@@ -48,7 +49,7 @@ current_version_hash = (int(CURRENT_DATE) * int(CURRENT_TIME) * int(REVISION_NUM
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/configuration/Application/#"
+
 CONFIG_FILE_NAME = "Config.json"
 
 class ConfigurationAgent:

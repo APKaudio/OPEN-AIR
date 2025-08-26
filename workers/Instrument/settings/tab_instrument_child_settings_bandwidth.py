@@ -269,10 +269,10 @@ class BandwidthSettingsTab(ttk.Frame):
                       version=current_version,
                       function=current_function)
             # Fall back to app_instance variables if not connected
-            if hasattr(self.app_instance, 'rbw_mhz_var'):
-                self.rbw_hz_var.set(self.app_instance.rbw_mhz_var.get() * 1_000_000)
-            if hasattr(self.app_instance, 'vbw_mhz_var'):
-                self.vbw_hz_var.set(self.app_instance.vbw_mhz_var.get() * 1_000_000)
+            if hasattr(self.app_instance, 'rbw_MHz_var'):
+                self.rbw_hz_var.set(self.app_instance.rbw_MHz_var.get() * 1_000_000)
+            if hasattr(self.app_instance, 'vbw_MHz_var'):
+                self.vbw_hz_var.set(self.app_instance.vbw_MHz_var.get() * 1_000_000)
             if hasattr(self.app_instance, 'vbw_auto_on_var'):
                 self.vbw_auto_state_var.set(self.app_instance.vbw_auto_on_var.get())
             if hasattr(self.app_instance, 'initiate_continuous_on_var'):
@@ -326,8 +326,8 @@ class BandwidthSettingsTab(ttk.Frame):
                       version=current_version,
                       function=current_function)
             # If the NAB call failed, fall back to app_instance variables
-            self.rbw_hz_var.set(self.app_instance.rbw_mhz_var.get() * 1_000_000)
-            self.vbw_hz_var.set(self.app_instance.vbw_mhz_var.get() * 1_000_000)
+            self.rbw_hz_var.set(self.app_instance.rbw_MHz_var.get() * 1_000_000)
+            self.vbw_hz_var.set(self.app_instance.vbw_MHz_var.get() * 1_000_000)
             self.vbw_auto_state_var.set(self.app_instance.vbw_auto_on_var.get())
             self.continuous_mode_var.set("ON" if self.app_instance.initiate_continuous_on_var.get() else "OFF")
 

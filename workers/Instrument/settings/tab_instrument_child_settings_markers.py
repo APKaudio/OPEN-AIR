@@ -132,7 +132,7 @@ class MarkerSettingsTab(ttk.Frame):
             
             result_string = handle_marker_place_all_beg(
                 app_instance=self.app_instance, 
-                marker_freqs_mhz=marker_freqs,
+                marker_freqs_MHz=marker_freqs,
                 console_print_func=self.console_print_func
             )
             
@@ -144,14 +144,14 @@ class MarkerSettingsTab(ttk.Frame):
                 if len(y_values) == 6:
                     for i in range(6):
                         marker_label = f"M{i+1}"
-                        input_freq_mhz = self.marker_freq_vars[i].get()
+                        input_freq_MHz = self.marker_freq_vars[i].get()
                         
                         try:
-                            amplitude_dbm = float(y_values[i])
-                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_mhz:.3f}", f"{amplitude_dbm:.2f}"))
+                            amplitude_dBm = float(y_values[i])
+                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_MHz:.3f}", f"{amplitude_dBm:.2f}"))
                         except (ValueError, IndexError):
                             self.console_print_func(f"❌ Error parsing result for {marker_label}.")
-                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_mhz:.3f}", 'FAILED'))
+                            self.marker_result_table.insert('', 'end', values=(marker_label, f"{input_freq_MHz:.3f}", 'FAILED'))
                     self.console_print_func("✅ Marker operation successful. Results displayed in table.")
                     self._save_settings_handler()
                 else:

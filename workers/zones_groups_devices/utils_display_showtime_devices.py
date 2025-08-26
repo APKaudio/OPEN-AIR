@@ -123,20 +123,20 @@ def on_device_selected(zgd_frame_instance, device_info):
     _update_zone_zoom_tab(zgd_frame_instance)
     
     # NEW: Set the instrument's center frequency and span based on the state.
-    center_freq_mhz = device_info.get('CENTER')
+    center_freq_MHz = device_info.get('CENTER')
     # 📖 Read Data: Get the current span from the state.
     span_str = showtime_tab.span_var.get()
     if 'M' in span_str:
-        span_mhz = float(span_str.replace('M', ''))
+        span_MHz = float(span_str.replace('M', ''))
     else:
-        span_mhz = float(span_str)
+        span_MHz = float(span_str)
 
-    if center_freq_mhz is not None and isinstance(center_freq_mhz, (float, int)):
-        debug_log(message=f"🛠️📤 Outbound: Setting instrument center frequency to {center_freq_mhz} MHz and span to {span_mhz} MHz.", file=current_file, version=current_version, function=current_function)
+    if center_freq_MHz is not None and isinstance(center_freq_MHz, (float, int)):
+        debug_log(message=f"🛠️📤 Outbound: Setting instrument center frequency to {center_freq_MHz} MHz and span to {span_MHz} MHz.", file=current_file, version=current_version, function=current_function)
         
         # Convert to Hz for the handler function
-        center_freq_hz = int(center_freq_mhz * 1_000_000)
-        span_hz = int(span_mhz * 1_000_000)
+        center_freq_hz = int(center_freq_MHz * 1_000_000)
+        span_hz = int(span_MHz * 1_000_000)
         
         handle_freq_center_span_beg(app_instance=showtime_tab.app_instance, 
                                  center_freq=center_freq_hz, 
@@ -144,7 +144,7 @@ def on_device_selected(zgd_frame_instance, device_info):
                                  console_print_func=showtime_tab.console_print_func)
     else:
         console_log("❌ Cannot set instrument center frequency. Invalid device center frequency.")
-        debug_log(message=f"🛠️❌ Invalid center frequency for device: {center_freq_mhz}. Cannot set instrument.", 
+        debug_log(message=f"🛠️❌ Invalid center frequency for device: {center_freq_MHz}. Cannot set instrument.", 
                   file=current_file, 
                   version=current_version, 
                   function=current_function)

@@ -1,0 +1,278 @@
+{
+    "Settings": {
+        "Active_Instrument": {
+            "brand": {
+                "value": "Keysight Technologies",
+                "control_type": "_Label"
+            },
+            "device_model": {
+                "value": "Keysight",
+                "control_type": "_Label"
+            },
+            "device_series": {
+                "value": "E440xB",
+                "control_type": "_Label"
+            },
+            "device_serial_number": {
+                "value": "E440xB",
+                "control_type": "_Label"
+            },
+            "device_firmware": {
+                "value": "E440xB",
+                "control_type": "_Label"
+            },
+            "visa_resource": {
+                "value": "TCPIP0::192.168.1.100::inst0::INSTR",
+                "control_type": "_Label"
+            },
+            "Time_connected": {
+                "value": "12:44.01",
+                "control_type": "_Label"
+            }
+        },
+        "Frequency_Settings": {
+            "center_freq_MHz": {
+                "value": "150",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            },
+            "span_freq_MHz": {
+                "value": "100",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            },
+            "start_freq_MHz": {
+                "value": "0",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            },
+            "stop_freq_MHz": {
+                "value": "3000",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            }
+        },
+        "Bandwidth_Settings": {
+            "rbw_MHz": {
+                "value": "1",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            },
+            "Sweep_time_s": {
+                "value": "1",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "s"
+            },
+            "vbw_MHz": {
+                "value": "1",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10",
+                "units": "MHz"
+            },
+            "vbw_auto_on": {
+                "value": "true",
+                "control_type": "_sliderValue",
+                "min": "1",
+                "max": "10"
+            },
+            "initiate_continuous_on": {
+                "value": "true",
+                "control_type": "_toggle"
+            }
+        },
+        "Amplitude_Settings": {
+            "ref_level_dBm": {
+                "value": "-30",
+                "control_type": "_sliderValue",
+                "units": "dBm",
+                "min":"-100",
+                "max":"0",
+                "Steps":"10"
+            },
+            "preamp_on": {
+                "value": "false",
+                "control_type": "_buttonToggle"
+            },
+            "power_attenuation_dB": {
+                "value": "10",
+                "control_type": "_sliderValue",
+                "units": "dBm",
+                "min":"-100",
+                "max":"0",
+                "Steps":"10"
+            },
+            "high_sensitivity_on": {
+                "value": "false",
+                "control_type": "_buttonToggle"
+            }
+        },
+
+
+
+        "Marker_Settings": {
+            "Marker_1_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_1_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Label",
+                "units": "dBm"
+            },
+            "Marker_2_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_2_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Value",
+                "units": "dBm"
+            },
+            "Marker_3_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_3_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Label",
+                "units": "dBm"
+            },
+            "Marker_4_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_4_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Label",
+                "units": "dBm"
+            },
+            "Marker_5_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_5_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Label",
+                "units": "dBm"
+            },
+            "Marker_6_X_MHz": {
+                "value": "111",
+                "control_type": "_Value",
+                "units": "MHz"
+            },
+            "Marker_6_Y_dBm": {
+                "value": "-30",
+                "control_type": "_Label",
+                "units": "dBm"
+            }
+        },
+        "Trace_Settings": {
+            "trace_1": {
+                "BLANK": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MAXHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MINHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "VIEW": {
+                    "value": "yes",
+                    "control_type": "DropDownOption"
+                },
+                "WRITE": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                }
+            },
+            "trace_2": {
+                "BLANK": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MAXHOLD": {
+                    "value": "yes",
+                    "control_type": "DropDownOption"
+                },
+                "MINHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "VIEW": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "WRITE": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                }
+            },
+            "trace_3": {
+                "BLANK": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MAXHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MINHOLD": {
+                    "value": "yes",
+                    "control_type": "DropDownOption"
+                },
+                "VIEW": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "WRITE": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                }
+            },
+            "trace_4": {
+                "BLANK": {
+                    "value": "yes",
+                    "control_type": "DropDownOption"
+                },
+                "MAXHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "MINHOLD": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "VIEW": {
+                    "value": "no",
+                    "control_type": "DropDownOption"
+                },
+                "WRITE": {
+                    "value": "yes",
+                    "control_type": "DropDownOption"
+                }
+            }
+        }
+    }
+}

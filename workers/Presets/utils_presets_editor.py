@@ -88,22 +88,22 @@ class PresetEditorLogic:
             timestamp_filename = datetime.now().strftime('%Y%m%d_%H%M%S')
             timestamp_nickname = datetime.now().strftime('%Y%m%d %H%M')
 
-            center_freq_mhz = current_settings.get('center_freq_mhz')
-            span_mhz = current_settings.get('span_mhz')
-            start_freq_mhz = center_freq_mhz - (span_mhz / 2) if center_freq_mhz is not None and span_mhz is not None else ''
-            stop_freq_mhz = center_freq_mhz + (span_mhz / 2) if center_freq_mhz is not None and span_mhz is not None else ''
+            center_freq_MHz = current_settings.get('center_freq_MHz')
+            span_MHz = current_settings.get('span_MHz')
+            start_freq_MHz = center_freq_MHz - (span_MHz / 2) if center_freq_MHz is not None and span_MHz is not None else ''
+            stop_freq_MHz = center_freq_MHz + (span_MHz / 2) if center_freq_MHz is not None and span_MHz is not None else ''
 
             new_preset = {
                 'Filename': f"USER_{timestamp_filename}.STA",
                 'NickName': f"Device {timestamp_nickname}",
-                'Start': f"{start_freq_mhz:.3f}" if isinstance(start_freq_mhz, (int, float)) else '',
-                'Stop': f"{stop_freq_mhz:.3f}" if isinstance(stop_freq_mhz, (int, float)) else '',
-                'Center': f"{center_freq_mhz:.3f}" if isinstance(center_freq_mhz, (int, float)) else '',
-                'Span': f"{span_mhz:.3f}" if isinstance(span_mhz, (int, float)) else '',
+                'Start': f"{start_freq_MHz:.3f}" if isinstance(start_freq_MHz, (int, float)) else '',
+                'Stop': f"{stop_freq_MHz:.3f}" if isinstance(stop_freq_MHz, (int, float)) else '',
+                'Center': f"{center_freq_MHz:.3f}" if isinstance(center_freq_MHz, (int, float)) else '',
+                'Span': f"{span_MHz:.3f}" if isinstance(span_MHz, (int, float)) else '',
                 'RBW': f"{current_settings.get('rbw_hz'):.0f}" if isinstance(current_settings.get('rbw_hz'), (int, float)) else '',
                 'VBW': f"{current_settings.get('vbw_hz'):.0f}" if isinstance(current_settings.get('vbw_hz'), (int, float)) else '',
-                'RefLevel': f"{current_settings.get('ref_level_dbm'):.1f}" if isinstance(current_settings.get('ref_level_dbm'), (int, float)) else '',
-                'Attenuation': f"{current_settings.get('attenuation_db'):.0f}" if isinstance(current_settings.get('attenuation_db'), (int, float)) else '',
+                'RefLevel': f"{current_settings.get('ref_level_dBm'):.1f}" if isinstance(current_settings.get('ref_level_dBm'), (int, float)) else '',
+                'Attenuation': f"{current_settings.get('attenuation_dB'):.0f}" if isinstance(current_settings.get('attenuation_dB'), (int, float)) else '',
                 'MaxHold': 'ON' if current_settings.get('maxhold_enabled') else 'OFF',
                 'HighSens': 'ON' if current_settings.get('high_sensitivity_on') else 'OFF',
                 'PreAmp': 'ON' if current_settings.get('preamp_on') else 'OFF',

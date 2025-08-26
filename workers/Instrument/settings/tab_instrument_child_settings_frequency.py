@@ -236,7 +236,7 @@ class FrequencySettingsTab(ttk.Frame):
         try:
             for i, (label, preset) in enumerate(PRESET_FREQUENCY_SPAN_MHZ.items()):
                 # Use a format string with two decimal places for better display and rely on grid for sizing.
-                button_text = f"{label}\n{preset['span_mhz']:.2f} MHz"
+                button_text = f"{label}\n{preset['span_MHz']:.2f} MHz"
                 button = ttk.Button(parent_frame,
                                     text=button_text,
                                     command=lambda p=preset: self._on_span_preset_button_click(preset=p))
@@ -266,12 +266,12 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
         try:
             self.is_tracing = True
-            self.freq_span_var.set(preset['span_mhz'])
-            self.freq_center_var.set(preset['center_mhz']) # Also set center frequency
+            self.freq_span_var.set(preset['span_MHz'])
+            self.freq_center_var.set(preset['center_MHz']) # Also set center frequency
             self.is_tracing = False
             self._update_span_button_styles()
             self._on_freq_center_span_beg() # Trigger YakBeg after button click
-            console_log(message=f"✅ Span set to {preset['span_mhz']} MHz).", function=current_function)
+            console_log(message=f"✅ Span set to {preset['span_MHz']} MHz).", function=current_function)
         except Exception as e:
             console_log(message=f"❌ Error in {current_function}: {e}")
             debug_log(message=f"Arrr, the code be capsized! The error be: {e}",
@@ -301,11 +301,11 @@ class FrequencySettingsTab(ttk.Frame):
                   version=current_version,
                   function=current_function)
         try:
-            current_span_mhz = self.freq_span_var.get()
+            current_span_MHz = self.freq_span_var.get()
             for label, preset in PRESET_FREQUENCY_SPAN_MHZ.items():
                 button = self.span_buttons.get(label)
                 if button:
-                    if np.isclose(current_span_mhz, preset['span_mhz']):
+                    if np.isclose(current_span_MHz, preset['span_MHz']):
                         button.configure(style='Orange.TButton')
                     else:
                         button.configure(style='Blue.TButton')
@@ -329,35 +329,35 @@ class FrequencySettingsTab(ttk.Frame):
                   function=current_function)
 
         try:
-            start_freq_mhz = self.freq_start_var.get()
-            stop_freq_mhz = self.freq_stop_var.get()
+            start_freq_MHz = self.freq_start_var.get()
+            stop_freq_MHz = self.freq_stop_var.get()
             
             # UPDATED: Validation logic for Start/Stop frequencies
-            if start_freq_mhz >= stop_freq_mhz:
-                new_stop_mhz = start_freq_mhz + 10.0
-                console_log(message=f"⚠️ Start frequency ({start_freq_mhz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_mhz:.3f} MHz). Automatically setting stop to {new_stop_mhz:.3f} MHz.")
-                debug_log(message=f"The start frequency ({start_freq_mhz} MHz) is greater than or equal to the stop frequency ({stop_freq_mhz} MHz). The captain has corrected the course! 📈",
+            if start_freq_MHz >= stop_freq_MHz:
+                new_stop_MHz = start_freq_MHz + 10.0
+                console_log(message=f"⚠️ Start frequency ({start_freq_MHz:.3f} MHz) is greater than or equal to stop frequency ({stop_freq_MHz:.3f} MHz). Automatically setting stop to {new_stop_MHz:.3f} MHz.")
+                debug_log(message=f"The start frequency ({start_freq_MHz} MHz) is greater than or equal to the stop frequency ({stop_freq_MHz} MHz). The captain has corrected the course! 📈",
                           file=os.path.basename(__file__),
                           version=current_version,
                           function=current_function)
-                self.freq_stop_var.set(value=new_stop_mhz)
+                self.freq_stop_var.set(value=new_stop_MHz)
                 # Re-read the adjusted value for the YakBeg command
-                stop_freq_mhz = self.freq_stop_var.get()
-            elif stop_freq_mhz < start_freq_mhz:
-                new_start_mhz = stop_freq_mhz - 10.0
-                console_log(message=f"⚠️ Stop frequency ({stop_freq_mhz:.3f} MHz) is less than start frequency ({start_freq_mhz:.3f} MHz). Automatically setting start to {new_start_mhz:.3f} MHz.")
-                debug_log(message=f"The stop frequency ({stop_freq_mhz} MHz) is less than the start frequency ({start_freq_mhz} MHz). The captain has corrected the course! 📉",
+                stop_freq_MHz = self.freq_stop_var.get()
+            elif stop_freq_MHz < start_freq_MHz:
+                new_start_MHz = stop_freq_MHz - 10.0
+                console_log(message=f"⚠️ Stop frequency ({stop_freq_MHz:.3f} MHz) is less than start frequency ({start_freq_MHz:.3f} MHz). Automatically setting start to {new_start_MHz:.3f} MHz.")
+                debug_log(message=f"The stop frequency ({stop_freq_MHz} MHz) is less than the start frequency ({start_freq_MHz} MHz). The captain has corrected the course! 📉",
                           file=os.path.basename(__file__),
                           version=current_version,
                           function=current_function)
-                self.freq_start_var.set(value=new_start_mhz)
+                self.freq_start_var.set(value=new_start_MHz)
                 # Re-read the adjusted value for the YakBeg command
-                start_freq_mhz = self.freq_start_var.get()
+                start_freq_MHz = self.freq_start_var.get()
 
 
             # Get values in MHz and convert to Hz, ensuring no decimal points
-            start_freq_hz = int(start_freq_mhz * 1e6)
-            stop_freq_hz = int(stop_freq_mhz * 1e6)
+            start_freq_hz = int(start_freq_MHz * 1e6)
+            stop_freq_hz = int(stop_freq_MHz * 1e6)
 
             # Expect 4 values to be returned from the handler
             start_resp_hz, stop_resp_hz, span_resp_hz, center_resp_hz = handle_freq_start_stop_beg(
@@ -369,23 +369,23 @@ class FrequencySettingsTab(ttk.Frame):
 
             if start_resp_hz is not None and stop_resp_hz is not None:
                 # Convert response back to MHz for display
-                start_resp_mhz = start_resp_hz / 1e6
-                stop_resp_mhz = stop_resp_hz / 1e6
-                span_resp_mhz = span_resp_hz / 1e6
-                center_resp_mhz = center_resp_hz / 1e6
+                start_resp_MHz = start_resp_hz / 1e6
+                stop_resp_MHz = stop_resp_hz / 1e6
+                span_resp_MHz = span_resp_hz / 1e6
+                center_resp_MHz = center_resp_hz / 1e6
                 
                 # Update all variables
-                self.freq_start_var.set(value=start_resp_mhz)
-                self.freq_stop_var.set(value=stop_resp_mhz)
-                self.freq_center_var.set(value=center_resp_mhz)
-                self.freq_span_var.set(value=span_resp_mhz)
+                self.freq_start_var.set(value=start_resp_MHz)
+                self.freq_stop_var.set(value=stop_resp_MHz)
+                self.freq_center_var.set(value=center_resp_MHz)
+                self.freq_span_var.set(value=span_resp_MHz)
                 
                 # UPDATED: Format the result string to match the requested layout
                 result_message = (
-                    f"Center: {center_resp_mhz:.3f} MHz\n"
-                    f"Span: {span_resp_mhz:.3f} MHz\n\n\n"
-                    f"Start: {start_resp_mhz:.3f} MHz\n"
-                    f"Stop: {stop_resp_mhz:.3f} MHz"
+                    f"Center: {center_resp_MHz:.3f} MHz\n"
+                    f"Span: {span_resp_MHz:.3f} MHz\n\n\n"
+                    f"Start: {start_resp_MHz:.3f} MHz\n"
+                    f"Stop: {stop_resp_MHz:.3f} MHz"
                 )
                 self.freq_common_result_var.set(value=result_message)
                 self._save_settings_handler()
@@ -411,11 +411,11 @@ class FrequencySettingsTab(ttk.Frame):
 
         try:
             # Get values in MHz and convert to Hz, ensuring no decimal points
-            center_freq_mhz = self.freq_center_var.get()
-            span_freq_mhz = self.freq_span_var.get()
+            center_freq_MHz = self.freq_center_var.get()
+            span_freq_MHz = self.freq_span_var.get()
 
-            center_freq_hz = int(center_freq_mhz * 1e6)
-            span_freq_hz = int(span_freq_mhz * 1e6)
+            center_freq_hz = int(center_freq_MHz * 1e6)
+            span_freq_hz = int(span_freq_MHz * 1e6)
 
             # Expect 4 values to be returned from the handler
             center_resp_hz, span_resp_hz, start_resp_hz, stop_resp_hz = handle_freq_center_span_beg(
@@ -427,23 +427,23 @@ class FrequencySettingsTab(ttk.Frame):
 
             if center_resp_hz is not None and span_resp_hz is not None:
                 # Convert response back to MHz for display
-                center_resp_mhz = center_resp_hz / 1e6
-                span_resp_mhz = span_resp_hz / 1e6
-                start_resp_mhz = start_resp_hz / 1e6
-                stop_resp_mhz = stop_resp_hz / 1e6
+                center_resp_MHz = center_resp_hz / 1e6
+                span_resp_MHz = span_resp_hz / 1e6
+                start_resp_MHz = start_resp_hz / 1e6
+                stop_resp_MHz = stop_resp_hz / 1e6
                 
                 # Update all variables
-                self.freq_center_var.set(value=center_resp_mhz)
-                self.freq_span_var.set(value=span_resp_mhz)
-                self.freq_start_var.set(value=start_resp_mhz)
-                self.freq_stop_var.set(value=stop_resp_mhz)
+                self.freq_center_var.set(value=center_resp_MHz)
+                self.freq_span_var.set(value=span_resp_MHz)
+                self.freq_start_var.set(value=start_resp_MHz)
+                self.freq_stop_var.set(value=stop_resp_MHz)
                 
                 # UPDATED: Format the result string to match the requested layout
                 result_message = (
-                    f"Center: {center_resp_mhz:.3f} MHz\n"
-                    f"Span: {span_resp_mhz:.3f} MHz\n\n\n"
-                    f"Start: {start_resp_mhz:.3f} MHz\n"
-                    f"Stop: {stop_resp_mhz:.3f} MHz"
+                    f"Center: {center_resp_MHz:.3f} MHz\n"
+                    f"Span: {span_resp_MHz:.3f} MHz\n\n\n"
+                    f"Start: {start_resp_MHz:.3f} MHz\n"
+                    f"Stop: {stop_resp_MHz:.3f} MHz"
                 )
                 self.freq_common_result_var.set(value=result_message)
                 self._save_settings_handler()

@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/configuration/Scan"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/Scan"
 
 # display/gui_sweeping_configuration.py
 #

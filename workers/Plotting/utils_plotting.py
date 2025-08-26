@@ -111,9 +111,9 @@ def _add_band_markers(fig, markers_dict, line_color, line_dash, band_name_suffix
                 file=__file__,
                 version=current_version,
                 function=current_function)
-    for band_name, freq_range_mhz in markers_dict.items():
-        min_freq_hz = freq_range_mhz[0] * MHZ_TO_HZ
-        max_freq_hz = freq_range_mhz[1] * MHZ_TO_HZ
+    for band_name, freq_range_MHz in markers_dict.items():
+        min_freq_hz = freq_range_MHz[0] * MHZ_TO_HZ
+        max_freq_hz = freq_range_MHz[1] * MHZ_TO_HZ
         fig.add_shape(
             type="rect",
             xref="x", yref="paper",
@@ -247,13 +247,13 @@ def _add_intermodulation_markers(fig, intermod_csv_path, MHZ_TO_HZ, console_prin
             return
 
         for index, row in df_intermod.iterrows():
-            freq_mhz = row['Frequency_MHz']
-            freq_hz = freq_mhz * MHZ_TO_HZ
+            freq_MHz = row['Frequency_MHz']
+            freq_hz = freq_MHz * MHZ_TO_HZ
             # Create a descriptive name for the IMD marker
             imd_name = f"IMD {row.get('Order', '')} ({row.get('Type', '')}) from {row.get('Parent_Freq1', 'N/A')} & {row.get('Parent_Freq2', 'N/A')} MHz"
             fig.add_vline(x=freq_hz, line_width=1, line_dash="solid", line_color="red",
-                          annotation_text=f"IMD {freq_mhz:.3f} MHz", annotation_position="bottom right")
-            debug_log(f"Added intermodulation marker: {imd_name} at {freq_mhz:.3f} MHz",
+                          annotation_text=f"IMD {freq_MHz:.3f} MHz", annotation_position="bottom right")
+            debug_log(f"Added intermodulation marker: {imd_name} at {freq_MHz:.3f} MHz",
                         file=__file__,
                         version=current_version,
                         function=current_function)

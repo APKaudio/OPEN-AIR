@@ -45,17 +45,17 @@ current_version_hash = (w * x * y)
 current_file = file=f"{os.path.basename(__file__)}"
 
 
-def _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz):
+def _buffer_start_stop_frequencies(start_freq_MHz, stop_freq_MHz, buffer_MHz):
     # [Calculates the buffered start and stop frequencies based on a given buffer value.]
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(message=f"🛠️ 🟢 Entering {current_function} with start: {start_freq_mhz}, stop: {stop_freq_mhz}, buffer: {buffer_mhz}", file=current_file, version=current_version, function=current_function)
+    debug_log(message=f"🛠️ 🟢 Entering {current_function} with start: {start_freq_MHz}, stop: {stop_freq_MHz}, buffer: {buffer_MHz}", file=current_file, version=current_version, function=current_function)
     
-    buffered_start_freq_mhz = start_freq_mhz - buffer_mhz
-    buffered_stop_freq_mhz = stop_freq_mhz + buffer_mhz
+    buffered_start_freq_MHz = start_freq_MHz - buffer_MHz
+    buffered_stop_freq_MHz = stop_freq_MHz + buffer_MHz
     
-    debug_log(message=f"🛠️ 🟢 Exiting {current_function} with buffered start: {buffered_start_freq_mhz}, buffered stop: {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
+    debug_log(message=f"🛠️ 🟢 Exiting {current_function} with buffered start: {buffered_start_freq_MHz}, buffered stop: {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
     
-    return buffered_start_freq_mhz, buffered_stop_freq_mhz
+    return buffered_start_freq_MHz, buffered_stop_freq_MHz
 
 def set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab):
     # [Calculates the required span to view all markers and sets the instrument using a start-stop command.]
@@ -76,26 +76,26 @@ def set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab):
         debug_log(message=f"🛠️ 🚫 No valid frequencies found in markers.", file=current_file, version=current_version, function=current_function)
         return
     
-    start_freq_mhz = min(freqs)
-    stop_freq_mhz = max(freqs)
+    start_freq_MHz = min(freqs)
+    stop_freq_MHz = max(freqs)
     number_of_markers = len(freqs)
 
     try:
         # 📖 Read Data: Retrieve buffer value.
-        buffer_mhz = float(showtime_tab_instance.buffer_var.get())
-        debug_log(message=f"📖 Reading state: buffer_var = {buffer_mhz} MHz", file=current_file, version=current_version, function=current_function)
+        buffer_MHz = float(showtime_tab_instance.buffer_var.get())
+        debug_log(message=f"📖 Reading state: buffer_var = {buffer_MHz} MHz", file=current_file, version=current_version, function=current_function)
 
-        buffered_start_freq_mhz, buffered_stop_freq_mhz = _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz)
+        buffered_start_freq_MHz, buffered_stop_freq_MHz = _buffer_start_stop_frequencies(start_freq_MHz, stop_freq_MHz, buffer_MHz)
         
         # 📝 Write Data: Store the buffered frequencies in the state.
-        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_mhz}, buffered_stop_var = {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
-        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_mhz)
-        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_mhz)
+        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_MHz}, buffered_stop_var = {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
+        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_MHz)
+        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_MHz)
 
-        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
-        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        start_freq_hz = int(buffered_start_freq_MHz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_MHz * MHZ_TO_HZ)
         
-        showtime_tab_instance.console_print_func(f"✅ Setting span to all markers: {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        showtime_tab_instance.console_print_func(f"✅ Setting span to all markers: {buffered_start_freq_MHz:.3f} MHz to {buffered_stop_freq_MHz:.3f} MHz.")
         
         # FIXED: Calling the handler here after the values are calculated
         handle_freq_start_stop_beg(app_instance=showtime_tab_instance.app_instance, start_freq=start_freq_hz, stop_freq=stop_freq_hz, console_print_func=showtime_tab_instance.console_print_func)
@@ -104,7 +104,7 @@ def set_span_to_all_markers(showtime_tab_instance, zone_zoom_tab):
 
         showtime_tab_instance.zone_zoom_label_left_var.set("All Markers")
         showtime_tab_instance.zone_zoom_label_center_var.set(f"({number_of_markers} Devices)")
-        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_mhz:.3f} MHz\nStop: {buffered_stop_freq_mhz:.3f} MHz")
+        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_MHz:.3f} MHz\nStop: {buffered_stop_freq_MHz:.3f} MHz")
         
         # Trigger UI sync on ZoneZoomTab
         zone_zoom_tab._sync_ui_from_state()
@@ -133,8 +133,8 @@ def set_span_to_zone(showtime_tab_instance, zone_zoom_tab):
         debug_log(message=f"🛠️ 🚫 No zone selected.", file=current_file, version=current_version, function=current_function)
         return
     
-    start_freq_mhz = zone_info.get('min_freq')
-    stop_freq_mhz = zone_info.get('max_freq')
+    start_freq_MHz = zone_info.get('min_freq')
+    stop_freq_MHz = zone_info.get('max_freq')
     number_of_markers = zone_info.get('device_count')
     
     if number_of_markers == 0:
@@ -146,20 +146,20 @@ def set_span_to_zone(showtime_tab_instance, zone_zoom_tab):
     
     try:
         # 📖 Read Data: Retrieve buffer value.
-        buffer_mhz = float(showtime_tab_instance.buffer_var.get())
-        debug_log(message=f"📖 Reading state: buffer_var = {buffer_mhz} MHz", file=current_file, version=current_version, function=current_function)
+        buffer_MHz = float(showtime_tab_instance.buffer_var.get())
+        debug_log(message=f"📖 Reading state: buffer_var = {buffer_MHz} MHz", file=current_file, version=current_version, function=current_function)
 
-        buffered_start_freq_mhz, buffered_stop_freq_mhz = _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz)
+        buffered_start_freq_MHz, buffered_stop_freq_MHz = _buffer_start_stop_frequencies(start_freq_MHz, stop_freq_MHz, buffer_MHz)
 
         # 📝 Write Data: Store the buffered frequencies in the state.
-        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_mhz}, buffered_stop_var = {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
-        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_mhz)
-        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_mhz)
+        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_MHz}, buffered_stop_var = {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
+        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_MHz)
+        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_MHz)
 
-        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
-        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        start_freq_hz = int(buffered_start_freq_MHz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_MHz * MHZ_TO_HZ)
         
-        showtime_tab_instance.console_print_func(f"✅ Setting span to zone '{zone_name}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        showtime_tab_instance.console_print_func(f"✅ Setting span to zone '{zone_name}': {buffered_start_freq_MHz:.3f} MHz to {buffered_stop_freq_MHz:.3f} MHz.")
         
         handle_freq_start_stop_beg(app_instance=showtime_tab_instance.app_instance, start_freq=start_freq_hz, stop_freq=stop_freq_hz, console_print_func=showtime_tab_instance.console_print_func)
         
@@ -167,7 +167,7 @@ def set_span_to_zone(showtime_tab_instance, zone_zoom_tab):
 
         showtime_tab_instance.zone_zoom_label_left_var.set(f"Zone ({number_of_markers} Devices)")
         showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {zone_name}")
-        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_mhz:.3f} MHz\nStop: {buffered_stop_freq_mhz:.3f} MHz")
+        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_MHz:.3f} MHz\nStop: {buffered_stop_freq_MHz:.3f} MHz")
         
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated zone span and UI.", file=current_file, version=current_version, function=current_function)
@@ -196,8 +196,8 @@ def set_span_to_group(showtime_tab_instance, zone_zoom_tab):
         debug_log(message=f"🛠️ 🚫 No group selected.", file=current_file, version=current_version, function=current_function)
         return
         
-    start_freq_mhz = group_info.get('min_freq')
-    stop_freq_mhz = group_info.get('max_freq')
+    start_freq_MHz = group_info.get('min_freq')
+    stop_freq_MHz = group_info.get('max_freq')
     number_of_markers = group_info.get('device_count')
 
     if number_of_markers == 0:
@@ -209,20 +209,20 @@ def set_span_to_group(showtime_tab_instance, zone_zoom_tab):
     
     try:
         # 📖 Read Data: Retrieve buffer value.
-        buffer_mhz = float(showtime_tab_instance.buffer_var.get())
-        debug_log(message=f"📖 Reading state: buffer_var = {buffer_mhz} MHz", file=current_file, version=current_version, function=current_function)
+        buffer_MHz = float(showtime_tab_instance.buffer_var.get())
+        debug_log(message=f"📖 Reading state: buffer_var = {buffer_MHz} MHz", file=current_file, version=current_version, function=current_function)
 
-        buffered_start_freq_mhz, buffered_stop_freq_mhz = _buffer_start_stop_frequencies(start_freq_mhz, stop_freq_mhz, buffer_mhz)
+        buffered_start_freq_MHz, buffered_stop_freq_MHz = _buffer_start_stop_frequencies(start_freq_MHz, stop_freq_MHz, buffer_MHz)
 
         # 📝 Write Data: Store the buffered frequencies in the state.
-        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_mhz}, buffered_stop_var = {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
-        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_mhz)
-        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_mhz)
+        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_MHz}, buffered_stop_var = {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
+        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_MHz)
+        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_MHz)
         
-        start_freq_hz = int(buffered_start_freq_mhz * MHZ_TO_HZ)
-        stop_freq_hz = int(buffered_stop_freq_mhz * MHZ_TO_HZ)
+        start_freq_hz = int(buffered_start_freq_MHz * MHZ_TO_HZ)
+        stop_freq_hz = int(buffered_stop_freq_MHz * MHZ_TO_HZ)
         
-        showtime_tab_instance.console_print_func(f"✅ Setting span to group '{group_name}': {buffered_start_freq_mhz:.3f} MHz to {buffered_stop_freq_mhz:.3f} MHz.")
+        showtime_tab_instance.console_print_func(f"✅ Setting span to group '{group_name}': {buffered_start_freq_MHz:.3f} MHz to {buffered_stop_freq_MHz:.3f} MHz.")
 
         handle_freq_start_stop_beg(app_instance=showtime_tab_instance.app_instance, start_freq=start_freq_hz, stop_freq=stop_freq_hz, console_print_func=showtime_tab_instance.console_print_func)
         
@@ -230,7 +230,7 @@ def set_span_to_group(showtime_tab_instance, zone_zoom_tab):
 
         showtime_tab_instance.zone_zoom_label_left_var.set(f"Group ({number_of_markers} Devices)")
         showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {group_name}")
-        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_mhz:.3f} MHz\nStop: {buffered_stop_freq_mhz:.3f} MHz")
+        showtime_tab_instance.zone_zoom_label_right_var.set(f"Start: {buffered_start_freq_MHz:.3f} MHz\nStop: {buffered_stop_freq_MHz:.3f} MHz")
         
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated group span and UI.", file=current_file, version=current_version, function=current_function)
@@ -258,37 +258,37 @@ def set_span_to_device(showtime_tab_instance, zone_zoom_tab):
         return
 
     device_name = device_info.get('NAME')
-    center_freq_mhz = device_info.get('CENTER')
+    center_freq_MHz = device_info.get('CENTER')
     
-    debug_log(message=f"🛠️ 🔍 Reading state: device_name={device_name}, center_freq_mhz={center_freq_mhz}", file=current_file, version=current_version, function=current_function)
+    debug_log(message=f"🛠️ 🔍 Reading state: device_name={device_name}, center_freq_MHz={center_freq_MHz}", file=current_file, version=current_version, function=current_function)
     
     try:
         # 📖 Read Data: Retrieve buffer value.
-        buffer_mhz = float(showtime_tab_instance.buffer_var.get())
-        debug_log(message=f"📖 Reading state: buffer_var = {buffer_mhz} MHz", file=current_file, version=current_version, function=current_function)
+        buffer_MHz = float(showtime_tab_instance.buffer_var.get())
+        debug_log(message=f"📖 Reading state: buffer_var = {buffer_MHz} MHz", file=current_file, version=current_version, function=current_function)
 
-        center_freq_hz = int(center_freq_mhz * MHZ_TO_HZ)
+        center_freq_hz = int(center_freq_MHz * MHZ_TO_HZ)
         
         # FIXED: Check if the value contains 'M' and convert it to a float.
         span_str = showtime_tab_instance.span_var.get()
         if 'M' in span_str:
-            span_mhz = float(span_str.replace('M', ''))
+            span_MHz = float(span_str.replace('M', ''))
         else:
-            span_mhz = float(span_str)
+            span_MHz = float(span_str)
             
-        span_hz = int(span_mhz * MHZ_TO_HZ)
+        span_hz = int(span_MHz * MHZ_TO_HZ)
         
         # Calculate start and stop with the buffer for display purposes
-        buffered_span = span_mhz + (2 * buffer_mhz)
-        buffered_start_freq_mhz = center_freq_mhz - (buffered_span / 2)
-        buffered_stop_freq_mhz = center_freq_mhz + (buffered_span / 2)
+        buffered_span = span_MHz + (2 * buffer_MHz)
+        buffered_start_freq_MHz = center_freq_MHz - (buffered_span / 2)
+        buffered_stop_freq_MHz = center_freq_MHz + (buffered_span / 2)
         
         # 📝 Write Data: Store the buffered frequencies in the state.
-        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_mhz}, buffered_stop_var = {buffered_stop_freq_mhz}", file=current_file, version=current_version, function=current_function)
-        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_mhz)
-        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_mhz)
+        debug_log(message=f"📝 Writing state: buffered_start_var = {buffered_start_freq_MHz}, buffered_stop_var = {buffered_stop_freq_MHz}", file=current_file, version=current_version, function=current_function)
+        showtime_tab_instance.buffered_start_var.set(buffered_start_freq_MHz)
+        showtime_tab_instance.buffered_stop_var.set(buffered_stop_freq_MHz)
         
-        showtime_tab_instance.console_print_func(f"✅ Setting span to device '{device_name}': Center={center_freq_mhz:.3f} MHz, Span={format_hz(span_hz)}.")
+        showtime_tab_instance.console_print_func(f"✅ Setting span to device '{device_name}': Center={center_freq_MHz:.3f} MHz, Span={format_hz(span_hz)}.")
 
         handle_freq_center_span_beg(app_instance=showtime_tab_instance.app_instance, center_freq=center_freq_hz, span_freq=span_hz, console_print_func=showtime_tab_instance.console_print_func)
         
@@ -296,7 +296,7 @@ def set_span_to_device(showtime_tab_instance, zone_zoom_tab):
 
         showtime_tab_instance.zone_zoom_label_left_var.set(f"Device: {device_name}")
         showtime_tab_instance.zone_zoom_label_center_var.set(f"Name: {device_name}")
-        showtime_tab_instance.zone_zoom_label_right_var.set(f"Center: {center_freq_mhz:.3f} MHz\nSpan: {span_mhz:.3f} MHz\nStart: {buffered_start_freq_mhz:.3f} MHz\nStop: {buffered_stop_freq_mhz:.3f} MHz")
+        showtime_tab_instance.zone_zoom_label_right_var.set(f"Center: {center_freq_MHz:.3f} MHz\nSpan: {span_MHz:.3f} MHz\nStart: {buffered_start_freq_MHz:.3f} MHz\nStop: {buffered_stop_freq_MHz:.3f} MHz")
         
         zone_zoom_tab._sync_ui_from_state()
         debug_log(message=f"🛠️ ✅ Successfully updated device span and UI.", file=current_file, version=current_version, function=current_function)

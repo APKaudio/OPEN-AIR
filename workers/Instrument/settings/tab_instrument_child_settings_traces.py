@@ -318,10 +318,10 @@ class TraceSettingsTab(ttk.Frame):
                     function=current_function)
         
         trace_number = self.trace_select_var.get()
-        start_freq_mhz = self.trace_data_start_freq_var.get()
-        stop_freq_mhz = self.trace_data_stop_freq_var.get()
+        start_freq_MHz = self.trace_data_start_freq_var.get()
+        stop_freq_MHz = self.trace_data_stop_freq_var.get()
         
-        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_mhz, stop_freq_mhz, self.console_print_func)
+        processed_data = handle_trace_data_beg(self.app_instance, trace_number, start_freq_MHz, stop_freq_MHz, self.console_print_func)
 
         if processed_data:
             self.trace_data_count_var.set(str(len(processed_data)))
@@ -336,7 +336,7 @@ class TraceSettingsTab(ttk.Frame):
             scan_view_tab = self.app_instance.display_parent_tab.bottom_pane.scan_view_tab
             df = pd.DataFrame(processed_data, columns=['Frequency_Hz', 'Power_dBm'])
             plot_title = f"Trace {trace_number} Data from YakBeg"
-            update_single_plot(scan_view_tab, df, start_freq_mhz, stop_freq_mhz, plot_title)
+            update_single_plot(scan_view_tab, df, start_freq_MHz, stop_freq_MHz, plot_title)
             
             # NEW: Switch to the Scan View tab automatically
             self.app_instance.display_parent_tab.change_display_tab("View")
@@ -415,39 +415,39 @@ class TraceSettingsTab(ttk.Frame):
                         function=current_function)
             return
 
-        start_freq_mhz = self.last_nab_start_freq / 1000000
-        stop_freq_mhz = self.last_nab_stop_freq / 1000000
+        start_freq_MHz = self.last_nab_start_freq / 1000000
+        stop_freq_MHz = self.last_nab_stop_freq / 1000000
 
         # Plot Trace 1 (Live/View) on the top plot
         trace1_data = self.last_nab_trace_data.get("Trace1", [])
         trace1_mode = self.last_nab_trace_modes.get("Trace1", "N/A")
         if trace1_data and trace1_mode.upper() in ["VIEW", "WRIT"]:
             df1 = pd.DataFrame(trace1_data, columns=["Frequency_Hz", "Power_dBm"])
-            update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, f"Live/View ({trace1_mode})")
+            update_top_plot(monitor_tab, df1, start_freq_MHz, stop_freq_MHz, f"Live/View ({trace1_mode})")
         else:
             # Clear the plot if the mode is 'BLANK' or no data is available
             df1 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
-            update_top_plot(monitor_tab, df1, start_freq_mhz, stop_freq_mhz, "Live/View (BLANK)")
+            update_top_plot(monitor_tab, df1, start_freq_MHz, stop_freq_MHz, "Live/View (BLANK)")
             
         # Plot Trace 2 (Max Hold) on the middle plot
         trace2_data = self.last_nab_trace_data.get("Trace2", [])
         trace2_mode = self.last_nab_trace_modes.get("Trace2", "N/A")
         if trace2_data and trace2_mode.upper() == "MAXH":
             df2 = pd.DataFrame(trace2_data, columns=["Frequency_Hz", "Power_dBm"])
-            update_middle_plot(monitor_tab, df2, start_freq_mhz, stop_freq_mhz, f"Max Hold ({trace2_mode})")
+            update_middle_plot(monitor_tab, df2, start_freq_MHz, stop_freq_MHz, f"Max Hold ({trace2_mode})")
         else:
             df2 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
-            update_middle_plot(monitor_tab, df2, start_freq_mhz, stop_freq_mhz, "Max Hold (BLANK)")
+            update_middle_plot(monitor_tab, df2, start_freq_MHz, stop_freq_MHz, "Max Hold (BLANK)")
 
         # Plot Trace 3 (Min Hold) on the bottom plot
         trace3_data = self.last_nab_trace_data.get("Trace3", [])
         trace3_mode = self.last_nab_trace_modes.get("Trace3", "N/A")
         if trace3_data and trace3_mode.upper() == "MINH":
             df3 = pd.DataFrame(trace3_data, columns=["Frequency_Hz", "Power_dBm"])
-            update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, f"Min Hold ({trace3_mode})")
+            update_bottom_plot(monitor_tab, df3, start_freq_MHz, stop_freq_MHz, f"Min Hold ({trace3_mode})")
         else:
             df3 = pd.DataFrame(columns=["Frequency_Hz", "Power_dBm"])
-            update_bottom_plot(monitor_tab, df3, start_freq_mhz, stop_freq_mhz, "Min Hold (BLANK)")
+            update_bottom_plot(monitor_tab, df3, start_freq_MHz, stop_freq_MHz, "Min Hold (BLANK)")
 
         self.console_print_func("✅ Successfully plotted all traces to the monitor.")
         debug_log(f"All NAB traces plotted successfully. Mission accomplished! 🥳",

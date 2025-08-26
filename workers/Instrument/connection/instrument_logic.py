@@ -207,7 +207,7 @@ def query_current_settings_logic(app_instance, console_print_func):
 
         # Query Ref Level
         ref_level_str = YakGet(app_instance, "AMPLITUDE/REFERENCE LEVEL", console_print_func)
-        settings['ref_level_dbm'] = float(ref_level_str) if ref_level_str and ref_level_str != 'FAILED' else "N/A"
+        settings['ref_level_dBm'] = float(ref_level_str) if ref_level_str and ref_level_str != 'FAILED' else "N/A"
         
         # Query Trace Mode (Assuming we want Trace 2 for Max Hold)
         trace_mode_str = YakGet(app_instance, "TRACE/2/MODE", console_print_func)

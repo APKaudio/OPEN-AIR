@@ -29,7 +29,7 @@ from workers.worker_logging import debug_log , console_log
 
 
 
-def _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz):
+def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
     # [A brief, one-sentence description of the function's purpose.]
     # Finds and plots local peaks on a Matplotlib axis.
     debug_log(f"Entering _find_and_plot_peaks with {len(data) if data else 0} data points.",
@@ -43,7 +43,7 @@ def _find_and_plot_peaks(ax, data, start_freq_mhz, end_freq_mhz):
         x_data = np.array(data)[:, 0]
         y_data = np.array(data)[:, 1]
         
-        total_span = end_freq_mhz - start_freq_mhz
+        total_span = end_freq_MHz - start_freq_MHz
         segment_width = total_span / 150
         peaks = []
         i = 0
@@ -123,7 +123,7 @@ def reset_zoom(ax, canvas):
         debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
-def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
+def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the top plot in the Scan Monitor tab with new data.
     debug_log(f"Entering update_top_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
@@ -145,7 +145,7 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
             ax.plot(frequencies, amplitudes, color='yellow', linewidth=1)
         
         ax.set_title(plot_title, color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_xlim(start_freq_MHz, end_freq_MHz)
         ax.set_ylim(-120, 0)
         ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
@@ -170,8 +170,8 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
 
         canvas.mpl_connect("motion_notify_event", update_annot)
         
-        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz)
-        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_mhz, end_freq_mhz))
+        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_MHz=start_freq_MHz, end_freq_MHz=end_freq_MHz)
+        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
 
         canvas.draw()
         console_log("✅ Celebration of success! Top plot updated.")
@@ -180,7 +180,7 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mh
         debug_log(f"Arrr, the top plot be capsized! The error be: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
-def update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
+def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the middle plot in the Scan Monitor tab with new data.
     debug_log(f"Entering update_middle_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
@@ -202,7 +202,7 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
             ax.plot(frequencies, amplitudes, color='green', linewidth=1)
         
         ax.set_title(plot_title, color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_xlim(start_freq_MHz, end_freq_MHz)
         ax.set_ylim(-120, 0)
         ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
@@ -227,8 +227,8 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
 
         canvas.mpl_connect("motion_notify_event", update_annot)
 
-        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz)
-        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_mhz, end_freq_mhz))
+        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_MHz=start_freq_MHz, end_freq_MHz=end_freq_MHz)
+        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
         console_log("✅ Celebration of success! Middle plot updated.")
@@ -237,7 +237,7 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
         debug_log(f"It's alive! Oh wait, no, the middle plot is dead. Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
-def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq_mhz, plot_title):
+def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the bottom plot in the Scan Monitor tab with new data.
     debug_log(f"Entering update_bottom_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
@@ -260,7 +260,7 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
             ax.plot(frequencies, amplitudes, color='cyan', linewidth=1)
         
         ax.set_title(plot_title, color='white')
-        ax.set_xlim(start_freq_mhz, end_freq_mhz)
+        ax.set_xlim(start_freq_MHz, end_freq_MHz)
         ax.set_ylim(-120, 0)
         ax.set_yticks(np.arange(-120, 1, 20))
         ax.grid(True, linestyle='--', color='gray', alpha=0.5)
@@ -285,8 +285,8 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_mhz, end_freq
 
         canvas.mpl_connect("motion_notify_event", update_annot)
         
-        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_mhz=start_freq_mhz, end_freq_mhz=end_freq_mhz)
-        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_mhz, end_freq_mhz))
+        _find_and_plot_peaks(ax=ax, data=data_tuples, start_freq_MHz=start_freq_MHz, end_freq_MHz=end_freq_MHz)
+        _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
         console_log("✅ Celebration of success! Bottom plot updated.")

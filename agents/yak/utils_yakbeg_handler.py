@@ -114,11 +114,11 @@ def handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_pr
                         function=current_function)
     return None, None, None, None
 
-def handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_func):
+def handle_marker_place_all_beg(app_instance, marker_freqs_MHz, console_print_func):
     # Function Description:
     # Handles the YakBeg command for MARKER/PLACE/ALL.
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering {current_function}. Parameters: marker_freqs_mhz={marker_freqs_mhz}",
+    debug_log(f"🐐 🟢 Entering {current_function}. Parameters: marker_freqs_MHz={marker_freqs_MHz}",
                 file=current_file,
                 version=current_version,
                 function=current_function)
@@ -132,7 +132,7 @@ def handle_marker_place_all_beg(app_instance, marker_freqs_mhz, console_print_fu
         return "FAILED"
 
     marker_freqs_hz = []
-    for freq in marker_freqs_mhz:
+    for freq in marker_freqs_MHz:
         try:
             marker_freqs_hz.append(int(float(freq) * MHZ_TO_HZ))
         except ValueError:
@@ -166,7 +166,7 @@ def handle_trace_modes_beg(app_instance, trace_modes, console_print_func):
                 function=current_function)
     return response
 
-def handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_mhz, console_print_func):
+def handle_trace_data_beg(app_instance, trace_number, start_freq_MHz, stop_freq_MHz, console_print_func):
     # Function Description:
     # Handles the YakBeg command for TRACE/DATA, including parsing and returning data.
     current_function = inspect.currentframe().f_code.co_name
@@ -176,8 +176,8 @@ def handle_trace_data_beg(app_instance, trace_number, start_freq_mhz, stop_freq_
                 function=current_function)
     
     command_type = f"TRACE/{trace_number}/DATA"
-    start_freq_hz = int(start_freq_mhz * MHZ_TO_HZ)
-    stop_freq_hz = int(stop_freq_mhz * MHZ_TO_HZ)
+    start_freq_hz = int(start_freq_MHz * MHZ_TO_HZ)
+    stop_freq_hz = int(stop_freq_MHz * MHZ_TO_HZ)
 
     response_string = YakBeg(app_instance, command_type, console_print_func, start_freq_hz, stop_freq_hz)
 

@@ -102,7 +102,7 @@ class AmplitudeSettingsTab(ttk.Frame):
         ref_level_title_frame.grid_columnconfigure(1, weight=1)
         
         ttk.Label(ref_level_title_frame, text="Reference Level (dBm):").grid(row=0, column=0, padx=5, sticky="w")
-        self.ref_level_value_label = ttk.Label(ref_level_title_frame, textvariable=self.app_instance.ref_level_dbm_var, style='TLabel')
+        self.ref_level_value_label = ttk.Label(ref_level_title_frame, textvariable=self.app_instance.ref_level_dBm_var, style='TLabel')
         self.ref_level_value_label.grid(row=0, column=1, padx=5, sticky="e")
 
         ref_values = [p["value"] for p in PRESET_AMPLITUDE_REFERENCE_LEVEL]
@@ -110,7 +110,7 @@ class AmplitudeSettingsTab(ttk.Frame):
         ref_max = max(ref_values)
         self.ref_level_slider = ttk.Scale(ref_level_frame,
                                           orient="horizontal",
-                                          variable=self.app_instance.ref_level_dbm_var,
+                                          variable=self.app_instance.ref_level_dBm_var,
                                           from_=ref_min,
                                           to=ref_max,
                                           command=self._update_ref_level_display,
@@ -134,7 +134,7 @@ class AmplitudeSettingsTab(ttk.Frame):
         power_att_title_frame.grid_columnconfigure(1, weight=1)
         
         ttk.Label(power_att_title_frame, text="Power Attenuation (dB):").grid(row=0, column=0, padx=5, sticky="w")
-        self.power_attenuation_value_label = ttk.Label(power_att_title_frame, textvariable=self.app_instance.power_attenuation_db_var, style='TLabel')
+        self.power_attenuation_value_label = ttk.Label(power_att_title_frame, textvariable=self.app_instance.power_attenuation_dB_var, style='TLabel')
         self.power_attenuation_value_label.grid(row=0, column=1, padx=5, sticky="e")
 
         att_values = [p["value"] for p in PRESET_AMPLITUDE_POWER_ATTENUATION]
@@ -142,7 +142,7 @@ class AmplitudeSettingsTab(ttk.Frame):
         att_max = max(att_values)
         self.power_attenuation_slider = ttk.Scale(power_att_frame,
                                                   orient="horizontal",
-                                                  variable=self.app_instance.power_attenuation_db_var,
+                                                  variable=self.app_instance.power_attenuation_dB_var,
                                                   from_=att_min,
                                                   to=att_max,
                                                   command=self._update_power_attenuation_display,
@@ -179,11 +179,11 @@ class AmplitudeSettingsTab(ttk.Frame):
         self._update_toggle_button_style(button=self.preamp_toggle_button, state=self.preamp_state_var.get())
         self._update_toggle_button_style(button=self.hs_toggle_button, state=self.high_sensitivity_state_var.get())
         
-        self.ref_level_slider.set(self.app_instance.ref_level_dbm_var.get())
-        self.power_attenuation_slider.set(self.app_instance.power_attenuation_db_var.get())
+        self.ref_level_slider.set(self.app_instance.ref_level_dBm_var.get())
+        self.power_attenuation_slider.set(self.app_instance.power_attenuation_dB_var.get())
 
-        self._update_descriptions(value=self.app_instance.ref_level_dbm_var.get(), preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var)
-        self._update_descriptions(value=self.app_instance.power_attenuation_db_var.get(), preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var)
+        self._update_descriptions(value=self.app_instance.ref_level_dBm_var.get(), preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dBm_var)
+        self._update_descriptions(value=self.app_instance.power_attenuation_dB_var.get(), preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_dB_var)
 
     def _update_ref_level_display(self, value):
         if self.is_ref_level_tracing:
@@ -191,8 +191,8 @@ class AmplitudeSettingsTab(ttk.Frame):
         self.is_ref_level_tracing = True
         
         rounded_value = self._find_closest_preset_value(float(value), PRESET_AMPLITUDE_REFERENCE_LEVEL)
-        self.app_instance.ref_level_dbm_var.set(rounded_value)
-        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dbm_var)
+        self.app_instance.ref_level_dBm_var.set(rounded_value)
+        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_REFERENCE_LEVEL, label=self.ref_level_description_label, var=self.app_instance.ref_level_dBm_var)
         
         self.is_ref_level_tracing = False
 
@@ -202,8 +202,8 @@ class AmplitudeSettingsTab(ttk.Frame):
         self.is_attenuation_tracing = True
         
         rounded_value = self._find_closest_preset_value(float(value), PRESET_AMPLITUDE_POWER_ATTENUATION)
-        self.app_instance.power_attenuation_db_var.set(rounded_value)
-        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_db_var)
+        self.app_instance.power_attenuation_dB_var.set(rounded_value)
+        self._update_descriptions(value=rounded_value, preset_list=PRESET_AMPLITUDE_POWER_ATTENUATION, label=self.power_attenuation_description_label, var=self.app_instance.power_attenuation_dB_var)
         
         self.is_attenuation_tracing = False
 
@@ -220,7 +220,7 @@ class AmplitudeSettingsTab(ttk.Frame):
             self.console_print_func("⚠️ High Sensitivity turned off to adjust Reference Level.")
             utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
 
-        ref_level = int(self._find_closest_preset_value(self.app_instance.ref_level_dbm_var.get(), PRESET_AMPLITUDE_REFERENCE_LEVEL))
+        ref_level = int(self._find_closest_preset_value(self.app_instance.ref_level_dBm_var.get(), PRESET_AMPLITUDE_REFERENCE_LEVEL))
         if utils_yak_setting_handler.set_reference_level(tab_instance=self, app_instance=self.app_instance, value=ref_level, console_print_func=self.console_print_func):
             self._save_settings_handler()
         else:
@@ -239,7 +239,7 @@ class AmplitudeSettingsTab(ttk.Frame):
             self.console_print_func("⚠️ High Sensitivity turned off to adjust Power Attenuation.")
             utils_yak_setting_handler.toggle_high_sensitivity(tab_instance=self, app_instance=self.app_instance, console_print_func=self.console_print_func)
 
-        power_attenuation = int(self._find_closest_preset_value(self.app_instance.power_attenuation_db_var.get(), PRESET_AMPLITUDE_POWER_ATTENUATION))
+        power_attenuation = int(self._find_closest_preset_value(self.app_instance.power_attenuation_dB_var.get(), PRESET_AMPLITUDE_POWER_ATTENUATION))
         if utils_yak_setting_handler.set_power_attenuation(tab_instance=self, app_instance=self.app_instance, value=power_attenuation, console_print_func=self.console_print_func):
             self._save_settings_handler()
         else:

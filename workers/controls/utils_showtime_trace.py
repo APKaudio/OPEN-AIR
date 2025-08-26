@@ -115,11 +115,11 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
     
     # CORRECTED: Retrieve center and span values from the config file, which is the correct source of truth.
     # The previous code was trying to access attributes on orchestrator_logic that do not exist.
-    center_freq_mhz = float(app_instance.config.get('InstrumentSettings', 'center_freq_mhz', fallback='1500'))
-    span_freq_mhz = float(app_instance.config.get('InstrumentSettings', 'span_freq_mhz', fallback='3000'))
+    center_freq_MHz = float(app_instance.config.get('InstrumentSettings', 'center_freq_MHz', fallback='1500'))
+    span_freq_MHz = float(app_instance.config.get('InstrumentSettings', 'span_freq_MHz', fallback='3000'))
     
-    start_freq_mhz = (center_freq_mhz - span_freq_mhz / 2)
-    stop_freq_mhz = (center_freq_mhz + span_freq_mhz / 2)
+    start_freq_MHz = (center_freq_MHz - span_freq_MHz / 2)
+    stop_freq_MHz = (center_freq_MHz + span_freq_MHz / 2)
     
     try:
         # 📖 Read Data: Fetch the data from the instrument.
@@ -128,7 +128,7 @@ def _get_and_plot_traces(traces_tab_instance, view_name):
         
         # If data is successfully retrieved, pass it to the plotter
         if trace_data:
-            plot_all_traces(showtime_tab_instance=showtime_tab, trace_data_dict=trace_data, view_name=view_name, start_freq_mhz=start_freq_mhz, stop_freq_mhz=stop_freq_mhz)
+            plot_all_traces(showtime_tab_instance=showtime_tab, trace_data_dict=trace_data, view_name=view_name, start_freq_MHz=start_freq_MHz, stop_freq_MHz=stop_freq_MHz)
         
     except Exception as e:
         console_print_func(f"❌ Error getting trace data: {e}")

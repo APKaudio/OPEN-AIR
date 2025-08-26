@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/program/configuration/instrument/Settings/Presets"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Settings/Presets"
 # display/gui_frequency.py
 #
 # A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
