@@ -187,89 +187,89 @@
         "Trace_Settings": {
             "trace_1": {
                 "BLANK": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MAXHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MINHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "VIEW": {
-                    "value": "yes",
+                    "selected": "yes",
                     "control_type": "DropDownOption"
                 },
                 "WRITE": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 }
             },
             "trace_2": {
                 "BLANK": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MAXHOLD": {
-                    "value": "yes",
+                    "selected": "yes",
                     "control_type": "DropDownOption"
                 },
                 "MINHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "VIEW": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "WRITE": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 }
             },
             "trace_3": {
                 "BLANK": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MAXHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MINHOLD": {
-                    "value": "yes",
+                    "selected": "yes",
                     "control_type": "DropDownOption"
                 },
                 "VIEW": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "WRITE": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 }
             },
             "trace_4": {
                 "BLANK": {
-                    "value": "yes",
+                    "selected": "yes",
                     "control_type": "DropDownOption"
                 },
                 "MAXHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "MINHOLD": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "VIEW": {
-                    "value": "no",
+                    "selected": "no",
                     "control_type": "DropDownOption"
                 },
                 "WRITE": {
-                    "value": "yes",
+                    "selected": "yes",
                     "control_type": "DropDownOption"
                 }
             }

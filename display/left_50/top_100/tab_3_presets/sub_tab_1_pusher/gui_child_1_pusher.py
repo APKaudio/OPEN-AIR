@@ -1,7 +1,8 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Settings/Presets"
-# display/gui_frequency.py
+# display/GUI_pusher.py
 #
-# A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
+# A GUI component for displaying dynamically configured widgets.
+# This version is a simple, self-configuring GUI that assumes a worker is providing
+# clean, pre-processed JSON payloads.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,14 +15,13 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Settings/Presets"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.200730.3
+# Version 20250826.002845.1
 
 import os
 import inspect
 import datetime
 import tkinter as tk
 from tkinter import ttk
-import pathlib
 import json
 
 # --- Module Imports ---
@@ -30,23 +30,21 @@ from workers.mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250825
-CURRENT_TIME = 200730
-REVISION_NUMBER = 3
-current_version = "20250825.200730.3"
-current_version_hash = 20250825 * 200730 * 3
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+CURRENT_DATE = 20250826
+CURRENT_TIME = 2845
+REVISION_NUMBER = 1
+current_version = "20250826.002845.1"
+current_version_hash = 20250826 * 2845 * 1
+current_file = "display/GUI_pusher.py"
 
 # --- No Magic Numbers (as per your instructions) ---
-
+MQTT_TOPIC_FILTER = "OPEN-AIR/gui/presets"
 TOPIC_DELIMITER = "/"
 
 
-class gui_file_paths(ttk.Frame):
+class GUI_pusher(ttk.Frame):
     """
-    A GUI component for displaying MQTT data in a dynamic, hierarchical layout.
+    A GUI component that dynamically builds an interface from pre-processed MQTT payloads.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         """
@@ -75,8 +73,8 @@ class gui_file_paths(ttk.Frame):
             self.current_version_hash = current_version_hash
             self.mqtt_util = mqtt_util
             self.current_class_name = self.__class__.__name__
-            self.topic_widgets = {}  # Dictionary to store widget references
-
+            self.topic_widgets = {}
+            
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
@@ -119,7 +117,7 @@ class gui_file_paths(ttk.Frame):
             
             self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_FILTER}/#", callback_func=self._on_commands_message)
 
-            console_log("✅ Meta Data GUI initialized successfully!")
+            console_log("✅ GUI_pusher initialized successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -130,7 +128,7 @@ class gui_file_paths(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-    
+
     def _apply_styles(self, theme_name: str):
         """
         Applies the specified theme to the GUI elements using ttk.Style.
@@ -145,7 +143,6 @@ class gui_file_paths(ttk.Frame):
         style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
         style.map('TButton', background=[('active', colors["secondary"])])
         
-        # New styling for the entry widgets based on the new dictionary
         textbox_style = colors["textbox_style"]
         style.configure('Custom.TEntry',
                         font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
@@ -153,48 +150,20 @@ class gui_file_paths(ttk.Frame):
                         background=textbox_style["Textbox_BG_colour"],
                         fieldbackground=textbox_style["Textbox_BG_colour"],
                         bordercolor=textbox_style["Textbox_border_colour"])
-
-
-    def _on_entry_changed(self, event, topic, entry_widget):
-        """
-        Event handler for when a textbox's value changes and loses focus.
-        It publishes the new value back to the corresponding MQTT topic.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        new_value = entry_widget.get()
         
-        # Split the topic into the main topic and the subtopic
-        topic_parts = topic.split(TOPIC_DELIMITER)
-        main_topic = TOPIC_DELIMITER.join(topic_parts[:-1])
-        subtopic = topic_parts[-1]
-        
-        debug_log(
-            message=f"🖥️🔵 Textbox changed for topic '{topic}'. Publishing new value: '{new_value}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-        try:
-            # Pass the raw string value to the utility, letting it handle the JSON formatting.
-            self.mqtt_util.publish_message(topic=main_topic, subtopic=subtopic, value=new_value)
-            console_log(f"✅ Published updated value '{new_value}' to '{topic}'!")
-        except Exception as e:
-            console_log(f"❌ Error publishing message to {topic}: {e}")
-            debug_log(
-                message=f"❌🔴 Failed to publish new value! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+        style.configure('TCombobox',
+                        fieldbackground=textbox_style["Textbox_BG_colour"],
+                        background=colors["bg"],
+                        foreground=textbox_style["Textbox_Font_colour"])
+        style.map('TCombobox',
+                  fieldbackground=[('readonly', textbox_style["Textbox_BG_colour"])],
+                  selectbackground=[('readonly', textbox_style["Textbox_BG_colour"])],
+                  selectforeground=[('readonly', textbox_style["Textbox_Font_colour"])])
 
     def _on_commands_message(self, topic, payload):
         """
-        Processes an incoming MQTT message and dynamically updates the GUI layout.
-        The function removes the topic filter, splits the remaining topic path, and
-        either creates new nested LabelFrames and widgets or updates an existing Entry box.
+        Processes an incoming MQTT message and dynamically updates the GUI.
+        It expects a pre-processed payload containing all the metadata for a single widget.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -207,79 +176,85 @@ class gui_file_paths(ttk.Frame):
         )
         
         try:
-            # Safely parse the payload
-            try:
-                parsed_payload = json.loads(payload)
-                value_to_display = parsed_payload.get("value", payload)
-                # Strip the extra quotes if they exist
-                if isinstance(value_to_display, str) and value_to_display.startswith('"') and value_to_display.endswith('"'):
-                    value_to_display = value_to_display[1:-1]
-            except json.JSONDecodeError:
-                value_to_display = payload
-
-            # Check if the widget for this topic already exists
+            config = json.loads(payload)
+            control_type = config.get("control_type")
+            label_text = config.get("label", topic.split(TOPIC_DELIMITER)[-1]).replace('_', ' ').title()
+            
             if topic in self.topic_widgets:
-                entry_widget = self.topic_widgets[topic]
-                entry_widget.delete(0, tk.END)
-                entry_widget.insert(0, value_to_display)
-                console_log(f"✅ Updated existing widget for '{topic}' with payload: '{value_to_display}'.")
+                widget = self.topic_widgets[topic]
+                if control_type in ["_Value", "_Label", "_sliderValue", "_option"]:
+                    widget.set(config.get("value"))
+                elif control_type == "_toggle":
+                    widget.set(config.get("value"))
+                elif control_type == "_indicator":
+                    widget.config(text="🟢" if config.get("value") == "active" else "🔴")
+                console_log(f"✅ Updated existing widget for '{topic}'.")
                 return
 
-            # If it's a new topic, build the hierarchy
-            topic_prefix = MQTT_TOPIC_FILTER
-            topic_path = topic.replace(topic_prefix, "").strip(TOPIC_DELIMITER)
-            nodes = topic_path.split(TOPIC_DELIMITER)
-            
-            current_frame = self.main_frame
-            for i, node in enumerate(nodes):
-                
-                # Ignore the "Active" node as per your request
-                if node == "Active":
-                    continue
-                
-                is_last_node = (i == len(nodes) - 1)
-                
-                if not is_last_node:
-                    # This is a parent node, find or create the LabelFrame
-                    frame_name = f"frame_{node}"
-                    if not hasattr(current_frame, frame_name):
-                        new_frame = ttk.LabelFrame(current_frame, text=node.replace('_', ' ').title())
-                        setattr(current_frame, frame_name, new_frame)
-                        new_frame.pack(fill=tk.X, expand=True, padx=5, pady=5)
-                        current_frame = new_frame
-                    else:
-                        current_frame = getattr(current_frame, frame_name)
-                else:
-                    # This is the end node, create a label and entry box
-                    sub_frame = ttk.Frame(current_frame)
-                    sub_frame.pack(fill=tk.X, expand=True, padx=5, pady=2)
-                    
-                    label_text = node.replace('_', ' ').title()
-                    label = ttk.Label(sub_frame, text=label_text)
-                    label.pack(side=tk.LEFT, padx=(5, 5))
-                    
-                    # Entry widget now uses the new custom style
-                    entry = ttk.Entry(sub_frame, width=80, style="Custom.TEntry")
-                    entry.insert(0, value_to_display)
-                    entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 5))
-                    
-                    # Bind the FocusOut event to the new entry
-                    entry.bind("<FocusOut>", lambda e, t=topic, ew=entry: self._on_entry_changed(e, t, ew))
-                    
-                    # Store the entry widget for future updates
-                    self.topic_widgets[topic] = entry
-                    
-                    console_log(f"✅ Added new widget for '{topic}' with payload: '{value_to_display}'.")
+            self._create_widget(topic, config)
+            console_log(f"✅ Created new widget for '{topic}'.")
 
-            # The scroll_frame needs to be updated after a new widget is added
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-            
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"❌🔴 The GUI construction has failed! A plague upon this error: {e}",
+                message=f"❌🔴 The GUI construction has failed! The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+
+    def _create_widget(self, topic, config):
+        """
+        Creates a new widget based on the provided configuration.
+        """
+        control_type = config.get("control_type")
+        label_text = config.get("label", topic.split(TOPIC_DELIMITER)[-1]).replace('_', ' ').title()
+        value = config.get("value")
+        
+        parent_frame_text = topic.split(TOPIC_DELIMITER)[-2].replace('_', ' ').title()
+        
+        parent_frame = self._find_or_create_frame(self.main_frame, parent_frame_text)
+        
+        sub_frame = ttk.Frame(parent_frame)
+        sub_frame.pack(fill=tk.X, expand=True, padx=5, pady=2)
+        
+        label = ttk.Label(sub_frame, text=label_text)
+        label.pack(side=tk.LEFT, padx=(5, 5))
+        
+        widget = None
+        if control_type == "_Value":
+            widget = self._create_value_widget(sub_frame, topic, value)
+        elif control_type == "_option":
+            widget = self._create_option_widget(sub_frame, topic, value, config.get("options", []))
+        
+        if widget:
+            widget.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=(5, 5))
+            self.topic_widgets[topic] = widget
+        
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _find_or_create_frame(self, parent, text):
+        """Finds an existing frame by text or creates a new one."""
+        frame_name = f"frame_{text.replace(' ', '_').lower()}"
+        if not hasattr(parent, frame_name):
+            new_frame = ttk.LabelFrame(parent, text=text)
+            setattr(parent, frame_name, new_frame)
+            new_frame.pack(fill=tk.X, expand=True, padx=5, pady=5)
+            return new_frame
+        return getattr(parent, frame_name)
+
+    def _create_value_widget(self, parent, topic, value):
+        """Creates a textbox widget."""
+        entry = ttk.Entry(parent, width=80, style="Custom.TEntry")
+        entry.insert(0, value)
+        entry.bind("<FocusOut>", lambda e, t=topic, ew=entry: self._on_entry_changed(e, t, ew))
+        return entry
+
+    def _create_option_widget(self, parent, topic, value, options):
+        """Creates a dropdown widget."""
+        combobox = ttk.Combobox(parent, values=options, state='readonly')
+        combobox.set(value)
+        combobox.bind("<<ComboboxSelected>>", lambda e, t=topic, ew=combobox: self._on_commands_message(t, f'{{"value": "{ew.get()}"}}'))
+        return combobox
+
