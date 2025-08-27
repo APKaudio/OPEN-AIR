@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Marker_Settings"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/presets/BANDWIDTH_VIDEO/options"
 # display/tabs/dynamic_gui_builder.py
 #
 # A dynamic GUI component for building widgets based on a JSON data structure received via MQTT.
@@ -14,7 +14,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Marke
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.001600.5
+# Version 20250827.010500.8
 
 import os
 import inspect
@@ -30,8 +30,8 @@ from workers.mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250827.001600.5"
-current_version_hash = (20250827 * 1600 * 5)
+current_version = "20250827.010500.8"
+current_version_hash = (20250827 * 10500 * 8)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -41,6 +41,7 @@ DEFAULT_PAD_Y = 2
 DEFAULT_FRAME_PAD = 5
 BUTTON_PADDING_MULTIPLIER = 5
 BUTTON_BORDER_MULTIPLIER = 2
+DEBUG_MODE = True # Set to False to hide the debug log panel
 
 
 class DynamicGuiBuilder(ttk.Frame):
@@ -74,13 +75,13 @@ class DynamicGuiBuilder(ttk.Frame):
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
-            # --- Main PanedWindow for 50/50 split ---
+            # --- Main PanedWindow for split view ---
             main_paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
             main_paned_window.pack(fill=tk.BOTH, expand=True)
 
             # --- Left Frame for Dynamic Widgets ---
             left_frame = ttk.Frame(main_paned_window)
-            main_paned_window.add(left_frame, weight=1)
+            main_paned_window.add(left_frame, weight=3) # 60% weight
 
             rebuild_button = ttk.Button(left_frame, text="Rebuild GUI", command=self._rebuild_gui)
             rebuild_button.pack(pady=5)
@@ -98,18 +99,19 @@ class DynamicGuiBuilder(ttk.Frame):
             self.main_frame = ttk.LabelFrame(self.scroll_frame, text="MQTT Configuration")
             self.main_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
 
-            # --- Right Frame for MQTT Log ---
-            right_frame = ttk.LabelFrame(main_paned_window, text="MQTT Message Log")
-            main_paned_window.add(right_frame, weight=1)
-            
-            self.log_text = scrolledtext.ScrolledText(right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
-            self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-            self.log_text.configure(state='disabled')
+            # --- Right Frame for MQTT Log (Conditional) ---
+            if DEBUG_MODE:
+                right_frame = ttk.LabelFrame(main_paned_window, text="MQTT Message Log")
+                main_paned_window.add(right_frame, weight=2) # 40% weight
+                
+                self.log_text = scrolledtext.ScrolledText(right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
+                self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+                self.log_text.configure(state='disabled')
 
             # Subscribe to the entire topic tree
             self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_FILTER}/#", callback_func=self._on_commands_message)
 
-            console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully with a 50/50 split!")
+            console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -122,11 +124,12 @@ class DynamicGuiBuilder(ttk.Frame):
             )
 
     def _log_to_gui(self, message):
-        # Appends a message to the GUI log text widget.
-        self.log_text.configure(state='normal')
-        self.log_text.insert(tk.END, message + "\n\n")
-        self.log_text.configure(state='disabled')
-        self.log_text.see(tk.END)
+        # Appends a message to the GUI log text widget if it exists.
+        if hasattr(self, 'log_text'):
+            self.log_text.configure(state='normal')
+            self.log_text.insert(tk.END, message + "\n\n")
+            self.log_text.configure(state='disabled')
+            self.log_text.see(tk.END)
 
     def _update_nested_dict(self, path_parts, value):
         # Recursively traverses the dictionary structure and sets the value at the final key.
@@ -134,19 +137,25 @@ class DynamicGuiBuilder(ttk.Frame):
         for part in path_parts[:-1]:
             current_level = current_level.setdefault(part, {})
         
-        # Clean up the value if it's a JSON string with escaped quotes
+        final_value = value
         try:
-            # First, load the payload which is a JSON string like '{"value": "\\"ON\\""}'
-            payload_dict = json.loads(value)
-            # Extract the value, which might still be a string representation of a type
-            final_value = payload_dict.get("value", "")
-            # Try to load it again in case it's a nested JSON string
+            data = json.loads(value)
+            if isinstance(data, dict) and 'value' in data:
+                final_value = data['value']
+        except (json.JSONDecodeError, TypeError):
+            pass
+
+        if isinstance(final_value, str):
             try:
                 final_value = json.loads(final_value)
             except (json.JSONDecodeError, TypeError):
-                 pass # It's just a regular string
-        except (json.JSONDecodeError, TypeError):
-            final_value = value # Fallback to the raw payload
+                pass 
+
+        if isinstance(final_value, str):
+            if final_value.lower() == 'true':
+                final_value = True
+            elif final_value.lower() == 'false':
+                final_value = False
 
         current_level[path_parts[-1]] = final_value
 
@@ -194,8 +203,10 @@ class DynamicGuiBuilder(ttk.Frame):
             style.configure('TFrame', background=colors["bg"])
             style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
             style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
-            style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER)
+            style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER, justify=tk.CENTER)
             style.map('TButton', background=[('active', colors["secondary"])])
+
+            style.configure('Selected.TButton', background=colors["secondary"], relief=tk.SUNKEN)
 
             textbox_style = colors["textbox_style"]
             style.configure('Custom.TEntry',
@@ -361,10 +372,10 @@ class DynamicGuiBuilder(ttk.Frame):
             return None
 
     def _create_gui_button_toggle(self, parent_frame, label, config):
-        # Creates a button that toggles between ON/OFF states.
+        # This function creates a single button that toggles between two states (e.g., ON/OFF).
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            message=f"Entering {current_function_name} to create a binary toggle button for '{label}'.",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
@@ -374,21 +385,38 @@ class DynamicGuiBuilder(ttk.Frame):
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
-            label_widget = ttk.Label(sub_frame, text=label)
-            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+            options = config.get('options', {})
+            on_config = options.get('ON', {})
+            off_config = options.get('OFF', {})
 
-            button_var = tk.BooleanVar(value=config['options']['ON']['selected'])
+            is_on = str(on_config.get('selected', 'false')).lower() in ['true', 'yes']
+            
+            state_var = tk.BooleanVar(value=is_on)
+            
+            button = ttk.Button(sub_frame)
+            button.pack(fill=tk.X, expand=True)
+
+            def update_button_state():
+                # Updates the button's appearance based on its current state.
+                current_state = state_var.get()
+                if current_state: # State is ON
+                    button.config(text=on_config.get('label', 'ON'), style='Selected.TButton')
+                else: # State is OFF
+                    button.config(text=off_config.get('label', 'OFF'), style='TButton')
 
             def toggle_command():
-                new_state = not button_var.get()
-                button_var.set(new_state)
+                # Flips the state, updates the button, and publishes the change.
+                new_state = not state_var.get()
+                state_var.set(new_state)
+                update_button_state()
+                publish_value = 'ON' if new_state else 'OFF'
                 topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
-                self.mqtt_util.publish_message(topic=topic, value=new_state)
+                self.mqtt_util.publish_message(topic=topic, value=publish_value)
 
-            button_on = ttk.Checkbutton(sub_frame, text=config['options']['ON']['label'], variable=button_var, command=toggle_command)
-            button_on.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+            button.config(command=toggle_command)
+            update_button_state() # Set initial text and style
 
-            self.topic_widgets[label] = button_on
+            self.topic_widgets[label] = button
             
             console_log(f"✅ Celebration of success! The toggle button '{label}' did appear.")
             return sub_frame
@@ -403,6 +431,7 @@ class DynamicGuiBuilder(ttk.Frame):
                 console_print_func=console_log
             )
             return None
+
 
     def _create_gui_dropdown_option(self, parent_frame, label, config):
         # Creates a dropdown menu for multiple choice options.
@@ -421,18 +450,19 @@ class DynamicGuiBuilder(ttk.Frame):
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
 
-            options = [opt['label'] for opt in config['options'].values()]
-            values = [opt['value'] for opt in config['options'].values()]
-            selected_option_value = [opt['value'] for key, opt in config['options'].items() if opt.get('selected') == 'yes'][0]
+            options = [opt['label'] for opt in config.get('options', {}).values()]
+            values = [opt['value'] for opt in config.get('options', {}).values()]
+            
+            selected_option_value = next((opt['value'] for key, opt in config.get('options', {}).items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
 
             selected_value = tk.StringVar(value=selected_option_value)
 
             def on_select(event):
                 selected_label = selected_value.get()
                 selected_index = options.index(selected_label)
-                selected_option_value = values[selected_index]
+                selected_option_val = values[selected_index]
                 topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
-                self.mqtt_util.publish_message(topic=topic, value=selected_option_value)
+                self.mqtt_util.publish_message(topic=topic, value=selected_option_val)
 
             dropdown = ttk.Combobox(sub_frame, textvariable=selected_value, values=options, state="readonly")
             dropdown.bind("<<ComboboxSelected>>", on_select)
@@ -455,41 +485,69 @@ class DynamicGuiBuilder(ttk.Frame):
             return None
 
     def _create_gui_button_toggler(self, parent_frame, label, config):
-        # Creates a set of radio-style buttons where only one can be selected.
+        # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            message=f"Entering {current_function_name} to create a bucket of buttons for '{label}'.",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
         try:
-            sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            group_frame = ttk.LabelFrame(parent_frame, text=label)
+            group_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            
+            button_container = ttk.Frame(group_frame)
+            button_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
-            label_widget = ttk.Label(sub_frame, text=label)
-            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+            options_data = config.get('options', {})
+            buttons = {}
+            
+            selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
+            selected_var = tk.StringVar(value=selected_key)
 
-            button_group_frame = ttk.Frame(sub_frame)
-            button_group_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            def update_button_styles():
+                current_selection = selected_var.get()
+                for key, button_widget in buttons.items():
+                    if key == current_selection:
+                        button_widget.config(style='Selected.TButton')
+                    else:
+                        button_widget.config(style='TButton')
 
-            selected_var = tk.StringVar(value=[key for key, opt in config['options'].items() if opt.get('selected') == True][0])
+            def create_command(key):
+                def command():
+                    selected_var.set(key)
+                    update_button_styles()
+                    self.mqtt_util.publish_message(topic=f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}", value=key)
+                return command
 
-            for option_key, option_data in config['options'].items():
-                button = ttk.Radiobutton(
-                    button_group_frame,
-                    text=option_data['label'],
-                    variable=selected_var,
-                    value=option_key,
-                    command=lambda val=option_key: self.mqtt_util.publish_message(topic=f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}", value=val)
+            max_cols = 4 
+            row_num = 0
+            col_num = 0
+
+            for option_key, option_data in options_data.items():
+                button_text = f"{option_data.get('label', '')}\n{option_data.get('value', '')} {option_data.get('units', '')}"
+                
+                button = ttk.Button(
+                    button_container,
+                    text=button_text,
+                    command=create_command(option_key)
                 )
-                button.pack(side=tk.LEFT, padx=2)
+                button.grid(row=row_num, column=col_num, padx=2, pady=2, sticky="ew")
+                button_container.grid_columnconfigure(col_num, weight=1)
+                buttons[option_key] = button
 
-            self.topic_widgets[label] = button_group_frame
+                col_num += 1
+                if col_num >= max_cols:
+                    col_num = 0
+                    row_num += 1
+
+            update_button_styles()
+            self.topic_widgets[label] = group_frame
             
             console_log(f"✅ Celebration of success! The button toggler '{label}' did toggle into view.")
-            return sub_frame
+            return group_frame
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -501,6 +559,7 @@ class DynamicGuiBuilder(ttk.Frame):
                 console_print_func=console_log
             )
             return None
+
 
     def _create_dynamic_widgets(self, parent_frame, data):
         # Recursively creates widgets based on the JSON structure.
@@ -535,7 +594,7 @@ class DynamicGuiBuilder(ttk.Frame):
                     elif widget_type == "_Label":
                         self._create_label(parent_frame=parent_frame, label=label_text, value=value.get("value"), units=value.get("units"))
                     else:
-                        nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
+                        nested_frame = ttk.LabelFrame(parent_frame, text=key.replace('_', ' ').title())
                         nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
                         self._create_dynamic_widgets(nested_frame, value)
                 else:
@@ -564,13 +623,17 @@ class DynamicGuiBuilder(ttk.Frame):
             console_print_func=console_log
         )
         try:
-            # Log every incoming message to the GUI log
-            self.after(0, self._log_to_gui, f"Topic: {topic}\nPayload: {payload}")
+            if DEBUG_MODE:
+                self.after(0, self._log_to_gui, f"Topic: {topic}\nPayload: {payload}")
 
             # Reconstruct the nested dictionary from the topic path
-            relative_topic = topic.replace(f"{MQTT_TOPIC_FILTER}/", "")
-            path_parts = relative_topic.split(TOPIC_DELIMITER)
-            self._update_nested_dict(path_parts, payload)
+            base_topic = MQTT_TOPIC_FILTER
+            if topic.startswith(base_topic):
+                relative_topic = topic[len(base_topic):].strip(TOPIC_DELIMITER)
+                if not relative_topic:
+                    return
+                path_parts = relative_topic.split(TOPIC_DELIMITER)
+                self._update_nested_dict(path_parts, payload)
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

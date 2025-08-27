@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Bandwidth_Settings"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/presets/BANDWIDTH_RBW"
 # display/tabs/dynamic_gui_builder.py
 #
 # A dynamic GUI component for building widgets based on a JSON data structure received via MQTT.
