@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/markers/Signal_Configuration"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Marker_Settings"
 # display/tabs/dynamic_gui_builder.py
 #
 # A dynamic GUI component for building widgets based on a JSON data structure received via MQTT.

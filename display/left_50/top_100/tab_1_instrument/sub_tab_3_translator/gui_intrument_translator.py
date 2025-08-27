@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/devices/scpi"
+MQTT_TOPIC_FILTER = "OPEN-AIR/repository/scpi"
 
 
 

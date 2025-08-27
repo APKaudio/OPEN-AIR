@@ -7,38 +7,31 @@
             "fields": {
                 "brand": {
                     "label": "Brand",
-                    "value": "Keysight Technologies",
-                    "units": null
+                    "value": "Keysight Technologies"                    
                 },
                 "device_model": {
                     "label": "Device Model",
-                    "value": "Keysight",
-                    "units": null
+                    "value": "Keysight"
                 },
                 "device_series": {
                     "label": "Device Series",
-                    "value": "E440xB",
-                    "units": null
+                    "value": "E440xB"
                 },
                 "device_serial_number": {
                     "label": "Serial Number",
-                    "value": "E440xB",
-                    "units": null
+                    "value": "E440xB"
                 },
                 "device_firmware": {
                     "label": "Firmware",
-                    "value": "E440xB",
-                    "units": null
+                    "value": "E440xB"
                 },
                 "visa_resource": {
                     "label": "VISA Resource",
-                    "value": "TCPIP0::192.168.1.100::inst0::INSTR",
-                    "units": null
+                    "value": "TCPIP0::192.168.1.100::inst0::INSTR"
                 },
                 "Time_connected": {
                     "label": "Time Connected",
-                    "value": "12:44.01",
-                    "units": null
+                    "value": "12:44.01"
                 }
             }
         },
