@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.143300.14
+# Version 20250827.153700.20
 
 import os
 import inspect
@@ -37,8 +37,8 @@ from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOp
 from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250827.143300.14"
-current_version_hash = (20250827 * 143300 * 14)
+current_version = "20250827.153700.20"
+current_version_hash = (20250827 * 153700 * 20)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -254,6 +254,13 @@ class DynamicGuiBuilder(
         current_function_name = inspect.currentframe().f_code.co_name
         try:
             for key, value in data.items():
+                # --- FIX ---
+                # If the key is 'fields', we recurse into its dictionary but do NOT
+                # add 'fields' to the topic path. We use the existing path_prefix.
+                if key == 'fields' and isinstance(value, dict):
+                    self._create_dynamic_widgets(parent_frame, value, path_prefix)
+                    continue # Move to the next key in the loop
+
                 safe_key = key.replace(TOPIC_DELIMITER, '_')
                 current_path = f"{path_prefix}{TOPIC_DELIMITER}{safe_key}" if path_prefix else safe_key
 
@@ -269,16 +276,12 @@ class DynamicGuiBuilder(
 
                     creation_func = self.widget_factory.get(widget_type)
                     if creation_func:
-                        # --- FIX ---
-                        # Call the bound method directly without passing 'self' explicitly.
                         creation_func(parent_frame=parent_frame, label=label_text, config=value, path=current_path)
                     else:
                         nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
                         nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
                         self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
                 else:
-                    # --- FIX ---
-                    # Call the instance method directly without passing 'self' explicitly.
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

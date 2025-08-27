@@ -1,0 +1,50 @@
+{
+
+        "Frequency_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaFrequencyActuator",
+            "description": "A block for managing all frequency-related settings.",
+            "fields": {
+                "center_freq_MHz": {
+                    "label": "Center Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_center_frequency",
+                    "value": "150",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "span_freq_MHz": {
+                    "label": "Frequency Span",
+                    "type": "_sliderValue",
+                    "handler": "set_span_frequency",
+                    "value": "100",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "start_freq_MHz": {
+                    "label": "Start Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_start_frequency",
+                    "value": "0",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "stop_freq_MHz": {
+                    "label": "Stop Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_stop_frequency",
+                    "value": "3000",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                }
+            }
+        }
+    }

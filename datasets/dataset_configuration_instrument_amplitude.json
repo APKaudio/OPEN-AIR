@@ -1,0 +1,62 @@
+{
+
+        "Amplitude_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaGain",
+            "description": "A block for managing all amplitude-related settings.",
+            "fields": {
+                "ref_level_dBm": {
+                    "label": "Reference Level",
+                    "type": "_sliderValue",
+                    "handler": "set_ref_level",
+                    "value": "-30",
+                    "units": "dBm",
+                    "min":"-100",
+                    "max":"0",
+                    "step":"10"
+                },
+                "preamp_on": {
+                    "label": "Preamp On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_preamp",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": true
+                        }
+                    }
+                },
+                "power_attenuation_dB": {
+                    "label": "Power Attenuation",
+                    "type": "_sliderValue",
+                    "handler": "set_power_attenuation",
+                    "value": "10",
+                    "units": "dBm",
+                    "min":"-100",
+                    "max":"0",
+                    "step":"10"
+                },
+                "high_sensitivity_on": {
+                    "label": "High Sensitivity On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_high_sensitivity",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": true
+                        }
+                    }
+                }
+            }
+        }
+}

@@ -1,0 +1,69 @@
+{
+
+        "Bandwidth_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaBandwidthActuator",
+            "description": "A block for managing all bandwidth and sweep time settings.",
+            "fields": {
+                "rbw_MHz": {
+                    "label": "Resolution Bandwidth",
+                    "type": "_sliderValue",
+                    "handler": "set_rbw",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "MHz"
+                },
+                "Sweep_time_s": {
+                    "label": "Sweep Time",
+                    "type": "_sliderValue",
+                    "handler": "set_sweep_time",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "s"
+                },
+                "vbw_MHz": {
+                    "label": "Video Bandwidth",
+                    "type": "_sliderValue",
+                    "handler": "set_vbw",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "MHz"
+                },
+                "vbw_auto_on": {
+                    "label": "VBW Auto On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_vbw_auto",
+                    "options": {
+                        "ON": {
+                            "label": "Auto ON",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "Auto OFF",
+                            "selected": false
+                        }
+                    }
+                },
+                "initiate_continuous_on": {
+                    "label": "Continuous Initiate",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_continuous_initiate",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": false
+                        }
+                    }
+                }
+            }
+        }
+}
