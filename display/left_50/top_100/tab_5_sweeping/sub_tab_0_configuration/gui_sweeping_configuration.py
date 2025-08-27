@@ -1,70 +1,64 @@
 MQTT_TOPIC_FILTER = "OPEN-AIR/sweeping"
-
-# display/gui_sweeping_configuration.py
+# display/tabs/dynamic_gui_builder.py
 #
-# A GUI component for editing markers, designed to handle both full data sets
-# and single-value updates intelligently via MQTT.
+# A dynamic GUI component for building widgets based on a JSON data structure received via MQTT.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
+# application can benegotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.181840.1
+# Version 20250827.001600.5
 
 import os
 import inspect
 import datetime
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, scrolledtext
 import pathlib
-from tkinter import filedialog
+import json
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
-from workers.worker_file_csv_export import CsvExportUtility
-from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250825
-CURRENT_TIME = 181840
-REVISION_NUMBER = 1
-current_version = "20250825.181840.1"
-current_version_hash = 20250825 * 181840 * 1
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+current_version = "20250827.001600.5"
+current_version_hash = (20250827 * 1600 * 5)
+current_file = f"{os.path.basename(__file__)}"
 
-# --- No Magic Numbers (as per your instructions) ---
+# --- Constants ---
+TOPIC_DELIMITER = "/"
+DEFAULT_PAD_X = 5
+DEFAULT_PAD_Y = 2
+DEFAULT_FRAME_PAD = 5
+BUTTON_PADDING_MULTIPLIER = 5
+BUTTON_BORDER_MULTIPLIER = 2
 
 
-class gui_sweeping_configuration(ttk.Frame):
+class DynamicGuiBuilder(ttk.Frame):
     """
-    A GUI component for displaying MQTT data in a table and exporting it.
+    A dynamic GUI component for building widgets based on a JSON data structure
+    received via MQTT. It can handle various control types, including labels,
+    sliders, buttons, and dropdowns, and correctly maps them to AES70 classes.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
-        """
-        Initializes the GUI, sets up the layout, and subscribes to the MQTT topic.
-        
-        Args:
-            parent (tk.Widget): The parent widget for this frame.
-            mqtt_util (MqttControllerUtility): The MQTT utility instance for communication.
-        """
+        # Initializes the GUI builder, sets up the layout, and subscribes to the MQTT topic.
         current_function_name = inspect.currentframe().f_code.co_name
+        self.current_class_name = self.__class__.__name__
 
         debug_log(
-            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
+            message=f"🖥️🟢 Eureka! The grand experiment begins! Initializing the {self.current_class_name}.",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
+            function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
 
@@ -72,208 +66,518 @@ class gui_sweeping_configuration(ttk.Frame):
             super().__init__(parent, *args, **kwargs)
             self.pack(fill=tk.BOTH, expand=True)
 
-            self.current_file = current_file
-            self.current_version = current_version
-            self.current_version_hash = current_version_hash
             self.mqtt_util = mqtt_util
-            self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
-            self.data_flattener = MqttDataFlattenerUtility(print_to_gui_func=console_log)
-            self.current_class_name = self.__class__.__name__
+            self.topic_widgets = {}
+            self.config_data = {}
+            self.gui_built = False
 
             self._apply_styles(theme_name=DEFAULT_THEME)
+            colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
-            # --- MQTT Topic Entry Section ---
-            topic_frame = ttk.LabelFrame(self, text="MQTT Topic Filter")
-            topic_frame.pack(fill=tk.X, padx=10, pady=5)
-            self.topic_entry = ttk.Entry(topic_frame, width=80)
-            self.topic_entry.insert(0, MQTT_TOPIC_FILTER)
-            self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
+            # --- Main PanedWindow for 50/50 split ---
+            main_paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
+            main_paned_window.pack(fill=tk.BOTH, expand=True)
+
+            # --- Left Frame for Dynamic Widgets ---
+            left_frame = ttk.Frame(main_paned_window)
+            main_paned_window.add(left_frame, weight=1)
+
+            rebuild_button = ttk.Button(left_frame, text="Rebuild GUI", command=self._rebuild_gui)
+            rebuild_button.pack(pady=5)
+
+            self.canvas = tk.Canvas(left_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
+            self.scroll_frame = ttk.Frame(self.canvas)
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             
-            # --- MQTT Message Log Table ---
-            self.table_frame = ttk.Frame(self)
-            self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+            scrollbar = ttk.Scrollbar(left_frame, orient=tk.VERTICAL, command=self.canvas.yview)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            self.canvas.configure(yscrollcommand=scrollbar.set)
+            self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
-            horizontal_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.HORIZONTAL)
-            self.commands_table = ttk.Treeview(self.table_frame, xscrollcommand=horizontal_scrollbar.set, show="headings", style="Custom.Treeview")
-            horizontal_scrollbar.config(command=self.commands_table.xview)
+            self.main_frame = ttk.LabelFrame(self.scroll_frame, text="MQTT Configuration")
+            self.main_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+
+            # --- Right Frame for MQTT Log ---
+            right_frame = ttk.LabelFrame(main_paned_window, text="MQTT Message Log")
+            main_paned_window.add(right_frame, weight=1)
             
-            vertical_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
-            self.commands_table.config(yscrollcommand=vertical_scrollbar.set)
+            self.log_text = scrolledtext.ScrolledText(right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
+            self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+            self.log_text.configure(state='disabled')
 
-            horizontal_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-            vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-            self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            # Subscribe to the entire topic tree
+            self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_FILTER}/#", callback_func=self._on_commands_message)
 
-            self.mqtt_util.add_subscriber(topic_filter=f"{self.topic_entry.get()}/#", callback_func=self._on_commands_message)
-
-            # --- File Controls Section ---
-            file_frame = ttk.LabelFrame(self, text="File")
-            file_frame.pack(fill=tk.X, padx=10, pady=5)
-           
-            # Button: Export to CSV
-            self.export_button = ttk.Button(
-                file_frame,
-                text="Export to CSV",
-                command=self._export_table_data
-            )
-            self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-
-            # --- Status Bar at the bottom ---
-            status_bar = ttk.Frame(self, relief=tk.SUNKEN, borderwidth=1)
-            status_bar.pack(side=tk.BOTTOM, fill=tk.X, expand=False)
-
-            file_parts = self.current_file.rsplit('/', 1)
-            file_folder = file_parts[0] if len(file_parts) > 1 else ""
-            file_name = file_parts[-1]
-
-            status_text = f"Version: {self.current_version} | Folder: {file_folder} | File: {file_name}"
-            status_label = ttk.Label(status_bar, text=status_text, anchor='w')
-            status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
-
-            console_log("✅ Instrument Translator GUI initialized successfully!")
+            console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully with a 50/50 split!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
+                message=f"🖥️🔴 Arrr, the code be capsized! The GUI construction has failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
                 console_print_func=console_log
             )
-    
-    def _apply_styles(self, theme_name: str):
-        """
-        Applies the specified theme to the GUI elements using ttk.Style.
-        """
-        colors = THEMES.get(theme_name, THEMES["dark"])
-        style = ttk.Style(self)
-        style.theme_use("clam")
 
-        style.configure('TFrame', background=colors["bg"])
-        style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
-        style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * 5, relief=colors["relief"], borderwidth=colors["border_width"] * 2)
-        style.map('TButton', background=[('active', colors["secondary"])])
+    def _log_to_gui(self, message):
+        # Appends a message to the GUI log text widget.
+        self.log_text.configure(state='normal')
+        self.log_text.insert(tk.END, message + "\n\n")
+        self.log_text.configure(state='disabled')
+        self.log_text.see(tk.END)
+
+    def _update_nested_dict(self, path_parts, value):
+        # Recursively traverses the dictionary structure and sets the value at the final key.
+        current_level = self.config_data
+        for part in path_parts[:-1]:
+            current_level = current_level.setdefault(part, {})
         
-        style.configure('Custom.Treeview',
-                        background=colors["table_bg"],
-                        foreground=colors["table_fg"],
-                        fieldbackground=colors["table_bg"],
-                        bordercolor=colors["table_border"],
-                        borderwidth=colors["border_width"])
+        # Clean up the value if it's a JSON string with escaped quotes
+        try:
+            # First, load the payload which is a JSON string like '{"value": "\\"ON\\""}'
+            payload_dict = json.loads(value)
+            # Extract the value, which might still be a string representation of a type
+            final_value = payload_dict.get("value", "")
+            # Try to load it again in case it's a nested JSON string
+            try:
+                final_value = json.loads(final_value)
+            except (json.JSONDecodeError, TypeError):
+                 pass # It's just a regular string
+        except (json.JSONDecodeError, TypeError):
+            final_value = value # Fallback to the raw payload
 
-        style.configure('Custom.Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
+        current_level[path_parts[-1]] = final_value
+
+    def _rebuild_gui(self):
+        # Clears the main frame and rebuilds all widgets from the current config_data.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 It's alive! Rebuilding the GUI with the latest configuration data.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            for widget in self.main_frame.winfo_children():
+                widget.destroy()
+            self.topic_widgets.clear()
+            self._create_dynamic_widgets(self.main_frame, self.config_data)
+            console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _apply_styles(self, theme_name):
+        # Applies the specified theme to the GUI elements using ttk.Style.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {theme_name}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            colors = THEMES.get(theme_name, THEMES["dark"])
+            style = ttk.Style(self)
+            style.theme_use("clam")
+
+            style.configure('TFrame', background=colors["bg"])
+            style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
+            style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+            style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER)
+            style.map('TButton', background=[('active', colors["secondary"])])
+
+            textbox_style = colors["textbox_style"]
+            style.configure('Custom.TEntry',
+                              font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
+                              foreground=textbox_style["Textbox_Font_colour"],
+                              background=textbox_style["Textbox_BG_colour"],
+                              fieldbackground=textbox_style["Textbox_BG_colour"],
+                              bordercolor=textbox_style["Textbox_border_colour"])
+            console_log("✅ Celebration of success! The styles did apply themselves beautifully!")
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 By Jove, the style potion has curdled! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _create_label(self, parent_frame, label, value, units=None):
+        # Creates a read-only label widget.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {value}, {units}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_text = f"{label}: {value}"
+            if units:
+                label_text += f" {units}"
+
+            label_widget = ttk.Label(sub_frame, text=label_text)
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            console_log(f"✅ Celebration of success! The label '{label}' did get created.")
+            return label_widget, sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The label-making machine has gone haywire! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None, None
+
+    def _create_value_box(self, parent_frame, label, config):
+        # Creates an editable text box (_Value).
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=f"{label}:")
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            entry_value = tk.StringVar(value=config.get('value', ''))
+            entry = ttk.Entry(sub_frame, textvariable=entry_value, style="Custom.TEntry")
+            entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+
+            if config.get('units'):
+                units_label = ttk.Label(sub_frame, text=config['units'])
+                units_label.pack(side=tk.LEFT, padx=(0, DEFAULT_PAD_X))
+
+            def on_entry_change(event):
+                new_val = entry_value.get()
+                topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
+                self.mqtt_util.publish_message(topic=topic, value=new_val)
+
+            entry.bind("<FocusOut>", on_entry_change)
+            self.topic_widgets[label] = entry
+            
+            console_log(f"✅ Celebration of success! The value box '{label}' did materialize.")
+            return sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The value box contraption has exploded! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+            
+    def _create_slider_value(self, parent_frame, label, config):
+        # Creates a slider and an entry box for a numerical value.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=f"{label}:")
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            entry_value = tk.StringVar(value=config.get('value', '0'))
+            entry = ttk.Entry(sub_frame, width=10, style="Custom.TEntry", textvariable=entry_value)
+            entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            units_label = ttk.Label(sub_frame, text=config.get('units', ''))
+            units_label.pack(side=tk.RIGHT, padx=(0, DEFAULT_PAD_X))
+
+            min_val = float(config.get('min', '0'))
+            max_val = float(config.get('max', '100'))
+            slider = ttk.Scale(sub_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL)
+            slider.set(float(entry_value.get()))
+            slider.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+
+            def on_slider_move(val):
+                entry_value.set(f"{float(val):.2f}")
+
+            def on_entry_change(event):
+                try:
+                    new_val = float(entry.get())
+                    if min_val <= new_val <= max_val:
+                        slider.set(new_val)
+                        topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
+                        self.mqtt_util.publish_message(topic=topic, value=new_val)
+                except ValueError:
+                    console_log("Invalid input, please enter a number.")
+
+            slider.config(command=on_slider_move)
+            entry.bind("<FocusOut>", on_entry_change)
+
+            self.topic_widgets[label] = (entry, slider)
+            
+            console_log(f"✅ Celebration of success! The slider '{label}' did slide into existence.")
+            return sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The slider mechanism is stuck! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+
+    def _create_gui_button_toggle(self, parent_frame, label, config):
+        # Creates a button that toggles between ON/OFF states.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=label)
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            button_var = tk.BooleanVar(value=config['options']['ON']['selected'])
+
+            def toggle_command():
+                new_state = not button_var.get()
+                button_var.set(new_state)
+                topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
+                self.mqtt_util.publish_message(topic=topic, value=new_state)
+
+            button_on = ttk.Checkbutton(sub_frame, text=config['options']['ON']['label'], variable=button_var, command=toggle_command)
+            button_on.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            self.topic_widgets[label] = button_on
+            
+            console_log(f"✅ Celebration of success! The toggle button '{label}' did appear.")
+            return sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The toggle switch is sparking furiously! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+
+    def _create_gui_dropdown_option(self, parent_frame, label, config):
+        # Creates a dropdown menu for multiple choice options.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=f"{label}:")
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            options = [opt['label'] for opt in config['options'].values()]
+            values = [opt['value'] for opt in config['options'].values()]
+            selected_option_value = [opt['value'] for key, opt in config['options'].items() if opt.get('selected') == 'yes'][0]
+
+            selected_value = tk.StringVar(value=selected_option_value)
+
+            def on_select(event):
+                selected_label = selected_value.get()
+                selected_index = options.index(selected_label)
+                selected_option_value = values[selected_index]
+                topic = f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}"
+                self.mqtt_util.publish_message(topic=topic, value=selected_option_value)
+
+            dropdown = ttk.Combobox(sub_frame, textvariable=selected_value, values=options, state="readonly")
+            dropdown.bind("<<ComboboxSelected>>", on_select)
+            dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
+
+            self.topic_widgets[label] = dropdown
+            
+            console_log(f"✅ Celebration of success! The dropdown '{label}' did drop down.")
+            return sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The dropdown has dropped off! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+
+    def _create_gui_button_toggler(self, parent_frame, label, config):
+        # Creates a set of radio-style buttons where only one can be selected.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {label}, {config}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=label)
+            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            button_group_frame = ttk.Frame(sub_frame)
+            button_group_frame.pack(side=tk.LEFT, fill=tk.X, expand=True)
+
+            selected_var = tk.StringVar(value=[key for key, opt in config['options'].items() if opt.get('selected') == True][0])
+
+            for option_key, option_data in config['options'].items():
+                button = ttk.Radiobutton(
+                    button_group_frame,
+                    text=option_data['label'],
+                    variable=selected_var,
+                    value=option_key,
+                    command=lambda val=option_key: self.mqtt_util.publish_message(topic=f"{MQTT_TOPIC_FILTER}/{label.replace(' ', '_').lower()}", value=val)
+                )
+                button.pack(side=tk.LEFT, padx=2)
+
+            self.topic_widgets[label] = button_group_frame
+            
+            console_log(f"✅ Celebration of success! The button toggler '{label}' did toggle into view.")
+            return sub_frame
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The button toggler is refusing to toggle! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+
+    def _create_dynamic_widgets(self, parent_frame, data):
+        # Recursively creates widgets based on the JSON structure.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Entering {current_function_name} with arguments: {parent_frame}, {data}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            for key, value in data.items():
+                if isinstance(value, dict):
+                    widget_type = value.get("type")
+                    label_text = value.get("label", key.replace('_', ' ').title())
+                    
+                    if widget_type == "OcaBlock":
+                        nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
+                        nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+                        self._create_dynamic_widgets(nested_frame, value.get("fields", {}))
+                    elif widget_type == "_sliderValue":
+                        self._create_slider_value(parent_frame=parent_frame, label=label_text, config=value)
+                    elif widget_type in ("_GuiButtonToggle", "_buttonToggle"):
+                        self._create_gui_button_toggle(parent_frame=parent_frame, label=label_text, config=value)
+                    elif widget_type in ("_GuiDropDownOption", "_DropDownOption"):
+                        self._create_gui_dropdown_option(parent_frame=parent_frame, label=label_text, config=value)
+                    elif widget_type == "_GuiButtonToggler":
+                        self._create_gui_button_toggler(parent_frame=parent_frame, label=label_text, config=value)
+                    elif widget_type == "_Value":
+                        self._create_value_box(parent_frame=parent_frame, label=label_text, config=value)
+                    elif widget_type == "_Label":
+                        self._create_label(parent_frame=parent_frame, label=label_text, value=value.get("value"), units=value.get("units"))
+                    else:
+                        nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
+                        nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+                        self._create_dynamic_widgets(nested_frame, value)
+                else:
+                    self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value)
+            
+            console_log("✅ Celebration of success! The dynamic widgets did assemble themselves!")
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🖥️🔴 The widget creation-ray has misfired! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
 
     def _on_commands_message(self, topic, payload):
-        """
-        Callback for when an MQTT message is received on the commands topic. 
-        It processes the message, flattens the data, and updates or adds rows to the table.
-        """
+        # The main callback function that processes incoming MQTT messages.
         current_function_name = inspect.currentframe().f_code.co_name
-        
         debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
-            file=self.current_file,
+            message=f"Entering {current_function_name} with arguments: {topic}, {payload}",
+            file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
+            function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
-        
         try:
-            pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
-                topic=topic,
-                payload=payload,
-                topic_prefix=self.topic_entry.get()
-            )
+            # Log every incoming message to the GUI log
+            self.after(0, self._log_to_gui, f"Topic: {topic}\nPayload: {payload}")
 
-            if pivoted_rows:
-                # Dynamically configure columns ONLY IF this is the first data payload.
-                if not self.commands_table["columns"]:
-                    new_headers = list(pivoted_rows[0].keys())
-                    self.commands_table["columns"] = tuple(new_headers)
-                    for col in new_headers:
-                        self.commands_table.heading(col, text=col.replace("_", " ").title())
-                        self.commands_table.column(col, width=150, stretch=True)
-
-                # Iterate through each row of the new data to update or add
-                for row in pivoted_rows:
-                    parameter_path = row.get("Parameter")
-                    
-                    # Find if a row with this Parameter already exists
-                    item_id_to_update = None
-                    for item_id in self.commands_table.get_children():
-                        row_values = self.commands_table.item(item_id, 'values')
-                        if row_values and row_values[0] == parameter_path:
-                            item_id_to_update = item_id
-                            break
-                    
-                    if item_id_to_update:
-                        # Update the existing row
-                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
-                        self.commands_table.item(item_id_to_update, values=new_values)
-                        console_log(f"✅ Updated existing row for '{parameter_path}'.")
-                    else:
-                        # Insert a new row if it doesn't exist
-                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
-                        self.commands_table.insert('', tk.END, values=new_values)
-                        console_log(f"✅ Added new row for '{parameter_path}'.")
+            # Reconstruct the nested dictionary from the topic path
+            relative_topic = topic.replace(f"{MQTT_TOPIC_FILTER}/", "")
+            path_parts = relative_topic.split(TOPIC_DELIMITER)
+            self._update_nested_dict(path_parts, payload)
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _export_table_data(self):
-        """
-        Opens a file dialog and exports the current data from the table to a CSV file.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🔵 Preparing to export table data to CSV.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-        try:
-            file_path = filedialog.asksaveasfilename(
-                initialdir=os.getcwd(),
-                title="Save Table Data as CSV",
-                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-                defaultextension=".csv"
-            )
-            
-            if file_path:
-                data = []
-                headers = self.commands_table["columns"]
-                for item_id in self.commands_table.get_children():
-                    row_values = self.commands_table.item(item_id, 'values')
-                    row_dict = dict(zip(headers, row_values))
-                    data.append(row_dict)
-                    
-                self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
-                console_log(f"✅ Data successfully exported to {file_path}!")
-            else:
-                console_log("🟡 CSV export canceled by user.")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
+                message=f"🖥️🔴 The MQTT message has caused a paradox! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
                 console_print_func=console_log
             )

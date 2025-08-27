@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/MarkerTab"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/markers"
 # display/gui_frequency.py
 #
 # A GUI component for displaying hierarchical MQTT data using dynamic labels and text boxes.
