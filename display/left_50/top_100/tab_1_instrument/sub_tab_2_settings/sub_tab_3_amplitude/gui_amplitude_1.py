@@ -1,7 +1,7 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Amplitude_Settings"
-# display/tabs/gui_child_2_settings.py
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/amplitude"
+# display/left_50/top_100/tab_3_presets/sub_tab_1_pusher/gui_child_1_pusher.py
 #
-# A GUI frame for displaying and controlling Marker Settings via MQTT.
+# A GUI frame for displaying and controlling Presets via MQTT using the modular DynamicGuiBuilder.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,7 +14,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/Instrument_Settings/Ampli
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.140519.3
+# Version 20250827.173001.1
 
 import os
 import tkinter as tk
@@ -24,25 +24,27 @@ from tkinter import ttk
 from display.builder.dynamic_gui_builder import DynamicGuiBuilder
 
 # --- Global Scope Variables ---
-current_version = "20250827.140519.3"
-current_version_hash = (20250827 * 140519 * 3)
+current_version = "20250827.173001.1"
+current_version_hash = (20250827 * 173001 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
-class DynamicGui(ttk.Frame):
+
+class PresetPusherGui(ttk.Frame):
     """
-    A container frame that instantiates the DynamicGuiBuilder for Marker Settings.
+    A container frame that instantiates the DynamicGuiBuilder for the Presets configuration.
+    This replaces the old, monolithic code with a call to the reusable, modular component.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         """
-        Initializes the Marker Settings frame and the dynamic GUI builder.
+        Initializes the Presets frame and the dynamic GUI builder.
         """
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
         # --- Dynamic GUI Builder ---
-        # Create an instance of the dynamic builder, passing the specific
-        # base topic for this GUI component.
+        # The DynamicGuiBuilder is instantiated with the correct and specific MQTT topic
+        # filter for this GUI component.
         self.dynamic_gui = DynamicGuiBuilder(
             parent=self,
             mqtt_util=mqtt_util,

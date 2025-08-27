@@ -1,6 +1,6 @@
 # display/builder/dynamic_gui_create_gui_button_toggle.py
 #
-# A mixin class for the DynamicGuiBuilder that handles the creation of a two-state toggle button.
+# A mixin class for creating a toggle button widget that updates state via MQTT.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -13,74 +13,87 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.153037.17
+# Version 20250827.171501.1
 
 import os
 import tkinter as tk
 from tkinter import ttk
-
-# --- Module Imports ---
-from workers.worker_logging import console_log
+from workers.worker_logging import debug_log, console_log
+import inspect
 
 # --- Global Scope Variables ---
-current_version = "20250827.153037.17"
-current_version_hash = (20250827 * 153037 * 17)
+current_version = "20250827.171501.1"
+current_version_hash = (20250827 * 171501 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-# --- Constants ---
-DEFAULT_PAD_X = 5
-DEFAULT_PAD_Y = 2
-
 class GuiButtonToggleCreatorMixin:
-    """
-    A mixin class that provides the functionality for creating a
-    single button that toggles between two states.
-    """
     def _create_gui_button_toggle(self, parent_frame, label, config, path):
-        # This function creates a single button that toggles between two states (e.g., ON/OFF).
+        # A one-sentence description of the function's purpose.
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        # FIX: The debug_log call has been corrected to use global variables
+        # and remove the problematic 'self.current_class_name' attribute access.
+        debug_log(
+            message=f"🛠️🟢 Entering {current_function_name} to conjure a button widget for '{label}'.",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log
+        )
         try:
-            sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-
-            options = config.get('options', {})
-            on_config = options.get('ON', {})
-            off_config = options.get('OFF', {})
-
-            is_on = str(on_config.get('selected', 'false')).lower() in ['true', 'yes']
+            initial_value = config.get("value", False)
+            on_value = config.get("on_value", True)
+            off_value = config.get("off_value", False)
+            on_text = config.get("on_text", "ON")
+            off_text = config.get("off_text", "OFF")
             
-            state_var = tk.BooleanVar(value=is_on)
-            
-            button = ttk.Button(sub_frame)
-            button.pack(fill=tk.X, expand=True)
+            frame = ttk.Frame(parent_frame, style="TFrame")
+            frame.pack(fill=tk.X, expand=True, pady=2, padx=5)
+
+            label_widget = ttk.Label(frame, text=label)
+            label_widget.pack(side=tk.LEFT, padx=(0, 10))
+
+            button_var = tk.BooleanVar(value=initial_value)
+            button = ttk.Button(frame, text=off_text, command=lambda: toggle_command(button_var.get()))
+            button.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
             def update_button_state():
-                # Updates the button's appearance based on its current state.
-                current_state = state_var.get()
-                if current_state: # State is ON
-                    button.config(text=on_config.get('label', 'ON'), style='Selected.TButton')
-                else: # State is OFF
-                    button.config(text=off_config.get('label', 'OFF'), style='TButton')
-
-            def toggle_command():
-                # Flips the state, updates the button, and publishes the change.
-                new_state = not state_var.get()
-                state_var.set(new_state)
-                update_button_state()
-                publish_value = 'ON' if new_state else 'OFF'
-                
-                # Log the action to the GUI logger before sending.
-                self._log_to_gui(f"GUI ACTION: Publishing to '{path}' with value '{publish_value}'")
-                self.mqtt_util.publish_message(subtopic=path, value=publish_value)
-
-            button.config(command=toggle_command)
-            update_button_state() # Set initial text and style
-
-            # Store the state variable and update function for live updates.
-            if path:
-                self.topic_widgets[path] = (state_var, update_button_state)
+                # A brief, one-sentence description of the function's purpose.
+                try:
+                    state = button_var.get()
+                    if state == on_value:
+                        button.configure(text=on_text, style="Selected.TButton")
+                    else:
+                        button.configure(text=off_text, style="TButton")
+                except Exception as e:
+                    console_log(f"❌ Error updating button state: {e}")
             
-            return sub_frame
+            def toggle_command(current_state):
+                # A brief, one-sentence description of the function's purpose.
+                try:
+                    new_state = not current_state
+                    button_var.set(new_state)
+                    
+                    value_to_publish = on_value if new_state else off_value
+                    self.mqtt_util.publish_message(
+                        topic=path, 
+                        subtopic="state",
+                        value=value_to_publish
+                    )
+                except Exception as e:
+                    console_log(f"❌ Error in toggle_command: {e}")
 
+            update_button_state()
+            self.topic_widgets[f"{path}/state"] = (button_var, update_button_state)
+
+            console_log("✅ Celebration of success! the " + label + " did toggle its function")
+        
         except Exception as e:
-            console_log(f"❌ Error in _create_gui_button_toggle for '{label}': {e}")
-            return None
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"🛠️🔴 Arrr, the code be capsized! The toggle button creation has failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )

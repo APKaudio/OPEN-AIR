@@ -1,143 +1,316 @@
 {
-
-        "Trace_Settings": {
-            "type": "OcaBlock",
-            "AES70": "OcaTraceManager",
-            "description": "A block for managing all trace-related settings.",
-            "fields": {
-                "trace_1": {
-                    "label": "Trace 1 Mode",
-                    "type": "_GuiDropDownOption",
-                    "AES70": "OcaSwitch",
-                    "handler": "set_trace_mode_1",
-                    "options": {
-                        "BLANK": {
-                            "label": "BLANK",
-                            "value": "BLANK",
-                            "selected": "no"
-                        },
-                        "MAXHOLD": {
-                            "label": "MAX HOLD",
-                            "value": "MAXHOLD",
-                            "selected": "no"
-                        },
-                        "MINHOLD": {
-                            "label": "MIN HOLD",
-                            "value": "MINHOLD",
-                            "selected": "no"
-                        },
-                        "VIEW": {
-                            "label": "VIEW",
-                            "value": "VIEW",
-                            "selected": "yes"
-                        },
-                        "WRITE": {
-                            "label": "LIVE REALTIME",
-                            "value": "WRITE",
-                            "selected": "no"
-                        }
-                    }
-                },
-                "trace_2": {
-                    "label": "Trace 2 Mode",
-                    "type": "_GuiDropDownOption",
-                    "AES70": "OcaSwitch",
-                    "handler": "set_trace_mode_2",
-                    "options": {
-                        "BLANK": {
-                            "label": "BLANK",
-                            "value": "BLANK",
-                            "selected": "no"
-                        },
-                        "MAXHOLD": {
-                            "label": "MAX HOLD",
-                            "value": "MAXHOLD",
-                            "selected": "yes"
-                        },
-                        "MINHOLD": {
-                            "label": "MIN HOLD",
-                            "value": "MINHOLD",
-                            "selected": "no"
-                        },
-                        "VIEW": {
-                            "label": "VIEW",
-                            "value": "VIEW",
-                            "selected": "no"
-                        },
-                        "WRITE": {
-                            "label": "LIVE REALTIME",
-                            "value": "WRITE",
-                            "selected": "no"
-                        }
-                    }
-                },
-                "trace_3": {
-                    "label": "Trace 3 Mode",
-                    "type": "_GuiDropDownOption",
-                    "AES70": "OcaSwitch",
-                    "handler": "set_trace_mode_3",
-                    "options": {
-                        "BLANK": {
-                            "label": "BLANK",
-                            "value": "BLANK",
-                            "selected": "no"
-                        },
-                        "MAXHOLD": {
-                            "label": "MAX HOLD",
-                            "value": "MAXHOLD",
-                            "selected": "no"
-                        },
-                        "MINHOLD": {
-                            "label": "MIN HOLD",
-                            "value": "MINHOLD",
-                            "selected": "yes"
-                        },
-                        "VIEW": {
-                            "label": "VIEW",
-                            "value": "VIEW",
-                            "selected": "no"
-                        },
-                        "WRITE": {
-                            "label": "LIVE REALTIME",
-                            "value": "WRITE",
-                            "selected": "no"
-                        }
-                    }
-                },
-                "trace_4": {
-                    "label": "Trace 4 Mode",
-                    "type": "_GuiDropDownOption",
-                    "AES70": "OcaSwitch",
-                    "handler": "set_trace_mode_4",
-                    "options": {
-                        "BLANK": {
-                            "label": "BLANK",
-                            "value": "BLANK",
-                            "selected": "yes"
-                        },
-                        "MAXHOLD": {
-                            "label": "MAX HOLD",
-                            "value": "MAXHOLD",
-                            "selected": "no"
-                        },
-                        "MINHOLD": {
-                            "label": "MIN HOLD",
-                            "value": "MINHOLD",
-                            "selected": "no"
-                        },
-                        "VIEW": {
-                            "label": "VIEW",
-                            "value": "VIEW",
-                            "selected": "no"
-                        },
-                        "WRITE": {
-                            "label": "LIVE REALTIME",
-                            "value": "WRITE",
-                            "selected": "yes"
-                        }
-                    }
-                }
-            }
+  "Settings": {
+    "type": "OcaBlock",
+    "AES70": "OcaTraceManager",
+    "description": "A block for managing all trace-related settings.",
+    "fields": {
+      "trace_1": {
+        "label": "Trace 1 Mode",
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_trace_mode_1",
+        "options": {
+          "BLANK": {
+            "label": "BLANK",
+            "value": "BLANK",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "value": "MAXHOLD",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "value": "MINHOLD",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "value": "VIEW",
+            "selected": true
+          },
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "value": "WRITE",
+            "selected": false
+          }
         }
+      },
+      "trace_2": {
+        "label": "Trace 2 Mode",
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_trace_mode_2",
+        "options": {
+          "BLANK": {
+            "label": "BLANK",
+            "value": "BLANK",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "value": "MAXHOLD",
+            "selected": true
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "value": "MINHOLD",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "value": "VIEW",
+            "selected": false
+          },
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "value": "WRITE",
+            "selected": false
+          }
+        }
+      },
+      "trace_3": {
+        "label": "Trace 3 Mode",
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_trace_mode_3",
+        "options": {
+          "BLANK": {
+            "label": "BLANK",
+            "value": "BLANK",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "value": "MAXHOLD",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "value": "MINHOLD",
+            "selected": true
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "value": "VIEW",
+            "selected": false
+          },
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "value": "WRITE",
+            "selected": false
+          }
+        }
+      },
+      "trace_4": {
+        "label": "Trace 4 Mode",
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_trace_mode_4",
+        "options": {
+          "BLANK": {
+            "label": "BLANK",
+            "value": "BLANK",
+            "selected": true
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "value": "MAXHOLD",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "value": "MINHOLD",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "value": "VIEW",
+            "selected": false
+          },
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "value": "WRITE",
+            "selected": true
+          }
+        }
+      }
     }
-
+  },
+  "Presets": {
+    "type": "OcaBlock",
+    "AES70": "OcaTraceManager",
+    "description": "A block for managing all trace-related presets.",
+    "fields": {
+      "TRACE_MODE_1": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "handle_trace_modes_beg",
+        "options": {
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "description": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+            "value": "WRITE",
+            "units": "mode",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+            "value": "MAXHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+            "value": "MINHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "BLANK": {
+            "label": "BLANK",
+            "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+            "value": "BLANK",
+            "units": "mode",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "description": "The standard mode, simply viewing the current sweep data.",
+            "value": "VIEW",
+            "units": "mode",
+            "selected": false
+          }
+        }
+      },
+      "TRACE_MODE_2": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "handle_trace_modes_beg",
+        "options": {
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "description": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+            "value": "WRITE",
+            "units": "mode",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+            "value": "MAXHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+            "value": "MINHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "BLANK": {
+            "label": "BLANK",
+            "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+            "value": "BLANK",
+            "units": "mode",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "description": "The standard mode, simply viewing the current sweep data.",
+            "value": "VIEW",
+            "units": "mode",
+            "selected": false
+          }
+        }
+      },
+      "TRACE_MODE_3": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "handle_trace_modes_beg",
+        "options": {
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "description": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+            "value": "WRITE",
+            "units": "mode",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+            "value": "MAXHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+            "value": "MINHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "BLANK": {
+            "label": "BLANK",
+            "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+            "value": "BLANK",
+            "units": "mode",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "description": "The standard mode, simply viewing the current sweep data.",
+            "value": "VIEW",
+            "units": "mode",
+            "selected": false
+          }
+        }
+      },
+      "TRACE_MODE_4": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "handle_trace_modes_beg",
+        "options": {
+          "WRITE": {
+            "label": "LIVE REALTIME",
+            "description": "Captures and displays the trace in real time, like a hyperactive surveillance camera.",
+            "value": "WRITE",
+            "units": "mode",
+            "selected": false
+          },
+          "MAXHOLD": {
+            "label": "MAX HOLD",
+            "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
+            "value": "MAXHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "MINHOLD": {
+            "label": "MIN HOLD",
+            "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
+            "value": "MINHOLD",
+            "units": "mode",
+            "selected": false
+          },
+          "BLANK": {
+            "label": "BLANK",
+            "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
+            "value": "BLANK",
+            "units": "mode",
+            "selected": false
+          },
+          "VIEW": {
+            "label": "VIEW",
+            "description": "The standard mode, simply viewing the current sweep data.",
+            "value": "VIEW",
+            "units": "mode",
+            "selected": false
+          }
+        }
+      }
+    }
+  }
+}

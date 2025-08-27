@@ -1,6 +1,6 @@
 {
-    "Application_Settings": {
-        "Application_Info": {
+
+        "Information": {
             "type": "OcaBlock",
             "AES70": "OcaApplicationManager",
             "description": "A block for managing and displaying high-level application settings.",
@@ -55,7 +55,7 @@
                 }
             }
         },
-        "Debug_Settings": {
+        "Debug": {
             "type": "OcaBlock",
             "AES70": "OcaDiagnosticManager",
             "description": "A block for managing debug and logging settings.",
@@ -143,4 +143,3 @@
             }
         }
     }
-}

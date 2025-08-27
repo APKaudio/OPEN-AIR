@@ -1,6 +1,5 @@
 {
-    "Path_Settings": {
-        "File_Paths": {
+
             "type": "_Label_Group",
             "AES70": "OcaPathManager",
             "description": "Displays the static file and directory paths used by the application. All fields are read-only sensors.",
@@ -91,5 +90,5 @@
                 }
             }
         }
-    }
-}
+    
+

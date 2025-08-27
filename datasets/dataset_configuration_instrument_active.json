@@ -1,35 +1,35 @@
 {
-       "Active_Instrument": {
+       "Instrument": {
             "type": "_Label_Group",
             "AES70": "OcaDeviceManager",
             "description": "Displays information about the currently connected instrument. All fields are read-only sensors.",
             "fields": {
                 "brand": {
-                    "label": "Brand",
+                    
                     "value": "Keysight Technologies"                    
                 },
                 "device_model": {
-                    "label": "Device Model",
+                    
                     "value": "Keysight"
                 },
                 "device_series": {
-                    "label": "Device Series",
+                    
                     "value": "E440xB"
                 },
                 "device_serial_number": {
-                    "label": "Serial Number",
+                    
                     "value": "E440xB"
                 },
                 "device_firmware": {
-                    "label": "Firmware",
+                    
                     "value": "E440xB"
                 },
                 "visa_resource": {
-                    "label": "VISA Resource",
+                    
                     "value": "TCPIP0::192.168.1.100::inst0::INSTR"
                 },
                 "Time_connected": {
-                    "label": "Time Connected",
+                    
                     "value": "12:44.01"
                 }
             }

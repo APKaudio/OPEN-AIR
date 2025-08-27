@@ -1,62 +1,333 @@
 {
-
-        "Amplitude_Settings": {
-            "type": "OcaBlock",
-            "AES70": "OcaGain",
-            "description": "A block for managing all amplitude-related settings.",
-            "fields": {
-                "ref_level_dBm": {
-                    "label": "Reference Level",
-                    "type": "_sliderValue",
-                    "handler": "set_ref_level",
-                    "value": "-30",
-                    "units": "dBm",
-                    "min":"-100",
-                    "max":"0",
-                    "step":"10"
-                },
-                "preamp_on": {
-                    "label": "Preamp On",
-                    "type": "_GuiButtonToggle",
-                    "AES70": "OcaBooleanActuator",
-                    "handler": "toggle_preamp",
-                    "options": {
-                        "ON": {
-                            "label": "ON",
-                            "selected": false
-                        },
-                        "OFF": {
-                            "label": "OFF",
-                            "selected": true
-                        }
-                    }
-                },
-                "power_attenuation_dB": {
-                    "label": "Power Attenuation",
-                    "type": "_sliderValue",
-                    "handler": "set_power_attenuation",
-                    "value": "10",
-                    "units": "dBm",
-                    "min":"-100",
-                    "max":"0",
-                    "step":"10"
-                },
-                "high_sensitivity_on": {
-                    "label": "High Sensitivity On",
-                    "type": "_GuiButtonToggle",
-                    "AES70": "OcaBooleanActuator",
-                    "handler": "toggle_high_sensitivity",
-                    "options": {
-                        "ON": {
-                            "label": "ON",
-                            "selected": false
-                        },
-                        "OFF": {
-                            "label": "OFF",
-                            "selected": true
-                        }
-                    }
-                }
-            }
+  "Settings": {
+    "type": "OcaBlock",
+    "AES70": "OcaGain",
+    "description": "A block for managing all amplitude-related settings.",
+    "fields": {
+      "ref_level_dBm": {
+        "label": "Reference Level",
+        "type": "_sliderValue",
+        "handler": "set_ref_level",
+        "value": "-30",
+        "units": "dBm",
+        "min": "-100",
+        "max": "0",
+        "step": "10"
+      },
+      "preamp_on": {
+        "label": "Preamp On",
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_preamp",
+        "options": {
+          "ON": {
+            "label": "ON",
+            "selected": false
+          },
+          "OFF": {
+            "label": "OFF",
+            "selected": true
+          }
         }
+      },
+      "power_attenuation_dB": {
+        "label": "Power Attenuation",
+        "type": "_sliderValue",
+        "handler": "set_power_attenuation",
+        "value": "10",
+        "units": "dBm",
+        "min": "-100",
+        "max": "0",
+        "step": "10"
+      },
+      "high_sensitivity_on": {
+        "label": "High Sensitivity On",
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_high_sensitivity",
+        "options": {
+          "ON": {
+            "label": "ON",
+            "selected": false
+          },
+          "OFF": {
+            "label": "OFF",
+            "selected": true
+          }
+        }
+      }
+    }
+  },
+  "Presets": {
+    "type": "OcaBlock",
+    "AES70": "OcaGain",
+    "description": "A block for managing all amplitude-related presets.",
+    "fields": {
+      "REFERENCE_LEVEL": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_reference_level",
+        "options": {
+          "-120": {
+            "label": "Extremely Low",
+            "description": "The lowest possible reference level for hunting the weakest signals imaginable.",
+            "value": "-120",
+            "units": "dB",
+            "selected": false
+          },
+          "-115": {
+            "label": "Very Low",
+            "description": "Deep noise floor — ideal for weak signal hunting.",
+            "value": "-115",
+            "units": "dB",
+            "selected": false
+          },
+          "-110": {
+            "label": "Very Low",
+            "description": "Deep noise floor — ideal for weak signal hunting.",
+            "value": "-110",
+            "units": "dB",
+            "selected": false
+          },
+          "-105": {
+            "label": "Low",
+            "description": "Below typical ambient RF noise — for sensitive receivers.",
+            "value": "-105",
+            "units": "dB",
+            "selected": false
+          },
+          "-100": {
+            "label": "Low",
+            "description": "Below typical ambient RF noise — for sensitive receivers.",
+            "value": "-100",
+            "units": "dB",
+            "selected": false
+          },
+          "-95": {
+            "label": "Low",
+            "description": "Below typical ambient RF noise — for sensitive receivers.",
+            "value": "-95",
+            "units": "dB",
+            "selected": false
+          },
+          "-90": {
+            "label": "Low",
+            "description": "Below typical ambient RF noise — for sensitive receivers.",
+            "value": "-90",
+            "units": "dB",
+            "selected": false
+          },
+          "-85": {
+            "label": "Medium Low",
+            "description": "Quiet environment, low-level signals clearly visible.",
+            "value": "-85",
+            "units": "dB",
+            "selected": false
+          },
+          "-80": {
+            "label": "Medium Low",
+            "description": "Quiet environment, low-level signals clearly visible.",
+            "value": "-80",
+            "units": "dB",
+            "selected": false
+          },
+          "-75": {
+            "label": "Medium Low",
+            "description": "Quiet environment, low-level signals clearly visible.",
+            "value": "-75",
+            "units": "dB",
+            "selected": false
+          },
+          "-70": {
+            "label": "Medium Low",
+            "description": "Quiet environment, low-level signals clearly visible.",
+            "value": "-70",
+            "units": "dB",
+            "selected": false
+          },
+          "-65": {
+            "label": "Medium",
+            "description": "Good general-purpose reference level.",
+            "value": "-65",
+            "units": "dB",
+            "selected": false
+          },
+          "-60": {
+            "label": "Medium",
+            "description": "Good general-purpose reference level.",
+            "value": "-60",
+            "units": "dB",
+            "selected": false
+          },
+          "-55": {
+            "label": "Medium",
+            "description": "Good general-purpose reference level.",
+            "value": "-55",
+            "units": "dB",
+            "selected": false
+          },
+          "-50": {
+            "label": "Medium",
+            "description": "Good general-purpose reference level.",
+            "value": "-50",
+            "units": "dB",
+            "selected": false
+          },
+          "-45": {
+            "label": "Medium High",
+            "description": "Stronger signals, moderate local RF traffic.",
+            "value": "-45",
+            "units": "dB",
+            "selected": false
+          },
+          "-40": {
+            "label": "Medium High",
+            "description": "Stronger signals, moderate local RF traffic.",
+            "value": "-40",
+            "units": "dB",
+            "selected": false
+          },
+          "-35": {
+            "label": "Medium High",
+            "description": "Stronger signals, moderate local RF traffic.",
+            "value": "-35",
+            "units": "dB",
+            "selected": false
+          },
+          "-30": {
+            "label": "Medium High",
+            "description": "Stronger signals, moderate local RF traffic.",
+            "value": "-30",
+            "units": "dB",
+            "selected": false
+          },
+          "-25": {
+            "label": "High",
+            "description": "For strong broadcast transmitters or test signals.",
+            "value": "-25",
+            "units": "dB",
+            "selected": false
+          },
+          "-20": {
+            "label": "High",
+            "description": "For strong broadcast transmitters or test signals.",
+            "value": "-20",
+            "units": "dB",
+            "selected": false
+          },
+          "-15": {
+            "label": "High",
+            "description": "For strong broadcast transmitters or test signals.",
+            "value": "-15",
+            "units": "dB",
+            "selected": false
+          },
+          "-10": {
+            "label": "High",
+            "description": "For strong broadcast transmitters or test signals.",
+            "value": "-10",
+            "units": "dB",
+            "selected": false
+          },
+          "-5": {
+            "label": "Very High",
+            "description": "Max headroom — use with caution to avoid clipping.",
+            "value": "-5",
+            "units": "dB",
+            "selected": false
+          },
+          "0": {
+            "label": "Very High",
+            "description": "Max headroom — use with caution to avoid clipping.",
+            "value": "0",
+            "units": "dB",
+            "selected": false
+          }
+        }
+      },
+      "PREAMP_STATE": {
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_preamp",
+        "options": {
+          "ON": {
+            "label": "PREAMP ON",
+            "description": "Turns on the pre-amplifier. A monstrous gain for weak signals.",
+            "selected": true
+          },
+          "OFF": {
+            "label": "PREAMP OFF",
+            "description": "Turns off the pre-amplifier. The scanner returns to its natural, less monstrous state.",
+            "selected": false
+          }
+        }
+      },
+      "HIGH_SENSITIVITY_STATE": {
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_high_sensitivity",
+        "options": {
+          "ON": {
+            "label": "HIGH SENSITIVITY ON",
+            "description": "Activates high-sensitivity mode. The scanner now listens for the whispers of the universe.",
+            "selected": false
+          },
+          "OFF": {
+            "label": "HIGH SENSITIVITY OFF",
+            "description": "Deactivates high-sensitivity mode. The scanner's ears are no longer superhuman.",
+            "selected": true
+          }
+        }
+      },
+      "POWER_ATTENUATION": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_power_attenuation",
+        "options": {
+          "0": {
+            "label": "0 dB",
+            "description": "No attenuation. Full power! Use with caution.",
+            "value": "0",
+            "units": "dB",
+            "selected": false
+          },
+          "10": {
+            "label": "10 dB",
+            "description": "A light filter, for when the signal is just a bit too spicy.",
+            "value": "10",
+            "units": "dB",
+            "selected": false
+          },
+          "20": {
+            "label": "20 dB",
+            "description": "A good, solid filter for moderate signals.",
+            "value": "20",
+            "units": "dB",
+            "selected": false
+          },
+          "30": {
+            "label": "30 dB",
+            "description": "A strong filter for powerful signals. Like wearing sunglasses to the beach.",
+            "value": "30",
+            "units": "dB",
+            "selected": false
+          },
+          "40": {
+            "label": "40 dB",
+            "description": "A heavy filter for blaringly strong signals. It's like wearing a blindfold on a sunny day.",
+            "value": "40",
+            "units": "dB",
+            "selected": false
+          },
+          "50": {
+            "label": "50 dB",
+            "description": "Extreme attenuation for signals that could damage the instrument.",
+            "value": "50",
+            "units": "dB",
+            "selected": false
+          }
+        }
+      }
+    }
+  }
 }

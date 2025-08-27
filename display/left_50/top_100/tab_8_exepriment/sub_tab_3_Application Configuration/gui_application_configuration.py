@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/report"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/application/Application_Info"
 # display/left_50/top_100/tab_3_presets/sub_tab_1_pusher/gui_child_1_pusher.py
 #
 # A GUI frame for displaying and controlling Presets via MQTT using the modular DynamicGuiBuilder.
