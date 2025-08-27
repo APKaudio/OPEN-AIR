@@ -1,276 +1,446 @@
 {
-    "Settings": {
+    "Instrument_Settings": {
         "Active_Instrument": {
-            "brand": {
-                "value": "Keysight Technologies",
-                "control_type": "_Label"
-            },
-            "device_model": {
-                "value": "Keysight",
-                "control_type": "_Label"
-            },
-            "device_series": {
-                "value": "E440xB",
-                "control_type": "_Label"
-            },
-            "device_serial_number": {
-                "value": "E440xB",
-                "control_type": "_Label"
-            },
-            "device_firmware": {
-                "value": "E440xB",
-                "control_type": "_Label"
-            },
-            "visa_resource": {
-                "value": "TCPIP0::192.168.1.100::inst0::INSTR",
-                "control_type": "_Label"
-            },
-            "Time_connected": {
-                "value": "12:44.01",
-                "control_type": "_Label"
+            "type": "_Label_Group",
+            "AES70": "OcaDeviceManager",
+            "description": "Displays information about the currently connected instrument. All fields are read-only sensors.",
+            "fields": {
+                "brand": {
+                    "label": "Brand",
+                    "value": "Keysight Technologies",
+                    "units": null
+                },
+                "device_model": {
+                    "label": "Device Model",
+                    "value": "Keysight",
+                    "units": null
+                },
+                "device_series": {
+                    "label": "Device Series",
+                    "value": "E440xB",
+                    "units": null
+                },
+                "device_serial_number": {
+                    "label": "Serial Number",
+                    "value": "E440xB",
+                    "units": null
+                },
+                "device_firmware": {
+                    "label": "Firmware",
+                    "value": "E440xB",
+                    "units": null
+                },
+                "visa_resource": {
+                    "label": "VISA Resource",
+                    "value": "TCPIP0::192.168.1.100::inst0::INSTR",
+                    "units": null
+                },
+                "Time_connected": {
+                    "label": "Time Connected",
+                    "value": "12:44.01",
+                    "units": null
+                }
             }
         },
         "Frequency_Settings": {
-            "center_freq_MHz": {
-                "value": "150",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
-            },
-            "span_freq_MHz": {
-                "value": "100",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
-            },
-            "start_freq_MHz": {
-                "value": "0",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
-            },
-            "stop_freq_MHz": {
-                "value": "3000",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
+            "type": "OcaBlock",
+            "AES70": "OcaFrequencyActuator",
+            "description": "A block for managing all frequency-related settings.",
+            "fields": {
+                "center_freq_MHz": {
+                    "label": "Center Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_center_frequency",
+                    "value": "150",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "span_freq_MHz": {
+                    "label": "Frequency Span",
+                    "type": "_sliderValue",
+                    "handler": "set_span_frequency",
+                    "value": "100",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "start_freq_MHz": {
+                    "label": "Start Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_start_frequency",
+                    "value": "0",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                },
+                "stop_freq_MHz": {
+                    "label": "Stop Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_stop_frequency",
+                    "value": "3000",
+                    "min": "1",
+                    "max": "10",
+                    "step": "0.005",
+                    "units": "MHz"
+                }
             }
         },
         "Bandwidth_Settings": {
-            "rbw_MHz": {
-                "value": "1",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
-            },
-            "Sweep_time_s": {
-                "value": "1",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "s"
-            },
-            "vbw_MHz": {
-                "value": "1",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10",
-                "units": "MHz"
-            },
-            "vbw_auto_on": {
-                "value": "true",
-                "control_type": "_sliderValue",
-                "min": "1",
-                "max": "10"
-            },
-            "initiate_continuous_on": {
-                "value": "true",
-                "control_type": "_toggle"
+            "type": "OcaBlock",
+            "AES70": "OcaBandwidthActuator",
+            "description": "A block for managing all bandwidth and sweep time settings.",
+            "fields": {
+                "rbw_MHz": {
+                    "label": "Resolution Bandwidth",
+                    "type": "_sliderValue",
+                    "handler": "set_rbw",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "MHz"
+                },
+                "Sweep_time_s": {
+                    "label": "Sweep Time",
+                    "type": "_sliderValue",
+                    "handler": "set_sweep_time",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "s"
+                },
+                "vbw_MHz": {
+                    "label": "Video Bandwidth",
+                    "type": "_sliderValue",
+                    "handler": "set_vbw",
+                    "value": "1",
+                    "min": "1",
+                    "max": "10",
+                    "units": "MHz"
+                },
+                "vbw_auto_on": {
+                    "label": "VBW Auto On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_vbw_auto",
+                    "options": {
+                        "ON": {
+                            "label": "Auto ON",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "Auto OFF",
+                            "selected": false
+                        }
+                    }
+                },
+                "initiate_continuous_on": {
+                    "label": "Continuous Initiate",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_continuous_initiate",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": false
+                        }
+                    }
+                }
             }
         },
         "Amplitude_Settings": {
-            "ref_level_dBm": {
-                "value": "-30",
-                "control_type": "_sliderValue",
-                "units": "dBm",
-                "min":"-100",
-                "max":"0",
-                "Steps":"10"
-            },
-            "preamp_on": {
-                "value": "false",
-                "control_type": "_buttonToggle"
-            },
-            "power_attenuation_dB": {
-                "value": "10",
-                "control_type": "_sliderValue",
-                "units": "dBm",
-                "min":"-100",
-                "max":"0",
-                "Steps":"10"
-            },
-            "high_sensitivity_on": {
-                "value": "false",
-                "control_type": "_buttonToggle"
+            "type": "OcaBlock",
+            "AES70": "OcaGain",
+            "description": "A block for managing all amplitude-related settings.",
+            "fields": {
+                "ref_level_dBm": {
+                    "label": "Reference Level",
+                    "type": "_sliderValue",
+                    "handler": "set_ref_level",
+                    "value": "-30",
+                    "units": "dBm",
+                    "min":"-100",
+                    "max":"0",
+                    "step":"10"
+                },
+                "preamp_on": {
+                    "label": "Preamp On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_preamp",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": true
+                        }
+                    }
+                },
+                "power_attenuation_dB": {
+                    "label": "Power Attenuation",
+                    "type": "_sliderValue",
+                    "handler": "set_power_attenuation",
+                    "value": "10",
+                    "units": "dBm",
+                    "min":"-100",
+                    "max":"0",
+                    "step":"10"
+                },
+                "high_sensitivity_on": {
+                    "label": "High Sensitivity On",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_high_sensitivity",
+                    "options": {
+                        "ON": {
+                            "label": "ON",
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label": "OFF",
+                            "selected": true
+                        }
+                    }
+                }
             }
         },
-
-
-
         "Marker_Settings": {
-            "Marker_1_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_1_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Label",
-                "units": "dBm"
-            },
-            "Marker_2_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_2_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Value",
-                "units": "dBm"
-            },
-            "Marker_3_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_3_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Label",
-                "units": "dBm"
-            },
-            "Marker_4_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_4_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Label",
-                "units": "dBm"
-            },
-            "Marker_5_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_5_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Label",
-                "units": "dBm"
-            },
-            "Marker_6_X_MHz": {
-                "value": "111",
-                "control_type": "_Value",
-                "units": "MHz"
-            },
-            "Marker_6_Y_dBm": {
-                "value": "-30",
-                "control_type": "_Label",
-                "units": "dBm"
+            "type": "OcaBlock",
+            "AES70": "OcaMarkerManager",
+            "description": "A block for managing all marker-related settings.",
+            "fields": {
+                "Marker_1_X_MHz": {
+                    "label": "Marker 1 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_1_Y_dBm": {
+                    "label": "Marker 1 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                },
+                "Marker_2_X_MHz": {
+                    "label": "Marker 2 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_2_Y_dBm": {
+                    "label": "Marker 2 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                },
+                "Marker_3_X_MHz": {
+                    "label": "Marker 3 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_3_Y_dBm": {
+                    "label": "Marker 3 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                },
+                "Marker_4_X_MHz": {
+                    "label": "Marker 4 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_4_Y_dBm": {
+                    "label": "Marker 4 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                },
+                "Marker_5_X_MHz": {
+                    "label": "Marker 5 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_5_Y_dBm": {
+                    "label": "Marker 5 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                },
+                "Marker_6_X_MHz": {
+                    "label": "Marker 6 X",
+                    "type": "_Value",
+                    "AES70": "OcaFrequencyActuator",
+                    "value": "111",
+                    "units": "MHz"
+                },
+                "Marker_6_Y_dBm": {
+                    "label": "Marker 6 Y",
+                    "type": "_Label",
+                    "AES70": "OcaLevelSensor",
+                    "value": "-30",
+                    "units": "dBm"
+                }
             }
         },
         "Trace_Settings": {
-            "trace_1": {
-                "BLANK": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
+            "type": "OcaBlock",
+            "AES70": "OcaTraceManager",
+            "description": "A block for managing all trace-related settings.",
+            "fields": {
+                "trace_1": {
+                    "label": "Trace 1 Mode",
+                    "type": "_GuiDropDownOption",
+                    "AES70": "OcaSwitch",
+                    "handler": "set_trace_mode_1",
+                    "options": {
+                        "BLANK": {
+                            "label": "BLANK",
+                            "value": "BLANK",
+                            "selected": "no"
+                        },
+                        "MAXHOLD": {
+                            "label": "MAX HOLD",
+                            "value": "MAXHOLD",
+                            "selected": "no"
+                        },
+                        "MINHOLD": {
+                            "label": "MIN HOLD",
+                            "value": "MINHOLD",
+                            "selected": "no"
+                        },
+                        "VIEW": {
+                            "label": "VIEW",
+                            "value": "VIEW",
+                            "selected": "yes"
+                        },
+                        "WRITE": {
+                            "label": "LIVE REALTIME",
+                            "value": "WRITE",
+                            "selected": "no"
+                        }
+                    }
                 },
-                "MAXHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
+                "trace_2": {
+                    "label": "Trace 2 Mode",
+                    "type": "_GuiDropDownOption",
+                    "AES70": "OcaSwitch",
+                    "handler": "set_trace_mode_2",
+                    "options": {
+                        "BLANK": {
+                            "label": "BLANK",
+                            "value": "BLANK",
+                            "selected": "no"
+                        },
+                        "MAXHOLD": {
+                            "label": "MAX HOLD",
+                            "value": "MAXHOLD",
+                            "selected": "yes"
+                        },
+                        "MINHOLD": {
+                            "label": "MIN HOLD",
+                            "value": "MINHOLD",
+                            "selected": "no"
+                        },
+                        "VIEW": {
+                            "label": "VIEW",
+                            "value": "VIEW",
+                            "selected": "no"
+                        },
+                        "WRITE": {
+                            "label": "LIVE REALTIME",
+                            "value": "WRITE",
+                            "selected": "no"
+                        }
+                    }
                 },
-                "MINHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
+                "trace_3": {
+                    "label": "Trace 3 Mode",
+                    "type": "_GuiDropDownOption",
+                    "AES70": "OcaSwitch",
+                    "handler": "set_trace_mode_3",
+                    "options": {
+                        "BLANK": {
+                            "label": "BLANK",
+                            "value": "BLANK",
+                            "selected": "no"
+                        },
+                        "MAXHOLD": {
+                            "label": "MAX HOLD",
+                            "value": "MAXHOLD",
+                            "selected": "no"
+                        },
+                        "MINHOLD": {
+                            "label": "MIN HOLD",
+                            "value": "MINHOLD",
+                            "selected": "yes"
+                        },
+                        "VIEW": {
+                            "label": "VIEW",
+                            "value": "VIEW",
+                            "selected": "no"
+                        },
+                        "WRITE": {
+                            "label": "LIVE REALTIME",
+                            "value": "WRITE",
+                            "selected": "no"
+                        }
+                    }
                 },
-                "VIEW": {
-                    "selected": "yes",
-                    "control_type": "DropDownOption"
-                },
-                "WRITE": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                }
-            },
-            "trace_2": {
-                "BLANK": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "MAXHOLD": {
-                    "selected": "yes",
-                    "control_type": "DropDownOption"
-                },
-                "MINHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "VIEW": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "WRITE": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                }
-            },
-            "trace_3": {
-                "BLANK": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "MAXHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "MINHOLD": {
-                    "selected": "yes",
-                    "control_type": "DropDownOption"
-                },
-                "VIEW": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "WRITE": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                }
-            },
-            "trace_4": {
-                "BLANK": {
-                    "selected": "yes",
-                    "control_type": "DropDownOption"
-                },
-                "MAXHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "MINHOLD": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "VIEW": {
-                    "selected": "no",
-                    "control_type": "DropDownOption"
-                },
-                "WRITE": {
-                    "selected": "yes",
-                    "control_type": "DropDownOption"
+                "trace_4": {
+                    "label": "Trace 4 Mode",
+                    "type": "_GuiDropDownOption",
+                    "AES70": "OcaSwitch",
+                    "handler": "set_trace_mode_4",
+                    "options": {
+                        "BLANK": {
+                            "label": "BLANK",
+                            "value": "BLANK",
+                            "selected": "yes"
+                        },
+                        "MAXHOLD": {
+                            "label": "MAX HOLD",
+                            "value": "MAXHOLD",
+                            "selected": "no"
+                        },
+                        "MINHOLD": {
+                            "label": "MIN HOLD",
+                            "value": "MINHOLD",
+                            "selected": "no"
+                        },
+                        "VIEW": {
+                            "label": "VIEW",
+                            "value": "VIEW",
+                            "selected": "no"
+                        },
+                        "WRITE": {
+                            "label": "LIVE REALTIME",
+                            "value": "WRITE",
+                            "selected": "yes"
+                        }
+                    }
                 }
             }
         }

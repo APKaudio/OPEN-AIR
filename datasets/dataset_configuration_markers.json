@@ -1,12 +1,146 @@
-{"Active": true,
-        "showtime_mode": "buffered",
-        "span_hz": 1000000,
-        "rbw_hz": 100000,
-        "trace_live": true,
-        "trace_max_hold": false,
-        "trace_min_hold": false,
-        "buffer_MHz": 3.0,
-        "poke_freq_MHz": 444.444444,
-        "buffered_start_var": 0.0,
-        "buffered_stop_var": 0.0
+{
+    "Signal_Configuration": {
+        "Active": {
+            "type": "_GuiButtonToggle",
+            "AES70": "OcaBooleanActuator",
+            "handler": "set_signal_active",
+            "options": {
+                "ON": {
+                    "label": "Active",
+                    "selected": true
+                },
+                "OFF": {
+                    "label": "Inactive",
+                    "selected": false
+                }
+            }
+        },
+        "showtime_mode": {
+            "type": "_GuiDropDownOption",
+            "AES70": "OcaSwitch",
+            "handler": "set_showtime_mode",
+            "options": {
+                "live": {
+                    "label": "Live",
+                    "value": "live",
+                    "selected": false
+                },
+                "buffered": {
+                    "label": "Buffered",
+                    "value": "buffered",
+                    "selected": true
+                },
+                "scan": {
+                    "label": "Scan",
+                    "value": "scan",
+                    "selected": false
+                }
+            }
+        },
+        "span_hz": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_span",
+            "value": "1000000",
+            "units": "Hz",
+            "min": 0,
+            "max": 5000000000,
+            "step": 1000
+        },
+        "rbw_hz": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_rbw",
+            "value": "100000",
+            "units": "Hz",
+            "min": 1,
+            "max": 1000000,
+            "step": 100
+        },
+        "trace_live": {
+            "type": "_GuiButtonToggle",
+            "AES70": "OcaBooleanActuator",
+            "handler": "set_trace_live",
+            "options": {
+                "ON": {
+                    "label": "Live Trace ON",
+                    "selected": true
+                },
+                "OFF": {
+                    "label": "Live Trace OFF",
+                    "selected": false
+                }
+            }
+        },
+        "trace_max_hold": {
+            "type": "_GuiButtonToggle",
+            "AES70": "OcaBooleanActuator",
+            "handler": "set_trace_max_hold",
+            "options": {
+                "ON": {
+                    "label": "Max Hold ON",
+                    "selected": false
+                },
+                "OFF": {
+                    "label": "Max Hold OFF",
+                    "selected": true
+                }
+            }
+        },
+        "trace_min_hold": {
+            "type": "_GuiButtonToggle",
+            "AES70": "OcaBooleanActuator",
+            "handler": "set_trace_min_hold",
+            "options": {
+                "ON": {
+                    "label": "Min Hold ON",
+                    "selected": false
+                },
+                "OFF": {
+                    "label": "Min Hold OFF",
+                    "selected": true
+                }
+            }
+        },
+        "buffer_MHz": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_buffer",
+            "value": "3.0",
+            "units": "MHz",
+            "min": 0,
+            "max": 1000,
+            "step": 0.1
+        },
+        "poke_freq_MHz": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_poke_frequency",
+            "value": "444.444444",
+            "units": "MHz",
+            "min": 0,
+            "max": 5000,
+            "step": 0.000001
+        },
+        "buffered_start_var": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_buffered_start",
+            "value": "0.0",
+            "units": "MHz",
+            "min": 0,
+            "max": 3000,
+            "step": 0.1
+        },
+        "buffered_stop_var": {
+            "type": "_sliderValue",
+            "AES70": "OcaFrequencyActuator",
+            "handler": "set_buffered_stop",
+            "value": "0.0",
+            "units": "MHz",
+            "min": 0,
+            "max": 3000,
+            "step": 0.1
+        }
     }
+}

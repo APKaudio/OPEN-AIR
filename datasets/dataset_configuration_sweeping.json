@@ -1,22 +1,226 @@
 {
-    "Scan": {"Active": true,
-        "output_folder": "c:\\documents",
-        "output_filename": "DefaultScan",
-        "start_freq_MHz": 0.0,
-        "stop_freq_MHz": 3000.0,
-        "step_freq_khz": 100.0,
-        "dwell_time_ms": 100.0,
-        "scan_band_selection": "All",
-        "open_html_after_complete": true,
-        "include_markers": true,
-        "include_gov_markers": true,
-        "include_tv_markers": true,
-        "include_scan_intermod_markers": true,
-        "math_average": true,
-        "math_median": true,
-        "math_variance": true,
-        "math_standard_deviation": true,
-        "math_range": true,
-        "math_percentile": true
+    "Scan_Configuration": {
+        "General_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaScanManager",
+            "description": "A block for managing high-level scan parameters.",
+            "fields": {
+                "Active": {
+                    "label": "Scan Active",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "set_scan_active",
+                    "options": {
+                        "ON": {
+                            "label": "Active",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "Inactive",
+                            "selected": false
+                        }
+                    }
+                },
+                "output_folder": {
+                    "label": "Output Folder",
+                    "type": "_Value",
+                    "AES70": "OcaStringActuator",
+                    "value": "c:\\documents",
+                    "units": null
+                },
+                "output_filename": {
+                    "label": "Output Filename",
+                    "type": "_Value",
+                    "AES70": "OcaStringActuator",
+                    "value": "DefaultScan",
+                    "units": null
+                },
+                "scan_band_selection": {
+                    "label": "Scan Band Selection",
+                    "type": "_GuiDropDownOption",
+                    "AES70": "OcaSwitch",
+                    "handler": "set_scan_band_selection",
+                    "options": {
+                        "All": {
+                            "label": "All Bands",
+                            "value": "All",
+                            "selected": true
+                        },
+                        "Custom": {
+                            "label": "Custom",
+                            "value": "Custom",
+                            "selected": false
+                        }
+                    }
+                }
+            }
+        },
+        "Frequency_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaFrequencyActuator",
+            "description": "A block for managing frequency-related sweep parameters.",
+            "fields": {
+                "start_freq_MHz": {
+                    "label": "Start Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_start_frequency",
+                    "value": "0.0",
+                    "min": "0.0",
+                    "max": "3000.0",
+                    "step": "0.1",
+                    "units": "MHz"
+                },
+                "stop_freq_MHz": {
+                    "label": "Stop Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_stop_frequency",
+                    "value": "3000.0",
+                    "min": "0.0",
+                    "max": "3000.0",
+                    "step": "0.1",
+                    "units": "MHz"
+                },
+                "step_freq_khz": {
+                    "label": "Step Frequency",
+                    "type": "_sliderValue",
+                    "handler": "set_step_frequency",
+                    "value": "100.0",
+                    "min": "0.1",
+                    "max": "10000.0",
+                    "step": "0.1",
+                    "units": "kHz"
+                }
+            }
+        },
+        "Timing_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaTimeIntervalActuator",
+            "description": "A block for managing time-related sweep parameters.",
+            "fields": {
+                "dwell_time_ms": {
+                    "label": "Dwell Time",
+                    "type": "_sliderValue",
+                    "handler": "set_dwell_time",
+                    "value": "100.0",
+                    "min": "1.0",
+                    "max": "10000.0",
+                    "step": "1.0",
+                    "units": "ms"
+                }
+            }
+        },
+        "Math_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaBooleanActuator",
+            "description": "A block for managing various mathematical analysis flags.",
+            "fields": {
+                "math_average": {
+                    "label": "Math Average",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_average",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "math_median": {
+                    "label": "Math Median",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_median",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "math_variance": {
+                    "label": "Math Variance",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_variance",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "math_standard_deviation": {
+                    "label": "Math Standard Deviation",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_std_dev",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "math_range": {
+                    "label": "Math Range",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_range",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "math_percentile": {
+                    "label": "Math Percentile",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_math_percentile",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                }
+            }
+        },
+        "Marker_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaBooleanActuator",
+            "description": "A block for managing marker inclusion flags.",
+            "fields": {
+                "open_html_after_complete": {
+                    "label": "Open HTML on Completion",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_open_html",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_markers": {
+                    "label": "Include Markers",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_include_markers",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_gov_markers": {
+                    "label": "Include Government Markers",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_gov_markers",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_tv_markers": {
+                    "label": "Include TV Markers",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_tv_markers",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_scan_intermod_markers": {
+                    "label": "Include Intermod Markers",
+                    "type": "_GuiButtonToggle",
+                    "handler": "toggle_intermod_markers",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                }
+            }
+        }
     }
 }

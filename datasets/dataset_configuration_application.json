@@ -1,18 +1,146 @@
 {
-    "Application": {"Active": true,
-        "geometry": "1920x1127+1912+32",
-        "window_state": "zoomed",
-        "last_config_save_time": "2025-08-23 21:33:40",
-        "paned_window_sash_position_percentage": "40"
-    },
-    "Debug": {"Active": true,
-        "general_debug_enabled": true,
-        "debug_to_gui_console": true,
-        "debug_to_terminal": false,
-        "debug_to_file": true,
-        "include_console_messages_to_debug_file": true,
-        "log_visa_commands_enabled": false,
-        "log_truncation_enabled": true,
-        "include_visa_messages_to_debug_file": true
+    "Application_Settings": {
+        "Application_Info": {
+            "type": "OcaBlock",
+            "AES70": "OcaApplicationManager",
+            "description": "A block for managing and displaying high-level application settings.",
+            "fields": {
+                "Active": {
+                    "label": "Application Active",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "set_application_active",
+                    "options": {
+                        "ON": {
+                            "label": "Active",
+                            "selected": true
+                        },
+                        "OFF": {
+                            "label": "Inactive",
+                            "selected": false
+                        }
+                    }
+                },
+                "geometry": {
+                    "label": "Window Geometry",
+                    "type": "_Label",
+                    "AES70": "OcaStringSensor",
+                    "value": "1920x1127+1912+32",
+                    "units": null
+                },
+                "window_state": {
+                    "label": "Window State",
+                    "type": "_Label",
+                    "AES70": "OcaStringSensor",
+                    "value": "zoomed",
+                    "units": null
+                },
+                "last_config_save_time": {
+                    "label": "Last Config Save Time",
+                    "type": "_Label",
+                    "AES70": "OcaStringSensor",
+                    "value": "2025-08-23 21:33:40",
+                    "units": null
+                },
+                "paned_window_sash_position_percentage": {
+                    "label": "Paned Window Sash Position",
+                    "type": "_sliderValue",
+                    "AES70": "OcaFloat32Actuator",
+                    "handler": "set_sash_position",
+                    "value": "40",
+                    "min": "0",
+                    "max": "100",
+                    "step": "1",
+                    "units": "%"
+                }
+            }
+        },
+        "Debug_Settings": {
+            "type": "OcaBlock",
+            "AES70": "OcaDiagnosticManager",
+            "description": "A block for managing debug and logging settings.",
+            "fields": {
+                "general_debug_enabled": {
+                    "label": "General Debug Enabled",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_general_debug",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "debug_to_gui_console": {
+                    "label": "Debug to GUI Console",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_debug_gui_console",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "debug_to_terminal": {
+                    "label": "Debug to Terminal",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_debug_terminal",
+                    "options": {
+                        "ON": { "label": "ON", "selected": false },
+                        "OFF": { "label": "OFF", "selected": true }
+                    }
+                },
+                "debug_to_file": {
+                    "label": "Debug to File",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_debug_file",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_console_messages_to_debug_file": {
+                    "label": "Include Console in Debug File",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_console_to_file",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "log_visa_commands_enabled": {
+                    "label": "Log VISA Commands",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_visa_logging",
+                    "options": {
+                        "ON": { "label": "ON", "selected": false },
+                        "OFF": { "label": "OFF", "selected": true }
+                    }
+                },
+                "log_truncation_enabled": {
+                    "label": "Log Truncation",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_log_truncation",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                },
+                "include_visa_messages_to_debug_file": {
+                    "label": "Include VISA in Debug File",
+                    "type": "_GuiButtonToggle",
+                    "AES70": "OcaBooleanActuator",
+                    "handler": "toggle_visa_to_file",
+                    "options": {
+                        "ON": { "label": "ON", "selected": true },
+                        "OFF": { "label": "OFF", "selected": false }
+                    }
+                }
+            }
+        }
     }
 }
