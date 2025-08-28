@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.200000.1
+# Version 20250827.195500.1
 
 import os
 import inspect
@@ -38,8 +38,8 @@ from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonToggl
 from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250827.200000.1"
-current_version_hash = (20250827 * 200000 * 1)
+current_version = "20250827.195500.1"
+current_version_hash = (20250827 * 195500 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -69,7 +69,7 @@ class DynamicGuiBuilder(
     """
     def __init__(self, parent, mqtt_util, config, *args, **kwargs):
         """
-        Initializes the GUI builder.
+        Initializes the GUI builder, sets up the layout, and subscribes to the MQTT topic.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
@@ -139,7 +139,9 @@ class DynamicGuiBuilder(
             
             self.main_paned_window.pack(fill=tk.BOTH, expand=True)
             
-            # --- FIX: Subscribing to the base topic is now done by the pusher file.
+            # --- FIX: Subscribing to the base topic ---
+            if self.base_topic:
+                self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_commands_message)
             
             console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully!")
 
@@ -224,7 +226,7 @@ class DynamicGuiBuilder(
             message=f"Entering {current_function_name} with arguments: {theme_name}",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
+            function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
         try:
@@ -254,7 +256,7 @@ class DynamicGuiBuilder(
                 message=f"🖥️🔴 By Jove, the style potion has curdled! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
+                function=f"{self.current_class_name}.{current_function_name}",
                 console_print_func=console_log
             )
 

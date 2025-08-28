@@ -104,7 +104,7 @@ class Application(tk.Tk):
             # Setting the title of our application window, which appears in the title bar.
             self.title("OPEN-AIR 2")
             # Defining the initial size of the window in pixels.
-            self.geometry("1000x700")
+            self.geometry("1600x1200")
 
             # --- NEW: Apply the selected theme ---
             # We call a helper method to apply our chosen theme and store the color palette.
@@ -346,6 +346,8 @@ class Application(tk.Tk):
                 console_print_func=console_log
             )
 
+
+            
     def _build_child_container(self, path: pathlib.Path, parent_widget):
         """
         Dynamically imports and instantiates a GUI component from a Python file.
@@ -405,7 +407,7 @@ class Application(tk.Tk):
                         function=f"{self.__class__.__name__}.{current_function_name}",
                         console_print_func=console_log
                     )
-                    
+
                     # We check if the class is DynamicGuiBuilder.
                     if name == "DynamicGuiBuilder" and hasattr(module, "MQTT_TOPIC_FILTER"):
                         config = {
@@ -435,7 +437,6 @@ class Application(tk.Tk):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
     def _tear_off_tab(self, event):
         """
         Tears a tab off of its Notebook and places it into a new Toplevel window.
