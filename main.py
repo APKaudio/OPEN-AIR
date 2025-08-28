@@ -20,6 +20,8 @@ import inspect
 import datetime
 import sys
 import pathlib
+import importlib
+
 
 
 # Project-specific Imports
@@ -161,7 +163,7 @@ def main():
     if action_check_dependancies():
         if action_check_configuration():
             mqtt_util_instance = MqttControllerUtility(console_log, console_log)
-            mqtt_util_instance.start_mosquitto()
+            #mqtt_util_instance.start_mosquitto()
             mqtt_util_instance.connect_mqtt()
             action_open_display(mqtt_util_instance)
         else:

@@ -14,13 +14,12 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.123548.2
+# Version 20250827.185300.1
 
 import os
 import inspect
 import datetime
 import paho.mqtt.client as mqtt
-import subprocess
 import threading
 import json
 import pathlib
@@ -31,8 +30,8 @@ import sys
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20250823.123548.2"
-current_version_hash = (20250823 * 123548 * 2)
+current_version = "20250827.185300.1"
+current_version_hash = (20250827 * 185300 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
@@ -43,9 +42,6 @@ BROKER_TIMEOUT = 60
 # Logging messages and colors
 BROKER_RUNNING_MSG = "Broker is running"
 BROKER_NOT_RUNNING_MSG = "Broker is not running"
-BROKER_ALREADY_RUNNING_MSG = "Mosquitto is already running!"
-FAILED_TO_START_BROKER_MSG = "Failed to start mosquitto process: "
-BROKER_STOPPED_MSG = "Broker stopped"
 NOT_CONNECTED_MSG = "Not connected to broker."
 NO_TOPIC_OR_VALUE_MSG = "Please enter a topic and a value."
 
@@ -70,7 +66,6 @@ class MqttControllerUtility:
         
         try:
             # --- Function logic goes here ---
-            self.mosquitto_process = None
             self.mqtt_client = None
             self._print_to_gui_console = print_to_gui_func
             self._log_to_treeview = log_treeview_func
@@ -111,65 +106,6 @@ class MqttControllerUtility:
         )
 
 
-    # --- Broker and MQTT Methods ---
-    def start_mosquitto(self):
-        """Starts the Mosquitto broker process if it's not already running."""
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to start the broker.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
-        try:
-            if self.mosquitto_process and self.mosquitto_process.poll() is None:
-                console_log(f"⚠️ {BROKER_ALREADY_RUNNING_MSG}")
-                return
-            
-            self.mosquitto_process = subprocess.Popen(args=["mosquitto"])
-            console_log("✅ Broker started successfully!")
-            
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {FAILED_TO_START_BROKER_MSG}{e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
-
-    def stop_mosquitto(self):
-        """Stops the Mosquitto broker process if it's running."""
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to stop the broker.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
-        try:
-            if self.mosquitto_process and self.mosquitto_process.poll() is None:
-                self.mosquitto_process.terminate()
-                self.mosquitto_process = None
-                console_log(f"✅ {BROKER_STOPPED_MSG}")
-            else:
-                console_log(f"⚠️ {BROKER_NOT_RUNNING_MSG}")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
-
     def check_status(self):
         """Checks and reports the status of the Mosquitto broker."""
         # A brief, one-sentence description of the function's purpose.
@@ -182,11 +118,10 @@ class MqttControllerUtility:
             console_print_func=self._print_to_gui_console
         )
         try:
-            if self.mosquitto_process and self.mosquitto_process.poll() is None:
+            if self.mqtt_client.is_connected():
                 console_log(f"✅ {BROKER_RUNNING_MSG}")
             else:
                 console_log(f"❌ {BROKER_NOT_RUNNING_MSG}")
-
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
             debug_log(

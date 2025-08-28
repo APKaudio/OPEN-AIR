@@ -6,14 +6,14 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can benegotiated. There is no charge to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.153700.20
+# Version 20250827.200000.1
 
 import os
 import inspect
@@ -21,6 +21,7 @@ import datetime
 import tkinter as tk
 from tkinter import ttk, scrolledtext
 import json
+import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
@@ -33,12 +34,12 @@ from display.builder.dynamic_gui_create_label_from_config import LabelFromConfig
 from display.builder.dynamic_gui_create_value_box import ValueBoxCreatorMixin
 from display.builder.dynamic_gui_create_slider_value import SliderValueCreatorMixin
 from display.builder.dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
-from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
 from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
+from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250827.153700.20"
-current_version_hash = (20250827 * 153700 * 20)
+current_version = "20250827.200000.1"
+current_version_hash = (20250827 * 200000 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -48,7 +49,9 @@ DEFAULT_PAD_Y = 2
 DEFAULT_FRAME_PAD = 5
 BUTTON_PADDING_MULTIPLIER = 5
 BUTTON_BORDER_MULTIPLIER = 2
-DEBUG_MODE = True # Set to False to hide the debug log panel
+DEBUG_MODE = True
+TITLE_FONT = ('Helvetica', 12, 'bold')
+SECTION_FONT = ('Helvetica', 11, 'bold')
 
 
 class DynamicGuiBuilder(
@@ -58,36 +61,38 @@ class DynamicGuiBuilder(
     ValueBoxCreatorMixin,
     SliderValueCreatorMixin,
     GuiButtonToggleCreatorMixin,
-    GuiDropdownOptionCreatorMixin,
-    GuiButtonTogglerCreatorMixin
+    GuiButtonTogglerCreatorMixin,
+    GuiDropdownOptionCreatorMixin
 ):
     """
-    A dynamic GUI component for building widgets based on a JSON data structure
-    received via MQTT. It inherits widget creation logic from modular mixin classes.
+    Dynamically builds GUI widgets based on a JSON data structure received via MQTT.
     """
-    def __init__(self, parent, mqtt_util, base_topic, *args, **kwargs):
-        # Initializes the GUI builder, sets up the layout, and subscribes to the MQTT topic.
+    def __init__(self, parent, mqtt_util, config, *args, **kwargs):
+        """
+        Initializes the GUI builder.
+        """
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
         debug_log(
-            message=f"🖥️🟢 Eureka! The grand experiment begins! Initializing the {self.current_class_name} for topic '{base_topic}'.",
+            message=f"🖥️🟢 Eureka! The grand experiment begins! Initializing the {self.current_class_name} for topic '{config.get('base_topic')}'.",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
-
         try:
             super().__init__(parent, *args, **kwargs)
             self.pack(fill=tk.BOTH, expand=True)
 
             self.mqtt_util = mqtt_util
-            self.base_topic = base_topic
+            self.config = config
+            self.base_topic = config.get("base_topic")
             self.topic_widgets = {}
             self.config_data = {}
             self.gui_built = False
-            
+            self._log_to_gui = config.get('log_to_gui_console', console_log)
+
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
                 "_GuiButtonToggle": self._create_gui_button_toggle,
@@ -102,22 +107,17 @@ class DynamicGuiBuilder(
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
-            main_paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
-            main_paned_window.pack(fill=tk.BOTH, expand=True)
-
-            left_frame = ttk.Frame(main_paned_window)
-            main_paned_window.add(left_frame, weight=3)
-
-            rebuild_button = ttk.Button(left_frame, text="Rebuild GUI", command=self._rebuild_gui)
+            self.main_paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
+            self.left_frame = ttk.Frame(self.main_paned_window)
+            
+            rebuild_button = ttk.Button(self.left_frame, text="Rebuild GUI", command=self._rebuild_gui)
             rebuild_button.pack(pady=5)
 
-            self.canvas = tk.Canvas(left_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
+            self.canvas = tk.Canvas(self.left_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
             self.scroll_frame = ttk.Frame(self.canvas)
-            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             
-            scrollbar = ttk.Scrollbar(left_frame, orient=tk.VERTICAL, command=self.canvas.yview)
-            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            scrollbar = ttk.Scrollbar(self.left_frame, orient=tk.VERTICAL, command=self.canvas.yview)
             self.canvas.configure(yscrollcommand=scrollbar.set)
             self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
@@ -125,15 +125,22 @@ class DynamicGuiBuilder(
             self.main_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
 
             if DEBUG_MODE:
-                right_frame = ttk.LabelFrame(main_paned_window, text="MQTT Message Log")
-                main_paned_window.add(right_frame, weight=2)
-                
-                self.log_text = scrolledtext.ScrolledText(right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
+                self.right_frame = ttk.LabelFrame(self.main_paned_window, text="MQTT Message Log")
+                self.log_text = scrolledtext.ScrolledText(self.right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
                 self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
                 self.log_text.configure(state='disabled')
-
-            self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_commands_message)
-
+            
+            self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+            scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+            
+            self.main_paned_window.add(self.left_frame, weight=3)
+            if DEBUG_MODE:
+                self.main_paned_window.add(self.right_frame, weight=2)
+            
+            self.main_paned_window.pack(fill=tk.BOTH, expand=True)
+            
+            # --- FIX: Subscribing to the base topic is now done by the pusher file.
+            
             console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully!")
 
         except Exception as e:
@@ -161,12 +168,13 @@ class DynamicGuiBuilder(
             current_level = current_level.setdefault(part, {})
         
         final_value = value
-        try:
-            data = json.loads(value)
-            if isinstance(data, dict) and 'value' in data:
-                final_value = data['value']
-        except (json.JSONDecodeError, TypeError):
-            pass
+        if isinstance(value, str):
+            try:
+                data = json.loads(value)
+                if isinstance(data, dict) and 'value' in data:
+                    final_value = data['value']
+            except (json.JSONDecodeError, TypeError):
+                pass
 
         if isinstance(final_value, str):
             try:
@@ -197,6 +205,7 @@ class DynamicGuiBuilder(
                 widget.destroy()
             self.topic_widgets.clear()
             self._create_dynamic_widgets(parent_frame=self.main_frame, data=self.config_data)
+            self.gui_built = True
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -215,7 +224,7 @@ class DynamicGuiBuilder(
             message=f"Entering {current_function_name} with arguments: {theme_name}",
             file=current_file,
             version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
+            function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
         try:
@@ -245,7 +254,7 @@ class DynamicGuiBuilder(
                 message=f"🖥️🔴 By Jove, the style potion has curdled! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
+                function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
 
@@ -253,13 +262,19 @@ class DynamicGuiBuilder(
         # Recursively creates widgets, tracking the topic path.
         current_function_name = inspect.currentframe().f_code.co_name
         try:
+            if not isinstance(data, dict):
+                return
+
             for key, value in data.items():
-                # --- FIX ---
-                # If the key is 'fields', we recurse into its dictionary but do NOT
-                # add 'fields' to the topic path. We use the existing path_prefix.
+                if isinstance(value, str):
+                    try:
+                        value = json.loads(value)
+                    except json.JSONDecodeError:
+                        pass
+
                 if key == 'fields' and isinstance(value, dict):
                     self._create_dynamic_widgets(parent_frame, value, path_prefix)
-                    continue # Move to the next key in the loop
+                    continue
 
                 safe_key = key.replace(TOPIC_DELIMITER, '_')
                 current_path = f"{path_prefix}{TOPIC_DELIMITER}{safe_key}" if path_prefix else safe_key
@@ -277,10 +292,11 @@ class DynamicGuiBuilder(
                     creation_func = self.widget_factory.get(widget_type)
                     if creation_func:
                         creation_func(parent_frame=parent_frame, label=label_text, config=value, path=current_path)
-                    else:
-                        nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
-                        nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
-                        self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
+                        continue
+                    
+                    nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
+                    nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+                    self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
                 else:
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)
         except Exception as e:
@@ -301,6 +317,18 @@ class DynamicGuiBuilder(
                         payload_value = data['value']
                 except (json.JSONDecodeError, TypeError):
                     pass
+
+            if isinstance(payload_value, str):
+                try:
+                    payload_value = json.loads(payload_value)
+                except (json.JSONDecodeError, TypeError):
+                    pass 
+
+            if isinstance(payload_value, str):
+                if payload_value.lower() == 'true':
+                    payload_value = True
+                elif payload_value.lower() == 'false':
+                    payload_value = False
 
             if isinstance(widget_info, ttk.Entry):
                 widget_info.delete(0, tk.END)
@@ -339,13 +367,26 @@ class DynamicGuiBuilder(
 
             if topic.startswith(self.base_topic):
                 relative_topic = topic[len(self.base_topic):].strip(TOPIC_DELIMITER)
+                
                 if not relative_topic:
-                    return
+                    # Case 1: The full configuration JSON is received on the base topic.
+                    try:
+                        full_config = json.loads(payload)
+                        if isinstance(full_config, dict):
+                            self.config_data = full_config
+                            self.after(0, self._rebuild_gui)
+                            self.gui_built = True
+                            return
+                    except (json.JSONDecodeError, TypeError):
+                        pass
 
+                # Case 2: An incremental update is received on a subtopic.
                 path_parts = relative_topic.split(TOPIC_DELIMITER)
                 self._update_nested_dict(path_parts, payload)
                 
-                self.after(0, self._update_widget_value, relative_topic, payload)
+                # Only update the widget if the GUI has already been built.
+                if self.gui_built:
+                    self.after(0, self._update_widget_value, relative_topic, payload)
 
         except Exception as e:
             console_log(f"❌ Error in _on_commands_message: {e}")

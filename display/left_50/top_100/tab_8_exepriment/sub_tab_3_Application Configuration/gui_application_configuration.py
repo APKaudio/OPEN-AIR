@@ -1,7 +1,17 @@
 MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/application/Application_Info"
-# display/left_50/top_100/tab_3_presets/sub_tab_1_pusher/gui_child_1_pusher.py
+
+
+
+
+
+
+
+
+
+
+# display/left_50/top_100/tab_1_instrument/sub_tab_2_settings/sub_tab_1_frequency/gui_frequency_1.py
 #
-# A GUI frame for displaying and controlling Presets via MQTT using the modular DynamicGuiBuilder.
+# A GUI frame that uses the DynamicGuiBuilder to create widgets for frequency settings.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,39 +24,62 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/application/Application_Info"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.173001.1
+# Version 20250827.194600.1
 
 import os
+import inspect
 import tkinter as tk
 from tkinter import ttk
 
 # --- Module Imports ---
 from display.builder.dynamic_gui_builder import DynamicGuiBuilder
+from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250827.173001.1"
-current_version_hash = (20250827 * 173001 * 1)
+current_version = "20250827.194600.1"
+current_version_hash = (20250827 * 194600 * 1)
 current_file = f"{os.path.basename(__file__)}"
-
 
 
 class PresetPusherGui(ttk.Frame):
     """
-    A container frame that instantiates the DynamicGuiBuilder for the Presets configuration.
-    This replaces the old, monolithic code with a call to the reusable, modular component.
+    A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         """
-        Initializes the Presets frame and the dynamic GUI builder.
+        Initializes the Frequency frame and the dynamic GUI builder.
         """
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
         # --- Dynamic GUI Builder ---
-        # The DynamicGuiBuilder is instantiated with the correct and specific MQTT topic
-        # filter for this GUI component.
-        self.dynamic_gui = DynamicGuiBuilder(
-            parent=self,
-            mqtt_util=mqtt_util,
-            base_topic=MQTT_TOPIC_FILTER
+        current_function_name = "__init__"
+        debug_log(
+            message=f"🛠️🟢 Entering {current_function_name} to initialize the PresetPusherGui.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
         )
+        try:
+            config = {
+                "base_topic": MQTT_TOPIC_FILTER,
+                "log_to_gui_console": console_log,
+                "log_to_gui_treeview": None  # Assuming no treeview for this component
+            }
+
+            self.dynamic_gui = DynamicGuiBuilder(
+                parent=self,
+                mqtt_util=mqtt_util,
+                config=config
+            )
+            console_log("✅ Celebration of success! The PresetPusherGui did initialize its dynamic GUI builder.")
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )

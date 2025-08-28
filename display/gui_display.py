@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.230500.2
+# Version 20250827.230500.78
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 # os: Provides a way to interact with the operating system, like getting file names.
@@ -47,15 +47,15 @@ from workers.mqtt_controller_util import MqttControllerUtility
 # ⏰ As requested, the version is now hardcoded to the time this file was generated.
 # The version strings and numbers below are static and will not change at runtime.
 # This represents the date (YYYYMMDD) of file creation.
-CURRENT_DATE = 20250822
+CURRENT_DATE = 20250827
 # This represents the time (HHMMSS) of file creation.
 CURRENT_TIME = 230500
 # This is a numeric hash of the time, useful for unique IDs.
 CURRENT_TIME_HASH = 230500
 # Our project's current revision number, which is manually incremented.
-REVISION_NUMBER = 2
+REVISION_NUMBER = 78
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250822.230500.2"
+current_version = "20250827.230500.78"
 # Creating a unique integer hash for the current version for internal tracking.
 current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs, ensuring it's always accurate.
@@ -372,6 +372,16 @@ class Application(tk.Tk):
             # 🪄 This is the magical part where we dynamically import the module.
             # We get the name of the module from the file's stem (e.g., 'gui_1_button_panel').
             module_name = gui_file.stem
+            
+            # --- New Debugging Information ---
+            debug_log(
+                message=f"🔍🔵 Preparing to dynamically import module: '{module_name}' from path: '{gui_file}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
             # We create a 'spec' which tells Python how to load our module.
             spec = importlib.util.spec_from_file_location(module_name, gui_file)
             # We create the module object from the spec.
@@ -384,28 +394,36 @@ class Application(tk.Tk):
             # --- 🎯 REFACTORED: The "hardcoded part" you wanted to change! ---
             # We now iterate through all members (classes, functions, etc.) of the imported module.
             for name, obj in inspect.getmembers(module):
-                # First, we check if the member is a class.
-                if inspect.isclass(obj):
-                    # We check if this class is a subclass of `ttk.Frame`.
-                    # This is much more flexible than hardcoding a specific class name like "GUIFrame"!
-                    if issubclass(obj, ttk.Frame):
-                        # If we find a matching class, we instantiate it with the `parent_widget`.
-                        # We pass the shared mqtt_util instance here!
+                # We check if the member is a class AND if it's a subclass of a Tkinter Frame.
+                if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)):
+                    
+                    # --- New Debugging Information ---
+                    debug_log(
+                        message=f"🔍🔵 Found a valid GUI class: '{name}'. Attempting to instantiate it.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    
+                    # We check if the class is DynamicGuiBuilder.
+                    if name == "DynamicGuiBuilder" and hasattr(module, "MQTT_TOPIC_FILTER"):
+                        config = {
+                            "base_topic": module.MQTT_TOPIC_FILTER,
+                            "log_to_gui_console": console_log,
+                            "log_to_gui_treeview": None  # Assuming no treeview for this component
+                        }
+                        frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
+                    else:
                         frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util)
-                        # We pack the new frame to make it visible and fill its parent.
-                        frame_instance.pack(fill=tk.BOTH, expand=True)
-                        # We've found our class and built the frame, so we can break the loop and return.
-                        return
+                        
+                    # We pack the new frame to make it visible and fill its parent.
+                    frame_instance.pack(fill=tk.BOTH, expand=True)
+                    # We've found our class and built the frame, so we can break the loop and return.
+                    return
 
-                # We also check for functions that build the GUI.
-                # This provides backward compatibility with the old naming convention.
-                elif inspect.isfunction(obj):
-                    # We check if the function's name matches our known component-building function.
-                    if name == "create_yo_button_frame":
-                        obj(parent_widget)
-                        return # We've found and run the function, so we're done here.
-            # 🚨 If we get here, it means we couldn't find a valid class or function in the imported module.
-            raise AttributeError(f"Module '{module_name}' needs a class that inherits from 'ttk.Frame' or a 'create_yo_button_frame' function.")
+            # If we get here, it means we couldn't find a valid class. We raise an error.
+            raise AttributeError(f"Module '{module_name}' needs a class that inherits from 'ttk.Frame' or 'tk.Frame'.")
 
         except Exception as e:
             # A final safety net for any errors during the import or execution of a child component.
