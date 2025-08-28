@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.200500.1
+# Version 20250827.225500.1
 
 import os
 import inspect
@@ -29,8 +29,8 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 
 # --- Global Scope Variables ---
-current_version = "20250827.200500.1"
-current_version_hash = (20250827 * 200500 * 1)
+current_version = "20250827.225500.1"
+current_version_hash = (20250827 * 225500 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -38,39 +38,20 @@ TOPIC_DELIMITER = "/"
 
 
 class MqttSubscriberMixin:
-    def __init__(self, parent_frame, mqtt_util, config, builder_instance):
-        """
-        Initializes the MQTT subscription mixin.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Initializing the '{self.__class__.__name__}' MQTT subscriber mixin.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=config.get('log_to_gui_console', console_log)
-        )
-        self.mqtt_util = mqtt_util
-        self.base_topic = config.get("base_topic")
-        self.builder_instance = builder_instance
+    """
+    A mixin for the DynamicGuiBuilder to handle MQTT subscription and message processing.
+    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # This instance variable will be set in the DynamicGuiBuilder's __init__
+        self.mqtt_util = None
 
-        if self.base_topic:
-            # We subscribe to the specific base topic and a wildcard to get all child topics.
-            full_topic = f"{self.base_topic}{TOPIC_DELIMITER}#"
-            self.mqtt_util.add_subscriber(topic_filter=full_topic, callback_func=self._on_mqtt_message)
-        
-            # New Debugging Information
-            debug_log(
-                message=f"🛠️🟢 Subscribed to MQTT topic: '{full_topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=config.get('log_to_gui_console', console_log)
-            )
-
-    def _on_mqtt_message(self, topic, payload):
+    def _on_receive_command_message(self, topic, payload):
         # The main callback function that processes incoming MQTT messages.
+        current_function_name = inspect.currentframe().f_code.co_name
         try:
+
+
             if topic.startswith(self.base_topic):
                 relative_topic = topic[len(self.base_topic):].strip(TOPIC_DELIMITER)
                 
@@ -79,20 +60,54 @@ class MqttSubscriberMixin:
                     try:
                         full_config = json.loads(payload)
                         if isinstance(full_config, dict):
-                            self.builder_instance.config_data = full_config
-                            self.builder_instance._rebuild_gui()
-                            self.builder_instance.gui_built = True
+                            self.config_data = full_config
+                            self.after(0, self._rebuild_gui)
+                            self.gui_built = True
                             return
                     except (json.JSONDecodeError, TypeError):
                         pass
 
                 # Case 2: An incremental update is received on a subtopic.
                 path_parts = relative_topic.split(TOPIC_DELIMITER)
-                self.builder_instance._update_nested_dict(path_parts, payload)
+                self._update_nested_dict(path_parts, payload)
                 
                 # Only update the widget if the GUI has already been built.
-                if self.builder_instance.gui_built:
-                    self.builder_instance.after(0, self.builder_instance._update_widget_value, relative_topic, payload)
+                if self.gui_built:
+                    self.after(0, self._update_widget_value, relative_topic, payload)
 
         except Exception as e:
-            console_log(f"❌ Error updating widget for topic '{topic}': {e}")
+            console_log(f"❌ Error in {current_function_name}: {e}")
+
+
+def log_to_gui(builder_instance, message):
+    """
+    Appends a message to the GUI log text widget if it exists.
+    """
+    current_function_name = inspect.currentframe().f_code.co_name
+    
+    debug_log(
+        message=f"🔍 Inspecting the log entry. It is {len(message)} characters long. Preparing to write to GUI.",
+        file=current_file,
+        version=current_version,
+        function=current_function_name,
+        console_print_func=console_log
+    )
+    
+    try:
+        if hasattr(builder_instance, 'log_text'):
+            builder_instance.log_text.configure(state='normal')
+            builder_instance.log_text.insert(tk.END, message + "\n\n")
+            builder_instance.log_text.configure(state='disabled')
+            builder_instance.log_text.see(tk.END)
+            
+        console_log("✅ Celebration of success! The log message did save to the GUI!")
+            
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
+        debug_log(
+            message=f"🔴 Arrr, the code be capsized! The logging to GUI has failed! The error be: {e}",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log
+        )

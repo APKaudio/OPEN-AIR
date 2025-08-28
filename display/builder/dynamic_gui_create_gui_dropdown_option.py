@@ -13,18 +13,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.153108.18
+# Version 20250828.002525.1
 
 import os
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Module Imports ---
 from workers.worker_logging import console_log
 
 # --- Global Scope Variables ---
-current_version = "20250827.153108.18"
-current_version_hash = (20250827 * 153108 * 18)
+current_version = "20250828.002525.1"
+current_version_hash = (20250828 * 2525 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -64,6 +65,13 @@ class GuiDropdownOptionCreatorMixin:
                 selected_option_label = option_labels[0]
 
             selected_value_var = tk.StringVar(value=selected_option_label)
+            
+            # Create a StringVar and Label for the description text.
+            description_var = tk.StringVar(value="")
+            description_label = ttk.Label(sub_frame, textvariable=description_var, wraplength=200, justify=tk.LEFT)
+            # The label is initially packed to the bottom of the sub_frame, so it appears below the dropdown.
+            description_label.pack(side=tk.BOTTOM, fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=(0, DEFAULT_PAD_Y))
+
 
             def on_select(event):
                 selected_label = selected_value_var.get()
@@ -71,6 +79,12 @@ class GuiDropdownOptionCreatorMixin:
                     # Find the corresponding value for the selected label
                     selected_index = option_labels.index(selected_label)
                     selected_mqtt_val = option_values[selected_index]
+                    
+                    # Look up the description and update the label
+                    selected_option_key = sorted_options[selected_index][0]
+                    selected_option_data = options_map.get(selected_option_key, {})
+                    description = selected_option_data.get('description', '')
+                    description_var.set(description)
                     
                     # Log the action to the GUI logger before sending.
                     self._log_to_gui(f"GUI ACTION: Publishing to '{path}' with value '{selected_mqtt_val}'")
@@ -82,6 +96,9 @@ class GuiDropdownOptionCreatorMixin:
             dropdown = ttk.Combobox(sub_frame, textvariable=selected_value_var, values=option_labels, state="readonly")
             dropdown.bind("<<ComboboxSelected>>", on_select)
             dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
+
+            # Manually trigger the selection event to display the initial description
+            on_select(None)
 
             # Store the necessary components for live updates
             if path:

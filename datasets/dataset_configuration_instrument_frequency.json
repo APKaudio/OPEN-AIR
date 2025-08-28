@@ -9,8 +9,8 @@
         "type": "_sliderValue",
         "handler": "set_center_frequency",
         "value": "150",
-        "min": "1",
-        "max": "10",
+        "min": "0",
+        "max": "6000",
         "step": "0.005",
         "units": "MHz"
       },
@@ -19,8 +19,8 @@
         "type": "_sliderValue",
         "handler": "set_span_frequency",
         "value": "100",
-        "min": "1",
-        "max": "10",
+        "min": "0",
+        "max": "6000",
         "step": "0.005",
         "units": "MHz"
       },
@@ -29,8 +29,8 @@
         "type": "_sliderValue",
         "handler": "set_start_frequency",
         "value": "0",
-        "min": "1",
-        "max": "10",
+        "min": "0",
+        "max": "6000",
         "step": "0.005",
         "units": "MHz"
       },
@@ -39,8 +39,8 @@
         "type": "_sliderValue",
         "handler": "set_stop_frequency",
         "value": "3000",
-        "min": "1",
-        "max": "10",
+        "min": "0",
+        "max": "6000",
         "step": "0.005",
         "units": "MHz"
       }
@@ -56,49 +56,49 @@
         "AES70": "OcaSwitch",
         "handler": "set_span_frequency",
         "options": {
-          "0.01": {
+          "1": {
             "value": "0.01",
             "label": "Microscope",
             "description": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
             "units": "MHz",
             "selected": false
           },
-          "0.1": {
+          "2": {
             "value": "0.1",
             "label": "Tight",
             "description": "A narrow, focused view for getting up close and personal with signals.",
             "units": "MHz",
             "selected": false
           },
-          "1": {
+          "3": {
             "value": "1",
             "label": "Normal",
             "description": "The standard span, a balanced diet for most common analysis.",
             "units": "MHz",
             "selected": false
           },
-          "10": {
+          "4": {
             "value": "10",
             "label": "Wide",
             "description": "A broad, digestible view of the spectrum, great for general reconnaissance.",
             "units": "MHz",
             "selected": false
           },
-          "100": {
+          "5": {
             "value": "100",
             "label": "Ultra Wide",
             "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
             "units": "MHz",
             "selected": false
           },
-          "500": {
+          "6": {
             "value": "500",
             "label": "From Space",
             "description": "A very broad span for finding signals over a large frequency range.",
             "units": "MHz",
             "selected": false
           },
-          "1000": {
+          "7": {
             "value": "1000",
             "label": "From The Moon",
             "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",

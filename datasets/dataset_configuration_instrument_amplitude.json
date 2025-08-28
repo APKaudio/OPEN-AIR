@@ -14,55 +14,6 @@
         "max": "0",
         "step": "10"
       },
-      "preamp_on": {
-        "label": "Preamp On",
-        "type": "_GuiButtonToggle",
-        "AES70": "OcaBooleanActuator",
-        "handler": "toggle_preamp",
-        "options": {
-          "ON": {
-            "label": "ON",
-            "selected": false
-          },
-          "OFF": {
-            "label": "OFF",
-            "selected": true
-          }
-        }
-      },
-      "power_attenuation_dB": {
-        "label": "Power Attenuation",
-        "type": "_sliderValue",
-        "handler": "set_power_attenuation",
-        "value": "10",
-        "units": "dBm",
-        "min": "-100",
-        "max": "0",
-        "step": "10"
-      },
-      "high_sensitivity_on": {
-        "label": "High Sensitivity On",
-        "type": "_GuiButtonToggle",
-        "AES70": "OcaBooleanActuator",
-        "handler": "toggle_high_sensitivity",
-        "options": {
-          "ON": {
-            "label": "ON",
-            "selected": false
-          },
-          "OFF": {
-            "label": "OFF",
-            "selected": true
-          }
-        }
-      }
-    }
-  },
-  "Presets": {
-    "type": "OcaBlock",
-    "AES70": "OcaGain",
-    "description": "A block for managing all amplitude-related presets.",
-    "fields": {
       "REFERENCE_LEVEL": {
         "type": "_GuiDropDownOption",
         "AES70": "OcaSwitch",
@@ -245,36 +196,18 @@
           }
         }
       },
-      "PREAMP_STATE": {
+      "preamp_on": {
+        "label": "Preamp On",
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_preamp",
         "options": {
           "ON": {
-            "label": "PREAMP ON",
-            "description": "Turns on the pre-amplifier. A monstrous gain for weak signals.",
-            "selected": true
-          },
-          "OFF": {
-            "label": "PREAMP OFF",
-            "description": "Turns off the pre-amplifier. The scanner returns to its natural, less monstrous state.",
-            "selected": false
-          }
-        }
-      },
-      "HIGH_SENSITIVITY_STATE": {
-        "type": "_GuiButtonToggle",
-        "AES70": "OcaBooleanActuator",
-        "handler": "toggle_high_sensitivity",
-        "options": {
-          "ON": {
-            "label": "HIGH SENSITIVITY ON",
-            "description": "Activates high-sensitivity mode. The scanner now listens for the whispers of the universe.",
+            "label": "ON",
             "selected": false
           },
           "OFF": {
-            "label": "HIGH SENSITIVITY OFF",
-            "description": "Deactivates high-sensitivity mode. The scanner's ears are no longer superhuman.",
+            "label": "OFF",
             "selected": true
           }
         }
@@ -325,6 +258,32 @@
             "value": "50",
             "units": "dB",
             "selected": false
+          }
+        }
+      },
+      "power_attenuation_dB": {
+        "label": "Power Attenuation",
+        "type": "_sliderValue",
+        "handler": "set_power_attenuation",
+        "value": "10",
+        "units": "dBm",
+        "min": "-100",
+        "max": "0",
+        "step": "10"
+      },
+      "high_sensitivity_on": {
+        "label": "High Sensitivity On",
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_high_sensitivity",
+        "options": {
+          "ON": {
+            "label": "ON",
+            "selected": false
+          },
+          "OFF": {
+            "label": "OFF",
+            "selected": true
           }
         }
       }

@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.153148.19
+# Version 20250828.002030.1
 
 import os
 import tkinter as tk
@@ -23,8 +23,8 @@ from tkinter import ttk
 from workers.worker_logging import console_log
 
 # --- Global Scope Variables ---
-current_version = "20250827.153148.19"
-current_version_hash = (20250827 * 153148 * 19)
+current_version = "20250828.002030.1"
+current_version_hash = (20250828 * 2030 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -54,10 +54,12 @@ class GuiButtonTogglerCreatorMixin:
             def update_button_styles():
                 current_selection = selected_var.get()
                 for key, button_widget in buttons.items():
+                    # --- INVERTED BUTTON COLORS LOGIC ---
                     if key == current_selection:
-                        button_widget.config(style='Selected.TButton')
-                    else:
                         button_widget.config(style='TButton')
+                    else:
+                        button_widget.config(style='Selected.TButton')
+                    # --- END INVERTED BUTTON COLORS LOGIC ---
 
             def create_command(key):
                 def command():
@@ -69,7 +71,7 @@ class GuiButtonTogglerCreatorMixin:
                     self.mqtt_util.publish_message(subtopic=path, value=key)
                 return command
 
-            max_cols = 4 
+            max_cols = 8
             row_num = 0
             col_num = 0
 

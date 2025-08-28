@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.195500.1
+# Version 20250827.231415.3
 
 import os
 import inspect
@@ -27,19 +27,21 @@ import paho.mqtt.client as mqtt
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
+from display.builder.dynamic_gui_MQTT_subscriber import MqttSubscriberMixin, log_to_gui
 
 # --- Widget Creator Mixin Imports ---
 from display.builder.dynamic_gui_create_label import LabelCreatorMixin
 from display.builder.dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
 from display.builder.dynamic_gui_create_value_box import ValueBoxCreatorMixin
-from display.builder.dynamic_gui_create_slider_value import SliderValueCreatorMixin
+from display.builder.dynamic_gui_create_gui_slider_value import SliderValueCreatorMixin
 from display.builder.dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
 from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
 from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
+from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250827.195500.1"
-current_version_hash = (20250827 * 195500 * 1)
+current_version = "20250827.231415.3"
+current_version_hash = (20250827 * 231415 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -56,13 +58,15 @@ SECTION_FONT = ('Helvetica', 11, 'bold')
 
 class DynamicGuiBuilder(
     ttk.Frame,
+    MqttSubscriberMixin,
     LabelCreatorMixin,
     LabelFromConfigCreatorMixin,
     ValueBoxCreatorMixin,
     SliderValueCreatorMixin,
     GuiButtonToggleCreatorMixin,
     GuiButtonTogglerCreatorMixin,
-    GuiDropdownOptionCreatorMixin
+    GuiDropdownOptionCreatorMixin,
+    GuiActuatorCreatorMixin
 ):
     """
     Dynamically builds GUI widgets based on a JSON data structure received via MQTT.
@@ -91,7 +95,8 @@ class DynamicGuiBuilder(
             self.topic_widgets = {}
             self.config_data = {}
             self.gui_built = False
-            self._log_to_gui = config.get('log_to_gui_console', console_log)
+            self.log_text = None
+            self._log_to_gui = log_to_gui
 
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
@@ -101,47 +106,46 @@ class DynamicGuiBuilder(
                 "_DropDownOption": self._create_gui_dropdown_option,
                 "_GuiButtonToggler": self._create_gui_button_toggler,
                 "_Value": self._create_value_box,
-                "_Label": self._create_label_from_config
+                "_Label": self._create_label_from_config,
+                "_GuiActuator": self._create_gui_actuator
             }
 
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
-
-            self.main_paned_window = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
-            self.left_frame = ttk.Frame(self.main_paned_window)
             
-            rebuild_button = ttk.Button(self.left_frame, text="Rebuild GUI", command=self._rebuild_gui)
+            # This frame is a container for the entire content, filling 100% of the parent.
+            self.main_content_frame = ttk.Frame(self)
+            self.main_content_frame.pack(fill=tk.BOTH, expand=True)
+
+            # The rebuild button should be at the top of the main content area.
+            rebuild_button = ttk.Button(self.main_content_frame, text="Rebuild GUI", command=self._rebuild_gui)
             rebuild_button.pack(pady=5)
 
-            self.canvas = tk.Canvas(self.left_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
+            self.canvas = tk.Canvas(self.main_content_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
             self.scroll_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             
-            scrollbar = ttk.Scrollbar(self.left_frame, orient=tk.VERTICAL, command=self.canvas.yview)
+            scrollbar = ttk.Scrollbar(self.main_content_frame, orient=tk.VERTICAL, command=self.canvas.yview)
             self.canvas.configure(yscrollcommand=scrollbar.set)
             self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
-            self.main_frame = ttk.LabelFrame(self.scroll_frame, text=f"MQTT Configuration: {self.base_topic}")
-            self.main_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+            # The config_frame is now packed into the scrollable frame, and since no other panes exist,
+            # it will expand to fill the entire width.
+            self.config_frame = ttk.LabelFrame(self.scroll_frame, text=f"MQTT Configuration: {self.base_topic}")
+            self.config_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
 
-            if DEBUG_MODE:
-                self.right_frame = ttk.LabelFrame(self.main_paned_window, text="MQTT Message Log")
-                self.log_text = scrolledtext.ScrolledText(self.right_frame, wrap=tk.WORD, bg=colors["bg"], fg=colors["fg"])
-                self.log_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-                self.log_text.configure(state='disabled')
-            
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+            # The original conditional `if DEBUG_MODE:` section for the log pane has been removed
+            # to ensure the main frame is always 100% wide.
             
-            self.main_paned_window.add(self.left_frame, weight=3)
-            if DEBUG_MODE:
-                self.main_paned_window.add(self.right_frame, weight=2)
+            # Bind the <Map> event to trigger the initial GUI build
+            self.bind("<Map>", lambda event: self._rebuild_gui())
             
-            self.main_paned_window.pack(fill=tk.BOTH, expand=True)
-            
-            # --- FIX: Subscribing to the base topic ---
+            # Subscribing to the base topic via the new Mixin
             if self.base_topic:
-                self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_commands_message)
+                self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_receive_command_message)
             
             console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully!")
 
@@ -155,13 +159,31 @@ class DynamicGuiBuilder(
                 console_print_func=console_log
             )
 
-    def _log_to_gui(self, message):
-        # Appends a message to the GUI log text widget if it exists.
-        if hasattr(self, 'log_text'):
-            self.log_text.configure(state='normal')
-            self.log_text.insert(tk.END, message + "\n\n")
-            self.log_text.configure(state='disabled')
-            self.log_text.see(tk.END)
+    def _transmit_command(self, relative_topic, payload):
+        """
+        Publishes a command to the MQTT broker.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Preparing to transmit! The payload is '{payload}' for topic '{relative_topic}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            full_topic = f"{self.base_topic}{TOPIC_DELIMITER}{relative_topic}"
+            self.mqtt_util.publish_message(topic=full_topic, payload=payload)
+            console_log(f"✅ Victory! The command has been published to '{full_topic}'.")
+        except Exception as e:
+            console_log(f"❌ Error publishing command to topic '{relative_topic}': {e}")
+            debug_log(
+                message=f"🖥️🔴 The transmission portal is malfunctioning! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
 
     def _update_nested_dict(self, path_parts, value):
         # Recursively traverses the dictionary structure and sets the value at the final key.
@@ -203,10 +225,10 @@ class DynamicGuiBuilder(
             console_print_func=console_log
         )
         try:
-            for widget in self.main_frame.winfo_children():
+            for widget in self.config_frame.winfo_children():
                 widget.destroy()
             self.topic_widgets.clear()
-            self._create_dynamic_widgets(parent_frame=self.main_frame, data=self.config_data)
+            self._create_dynamic_widgets(parent_frame=self.config_frame, data=self.config_data)
             self.gui_built = True
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
         except Exception as e:
@@ -243,11 +265,11 @@ class DynamicGuiBuilder(
 
             textbox_style = colors["textbox_style"]
             style.configure('Custom.TEntry',
-                                font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
-                                foreground=textbox_style["Textbox_Font_colour"],
-                                background=textbox_style["Textbox_BG_colour"],
-                                fieldbackground=textbox_style["Textbox_BG_colour"],
-                                bordercolor=textbox_style["Textbox_border_colour"])
+                                 font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
+                                 foreground=textbox_style["Textbox_Font_colour"],
+                                 background=textbox_style["Textbox_BG_colour"],
+                                 fieldbackground=textbox_style["Textbox_BG_colour"],
+                                 bordercolor=textbox_style["Textbox_border_colour"])
             console_log("✅ Celebration of success! The styles did apply themselves beautifully!")
 
         except Exception as e:
@@ -361,11 +383,11 @@ class DynamicGuiBuilder(
             console_log(f"❌ Error updating widget for topic '{relative_topic}': {e}")
 
 
-    def _on_commands_message(self, topic, payload):
+    def _on_receive_command_message(self, topic, payload):
         # The main callback function that processes incoming MQTT messages.
         try:
             if DEBUG_MODE:
-                self.after(0, self._log_to_gui, f"Topic: {topic}\nPayload: {payload}")
+                self.after(0, log_to_gui, self, f"IN: Topic: {topic}\nPayload: {payload}")
 
             if topic.startswith(self.base_topic):
                 relative_topic = topic[len(self.base_topic):].strip(TOPIC_DELIMITER)
@@ -391,4 +413,4 @@ class DynamicGuiBuilder(
                     self.after(0, self._update_widget_value, relative_topic, payload)
 
         except Exception as e:
-            console_log(f"❌ Error in _on_commands_message: {e}")
+            console_log(f"❌ Error in _on_receive_command_message: {e}")

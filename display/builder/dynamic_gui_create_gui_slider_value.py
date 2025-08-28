@@ -13,18 +13,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.152400.15
+# Version 20250828.001511.2
 
 import os
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Module Imports ---
 from workers.worker_logging import console_log
 
 # --- Global Scope Variables ---
-current_version = "20250827.152400.15"
-current_version_hash = (20250827 * 152400 * 15)
+current_version = "20250828.001511.2"
+current_version_hash = (20250828 * 1511 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -41,35 +42,46 @@ class SliderValueCreatorMixin:
         try:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            
+            # --- Layout Refactor: Start ---
+            # Create a frame for the label and a separate frame for the value and units
+            label_frame = ttk.Frame(sub_frame)
+            label_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
 
-            label_widget = ttk.Label(sub_frame, text=f"{label}:")
+            label_widget = ttk.Label(label_frame, text=f"{label}:")
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
 
-            entry_value = tk.StringVar(value=config.get('value', '0'))
-            entry = ttk.Entry(sub_frame, width=10, style="Custom.TEntry", textvariable=entry_value)
-            entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
-
-            units_label = ttk.Label(sub_frame, text=config.get('units', ''))
-            units_label.pack(side=tk.RIGHT, padx=(0, DEFAULT_PAD_X))
-
+            # The slider is now packed first
             min_val = float(config.get('min', '0'))
             max_val = float(config.get('max', '100'))
             slider = ttk.Scale(sub_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL)
-            
+
             try:
-                initial_val = float(entry_value.get())
+                initial_val = float(config.get('value', '0'))
                 slider.set(initial_val)
             except (ValueError, tk.TclError):
                 slider.set(min_val)
+            # Pack the slider before the entry frame
+            slider.pack(side=tk.TOP, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+            
+            # The value/unit frame is now packed after the slider
+            value_unit_frame = ttk.Frame(sub_frame)
+            value_unit_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
 
-
-            slider.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+            units_label = ttk.Label(value_unit_frame, text=config.get('units', ''))
+            units_label.pack(side=tk.RIGHT, padx=(0, DEFAULT_PAD_X))
+            
+            entry_value = tk.StringVar(value=config.get('value', '0'))
+            entry = ttk.Entry(value_unit_frame, width=10, style="Custom.TEntry", textvariable=entry_value)
+            entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+            # --- Layout Refactor: End ---
 
             def on_slider_move(val):
                 entry_value.set(f"{float(val):.2f}")
 
             def publish_value(val_to_publish):
                 # Central function to log and publish the value.
+                # FIX: Corrected path for logging to prevent duplication.
                 self._log_to_gui(f"GUI ACTION: Publishing to '{path}' with value '{val_to_publish}'")
                 self.mqtt_util.publish_message(subtopic=path, value=val_to_publish)
 
