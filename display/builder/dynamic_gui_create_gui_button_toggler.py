@@ -13,18 +13,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.002030.1
+# Version 20250828.002030.5
 
 import os
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Module Imports ---
-from workers.worker_logging import console_log
+from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.002030.1"
-current_version_hash = (20250828 * 2030 * 1)
+current_version = "20250828.002030.5"
+current_version_hash = (20250828 * 2030 * 5)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -38,6 +39,16 @@ class GuiButtonTogglerCreatorMixin:
     """
     def _create_gui_button_toggler(self, parent_frame, label, config, path):
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        debug_log(
+            message=f"🛠️🟢 Entering '{current_function_name}' to create a button toggler for '{label}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
         try:
             group_frame = ttk.LabelFrame(parent_frame, text=label)
             group_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
@@ -54,21 +65,25 @@ class GuiButtonTogglerCreatorMixin:
             def update_button_styles():
                 current_selection = selected_var.get()
                 for key, button_widget in buttons.items():
-                    # --- INVERTED BUTTON COLORS LOGIC ---
                     if key == current_selection:
-                        button_widget.config(style='TButton')
-                    else:
                         button_widget.config(style='Selected.TButton')
-                    # --- END INVERTED BUTTON COLORS LOGIC ---
+                    else:
+                        button_widget.config(style='TButton')
 
             def create_command(key):
                 def command():
+                    current_selection = selected_var.get()
+                    if current_selection:
+                        # Deselect the previous button
+                        deselect_path = f"{path}/options/{current_selection}/selected"
+                        self._transmit_command(relative_topic=deselect_path, payload='false')
+
+                    # Select the new button
+                    selected_path = f"{path}/options/{key}/selected"
+                    self._transmit_command(relative_topic=selected_path, payload='true')
+
                     selected_var.set(key)
                     update_button_styles()
-                    
-                    # Log the action to the GUI logger before sending.
-                    self._log_to_gui(f"GUI ACTION: Publishing to '{path}' with value '{key}'")
-                    self.mqtt_util.publish_message(subtopic=path, value=key)
                 return command
 
             max_cols = 8
@@ -94,12 +109,19 @@ class GuiButtonTogglerCreatorMixin:
 
             update_button_styles()
             
-            # Store the state variable and update function for live updates
             if path:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
             
+            console_log("✅ Celebration of success! The button toggler did appear.")
             return group_frame
 
         except Exception as e:
-            console_log(f"❌ Error in _create_gui_button_toggler for '{label}': {e}")
+            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
+            debug_log(
+                message=f"🛠️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return None

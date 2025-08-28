@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.235913.3
+# Version 20250828.235913.6
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.235913.3"
-current_version_hash = (20250828 * 235913 * 3)
+current_version = "20250828.235913.6"
+current_version_hash = (20250828 * 235913 * 6)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -67,12 +67,26 @@ class GuiActuatorCreatorMixin:
             def on_press(event):
                 # Change style to 'Selected.TButton' on press and publish 'true'
                 button.configure(style='Selected.TButton')
-                self.publish_action(value='true', path=path)
+                debug_log(
+                    message=f"GUI ACTION: Publishing actuator command to '{path}' with value 'true'",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                self._transmit_command(relative_topic=path, payload='true')
             
             def on_release(event):
                 # Revert style to 'TButton' on release and publish '0'
                 button.configure(style='TButton')
-                self.publish_action(value='0', path=path)
+                debug_log(
+                    message=f"GUI ACTION: Publishing actuator command to '{path}' with value '0'",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                self._transmit_command(relative_topic=path, payload='0')
 
             button.bind("<ButtonPress-1>", on_press)
             button.bind("<ButtonRelease-1>", on_release)
@@ -94,11 +108,3 @@ class GuiActuatorCreatorMixin:
                 console_print_func=console_log
             )
             return None
-
-    def publish_action(self, value, path):
-        # Publishes the action value to the specified MQTT topic.
-        try:
-            self._log_to_gui(f"GUI ACTION: Publishing actuator command to '{path}' with value '{value}'")
-            self.mqtt_util.publish_message(subtopic=path, value=value)
-        except Exception as e:
-            console_log(f"❌ Error publishing actuator command for path '{path}': {e}")

@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.171501.1
+# Version 20250827.171501.2
 
 import os
 import tkinter as tk
@@ -22,8 +22,8 @@ from workers.worker_logging import debug_log, console_log
 import inspect
 
 # --- Global Scope Variables ---
-current_version = "20250827.171501.1"
-current_version_hash = (20250827 * 171501 * 1)
+current_version = "20250827.171501.2"
+current_version_hash = (20250827 * 171501 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 class GuiButtonToggleCreatorMixin:
@@ -31,63 +31,46 @@ class GuiButtonToggleCreatorMixin:
         # A one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        # FIX: The debug_log call has been corrected to use global variables
-        # and remove the problematic 'self.current_class_name' attribute access.
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to conjure a button widget for '{label}'.",
+            message=f"🛠️🟢 Entering '{current_function_name}' to conjure a button widget for '{label}'.",
             file=current_file,
             version=current_version,
-            function=current_function_name,
+            function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
+        
         try:
-            initial_value = config.get("value", False)
-            on_value = config.get("on_value", True)
-            off_value = config.get("off_value", False)
-            on_text = config.get("on_text", "ON")
-            off_text = config.get("off_text", "OFF")
-            
-            frame = ttk.Frame(parent_frame, style="TFrame")
-            frame.pack(fill=tk.X, expand=True, pady=2, padx=5)
+            on_text = config.get('options', {}).get('ON', {}).get('label', 'ON')
+            off_text = config.get('options', {}).get('OFF', {}).get('label', 'OFF')
+            on_value = config.get('options', {}).get('ON', {}).get('value', True)
+            off_value = config.get('options', {}).get('OFF', {}).get('value', False)
 
-            label_widget = ttk.Label(frame, text=label)
-            label_widget.pack(side=tk.LEFT, padx=(0, 10))
+            initial_state = config.get('options', {}).get('ON', {}).get('selected', False)
+            button_var = tk.BooleanVar(value=initial_state)
 
-            button_var = tk.BooleanVar(value=initial_value)
-            button = ttk.Button(frame, text=off_text, command=lambda: toggle_command(button_var.get()))
-            button.pack(side=tk.LEFT, fill=tk.X, expand=True)
+            def toggle_state_and_publish():
+                current_state = button_var.get()
+                new_state = not current_state
+                button_var.set(new_state)
+                
+                value_to_publish = on_value if new_state else off_value
+                
+                self._transmit_command(relative_topic=f"{path}/state", payload=value_to_publish)
+
+            button = ttk.Button(parent_frame, text=on_text if initial_state else off_text, command=toggle_state_and_publish)
+            button.pack(fill=tk.X, expand=True)
 
             def update_button_state():
-                # A brief, one-sentence description of the function's purpose.
-                try:
-                    state = button_var.get()
-                    if state == on_value:
-                        button.configure(text=on_text, style="Selected.TButton")
-                    else:
-                        button.configure(text=off_text, style="TButton")
-                except Exception as e:
-                    console_log(f"❌ Error updating button state: {e}")
-            
-            def toggle_command(current_state):
-                # A brief, one-sentence description of the function's purpose.
-                try:
-                    new_state = not current_state
-                    button_var.set(new_state)
-                    
-                    value_to_publish = on_value if new_state else off_value
-                    self.mqtt_util.publish_message(
-                        topic=path, 
-                        subtopic="state",
-                        value=value_to_publish
-                    )
-                except Exception as e:
-                    console_log(f"❌ Error in toggle_command: {e}")
+                if button_var.get():
+                    button.configure(text=on_text, style="Selected.TButton")
+                else:
+                    button.configure(text=off_text, style="TButton")
 
             update_button_state()
             self.topic_widgets[f"{path}/state"] = (button_var, update_button_state)
 
             console_log("✅ Celebration of success! the " + label + " did toggle its function")
-        
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(

@@ -13,18 +13,19 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.152935.16
+# Version 20250827.152935.17
 
 import os
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Module Imports ---
-from workers.worker_logging import console_log
+from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250827.152935.16"
-current_version_hash = (20250827 * 152935 * 16)
+current_version = "20250827.152935.17"
+current_version_hash = (20250827 * 152935 * 17)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -38,6 +39,16 @@ class ValueBoxCreatorMixin:
     """
     def _create_value_box(self, parent_frame, label, config, path):
         # Creates an editable text box (_Value).
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        debug_log(
+            message=f"🛠️🟢 Entering '{current_function_name}' to conjure an entry box for '{label}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
         try:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
@@ -55,9 +66,14 @@ class ValueBoxCreatorMixin:
 
             def on_entry_change(event):
                 new_val = entry_value.get()
-                # Log the action to the GUI logger before sending.
-                self._log_to_gui(f"GUI ACTION: Publishing to '{path}' with value '{new_val}'")
-                self.mqtt_util.publish_message(subtopic=path, value=new_val)
+                debug_log(
+                    message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                self._transmit_command(relative_topic=path, payload=new_val)
 
             entry.bind("<FocusOut>", on_entry_change)
             entry.bind("<Return>", on_entry_change)
@@ -66,8 +82,16 @@ class ValueBoxCreatorMixin:
             if path:
                 self.topic_widgets[path] = entry
             
+            console_log(f"✅ Celebration of success! The value box did appear.")
             return sub_frame
             
         except Exception as e:
-            console_log(f"❌ Error in _create_value_box for '{label}': {e}")
+            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
+            debug_log(
+                message=f"🛠️🔴 Arrr, the code be capsized! The value box creation has failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return None
