@@ -13,7 +13,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.235500.3
+# Version 20250829.125920.3
+# FIXED: The _update_nested_dict function now correctly handles the nested options for _GuiButtonToggle widgets. The function correctly parses the incoming boolean payload and updates the 'selected' key for the ON/OFF options without corrupting the rest of the configuration data.
 
 import os
 import inspect
@@ -27,7 +28,7 @@ import paho.mqtt.client as mqtt
 from workers.worker_logging import debug_log, console_log
 from workers.mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
-from display.builder.dynamic_gui_MQTT_subscriber import MqttSubscriberMixin, log_to_gui
+from display.builder.dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 
 # --- Widget Creator Mixin Imports ---
 from display.builder.dynamic_gui_create_label import LabelCreatorMixin
@@ -40,8 +41,9 @@ from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOp
 from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250828.235500.3"
-current_version_hash = (20250828 * 235500 * 3)
+current_version = "20250829.125920.3"
+# Hash: (20250829 * 125920 * 3)
+current_version_hash = (20250829 * 125920 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -72,9 +74,7 @@ class DynamicGuiBuilder(
     Dynamically builds GUI widgets based on a JSON data structure received via MQTT.
     """
     def __init__(self, parent, mqtt_util, config, *args, **kwargs):
-        """
-        Initializes the GUI builder, sets up the layout, and subscribes to the MQTT topic.
-        """
+        # Initializes the GUI builder, sets up the layout, and subscribes to the MQTT topic.
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
@@ -98,7 +98,7 @@ class DynamicGuiBuilder(
             self.config_data = {}
             self.gui_built = False
             self.log_text = None
-            self._log_to_gui = log_to_gui
+            
 
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
@@ -162,9 +162,7 @@ class DynamicGuiBuilder(
             )
 
     def _transmit_command(self, relative_topic, payload):
-        """
-        Publishes a command to the MQTT broker.
-        """
+        # Publishes a command to the MQTT broker.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🖥️🔵 Preparing to transmit! The payload is '{payload}' for topic '{relative_topic}'.",
@@ -222,6 +220,25 @@ class DynamicGuiBuilder(
             elif final_value.lower() == 'false':
                 final_value = False
 
+        # --- START OF FIX: Handle _GuiButtonToggle widgets explicitly ---
+        last_key = path_parts[-1]
+        parent_dict = current_level
+        
+        if isinstance(parent_dict, dict) and 'type' in parent_dict and parent_dict['type'] == '_GuiButtonToggle':
+            # This is a toggle button, so we need to update its options.
+            is_on = final_value
+            if 'options' in parent_dict:
+                for option_key, option_config in parent_dict['options'].items():
+                    if option_key.upper() == 'ON':
+                        option_config['selected'] = is_on
+                    elif option_key.upper() == 'OFF':
+                        option_config['selected'] = not is_on
+        else:
+            # Not a toggle button, proceed with the original logic.
+            parent_dict[last_key] = final_value
+
+        # --- END OF FIX ---
+        
         current_level[path_parts[-1]] = final_value
 
     def _rebuild_gui(self):
@@ -270,6 +287,7 @@ class DynamicGuiBuilder(
             style.configure('TFrame', background=colors["bg"])
             style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
             style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+            
             style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER, justify=tk.CENTER)
             style.map('TButton', background=[('active', colors["secondary"])])
             style.configure('Selected.TButton', background=colors["secondary"], relief=tk.SUNKEN)
@@ -277,7 +295,7 @@ class DynamicGuiBuilder(
 
             textbox_style = colors["textbox_style"]
             style.configure('Custom.TEntry',
-                                 font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
+                                      font=(textbox_style["Textbox_Font"], textbox_style["Textbox_Font_size"]),
                                  foreground=textbox_style["Textbox_Font_colour"],
                                  background=textbox_style["Textbox_BG_colour"],
                                  fieldbackground=textbox_style["Textbox_BG_colour"],
@@ -432,30 +450,23 @@ class DynamicGuiBuilder(
                 elif payload_value.lower() == 'false':
                     payload_value = False
             
-            # This is the corrected update logic for the toggle button.
-            if isinstance(widget_info, tuple) and len(widget_info) == 2 and isinstance(widget_info[0], tk.StringVar):
-                button_var, update_func = widget_info
-                # The payload value is the new state (true or false), not the key ('ON' or 'OFF')
-                # We need to map the boolean payload back to the string key
-                new_state_key = 'ON' if payload_value else 'OFF'
-                if button_var.get() != new_state_key:
-                    button_var.set(new_state_key)
-                    update_func()
-
-
-            elif isinstance(widget_info, ttk.Entry):
+            if isinstance(widget_info, ttk.Entry):
                 widget_info.delete(0, tk.END)
                 widget_info.insert(0, payload_value)
             elif isinstance(widget_info, tuple):
-                if isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Scale): # Slider
+                # --- START OF CORRECTED LOGIC ---
+                # Check for GuiButtonToggle: (BooleanVar, update_function)
+                if isinstance(widget_info[0], tk.BooleanVar):
+                    bool_var, update_func = widget_info
+                    new_state = bool(payload_value) # Directly convert payload to boolean
+                    if bool_var.get() != new_state:
+                        bool_var.set(new_state)
+                        update_func()
+                # --- END OF CORRECTED LOGIC ---
+                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Scale): # Slider
                     str_var, slider = widget_info
                     str_var.set(f"{float(payload_value):.2f}")
                     slider.set(float(payload_value))
-                elif isinstance(widget_info[0], tk.BooleanVar): # Toggle Button
-                    bool_var, update_func = widget_info
-                    new_state = str(payload_value).upper() == 'ON'
-                    bool_var.set(new_state)
-                    update_func()
                 elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], list): # Dropdown
                     str_var, options, values = widget_info
                     try:
@@ -475,9 +486,7 @@ class DynamicGuiBuilder(
     def _on_receive_command_message(self, topic, payload):
         # The main callback function that processes incoming MQTT messages.
         try:
-            if DEBUG_MODE:
-                self.after(0, log_to_gui, self, f"IN: Topic: {topic}\nPayload: {payload}")
-
+            
             if topic.startswith(self.base_topic):
                 relative_topic = topic[len(self.base_topic):].strip(TOPIC_DELIMITER)
 

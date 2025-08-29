@@ -1,0 +1,30 @@
+{
+
+      "Buttons": {
+        "type": "OcaBlock",
+        "AES70": "OcaTraceManager",
+        "description": "START PAUSE STOP BUTTONS",
+        "fields": {
+          "START": {
+            "label": "START",
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "handler": "toggle_continuous_initiate",
+            "value": false
+          },
+           
+          "PAUSE": {
+            "label": "PAUSE",
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "handler": "toggle_continuous_initiate",
+            "value": false
+          },
+           
+          "STOP": {
+            "label": "STOP",
+            "type": "_GuiActuator",
+            "AES70": "OcaBooleanActuator",
+            "handler": "toggle_continuous_initiate",
+            "value": true
+          }}}}

@@ -221,7 +221,7 @@
                 "description": "Just a raw, single sweep. Great for seeing fast changes and fleeting events, but the noise floor is high and the trace is very jittery.",
                 "value": "0",
                 "units": "count",
-                "selected": false
+                "selected": true
               },
               "5": {
                 "label": "Light Filter",

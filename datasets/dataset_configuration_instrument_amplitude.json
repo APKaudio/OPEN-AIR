@@ -136,7 +136,7 @@
             "description": "Stronger signals, moderate local RF traffic.",
             "value": "-40",
             "units": "dB",
-            "selected": false
+            "selected": true
           },
           "18": {
             "label": "-35 dB",
