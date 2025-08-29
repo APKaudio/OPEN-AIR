@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.215819.4
+# Version 20250828.235500.3
 
 import os
 import tkinter as tk
@@ -22,8 +22,8 @@ from workers.worker_logging import debug_log, console_log
 import inspect
 
 # --- Global Scope Variables ---
-current_version = "20250828.215819.4"
-current_version_hash = (20250828 * 215819 * 4)
+current_version = "20250828.235500.3"
+current_version_hash = (20250828 * 235500 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 class GuiButtonToggleCreatorMixin:
@@ -40,36 +40,49 @@ class GuiButtonToggleCreatorMixin:
         )
 
         try:
-            on_text = config.get('options', {}).get('ON', {}).get('label', 'ON')
-            off_text = config.get('options', {}).get('OFF', {}).get('label', 'OFF')
-            on_value = config.get('options', {}).get('ON', {}).get('value', True)
-            off_value = config.get('options', {}).get('OFF', {}).get('value', False)
+            options_map = config.get('options', {})
+            on_text = options_map.get('ON', {}).get('label', 'ON')
+            off_text = options_map.get('OFF', {}).get('label', 'OFF')
 
-            initial_state = config.get('options', {}).get('ON', {}).get('selected', False)
-            button_var = tk.BooleanVar(value=initial_state)
+            # Determine initial state based on the 'selected' key in ON/OFF options
+            # If both are selected, default to ON. If neither, default to OFF.
+            if options_map.get('ON', {}).get('selected', False):
+                initial_state_key = 'ON'
+            elif options_map.get('OFF', {}).get('selected', False):
+                initial_state_key = 'OFF'
+            else:
+                initial_state_key = 'OFF'
 
-            def toggle_state_and_publish():
-                current_state = button_var.get()
-                new_state = not current_state
-                button_var.set(new_state)
-
-                value_to_publish = on_value if new_state else off_value
-
-                # CORRECTED: Use the standardized transmit method, as intended by the new architecture.
-                self._transmit_command(relative_topic=f"{path}/state", payload=value_to_publish)
-
-            button = ttk.Button(parent_frame, text=on_text if initial_state else off_text, command=toggle_state_and_publish)
-            button.pack(fill=tk.X, expand=True)
+            button_var = tk.StringVar(value=initial_state_key)
 
             def update_button_state():
-                if button_var.get():
+                state = button_var.get()
+                if state == 'ON':
                     button.configure(text=on_text, style="Selected.TButton")
                 else:
                     button.configure(text=off_text, style="TButton")
 
-            update_button_state()
-            self.topic_widgets[f"{path}/state"] = (button_var, update_button_state)
+            def toggle_state_and_publish():
+                current_state_key = button_var.get()
+                new_state_key = 'OFF' if current_state_key == 'ON' else 'ON'
 
+                # Deselect the previous option by publishing a 'false' payload.
+                old_path = f"{path}/options/{current_state_key}/selected"
+                self._transmit_command(relative_topic=old_path, payload='false')
+
+                # Select the new option by publishing a 'true' payload.
+                new_path = f"{path}/options/{new_state_key}/selected"
+                self._transmit_command(relative_topic=new_path, payload='true')
+
+            button = ttk.Button(parent_frame, text=on_text if initial_state_key == 'ON' else off_text, command=toggle_state_and_publish)
+            button.pack(fill=tk.X, expand=True)
+            
+            # This is the corrected update logic for the toggle button.
+            self.topic_widgets[f"{path}/options/ON/selected"] = (button_var, update_button_state)
+            self.topic_widgets[f"{path}/options/OFF/selected"] = (button_var, update_button_state)
+
+            update_button_state()
+            
             console_log("✅ Celebration of success! the " + label + " did toggle its function")
 
         except Exception as e:

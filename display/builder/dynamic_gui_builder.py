@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.222300.2
+# Version 20250828.235500.3
 
 import os
 import inspect
@@ -40,8 +40,8 @@ from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOp
 from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250828.222300.2"
-current_version_hash = (20250828 * 222300 * 2)
+current_version = "20250828.235500.3"
+current_version_hash = (20250828 * 235500 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -318,8 +318,7 @@ class DynamicGuiBuilder(
                     if widget_type == "OcaBlock":
                         nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
                         nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
-                        # The recursive call for an OcaBlock needs to pass the current path.
-                        # The `fields` key needs to be explicitly appended here.
+                        # The `fields` key needs to be explicitly appended to the path here
                         new_path_prefix = f"{current_path}{TOPIC_DELIMITER}fields"
                         self._create_dynamic_widgets(nested_frame, value.get("fields", {}), path_prefix=new_path_prefix)
                         continue
@@ -328,6 +327,7 @@ class DynamicGuiBuilder(
                     if creation_func:
                         # For widgets with a 'value' node, append it to the path.
                         if 'value' in value:
+                            # The path now includes the 'value' key
                             creation_func(parent_frame=parent_frame, label=label_text, config=value, path=f"{current_path}{TOPIC_DELIMITER}value")
                         else:
                             creation_func(parent_frame=parent_frame, label=label_text, config=value, path=current_path)
@@ -348,34 +348,36 @@ class DynamicGuiBuilder(
         def get_all_paths_recursive(data, base_path="", paths_list=[]):
             if isinstance(data, dict):
                 for key, value in data.items():
-                    # The `fields` key should not be a part of the path unless it's a container.
-                    # Instead, we just recurse into it with the same base_path.
-                    current_path = f"{base_path}/{key}" if base_path else key
+                    # Check for the special 'fields' key inside a container (OcaBlock)
                     if key == 'fields' and isinstance(value, dict):
+                        # Recurse into 'fields' without adding 'fields' to the path
+                        # so that the children have the correct path prefix
                         get_all_paths_recursive(value, base_path, paths_list)
                         continue
 
+                    new_path = f"{base_path}/{key}" if base_path else key
+                    console_log(f"🟠🟠🟠🟠🟠 new_path: {new_path}")
                     if isinstance(value, dict):
                         # A control has been found if it has a `type` key.
                         if "type" in value:
                             # A toggler or dropdown has nested options.
                             if "options" in value:
                                 for option_key, option_value in value["options"].items():
-                                    paths_list.append(f"{current_path}/options/{option_key}/selected")
+                                    paths_list.append(f"{new_path}/options/{option_key}/selected")
                             # A button toggle has a state key.
                             elif value.get("type") == "_GuiButtonToggle":
-                                paths_list.append(f"{current_path}/state")
+                                paths_list.append(f"{new_path}/state")
                             # It's a simple control with a `value` key.
                             elif 'value' in value:
-                                paths_list.append(f"{current_path}/value")
+                                paths_list.append(f"{new_path}/value")
                             # It's a simple control with no nested options.
                             else:
-                                paths_list.append(current_path)
+                                get_all_paths_recursive(value, new_path, paths_list)
                         # The node is a container (OcaBlock or similar), so recurse into it.
                         else:
-                            get_all_paths_recursive(value, current_path, paths_list)
+                            get_all_paths_recursive(value, new_path, paths_list)
                     else:
-                        paths_list.append(current_path)
+                        paths_list.append(new_path)
             return paths_list
 
         all_paths = get_all_paths_recursive(self.config_data)
@@ -429,8 +431,19 @@ class DynamicGuiBuilder(
                     payload_value = True
                 elif payload_value.lower() == 'false':
                     payload_value = False
+            
+            # This is the corrected update logic for the toggle button.
+            if isinstance(widget_info, tuple) and len(widget_info) == 2 and isinstance(widget_info[0], tk.StringVar):
+                button_var, update_func = widget_info
+                # The payload value is the new state (true or false), not the key ('ON' or 'OFF')
+                # We need to map the boolean payload back to the string key
+                new_state_key = 'ON' if payload_value else 'OFF'
+                if button_var.get() != new_state_key:
+                    button_var.set(new_state_key)
+                    update_func()
 
-            if isinstance(widget_info, ttk.Entry):
+
+            elif isinstance(widget_info, ttk.Entry):
                 widget_info.delete(0, tk.END)
                 widget_info.insert(0, payload_value)
             elif isinstance(widget_info, tuple):
