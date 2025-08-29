@@ -2,7 +2,7 @@
 
       "Buttons": {
         "type": "OcaBlock",
-        "AES70": "OcaTraceManager",
+        "AES70": "OcaTransportActuator",
         "description": "START PAUSE STOP BUTTONS",
         "fields": {
           "START": {

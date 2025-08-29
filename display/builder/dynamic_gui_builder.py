@@ -119,10 +119,8 @@ class DynamicGuiBuilder(
             self.main_content_frame = ttk.Frame(self)
             self.main_content_frame.pack(fill=tk.BOTH, expand=True)
 
-            # The rebuild button should be at the top of the main content area.
-            rebuild_button = ttk.Button(self.main_content_frame, text="Rebuild GUI", command=self._rebuild_gui)
-            rebuild_button.pack(pady=5)
-
+            # The rebuild button and config frame are no longer created here.
+            # The config_frame will be a simple Frame now, and the rebuild button will be added later.
             self.canvas = tk.Canvas(self.main_content_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
             self.scroll_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
@@ -131,9 +129,8 @@ class DynamicGuiBuilder(
             self.canvas.configure(yscrollcommand=scrollbar.set)
             self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
-            # The config_frame is now packed into the scrollable frame, and since no other panes exist,
-            # it will expand to fill the entire width.
-            self.config_frame = ttk.LabelFrame(self.scroll_frame, text=f"MQTT Configuration: {self.base_topic}")
+            # The config_frame is now packed into the scrollable frame
+            self.config_frame = ttk.Frame(self.scroll_frame)
             self.config_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
 
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
@@ -256,7 +253,11 @@ class DynamicGuiBuilder(
                 widget.destroy()
             self.topic_widgets.clear()
             self._create_dynamic_widgets(parent_frame=self.config_frame, data=self.config_data)
-            self._display_topic_paths()
+            
+            # The rebuild gui button is now at the bottom
+            rebuild_button = ttk.Button(self.config_frame, text="Rebuild GUI", command=self._rebuild_gui)
+            rebuild_button.pack(pady=10)
+
             self.gui_built = True
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
         except Exception as e:
@@ -289,8 +290,11 @@ class DynamicGuiBuilder(
             style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
             
             style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER, justify=tk.CENTER)
+
             style.map('TButton', background=[('active', colors["secondary"])])
+
             style.configure('Selected.TButton', background=colors["secondary"], relief=tk.SUNKEN)
+            
             style.configure('Debug.TLabel', background=colors["bg"], foreground=colors["fg_alt"])
 
             textbox_style = colors["textbox_style"]
@@ -358,69 +362,6 @@ class DynamicGuiBuilder(
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-
-    def _display_topic_paths(self):
-        """
-        Recursively extracts all topic paths from the config data and displays them.
-        """
-        def get_all_paths_recursive(data, base_path="", paths_list=[]):
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    # Check for the special 'fields' key inside a container (OcaBlock)
-                    if key == 'fields' and isinstance(value, dict):
-                        # Recurse into 'fields' without adding 'fields' to the path
-                        # so that the children have the correct path prefix
-                        get_all_paths_recursive(value, base_path, paths_list)
-                        continue
-
-                    new_path = f"{base_path}/{key}" if base_path else key
-                    console_log(f"🟠🟠🟠🟠🟠 new_path: {new_path}")
-                    if isinstance(value, dict):
-                        # A control has been found if it has a `type` key.
-                        if "type" in value:
-                            # A toggler or dropdown has nested options.
-                            if "options" in value:
-                                for option_key, option_value in value["options"].items():
-                                    paths_list.append(f"{new_path}/options/{option_key}/selected")
-                            # A button toggle has a state key.
-                            elif value.get("type") == "_GuiButtonToggle":
-                                paths_list.append(f"{new_path}/state")
-                            # It's a simple control with a `value` key.
-                            elif 'value' in value:
-                                paths_list.append(f"{new_path}/value")
-                            # It's a simple control with no nested options.
-                            else:
-                                get_all_paths_recursive(value, new_path, paths_list)
-                        # The node is a container (OcaBlock or similar), so recurse into it.
-                        else:
-                            get_all_paths_recursive(value, new_path, paths_list)
-                    else:
-                        paths_list.append(new_path)
-            return paths_list
-
-        all_paths = get_all_paths_recursive(self.config_data)
-
-        # Create a frame for the debug information, separating it visually.
-        debug_frame = ttk.Frame(self.scroll_frame)
-        debug_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-
-        # Create a heading for the section.
-        ttk.Label(debug_frame, text="Active MQTT Topic Paths", font=SECTION_FONT, style="Debug.TLabel").pack(side=tk.TOP, fill=tk.X)
-
-        # Create a text widget to display the topic paths.
-        topic_text_widget = scrolledtext.ScrolledText(debug_frame, wrap=tk.WORD, height=10, width=50, state='disabled')
-        topic_text_widget.pack(fill=tk.BOTH, expand=True)
-
-        # Sort the list for readability and insert into the text widget.
-        all_paths.sort()
-        topic_text_widget.configure(state='normal')
-        for relative_path in all_paths:
-            full_path = f"{self.base_topic}{TOPIC_DELIMITER}{relative_path}"
-            topic_text_widget.insert(tk.END, f"{full_path}\n")
-        topic_text_widget.configure(state='disabled')
-
-        console_log("✅ Celebration of success! The list of active MQTT topic paths has been compiled!")
-
 
     def _update_widget_value(self, relative_topic, payload):
         # Finds the correct widget and updates its state from an MQTT message.
