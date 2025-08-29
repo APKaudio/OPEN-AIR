@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.235913.6
+# Version 20250828.215819.7
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.235913.6"
-current_version_hash = (20250828 * 235913 * 6)
+current_version = "20250828.215819.7"
+current_version_hash = (20250828 * 215819 * 7)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -40,7 +40,7 @@ class GuiActuatorCreatorMixin:
     def _create_gui_actuator(self, parent_frame, label, config, path):
         # Creates a button that acts as a simple actuator.
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
         debug_log(
             message=f"🛠️🟢 Entering {current_function_name} to conjure an actuator button for '{label}'.",
             file=current_file,
@@ -48,7 +48,7 @@ class GuiActuatorCreatorMixin:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+
         try:
             # Create a frame to hold the label and button
             sub_frame = ttk.Frame(parent_frame)
@@ -56,7 +56,7 @@ class GuiActuatorCreatorMixin:
 
             # Create the button. The label comes from the config, and the command is a simple publish action.
             button_text = config.get('label', label)
-            
+
             button = ttk.Button(
                 sub_frame,
                 text=button_text,
@@ -75,7 +75,7 @@ class GuiActuatorCreatorMixin:
                     console_print_func=console_log
                 )
                 self._transmit_command(relative_topic=path, payload='true')
-            
+
             def on_release(event):
                 # Revert style to 'TButton' on release and publish '0'
                 button.configure(style='TButton')
@@ -90,14 +90,14 @@ class GuiActuatorCreatorMixin:
 
             button.bind("<ButtonPress-1>", on_press)
             button.bind("<ButtonRelease-1>", on_release)
-            
+
             # Store the button widget for potential future updates
             if path:
                 self.topic_widgets[path] = button
-            
+
             console_log(f"✅ Celebration of success! The actuator button '{label}' did appear.")
             return sub_frame
-            
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
             debug_log(

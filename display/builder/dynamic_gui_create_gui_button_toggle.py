@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.171501.2
+# Version 20250828.215819.4
 
 import os
 import tkinter as tk
@@ -22,15 +22,15 @@ from workers.worker_logging import debug_log, console_log
 import inspect
 
 # --- Global Scope Variables ---
-current_version = "20250827.171501.2"
-current_version_hash = (20250827 * 171501 * 2)
+current_version = "20250828.215819.4"
+current_version_hash = (20250828 * 215819 * 4)
 current_file = f"{os.path.basename(__file__)}"
 
 class GuiButtonToggleCreatorMixin:
     def _create_gui_button_toggle(self, parent_frame, label, config, path):
         # A one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
         debug_log(
             message=f"🛠️🟢 Entering '{current_function_name}' to conjure a button widget for '{label}'.",
             file=current_file,
@@ -38,7 +38,7 @@ class GuiButtonToggleCreatorMixin:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+
         try:
             on_text = config.get('options', {}).get('ON', {}).get('label', 'ON')
             off_text = config.get('options', {}).get('OFF', {}).get('label', 'OFF')
@@ -52,9 +52,10 @@ class GuiButtonToggleCreatorMixin:
                 current_state = button_var.get()
                 new_state = not current_state
                 button_var.set(new_state)
-                
+
                 value_to_publish = on_value if new_state else off_value
-                
+
+                # CORRECTED: Use the standardized transmit method, as intended by the new architecture.
                 self._transmit_command(relative_topic=f"{path}/state", payload=value_to_publish)
 
             button = ttk.Button(parent_frame, text=on_text if initial_state else off_text, command=toggle_state_and_publish)

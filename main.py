@@ -161,6 +161,7 @@ def main():
     console_log(f"🚀 Launch sequence initiated for version {current_version}.")
 
     if action_check_dependancies():
+        
         if action_check_configuration():
             mqtt_util_instance = MqttControllerUtility(console_log, console_log)
             #mqtt_util_instance.start_mosquitto()
@@ -170,7 +171,7 @@ def main():
             console_log("❌ Halting startup due to configuration errors.")
     else:
         console_log("❌ Halting startup due to missing dependencies.")
-
+23
 
 if __name__ == "__main__":
     main()

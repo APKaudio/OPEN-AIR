@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.002030.5
+# Version 20250828.215819.5
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.002030.5"
-current_version_hash = (20250828 * 2030 * 5)
+current_version = "20250828.215819.5"
+current_version_hash = (20250828 * 215819 * 5)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -40,7 +40,7 @@ class GuiButtonTogglerCreatorMixin:
     def _create_gui_button_toggler(self, parent_frame, label, config, path):
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
         debug_log(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a button toggler for '{label}'.",
             file=current_file,
@@ -48,17 +48,17 @@ class GuiButtonTogglerCreatorMixin:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+
         try:
             group_frame = ttk.LabelFrame(parent_frame, text=label)
             group_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-            
+
             button_container = ttk.Frame(group_frame)
             button_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
             options_data = config.get('options', {})
             buttons = {}
-            
+
             selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
             selected_var = tk.StringVar(value=selected_key)
 
@@ -92,7 +92,7 @@ class GuiButtonTogglerCreatorMixin:
 
             for option_key, option_data in options_data.items():
                 button_text = f"{option_data.get('label', '')}\n{option_data.get('value', '')} {option_data.get('units', '')}"
-                
+
                 button = ttk.Button(
                     button_container,
                     text=button_text,
@@ -108,10 +108,10 @@ class GuiButtonTogglerCreatorMixin:
                     row_num += 1
 
             update_button_styles()
-            
+
             if path:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
-            
+
             console_log("✅ Celebration of success! The button toggler did appear.")
             return group_frame
 

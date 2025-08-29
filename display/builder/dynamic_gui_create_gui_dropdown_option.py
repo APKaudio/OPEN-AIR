@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.002525.3
+# Version 20250828.215819.6
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.002525.3"
-current_version_hash = (20250828 * 2525 * 3)
+current_version = "20250828.215819.6"
+current_version_hash = (20250828 * 215819 * 6)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -40,7 +40,7 @@ class GuiDropdownOptionCreatorMixin:
     def _create_gui_dropdown_option(self, parent_frame, label, config, path):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
         debug_log(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a dropdown for '{label}'.",
             file=current_file,
@@ -48,34 +48,34 @@ class GuiDropdownOptionCreatorMixin:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+
         try:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-            
+
             # Label
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, 0))
 
             options_map = config.get('options', {})
             sorted_options = sorted(options_map.items())
-            
+
             # Populate the dropdown with labels and map them to values
             option_labels = [opt.get('label', key) for key, opt in sorted_options]
             option_values = [opt.get('value', key) for key, opt in sorted_options]
-            
+
             selected_key = next((key for key, opt in options_map.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
-            
+
             # Find the label corresponding to the selected key
             initial_value = options_map.get(selected_key, {}).get('label', selected_key)
             selected_value_var = tk.StringVar(value=initial_value)
-            
+
             def on_select(event):
                 try:
                     selected_label = selected_value_var.get()
                     selected_index = option_labels.index(selected_label)
                     selected_mqtt_val = option_values[selected_index]
-                    
+
                     # Log the action to the GUI logger before sending.
                     debug_log(
                         message=f"GUI ACTION: Publishing to '{path}' with value '{selected_mqtt_val}'",
@@ -94,7 +94,7 @@ class GuiDropdownOptionCreatorMixin:
 
             if path:
                 self.topic_widgets[path] = (selected_value_var, option_labels, option_values)
-            
+
             console_log("✅ Celebration of success! The dropdown menu did appear.")
             return sub_frame
 

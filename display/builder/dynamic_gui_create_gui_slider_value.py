@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.001511.5
+# Version 20250828.215819.3
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.001511.5"
-current_version_hash = (20250828 * 1511 * 5)
+current_version = "20250828.215819.3"
+current_version_hash = (20250828 * 215819 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -40,7 +40,7 @@ class SliderValueCreatorMixin:
     def _create_slider_value(self, parent_frame, label, config, path):
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
-        
+
         debug_log(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a slider and value box for '{label}'.",
             file=current_file,
@@ -48,11 +48,11 @@ class SliderValueCreatorMixin:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+
         try:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-            
+
             # --- Layout Refactor: Start ---
             label_frame = ttk.Frame(sub_frame)
             label_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
@@ -62,10 +62,10 @@ class SliderValueCreatorMixin:
 
             value_unit_frame = ttk.Frame(sub_frame)
             value_unit_frame.pack(side=tk.BOTTOM, fill=tk.X, expand=True)
-            
+
             units_label = ttk.Label(value_unit_frame, text=config.get('units', ''))
             units_label.pack(side=tk.RIGHT, padx=(0, DEFAULT_PAD_X))
-            
+
             entry_value = tk.StringVar(value=config.get('value', '0'))
             entry = ttk.Entry(value_unit_frame, width=10, style="Custom.TEntry", textvariable=entry_value)
             entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
@@ -73,7 +73,7 @@ class SliderValueCreatorMixin:
             min_val = float(config.get('min', '0'))
             max_val = float(config.get('max', '100'))
             slider = ttk.Scale(value_unit_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL)
-            
+
             try:
                 initial_val = float(entry_value.get())
                 slider.set(initial_val)
@@ -95,6 +95,7 @@ class SliderValueCreatorMixin:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
+                # CORRECTED: This now correctly uses the central transmit method.
                 self._transmit_command(relative_topic=path, payload=new_val)
 
             def on_entry_change(event):
@@ -109,6 +110,7 @@ class SliderValueCreatorMixin:
                             function=f"{self.__class__.__name__}.{current_function_name}",
                             console_print_func=console_log
                         )
+                        # CORRECTED: This now correctly uses the central transmit method.
                         self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
                     console_log("Invalid input, please enter a number.")
@@ -120,10 +122,10 @@ class SliderValueCreatorMixin:
 
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
-            
+
             console_log("✅ Celebration of success! The slider value box did appear.")
             return sub_frame
-            
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
             debug_log(
