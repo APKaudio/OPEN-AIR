@@ -26,7 +26,7 @@ import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from display.builder.dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 
@@ -94,7 +94,7 @@ class DynamicGuiBuilder(
             self.base_topic = config.get("base_topic")
             self.topic_widgets = {}
 
-            console_log(f"🟠🟠🟠🟠🟠 self.base_topic: {self.base_topic}")
+       #     console_log(f"🟠🟠🟠🟠🟠 self.base_topic: {self.base_topic}")
             self.config_data = {}
             self.gui_built = False
             self.log_text = None
@@ -170,7 +170,7 @@ class DynamicGuiBuilder(
         )
         try:
             full_topic = f"{self.base_topic}{TOPIC_DELIMITER}{relative_topic}"
-            console_log(f"🟠🟠🟠🟠🟠 full_topic: {full_topic}")
+           # console_log(f"🟠🟠🟠🟠🟠 full_topic: {full_topic}")
 
             # This is the corrected line, passing the base topic and subtopic separately.
             self.mqtt_util.publish_message(topic=self.base_topic, subtopic=relative_topic, value=payload)
@@ -189,12 +189,12 @@ class DynamicGuiBuilder(
     def _update_nested_dict(self, path_parts, value):
         # Recursively traverses the dictionary structure and sets the value at the final key.
         
-        console_log(f"🟠🟠🟠🟠🟠 nested: {path_parts}")
+    #    console_log(f"🟠🟠🟠🟠🟠 nested: {path_parts}")
         
         current_level = self.config_data
         for part in path_parts[:-1]:
             current_level = current_level.setdefault(part, {})
-            console_log(f"🟠🟠🟠🟠🟠 current_level: {current_level}")
+            #console_log(f"🟠🟠🟠🟠🟠 current_level: {current_level}")
         
         final_value = value
         if isinstance(value, str):
@@ -210,7 +210,7 @@ class DynamicGuiBuilder(
                 final_value = json.loads(final_value)
             except (json.JSONDecodeError, TypeError):
                 pass 
-            console_log(f"🟠🟠🟠🟠🟠 final_value: {final_value}")
+            #console_log(f"🟠🟠🟠🟠🟠 final_value: {final_value}")
         if isinstance(final_value, str):
             if final_value.lower() == 'true':
                 final_value = True

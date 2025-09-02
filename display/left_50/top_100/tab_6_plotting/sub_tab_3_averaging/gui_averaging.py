@@ -14,7 +14,7 @@ import os
 
 from workers.worker_logging import console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 class AveragingTab(ttk.Frame):
     def __init__(self, master, mqtt_util, **kwargs):

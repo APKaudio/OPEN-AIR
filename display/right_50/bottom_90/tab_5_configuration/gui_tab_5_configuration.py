@@ -32,7 +32,7 @@ import datetime
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Version Information ---
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")

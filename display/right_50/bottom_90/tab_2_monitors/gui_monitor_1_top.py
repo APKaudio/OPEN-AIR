@@ -33,7 +33,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 # --- Global Scope Variables ---
 # W: The date of the chat session in YYYYMMDD format.
 CURRENT_DATE = 20250823

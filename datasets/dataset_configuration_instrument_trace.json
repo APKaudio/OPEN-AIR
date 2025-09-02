@@ -43,7 +43,7 @@
                 "description": "The standard mode, simply viewing the current sweep data.",
                 "value": "VIEW",
                 "units": "mode",
-                "selected": false
+                "selected": true
               }
             }
           },
@@ -64,7 +64,7 @@
                 "description": "Keeps the highest-level peaks on display, like a digital trophy case for signals.",
                 "value": "MAXHOLD",
                 "units": "mode",
-                "selected": false
+                "selected": true
               },
               "MINHOLD": {
                 "label": "MIN HOLD",
@@ -113,7 +113,7 @@
                 "description": "Holds onto the lowest points, great for detecting signals that vanish in the noise.",
                 "value": "MINHOLD",
                 "units": "mode",
-                "selected": false
+                "selected": true
               },
               "BLANK": {
                 "label": "BLANK",
@@ -162,7 +162,7 @@
                 "description": "Clears the slate, preparing for a new scan. A zen state for the scanner.",
                 "value": "BLANK",
                 "units": "mode",
-                "selected": false
+                "selected": true
               },
               "VIEW": {
                 "label": "VIEW",

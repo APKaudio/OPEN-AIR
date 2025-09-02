@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.185300.1
+# Version 20250901.222915.4
 
 import os
 import inspect
@@ -30,8 +30,8 @@ import sys
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20250827.185300.1"
-current_version_hash = (20250827 * 185300 * 1)
+current_version = "20250901.222915.4"
+current_version_hash = (20250901 * 222915 * 4)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
@@ -71,6 +71,8 @@ class MqttControllerUtility:
             self._log_to_treeview = log_treeview_func
             self.topics_seen = set()
             self._subscribers = {} # A new dictionary to hold subscribers and their callbacks
+            # [A] New list to store pending subscriptions before connection is made.
+            self._pending_subscriptions = {}
 
             console_log("✅ Celebration of success!")
         except Exception as e:
@@ -84,68 +86,60 @@ class MqttControllerUtility:
             )
             
     def add_subscriber(self, topic_filter: str, callback_func):
-        """Adds a callback function to be triggered for a specific topic filter."""
-        # A brief, one-sentence description of the function's purpose.
+        """
+        Stores a callback function for a given topic filter. Subscriptions are now
+        processed in bulk after a successful connection.
+        """
         current_function_name = inspect.currentframe().f_code.co_name
+        
+        # [A] First, we store the subscription request.
+        self._subscribers[topic_filter] = callback_func
+        
         debug_log(
-            message=f"🛠️🟢 New subscriber added for topic filter: '{topic_filter}'.",
+            message=f"🛠️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
             file=current_file,
             version=current_version,
             function=current_function_name,
             console_print_func=self._print_to_gui_console
         )
-        self._subscribers[topic_filter] = callback_func
-        # This is the single place we subscribe to a topic.
-        self.mqtt_client.subscribe(topic_filter)
-        debug_log(
-            message=f"🛠️🟢 New subscriber added for topic filter: '{topic_filter}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.add_subscriber",
-            console_print_func=self._print_to_gui_console
-        )
 
+        # [A] Only subscribe immediately if the client is already connected.
+        if self.mqtt_client and self.mqtt_client.is_connected():
+            self.mqtt_client.subscribe(topic_filter)
+            debug_log(
+                message=f"🔍 Subscribed immediately to '{topic_filter}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.add_subscriber",
+                console_print_func=self._print_to_gui_console
+            )
+        # [A] If not connected, add it to the pending list for later.
+        else:
+            self._pending_subscriptions[topic_filter] = callback_func
 
-    def check_status(self):
-        """Checks and reports the status of the Mosquitto broker."""
-        # A brief, one-sentence description of the function's purpose.
+    def on_connect(self, client, userdata, flags, rc):
+        """
+        Callback for when the MQTT client connects to the broker.
+        We now subscribe to all stored topics here.
+        """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to check broker status.",
+            message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=self._print_to_gui_console
         )
-        try:
-            if self.mqtt_client.is_connected():
-                console_log(f"✅ {BROKER_RUNNING_MSG}")
-            else:
-                console_log(f"❌ {BROKER_NOT_RUNNING_MSG}")
-        except Exception as e:
-            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+        
+        # [A] Subscribe to all stored topics on connection.
+        if self._pending_subscriptions:
+            for topic_filter in self._pending_subscriptions.keys():
+                 client.subscribe(topic_filter)
+            self._pending_subscriptions.clear()
 
-    def on_connect(self, client, userdata, flags, rc):
-        """Callback for when the MQTT client connects to the broker."""
-        # A brief, one-sentence description of the function's purpose.
-        current_function_name = inspect.currentframe().f_code.co_name
-      #  debug_log(
-      #      message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
-      #      file=current_file,
-      #      version=current_version,
-      #      function=f"{self.__class__.__name__}.{current_function_name}",
-      #      console_print_func=self._print_to_gui_console
-      #  )
         # We subscribe to a wildcard topic once to catch everything.
         client.subscribe("#")
-        self._print_to_gui_console(f"Connected to broker with rc={rc}")
+        self._print_to_gui_console(f"✅ Connected to broker with rc={rc}")
 
     def on_message(self, client, userdata, msg):
         """Callback for when an MQTT message is received."""
@@ -158,7 +152,6 @@ class MqttControllerUtility:
         self.topics_seen.add(topic)
         
         # Now we dispatch the message to all registered subscribers.
-        # FIX: Iterate over a copy of the dictionary to prevent RuntimeError.
         for topic_filter, callback_func in list(self._subscribers.items()):
             # The paho-mqtt library provides a topic_matches_sub function to check for wildcards.
             if mqtt.topic_matches_sub(topic_filter, topic):
@@ -250,7 +243,7 @@ class MqttControllerUtility:
             full_topic = f"{topic}/{subtopic}" if subtopic else topic
             payload = json.dumps({"value": value})
 
-            if self.mqtt_client:
+            if self.mqtt_client and self.mqtt_client.is_connected():
                 # The key change is here: adding the `retain=retain` argument.
                 self.mqtt_client.publish(full_topic, payload, retain=retain)
                 self._print_to_gui_console(f"Published to {full_topic}: {payload} with retain={retain}")
@@ -267,3 +260,9 @@ class MqttControllerUtility:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=self._print_to_gui_console
             )
+
+    def subscribe_to_topic(self, topic, callback):
+        # Subscribes to a given topic and registers a callback.
+        # [A] The old logic here is no longer needed. The on_connect callback handles subscriptions.
+        # [A] This method existed as a simple wrapper. The core logic has been moved to add_subscriber and on_connect.
+        pass

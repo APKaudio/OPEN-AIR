@@ -38,7 +38,7 @@ from datetime import datetime
 
 # --- Mocking core dependencies for this standalone test file ---
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 from workers.worker_logging import console_log, debug_log
 current_version = "GEMINI SUCKS"

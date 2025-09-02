@@ -28,7 +28,7 @@ import paho.mqtt.client as mqtt
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250823

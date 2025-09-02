@@ -33,12 +33,12 @@ import paho.mqtt.client as mqtt
 # --- FIX: Added matplotlib imports for plotting functionality ---
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.mqtt_controller_util import MqttControllerUtility
+from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 # W: The date of the chat session in YYYYMMDD format.

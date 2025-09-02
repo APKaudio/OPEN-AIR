@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.001500.20
+# Version 20250901.185600.3
 
 import os
 import inspect
@@ -25,17 +25,19 @@ import pathlib
 import sys
 import json
 import paho.mqtt.client as mqtt
+import threading
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
+from workers.worker_recon_data_node_builder import recon_data_publisher
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-CURRENT_TIME_HASH = 1500
-REVISION_NUMBER = 20
+CURRENT_DATE = 20250901
+CURRENT_TIME = 185600
+CURRENT_TIME_HASH = 185600
+REVISION_NUMBER = 3
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
@@ -105,6 +107,14 @@ class BaseGUIFrame(ttk.Frame):
             )
             self.publish_custom_button.pack(side=tk.LEFT, padx=5, pady=5)
             
+            # Button for the new recon data publisher
+            self.recon_button = ttk.Button(
+                mqtt_frame,
+                text="Start Recon",
+                command=self._run_recon_publisher
+            )
+            self.recon_button.pack(side=tk.LEFT, padx=5, pady=5)
+
             # Subscription label
             self.mqtt_topic_var = tk.StringVar(value="Waiting for MQTT message...")
             self.subscription_label = ttk.Label(mqtt_frame, textvariable=self.mqtt_topic_var)
@@ -114,6 +124,8 @@ class BaseGUIFrame(ttk.Frame):
             parent_folder = str(pathlib.Path(self.current_file).parent)
             subscription_topic = f"{parent_folder.replace('\\', '/')}/#"
             self.mqtt_util.add_subscriber(topic_filter=subscription_topic, callback_func=self._on_mqtt_message)
+            # We also need to subscribe to the recon root topic to display its messages
+            self.mqtt_util.add_subscriber(topic_filter="Open-Air/Recon/#", callback_func=self._on_mqtt_message)
 
 
             # --- New MQTT Message Log Table ---
@@ -306,7 +318,20 @@ class BaseGUIFrame(ttk.Frame):
             console_print_func=console_log
         )
         try:
-            message_content = json.loads(payload)["value"]
+            # FIX: Check for the new payload keys before attempting to access them.
+            # This handles both the old and new payload formats gracefully.
+            parsed_payload = json.loads(payload)
+
+            if "Value_dBm" in parsed_payload:
+                # New format from recon_data_publisher.py
+                message_content = f"dBm: {parsed_payload['Value_dBm']}, Time: {parsed_payload['time']}, Device: {parsed_payload['Device']}"
+            elif "value" in parsed_payload:
+                # Old generic format
+                message_content = parsed_payload['value']
+            else:
+                # Fallback if no known key is found
+                message_content = payload
+
             self.subscriptions_table.insert('', 'end', values=(topic, message_content))
             self.subscriptions_table.yview_moveto(1) # Scroll to the bottom
             self.mqtt_topic_var.set(f"Last Message: {topic} -> {message_content}")
@@ -347,6 +372,50 @@ class BaseGUIFrame(ttk.Frame):
                 console_print_func=console_log
             )
 
+    def _run_recon_publisher(self):
+        """
+        Runs the recon_data_publisher in a separate thread.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🟢 Starting recon publisher in a new thread.",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            self.recon_button.config(state=tk.DISABLED)
+            
+            # We run the publisher in a separate thread to prevent the GUI from freezing.
+            publisher_thread = threading.Thread(target=recon_data_publisher, args=(self.mqtt_util, console_log), daemon=True)
+            publisher_thread.start()
+            
+            self.recon_button.config(text="Running...")
+
+            console_log("✅ Reconnaissance data publishing started!")
+            self.after(500, self._check_thread_status, publisher_thread)
+
+        except Exception as e:
+            console_log(f"❌ Error starting recon publisher: {e}")
+            self.recon_button.config(state=tk.NORMAL, text="Start Recon")
+            debug_log(
+                message=f"❌🔴 The recon publisher thread has gone rogue! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+    
+    def _check_thread_status(self, thread):
+        """
+        Checks if the publisher thread is still alive and updates the button state.
+        """
+        if thread.is_alive():
+            self.after(500, self._check_thread_status, thread)
+        else:
+            self.recon_button.config(state=tk.NORMAL, text="Start Recon")
+            console_log("✅ Reconnaissance publishing complete.")
 
 if __name__ == "__main__":
     root = tk.Tk()
