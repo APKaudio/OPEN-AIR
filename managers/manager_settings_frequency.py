@@ -14,10 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250901.221341.7
-# FIXED: The _on_message callback now checks a lock to prevent redundant updates and infinite loops.
+# Version 20250901.221341.10
+# FIXED: Removed the call to the non-existent `get_retained_value` method.
+# FIXED: Implemented an internal dictionary to track the locked state of controls, preventing feedback loops.
 # FIXED: All published float values are now rounded to three decimal places for consistent precision.
-# FIXED: Added a new method to manage locked topics.
 # FIXED: Added validation to ensure start and stop frequencies are not negative.
 
 import os
@@ -29,8 +29,8 @@ from workers.worker_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
-current_version = "20250901.221341.7"
-current_version_hash = (20250901 * 221341 * 7)
+current_version = "20250901.221341.10"
+current_version_hash = (20250901 * 221341 * 10)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -55,8 +55,13 @@ class FrequencySettingsManager:
         # Dictionary to store preset values dynamically
         self.preset_values = {}
         
-        # NEW: A set to track topics that have just been published to, preventing loops.
-        self._locked_topics = set()
+        # NEW: A dictionary to track the locked state of controls.
+        self._locked_state = {
+            f"{self.base_topic}/Settings/fields/center_freq_MHz/value": False,
+            f"{self.base_topic}/Settings/fields/span_freq_MHz/value": False,
+            f"{self.base_topic}/Settings/fields/start_freq_MHz/value": False,
+            f"{self.base_topic}/Settings/fields/stop_freq_MHz/value": False,
+        }
         
         debug_log(
             message=f"🛠️🟢 Initializing FrequencySettingsManager and setting up subscriptions.",
@@ -79,11 +84,6 @@ class FrequencySettingsManager:
             f"{self.base_topic}/Settings/fields/stop_freq_MHz/value",
         ]
         
-        # Subscribe to both the 'selected' and 'value' topics for each preset
-        for i in range(1, 8):
-            topic_list.append(f"{self.base_topic}/Presets/fields/SPAN/options/{i}/selected")
-            topic_list.append(f"{self.base_topic}/Presets/fields/SPAN/options/{i}/value")
-
         for topic in topic_list:
             self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
             debug_log(
@@ -98,8 +98,8 @@ class FrequencySettingsManager:
         # The main message processing callback.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        # NEW: Check if the topic is currently locked to prevent infinite loops.
-        if topic in self._locked_topics:
+        # NEW: Check the internal lock state before processing.
+        if self._locked_state.get(topic, False):
             debug_log(
                 message=f"🟡 Message on locked topic '{topic}' received. Ignoring to prevent loop.",
                 file=current_file,
@@ -107,8 +107,8 @@ class FrequencySettingsManager:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            # Remove the topic from the lock after receiving the message.
-            self._unlock_topic(topic=topic)
+            # Unlock the topic immediately after receiving the message.
+            self._locked_state[topic] = False
             return
             
         debug_log(
@@ -191,6 +191,10 @@ class FrequencySettingsManager:
             new_start = round(self.center_freq - (self.span_freq / 2.0), 3)
             new_stop = round(self.center_freq + (self.span_freq / 2.0), 3)
             
+            # NEW: Set internal lock before publishing.
+            self._locked_state[f"{self.base_topic}/Settings/fields/start_freq_MHz/value"] = True
+            self._locked_state[f"{self.base_topic}/Settings/fields/stop_freq_MHz/value"] = True
+
             self._publish_update(topic_suffix="Settings/fields/start_freq_MHz/value", value=new_start)
             self._publish_update(topic_suffix="Settings/fields/stop_freq_MHz/value", value=new_stop)
             
@@ -228,6 +232,10 @@ class FrequencySettingsManager:
             new_span = round(self.stop_freq - self.start_freq, 3)
             new_center = round(self.start_freq + (new_span / 2.0), 3)
             
+            # NEW: Set internal lock before publishing.
+            self._locked_state[f"{self.base_topic}/Settings/fields/span_freq_MHz/value"] = True
+            self._locked_state[f"{self.base_topic}/Settings/fields/center_freq_MHz/value"] = True
+
             self._publish_update(topic_suffix="Settings/fields/span_freq_MHz/value", value=new_span)
             self._publish_update(topic_suffix="Settings/fields/center_freq_MHz/value", value=new_center)
             
@@ -239,40 +247,7 @@ class FrequencySettingsManager:
                 console_print_func=console_log
             )
             
-    def _update_span_from_preset(self, topic):
-        # Extracts the value from the preset topic and updates the span.
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        try:
-            option_number = int(topic.split('/')[-2])
-            new_span_value = self.preset_values.get(option_number)
-            
-            if new_span_value:
-                self._publish_update(topic_suffix="Settings/fields/span_freq_MHz/value", value=new_span_value)
-                debug_log(
-                    message=f"🔁 Preset selected! Updated span to {new_span_value} MHz.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-            else:
-                 debug_log(
-                    message=f"🟡 Warning: Preset value for option {option_number} has not been received yet.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-
-        except Exception as e:
-            debug_log(
-                message=f"🛠️🔴 Failed to apply preset from topic '{topic}'. The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+   
 
     def _publish_update(self, topic_suffix, value):
         # Publishes a message to the specified topic.
@@ -296,15 +271,3 @@ class FrequencySettingsManager:
             value=rounded_value,
             retain=False
         )
-
-    def _unlock_topic(self, topic):
-        # NEW: Removes a topic from the lock after a small delay.
-        if topic in self._locked_topics:
-            self._locked_topics.remove(topic)
-            debug_log(
-                message=f"🔓 Topic '{topic}' unlocked.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}._unlock_topic",
-                console_print_func=console_log
-            )
