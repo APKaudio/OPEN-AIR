@@ -1,15 +1,9 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/Scan"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/sweeping"
 
 
 
+# display_gui_child_pusher.py
 
-
-
-
-
-
-
-# display/left_50/top_100/tab_1_instrument/sub_tab_2_settings/sub_tab_1_frequency/gui_frequency_1.py
 #
 # A GUI frame that uses the DynamicGuiBuilder to create widgets for frequency settings.
 #

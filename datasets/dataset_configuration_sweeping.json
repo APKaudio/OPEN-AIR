@@ -1,6 +1,6 @@
 {
-    "Scan_Configuration": {
-        "General_Settings": {
+    
+        "Settings": {
             "type": "OcaBlock",
             "AES70": "OcaScanManager",
             "description": "A block for managing high-level scan parameters.",
@@ -223,4 +223,3 @@
             }
         }
     }
-}

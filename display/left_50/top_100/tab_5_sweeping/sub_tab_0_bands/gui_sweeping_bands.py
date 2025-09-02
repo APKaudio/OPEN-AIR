@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/meta/frequency bands"
+MQTT_TOPIC_FILTER = "OPEN-AIR/meta/frequency/bands/pointOfInterest"
 
 
 # display/gui_marker_editor.py

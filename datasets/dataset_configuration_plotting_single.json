@@ -1,0 +1,65 @@
+{
+  "single_Options": {
+    "type": "OcaBlock",
+    "AES70": "OcaPlottingManager",
+    "description": "A block for managing plot and marker options.",
+    "fields": {
+      "Plot_Controls": {
+        "type": "OcaBlock",
+        "AES70": "OcaPlottingControls",
+        "description": "Controls for generating and viewing plots.",
+        "fields": {
+          "plot_html_on_scan": {
+            "label": "Plot the HTML after every scan",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_plot_html",
+            "value": false
+          },
+          "create_html": {
+            "label": "Create HTML",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_create_html",
+            "value": true
+          }
+        }
+      },
+      "Markers_to_Include": {
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "Options for including different types of markers on the plot.",
+        "fields": {
+          "include_tv_band_markers": {
+            "label": "Include TV Band Markers",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_tv_markers",
+            "value": false
+          },
+          "include_government_band_markers": {
+            "label": "Include Government Band Markers",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_government_markers",
+            "value": false
+          },
+          "include_markers": {
+            "label": "Include Markers",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_markers",
+            "value": false
+          },
+          "include_intermodulations": {
+            "label": "Include Intermodulations",
+            "type": "_GuiCheckbox",
+            "AES70": "OcaSwitch",
+            "handler": "toggle_intermodulations",
+            "value": false
+          }
+        }
+      }
+    }
+  }
+}

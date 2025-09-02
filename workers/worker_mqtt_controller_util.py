@@ -1,4 +1,4 @@
-# utils/mqtt_controller_util.py
+# workers/worker_mqtt_controller_util.py
 #
 # A utility module to handle the logic for interfacing with an external MQTT broker.
 # This version refactors the client to centrally manage subscriptions and dispatch messages.
@@ -14,7 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250901.222915.4
+# Version 20250902.100615.5
+# FIXED: The publish_message function now correctly handles boolean False values. The check
+#        for a valid value has been updated to prevent False from being interpreted as a missing value.
 
 import os
 import inspect
@@ -30,8 +32,8 @@ import sys
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20250901.222915.4"
-current_version_hash = (20250901 * 222915 * 4)
+current_version = "20250902.100615.5"
+current_version_hash = (20250902 * 100615 * 5)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
@@ -236,9 +238,11 @@ class MqttControllerUtility:
         #    console_print_func=self._print_to_gui_console
         #)
         try:
-            if not topic or not value:
+            # --- START OF FIX: Correctly handle falsy values like 0 and False ---
+            if not topic or (value is None and value != False and value != 0):
                 self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}")
                 return
+            # --- END OF FIX ---
 
             full_topic = f"{topic}/{subtopic}" if subtopic else topic
             payload = json.dumps({"value": value})

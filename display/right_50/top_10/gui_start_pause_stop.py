@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/Start-Stop-Pause/Buttons"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/start-stop-pause"
 
 
 

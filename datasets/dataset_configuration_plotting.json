@@ -1,5 +1,5 @@
 {
-    "Plotting": {
+    "Settings": {
         "Active": {
             "type": "_GuiButtonToggle",
             "AES70": "OcaBooleanActuator",

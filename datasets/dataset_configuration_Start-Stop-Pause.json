@@ -1,30 +1,28 @@
 {
-
-      "Buttons": {
-        "type": "_GuiToggler",
-        "AES70": "OcaTransportActuator",
-        "description": "START PAUSE STOP BUTTONS",
-        "fields": {
-          "START": {
-            "label": "START",
-            "type": "_GuiToggler",
-            "AES70": "OcaBooleanActuator",
-            "handler": "toggle_continuous_initiate",
-            "value": false
-          },
-           
-          "PAUSE": {
-            "label": "PAUSE",
-            "type": "_GuiToggler",
-            "AES70": "OcaBooleanActuator",
-            "handler": "toggle_continuous_initiate",
-            "value": false
-          },
-           
-          "STOP": {
-            "label": "STOP",
-            "type": "_GuiToggler",
-            "AES70": "OcaBooleanActuator",
-            "handler": "toggle_continuous_initiate",
-            "value": true
-          }}}}
+  "Buttons": {
+    "type": "_GuiButtonToggler",
+    "AES70": "OcaTransportActuator",
+    "description": "START PAUSE STOP BUTTONS",
+    "handler": "handle_transport_state",
+    "options": {
+      "START": {
+        "label": "START",
+        "value": "START",
+        "description": "Initiates the program's primary function.",
+        "selected": false
+      },
+      "PAUSE": {
+        "label": "PAUSE",
+        "value": "PAUSE",
+        "description": "Pauses the program's current process.",
+        "selected": false
+      },
+      "STOP": {
+        "label": "STOP",
+        "value": "STOP",
+        "description": "Halts the program's current process.",
+        "selected": true
+      }
+    }
+  }
+}

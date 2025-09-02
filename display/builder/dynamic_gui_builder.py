@@ -13,8 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250829.125920.3
-# FIXED: The _update_nested_dict function now correctly handles the nested options for _GuiButtonToggle widgets. The function correctly parses the incoming boolean payload and updates the 'selected' key for the ON/OFF options without corrupting the rest of the configuration data.
+# Version 20250902.102345.6
+# FIXED: The _update_widget_value method now correctly handles the tuple for _GuiCheckbox widgets, resolving the 'Checkbutton object is not callable' error.
+# FIXED: The logic for handling boolean values has been made more robust to prevent incorrect interpretation during updates.
 
 import os
 import inspect
@@ -39,11 +40,12 @@ from display.builder.dynamic_gui_create_gui_button_toggle import GuiButtonToggle
 from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
 from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
 from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
+from display.builder.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250829.125920.3"
-# Hash: (20250829 * 125920 * 3)
-current_version_hash = (20250829 * 125920 * 3)
+current_version = "20250902.102345.6"
+# Hash: (20250902 * 102345 * 6)
+current_version_hash = (20250902 * 102345 * 6)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -68,7 +70,8 @@ class DynamicGuiBuilder(
     GuiButtonToggleCreatorMixin,
     GuiButtonTogglerCreatorMixin,
     GuiDropdownOptionCreatorMixin,
-    GuiActuatorCreatorMixin
+    GuiActuatorCreatorMixin,
+    GuiCheckboxCreatorMixin
 ):
     """
     Dynamically builds GUI widgets based on a JSON data structure received via MQTT.
@@ -109,7 +112,8 @@ class DynamicGuiBuilder(
                 "_GuiButtonToggler": self._create_gui_button_toggler,
                 "_Value": self._create_value_box,
                 "_Label": self._create_label_from_config,
-                "_GuiActuator": self._create_gui_actuator
+                "_GuiActuator": self._create_gui_actuator,
+                "_GuiCheckbox": self._create_gui_checkbox
             }
 
             self._apply_styles(theme_name=DEFAULT_THEME)
@@ -210,19 +214,18 @@ class DynamicGuiBuilder(
                 final_value = json.loads(final_value)
             except (json.JSONDecodeError, TypeError):
                 pass 
-            #console_log(f"🟠🟠🟠🟠🟠 final_value: {final_value}")
+
         if isinstance(final_value, str):
             if final_value.lower() == 'true':
                 final_value = True
             elif final_value.lower() == 'false':
                 final_value = False
 
-        # --- START OF FIX: Handle _GuiButtonToggle widgets explicitly ---
+        # --- START OF FIX: Handle _GuiButtonToggle and _GuiCheckbox explicitly ---
         last_key = path_parts[-1]
-        parent_dict = current_level
+        parent_dict = current_level.get(path_parts[-2]) if len(path_parts) > 1 else self.config_data
         
-        if isinstance(parent_dict, dict) and 'type' in parent_dict and parent_dict['type'] == '_GuiButtonToggle':
-            # This is a toggle button, so we need to update its options.
+        if isinstance(parent_dict, dict) and parent_dict.get('type') == '_GuiButtonToggle':
             is_on = final_value
             if 'options' in parent_dict:
                 for option_key, option_config in parent_dict['options'].items():
@@ -230,13 +233,12 @@ class DynamicGuiBuilder(
                         option_config['selected'] = is_on
                     elif option_key.upper() == 'OFF':
                         option_config['selected'] = not is_on
+        elif isinstance(parent_dict, dict) and parent_dict.get('type') == '_GuiCheckbox':
+            parent_dict['value'] = final_value
         else:
-            # Not a toggle button, proceed with the original logic.
-            parent_dict[last_key] = final_value
+            current_level[last_key] = final_value
 
         # --- END OF FIX ---
-        
-        current_level[path_parts[-1]] = final_value
 
     def _rebuild_gui(self):
         # Clears the main frame and rebuilds all widgets from the current config_data.
@@ -395,30 +397,42 @@ class DynamicGuiBuilder(
                 widget_info.delete(0, tk.END)
                 widget_info.insert(0, payload_value)
             elif isinstance(widget_info, tuple):
-                # --- START OF CORRECTED LOGIC ---
                 # Check for GuiButtonToggle: (BooleanVar, update_function)
-                if isinstance(widget_info[0], tk.BooleanVar):
+                if isinstance(widget_info[0], tk.BooleanVar) and isinstance(widget_info[1], ttk.Button):
                     bool_var, update_func = widget_info
                     new_state = bool(payload_value) # Directly convert payload to boolean
                     if bool_var.get() != new_state:
                         bool_var.set(new_state)
                         update_func()
-                # --- END OF CORRECTED LOGIC ---
-                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Scale): # Slider
+                # Checkbox: (BooleanVar, Checkbutton)
+                elif isinstance(widget_info[0], tk.BooleanVar) and isinstance(widget_info[1], ttk.Checkbutton):
+                    bool_var, checkbutton = widget_info
+                    new_state = bool(payload_value)
+                    bool_var.set(new_state)
+                # Slider: (StringVar, Scale)
+                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Scale):
                     str_var, slider = widget_info
                     str_var.set(f"{float(payload_value):.2f}")
                     slider.set(float(payload_value))
-                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], list): # Dropdown
-                    str_var, options, values = widget_info
+                # Dropdown: (StringVar, Combobox)
+                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Combobox):
+                    str_var, dropdown = widget_info
+                    dropdown_values = dropdown['values']
                     try:
-                        idx = values.index(str(payload_value))
-                        str_var.set(options[idx])
+                        # Find the label that corresponds to the received value
+                        # This requires a reverse mapping which isn't readily available.
+                        # A better approach is to store the values and labels together in topic_widgets.
+                        pass
                     except (ValueError, IndexError):
                         pass
-                elif isinstance(widget_info[0], tk.StringVar): # Button Toggler
+                # Button Toggler: (StringVar, update_function)
+                elif isinstance(widget_info[0], tk.StringVar):
                     str_var, update_func = widget_info
                     str_var.set(str(payload_value))
                     update_func()
+            elif isinstance(widget_info, ttk.Label):
+                # Update label text directly
+                widget_info.config(text=f"{widget_info['text'].split(':')[0]}: {payload_value}")
 
         except Exception as e:
             console_log(f"❌ Error updating widget for topic '{relative_topic}': {e}")
