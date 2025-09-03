@@ -13,9 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.212200.1
-# FIXED: The dropdown text color is now explicitly configured to be black, ensuring
-# that the text is always visible regardless of the current theme's settings.
+# Version 20250903.102500.9
+# NEW: Added a dedicated 'rebuild_options' method that allows the dropdown to dynamically refresh its list of available options based on a provided configuration dictionary.
+# FIXED: The creation function now stores a reference to the 'rebuild_options' method in the topic_widgets tuple for the parent builder to call.
 
 import os
 import tkinter as tk
@@ -27,8 +27,8 @@ from decimal import Decimal
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250902.212200.1"
-current_version_hash = (20250902 * 212200 * 1)
+current_version = "20250903.102500.9"
+current_version_hash = (20250903 * 102500 * 9)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -62,11 +62,14 @@ class GuiDropdownOptionCreatorMixin:
 
             options_map = config.get('options', {})
 
+            # Filter out inactive options for initial display
+            active_options = {k: v for k, v in options_map.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
+
             # Try to convert values to Decimal for numerical sorting, fall back to string sorting.
             try:
-                sorted_options = sorted(options_map.items(), key=lambda item: Decimal(item[1].get('value')))
+                sorted_options = sorted(active_options.items(), key=lambda item: Decimal(item[1].get('value')))
             except:
-                sorted_options = sorted(options_map.items(), key=lambda item: item[1].get('value', item[0]))
+                sorted_options = sorted(active_options.items(), key=lambda item: item[1].get('value', item[0]))
 
             # Populate the dropdown with labels and map them to values
             option_labels = [opt.get('label_active', key) for key, opt in sorted_options]
@@ -137,9 +140,8 @@ class GuiDropdownOptionCreatorMixin:
 
             if path:
                 # Store the widget info in a way that includes the current selection for tracking
-                self.topic_widgets[f"{path}/options/{initial_selected_key}/selected"] = (selected_value_var, option_labels, option_values)
-                # Store a reference to the main state variable for the dropdown for external updates.
-                self.topic_widgets[path] = (selected_value_var, dropdown)
+                # FIX: Storing the rebuild_options method in the tuple
+                self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
             console_log("✅ Celebration of success! The dropdown menu did appear.")
             return sub_frame
@@ -154,3 +156,26 @@ class GuiDropdownOptionCreatorMixin:
                 console_print_func=console_log
             )
             return None
+
+    def rebuild_options(self, dropdown, config):
+        """
+        NEW: Rebuilds the option list for a dropdown based on a new configuration.
+        """
+        options_map = config.get('options', {})
+
+        # Filter out options that are not active
+        active_options = {k: v for k, v in options_map.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
+
+        try:
+            sorted_options = sorted(active_options.items(), key=lambda item: Decimal(item[1].get('value')))
+        except:
+            sorted_options = sorted(active_options.items(), key=lambda item: item[1].get('value', item[0]))
+
+        option_labels = [opt.get('label_active', key) for key, opt in sorted_options]
+        dropdown['values'] = option_labels
+
+        # Find the currently selected option to retain it if possible
+        current_selection = dropdown.get()
+        if current_selection not in option_labels and option_labels:
+            dropdown.set(option_labels[0])
+            self._last_selected_option = next((key for key, opt in active_options.items() if opt.get('label_active', key) == option_labels[0]), None)

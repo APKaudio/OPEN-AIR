@@ -13,9 +13,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.102345.6
-# FIXED: The _update_widget_value method now correctly handles the tuple for _GuiCheckbox widgets, resolving the 'Checkbutton object is not callable' error.
-# FIXED: The logic for handling boolean values has been made more robust to prevent incorrect interpretation during updates.
+# Version 20250903.102000.12
+# FIXED: The _update_widget_value function now correctly checks for changes to a dropdown's options and calls a new 'rebuild_options' method to dynamically update the widget's content without a full GUI rebuild.
 
 import os
 import inspect
@@ -43,9 +42,9 @@ from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMi
 from display.builder.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
 
 # --- Global Scope Variables ---
-current_version = "20250902.102345.6"
-# Hash: (20250902 * 102345 * 6)
-current_version_hash = (20250902 * 102345 * 6)
+current_version = "20250903.102000.12"
+# Hash: (20250903 * 102000 * 12)
+current_version_hash = (20250903 * 102000 * 12)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -155,7 +154,7 @@ class DynamicGuiBuilder(
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"🖥️🔴 Arrr, the code be capsized! The GUI construction has failed! The error be: {e}",
+                message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -370,6 +369,44 @@ class DynamicGuiBuilder(
         try:
             widget_info = self.topic_widgets.get(relative_topic)
             if not widget_info:
+                # FIX START
+                # Handle cases where the message is for a sub-topic of a dropdown's options
+                # (e.g., /options/1/label_active)
+                if '/options/' in relative_topic:
+                    # The topic is for an option, not the dropdown itself.
+                    # Find the base path of the dropdown.
+                    parts = relative_topic.split('/options/')
+                    base_path = parts[0]
+                    # Get the widget info for the entire dropdown.
+                    dropdown_widget_info = self.topic_widgets.get(f"{base_path}") # The widget info is stored at the base path
+                    
+                    if dropdown_widget_info and len(dropdown_widget_info) == 3: # Correct length is 3 for this case
+                         # Unpack the stored values.
+                         str_var, dropdown, rebuild_method = dropdown_widget_info
+                         # Rebuild the options list in the dropdown widget.
+                         # We navigate the config data tree to the dropdown's location.
+                         dropdown_config = self.config_data
+                         for part in base_path.split('/'):
+                            # Need to handle potential KeyError if path is not found
+                            if 'fields' in dropdown_config:
+                                dropdown_config = dropdown_config['fields']
+                            dropdown_config = dropdown_config.get(part, {})
+
+                         # If the configuration data for the dropdown is found, rebuild it.
+                         if "options" in dropdown_config:
+                             rebuild_method(dropdown=dropdown, config=dropdown_config)
+
+                             # After rebuilding, check if the value from the parent topic is already set
+                             # and set the dropdown to that value.
+                             parent_topic_path = '/'.join(base_path.split('/'))
+                             parent_config_data = self.config_data
+                             for part in parent_topic_path.split('/'):
+                                 parent_config_data = parent_config_data.get(part, {})
+                             
+                             if 'value' in parent_config_data:
+                                 dropdown.set(parent_config_data['value'])
+                         return
+                # FIX END
                 return
 
             payload_value = payload
@@ -414,17 +451,12 @@ class DynamicGuiBuilder(
                     str_var, slider = widget_info
                     str_var.set(f"{float(payload_value):.2f}")
                     slider.set(float(payload_value))
-                # Dropdown: (StringVar, Combobox)
-                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Combobox):
-                    str_var, dropdown = widget_info
-                    dropdown_values = dropdown['values']
-                    try:
-                        # Find the label that corresponds to the received value
-                        # This requires a reverse mapping which isn't readily available.
-                        # A better approach is to store the values and labels together in topic_widgets.
-                        pass
-                    except (ValueError, IndexError):
-                        pass
+                # Dropdown: (StringVar, Combobox, rebuild_method)
+                elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Combobox) and len(widget_info) == 3:
+                    # The widget info stores the rebuild method directly.
+                    str_var, dropdown, rebuild_method = widget_info
+                    # Update the StringVar to trigger the dropdown's display update
+                    str_var.set(str(payload_value))
                 # Button Toggler: (StringVar, update_function)
                 elif isinstance(widget_info[0], tk.StringVar):
                     str_var, update_func = widget_info

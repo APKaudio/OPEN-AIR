@@ -6,7 +6,8 @@
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
-# Version 20250902.235024.3 (UPDATED: Implemented a synchronous resource search method.)
+# Version 20250903.092844.3
+# FIXED: Resolved an AttributeError by correctly parsing the string boolean value 'true' from the MQTT payload without using the .lower() method.
 
 import inspect
 import os
@@ -23,7 +24,7 @@ from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables ---
-current_version = "20250902.235024.3"
+current_version = "20250903.092844.3"
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -94,6 +95,8 @@ class VisaDeviceManager():
         # self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/search", callback_func=self._on_search_request)
         self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
         self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
+        # NEW: Subscribe to the button's value change
+        self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Search_For_devices/value", callback_func=self._on_search_request)
         
         console_log("✅ VisaDeviceManager subscribed to command topics.")
 
@@ -108,8 +111,47 @@ class VisaDeviceManager():
         else:
             console_log(f"❌ MQTT utility not initialized. Cannot publish to {topic_suffix}.")
 
+    def _on_search_request(self, topic, payload):
+        """
+        NEW: Handles the 'Search_For_devices' button press from the GUI.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        try:
+            payload_data = json.loads(payload)
+            # FIX: Check the payload value for the string 'true'
+            if payload_data.get('value') == 'true':
+                console_log("🔍 Search for devices initiated from GUI.")
+                resources = self.search_resources(console_log)
+                self._update_found_devices_gui(resources)
+                # Reset the button state in the GUI
+                # FIX: Passing raw boolean to avoid double encoding.
+                self.mqtt_util.publish_message(topic=topic, subtopic="", value=False, retain=False)
+        except json.JSONDecodeError:
+            pass # Ignore malformed messages
 
-
+    def _update_found_devices_gui(self, resources):
+        """
+        Updates the GUI's `Found_devices` dropdown based on the search results.
+        """
+        base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices"
+        
+        # We process up to 10 entries as per the JSON structure
+        for i in range(1, 11):
+            option_topic_prefix = f"{base_topic}/options/{i}"
+            
+            if i <= len(resources):
+                device_name = resources[i-1]
+                # Set the device as active and update its label
+                # FIX: Pass raw boolean and string values.
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value=True, retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value=device_name, retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value=device_name, retain=False)
+            else:
+                # Set the remaining placeholders as inactive and clear their labels
+                # FIX: Pass raw boolean and string values.
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value=False, retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
 
     def populate_resources_logic(self, console_print_func):
         """

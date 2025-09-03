@@ -10,7 +10,7 @@
         "label_inactive": "Search for devices",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": "0"
+        "value": false
       },
 
       "Found_devices": {
