@@ -48,8 +48,8 @@ class GuiButtonToggleCreatorMixin:
             options_map = config.get('options', {})
             on_config = options_map.get('ON', {})
             off_config = options_map.get('OFF', {})
-            on_text = on_config.get('label', 'ON')
-            off_text = off_config.get('label', 'OFF')
+            on_text = on_config.get('label_active', 'ON')
+            off_text = off_config.get('label_inactive', 'OFF')
 
             # Determine initial state from config, defaulting to false if unspecified.
             # The `path` variable already points directly to the 'value' key's topic.

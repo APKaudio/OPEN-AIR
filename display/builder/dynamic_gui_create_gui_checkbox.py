@@ -56,12 +56,23 @@ class GuiCheckboxCreatorMixin:
             initial_value = bool(config.get('value', False))
             state_var = tk.BooleanVar(value=initial_value)
 
+            def get_label_text():
+                current_state = state_var.get()
+                # Use label_active/label_inactive if they exist, otherwise fall back to the main label.
+                if current_state:
+                    return config.get('label_active', config.get('label', ''))
+                else:
+                    return config.get('label_inactive', config.get('label', ''))
+            
+            def update_label():
+                # Manually update the checkbox text
+                checkbox.config(text=get_label_text())
+
             def toggle_and_publish():
                 # Flips the state and publishes the change via MQTT.
                 new_state = state_var.get()
-                # --- START OF FIX: Pass raw boolean instead of JSON string ---
+                # Pass raw boolean instead of JSON string
                 payload = new_state
-                # --- END OF FIX ---
                 debug_log(
                     message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
                     file=current_file,
@@ -70,11 +81,13 @@ class GuiCheckboxCreatorMixin:
                     console_print_func=console_log
                 )
                 self._transmit_command(relative_topic=path, payload=payload)
+                # Update the label after the state change
+                update_label()
 
-            # Create the checkbox button.
+            # Create the checkbox button with an initial label.
             checkbox = ttk.Checkbutton(
                 parent_frame,
-                text=label,
+                text=get_label_text(),
                 variable=state_var,
                 command=toggle_and_publish
             )

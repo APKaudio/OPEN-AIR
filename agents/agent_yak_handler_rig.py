@@ -15,19 +15,32 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.114500.1
+# Version 20250902.115600.1
 
 import inspect
-from agents.agent_yak_dispatch_scpi import ScpiDispatcher
+import os
+
+from workers.worker_logging import debug_log, console_log
+from agents.agent_YaketyYak import YakRig
 
 # --- Global Scope Variables ---
-current_version = "20250902.114500.1"
-current_version_hash = (20250902 * 114500 * 1)
+current_version = "20250902.115600.1"
+current_version_hash = (20250902 * 115600 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-def handle_rig_command(dispatcher: ScpiDispatcher, command_type, *variable_values):
+def YakRig_handle_command(dispatcher, command_type, *variable_values):
     """
     Handles a 'RIG' command by substituting placeholders.
     """
-    # ... logic from Yakety_Yak.py's YakRig function ...
-    pass
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"🐐 🟢 Entering {current_function}. command_type: {command_type}, variable_values: {variable_values}",
+                file=current_file,
+                version=current_version,
+                function=current_function)
+
+    response = YakRig(dispatcher, command_type, variable_values)
+
+    if response == "PASSED":
+        return "PASSED"
+    else:
+        return "FAILED"

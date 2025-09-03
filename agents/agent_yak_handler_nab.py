@@ -1,36 +1,60 @@
+# agents/agent_yak_handler_nab.py
+#
+# This file provides handler functions for new "NAB" commands. These commands
+# are designed for efficient, single-query retrieval of multiple instrument settings.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no change to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20250902.115600.1
+
+import inspect
+import os
+import numpy as np
+from typing import Optional, List, Dict
+
+from agents.agent_YaketyYak import YakBeg, YakNab
+from workers.worker_logging import debug_log
+from display.console_logic import console_log
+
+
+# --- Global Scope Variables ---
+current_version = "20250902.115600.1"
+current_version_hash = (20250902 * 115600 * 1)
+current_file = f"{os.path.basename(__file__)}"
 
 
 # Helper conversion function
 MHZ_TO_HZ = 1000000
 
-def handle_bandwidth_settings_nab(app_instance, console_print_func) -> Optional[Dict]:
+def YakNab_bandwidth_settings(app_instance, console_print_func) -> Optional[Dict]:
     """
-    Function Description:
     Executes the "BANDWIDTH/SETTINGS" NAB command to retrieve multiple bandwidth
     settings in a single query. It returns a dictionary of the retrieved values.
-    
+
     The corresponding NAB command can be found in `visa_commands.csv`.
-
-    Inputs:
-    - app_instance (object): A reference to the main application instance.
-    - console_print_func (function): A function to print messages to the GUI console.
-
-    Outputs:
-    - dict: A dictionary containing the fetched settings, or None on failure.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Retrieving all bandwidth settings with a single NAB command. Let's make this snappy! ⚡",
-              file=current_file,
-              version=current_version,
-              function=current_function)
-    
+               file=current_file,
+               version=current_version,
+               function=current_function)
+
     response = YakNab(app_instance, "BANDWIDTH/SETTINGS", console_print_func)
 
     if response and isinstance(response, list) and len(response) == 5:
         try:
             vbw_auto_on_value = response[2]
             continuous_mode_on_value = response[3]
-            
+
             settings = {
                 "RBW_Hz": float(response[0]),
                 "VBW_Hz": float(response[1]),
@@ -51,32 +75,22 @@ def handle_bandwidth_settings_nab(app_instance, console_print_func) -> Optional[
                       version=current_version,
                       function=current_function)
             return None
-    
+
     console_log("❌ Failed to retrieve all bandwidth settings from instrument.")
     return None
 
 
-def handle_amplitude_settings_nab(app_instance, console_print_func) -> Optional[Dict]:
+def YakNab_amplitude_settings(app_instance, console_print_func) -> Optional[Dict]:
     """
-    Function Description:
     Executes a NAB command to retrieve multiple amplitude settings in a single query.
     It retrieves the Reference Level, Power Attenuation, and Preamp state.
-    
-    The corresponding NAB command can be found in `visa_commands.csv`.
-
-    Inputs:
-    - app_instance (object): A reference to the main application instance.
-    - console_print_func (function): A function to print messages to the GUI console.
-
-    Outputs:
-    - dict: A dictionary containing the fetched settings, or None on failure.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Retrieving all amplitude settings with a single NAB command. A treasure hunt for data! 🗺️",
               file=current_file,
               version=current_version,
               function=current_function)
-    
+
     response = YakNab(app_instance, "AMPLITUDE/SETTINGS", console_print_func)
 
     if response and isinstance(response, list) and len(response) == 3:
@@ -99,27 +113,17 @@ def handle_amplitude_settings_nab(app_instance, console_print_func) -> Optional[
                       version=current_version,
                       function=current_function)
             return None
-    
+
     console_log("❌ Failed to retrieve all amplitude settings from instrument.")
     return None
 
 
-def handle_all_traces_nab(app_instance, console_print_func) -> Optional[Dict]:
+def YakNab_all_traces(app_instance, console_print_func) -> Optional[Dict]:
     """
-    Function Description:
     This handler executes the "TRACE/ALL/ONETWOTHREE" NAB command.
     It retrieves the start/stop frequencies, trace modes, and data for traces 1, 2, and 3
     in a single, efficient query. It then processes the complex response string into
     a structured dictionary of data and modes suitable for plotting or display.
-
-    Inputs:
-    - app_instance: The main application instance.
-    - console_print_func: A function to print messages to the GUI console.
-
-    Outputs:
-    - Optional[Dict]: A dictionary with keys for "TraceData", "StartFreq", "StopFreq",
-                      and "TraceModes" if successful.
-                      Returns None on failure.
     """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Retrieving multiple traces with a single NAB command.",

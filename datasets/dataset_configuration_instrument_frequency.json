@@ -5,10 +5,11 @@
     "description": "A block for managing all frequency-related settings.",
     "fields": {
       "center_freq_MHz": {
-        "label": "Center Frequency",
+        "label_active": "Center Frequency",
+        "label_inactive": "Center Frequency",
         "type": "_sliderValue",
         "handler": "set_center_frequency",
-"locked":  false,
+        "locked": false,
         "value": "500",
         "min": "0",
         "max": "6000",
@@ -16,10 +17,11 @@
         "units": "MHz"
       },
       "span_freq_MHz": {
-        "label": "Frequency Span",
+        "label_active": "Frequency Span",
+        "label_inactive": "Frequency Span",
         "type": "_sliderValue",
         "handler": "set_span_frequency",
-"locked":  false,
+        "locked": false,
         "value": "200",
         "min": "0",
         "max": "1000",
@@ -27,10 +29,11 @@
         "units": "MHz"
       },
       "start_freq_MHz": {
-        "label": "Start Frequency",
+        "label_active": "Start Frequency",
+        "label_inactive": "Start Frequency",
         "type": "_sliderValue",
         "handler": "set_start_frequency",
-"locked":  false,
+        "locked": false,
         "value": "400",
         "min": "0",
         "max": "5999",
@@ -38,10 +41,11 @@
         "units": "MHz"
       },
       "stop_freq_MHz": {
-        "label": "Stop Frequency",
+        "label_active": "Stop Frequency",
+        "label_inactive": "Stop Frequency",
         "type": "_sliderValue",
         "handler": "set_stop_frequency",
-"locked":  false,
+        "locked": false,
         "value": "600",
         "min": "1",
         "max": "6000",
@@ -62,49 +66,56 @@
         "options": {
           "1": {
             "value": "0.01",
-            "label": "Microscope",
+            "label_active": "Microscope",
+            "label_inactive": "Microscope",
             "description": "So tight you'll feel like a cellular biologist examining a single-cell waveform.",
             "units": "MHz",
             "selected": false
           },
           "2": {
             "value": "0.1",
-            "label": "Tight",
+            "label_active": "Tight",
+            "label_inactive": "Tight",
             "description": "A narrow, focused view for getting up close and personal with signals.",
             "units": "MHz",
             "selected": false
           },
           "3": {
             "value": "1",
-            "label": "Normal",
+            "label_active": "Normal",
+            "label_inactive": "Normal",
             "description": "The standard span, a balanced diet for most common analysis.",
             "units": "MHz",
             "selected": false
           },
           "4": {
             "value": "10",
-            "label": "Wide",
+            "label_active": "Wide",
+            "label_inactive": "Wide",
             "description": "A broad, digestible view of the spectrum, great for general reconnaissance.",
             "units": "MHz",
             "selected": false
           },
           "5": {
             "value": "100",
-            "label": "Ultra Wide",
+            "label_active": "Ultra Wide",
+            "label_inactive": "Ultra Wide",
             "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
             "units": "MHz",
             "selected": false
           },
           "6": {
             "value": "500",
-            "label": "From Space",
+            "label_active": "From Space",
+            "label_inactive": "From Space",
             "description": "A very broad span for finding signals over a large frequency range.",
             "units": "MHz",
             "selected": false
           },
           "7": {
             "value": "1000",
-            "label": "From The Moon",
+            "label_active": "From The Moon",
+            "label_inactive": "From The Moon",
             "description": "A very broad span for finding signals over a large frequency range. It's like scanning with a wide-angle lens.",
             "units": "MHz",
             "selected": false

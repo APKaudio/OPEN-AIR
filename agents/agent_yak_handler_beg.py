@@ -15,136 +15,92 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.114500.1
+# Version 20250902.115600.1
 
 import inspect
-from agents.agent_yak_dispatch_scpi import ScpiDispatcher
+import os
+import numpy as np
+
+from workers.worker_logging import debug_log, console_log
+from agents.agent_YaketyYak import YakBeg
 
 # --- Global Scope Variables ---
-current_version = "20250902.114500.1"
-current_version_hash = (20250902 * 114500 * 1)
+current_version = "20250902.115600.1"
+current_version_hash = (20250902 * 115600 * 1)
 current_file = f"{os.path.basename(__file__)}"
+MHZ_TO_HZ = 1000000
 
-def handle_beg_command(dispatcher: ScpiDispatcher, command_type, *variable_values):
+def handle_beg_command(dispatcher, command_type, *variable_values):
     """
     Handles a 'BEG' command by combining a SET command with a GET query.
     """
-    # ... logic from Yakety_Yak.py's YakBeg function ...
+    # This function is not used in this file's refactored logic, but it's kept for the dispatcher.
     pass
 
-
-
-def handle_freq_start_stop_beg(app_instance, start_freq, stop_freq, console_print_func):
-    # Function Description:
-    # Handles the extended YakBeg command for FREQUENCY/START-STOP.
-    # It now returns start, stop, center, and span frequencies.
+def YakBeg_freq_start_stop(app_instance, start_freq, stop_freq, console_print_func):
+    """
+    Handles the extended YakBeg command for FREQUENCY/START-STOP.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Arrr, a treasure map for frequencies! 🗺️",
                 file=current_file,
                 version=current_version,
                 function=current_function)
-    
-    # We send start and stop, and get back start, stop, span, and center
-    response = YakBeg(app_instance, "FREQUENCY/START-STOP", console_print_func, start_freq, stop_freq)
-    
-    if response and response != "FAILED":
-        try:
-            # Response is a semicolon-separated string of four values
-            parts = response.split(';')
-            if len(parts) == 4:
-                start = float(parts[0])
-                stop = float(parts[1])
-                span = float(parts[2])
-                center = float(parts[3])
-                debug_log(f"🐐 ✅ Processed response: start={start}, stop={stop}, span={span}, center={center}",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-                return start, stop, span, center
-        except (ValueError, IndexError) as e:
-            console_print_func(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
-            debug_log(f"🐐 ❌ Arrr, the response be gibberish! Error: {e}",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-    return None, None, None, None
 
-def handle_freq_center_span_beg(app_instance, center_freq, span_freq, console_print_func):
-    # Function Description:
-    # Handles the extended YakBeg command for FREQUENCY/CENTER-SPAN.
-    # It now returns center, span, start, and stop frequencies.
+    response = YakBeg(app_instance, "FREQUENCY/START-STOP", console_print_func, start_freq, stop_freq)
+
+    # The parsing logic will be handled by the caller.
+    return response
+
+def YakBeg_freq_center_span(app_instance, center_freq, span_freq, console_print_func):
+    """
+    Handles the extended YakBeg command for FREQUENCY/CENTER-SPAN.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Plotting a course to the center! 🧭",
                 file=current_file,
                 version=current_version,
                 function=current_function)
-    
-    # We send center and span, and get back span, center, start, and stop
-    response = YakBeg(app_instance, "FREQUENCY/CENTER-SPAN", console_print_func, center_freq, span_freq)
-    
-    if response and response != "FAILED":
-        try:
-            # Response is a semicolon-separated string of four values
-            parts = response.split(';')
-            if len(parts) == 4:
-                # FIXED: Correct parsing order to match the VISA response
-                span = float(parts[0])
-                center = float(parts[1])
-                start = float(parts[2])
-                stop = float(parts[3])
-                debug_log(f"🐐 ✅ Processed response: center={center}, span={span}, start={start}, stop={stop}",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-                return center, span, start, stop
-        except (ValueError, IndexError) as e:
-            console_print_func(f"❌ Failed to parse response from instrument for multiple traces. Error: {e}")
-            debug_log(f"🐐 ❌ Arrr, the response be gibberish! Error: {e}",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-    return None, None, None, None
 
-def handle_marker_place_all_beg(app_instance, marker_freqs_MHz, console_print_func):
-    # Function Description:
-    # Handles the YakBeg command for MARKER/PLACE/ALL.
+    response = YakBeg(app_instance, "FREQUENCY/CENTER-SPAN", console_print_func, center_freq, span_freq)
+
+    # The parsing logic will be handled by the caller.
+    return response
+
+def YakBeg_marker_place_all(app_instance, marker_freqs_MHz, console_print_func):
+    """
+    Handles the YakBeg command for MARKER/PLACE/ALL.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}. Parameters: marker_freqs_MHz={marker_freqs_MHz}",
                 file=current_file,
                 version=current_version,
                 function=current_function)
-    
+
     if not app_instance.inst:
         console_print_func("❌ No instrument connected. Cannot set markers.")
-        debug_log("🐐 ❌ No instrument connected. Aborting marker operation.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
         return "FAILED"
 
     marker_freqs_hz = []
-    for freq in marker_freqs_MHz:
-        try:
+    try:
+        for freq in marker_freqs_MHz:
             marker_freqs_hz.append(int(float(freq) * MHZ_TO_HZ))
-        except ValueError:
-            console_print_func(f"❌ Invalid marker frequency entered: '{freq}'. Must be a number.")
-            debug_log(f"🐐 🚫 Invalid marker frequency entered: '{freq}'. Aborting YakBeg.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function)
-            return "FAILED"
+    except ValueError:
+        console_print_func(f"❌ Invalid marker frequency entered: '{freq}'. Must be a number.")
+        return "FAILED"
 
     response = YakBeg(app_instance, "MARKER/PLACE/ALL", console_print_func, *marker_freqs_hz)
-    
+
     debug_log(f"🐐 ✅ Marker operation complete. Response: {response}. ✅",
                 file=current_file,
                 version=current_version,
                 function=current_function)
     return response
 
-def handle_trace_modes_beg(app_instance, trace_modes, console_print_func):
-    # Function Description:
-    # Handles the YakBeg command for TRACE/MODES.
+def YakBeg_trace_modes(app_instance, trace_modes, console_print_func):
+    """
+    Handles the YakBeg command for TRACE/MODES.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}",
                 file=current_file,
@@ -157,15 +113,16 @@ def handle_trace_modes_beg(app_instance, trace_modes, console_print_func):
                 function=current_function)
     return response
 
-def handle_trace_data_beg(app_instance, trace_number, start_freq_MHz, stop_freq_MHz, console_print_func):
-    # Function Description:
-    # Handles the YakBeg command for TRACE/DATA, including parsing and returning data.
+def YakBeg_trace_data(app_instance, trace_number, start_freq_MHz, stop_freq_MHz, console_print_func):
+    """
+    Handles the YakBeg command for TRACE/DATA, including parsing and returning data.
+    """
     current_function = inspect.currentframe().f_code.co_name
     debug_log(f"🐐 🟢 Entering {current_function}",
                 file=current_file,
                 version=current_version,
                 function=current_function)
-    
+
     command_type = f"TRACE/{trace_number}/DATA"
     start_freq_hz = int(start_freq_MHz * MHZ_TO_HZ)
     stop_freq_hz = int(stop_freq_MHz * MHZ_TO_HZ)

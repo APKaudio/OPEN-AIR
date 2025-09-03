@@ -10,14 +10,16 @@
         "description": "Controls for generating and viewing plots.",
         "fields": {
           "plot_html_on_scan": {
-            "label": "Plot the HTML after every scan",
+            "label_active": "Plot the HTML after every scan",
+            "label_inactive": "Plot the HTML after every scan",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_plot_html",
             "value": false
           },
           "create_html": {
-            "label": "Create HTML",
+            "label_active": "Create HTML",
+            "label_inactive": "Create HTML",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_create_html",
@@ -31,28 +33,32 @@
         "description": "Options for including different types of markers on the plot.",
         "fields": {
           "include_tv_band_markers": {
-            "label": "Include TV Band Markers",
+            "label_active": "Include TV Band Markers",
+            "label_inactive": "Include TV Band Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_tv_markers",
             "value": false
           },
           "include_government_band_markers": {
-            "label": "Include Government Band Markers",
+            "label_active": "Include Government Band Markers",
+            "label_inactive": "Include Government Band Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_government_markers",
             "value": false
           },
           "include_markers": {
-            "label": "Include Markers",
+            "label_active": "Include Markers",
+            "label_inactive": "Include Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_markers",
             "value": false
           },
           "include_intermodulations": {
-            "label": "Include Intermodulations",
+            "label_active": "Include Intermodulations",
+            "label_inactive": "Include Intermodulations",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_intermodulations",

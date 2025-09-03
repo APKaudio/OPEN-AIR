@@ -15,7 +15,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.114500.1
+# Version 20250902.115000.1
+# UPDATED: Merged all low-level VISA utility functions from utils_yak_visa.py into this class for a centralized communication core.
 
 import os
 import inspect
@@ -29,9 +30,10 @@ from workers.worker_logging import debug_log, console_log
 from display.debug_logic import log_visa_command
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
+
 # --- Global Scope Variables ---
-current_version = "20250902.114500.1"
-current_version_hash = (20250902 * 114500 * 1)
+current_version = "20250902.115000.1"
+current_version_hash = (20250902 * 115000 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -101,33 +103,6 @@ class ScpiDispatcher:
                 return None
         return command_details
 
-    def write_safe(self, command):
-        """Safely writes a SCPI command to the instrument."""
-        if not self.inst:
-            console_log("❌ Warning: Instrument not connected. Cannot write command.")
-            return False
-        try:
-            self.inst.write(command)
-            log_visa_command(command, "SENT")
-            return True
-        except Exception as e:
-            console_log(f"❌ Error writing command '{command}': {e}")
-            return False
-
-    def query_safe(self, command):
-        """Safely queries the instrument and returns the response."""
-        if not self.inst:
-            console_log("❌ Warning: Instrument not connected. Cannot query command.")
-            return None
-        try:
-            response = self.inst.query(command).strip()
-            log_visa_command(command, "SENT")
-            log_visa_command(response, "RECEIVED")
-            return response
-        except Exception as e:
-            console_log(f"❌ Error querying command '{command}': {e}")
-            return None
-
     def dispatch_command(self, command_type, action_type, *args):
         """High-level dispatcher that routes calls to the appropriate handler."""
         handler_map = {
@@ -142,4 +117,89 @@ class ScpiDispatcher:
             return handler(self, command_type, *args)
         else:
             console_log(f"❌ Unknown action type '{action_type}'. Cannot execute command.")
+            return "FAILED"
+
+    def _reset_device(self, inst):
+        """Sends a soft reset command to the instrument to restore a known state after an error."""
+        current_function = inspect.currentframe().f_code.co_name
+        console_log("⚠️ Command failed. Attempting to reset the instrument with '*RST'...")
+        debug_log(f"🐐 🟡 Command failed. Attempting to send reset command '*RST' to the instrument.",
+                    file=current_file, version=current_version, function=current_function)
+        
+        reset_success = self.write_safe("*RST")
+        if reset_success:
+            console_log("✅ Device reset command sent successfully.")
+        else:
+            console_log("❌ Failed to send reset command.")
+        return reset_success
+
+    def write_safe(self, command):
+        """Safely writes a SCPI command to the instrument."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"🐐 📝 Attempting to write command: {command}",
+                    file=current_file, version=current_version, function=current_function)
+        if not self.inst:
+            console_log("⚠️ Warning: Instrument not connected. Cannot write command.")
+            return False
+        try:
+            self.inst.write(command)
+            log_visa_command(command, "SENT")
+            return True
+        except Exception as e:
+            console_log(f"❌ Error writing command '{command}': {e}")
+            self._reset_device(self.inst)
+            return False
+
+    def query_safe(self, command):
+        """Safely queries the instrument with a SCPI command and returns the response."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"🐐 📝 Attempting to query command: {command}",
+                    file=current_file, version=current_version, function=current_function)
+        if not self.inst:
+            console_log("⚠️ Warning: Instrument not connected. Cannot query command.")
+            return None
+        try:
+            response = self.inst.query(command).strip()
+            log_visa_command(command, "SENT")
+            log_visa_command(response, "RECEIVED")
+            return response
+        except Exception as e:
+            console_log(f"❌ Error querying command '{command}': {e}")
+            self._reset_device(self.inst)
+            return None
+
+    def set_safe(self, command, value):
+        """Safely writes a SET command to the instrument with a specified value."""
+        current_function = inspect.currentframe().f_code.co_name
+        full_command = f"{command} {value}"
+        debug_log(f"🐐 📝 Attempting to SET: {full_command}",
+                    file=current_file, version=current_version, function=current_function)
+        return self.write_safe(full_command)
+
+    def _wait_for_opc(self, timeout=5):
+        """Waits for the instrument's Operation Complete (OPC) flag."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"🐐 🟠 Waiting for Operation Complete (*OPC?) with a timeout of {timeout} seconds.",
+                    file=current_file, version=current_version, function=current_function)
+        original_timeout = self.inst.timeout
+        self.inst.timeout = timeout * 1000
+        try:
+            response = self.inst.query("*OPC?").strip()
+            self.inst.timeout = original_timeout
+            if response == "1":
+                console_log("✅ Operation Complete. Fucking brilliant!")
+                return "PASSED"
+            else:
+                console_log("❌ Operation failed to complete or returned an unexpected value.")
+                self._reset_device(self.inst)
+                return "FAILED"
+        except pyvisa.errors.VisaIOError as e:
+            self.inst.timeout = original_timeout
+            console_log(f"❌ Operation Complete query timed out after {timeout} seconds.")
+            self._reset_device(self.inst)
+            return "TIME FAILED"
+        except Exception as e:
+            self.inst.timeout = original_timeout
+            console_log(f"❌ Error during Operation Complete query: {e}")
+            self._reset_device(self.inst)
             return "FAILED"

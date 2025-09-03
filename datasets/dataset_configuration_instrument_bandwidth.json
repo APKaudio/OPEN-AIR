@@ -5,10 +5,11 @@
     "description": "A block for managing all bandwidth and sweep time settings.",
     "fields": {
       "RBW": {
-        "label": "Resolution Bandwidth",
+        "label_active": "Resolution Bandwidth",
+        "label_inactive": "Resolution Bandwidth",
         "type": "_sliderValue",
         "handler": "set_rbw",
-"locked":  false,
+        "locked": false,
         "value": "1",
         "min": "1",
         "max": "10",
@@ -21,56 +22,64 @@
         "options": {
           "1": {
             "value": "1",
-            "label": "Fast",
+            "label_active": "Fast",
+            "label_inactive": "Fast",
             "description": "Like a race car: fast sweep, low detail. Best for catching fleeting signals.",
             "units": "MHz",
             "selected": false
           },
           "2": {
             "value": "0.3",
-            "label": "Brisk",
+            "label_active": "Brisk",
+            "label_inactive": "Brisk",
             "description": "A jog through the spectrum; quick enough to see the sights without missing much.",
             "units": "MHz",
             "selected": false
           },
           "3": {
             "value": "0.1",
-            "label": "Deliberate",
+            "label_active": "Deliberate",
+            "label_inactive": "Deliberate",
             "description": "The perfect balance of speed and fidelity. Not too fast, not too slow.",
             "units": "MHz",
             "selected": false
           },
           "4": {
             "value": "0.03",
-            "label": "Steady",
+            "label_active": "Steady",
+            "label_inactive": "Steady",
             "description": "A calm stroll, giving you time to appreciate the finer signal details.",
             "units": "MHz",
             "selected": false
           },
           "5": {
             "value": "0.01",
-            "label": "Leisurely",
+            "label_active": "Leisurely",
+            "label_inactive": "Leisurely",
             "description": "A slow saunter through the noise floor, where every waveform is a work of art.",
             "units": "MHz",
             "selected": false
           },
           "6": {
             "value": "0.003",
-            "label": "Unhurried",
+            "label_active": "Unhurried",
+            "label_inactive": "Unhurried",
             "description": "For the patient scientist. You'll see things nobody else can, but it'll take a while.",
             "units": "MHz",
             "selected": false
           },
           "7": {
             "value": "0.001",
-            "label": "Slothlike",
+            "label_active": "Slothlike",
+            "label_inactive": "Slothlike",
             "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
             "units": "MHz",
             "selected": false
           },
           "8": {
             "value": "0.0003",
-            "label": "Slothlike",
+            "label_active": "Slothlike",
+            "label_inactive": "Slothlike",
             "description": "So slow you can practically see the electrons move. The highest fidelity, but you'll miss any quick events.",
             "units": "MHz",
             "selected": false
@@ -78,20 +87,22 @@
         }
       },
       "Sweep_time_s": {
-        "label": "Sweep Time",
+        "label_active": "Sweep Time",
+        "label_inactive": "Sweep Time",
         "type": "_sliderValue",
         "handler": "set_sweep_time",
-"locked":  false,
+        "locked": false,
         "value": "1",
         "min": "1",
         "max": "10",
         "units": "s"
       },
       "vbw_MHz": {
-        "label": "Video Bandwidth",
+        "label_active": "Video Bandwidth",
+        "label_inactive": "Video Bandwidth",
         "type": "_sliderValue",
         "handler": "set_vbw",
-"locked":  false,
+        "locked": false,
         "value": "1",
         "min": "1",
         "max": "10",
@@ -104,91 +115,104 @@
         "options": {
           "1": {
             "value": "1",
-            "label": "Ultra Fast",
+            "label_active": "Ultra Fast",
+            "label_inactive": "Ultra Fast",
             "description": "A lightning-fast sweep. Filters are wide open, letting everything through.",
             "units": "MHz",
             "selected": false
           },
           "2": {
             "value": "0.3",
-            "label": "Very Fast",
+            "label_active": "Very Fast",
+            "label_inactive": "Very Fast",
             "description": "A quick pass through the spectrum, ideal for fast-changing signals.",
             "units": "MHz",
             "selected": false
           },
           "3": {
             "value": "0.1",
-            "label": "Fast",
+            "label_active": "Fast",
+            "label_inactive": "Fast",
             "description": "A balanced speed for general purpose monitoring and signal capture.",
             "units": "MHz",
             "selected": false
           },
           "4": {
             "value": "0.03",
-            "label": "Normal",
+            "label_active": "Normal",
+            "label_inactive": "Normal",
             "description": "The standard filter setting for most common analysis tasks. Not too much, not too little.",
             "units": "MHz",
             "selected": false
           },
           "5": {
             "value": "0.01",
-            "label": "Slow",
+            "label_active": "Slow",
+            "label_inactive": "Slow",
             "description": "A gentle filter, giving you more time to appreciate the finer details of a waveform.",
             "units": "MHz",
             "selected": false
           },
           "6": {
             "value": "0.003",
-            "label": "Very Slow",
+            "label_active": "Very Slow",
+            "label_inactive": "Very Slow",
             "description": "For the meticulous scientist. You'll filter out fast noise and jitter, but at the cost of speed.",
             "units": "MHz",
             "selected": false
           },
           "7": {
             "value": "0.001",
-            "label": "Ultra Slow",
+            "label_active": "Ultra Slow",
+            "label_inactive": "Ultra Slow",
             "description": "A meditative pace. So slow you can practically see the electrons move, offering maximum stability and noise reduction.",
             "units": "MHz",
             "selected": false
           },
           "8": {
             "value": "0.0003",
-            "label": "Glacial",
+            "label_active": "Glacial",
+            "label_inactive": "Glacial",
             "description": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
             "units": "MHz",
             "selected": false
           },
           "9": {
             "value": "0.0001",
-            "label": "Glacial",
+            "label_active": "Glacial",
+            "label_inactive": "Glacial",
             "description": "A slow crawl. Good for very detailed analysis of continuous signals and filtering out transient noise.",
             "units": "MHz",
             "selected": false
           },
           "10": {
             "value": "0.00003",
-            "label": "Sub-Glacial",
+            "label_active": "Sub-Glacial",
+            "label_inactive": "Sub-Glacial",
             "description": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
             "units": "MHz",
             "selected": false
           },
           "11": {
             "value": "0.00001",
-            "label": "Sub-Glacial",
+            "label_active": "Sub-Glacial",
+            "label_inactive": "Sub-Glacial",
             "description": "The scanner cries, but it's worth it. Filters out almost all random noise, giving you a crystal-clear, steady line.",
             "units": "MHz",
             "selected": false
           },
           "12": {
             "value": "0.000003",
-            "label": "Crazy Slow",
+            "label_active": "Crazy Slow",
+            "label_inactive": "Crazy Slow",
             "description": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
             "units": "MHz",
             "selected": false
           },
           "13": {
             "value": "0.000001",
-            "label": "Crazy Slow",
+            "label_active": "Crazy Slow",
+            "label_inactive": "Crazy Slow",
             "description": "Time seems to stop. For the most patient scientists and signals with incredible stability. The ultimate low-pass filter.",
             "units": "MHz",
             "selected": false
@@ -196,24 +220,24 @@
         }
       },
       "VBW_Automatic": {
-        "label": "VBW Auto On",
+        "label_active": "VBW Auto On",
+        "label_inactive": "VBW Auto On",
         "type": "_GuiButtonToggle",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_vbw_auto",
         "options": {
           "ON": {
-            "label": "Auto ON",
+            "label_active": "Auto ON",
+            "label_inactive": "Auto ON",
             "selected": true
           },
           "OFF": {
-            "label": "Auto OFF",
+            "label_active": "Auto OFF",
+            "label_inactive": "Auto OFF",
             "selected": false
           }
         }
       }
-      
-      
-      
-      }
     }
   }
+}

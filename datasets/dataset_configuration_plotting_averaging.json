@@ -10,42 +10,48 @@
         "description": "A block for managing mathematical analysis flags.",
         "fields": {
           "average": {
-            "label": "Average",
+            "label_active": "Average",
+            "label_inactive": "Average",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_average",
             "value": false
           },
           "median": {
-            "label": "Median",
+            "label_active": "Median",
+            "label_inactive": "Median",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_median",
             "value": false
           },
           "range": {
-            "label": "Range",
+            "label_active": "Range",
+            "label_inactive": "Range",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_range",
             "value": false
           },
           "standard_deviation": {
-            "label": "Standard Deviation",
+            "label_active": "Standard Deviation",
+            "label_inactive": "Standard Deviation",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_standard_deviation",
             "value": false
           },
           "variance": {
-            "label": "Variance",
+            "label_active": "Variance",
+            "label_inactive": "Variance",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_variance",
             "value": false
           },
           "power_spectral_density": {
-            "label": "Power Spectral Density (PSD)",
+            "label_active": "Power Spectral Density (PSD)",
+            "label_inactive": "Power Spectral Density (PSD)",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_power_spectral_density",
@@ -59,28 +65,32 @@
         "description": "A block for selecting which markers to include in the plot.",
         "fields": {
           "include_tv_band_markers": {
-            "label": "Include TV Band Markers",
+            "label_active": "Include TV Band Markers",
+            "label_inactive": "Include TV Band Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_tv_markers",
             "value": false
           },
           "include_government_band_markers": {
-            "label": "Include Government Band Markers",
+            "label_active": "Include Government Band Markers",
+            "label_inactive": "Include Government Band Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_government_markers",
             "value": false
           },
           "include_markers": {
-            "label": "Include Markers",
+            "label_active": "Include Markers",
+            "label_inactive": "Include Markers",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_markers",
             "value": false
           },
           "include_intermodulations": {
-            "label": "Include Intermodulations",
+            "label_active": "Include Intermodulations",
+            "label_inactive": "Include Intermodulations",
             "type": "_GuiCheckbox",
             "AES70": "OcaSwitch",
             "handler": "toggle_intermodulations",
@@ -94,35 +104,40 @@
         "description": "A block of buttons to trigger specific plotting actions.",
         "fields": {
           "open_folder": {
-            "label": "Open Folder to Average",
+            "label_active": "Open Folder to Average",
+            "label_inactive": "Open Folder to Average",
             "type": "_GuiActuator",
             "AES70": "OcaTriggeredActuator",
             "handler": "open_folder",
             "value": "0"
           },
           "generate_csv": {
-            "label": "Generate CSV of Selected Series of Scan",
+            "label_active": "Generate CSV of Selected Series of Scan",
+            "label_inactive": "Generate CSV of Selected Series of Scan",
             "type": "_GuiActuator",
             "AES70": "OcaTriggeredActuator",
             "handler": "generate_csv",
             "value": "0"
           },
           "open_applied_math_folder": {
-            "label": "Open Folder of Applied Math",
+            "label_active": "Open Folder of Applied Math",
+            "label_inactive": "Open Folder of Applied Math",
             "type": "_GuiActuator",
             "AES70": "OcaTriggeredActuator",
             "handler": "open_applied_math_folder",
             "value": "0"
           },
           "generate_plot_of_averages": {
-            "label": "Generate Plot of Averages",
+            "label_active": "Generate Plot of Averages",
+            "label_inactive": "Generate Plot of Averages",
             "type": "_GuiActuator",
             "AES70": "OcaTriggeredActuator",
             "handler": "generate_plot_of_averages",
             "value": "0"
           },
           "generate_plot_of_averages_with_scan": {
-            "label": "Generate Plot of Averages with Scan",
+            "label_active": "Generate Plot of Averages with Scan",
+            "label_inactive": "Generate Plot of Averages with Scan",
             "type": "_GuiActuator",
             "AES70": "OcaTriggeredActuator",
             "handler": "generate_plot_of_averages_with_scan",

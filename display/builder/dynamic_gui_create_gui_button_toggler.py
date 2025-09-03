@@ -65,10 +65,25 @@ class GuiButtonTogglerCreatorMixin:
             def update_button_styles():
                 current_selection = selected_var.get()
                 for key, button_widget in buttons.items():
+                    option_data = options_data.get(key, {})
+                    
+                    # Determine the text for the button based on its state
                     if key == current_selection:
+                        button_text = option_data.get('label_active', option_data.get('label', ''))
                         button_widget.config(style='Selected.TButton')
                     else:
+                        button_text = option_data.get('label_inactive', option_data.get('label', ''))
                         button_widget.config(style='TButton')
+
+                    # Add value and units on separate lines if they exist
+                    value = option_data.get('value')
+                    units = option_data.get('units')
+                    if value is not None:
+                        button_text += f"\n{value}"
+                    if units is not None:
+                        button_text += f"\n{units}"
+                    
+                    button_widget.config(text=button_text)
 
             def create_command(key):
                 def command():
@@ -91,11 +106,8 @@ class GuiButtonTogglerCreatorMixin:
             col_num = 0
 
             for option_key, option_data in options_data.items():
-                button_text = f"{option_data.get('label', '')}\n{option_data.get('value', '')} {option_data.get('units', '')}"
-
                 button = ttk.Button(
                     button_container,
-                    text=button_text,
                     command=create_command(option_key)
                 )
                 button.grid(row=row_num, column=col_num, padx=2, pady=2, sticky="ew")

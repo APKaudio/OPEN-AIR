@@ -1,146 +1,175 @@
 {
-    "Signal_Configuration": {
-        "Active": {
-            "type": "_GuiButtonToggle",
-            "AES70": "OcaBooleanActuator",
-            "handler": "set_signal_active",
-            "options": {
-                "ON": {
-                    "label": "Active",
-                    "selected": true
-                },
-                "OFF": {
-                    "label": "Inactive",
-                    "selected": false
-                }
-            }
+  "Signal_Configuration": {
+    "Active": {
+      "type": "_GuiButtonToggle",
+      "AES70": "OcaBooleanActuator",
+      "handler": "set_signal_active",
+      "options": {
+        "ON": {
+          "label_active": "Active",
+          "label_inactive": "Active",
+          "selected": true
         },
-        "showtime_mode": {
-            "type": "_GuiDropDownOption",
-            "AES70": "OcaSwitch",
-            "handler": "set_showtime_mode",
-            "options": {
-                "live": {
-                    "label": "Live",
-                    "value": "live",
-                    "selected": false
-                },
-                "buffered": {
-                    "label": "Buffered",
-                    "value": "buffered",
-                    "selected": true
-                },
-                "scan": {
-                    "label": "Scan",
-                    "value": "scan",
-                    "selected": false
-                }
-            }
-        },
-        "span_hz": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_span",
-            "value": "1000000",
-            "units": "Hz",
-            "min": 0,
-            "max": 5000000000,
-            "step": 1000
-        },
-        "rbw_hz": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_rbw",
-            "value": "100000",
-            "units": "Hz",
-            "min": 1,
-            "max": 1000000,
-            "step": 100
-        },
-        "trace_live": {
-            "type": "_GuiButtonToggle",
-            "AES70": "OcaBooleanActuator",
-            "handler": "set_trace_live",
-            "options": {
-                "ON": {
-                    "label": "Live Trace ON",
-                    "selected": true
-                },
-                "OFF": {
-                    "label": "Live Trace OFF",
-                    "selected": false
-                }
-            }
-        },
-        "trace_max_hold": {
-            "type": "_GuiButtonToggle",
-            "AES70": "OcaBooleanActuator",
-            "handler": "set_trace_max_hold",
-            "options": {
-                "ON": {
-                    "label": "Max Hold ON",
-                    "selected": false
-                },
-                "OFF": {
-                    "label": "Max Hold OFF",
-                    "selected": true
-                }
-            }
-        },
-        "trace_min_hold": {
-            "type": "_GuiButtonToggle",
-            "AES70": "OcaBooleanActuator",
-            "handler": "set_trace_min_hold",
-            "options": {
-                "ON": {
-                    "label": "Min Hold ON",
-                    "selected": false
-                },
-                "OFF": {
-                    "label": "Min Hold OFF",
-                    "selected": true
-                }
-            }
-        },
-        "buffer_MHz": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_buffer",
-            "value": "3.0",
-            "units": "MHz",
-            "min": 0,
-            "max": 1000,
-            "step": 0.1
-        },
-        "poke_freq_MHz": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_poke_frequency",
-            "value": "444.444444",
-            "units": "MHz",
-            "min": 0,
-            "max": 5000,
-            "step": 0.000001
-        },
-        "buffered_start_var": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_buffered_start",
-            "value": "0.0",
-            "units": "MHz",
-            "min": 0,
-            "max": 3000,
-            "step": 0.1
-        },
-        "buffered_stop_var": {
-            "type": "_sliderValue",
-            "AES70": "OcaFrequencyActuator",
-            "handler": "set_buffered_stop",
-            "value": "0.0",
-            "units": "MHz",
-            "min": 0,
-            "max": 3000,
-            "step": 0.1
+        "OFF": {
+          "label_active": "Inactive",
+          "label_inactive": "Inactive",
+          "selected": false
         }
+      }
+    },
+    "showtime_mode": {
+      "type": "_GuiDropDownOption",
+      "AES70": "OcaSwitch",
+      "handler": "set_showtime_mode",
+      "options": {
+        "live": {
+          "label_active": "Live",
+          "label_inactive": "Live",
+          "value": "live",
+          "selected": false
+        },
+        "buffered": {
+          "label_active": "Buffered",
+          "label_inactive": "Buffered",
+          "value": "buffered",
+          "selected": true
+        },
+        "scan": {
+          "label_active": "Scan",
+          "label_inactive": "Scan",
+          "value": "scan",
+          "selected": false
+        }
+      }
+    },
+    "span_hz": {
+      "label_active": "span_hz",
+      "label_inactive": "span_hz",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_span",
+      "value": "1000000",
+      "units": "Hz",
+      "min": 0,
+      "max": 5000000000,
+      "step": 1000
+    },
+    "rbw_hz": {
+      "label_active": "rbw_hz",
+      "label_inactive": "rbw_hz",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_rbw",
+      "value": "100000",
+      "units": "Hz",
+      "min": 1,
+      "max": 1000000,
+      "step": 100
+    },
+    "trace_live": {
+      "label_active": "trace_live",
+      "label_inactive": "trace_live",
+      "type": "_GuiButtonToggle",
+      "AES70": "OcaBooleanActuator",
+      "handler": "set_trace_live",
+      "options": {
+        "ON": {
+          "label_active": "Live Trace ON",
+          "label_inactive": "Live Trace ON",
+          "selected": true
+        },
+        "OFF": {
+          "label_active": "Live Trace OFF",
+          "label_inactive": "Live Trace OFF",
+          "selected": false
+        }
+      }
+    },
+    "trace_max_hold": {
+      "label_active": "trace_max_hold",
+      "label_inactive": "trace_max_hold",
+      "type": "_GuiButtonToggle",
+      "AES70": "OcaBooleanActuator",
+      "handler": "set_trace_max_hold",
+      "options": {
+        "ON": {
+          "label_active": "Max Hold ON",
+          "label_inactive": "Max Hold ON",
+          "selected": false
+        },
+        "OFF": {
+          "label_active": "Max Hold OFF",
+          "label_inactive": "Max Hold OFF",
+          "selected": true
+        }
+      }
+    },
+    "trace_min_hold": {
+      "label_active": "trace_min_hold",
+      "label_inactive": "trace_min_hold",
+      "type": "_GuiButtonToggle",
+      "AES70": "OcaBooleanActuator",
+      "handler": "set_trace_min_hold",
+      "options": {
+        "ON": {
+          "label_active": "Min Hold ON",
+          "label_inactive": "Min Hold ON",
+          "selected": false
+        },
+        "OFF": {
+          "label_active": "Min Hold OFF",
+          "label_inactive": "Min Hold OFF",
+          "selected": true
+        }
+      }
+    },
+    "buffer_MHz": {
+      "label_active": "buffer_MHz",
+      "label_inactive": "buffer_MHz",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_buffer",
+      "value": "3.0",
+      "units": "MHz",
+      "min": 0,
+      "max": 1000,
+      "step": 0.1
+    },
+    "poke_freq_MHz": {
+      "label_active": "poke_freq_MHz",
+      "label_inactive": "poke_freq_MHz",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_poke_frequency",
+      "value": "444.444444",
+      "units": "MHz",
+      "min": 0,
+      "max": 5000,
+      "step": 0.000001
+    },
+    "buffered_start_var": {
+      "label_active": "buffered_start_var",
+      "label_inactive": "buffered_start_var",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_buffered_start",
+      "value": "0.0",
+      "units": "MHz",
+      "min": 0,
+      "max": 3000,
+      "step": 0.1
+    },
+    "buffered_stop_var": {
+      "label_active": "buffered_stop_var",
+      "label_inactive": "buffered_stop_var",
+      "type": "_sliderValue",
+      "AES70": "OcaFrequencyActuator",
+      "handler": "set_buffered_stop",
+      "value": "0.0",
+      "units": "MHz",
+      "min": 0,
+      "max": 3000,
+      "step": 0.1
     }
+  }
 }

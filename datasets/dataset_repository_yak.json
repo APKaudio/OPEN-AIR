@@ -1,0 +1,809 @@
+{
+  "Settings": {
+    "type": "OcaBlock",
+    "AES70": "OcaFrequencyActuator",
+    "description": "A block for managing all frequency-related settings.",
+    "fields": {
+      "center_freq_MHz": {
+        "label_active": "Center Frequency",
+        "label_inactive": "Center Frequency",
+        "type": "_sliderValue",
+        "value": "The desired center frequency.",
+        "units": "MHz",
+        "min": 0,
+        "max": 6000,
+        "step": 0.005,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":FREQuency:CENTer <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The frequency value in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for center frequency."
+          }
+        }
+      },
+      "span_freq_MHz": {
+        "label_active": "Frequency Span",
+        "label_inactive": "Frequency Span",
+        "type": "_sliderValue",
+        "value": "The desired span frequency.",
+        "units": "MHz",
+        "min": 0,
+        "max": 1000,
+        "step": 0.005,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":FREQuency:SPAN <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The span value in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for frequency span."
+          }
+        }
+      },
+      "start_freq_MHz": {
+        "label_active": "Start Frequency",
+        "label_inactive": "Start Frequency",
+        "type": "_sliderValue",
+        "value": "The start frequency.",
+        "units": "MHz",
+        "min": 0,
+        "max": 5999,
+        "step": 0.005,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":FREQuency:STARt <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The start frequency in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for start frequency."
+          }
+        }
+      },
+      "stop_freq_MHz": {
+        "label_active": "Stop Frequency",
+        "label_inactive": "Stop Frequency",
+        "type": "_sliderValue",
+        "value": "The stop frequency.",
+        "units": "MHz",
+        "min": 1,
+        "max": 6000,
+        "step": 0.005,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":FREQuency:STOP <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The stop frequency in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for stop frequency."
+          }
+        }
+      },
+      "freq_start_stop_beg": {
+        "label_active": "Set Start/Stop",
+        "label_inactive": "Set Start/Stop",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "Keysight_Technologies": {
+            "N9340B": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?",
+            "N9342CN": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+          }
+        },
+        "scpi_inputs": {
+          "start_freq": {
+            "value": "The starting frequency variable.",
+            "type": "_valueBox",
+            "description": "The SCPI input for start frequency."
+          },
+          "stop_freq": {
+            "value": "The stopping frequency variable.",
+            "type": "_valueBox",
+            "description": "The SCPI input for stop frequency."
+          }
+        },
+        "scpi_outputs": {
+          "start_freq": {
+            "value": "The starting frequency.",
+            "type": "_GuiLabel",
+            "description": "The SCPI output for start frequency."
+          },
+          "stop_freq": {
+            "value": "The stopping frequency.",
+            "type": "_GuiLabel",
+            "description": "The SCPI output for stop frequency."
+          }
+        }
+      },
+      "freq_center_span_beg": {
+        "label_active": "Set Center/Span",
+        "label_inactive": "Set Center/Span",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "Keysight_Technologies": {
+            "N9340B": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?",
+            "N9342CN": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
+          }
+        },
+        "scpi_inputs": {
+          "center_freq": {
+            "value": "The center frequency variable.",
+            "type": "_valueBox",
+            "description": "The SCPI input for center frequency."
+          },
+          "span_freq": {
+            "value": "The span frequency variable.",
+            "type": "_valueBox",
+            "description": "The SCPI input for span frequency."
+          }
+        },
+        "scpi_outputs": {
+          "start_freq": {
+            "value": "The starting frequency.",
+            "type": "_GuiLabel",
+            "description": "The SCPI output for start frequency."
+          },
+          "stop_freq": {
+            "value": "The stopping frequency.",
+            "type": "_GuiLabel",
+            "description": "The SCPI output for stop frequency."
+          }
+        }
+      }
+    }
+  },
+  "Bandwidth": {
+    "type": "OcaBlock",
+    "AES70": "OcaBandwidthActuator",
+    "description": "A block for managing all bandwidth and sweep time settings.",
+    "fields": {
+      "RBW_Hz": {
+        "label_active": "Resolution Bandwidth",
+        "label_inactive": "Resolution Bandwidth",
+        "type": "_sliderValue",
+        "value": "The resolution bandwidth in Hz.",
+        "units": "Hz",
+        "min": 1,
+        "max": 10000000,
+        "step": 1,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:BANDwidth:RESolution <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The resolution bandwidth in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for RBW."
+          }
+        }
+      },
+      "VBW_Hz": {
+        "label_active": "Video Bandwidth",
+        "label_inactive": "Video Bandwidth",
+        "type": "_sliderValue",
+        "value": "The video bandwidth in Hz.",
+        "units": "Hz",
+        "min": 1,
+        "max": 10000000,
+        "step": 1,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:BANDwidth:VIDeo <hz_value>"
+          }
+        },
+        "scpi_inputs": {
+          "hz_value": {
+            "value": "The video bandwidth in Hz.",
+            "type": "_valueBox",
+            "description": "The SCPI input for VBW."
+          }
+        }
+      },
+      "VBW_Auto_On": {
+        "label_active": "VBW Auto On",
+        "label_inactive": "VBW Auto On",
+        "type": "_GuiButtonToggle",
+        "value": "A boolean indicating if VBW is in auto mode.",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:BANDwidth:VIDeo:AUTO <state>"
+          }
+        },
+        "scpi_inputs": {
+          "state": {
+            "value": "The state variable ('ON' or 'OFF').",
+            "type": "_valueBox",
+            "description": "The SCPI input for VBW auto state."
+          }
+        }
+      },
+      "NAB_bandwidth_settings": {
+        "label_active": "Get All Bandwidth Settings",
+        "label_inactive": "Get All Bandwidth Settings",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SWEep:TIME?"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "RBW_Hz": {
+            "value": "The resolution bandwidth in Hz.",
+            "type": "_GuiLabel"
+          },
+          "VBW_Hz": {
+            "value": "The video bandwidth in Hz.",
+            "type": "_GuiLabel"
+          },
+          "VBW_Auto_On": {
+            "value": "Boolean for VBW auto state.",
+            "type": "_GuiLabel"
+          },
+          "Continuous_Mode_On": {
+            "value": "Boolean for continuous mode state.",
+            "type": "_GuiLabel"
+          },
+          "Sweep_Time_s": {
+            "value": "The sweep time in seconds.",
+            "type": "_GuiLabel"
+          }
+        }
+      }
+    }
+  },
+  "Amplitude": {
+    "type": "OcaBlock",
+    "AES70": "OcaGain",
+    "description": "A block for managing all amplitude-related settings.",
+    "fields": {
+      "Ref_Level_dBm": {
+        "label_active": "Reference Level",
+        "label_inactive": "Reference Level",
+        "type": "_sliderValue",
+        "value": "The reference level in dBm.",
+        "units": "dBm",
+        "min": -120,
+        "max": 0,
+        "step": 5,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":POWer:RF:LEVel <value>"
+          }
+        },
+        "scpi_inputs": {
+          "value": {
+            "value": "The reference level in dBm.",
+            "type": "_valueBox",
+            "description": "The SCPI input for reference level."
+          }
+        }
+      },
+      "Attenuation_dB": {
+        "label_active": "Power Attenuation",
+        "label_inactive": "Power Attenuation",
+        "type": "_sliderValue",
+        "value": "The attenuation in dB.",
+        "units": "dB",
+        "min": 0,
+        "max": 70,
+        "step": 10,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":POWer:RF:ATTenuation <value>"
+          }
+        },
+        "scpi_inputs": {
+          "value": {
+            "value": "The attenuation in dB.",
+            "type": "_valueBox",
+            "description": "The SCPI input for power attenuation."
+          }
+        }
+      },
+      "Preamp_On": {
+        "label_active": "Preamp On",
+        "label_inactive": "Preamp On",
+        "type": "_GuiButtonToggle",
+        "value": "A boolean indicating if the preamp is on.",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":POWer:RF:PREamp:STATe <state>"
+          }
+        },
+        "scpi_inputs": {
+          "state": {
+            "value": "The state variable ('ON' or 'OFF').",
+            "type": "_valueBox",
+            "description": "The SCPI input for preamp state."
+          }
+        }
+      },
+      "High_Sensitivity_On": {
+        "label_active": "High Sensitivity",
+        "label_inactive": "High Sensitivity",
+        "type": "_GuiButtonToggle",
+        "value": "A boolean indicating if high sensitivity mode is on.",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":INP:HSENS ON"
+          }
+        },
+        "scpi_inputs": {}
+      },
+      "NAB_amplitude_settings": {
+        "label_active": "Get All Amplitude Settings",
+        "label_inactive": "Get All Amplitude Settings",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":POWer:RF:LEVel?;:POWer:RF:ATTenuation?;:POWer:RF:PREamp:STATe?"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "Ref_Level_dBm": {
+            "value": "The reference level in dBm.",
+            "type": "_GuiLabel"
+          },
+          "Attenuation_dB": {
+            "value": "The attenuation in dB.",
+            "type": "_GuiLabel"
+          },
+          "Preamp_On": {
+            "value": "Boolean for preamp state.",
+            "type": "_GuiLabel"
+          }
+        }
+      }
+    }
+  },
+  "TraceSettings": {
+    "type": "OcaBlock",
+    "AES70": "OcaTraceManager",
+    "description": "A block for managing the trace mode for each of the four traces.",
+    "fields": {
+      "Trace_Mode": {
+        "label_active": "Trace Mode",
+        "label_inactive": "Trace Mode",
+        "type": "_GuiDropDownOption",
+        "value": "The trace modes for all traces.",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
+          }
+        },
+        "scpi_inputs": {
+          "mode1": {
+            "value": "Mode for trace 1.",
+            "type": "_valueBox"
+          },
+          "mode2": {
+            "value": "Mode for trace 2.",
+            "type": "_valueBox"
+          },
+          "mode3": {
+            "value": "Mode for trace 3.",
+            "type": "_valueBox"
+          },
+          "mode4": {
+            "value": "Mode for trace 4.",
+            "type": "_valueBox"
+          }
+        }
+      },
+      "Averaging": {
+        "label_active": "Averaging Count",
+        "label_inactive": "Averaging Count",
+        "type": "_sliderValue",
+        "value": "The desired averaging count.",
+        "units": "count",
+        "min": 1,
+        "max": 1000,
+        "step": 1,
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:AVERage:COUNt <count_val>"
+          }
+        },
+        "scpi_inputs": {
+          "count_val": {
+            "value": "The averaging count value.",
+            "type": "_valueBox"
+          }
+        }
+      },
+      "Get_Averaging_Settings": {
+        "label_active": "Get Averaging Settings",
+        "label_inactive": "Get Averaging Settings",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SENSe:AVERage:STATe?;:SENSe:AVERage:COUNt?"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "state": {
+            "value": "A boolean indicating if averaging is ON.",
+            "type": "_GuiLabel"
+          },
+          "count": {
+            "value": "The averaging count.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "NAB_all_traces": {
+        "label_active": "Get All Trace Data",
+        "label_inactive": "Get All Trace Data",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "Keysight_Technologies": {
+            "N9340B": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?",
+            "N9342CN": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:MODE? TRACE1;:TRACe:MODE? TRACE2;:TRACe:MODE? TRACE3;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "TraceData": {
+            "value": "A dictionary with all trace data and settings.",
+            "type": "_GuiLabel"
+          },
+          "StartFreq": {
+            "value": "The starting frequency in Hz.",
+            "type": "_GuiLabel"
+          },
+          "StopFreq": {
+            "value": "The stopping frequency in Hz.",
+            "type": "_GuiLabel"
+          },
+          "TraceModes": {
+            "value": "The trace modes for each trace.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "YakGet_trace_data": {
+        "label_active": "Get Trace Data",
+        "label_inactive": "Get Trace Data",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "Keysight_Technologies": {
+            "N9340B": ":TRACe<trace_number>:DATA?",
+            "N9342CN": ":TRACe<trace_number>:DATA?"
+          }
+        },
+        "scpi_inputs": {
+          "trace_number": {
+            "value": "The trace number variable.",
+            "type": "_valueBox"
+          }
+        },
+        "scpi_outputs": {
+          "trace_data": {
+            "value": "A list of lists of processed trace data or False on failure.",
+            "type": "_GuiLabel"
+          }
+        }
+      }
+    }
+  },
+  "Markers": {
+    "type": "OcaBlock",
+    "AES70": "OcaMarkerManager",
+    "description": "A block for managing all marker-related settings.",
+    "fields": {
+      "peak_search": {
+        "label_active": "Peak Search",
+        "label_inactive": "Peak Search",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":CALCulate:MARKer:PEAK:SEARch"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "success": {
+            "value": "True on success.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "marker_setup": {
+        "label_active": "Setup Markers",
+        "label_inactive": "Setup Markers",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X <marker_freq_hz>"
+          }
+        },
+        "scpi_inputs": {
+          "marker_freq_hz": {
+            "value": "The frequency for Marker 1 in Hz.",
+            "type": "_valueBox"
+          }
+        },
+        "scpi_outputs": {
+          "status": {
+            "value": "PASSED or FAILED.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "toggle_marker": {
+        "label_active": "Toggle Marker State",
+        "label_inactive": "Toggle Marker State",
+        "type": "_GuiButtonToggle",
+        "value": "The desired state (True/False boolean).",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":CALCulate:MARKer<marker_number>:STATe <new_state>"
+          }
+        },
+        "scpi_inputs": {
+          "marker_number": {
+            "value": "The marker number variable.",
+            "type": "_valueBox"
+          },
+          "new_state": {
+            "value": "The new state variable ('ON' or 'OFF').",
+            "type": "_valueBox"
+          }
+        },
+        "scpi_outputs": {
+          "success": {
+            "value": "True on success.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "get_all_marker_values": {
+        "label_active": "Get All Marker Values",
+        "label_inactive": "Get All Marker Values",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":CALCulate:MARKer<i_val>:STATe?;:CALCulate:MARKer<i_val>:X?;:CALCulate:MARKer<i_val>:Y?"
+          }
+        },
+        "scpi_inputs": {
+          "i_val": {
+            "value": "The marker index variable.",
+            "type": "_valueBox"
+          }
+        },
+        "scpi_outputs": {
+          "marker_values": {
+            "value": "A list of (frequency_MHz, amplitude_dBm) tuples.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "Marker_1": {
+        "label_active": "Marker 1",
+        "label_inactive": "Marker 1",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 1.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 1 X",
+            "label_inactive": "Marker 1 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 1 Y",
+            "label_inactive": "Marker 1 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      },
+      "Marker_2": {
+        "label_active": "Marker 2",
+        "label_inactive": "Marker 2",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 2.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 2 X",
+            "label_inactive": "Marker 2 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 2 Y",
+            "label_inactive": "Marker 2 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      },
+      "Marker_3": {
+        "label_active": "Marker 3",
+        "label_inactive": "Marker 3",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 3.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 3 X",
+            "label_inactive": "Marker 3 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 3 Y",
+            "label_inactive": "Marker 3 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      },
+      "Marker_4": {
+        "label_active": "Marker 4",
+        "label_inactive": "Marker 4",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 4.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 4 X",
+            "label_inactive": "Marker 4 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 4 Y",
+            "label_inactive": "Marker 4 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      },
+      "Marker_5": {
+        "label_active": "Marker 5",
+        "label_inactive": "Marker 5",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 5.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 5 X",
+            "label_inactive": "Marker 5 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 5 Y",
+            "label_inactive": "Marker 5 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      },
+      "Marker_6": {
+        "label_active": "Marker 6",
+        "label_inactive": "Marker 6",
+        "type": "OcaBlock",
+        "AES70": "OcaMarkerManager",
+        "description": "The block for managing Marker 6.",
+        "fields": {
+          "X_MHz": {
+            "label_active": "Marker 6 X",
+            "label_inactive": "Marker 6 X",
+            "type": "_Value",
+            "AES70": "OcaFrequencyActuator",
+            "value": "111",
+            "units": "MHz"
+          },
+          "Y_dBm": {
+            "label_active": "Marker 6 Y",
+            "label_inactive": "Marker 6 Y",
+            "type": "_Label",
+            "AES70": "OcaLevelSensor",
+            "value": "-30",
+            "units": "dBm"
+          }
+        }
+      }
+    }
+  },
+  "System": {
+    "type": "OcaBlock",
+    "AES70": "OcaDeviceManager",
+    "description": "A block for managing system-level instrument functions.",
+    "fields": {
+      "immediate_initiate": {
+        "label_active": "Immediate Initiate",
+        "label_inactive": "Immediate Initiate",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":INITIATE:IMMEDIATE"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "success": {
+            "value": "True on success.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "power_cycle": {
+        "label_active": "Power Cycle Device",
+        "label_inactive": "Power Cycle Device",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": ":SYSTem:RESet"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "success": {
+            "value": "True on success.",
+            "type": "_GuiLabel"
+          }
+        }
+      },
+      "reset_device": {
+        "label_active": "Reset Device",
+        "label_inactive": "Reset Device",
+        "type": "_GuiButton",
+        "scpi_button_details": {
+          "generic_maker": {
+            "generic_model": "*RST"
+          }
+        },
+        "scpi_inputs": {},
+        "scpi_outputs": {
+          "success": {
+            "value": "True on success.",
+            "type": "_GuiLabel"
+          }
+        }
+      }
+    }
+  }
+}
