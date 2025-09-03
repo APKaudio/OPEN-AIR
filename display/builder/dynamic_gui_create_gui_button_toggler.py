@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.215819.5
+# Version 20250902.210500.1
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.215819.5"
-current_version_hash = (20250828 * 215819 * 5)
+current_version = "20250902.210500.1"
+current_version_hash = (20250902 * 210500 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -68,10 +68,10 @@ class GuiButtonTogglerCreatorMixin:
                     option_data = options_data.get(key, {})
                     
                     # Determine the text for the button based on its state
-                    if key == current_selection:
+                    if key != current_selection: # FLIPPED LOGIC: Check for INACTIVE state first
                         button_text = option_data.get('label_active', option_data.get('label', ''))
                         button_widget.config(style='Selected.TButton')
-                    else:
+                    else: # This is the new inactive state
                         button_text = option_data.get('label_inactive', option_data.get('label', ''))
                         button_widget.config(style='TButton')
 

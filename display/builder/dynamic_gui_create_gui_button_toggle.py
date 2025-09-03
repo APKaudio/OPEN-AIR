@@ -13,8 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250829.130545.2
-# FIXED: The toggle button now publishes separate messages to the explicit 'selected' keys within its 'options' dictionary. This prevents the parent configuration dictionary from being overwritten and resolves the data corruption issue.
+# Version 20250902.210900.1
+# FIXED: The button styles have been flipped to match the user's request,
+# using the inverse logic for the 'selected' state.
 
 import os
 import tkinter as tk
@@ -24,9 +25,8 @@ import inspect
 import json
 
 # --- Global Scope Variables ---
-current_version = "20250829.130545.2"
-# Hash: (20250829 * 130545 * 2)
-current_version_hash = (20250829 * 130545 * 2)
+current_version = "20250902.210900.1"
+current_version_hash = (20250902 * 210900 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 TOPIC_DELIMITER = "/"
@@ -51,9 +51,6 @@ class GuiButtonToggleCreatorMixin:
             on_text = on_config.get('label_active', 'ON')
             off_text = off_config.get('label_inactive', 'OFF')
 
-            # Determine initial state from config, defaulting to false if unspecified.
-            # The `path` variable already points directly to the 'value' key's topic.
-            # is_on = str(config.get('value', 'false')).lower() in ['true', 'yes', '1']
             is_on = options_map.get('ON', {}).get('selected', False)
             
             state_var = tk.BooleanVar(value=is_on)
@@ -64,10 +61,10 @@ class GuiButtonToggleCreatorMixin:
             def update_button_state():
                 # Updates the button's appearance based on its current state.
                 current_state = state_var.get()
-                if current_state: # State is ON
-                    button.config(text=on_text, style='Selected.TButton')
-                else: # State is OFF
-                    button.config(text=off_text, style='TButton')
+                if not current_state:  # FLIPPED LOGIC: Check for INACTIVE state first
+                    button.config(text=off_text, style='Selected.TButton')
+                else: # This is the new inactive state
+                    button.config(text=on_text, style='TButton')
 
             def toggle_state_and_publish():
                 # Flips the state, updates the button, and publishes the new state.
@@ -75,7 +72,6 @@ class GuiButtonToggleCreatorMixin:
                 state_var.set(new_state)
                 update_button_state()
                 
-                # --- START OF FIX: Correctly publish to nested topics. ---
                 # Deselect the previous option (or publish the new "off" state)
                 off_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}OFF{TOPIC_DELIMITER}selected"
                 self._transmit_command(relative_topic=off_path, payload=str(not new_state).lower())
@@ -83,12 +79,7 @@ class GuiButtonToggleCreatorMixin:
                 # Select the new option (or publish the new "on" state)
                 on_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}ON{TOPIC_DELIMITER}selected"
                 self._transmit_command(relative_topic=on_path, payload=str(new_state).lower())
-                # --- END OF FIX ---
                 
-                # The path is the single, canonical topic for this widget's value.
-                # We extract the relative path from the full base_topic path.
-                # relative_publish_path = path 
-
                 debug_log(
                     message=f"GUI ACTION: Publishing state change for '{label}' with new state '{new_state}'.",
                     file=current_file,
@@ -96,12 +87,10 @@ class GuiButtonToggleCreatorMixin:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                # self._transmit_command(relative_topic=relative_publish_path, payload=publish_payload)
 
             button.config(command=toggle_state_and_publish)
             update_button_state() # Set initial text and style
             
-            # The widget now subscribes to ONLY ONE topic for its state.
             self.topic_widgets[path] = (state_var, update_button_state)
 
             console_log("✅ Celebration of success! the " + label + " did toggle its function with robust, new logic!")

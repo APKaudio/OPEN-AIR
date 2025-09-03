@@ -13,8 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250829.131102.2
-# FIXED: The dropdown options are now sorted by their numerical value to ensure logical ordering in the GUI. The logic for updating the selected value has been corrected to use the option's 'value' property, resolving the issue where the dropdown would appear blank after an external state change.
+# Version 20250902.212200.1
+# FIXED: The dropdown text color is now explicitly configured to be black, ensuring
+# that the text is always visible regardless of the current theme's settings.
 
 import os
 import tkinter as tk
@@ -26,8 +27,8 @@ from decimal import Decimal
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250829.131102.2"
-current_version_hash = (20250829 * 131102 * 2)
+current_version = "20250902.212200.1"
+current_version_hash = (20250902 * 212200 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -61,45 +62,38 @@ class GuiDropdownOptionCreatorMixin:
 
             options_map = config.get('options', {})
 
-            # --- START OF FIX: Sort options by numerical value ---
             # Try to convert values to Decimal for numerical sorting, fall back to string sorting.
             try:
                 sorted_options = sorted(options_map.items(), key=lambda item: Decimal(item[1].get('value')))
             except:
                 sorted_options = sorted(options_map.items(), key=lambda item: item[1].get('value', item[0]))
-            # --- END OF FIX ---
 
             # Populate the dropdown with labels and map them to values
-            option_labels = [opt.get('label', key) for key, opt in sorted_options]
+            option_labels = [opt.get('label_active', key) for key, opt in sorted_options]
             option_values = [opt.get('value', key) for key, opt in sorted_options]
 
             # Find the initially selected key
             initial_selected_key = next((key for key, opt in options_map.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
             
-            # --- START OF FIX: Use the 'value' itself for the StringVar, which is consistent with MQTT. ---
             initial_value_for_var = options_map.get(initial_selected_key, {}).get('value', initial_selected_key)
             selected_value_var = tk.StringVar(value=initial_value_for_var)
-            # We'll use this to track the displayed text.
-            displayed_text_var = tk.StringVar(value=options_map.get(initial_selected_key, {}).get('label', initial_selected_key))
-            # --- END OF FIX ---
+            displayed_text_var = tk.StringVar(value=options_map.get(initial_selected_key, {}).get('label_active', initial_selected_key))
 
-            # Create a variable to hold the last selected value
             self._last_selected_option = initial_selected_key
             
             def update_displayed_text(value):
                 # Helper to update the dropdown's displayed text based on its value.
                 try:
                     selected_key = next((key for key, opt in options_map.items() if str(opt.get('value', key)) == str(value)), None)
-                    displayed_text = options_map.get(selected_key, {}).get('label', selected_key)
+                    displayed_text = options_map.get(selected_key, {}).get('label_active', selected_key)
                     displayed_text_var.set(displayed_text)
                 except StopIteration:
                     displayed_text_var.set("") # Set to blank if value not found.
 
-
             def on_select(event):
                 try:
                     selected_label = displayed_text_var.get()
-                    selected_key = next((key for key, opt in options_map.items() if opt.get('label', key) == selected_label), None)
+                    selected_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == selected_label), None)
                     selected_value = options_map.get(selected_key, {}).get('value', selected_key)
 
                     if selected_key and selected_key != self._last_selected_option:
@@ -126,11 +120,17 @@ class GuiDropdownOptionCreatorMixin:
                 except ValueError:
                     console_log("❌ Invalid selection in dropdown.")
 
-            # --- START OF FIX: Bind the StringVar to update the displayed text when the value changes.
+            # Set the listbox foreground color to black.
+            parent_frame.option_add('*TCombobox*Listbox.foreground', 'black')
+
+            # Create a style for the combobox with a black foreground
+            style = ttk.Style()
+            style_name = f'BlackText.TCombobox'
+            style.configure(style_name, foreground='black')
+
             selected_value_var.trace_add("write", lambda name, index, mode: update_displayed_text(selected_value_var.get()))
             # Create a Combobox that uses the displayed_text_var for its text.
-            dropdown = ttk.Combobox(sub_frame, textvariable=displayed_text_var, values=option_labels, state="readonly")
-            # --- END OF FIX ---
+            dropdown = ttk.Combobox(sub_frame, textvariable=displayed_text_var, values=option_labels, state="readonly", style=style_name)
             
             dropdown.bind("<<ComboboxSelected>>", on_select)
             dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)

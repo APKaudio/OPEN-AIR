@@ -34,6 +34,7 @@ from display.styling.style import THEMES, DEFAULT_THEME
 #managers
 from managers.manager_settings_frequency import FrequencySettingsManager
 from managers.manager_presets_span import SpanSettingsManager
+from managers.manager_visa_device_search import VisaDeviceManager
 
 
 
@@ -150,7 +151,7 @@ def action_open_display(mqtt_util_instance):
 ################ INITIALIZE MANAGERS ################
         frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
         span_manager = SpanSettingsManager(mqtt_controller=mqtt_util_instance)
-
+        manager_visa_connection = VisaDeviceManager(mqtt_controller=mqtt_util_instance)
 
 
         # Publish the dataset after the GUI is created but before mainloop() starts

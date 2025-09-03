@@ -13,7 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.215819.3
+# Version 20250902.212500.1
+# FIXED: The slider's visual thickness has been doubled by configuring its style to have a larger sliderlength,
+# making it more prominent in the user interface.
 
 import os
 import tkinter as tk
@@ -24,8 +26,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.215819.3"
-current_version_hash = (20250828 * 215819 * 3)
+current_version = "20250902.212500.1"
+current_version_hash = (20250902 * 212500 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -54,33 +56,38 @@ class SliderValueCreatorMixin:
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             # --- Layout Refactor: Start ---
-            label_frame = ttk.Frame(sub_frame)
-            label_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+            # Line 1: Label
+            label_widget = ttk.Label(sub_frame, text=f"{label}:")
+            label_widget.pack(side=tk.TOP, fill=tk.X, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X), pady=(0, DEFAULT_PAD_Y))
 
-            label_widget = ttk.Label(label_frame, text=f"{label}:")
-            label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
-
-            value_unit_frame = ttk.Frame(sub_frame)
-            value_unit_frame.pack(side=tk.BOTTOM, fill=tk.X, expand=True)
-
-            units_label = ttk.Label(value_unit_frame, text=config.get('units', ''))
-            units_label.pack(side=tk.RIGHT, padx=(0, DEFAULT_PAD_X))
-
-            entry_value = tk.StringVar(value=config.get('value', '0'))
-            entry = ttk.Entry(value_unit_frame, width=10, style="Custom.TEntry", textvariable=entry_value)
-            entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
-
+            # Line 2: Slider
             min_val = float(config.get('min', '0'))
             max_val = float(config.get('max', '100'))
-            slider = ttk.Scale(value_unit_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL)
+            
+            # 🛠️ New fix: Create a custom style for a thicker slider
+            style = ttk.Style(sub_frame)
+            style_name = 'Thicker.Horizontal.TScale'
+            style.configure(style_name, sliderlength=40)
+            slider = ttk.Scale(sub_frame, from_=min_val, to=max_val, orient=tk.HORIZONTAL, style=style_name)
+            
+            slider.pack(side=tk.TOP, fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=(0, DEFAULT_PAD_Y))
 
+            # Line 3: Textbox and Units
+            value_unit_frame = ttk.Frame(sub_frame)
+            value_unit_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+            units_label = ttk.Label(value_unit_frame, text=config.get('units', ''))
+            units_label.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
+
+            entry_value = tk.StringVar(value=config.get('value', '0'))
+            entry = ttk.Entry(value_unit_frame, width=7, style="Custom.TEntry", textvariable=entry_value, justify=tk.RIGHT)
+            entry.pack(side=tk.RIGHT, padx=(DEFAULT_PAD_X, 0))
+            
             try:
                 initial_val = float(entry_value.get())
                 slider.set(initial_val)
             except (ValueError, tk.TclError):
                 slider.set(min_val)
-
-            slider.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
             # --- Layout Refactor: End ---
 
             def on_slider_move(val):
@@ -95,7 +102,6 @@ class SliderValueCreatorMixin:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                # CORRECTED: This now correctly uses the central transmit method.
                 self._transmit_command(relative_topic=path, payload=new_val)
 
             def on_entry_change(event):
@@ -110,7 +116,6 @@ class SliderValueCreatorMixin:
                             function=f"{self.__class__.__name__}.{current_function_name}",
                             console_print_func=console_log
                         )
-                        # CORRECTED: This now correctly uses the central transmit method.
                         self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
                     console_log("Invalid input, please enter a number.")

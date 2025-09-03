@@ -1,38 +1,163 @@
 {
-       "Instrument": {
-            "type": "_Label_Group",
-            "AES70": "OcaDeviceManager",
-            "description": "Displays information about the currently connected instrument. All fields are read-only sensors.",
-            "fields": {
-                "brand": {
-                    
-                    "value": "Keysight Technologies"                    
-                },
-                "device_model": {
-                    
-                    "value": "Keysight"
-                },
-                "device_series": {
-                    
-                    "value": "E440xB"
-                },
-                "device_serial_number": {
-                    
-                    "value": "E440xB"
-                },
-                "device_firmware": {
-                    
-                    "value": "E440xB"
-                },
-                "visa_resource": {
-                    
-                    "value": "TCPIP0::192.168.1.100::inst0::INSTR"
-                },
-                "Time_connected": {
-                    
-                    "value": "12:44.01"
-                }
-            }
+  "Instrument_Connection": {
+  "type": "OcaBlock",
+    "AES70": "OcaTraceManager",
+    "description": "A block for managing the continuous sweep settings.",
+    
+    "fields": {
+      "Search_For_devices": {
+        "active": false, "label_active": "Searching for devices...",
+        "label_inactive": "Search for devices",
+        "type": "_GuiActuator",
+        "AES70": "OcaBooleanActuator",
+        "value": "0"
+      },
+
+      "Found_devices": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "handle_device_1_options",
+        "options": {
+          "1": {
+            "active": false, "label_active": "Placeholder A",
+            "label_inactive": "Placeholder A",
+            "description": "Found Device 1",
+            "value": "VALUE_1A",
+            "units": "mode",
+            "selected": true
+          },
+          "2": {
+            "active": false, "label_active": "Placeholder B",
+            "label_inactive": "Placeholder B",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "3": {
+            "active": false, "label_active": "Placeholder C",
+            "label_inactive": "Placeholder C",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "4": {
+            "active": false, "label_active": "Placeholder D",
+            "label_inactive": "Placeholder D",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "5": {
+            "active": false, "label_active": "Placeholder E",
+            "label_inactive": "Placeholder E",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "6": {
+            "active": false, "label_active": "Placeholder F",
+            "label_inactive": "Placeholder F",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "7": {
+            "active": false, "label_active": "Placeholder G",
+            "label_inactive": "Placeholder G",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "8": {
+            "active": false, "label_active": "Placeholder H",
+            "label_inactive": "Placeholder H",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "9": {
+            "active": false, "label_active": "Placeholder I",
+            "label_inactive": "Placeholder I",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          },
+          "10": {
+            "active": false, "label_active": "Placeholder J",
+            "label_inactive": "Placeholder J",
+            "description": "Generic description for option 2.",
+            "value": "VALUE_1B",
+            "units": "mode",
+            "selected": false
+          }
+        }},
+        "Connect": {
+
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "toggle_preamp",
+        "options": {
+          "ON": {
+            "label_active": "Connected to Device",
+            "label_inactive": "Connected to Device",
+            "selected": false
+          },
+          "OFF": {
+            "label_active": "Disconnected from Device",
+            "label_inactive": "Disconnected from Device",
+            "selected": true
+          }
         }
+      },
+        
+        "Device_status": {
+        "type": "_Label_Group",
+        "AES70": "OcaLabel",
+        "Fields": {
+            "connected": {
+              "type": "_Label",
+            "value": false
+        },
+            "disconnected": {
+              "type": "_Label",
+                "value": true
+            },
+            "brand": {
+              "type": "_Label",
+                "value": "Keysight Technologies"
+            },
+            "device_model": {
+              "type": "_Label",
+                "value": "Keysight"
+            },
+            "device_series": {
+              "type": "_Label",
+                "value": "E440xB"
+            },
+            "device_serial_number": {
+              "type": "_Label",
+                "value": "E440xB"
+            },
+            "device_firmware": {
+              "type": "_Label",
+                "value": "E440xB"
+            },
+            "visa_resource": {
+              "type": "_Label",
+                "value": "TCPIP0::192.168.1.100::inst0::INSTR"
+            },
+            "Time_connected": {
+              "type": "_Label",
+                "value": "12:44.01"
+            }
     }
-     
+  }
+}}}

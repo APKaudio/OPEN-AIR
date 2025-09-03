@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/active/Instrument"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/active/Instrument_Connection"
 
 
 

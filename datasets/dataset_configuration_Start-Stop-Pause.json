@@ -8,21 +8,20 @@
       "START": {
         "label_active": "START",
         "label_inactive": "START",
-        "value": "START",
         "description": "Initiates the program's primary function.",
         "selected": false
       },
       "PAUSE": {
         "label_active": "PAUSE",
         "label_inactive": "RESUME",
-        "value": "PAUSE",
+        
         "description": "Pauses the program's current process.",
         "selected": false
       },
       "STOP": {
         "label_active": "STOP",
         "label_inactive": "STOP",
-        "value": "STOP",
+        
         "description": "Halts the program's current process.",
         "selected": true
       }
