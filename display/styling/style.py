@@ -14,23 +14,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.200123.1
+# Version 20250904.010551.1
 
-# Standard library import for the global variables.
 import os
 
 # --- Global Scope Variables ---
-# The date of the chat session in YYYYMMDD format.
-CURRENT_DATE = 20250825
-# The time of the chat session in HHMMSS format.
-CURRENT_TIME = 200123
-# The revision number within the current session.
-REVISION_NUMBER = 1
-# Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250825.200123.1"
-# Creating a unique integer hash for the current version for internal tracking.
-current_version_hash = (CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER)
-# Getting the name of the current file to use in our logs.
+current_version = "20250904.010551.1"
+current_version_hash = (20250904 * 10551 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # The default theme to use. This can be changed here to easily switch the entire application's style.
@@ -42,6 +32,7 @@ THEMES = {
     "dark": {
         "bg": "#2b2b2b",
         "fg": "#dcdcdc",
+        "fg_alt": "#888888",  # Added missing key for alternate/debug text
         "primary": "#3c3f41",
         "secondary": "#4e5254",
         "accent": "#cc5c00",
@@ -82,6 +73,7 @@ THEMES = {
     "light": {
         "bg": "#f0f0f0",
         "fg": "#000000",
+        "fg_alt": "#555555",  # Added missing key for alternate/debug text
         "primary": "#ffffff",
         "secondary": "#e0e0e0",
         "accent": "#0078d7",

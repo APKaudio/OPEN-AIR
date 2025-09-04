@@ -118,14 +118,14 @@ class VisaDeviceManager():
         )
         try:
             # Command-based subscribers
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
+            #self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
+            #self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
             
             # Subscribers for direct GUI interaction
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Search_For_devices/value", callback_func=self._on_search_request)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices/options/+/selected", callback_func=self._on_device_select)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Connect_to_Device/value", callback_func=self._on_gui_connect_request)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Disconnect_device/value", callback_func=self._on_gui_disconnect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Search_For_devices/value", callback_func=self._on_search_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Found_devices/options/+/selected", callback_func=self._on_device_select)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Connect_to_Device/value", callback_func=self._on_gui_connect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Disconnect_device/value", callback_func=self._on_gui_disconnect_request)
             
             console_log("✅ VisaDeviceManager subscribed to all necessary GUI and command topics.")
         except Exception as e:
@@ -191,7 +191,7 @@ class VisaDeviceManager():
     def _update_found_devices_gui(self, resources):
         # Updates the GUI's `Found_devices` listbox based on the search results.
         try:
-            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices"
+            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Found_devices"
             for i in range(1, 11):
                 option_topic_prefix = f"{base_topic}/options/{i}"
                 if i <= len(resources):
@@ -210,7 +210,7 @@ class VisaDeviceManager():
     def _publish_status(self, topic_suffix, value):
         # Helper function to publish a value to a specific status topic.
         if self.mqtt_util:
-            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Device_status/Fields"
+            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Device_status"
             self.mqtt_util.publish_message(topic=f"{base_topic}/{topic_suffix}", subtopic="value", value=value, retain=False)
 
     def _on_connect_request(self, topic, payload):

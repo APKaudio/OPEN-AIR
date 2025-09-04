@@ -1,10 +1,8 @@
 {
   "Instrument_Connection": {
-  "type": "OcaBlock",
-    "AES70": "OcaTraceManager",
-    "description": "A block for managing the continuous sweep settings.",
+  
     
-    "fields": {
+    "Search_and_Connect": {
       "Search_For_devices": {
         "active": false, "label_active": "Searching for devices...",
         "label_inactive": "Search for devices",
@@ -116,9 +114,8 @@
       },
         
         "Device_status": {
-        "type": "_Label_Group",
-        "AES70": "OcaLabel",
-        "Fields": {
+
+
             "connected": {
               "type": "_Label",
             "value": false
@@ -155,6 +152,25 @@
               "type": "_Label",
                 "value": "12:44.01"
             }
-    }
+    },
+    
+
+      "Reset_device": {
+        "active": true,
+         "label_active": "Resetting device...",
+        "label_inactive": "Reset Device",
+        "type": "_GuiActuator",
+        "AES70": "OcaBooleanActuator",
+        "value": 0
+            },
+              "Reboot_device": {
+        "active": true, 
+        "label_active": "Rebooting device...",
+        "label_inactive": "Reboot Device",
+        "type": "_GuiActuator",
+        "AES70": "OcaBooleanActuator",
+        "value": 0
+            }
+    
   }
-}}}
+}}

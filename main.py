@@ -35,7 +35,8 @@ from display.styling.style import THEMES, DEFAULT_THEME
 from managers.manager_settings_frequency import FrequencySettingsManager
 from managers.manager_presets_span import SpanSettingsManager
 from managers.manager_visa_device_search import VisaDeviceManager
-
+from managers.manager_visa_dispatch_scpi import ScpiDispatcher
+from managers.manager_yakety_yak import YaketyYakManager
 
 
 # Add the project's root directory to the system path to allow for imports from
@@ -149,10 +150,26 @@ def action_open_display(mqtt_util_instance):
         
         
 ################ INITIALIZE MANAGERS ################
+        
+           ################ INITIALIZE MANAGERS ################
+        # Instantiate the low-level SCPI dispatcher first, as other managers depend on it.
+        scpi_dispatcher = ScpiDispatcher(
+            app_instance=app,
+            console_print_func=console_log
+        )
+        
+        
         frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
         span_manager = SpanSettingsManager(mqtt_controller=mqtt_util_instance)
         manager_visa_connection = VisaDeviceManager(mqtt_controller=mqtt_util_instance)
-
+   
+   
+   # Correctly instantiate the YaketyYakManager with all required arguments.
+        manager_yakety_yak = YaketyYakManager(
+            mqtt_controller=mqtt_util_instance,
+            dispatcher_instance=scpi_dispatcher,
+            app_instance=app
+        )
 
         # Publish the dataset after the GUI is created but before mainloop() starts
         dataset_publisher_main(mqtt_util_instance)

@@ -21,7 +21,7 @@ import inspect
 import numpy as np
 from typing import Optional, List, Dict
 
-from agents.agent_yak_dispatch_scpi import ScpiDispatcher
+from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from workers.worker_logging import debug_log, console_log
 from agents.agent_YaketyYak import YakNab, YakGet
 

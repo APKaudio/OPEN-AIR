@@ -173,8 +173,8 @@ class MqttConductorFrame(ttk.Frame):
         server_controls_frame = ttk.Frame(master=top_frame)
         server_controls_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
         # --- Bind buttons to the actual utility functions ---
-        self.start_btn = ttk.Button(master=server_controls_frame, text="Start Broker", command=self.mqtt_util.start_mosquitto)
-        self.stop_btn = ttk.Button(master=server_controls_frame, text="Stop Broker", command=self.mqtt_util.stop_mosquitto)
+       # self.start_btn = ttk.Button(master=server_controls_frame, text="Start Broker", command=self.mqtt_util.start_mosquitto)
+       # self.stop_btn = ttk.Button(master=server_controls_frame, text="Stop Broker", command=self.mqtt_util.stop_mosquitto)
         self.check_status_btn = ttk.Button(master=server_controls_frame, text="Check Status", command=self.mqtt_util.check_status)
         self.start_btn.pack(pady=2, padx=5, fill=tk.X)
         self.stop_btn.pack(pady=2, padx=5, fill=tk.X)

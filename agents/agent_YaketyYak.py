@@ -15,166 +15,115 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.115200.1
-# UPDATED: Implemented the logic for YakBeg, YakRig, YakDo, YakGet, and YakSet functions.
+# Version 20250904.004900.1
 
-import csv
 import os
 import inspect
-import pyvisa
-import time
-from tkinter import messagebox
-from collections import defaultdict
-from typing import Optional, List, Dict
 
-# Assume ScpiDispatcher is imported
-from agents.agent_yak_dispatch_scpi import ScpiDispatcher
-from display.debug_logic import debug_log, log_visa_command
-from display.console_logic import console_log
+# --- Utility and Manager Imports ---
+from workers.worker_logging import debug_log, console_log
+from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 
-# --- Global Scope Variables ---
-current_version = "20250902.115200.1"
-current_version_hash = (20250902 * 115200 * 1)
+# --- Global Scope Variables (as per Protocol 4.4) ---
+current_version = "20250904.004900.1"
+current_version_hash = (20250904 * 4900 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-# --- Constants ---
-VISA_COMMAND_DELAY_SECONDS = 0.05
-MAX_RETRY_ATTEMPTS = 3
-MHZ_TO_HZ = 1000000
 
-def YakBeg(dispatcher: ScpiDispatcher, command_type, console_print_func, *variable_values):
-    """
-    Executes a 'BEG' (Beg) VISA command and returns the response.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering YakBeg. command_type: {command_type}, variable_values: {variable_values}",
-                file=current_file,
-                version=current_version,
-                function=current_function)
-    
-    response = dispatcher.dispatch_command(command_type, "BEG", *variable_values)
-    
-    if response and response != "FAILED":
-        console_print_func(f"✅ Beg Response: {response}")
-        debug_log(f"🐐 ✅ Beg query response: {response}. Fucking finally!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        return response
-    else:
-        console_print_func("❌ No response received or query failed.")
-        debug_log("🐐 ❌ Beg query failed or no response. What the hell happened?!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+def YakBeg(dispatcher: ScpiDispatcher, command_string: str):
+    # Executes a 'BEG' (Begin) VISA command, which is a combined set-and-query operation.
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🐐 🟢 Entering {current_function_name} with command: {command_string}",
+        file=current_file, version=current_version, function=current_function_name,
+        console_print_func=dispatcher._print_to_gui_console
+    )
+    try:
+        response = dispatcher.query_safe(command=command_string)
+        if response is not None:
+            console_log(f"✅ Beg Response: {response}")
+            return response
+        else:
+            console_log("❌ No response received or BEG query failed.")
+            return "FAILED"
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
 
-def YakRig(dispatcher: ScpiDispatcher, command_type, console_print_func, *variable_values):
-    """
-    Executes a 'RIG' VISA command for multi-parameter settings.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering YakRig. command_type: {command_type}, variable_values: {variable_values}",
-                file=current_file,
-                version=current_version,
-                function=current_function)
-    
-    response = dispatcher.dispatch_command(command_type, "RIG", *variable_values)
-    
-    if response == "PASSED":
-        console_print_func("✅ Rig command executed successfully.")
-        debug_log("🐐 ✅ Rig command executed successfully.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        return "PASSED"
-    else:
-        console_print_func("❌ Rig command execution failed.")
-        debug_log("🐐 ❌ Rig command execution failed. What the hell went wrong?!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+def YakRig(dispatcher: ScpiDispatcher, command_string: str):
+    # Executes a 'RIG' VISA command for multi-parameter settings.
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🐐 🟢 Entering {current_function_name} with command: {command_string}",
+        file=current_file, version=current_version, function=current_function_name,
+        console_print_func=dispatcher._print_to_gui_console
+    )
+    try:
+        if dispatcher.write_safe(command=command_string):
+            console_log("✅ Rig command executed successfully.")
+            return "PASSED"
+        else:
+            console_log("❌ Rig command execution failed.")
+            return "FAILED"
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
 
-
-def YakDo(dispatcher: ScpiDispatcher, command_type, console_print_func):
-    """
-    Executes a 'DO' VISA command (a simple write without a response).
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering YakDo. command_type: {command_type}",
-              file=current_file,
-              version=current_version,
-              function=current_function)
-    
-    response = dispatcher.dispatch_command(command_type, "DO")
-    
-    if response == "PASSED":
-        console_print_func("✅ Command executed successfully.")
-        debug_log("🐐 ✅ Command executed successfully.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        return "PASSED"
-    else:
-        console_print_func("❌ Command execution failed.")
-        debug_log("🐐 ❌ DO command execution failed. What the hell went wrong?!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+def YakDo(dispatcher: ScpiDispatcher, command_string: str):
+    # Executes a 'DO' VISA command (a simple write without a response).
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🐐 🟢 Entering {current_function_name} with command: {command_string}",
+        file=current_file, version=current_version, function=current_function_name,
+        console_print_func=dispatcher._print_to_gui_console
+    )
+    try:
+        if dispatcher.write_safe(command=command_string):
+            console_log("✅ Command executed successfully.")
+            return "PASSED"
+        else:
+            console_log("❌ Command execution failed.")
+            return "FAILED"
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
 
-
-def YakGet(dispatcher: ScpiDispatcher, command_type, console_print_func):
-    """
-    Executes a 'GET' VISA command and returns the response.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering YakGet. command_type: {command_type}",
-                file=current_file,
-                version=current_version,
-                function=current_function)
-    
-    response = dispatcher.dispatch_command(command_type, "GET")
-
-    if response and response != "FAILED":
-        console_print_func(f"✅ Response: {response}")
-        debug_log(f"🐐 ✅ Query response: {response}. Finally!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        return response
-    else:
-        console_print_func("❌ No response received or query failed.")
-        debug_log("🐐 ❌ Query failed or no response. What the hell happened?!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+def YakGet(dispatcher: ScpiDispatcher, command_string: str):
+    # Executes a 'GET' VISA command and returns the response.
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🐐 🟢 Entering {current_function_name} with command: {command_string}",
+        file=current_file, version=current_version, function=current_function_name,
+        console_print_func=dispatcher._print_to_gui_console
+    )
+    try:
+        response = dispatcher.query_safe(command=command_string)
+        if response is not None:
+            console_log(f"✅ Response: {response}")
+            return response
+        else:
+            console_log("❌ No response received or query failed.")
+            return "FAILED"
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
 
-def YakSet(dispatcher: ScpiDispatcher, command_type, variable_value, console_print_func):
-    """
-    Executes a 'SET' VISA command with a specific value.
-    """
-    current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"🐐 🟢 Entering YakSet. command_type: {command_type}, variable_value: {variable_value}",
-                file=current_file,
-                version=current_version,
-                function=current_function)
-    
-    response = dispatcher.dispatch_command(command_type, "SET", variable_value)
-    
-    if response == "PASSED":
-        console_print_func("✅ Command executed successfully.")
-        debug_log("🐐 ✅ Command executed successfully.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
-        return "PASSED"
-    else:
-        console_print_func("❌ Command execution failed.")
-        debug_log("🐐 ❌ SET command execution failed. What the hell went wrong?!",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function)
+def YakSet(dispatcher: ScpiDispatcher, command_string: str):
+    # Executes a 'SET' VISA command with a specific value.
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🐐 🟢 Entering {current_function_name} with command: {command_string}",
+        file=current_file, version=current_version, function=current_function_name,
+        console_print_func=dispatcher._print_to_gui_console
+    )
+    try:
+        if dispatcher.write_safe(command=command_string):
+            console_log("✅ Command executed successfully.")
+            return "PASSED"
+        else:
+            console_log("❌ Command execution failed.")
+            return "FAILED"
+    except Exception as e:
+        console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
+
