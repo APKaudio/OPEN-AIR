@@ -1,4 +1,4 @@
-# OPEN-AIR/datasets/worker_dataset_publisher.py
+# OPEN-AIR/datasets/worker_repository_publisher.py
 #
 # A script to read and publish JSON datasets from the local directory to an MQTT broker.
 # This version includes enhanced logging and versioning to aid in debugging and tracking.
@@ -13,8 +13,8 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250903.230800.4
-# UPDATED: The main function now exclusively publishes files that start with the prefix 'dataset_'.
+# Version 20250903.231153.4
+# UPDATED: The main function now exclusively publishes files that start with the prefix 'repository_'.
 
 import os
 import json
@@ -30,7 +30,7 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250903
-CURRENT_TIME = 230800
+CURRENT_TIME = 231153
 REVISION_NUMBER = 4
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
@@ -94,7 +94,7 @@ def publish_recursive(mqtt_util, base_topic, data):
 
 def main(mqtt_util: MqttControllerUtility):
     """
-    Publishes the contents of JSON files that start with 'dataset_' in the current
+    Publishes the contents of JSON files that start with 'repository_' in the current
     directory to the MQTT broker, flattening the JSON structure into detailed topics.
     
     Args:
@@ -103,31 +103,31 @@ def main(mqtt_util: MqttControllerUtility):
     current_function_name = inspect.currentframe().f_code.co_name
 
     debug_log(
-        message="🖥️🟢 Entering 'main' to publish JSON datasets.",
+        message="🖥️🟢 Entering 'main' to publish JSON repository files.",
         file=current_file,
         version=current_version,
-        function=f"dataset_publisher.{current_function_name}",
+        function=f"repository_publisher.{current_function_name}",
         console_print_func=console_log
     )
     
     try:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         
-        # MODIFIED: Filter for files starting with 'dataset_' and ending with '.json'
-        json_files = [f for f in os.listdir(current_directory) if f.startswith('dataset_') and f.endswith('.json')]
+        # MODIFIED: Filter for files starting with 'repository_' and ending with '.json'
+        json_files = [f for f in os.listdir(current_directory) if f.startswith('repository_') and f.endswith('.json')]
             
         if not json_files:
-            console_log("No JSON files starting with 'dataset_' found in the current directory.")
+            console_log("No JSON files starting with 'repository_' found in the current directory.")
             return
 
-        console_log(f"Found {len(json_files)} 'dataset_' JSON file(s) to publish. Publishing recursively...")
+        console_log(f"Found {len(json_files)} 'repository_' JSON file(s) to publish. Publishing recursively...")
 
         for file_name in json_files:
             file_path = os.path.join(current_directory, file_name)
             
             base_name = os.path.splitext(os.path.basename(file_name))[0]
-            if base_name.startswith("dataset_"):
-                base_name = base_name.replace("dataset_", "", 1)
+            if base_name.startswith("repository_"):
+                base_name = base_name.replace("repository_", "", 1)
             
             base_name_clean = base_name.replace(' ', '_')
             
@@ -142,7 +142,7 @@ def main(mqtt_util: MqttControllerUtility):
                     message=f"🔍🔵 Processing file: '{file_name}'",
                     file=current_file,
                     version=current_version,
-                    function=f"dataset_publisher.{current_function_name}",
+                    function=f"repository_publisher.{current_function_name}",
                     console_print_func=console_log
                 )
                 with open(file_path, 'r') as f:
@@ -165,7 +165,7 @@ def main(mqtt_util: MqttControllerUtility):
             message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
             file=current_file,
             version=current_version,
-            function=f"dataset_publisher.{current_function_name}",
+            function=f"repository_publisher.{current_function_name}",
             console_print_func=console_log
         )
 

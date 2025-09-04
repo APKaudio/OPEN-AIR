@@ -13,8 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250903.102000.12
-# FIXED: The _update_widget_value function now correctly checks for changes to a dropdown's options and calls a new 'rebuild_options' method to dynamically update the widget's content without a full GUI rebuild.
+# Version 20250903.221737.2
+# NEW: Integrated the new GuiListboxCreatorMixin to allow for the creation of '_GuiListbox' widgets.
+# UPDATED: The _update_widget_value function can now handle state updates for the new listbox widget.
 
 import os
 import inspect
@@ -40,11 +41,13 @@ from display.builder.dynamic_gui_create_gui_button_toggler import GuiButtonToggl
 from display.builder.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
 from display.builder.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 from display.builder.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
+from display.builder.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
+
 
 # --- Global Scope Variables ---
-current_version = "20250903.102000.12"
-# Hash: (20250903 * 102000 * 12)
-current_version_hash = (20250903 * 102000 * 12)
+current_version = "20250903.221737.2"
+# Hash: (20250903 * 221737 * 2)
+current_version_hash = (20250903 * 221737 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -70,7 +73,8 @@ class DynamicGuiBuilder(
     GuiButtonTogglerCreatorMixin,
     GuiDropdownOptionCreatorMixin,
     GuiActuatorCreatorMixin,
-    GuiCheckboxCreatorMixin
+    GuiCheckboxCreatorMixin,
+    GuiListboxCreatorMixin
 ):
     """
     Dynamically builds GUI widgets based on a JSON data structure received via MQTT.
@@ -96,7 +100,6 @@ class DynamicGuiBuilder(
             self.base_topic = config.get("base_topic")
             self.topic_widgets = {}
 
-       #     console_log(f"🟠🟠🟠🟠🟠 self.base_topic: {self.base_topic}")
             self.config_data = {}
             self.gui_built = False
             self.log_text = None
@@ -112,18 +115,16 @@ class DynamicGuiBuilder(
                 "_Value": self._create_value_box,
                 "_Label": self._create_label_from_config,
                 "_GuiActuator": self._create_gui_actuator,
-                "_GuiCheckbox": self._create_gui_checkbox
+                "_GuiCheckbox": self._create_gui_checkbox,
+                "_GuiListbox": self._create_gui_listbox
             }
 
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
 
-            # This frame is a container for the entire content, filling 100% of the parent.
             self.main_content_frame = ttk.Frame(self)
             self.main_content_frame.pack(fill=tk.BOTH, expand=True)
 
-            # The rebuild button and config frame are no longer created here.
-            # The config_frame will be a simple Frame now, and the rebuild button will be added later.
             self.canvas = tk.Canvas(self.main_content_frame, borderwidth=0, highlightthickness=0, background=colors["bg"])
             self.scroll_frame = ttk.Frame(self.canvas)
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
@@ -132,20 +133,14 @@ class DynamicGuiBuilder(
             self.canvas.configure(yscrollcommand=scrollbar.set)
             self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
-            # The config_frame is now packed into the scrollable frame
             self.config_frame = ttk.Frame(self.scroll_frame)
             self.config_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
 
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            # The original conditional `if DEBUG_MODE:` section for the log pane has been removed
-            # to ensure the main frame is always 100% wide.
-
-            # Bind the <Map> event to trigger the initial GUI build
             self.bind("<Map>", lambda event: self._rebuild_gui())
 
-            # Subscribing to the base topic via the new Mixin
             if self.base_topic:
                 self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_receive_command_message)
 
@@ -173,11 +168,7 @@ class DynamicGuiBuilder(
         )
         try:
             full_topic = f"{self.base_topic}{TOPIC_DELIMITER}{relative_topic}"
-           # console_log(f"🟠🟠🟠🟠🟠 full_topic: {full_topic}")
-
-            # This is the corrected line, passing the base topic and subtopic separately.
             self.mqtt_util.publish_message(topic=self.base_topic, subtopic=relative_topic, value=payload)
-
             console_log(f"✅ Victory! The command has been published to '{full_topic}'.")
         except Exception as e:
             console_log(f"❌ Error publishing command to topic '{relative_topic}': {e}")
@@ -191,13 +182,9 @@ class DynamicGuiBuilder(
 
     def _update_nested_dict(self, path_parts, value):
         # Recursively traverses the dictionary structure and sets the value at the final key.
-        
-    #    console_log(f"🟠🟠🟠🟠🟠 nested: {path_parts}")
-        
         current_level = self.config_data
         for part in path_parts[:-1]:
             current_level = current_level.setdefault(part, {})
-            #console_log(f"🟠🟠🟠🟠🟠 current_level: {current_level}")
         
         final_value = value
         if isinstance(value, str):
@@ -220,7 +207,6 @@ class DynamicGuiBuilder(
             elif final_value.lower() == 'false':
                 final_value = False
 
-        # --- START OF FIX: Handle _GuiButtonToggle and _GuiCheckbox explicitly ---
         last_key = path_parts[-1]
         parent_dict = current_level.get(path_parts[-2]) if len(path_parts) > 1 else self.config_data
         
@@ -236,8 +222,6 @@ class DynamicGuiBuilder(
             parent_dict['value'] = final_value
         else:
             current_level[last_key] = final_value
-
-        # --- END OF FIX ---
 
     def _rebuild_gui(self):
         # Clears the main frame and rebuilds all widgets from the current config_data.
@@ -255,7 +239,6 @@ class DynamicGuiBuilder(
             self.topic_widgets.clear()
             self._create_dynamic_widgets(parent_frame=self.config_frame, data=self.config_data)
             
-            # The rebuild gui button is now at the bottom
             rebuild_button = ttk.Button(self.config_frame, text="Rebuild GUI", command=self._rebuild_gui)
             rebuild_button.pack(pady=10)
 
@@ -341,16 +324,13 @@ class DynamicGuiBuilder(
                     if widget_type == "OcaBlock":
                         nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
                         nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
-                        # The `fields` key needs to be explicitly appended to the path here
                         new_path_prefix = f"{current_path}{TOPIC_DELIMITER}fields"
                         self._create_dynamic_widgets(nested_frame, value.get("fields", {}), path_prefix=new_path_prefix)
                         continue
 
                     creation_func = self.widget_factory.get(widget_type)
                     if creation_func:
-                        # For widgets with a 'value' node, append it to the path.
                         if 'value' in value:
-                            # The path now includes the 'value' key
                             creation_func(parent_frame=parent_frame, label=label_text, config=value, path=f"{current_path}{TOPIC_DELIMITER}value")
                         else:
                             creation_func(parent_frame=parent_frame, label=label_text, config=value, path=current_path)
@@ -369,44 +349,28 @@ class DynamicGuiBuilder(
         try:
             widget_info = self.topic_widgets.get(relative_topic)
             if not widget_info:
-                # FIX START
-                # Handle cases where the message is for a sub-topic of a dropdown's options
-                # (e.g., /options/1/label_active)
                 if '/options/' in relative_topic:
-                    # The topic is for an option, not the dropdown itself.
-                    # Find the base path of the dropdown.
                     parts = relative_topic.split('/options/')
                     base_path = parts[0]
-                    # Get the widget info for the entire dropdown.
-                    dropdown_widget_info = self.topic_widgets.get(f"{base_path}") # The widget info is stored at the base path
+                    dropdown_widget_info = self.topic_widgets.get(f"{base_path}")
                     
-                    if dropdown_widget_info and len(dropdown_widget_info) == 3: # Correct length is 3 for this case
-                         # Unpack the stored values.
+                    if dropdown_widget_info and len(dropdown_widget_info) == 3:
                          str_var, dropdown, rebuild_method = dropdown_widget_info
-                         # Rebuild the options list in the dropdown widget.
-                         # We navigate the config data tree to the dropdown's location.
                          dropdown_config = self.config_data
                          for part in base_path.split('/'):
-                            # Need to handle potential KeyError if path is not found
                             if 'fields' in dropdown_config:
                                 dropdown_config = dropdown_config['fields']
                             dropdown_config = dropdown_config.get(part, {})
 
-                         # If the configuration data for the dropdown is found, rebuild it.
                          if "options" in dropdown_config:
                              rebuild_method(dropdown=dropdown, config=dropdown_config)
-
-                             # After rebuilding, check if the value from the parent topic is already set
-                             # and set the dropdown to that value.
                              parent_topic_path = '/'.join(base_path.split('/'))
                              parent_config_data = self.config_data
                              for part in parent_topic_path.split('/'):
                                  parent_config_data = parent_config_data.get(part, {})
-                             
                              if 'value' in parent_config_data:
                                  dropdown.set(parent_config_data['value'])
                          return
-                # FIX END
                 return
 
             payload_value = payload
@@ -434,36 +398,41 @@ class DynamicGuiBuilder(
                 widget_info.delete(0, tk.END)
                 widget_info.insert(0, payload_value)
             elif isinstance(widget_info, tuple):
-                # Check for GuiButtonToggle: (BooleanVar, update_function)
                 if isinstance(widget_info[0], tk.BooleanVar) and isinstance(widget_info[1], ttk.Button):
                     bool_var, update_func = widget_info
-                    new_state = bool(payload_value) # Directly convert payload to boolean
+                    new_state = bool(payload_value)
                     if bool_var.get() != new_state:
                         bool_var.set(new_state)
                         update_func()
-                # Checkbox: (BooleanVar, Checkbutton)
                 elif isinstance(widget_info[0], tk.BooleanVar) and isinstance(widget_info[1], ttk.Checkbutton):
                     bool_var, checkbutton = widget_info
                     new_state = bool(payload_value)
                     bool_var.set(new_state)
-                # Slider: (StringVar, Scale)
                 elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Scale):
                     str_var, slider = widget_info
                     str_var.set(f"{float(payload_value):.2f}")
                     slider.set(float(payload_value))
-                # Dropdown: (StringVar, Combobox, rebuild_method)
                 elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Combobox) and len(widget_info) == 3:
-                    # The widget info stores the rebuild method directly.
                     str_var, dropdown, rebuild_method = widget_info
-                    # Update the StringVar to trigger the dropdown's display update
                     str_var.set(str(payload_value))
-                # Button Toggler: (StringVar, update_function)
+                # NEW: Handle Listbox update
+                elif isinstance(widget_info[0], tk.Listbox) and len(widget_info) == 3:
+                    listbox, rebuild_method, options_map = widget_info
+                    
+                    selected_key = next((key for key, opt in options_map.items() if str(opt.get('value', key)) == str(payload_value)), None)
+                    if selected_key:
+                        selected_label = options_map[selected_key].get('label_active', selected_key)
+                        all_items = listbox.get(0, tk.END)
+                        if selected_label in all_items:
+                            idx = all_items.index(selected_label)
+                            listbox.selection_clear(0, tk.END)
+                            listbox.select_set(idx)
+                            listbox.see(idx)
                 elif isinstance(widget_info[0], tk.StringVar):
                     str_var, update_func = widget_info
                     str_var.set(str(payload_value))
                     update_func()
             elif isinstance(widget_info, ttk.Label):
-                # Update label text directly
                 widget_info.config(text=f"{widget_info['text'].split(':')[0]}: {payload_value}")
 
         except Exception as e:
@@ -478,7 +447,6 @@ class DynamicGuiBuilder(
                 relative_topic = topic[len(self.base_topic):].strip(TOPIC_DELIMITER)
 
                 if not relative_topic:
-                    # Case 1: The full configuration JSON is received on the base topic.
                     try:
                         full_config = json.loads(payload)
                         if isinstance(full_config, dict):
@@ -489,11 +457,9 @@ class DynamicGuiBuilder(
                     except (json.JSONDecodeError, TypeError):
                         pass
 
-                # Case 2: An incremental update is received on a subtopic.
                 path_parts = relative_topic.split(TOPIC_DELIMITER)
                 self._update_nested_dict(path_parts, payload)
 
-                # Only update the widget if the GUI has already been built.
                 if self.gui_built:
                     self.after(0, self._update_widget_value, relative_topic, payload)
 

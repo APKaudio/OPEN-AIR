@@ -10,11 +10,11 @@
         "label_inactive": "Search for devices",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": false
+        "value": 0
       },
 
       "Found_devices": {
-        "type": "_GuiDropDownOption",
+        "type": "_GuiListbox",
         "AES70": "OcaSwitch",
         "handler": "handle_device_1_options",
         "options": {
@@ -99,23 +99,20 @@
             "selected": false
           }
         }},
-        "Connect": {
-
-        "type": "_GuiButtonToggle",
+              "Connect_to_Device": {
+        "active": false, "label_active": "Connecting to device...",
+        "label_inactive": "Connect to Device",
+        "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "handler": "toggle_preamp",
-        "options": {
-          "ON": {
-            "label_active": "Connected to Device",
-            "label_inactive": "Connected to Device",
-            "selected": false
-          },
-          "OFF": {
-            "label_active": "Disconnected from Device",
-            "label_inactive": "Disconnected from Device",
-            "selected": true
-          }
-        }
+        "value": 0
+      },
+
+            "Disconnect_device": {
+        "active": false, "label_active": "Disconnecting device...",
+        "label_inactive": "Device Disconnected",
+        "type": "_GuiActuator",
+        "AES70": "OcaBooleanActuator",
+        "value": 0
       },
         
         "Device_status": {

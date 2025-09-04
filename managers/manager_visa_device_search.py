@@ -6,8 +6,15 @@
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
-# Version 20250903.092844.3
-# FIXED: Resolved an AttributeError by correctly parsing the string boolean value 'true' from the MQTT payload without using the .lower() method.
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20250903.230800.9
 
 import inspect
 import os
@@ -24,7 +31,8 @@ from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables ---
-current_version = "20250903.092844.3"
+current_version = "20250903.230800.9"
+current_version_hash = (20250903 * 230800 * 9)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -34,16 +42,34 @@ class VisaDeviceManager():
     """
 
     def __init__(self, mqtt_controller: MqttControllerUtility):
-        self.mqtt_util = mqtt_controller
-        self.inst = None
-        self._setup_mqtt_subscriptions()
+        # Initializes the manager, sets up state variables and MQTT subscriptions.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🟢 Initiating the grand VISA device management experiment!",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            self.mqtt_util = mqtt_controller
+            self.inst = None
+            self.found_resources = []
+            self.selected_device_resource = None
+            self._setup_mqtt_subscriptions()
+            console_log("✅ The magnificent VISA Device Manager is online and ready for action!")
+        except Exception as e:
+            console_log(f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
+            debug_log(
+                message=f"🛠️🔴 By Jove, the initialization has gone haywire! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
-    # Public method for the GUI to trigger a search
     def search_resources(self, console_print_func):
-        """
-        FIX: This method is now synchronous. It performs the search and directly returns
-        a list of resources, bypassing the MQTT bus for this specific transaction.
-        """
+        # Performs the search and directly returns a list of resources.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"GUI command received: initiating VISA resource search.",
@@ -55,14 +81,11 @@ class VisaDeviceManager():
         resources = list_visa_resources(console_print_func)
         return resources
 
-    # NEW: Public method for the GUI to trigger a connection
     def connect_instrument(self, resource_name, console_print_func):
-        """
-        Triggers a connection to a specific resource by publishing a command.
-        """
+        # Triggers a connection to a specific resource by publishing a command.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"GUI command received: initiating connection to {resource_name}.",
+            message=f"Command received: initiating connection to {resource_name}.",
             file=current_file,
             version=current_version,
             function=current_function,
@@ -71,14 +94,11 @@ class VisaDeviceManager():
         payload = json.dumps({"resource": resource_name})
         self.mqtt_util.publish_message(topic="OPEN-AIR/commands/instrument/connect", subtopic="", value=payload)
 
-    # NEW: Public method for the GUI to trigger a disconnection
     def disconnect_instrument(self, console_print_func):
-        """
-        Triggers a disconnection by publishing a command.
-        """
+        # Triggers a disconnection by publishing a command.
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"GUI command received: initiating disconnection.",
+            message=f"Command received: initiating disconnection.",
             file=current_file,
             version=current_version,
             function=current_function,
@@ -86,325 +106,200 @@ class VisaDeviceManager():
         )
         self.mqtt_util.publish_message(topic="OPEN-AIR/commands/instrument/disconnect", subtopic="", value="disconnect")
 
-
     def _setup_mqtt_subscriptions(self):
-        """
-        Subscribes to MQTT topics for receiving commands from the GUI.
-        """
-        # FIX: The search command is now a direct function call, so we no longer need a subscriber for it here.
-        # self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/search", callback_func=self._on_search_request)
-        self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
-        self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
-        # NEW: Subscribe to the button's value change
-        self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Search_For_devices/value", callback_func=self._on_search_request)
-        
-        console_log("✅ VisaDeviceManager subscribed to command topics.")
-
-    def _publish_status(self, topic_suffix, value):
-        """
-        Helper function to publish a value to a specific status topic.
-        """
-        if self.mqtt_util:
-            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument/fields"
-            full_topic = f"{base_topic}/{topic_suffix}"
-            self.mqtt_util.publish_message(topic=full_topic, subtopic="value", value=value, retain=False)
-        else:
-            console_log(f"❌ MQTT utility not initialized. Cannot publish to {topic_suffix}.")
-
-    def _on_search_request(self, topic, payload):
-        """
-        NEW: Handles the 'Search_For_devices' button press from the GUI.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        try:
-            payload_data = json.loads(payload)
-            # FIX: Check the payload value for the string 'true'
-            if payload_data.get('value') == 'true':
-                console_log("🔍 Search for devices initiated from GUI.")
-                resources = self.search_resources(console_log)
-                self._update_found_devices_gui(resources)
-                # Reset the button state in the GUI
-                # FIX: Passing raw boolean to avoid double encoding.
-                self.mqtt_util.publish_message(topic=topic, subtopic="", value=False, retain=False)
-        except json.JSONDecodeError:
-            pass # Ignore malformed messages
-
-    def _update_found_devices_gui(self, resources):
-        """
-        Updates the GUI's `Found_devices` dropdown based on the search results.
-        """
-        base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices"
-        
-        # We process up to 10 entries as per the JSON structure
-        for i in range(1, 11):
-            option_topic_prefix = f"{base_topic}/options/{i}"
-            
-            if i <= len(resources):
-                device_name = resources[i-1]
-                # Set the device as active and update its label
-                # FIX: Pass raw boolean and string values.
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value=True, retain=False)
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value=device_name, retain=False)
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value=device_name, retain=False)
-            else:
-                # Set the remaining placeholders as inactive and clear their labels
-                # FIX: Pass raw boolean and string values.
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value=False, retain=False)
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
-                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
-
-    def populate_resources_logic(self, console_print_func):
-        """
-        Populates the MQTT topics with available VISA instrument addresses.
-        """
-        current_function = inspect.currentframe().f_code.co_name
+        # Subscribes to MQTT topics for receiving commands from the GUI.
+        current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Populating VISA resources. Let's find those devices! Version: {current_version}",
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
-        resources = list_visa_resources(console_print_func)
-        # FIX: The manager no longer publishes the resource list. It is returned directly.
-        # self.mqtt_util.publish_message(topic="OPEN-AIR/status/instrument/resources", subtopic="list", value=json.dumps(resources))
-        if resources:
-            self.mqtt_util.publish_message(topic="OPEN-AIR/status/instrument/resources", subtopic="selected", value=resources[0])
-            debug_log(
-                message=f"Found and published VISA resources: {resources}. Success!",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
-        else:
-            console_print_func("No VISA instruments found. Check connections.")
-            debug_log(
-                message="No VISA resources found. Time for some detective work. 🕵️‍♀️",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
-
-    def _on_connect_request(self, topic, payload):
-        """
-        Handles an MQTT connect request to a specific VISA resource.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"MQTT Command: '{topic}' received. Starting connection process.",
+            message=f"🛠️🔵 My minions are tuning the receivers! Subscribing to command topics.",
             file=current_file,
             version=current_version,
-            function=current_function,
+            function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
+        try:
+            # Command-based subscribers
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
+            
+            # Subscribers for direct GUI interaction
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Search_For_devices/value", callback_func=self._on_search_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices/options/+/selected", callback_func=self._on_device_select)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Connect_to_Device/value", callback_func=self._on_gui_connect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Disconnect_device/value", callback_func=self._on_gui_disconnect_request)
+            
+            console_log("✅ VisaDeviceManager subscribed to all necessary GUI and command topics.")
+        except Exception as e:
+            console_log(f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
+
+    def _on_search_request(self, topic, payload):
+        # Handles the 'Search_For_devices' button press from the GUI.
+        try:
+            payload_data = json.loads(payload)
+            if str(payload_data.get('value')).lower() == 'true':
+                console_log("🔍 Search for devices initiated from GUI.")
+                self.found_resources = self.search_resources(console_log)
+                self._update_found_devices_gui(self.found_resources)
+                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
+        except (json.JSONDecodeError, AttributeError):
+            pass
+
+    def _on_device_select(self, topic, payload):
+        # Handles a device selection from the listbox.
+        try:
+            payload_data = json.loads(payload)
+            if str(payload_data.get('value')).lower() == 'true':
+                parts = topic.split('/')
+                option_index = int(parts[-2]) - 1
+                if 0 <= option_index < len(self.found_resources):
+                    self.selected_device_resource = self.found_resources[option_index]
+                    console_log(f"✅ Device selected: {self.selected_device_resource}")
+                else:
+                    self.selected_device_resource = None
+        except (json.JSONDecodeError, IndexError, ValueError, AttributeError):
+            pass
+
+    def _on_gui_connect_request(self, topic, payload):
+        # Handles the 'Connect_to_Device' button press.
+        try:
+            payload_data = json.loads(payload)
+            if str(payload_data.get('value')).lower() == 'true':
+                if self.selected_device_resource:
+                    console_log(f"🔵 Initiating connection to {self.selected_device_resource}...")
+                    thread = threading.Thread(target=self.connect_instrument_logic, args=(self.selected_device_resource, console_log,), daemon=True)
+                    thread.start()
+                else:
+                    console_log("🟡 No device selected to connect.")
+                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
+        except (json.JSONDecodeError, AttributeError):
+            pass
+
+    def _on_gui_disconnect_request(self, topic, payload):
+        # Handles the 'Disconnect_device' button press.
+        try:
+            payload_data = json.loads(payload)
+            if str(payload_data.get('value')).lower() == 'true':
+                if self.inst:
+                    console_log("🔵 Initiating disconnection...")
+                    thread = threading.Thread(target=self.disconnect_instrument_logic, args=(console_log,), daemon=True)
+                    thread.start()
+                else:
+                    console_log("🟡 No device is currently connected.")
+                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
+        except (json.JSONDecodeError, AttributeError):
+            pass
+            
+    def _update_found_devices_gui(self, resources):
+        # Updates the GUI's `Found_devices` listbox based on the search results.
+        try:
+            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Found_devices"
+            for i in range(1, 11):
+                option_topic_prefix = f"{base_topic}/options/{i}"
+                if i <= len(resources):
+                    device_name = resources[i-1]
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="true", retain=False)
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value=device_name, retain=False)
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value=device_name, retain=False)
+                else:
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="false", retain=False)
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
+                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
+            console_log("✅ GUI device list updated with search results.")
+        except Exception as e:
+            console_log(f"❌ Error in _update_found_devices_gui: {e}")
+
+    def _publish_status(self, topic_suffix, value):
+        # Helper function to publish a value to a specific status topic.
+        if self.mqtt_util:
+            base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/fields/Device_status/Fields"
+            self.mqtt_util.publish_message(topic=f"{base_topic}/{topic_suffix}", subtopic="value", value=value, retain=False)
+
+    def _on_connect_request(self, topic, payload):
+        # Handles an MQTT connect request to a specific VISA resource.
         try:
             payload_data = json.loads(payload)
             resource_name = payload_data.get('resource')
             if resource_name:
                 thread = threading.Thread(target=self.connect_instrument_logic, args=(resource_name, console_log,), daemon=True)
                 thread.start()
-            else:
-                console_log("❌ Connect request received without a valid resource name.")
-                self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=False)
         except json.JSONDecodeError:
             console_log("❌ Failed to decode JSON payload for connect request.")
-            self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=False)
-
 
     def connect_instrument_logic(self, resource_name, console_print_func):
-        """
-        Handles the full connection sequence to a VISA instrument.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"Attempting to connect to instrument. Let's make this happen! Version: {current_version}",
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
-        
+        # Handles the full connection sequence to a VISA instrument.
         try:
             self.inst = connect_to_instrument(resource_name, console_print_func)
             if not self.inst:
-                self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=False)
+                self._publish_status("connected", False)
+                self._publish_status("disconnected", True)
                 return False
-
-            try:
-                idn_response = self.inst.query('*IDN?')
-                idn_parts = idn_response.strip().split(',')
-            except pyvisa.errors.VisaIOError as e:
-                console_log(f"❌ VISA error querying IDN: {e}.")
-                idn_parts = []
-                
+            idn_response = self.inst.query('*IDN?')
+            idn_parts = idn_response.strip().split(',')
             manufacturer = idn_parts[0].strip() if len(idn_parts) >= 1 else "N/A"
             model = idn_parts[1].strip() if len(idn_parts) >= 2 else "N/A"
             serial_number = idn_parts[2].strip() if len(idn_parts) >= 3 else "N/A"
-            version = idn_parts[3].strip() if len(idn_parts) >= 4 else "N/A"
-
-            # Publish all details to MQTT
+            firmware = idn_parts[3].strip() if len(idn_parts) >= 4 else "N/A"
             self._publish_status("brand", manufacturer)
             self._publish_status("device_model", model)
+            self._publish_status("device_series", model)
             self._publish_status("device_serial_number", serial_number)
-            self._publish_status("device_firmware", version)
+            self._publish_status("device_firmware", firmware)
             self._publish_status("visa_resource", resource_name)
             self._publish_status("Time_connected", datetime.datetime.now().strftime("%H:%M:%S"))
             self._publish_status("connected", True)
             self._publish_status("disconnected", False)
-
-
-            self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=True)
-            debug_log(
-                message="Connection successful! The instrument is alive! 🥳",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
             return True
-        
         except Exception as e:
-            console_print_func(f"❌ Error during connection: {e}")
-            debug_log(
-                message=f"Connection failed spectacularly! Error: {e}. Traceback: {traceback.format_exc()}",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
+            console_log(f"❌ Error during connection logic: {e}")
             self.disconnect_instrument_logic(console_print_func)
             return False
 
     def _on_disconnect_request(self, topic, payload):
-        """
-        Handles an MQTT disconnect request.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"MQTT Command: '{topic}' received. Starting disconnection process.",
-            file=current_file,
-            version=current_version,
-            function=current_function,
-            console_print_func=console_log
-        )
-        
+        # Handles an MQTT disconnect request.
         if self.inst:
             thread = threading.Thread(target=self.disconnect_instrument_logic, args=(console_log,), daemon=True)
             thread.start()
         else:
             console_log("⚠️ No instrument is currently connected to disconnect.")
-            self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=False)
-            self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/disconnected/value", subtopic="", value=True)
-            
+
     def disconnect_instrument_logic(self, console_print_func):
-        """
-        Disconnects the application from the currently connected VISA instrument.
-        """
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"Attempting to disconnect instrument. Version: {current_version}",
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
-        
+        # Disconnects the application from the currently connected VISA instrument.
         if not self.inst:
-            console_print_func("⚠️ Warning: No instrument connected. Nothing to disconnect.")
-            debug_log(
-                message="No instrument to disconnect. This is a mess.",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
             return True
-        
         result = disconnect_instrument(self.inst, console_print_func)
         self.inst = None
-        
-        if result:
-            debug_log(
-                message="Successfully disconnected. Until we meet again! 👋",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
-        else:
-            debug_log(
-                message="Disconnecting failed. This is a catastrophe!",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
-            
-        # Publish disconnection status
-        self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/disconnected/value", subtopic="", value=True)
-        self.mqtt_util.publish_message(topic="OPEN-AIR/configuration/instrument/active/Instrument/fields/connected/value", subtopic="", value=False)
+        self.selected_device_resource = None
+        self._publish_status("disconnected", True)
+        self._publish_status("connected", False)
         self._publish_status("brand", "N/A")
         self._publish_status("device_model", "N/A")
+        self._publish_status("device_series", "N/A")
         self._publish_status("device_serial_number", "N/A")
         self._publish_status("device_firmware", "N/A")
         self._publish_status("visa_resource", "N/A")
         self._publish_status("Time_connected", "N/A")
-
         return result
-    
-    # --- Internal VISA Utility Functions ---
+
 def list_visa_resources(console_print_func=None):
-    """
-    Lists available VISA resources (instruments).
-    """
+    # Lists available VISA resources (instruments).
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="Listing VISA resources... Let's find some devices!",
-        file=f"{os.path.basename(__file__)}",
-        version=current_version,
-        function=current_function,
-        console_print_func=console_print_func
-    )
+    debug_log(message="Listing VISA resources... Let's find some devices!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     try:
         rm = pyvisa.ResourceManager()
         resources = rm.list_resources()
-        debug_log(
-            message=f"Found VISA resources: {resources}.",
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
+        debug_log(message=f"Found VISA resources: {resources}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return list(resources)
     except Exception as e:
         error_msg = f"❌ Error listing VISA resources: {e}."
         console_print_func(error_msg)
-        debug_log(
-            message=error_msg,
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
+        debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return []
 
-
 def connect_to_instrument(resource_name, console_print_func=None):
-    """
-    Establishes a connection to a VISA instrument.
-    """
+    # Establishes a connection to a VISA instrument.
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(
-        message=f"Connecting to instrument: {resource_name}. Fingers crossed!",
-        file=f"{os.path.basename(__file__)}",
-        version=current_version,
-        function=current_function,
-        console_print_func=console_print_func
-    )
+    debug_log(message=f"Connecting to instrument: {resource_name}. Fingers crossed!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     try:
         rm = pyvisa.ResourceManager()
         inst = rm.open_resource(resource_name)
@@ -413,90 +308,29 @@ def connect_to_instrument(resource_name, console_print_func=None):
         inst.write_termination = '\n'
         inst.query_delay = 0.1
         console_print_func(f"✅ Successfully connected to {resource_name}.")
-        debug_log(
-            message=f"Connection successful to {resource_name}. We're in!",
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
+        debug_log(message=f"Connection successful to {resource_name}. We're in!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return inst
-    except pyvisa.errors.VisaIOError as e:
-        error_msg = f"❌ VISA error connecting to {resource_name}: {e}."
-        console_print_func(error_msg)
-        debug_log(
-            message=error_msg,
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
-        return None
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while connecting to {resource_name}: {e}."
         console_print_func(error_msg)
-        debug_log(
-            message=error_msg,
-            file=f"{os.path.basename(__file__)}",
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
-        )
+        debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return None
 
-
 def disconnect_instrument(inst, console_print_func=None):
-    """
-    Closes the connection to a VISA instrument.
-    """
+    # Closes the connection to a VISA instrument.
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="Disconnecting instrument... Saying goodbye!",
-        file=f"{os.path.basename(__file__)}",
-        version=current_version,
-        function=current_function,
-        console_print_func=console_print_func
-    )
+    debug_log(message="Disconnecting instrument... Saying goodbye!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     if inst:
         try:
             inst.close()
-            console_print_func("✅ Instrument disconnected. See ya!")
-            debug_log(
-                message="Instrument connection closed. All done!",
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
+            console_print_func("✅ Instrument disconnected.")
+            debug_log(message="Instrument connection closed. All done!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
             return True
-        except pyvisa.errors.VisaIOError as e:
-            error_msg = f"❌ VISA error disconnecting instrument: {e}."
-            console_print_func(error_msg)
-            debug_log(
-                message=error_msg,
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
-            return False
         except Exception as e:
             error_msg = f"❌ An unexpected error occurred while disconnecting instrument: {e}."
             console_print_func(error_msg)
-            debug_log(
-                message=error_msg,
-                file=f"{os.path.basename(__file__)}",
-                version=current_version,
-                function=current_function,
-                console_print_func=console_print_func
-            )
+            debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
             return False
-    debug_log(
-        message="No instrument to disconnect. Already gone!",
-        file=f"{os.path.basename(__file__)}",
-        version=current_version,
-        function=current_function,
-        console_print_func=console_print_func
-    )
+    debug_log(message="No instrument to disconnect. Already gone!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     return False
