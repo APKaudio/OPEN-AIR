@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.010100.1
+# Version 20250904.213147.2
 
 import os
 import inspect
@@ -28,8 +28,8 @@ from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250904.010100.1"
-current_version_hash = (20250904 * 10100 * 1)
+current_version = "20250904.213147.2"
+current_version_hash = (20250904 * 213147 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -50,7 +50,7 @@ class ScpiDispatcher:
         try:
             self.app_instance = app_instance
             self._print_to_gui_console = console_print_func
-            self.rm = pyvisa.ResourceManager()
+            # self.rm = pyvisa.ResourceManager() # No longer needed here
             self.inst = None
             console_log("✅ Success! The SCPI Dispatcher has initialized its core components.")
 
@@ -63,6 +63,26 @@ class ScpiDispatcher:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=self._print_to_gui_console
             )
+
+    def set_instrument_instance(self, inst):
+        """
+        Sets the PyVISA instrument instance for the dispatcher to use.
+        This function is called by the VisaDeviceManager upon connection/disconnection.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🔵 Received new instrument instance. It's now my time to shine!",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=self._print_to_gui_console
+        )
+        self.inst = inst
+        if self.inst:
+            console_log("✅ SCPI Dispatcher is now linked to an instrument.")
+        else:
+            console_log("✅ SCPI Dispatcher has been unlinked from the instrument.")
+
 
     def _reset_device(self, inst):
         # Sends a soft reset command to the instrument to restore a known state after an error.
@@ -161,4 +181,3 @@ class ScpiDispatcher:
             )
             self._reset_device(inst=self.inst)
             return None
-

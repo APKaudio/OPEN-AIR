@@ -14,13 +14,14 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.010551.1
+# Version 20250905.022800.17
 
 import os
+import copy
 
 # --- Global Scope Variables ---
-current_version = "20250904.010551.1"
-current_version_hash = (20250904 * 10551 * 1)
+current_version = "20250905.022800.17"
+current_version_hash = (20250905 * 22800 * 17)
 current_file = f"{os.path.basename(__file__)}"
 
 # The default theme to use. This can be changed here to easily switch the entire application's style.
@@ -32,10 +33,11 @@ THEMES = {
     "dark": {
         "bg": "#2b2b2b",
         "fg": "#dcdcdc",
-        "fg_alt": "#888888",  # Added missing key for alternate/debug text
+        "fg_alt": "#888888",
         "primary": "#3c3f41",
         "secondary": "#4e5254",
-        "accent": "#cc5c00",
+        "accent": "#00cc2c",
+        "hover_blue": "#4169E1",
         "text": "#ffffff",
         "border": "#555555",
         "relief": "solid",
@@ -52,10 +54,72 @@ THEMES = {
         # ----------------------------------------------------
         "textbox_style": {
             "Textbox_Font": "Segoe UI",
-            "Textbox_Font_size": 9,
+            "Textbox_Font_size": 13,
             "Textbox_Font_colour": "#ffffff",
             "Textbox_border_colour": "#555555",
             "Textbox_BG_colour": "#4e5254"
+        },
+        "button_base_style": {
+            "borderwidth": 2,
+            "relief": "raised",
+            "padding": [10, 5],
+            "font": ("Helvetica", 13, "bold"),
+            "highlightcolor": "#ffffff",
+            "highlightbackground": "#555555",
+            "highlightthickness": 2,
+        },
+        "button_style_actuator": {
+            "background": "#4e5254",
+            "foreground": "#ffffff",
+            "Button_Hover_Bg": "#4169E1",
+            "Button_Pressed_Bg": "#ccb800",
+            "Button_Disabled_Bg": "#888888",
+            "Button_Disabled_Fg": "#dcdcdc",
+        },
+        "button_style_toggle": {
+            "background": "#4e5254",
+            "foreground": "#ffffff",
+            "Button_Hover_Bg": "#4169E1",
+            "Button_Pressed_Bg": "#ccb800",
+            "Button_Selected_Bg": "#ae00ff",
+            "Button_Selected_Fg": "#ffffff",
+            "Button_Disabled_Bg": "#888888",
+            "Button_Disabled_Fg": "#dcdcdc",
+        },
+        "button_style_toggler": {
+            "background": "#4e5254",
+            "foreground": "#ffffff",
+            "Button_Hover_Bg": "#4169E1",
+            "Button_Pressed_Bg": "#ccb800",
+            "Button_Selected_Bg": "#ae00ff",
+            "Button_Selected_Fg": "#ffffff",
+            "Button_Disabled_Bg": "#888888",
+            "Button_Disabled_Fg": "#dcdcdc",
+        },
+        "tab_style": {
+            "tab_base_style": {
+                "background": "#3c3f41",
+                "foreground": "#ffffff",
+                "font": ("Helvetica", 13, "bold"),
+                "padding": [10, 5],
+                "borderwidth": 0,
+                "relief": "flat",
+                "highlightcolor": "#ffffff",
+                "highlightbackground": "#555555",
+                "highlightthickness": 0,
+            },
+            "tab_styles": [
+                "Accent.TNotebook.Tab1",
+                "Accent.TNotebook.Tab2",
+                "Accent.TNotebook.Tab3",
+                "Accent.TNotebook.Tab4",
+                "Accent.TNotebook.Tab5",
+                "Accent.TNotebook.Tab6",
+                "Accent.TNotebook.Tab7",
+                "Accent.TNotebook.Tab8",
+                "Accent.TNotebook.Tab9",
+                "Accent.TNotebook.Tab10",
+            ]
         },
         "accent_colors": [
             "#996633",  # 1. Brown
@@ -67,16 +131,18 @@ THEMES = {
             "#6464a3",  # 7. Violet
             "#ce9178",  # 8. Tan
             "#b5cea8",  # 9. Gray-Green
+            "#7d7d7d",  # 10. Gray
         ]
     },
     # The "light" theme, providing a high-contrast alternative.
     "light": {
         "bg": "#f0f0f0",
         "fg": "#000000",
-        "fg_alt": "#555555",  # Added missing key for alternate/debug text
+        "fg_alt": "#555555",
         "primary": "#ffffff",
         "secondary": "#e0e0e0",
         "accent": "#0078d7",
+        "hover_blue": "#4169E1",
         "text": "#000000",
         "border": "#ababab",
         "relief": "groove",
@@ -93,10 +159,84 @@ THEMES = {
         # ----------------------------------------------------
         "textbox_style": {
             "Textbox_Font": "Segoe UI",
-            "Textbox_Font_size": 9,
+            "Textbox_Font_size": 13,
             "Textbox_Font_colour": "#000000",
             "Textbox_border_colour": "#ababab",
             "Textbox_BG_colour": "#ffffff"
+        },
+        "button_base_style": {
+            "borderwidth": 2,
+            "relief": "raised",
+            "padding": [10, 5],
+            "background": "#e0e0e0",
+            "foreground": "#000000",
+            "font": ("Helvetica", 13, "bold"),
+            "highlightcolor": "#000000",
+            "highlightbackground": "#e0e0e0",
+            "highlightthickness": 2,
+        },
+        "button_style": {
+            "Button_Normal_Bg": "#e0e0e0",
+            "Button_Normal_Fg": "#000000",
+            "Button_Hover_Bg": "#4169E1",
+            "Button_Pressed_Bg": "#0078d7",
+            "Button_Selected_Bg": "#0078d7",
+            "Button_Selected_Fg": "#ffffff",
+            "Button_Disabled_Bg": "#ababab",
+            "Button_Disabled_Fg": "#555555"
+        },
+        "button_style_actuator": {
+            "background": "#e0e0e0",
+            "foreground": "#000000",
+            "pressed_bg": "#0078d7",
+            "hover_bg": "#4169E1",
+            "disabled_bg": "#ababab",
+            "disabled_fg": "#555555",
+        },
+        "button_style_toggle": {
+            "background": "#e0e0e0",
+            "foreground": "#000000",
+            "pressed_bg": "#0078d7",
+            "hover_bg": "#4169E1",
+            "selected_bg": "#0078d7",
+            "selected_fg": "#ffffff",
+            "disabled_bg": "#ababab",
+            "disabled_fg": "#555555",
+        },
+        "button_style_toggler": {
+            "background": "#e0e0e0",
+            "foreground": "#000000",
+            "pressed_bg": "#0078d7",
+            "hover_bg": "#4169E1",
+            "selected_bg": "#0078d7",
+            "selected_fg": "#ffffff",
+            "disabled_bg": "#ababab",
+            "disabled_fg": "#555555",
+        },
+        "tab_style": {
+            "tab_base_style": {
+                "background": "#f0f0f0",
+                "foreground": "#000000",
+                "font": ("Helvetica", 13, "bold"),
+                "padding": [10, 5],
+                "borderwidth": 0,
+                "relief": "flat",
+                "highlightcolor": "#000000",
+                "highlightbackground": "#e0e0e0",
+                "highlightthickness": 0,
+            },
+            "tab_styles": [
+                "Accent.TNotebook.Tab1",
+                "Accent.TNotebook.Tab2",
+                "Accent.TNotebook.Tab3",
+                "Accent.TNotebook.Tab4",
+                "Accent.TNotebook.Tab5",
+                "Accent.TNotebook.Tab6",
+                "Accent.TNotebook.Tab7",
+                "Accent.TNotebook.Tab8",
+                "Accent.TNotebook.Tab9",
+                "Accent.TNotebook.Tab10",
+            ]
         },
         "accent_colors": [
             "#A0522D",  # 1. Brown (Sienna)
@@ -108,6 +248,7 @@ THEMES = {
             "#8A2BE2",  # 7. Violet (BlueViolet)
             "#D2691E",  # 8. Tan (Chocolate)
             "#556B2F",  # 9. Gray-Green (DarkOliveGreen)
+            "#7d7d7d",  # 10. Gray
         ]
     }
 }

@@ -13,7 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.210500.1
+# Version 20250906.000100.6
+# FIXED: The button styles have been corrected to match the user's request,
+# using the 'Selected' style for the selected state, and relying on the central style map.
 
 import os
 import tkinter as tk
@@ -24,8 +26,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250902.210500.1"
-current_version_hash = (20250902 * 210500 * 1)
+current_version = "20250906.000100.6"
+current_version_hash = 20250906 * 100 * 6
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -67,13 +69,15 @@ class GuiButtonTogglerCreatorMixin:
                 for key, button_widget in buttons.items():
                     option_data = options_data.get(key, {})
                     
-                    # Determine the text for the button based on its state
-                    if key != current_selection: # FLIPPED LOGIC: Check for INACTIVE state first
+                    # Determine the text and style for the button based on its state
+                    if key == current_selection:
+                        # Correct logic: The selected button uses the 'Selected' style.
                         button_text = option_data.get('label_active', option_data.get('label', ''))
-                        button_widget.config(style='Selected.TButton')
-                    else: # This is the new inactive state
+                        button_widget.config(style='Custom.Selected.TButton')
+                    else:
+                        # All other buttons use the default 'TButton' style.
                         button_text = option_data.get('label_inactive', option_data.get('label', ''))
-                        button_widget.config(style='TButton')
+                        button_widget.config(style='Custom.TButton')
 
                     # Add value and units on separate lines if they exist
                     value = option_data.get('value')

@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250903.230800.9
+# Version 20250904.221002.1
 
 import inspect
 import os
@@ -25,14 +25,15 @@ import json
 import datetime
 import threading
 from workers.worker_mqtt_controller_util import MqttControllerUtility
+from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables ---
-current_version = "20250903.230800.9"
-current_version_hash = (20250903 * 230800 * 9)
+current_version = "20250904.221002.1"
+current_version_hash = (20250904 * 221002 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -41,7 +42,7 @@ class VisaDeviceManager():
     Manages VISA device discovery and connection logic.
     """
 
-    def __init__(self, mqtt_controller: MqttControllerUtility):
+    def __init__(self, mqtt_controller: MqttControllerUtility, scpi_dispatcher: ScpiDispatcher):
         # Initializes the manager, sets up state variables and MQTT subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -53,6 +54,7 @@ class VisaDeviceManager():
         )
         try:
             self.mqtt_util = mqtt_controller
+            self.scpi_dispatcher = scpi_dispatcher
             self.inst = None
             self.found_resources = []
             self.selected_device_resource = None
@@ -185,8 +187,8 @@ class VisaDeviceManager():
                 else:
                     console_log("🟡 No device is currently connected.")
                 self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
-        except (json.JSONDecodeError, AttributeError):
-            pass
+        except Exception as e:
+            console_log(f"❌ Error in _on_gui_disconnect_request: {e}")
             
     def _update_found_devices_gui(self, resources):
         # Updates the GUI's `Found_devices` listbox based on the search results.
@@ -203,6 +205,12 @@ class VisaDeviceManager():
                     self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="false", retain=False)
                     self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
                     self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
+            # START OF FIX: After updating the list, explicitly set the first item as selected.
+            if resources:
+                first_device_topic = f"{base_topic}/options/1/selected"
+                self.mqtt_util.publish_message(topic=first_device_topic, subtopic="", value='true', retain=False)
+                console_log("✅ First device automatically selected after search.")
+            # END OF FIX
             console_log("✅ GUI device list updated with search results.")
         except Exception as e:
             console_log(f"❌ Error in _update_found_devices_gui: {e}")
@@ -229,9 +237,14 @@ class VisaDeviceManager():
         try:
             self.inst = connect_to_instrument(resource_name, console_print_func)
             if not self.inst:
+                # Tell the dispatcher we are not connected
+                self.scpi_dispatcher.set_instrument_instance(inst=None)
                 self._publish_status("connected", False)
                 self._publish_status("disconnected", True)
                 return False
+            # Update the dispatcher with the new instrument instance
+            self.scpi_dispatcher.set_instrument_instance(inst=self.inst)
+
             idn_response = self.inst.query('*IDN?')
             idn_parts = idn_response.strip().split(',')
             manufacturer = idn_parts[0].strip() if len(idn_parts) >= 1 else "N/A"
@@ -267,6 +280,8 @@ class VisaDeviceManager():
             return True
         result = disconnect_instrument(self.inst, console_print_func)
         self.inst = None
+        # Tell the dispatcher we are disconnected
+        self.scpi_dispatcher.set_instrument_instance(inst=None)
         self.selected_device_resource = None
         self._publish_status("disconnected", True)
         self._publish_status("connected", False)

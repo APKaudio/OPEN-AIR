@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250828.215819.7
+# Version 20250906.000100.7
 
 import os
 import tkinter as tk
@@ -24,8 +24,8 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250828.215819.7"
-current_version_hash = (20250828 * 215819 * 7)
+current_version = "20250906.000100.7"
+current_version_hash = 20250906 * 100 * 7
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -60,13 +60,14 @@ class GuiActuatorCreatorMixin:
             button = ttk.Button(
                 sub_frame,
                 text=button_text,
-                style='TButton' # Start with the default inactive style
+                # The button should be created with the custom 'Custom.TButton' style
+                # The visual state is then handled automatically by the style maps.
+                style='Custom.TButton' 
             )
             button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
 
             def on_press(event):
-                # Change style to 'Selected.TButton' on press and publish 'true'
-                button.configure(style='Selected.TButton')
+                # We no longer manually set the style. The style map handles it.
                 debug_log(
                     message=f"GUI ACTION: Publishing actuator command to '{path}' with value 'true'",
                     file=current_file,
@@ -74,11 +75,10 @@ class GuiActuatorCreatorMixin:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                self._transmit_command(relative_topic=path, payload='true')
+                self._transmit_command(relative_topic=path, payload='true', retain=False)
 
             def on_release(event):
-                # Revert style to 'TButton' on release and publish '0'
-                button.configure(style='TButton')
+                # We no longer manually set the style. The style map handles it.
                 debug_log(
                     message=f"GUI ACTION: Publishing actuator command to '{path}' with value '0'",
                     file=current_file,
@@ -86,7 +86,7 @@ class GuiActuatorCreatorMixin:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                self._transmit_command(relative_topic=path, payload='0')
+                self._transmit_command(relative_topic=path, payload='0', retain=False)
 
             button.bind("<ButtonPress-1>", on_press)
             button.bind("<ButtonRelease-1>", on_release)

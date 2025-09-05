@@ -16,7 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.230500.78
+# Version 20250904.225500.80
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 # os: Provides a way to interact with the operating system, like getting file names.
@@ -47,15 +47,15 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 # ⏰ As requested, the version is now hardcoded to the time this file was generated.
 # The version strings and numbers below are static and will not change at runtime.
 # This represents the date (YYYYMMDD) of file creation.
-CURRENT_DATE = 20250827
+CURRENT_DATE = 20250904
 # This represents the time (HHMMSS) of file creation.
-CURRENT_TIME = 230500
+CURRENT_TIME = 225500
 # This is a numeric hash of the time, useful for unique IDs.
-CURRENT_TIME_HASH = 230500
+CURRENT_TIME_HASH = 225500
 # Our project's current revision number, which is manually incremented.
-REVISION_NUMBER = 78
+REVISION_NUMBER = 80
 # Assembling the full version string as per the protocol (W.X.Y).
-current_version = "20250827.230500.78"
+current_version = "20250904.225500.80"
 # Creating a unique integer hash for the current version for internal tracking.
 current_version_hash = (CURRENT_DATE * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Getting the name of the current file to use in our logs, ensuring it's always accurate.
@@ -183,17 +183,7 @@ class Application(tk.Tk):
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
 
-        # UPDATED: Applying padding and border_width from the theme to buttons.
-        # We make the buttons' padding and border more prominent.
-        style.configure('TButton',
-                        background=colors["accent"],
-                        foreground=colors["text"],
-                        padding=colors["padding"] * 5,
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"] * 2)
-        
-        style.map('TButton',
-                  background=[('active', colors["secondary"])])
+        # --- Button styling is now handled entirely within dynamic_gui_builder.py ---
 
         # --- Configure the main window background ---
         # We apply the main background color to the root window itself.
@@ -321,7 +311,7 @@ class Application(tk.Tk):
                     notebook.add(tab_frame, text=display_name)
                     # 🔄 We recursively build the contents of this new tab.
                     self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
-                # If we've processed tabs, we stop here.
+                # If we've processed a layout, we stop here.
                 return
 
             # If no layout or tab directories were found, we look for child components.

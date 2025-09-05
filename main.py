@@ -1,4 +1,4 @@
-# main.py
+# OPEN-AIR/main.py
 #
 # This file serves as the main entry point for the application, orchestrating startup checks and GUI launch.
 #
@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250824.125100.2
+# Version 20250904.213147.2
 
 import os
 import inspect
@@ -21,6 +21,7 @@ import datetime
 import sys
 import pathlib
 import importlib
+import time
 
 
 
@@ -37,6 +38,8 @@ from managers.manager_presets_span import SpanSettingsManager
 from managers.manager_visa_device_search import VisaDeviceManager
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yakety_yak import YaketyYakManager
+# ADDED: Import the new VisaResetManager
+from managers.manager_visa_reset import VisaResetManager
 
 
 # Add the project's root directory to the system path to allow for imports from
@@ -64,13 +67,9 @@ from display.gui_display import Application
 
 
 # --- Global Scope Variables ---
-CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
-CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
+current_version = "20250904.213147.2"
 # Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
-CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 2
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
+current_version_hash = (20250904 * 213147 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -105,9 +104,9 @@ def action_check_dependancies():
 def action_check_configuration():
     # Validates the application's configuration files.
     current_function_name = inspect.currentframe().f_code.co_name
-    
-    
-    
+
+
+
     debug_log(
         message=f"🖥️🟢 Ahem, commencing the configuration validation experiment in '{current_function_name}'.",
         file=current_file,
@@ -117,7 +116,7 @@ def action_check_configuration():
     )
 
     try:
-        
+
         # Placeholder for configuration validation
         console_log("✅ Excellent! The configuration is quite, quite brilliant.")
         return True
@@ -147,24 +146,33 @@ def action_open_display(mqtt_util_instance):
     try:
         # --- Function logic goes here ---
         app = Application()
-        
-        
+
+
 ################ INITIALIZE MANAGERS ################
-        
-           ################ INITIALIZE MANAGERS ################
+
+        ################ INITIALIZE MANAGERS ################
         # Instantiate the low-level SCPI dispatcher first, as other managers depend on it.
         scpi_dispatcher = ScpiDispatcher(
             app_instance=app,
             console_print_func=console_log
         )
-        
-        
+
+
         frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
         span_manager = SpanSettingsManager(mqtt_controller=mqtt_util_instance)
-        manager_visa_connection = VisaDeviceManager(mqtt_controller=mqtt_util_instance)
-   
-   
-   # Correctly instantiate the YaketyYakManager with all required arguments.
+        # PASS THE SCPI DISPATCHER TO THE DEVICE MANAGER FOR SYNCHRONIZATION
+        manager_visa_connection = VisaDeviceManager(
+            mqtt_controller=mqtt_util_instance,
+            scpi_dispatcher=scpi_dispatcher
+        )
+
+        # ADDED: Instantiate the new VisaResetManager
+        manager_visa_reset = VisaResetManager(
+            mqtt_controller=mqtt_util_instance,
+            scpi_dispatcher=scpi_dispatcher
+        )
+
+        # Correctly instantiate the YaketyYakManager with all required arguments.
         manager_yakety_yak = YaketyYakManager(
             mqtt_controller=mqtt_util_instance,
             dispatcher_instance=scpi_dispatcher,
@@ -195,17 +203,21 @@ def main():
     console_log(f"🚀 Launch sequence initiated for version {current_version}.")
 
     if action_check_dependancies():
-        
+
         if action_check_configuration():
             mqtt_util_instance = MqttControllerUtility(console_log, console_log)
-            #mqtt_util_instance.start_mosquitto()
+            # FIX: Start the broker before attempting to connect.
+            if hasattr(mqtt_util_instance, 'start_mosquitto'):
+                mqtt_util_instance.start_mosquitto()
+                time.sleep(1) # Give the broker a second to start
+            
             mqtt_util_instance.connect_mqtt()
             action_open_display(mqtt_util_instance)
         else:
             console_log("❌ Halting startup due to configuration errors.")
     else:
         console_log("❌ Halting startup due to missing dependencies.")
-23
+
 
 if __name__ == "__main__":
     main()

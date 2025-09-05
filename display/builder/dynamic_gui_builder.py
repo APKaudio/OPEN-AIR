@@ -13,9 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250903.221737.2
-# NEW: Integrated the new GuiListboxCreatorMixin to allow for the creation of '_GuiListbox' widgets.
-# UPDATED: The _update_widget_value function can now handle state updates for the new listbox widget.
+# Version 20250906.000100.21
 
 import os
 import inspect
@@ -45,9 +43,8 @@ from display.builder.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixi
 
 
 # --- Global Scope Variables ---
-current_version = "20250903.221737.2"
-# Hash: (20250903 * 221737 * 2)
-current_version_hash = (20250903 * 221737 * 2)
+current_version = "20250906.000100.21"
+current_version_hash = 20250906 * 100 * 21
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -103,7 +100,7 @@ class DynamicGuiBuilder(
             self.config_data = {}
             self.gui_built = False
             self.log_text = None
-            
+
 
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
@@ -156,7 +153,7 @@ class DynamicGuiBuilder(
                 console_print_func=console_log
             )
 
-    def _transmit_command(self, relative_topic, payload):
+    def _transmit_command(self, relative_topic, payload, retain=False):
         # Publishes a command to the MQTT broker.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -168,7 +165,7 @@ class DynamicGuiBuilder(
         )
         try:
             full_topic = f"{self.base_topic}{TOPIC_DELIMITER}{relative_topic}"
-            self.mqtt_util.publish_message(topic=self.base_topic, subtopic=relative_topic, value=payload)
+            self.mqtt_util.publish_message(topic=self.base_topic, subtopic=relative_topic, value=payload, retain=retain)
             console_log(f"✅ Victory! The command has been published to '{full_topic}'.")
         except Exception as e:
             console_log(f"❌ Error publishing command to topic '{relative_topic}': {e}")
@@ -185,7 +182,7 @@ class DynamicGuiBuilder(
         current_level = self.config_data
         for part in path_parts[:-1]:
             current_level = current_level.setdefault(part, {})
-        
+
         final_value = value
         if isinstance(value, str):
             try:
@@ -194,12 +191,12 @@ class DynamicGuiBuilder(
                     final_value = data['value']
             except (json.JSONDecodeError, TypeError):
                 pass
-        
+
         if isinstance(final_value, str):
             try:
                 final_value = json.loads(final_value)
             except (json.JSONDecodeError, TypeError):
-                pass 
+                pass
 
         if isinstance(final_value, str):
             if final_value.lower() == 'true':
@@ -209,7 +206,7 @@ class DynamicGuiBuilder(
 
         last_key = path_parts[-1]
         parent_dict = current_level.get(path_parts[-2]) if len(path_parts) > 1 else self.config_data
-        
+
         if isinstance(parent_dict, dict) and parent_dict.get('type') == '_GuiButtonToggle':
             is_on = final_value
             if 'options' in parent_dict:
@@ -238,9 +235,10 @@ class DynamicGuiBuilder(
                 widget.destroy()
             self.topic_widgets.clear()
             self._create_dynamic_widgets(parent_frame=self.config_frame, data=self.config_data)
-            
-            rebuild_button = ttk.Button(self.config_frame, text="Rebuild GUI", command=self._rebuild_gui)
+
+            rebuild_button = ttk.Button(self.config_frame, text="Rebuild GUI")
             rebuild_button.pack(pady=10)
+            rebuild_button.configure(command=self._rebuild_gui)
 
             self.gui_built = True
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
@@ -269,16 +267,47 @@ class DynamicGuiBuilder(
             style = ttk.Style(self)
             style.theme_use("clam")
 
+            # Get button-specific colors from the new, centralized dictionary
+            # FIX: We are no longer using button_style, but rather the specific
+            # dictionaries defined in style.py
+            actuator_colors = colors["button_style_actuator"]
+            toggle_colors = colors["button_style_toggle"]
+            toggler_colors = colors["button_style_toggler"]
+
             style.configure('TFrame', background=colors["bg"])
             style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
             style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
-            
-            style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER, relief=colors["relief"], borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER, justify=tk.CENTER)
 
-            style.map('TButton', background=[('active', colors["secondary"])])
+            # --- Corrected Button Styling for all three types ---
+            # Define a custom style for the actuator buttons
+            style.configure('Custom.TButton',
+                            background=actuator_colors["background"],
+                            foreground=actuator_colors["foreground"],
+                            padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER,
+                            relief=colors["relief"],
+                            borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER,
+                            justify=tk.CENTER)
 
-            style.configure('Selected.TButton', background=colors["secondary"], relief=tk.SUNKEN)
+            style.map('Custom.TButton',
+                      background=[('pressed', actuator_colors["Button_Pressed_Bg"]),
+                                  ('active', actuator_colors["Button_Hover_Bg"])],
+                      foreground=[('pressed', toggle_colors["Button_Selected_Fg"])])
+
+            # Configure a separate style for the selected/toggled-on state
+            style.configure('Custom.Selected.TButton',
+                            background=toggle_colors["Button_Selected_Bg"],
+                            foreground=toggle_colors["Button_Selected_Fg"],
+                            padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER,
+                            relief=tk.SUNKEN,
+                            borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER,
+                            justify=tk.CENTER)
             
+            style.map('Custom.Selected.TButton',
+                      background=[('pressed', toggle_colors["Button_Pressed_Bg"]),
+                                  ('active', toggle_colors["Button_Hover_Bg"])],
+                      foreground=[('pressed', toggle_colors["Button_Selected_Fg"])])
+            # --- End Corrected Button Styling ---
+
             style.configure('Debug.TLabel', background=colors["bg"], foreground=colors["fg_alt"])
 
             textbox_style = colors["textbox_style"]
@@ -313,7 +342,7 @@ class DynamicGuiBuilder(
                         value = json.loads(value)
                     except json.JSONDecodeError:
                         pass
-                
+
                 safe_key = key.replace(TOPIC_DELIMITER, '_')
                 current_path = f"{path_prefix}{TOPIC_DELIMITER}{safe_key}" if path_prefix else safe_key
 
@@ -352,25 +381,42 @@ class DynamicGuiBuilder(
                 if '/options/' in relative_topic:
                     parts = relative_topic.split('/options/')
                     base_path = parts[0]
-                    dropdown_widget_info = self.topic_widgets.get(f"{base_path}")
-                    
-                    if dropdown_widget_info and len(dropdown_widget_info) == 3:
-                         str_var, dropdown, rebuild_method = dropdown_widget_info
-                         dropdown_config = self.config_data
-                         for part in base_path.split('/'):
-                            if 'fields' in dropdown_config:
-                                dropdown_config = dropdown_config['fields']
-                            dropdown_config = dropdown_config.get(part, {})
+                    widget_info_at_base = self.topic_widgets.get(f"{base_path}")
 
-                         if "options" in dropdown_config:
-                             rebuild_method(dropdown=dropdown, config=dropdown_config)
-                             parent_topic_path = '/'.join(base_path.split('/'))
-                             parent_config_data = self.config_data
-                             for part in parent_topic_path.split('/'):
-                                 parent_config_data = parent_config_data.get(part, {})
-                             if 'value' in parent_config_data:
-                                 dropdown.set(parent_config_data['value'])
-                         return
+                    if widget_info_at_base and isinstance(widget_info_at_base, tuple):
+                        # FIX: Differentiate between Listbox and Combobox (Dropdown)
+                        # Check if it's a Listbox by checking the widget type
+                        if isinstance(widget_info_at_base[0], tk.Listbox):
+                            listbox, rebuild_method, _ = widget_info_at_base
+                            # Traverse the config to get the updated config for this listbox
+                            listbox_config = self.config_data
+                            for part in base_path.split('/'):
+                                if 'fields' in listbox_config:
+                                    listbox_config = listbox_config['fields']
+                                listbox_config = listbox_config.get(part, {})
+                            # Call the rebuild method with the correct widget and config
+                            if "options" in listbox_config:
+                                rebuild_method(lb=listbox, cfg=listbox_config)
+                            return
+                        
+                        # Check if it's a Combobox (Dropdown)
+                        elif len(widget_info_at_base) == 3 and isinstance(widget_info_at_base[1], ttk.Combobox):
+                            str_var, dropdown, rebuild_method = widget_info_at_base
+                            dropdown_config = self.config_data
+                            for part in base_path.split('/'):
+                                if 'fields' in dropdown_config:
+                                    dropdown_config = dropdown_config['fields']
+                                dropdown_config = dropdown_config.get(part, {})
+                            
+                            if "options" in dropdown_config:
+                                rebuild_method(dropdown=dropdown, config=dropdown_config)
+                                parent_topic_path = '/'.join(base_path.split('/'))
+                                parent_config_data = self.config_data
+                                for part in parent_topic_path.split('/'):
+                                    parent_config_data = parent_config_data.get(part, {})
+                                if 'value' in parent_config_data:
+                                    dropdown.set(parent_config_data['value'])
+                            return
                 return
 
             payload_value = payload
@@ -393,7 +439,7 @@ class DynamicGuiBuilder(
                     payload_value = True
                 elif payload_value.lower() == 'false':
                     payload_value = False
-            
+
             if isinstance(widget_info, ttk.Entry):
                 widget_info.delete(0, tk.END)
                 widget_info.insert(0, payload_value)
@@ -415,7 +461,6 @@ class DynamicGuiBuilder(
                 elif isinstance(widget_info[0], tk.StringVar) and isinstance(widget_info[1], ttk.Combobox) and len(widget_info) == 3:
                     str_var, dropdown, rebuild_method = widget_info
                     str_var.set(str(payload_value))
-                # NEW: Handle Listbox update
                 elif isinstance(widget_info[0], tk.Listbox) and len(widget_info) == 3:
                     listbox, rebuild_method, options_map = widget_info
                     

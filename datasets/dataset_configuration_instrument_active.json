@@ -126,31 +126,31 @@
             },
             "brand": {
               "type": "_Label",
-                "value": "Keysight Technologies"
+                "value": ""
             },
             "device_model": {
               "type": "_Label",
-                "value": "Keysight"
+                "value": ""
             },
             "device_series": {
               "type": "_Label",
-                "value": "E440xB"
+                "value": ""
             },
             "device_serial_number": {
               "type": "_Label",
-                "value": "E440xB"
+                "value": ""
             },
             "device_firmware": {
               "type": "_Label",
-                "value": "E440xB"
+                "value": ""
             },
             "visa_resource": {
               "type": "_Label",
-                "value": "TCPIP0::192.168.1.100::inst0::INSTR"
+                "value": ""
             },
             "Time_connected": {
               "type": "_Label",
-                "value": "12:44.01"
+                "value": ""
             }
     },
     

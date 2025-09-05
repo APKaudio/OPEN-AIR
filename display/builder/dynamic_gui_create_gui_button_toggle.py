@@ -13,9 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.210900.1
-# FIXED: The button styles have been flipped to match the user's request,
-# using the inverse logic for the 'selected' state.
+# Version 20250906.000100.6
+# FIXED: The button styles have been corrected to match the user's request,
+# using the 'Selected' style for the ON state, and relying on the central style map.
 
 import os
 import tkinter as tk
@@ -25,8 +25,8 @@ import inspect
 import json
 
 # --- Global Scope Variables ---
-current_version = "20250902.210900.1"
-current_version_hash = (20250902 * 210900 * 1)
+current_version = "20250906.000100.6"
+current_version_hash = 20250906 * 100 * 6
 current_file = f"{os.path.basename(__file__)}"
 
 TOPIC_DELIMITER = "/"
@@ -61,10 +61,10 @@ class GuiButtonToggleCreatorMixin:
             def update_button_state():
                 # Updates the button's appearance based on its current state.
                 current_state = state_var.get()
-                if not current_state:  # FLIPPED LOGIC: Check for INACTIVE state first
-                    button.config(text=off_text, style='Selected.TButton')
-                else: # This is the new inactive state
-                    button.config(text=on_text, style='TButton')
+                if current_state:  # Correct logic: The button is ON, so use the 'Selected' style.
+                    button.config(text=on_text, style='Custom.Selected.TButton')
+                else: # The button is OFF, so use the default 'TButton' style.
+                    button.config(text=off_text, style='Custom.TButton')
 
             def toggle_state_and_publish():
                 # Flips the state, updates the button, and publishes the new state.
@@ -97,7 +97,7 @@ class GuiButtonToggleCreatorMixin:
             return button
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
             debug_log(
                 message=f"🛠️🔴 Arrr, the code be capsized! The toggle button creation has failed! The error be: {e}",
                 file=current_file,
