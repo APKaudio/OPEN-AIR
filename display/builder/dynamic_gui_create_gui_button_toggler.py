@@ -105,7 +105,7 @@ class GuiButtonTogglerCreatorMixin:
                     update_button_styles()
                 return command
 
-            max_cols = 8
+            max_cols = 5
             row_num = 0
             col_num = 0
 
