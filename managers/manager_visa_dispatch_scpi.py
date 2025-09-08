@@ -14,7 +14,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.213147.2
+# Version 20250907.011000.2
+# FIXED: Added get_model and get_manufacturer methods to the class.
 
 import os
 import inspect
@@ -28,8 +29,8 @@ from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250904.213147.2"
-current_version_hash = (20250904 * 213147 * 2)
+current_version = "20250907.011000.2"
+current_version_hash = (20250907 * 11000 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -52,6 +53,9 @@ class ScpiDispatcher:
             self._print_to_gui_console = console_print_func
             # self.rm = pyvisa.ResourceManager() # No longer needed here
             self.inst = None
+            self.model = ""
+            self.manufacturer = ""
+
             console_log("✅ Success! The SCPI Dispatcher has initialized its core components.")
 
         except Exception as e:
@@ -63,6 +67,14 @@ class ScpiDispatcher:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=self._print_to_gui_console
             )
+
+    def get_model(self):
+        """Returns the instrument model string."""
+        return self.model
+
+    def get_manufacturer(self):
+        """Returns the instrument manufacturer string."""
+        return self.manufacturer
 
     def set_instrument_instance(self, inst):
         """
@@ -125,18 +137,17 @@ class ScpiDispatcher:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=self._print_to_gui_console
         )
+        if not self.inst:
+            self._print_to_gui_console("❌ Error: Instrument not connected. Cannot write command.")
+            debug_log(f"🐐 ❌ No instrument connected. Aborting command write.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
+            return False
         try:
-            if not self.inst:
-                console_log("❌ Error in write_safe: Instrument not connected.")
-                return False
-
             self.inst.write(command)
             # log_visa_command(command, "SENT") # Requires log_visa_command to be defined/imported
-            console_log(f"✅ Success! The command '{command}' was written.")
+            self._print_to_gui_console(f"✅ Sent command: {command}")
             return True
-
         except Exception as e:
-            console_log(f"❌ Error writing command '{command}': {e}")
+            self._print_to_gui_console(f"❌ Error writing command '{command}': {e}")
             debug_log(
                 message=f"🐐 🔴 Blast and barnacles! The write command has gone awry! The error be: {e}",
                 file=current_file,
@@ -159,19 +170,19 @@ class ScpiDispatcher:
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=self._print_to_gui_console
         )
+        if not self.inst:
+            self._print_to_gui_console("❌ Error: Instrument not connected. Cannot query command.")
+            debug_log(f"🐐 ❌ No instrument connected. Aborting command query.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
+            return None
         try:
-            if not self.inst:
-                console_log("❌ Error in query_safe: Instrument not connected.")
-                return None
-
             response = self.inst.query(command).strip()
             # log_visa_command(command, "SENT") # Requires log_visa_command
             # log_visa_command(response, "RECEIVED") # Requires log_visa_command
-            console_log(f"✅ Success! The query '{command}' returned a response.")
+            self._print_to_gui_console(f"✅ Sent query: {command}")
+            self._print_to_gui_console(f"✅ Received response: {response}")
             return response
-
         except Exception as e:
-            console_log(f"❌ Error querying command '{command}': {e}")
+            self._print_to_gui_console(f"❌ Error querying command '{command}': {e}")
             debug_log(
                 message=f"🐐 🔴 Confound it! The query has returned naught but static! The error be: {e}",
                 file=current_file,

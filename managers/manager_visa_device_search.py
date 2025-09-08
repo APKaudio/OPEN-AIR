@@ -14,7 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.221002.1
+# Version 20250907.002515.2
+# FIXED: Updated subscriptions and callbacks to listen for the new '/trigger' subtopic,
+# aligning with the updated actuator logic.
 
 import inspect
 import os
@@ -31,13 +33,13 @@ from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from workers.worker_logging import debug_log, console_log
 
 
-# --- Global Scope Variables ---
-current_version = "20250904.221002.1"
-current_version_hash = (20250904 * 221002 * 1)
+# --- Global Scope Variables --
+current_version = "20250907.002515.2"
+current_version_hash = (20250907 * 2515 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 
-class VisaDeviceManager():
+class VisaDeviceManager:
     """
     Manages VISA device discovery and connection logic.
     """
@@ -119,15 +121,11 @@ class VisaDeviceManager():
             console_print_func=console_log
         )
         try:
-            # Command-based subscribers
-            #self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/connect", callback_func=self._on_connect_request)
-            #self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/commands/instrument/disconnect", callback_func=self._on_disconnect_request)
-            
-            # Subscribers for direct GUI interaction
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Search_For_devices/value", callback_func=self._on_search_request)
+            # FIXED: Subscribing to the new '/trigger' subtopic
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Search_For_devices/trigger", callback_func=self._on_search_request)
             self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Found_devices/options/+/selected", callback_func=self._on_device_select)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Connect_to_Device/value", callback_func=self._on_gui_connect_request)
-            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Disconnect_device/value", callback_func=self._on_gui_disconnect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Connect_to_Device/trigger", callback_func=self._on_gui_connect_request)
+            self.mqtt_util.add_subscriber(topic_filter="OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Disconnect_device/trigger", callback_func=self._on_gui_disconnect_request)
             
             console_log("✅ VisaDeviceManager subscribed to all necessary GUI and command topics.")
         except Exception as e:
@@ -137,11 +135,11 @@ class VisaDeviceManager():
         # Handles the 'Search_For_devices' button press from the GUI.
         try:
             payload_data = json.loads(payload)
+            # FIXED: Look for an explicit 'true' value
             if str(payload_data.get('value')).lower() == 'true':
                 console_log("🔍 Search for devices initiated from GUI.")
                 self.found_resources = self.search_resources(console_log)
                 self._update_found_devices_gui(self.found_resources)
-                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
         except (json.JSONDecodeError, AttributeError):
             pass
 
@@ -149,6 +147,7 @@ class VisaDeviceManager():
         # Handles a device selection from the listbox.
         try:
             payload_data = json.loads(payload)
+            # FIXED: Look for an explicit 'true' value
             if str(payload_data.get('value')).lower() == 'true':
                 parts = topic.split('/')
                 option_index = int(parts[-2]) - 1
@@ -164,6 +163,7 @@ class VisaDeviceManager():
         # Handles the 'Connect_to_Device' button press.
         try:
             payload_data = json.loads(payload)
+            # FIXED: Look for an explicit 'true' value
             if str(payload_data.get('value')).lower() == 'true':
                 if self.selected_device_resource:
                     console_log(f"🔵 Initiating connection to {self.selected_device_resource}...")
@@ -171,7 +171,6 @@ class VisaDeviceManager():
                     thread.start()
                 else:
                     console_log("🟡 No device selected to connect.")
-                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
         except (json.JSONDecodeError, AttributeError):
             pass
 
@@ -179,6 +178,7 @@ class VisaDeviceManager():
         # Handles the 'Disconnect_device' button press.
         try:
             payload_data = json.loads(payload)
+            # FIXED: Look for an explicit 'true' value
             if str(payload_data.get('value')).lower() == 'true':
                 if self.inst:
                     console_log("🔵 Initiating disconnection...")
@@ -186,7 +186,6 @@ class VisaDeviceManager():
                     thread.start()
                 else:
                     console_log("🟡 No device is currently connected.")
-                self.mqtt_util.publish_message(topic=topic, subtopic="", value='false', retain=False)
         except Exception as e:
             console_log(f"❌ Error in _on_gui_disconnect_request: {e}")
             

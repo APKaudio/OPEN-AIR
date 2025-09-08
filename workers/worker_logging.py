@@ -32,7 +32,7 @@ current_file = f"{os.path.basename(__file__)}"
 LOG_TO_TERMINAL = True
 LOG_TO_FILE = True
 # The log file path is now relative to the parent directory.
-FILE_LOG_DIR = pathlib.Path("DATA")
+FILE_LOG_DIR = pathlib.Path("DATA/debug")
 
 # Global variable to store the current log filename
 current_log_filename = None

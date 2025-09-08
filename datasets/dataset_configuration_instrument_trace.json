@@ -224,7 +224,7 @@
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
         "handler": "toggle_continuous_initiate",
-        "value": "0"
+        "trigger": "0"
       }
     }
   },

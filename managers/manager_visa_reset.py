@@ -13,7 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.212806.3
+# Version 20250907.002515.4
+# FIXED: Updated subscriptions and callbacks to listen for the new '/trigger' subtopic,
+# aligning with the updated actuator logic.
 
 import os
 import inspect
@@ -25,8 +27,8 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250904.212806.3"
-current_version_hash = (20250904 * 212806 * 3)
+current_version = "20250907.002515.4"
+current_version_hash = (20250907 * 2515 * 4)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -56,8 +58,8 @@ class VisaResetManager:
 
             # --- MQTT Topic Constants ---
             self.BASE_TOPIC = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect"
-            self.TOPIC_RESET = f"{self.BASE_TOPIC}/Reset_device/value"
-            self.TOPIC_REBOOT = f"{self.BASE_TOPIC}/Reboot_device/value"
+            self.TOPIC_RESET = f"{self.BASE_TOPIC}/Reset_device/trigger"
+            self.TOPIC_REBOOT = f"{self.BASE_TOPIC}/Reboot_device/trigger"
 
             self._setup_mqtt_subscriptions()
             console_log(f"✅ {self.current_class_name} initialized and listening.")
@@ -83,6 +85,7 @@ class VisaResetManager:
             console_print_func=console_log
         )
         try:
+            # FIXED: Subscribing to the new '/trigger' subtopic
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_RESET, callback_func=self._on_reset_request)
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_REBOOT, callback_func=self._on_reboot_request)
             console_log("✅ Celebration of success! The reset manager did subscribe to its topics.")
@@ -108,12 +111,11 @@ class VisaResetManager:
             console_print_func=console_log
         )
         try:
+            # FIXED: Check if the payload value is explicitly 'true'
             data = json.loads(payload)
             if str(data.get("value")).lower() == 'true':
                 console_log(f"🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.")
                 self.scpi_dispatcher.write_safe(command=self.CMD_RESET_DEVICE)
-                # Reset the button state in the GUI
-                self.mqtt_controller.publish_message(topic=self.TOPIC_RESET, subtopic="", value=False, retain=False)
                 
         except (json.JSONDecodeError, AttributeError) as e:
             console_log(f"❌ Error processing reset request payload: {payload}. Error: {e}")
@@ -136,12 +138,11 @@ class VisaResetManager:
             console_print_func=console_log
         )
         try:
+            # FIXED: Check if the payload value is explicitly 'true'
             data = json.loads(payload)
             if str(data.get("value")).lower() == 'true':
                 console_log(f"🔵 Command received: Power Cycle. Dispatching '{self.CMD_REBOOT_DEVICE}'.")
                 self.scpi_dispatcher.write_safe(command=self.CMD_REBOOT_DEVICE)
-                # Reset the button state in the GUI
-                self.mqtt_controller.publish_message(topic=self.TOPIC_REBOOT, subtopic="", value=False, retain=False)
 
         except (json.JSONDecodeError, AttributeError) as e:
             console_log(f"❌ Error processing reboot request payload: {payload}. Error: {e}")

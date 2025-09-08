@@ -1,0 +1,243 @@
+{
+    "RIG_COMMANDS": {
+        "Frequency": {
+            "rig_center_freq_MHz": {
+                "label_active": "Center Frequency",
+                "label_inactive": "Center Frequency",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "The frequency value in Hz.",
+                        "type": "_Value",
+                        "description": "The SCPI input for center frequency."
+                    },
+                    "value": "The desired center frequency.",
+                    "units": "MHz",
+                    "min": 0,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            },
+            "rig_span_freq_MHz": {
+                "label_active": "Frequency Span",
+                "label_inactive": "Frequency Span",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:SPAN <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "The span value in Hz.",
+                        "type": "_Value",
+                        "description": "The SCPI input for frequency span."
+                    },
+                    "value": "The desired span frequency.",
+                    "units": "MHz",
+                    "min": 0,
+                    "max": 1000,
+                    "step": 0.005
+                }
+            },
+            "rig_start_freq_MHz": {
+                "label_active": "Start Frequency",
+                "label_inactive": "Start Frequency",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "The start frequency in Hz.",
+                        "type": "_Value",
+                        "description": "The SCPI input for start frequency."
+                    },
+                    "value": "The start frequency.",
+                    "units": "MHz",
+                    "min": 0,
+                    "max": 5999,
+                    "step": 0.005
+                }
+            },
+            "rig_stop_freq_MHz": {
+                "label_active": "Stop Frequency",
+                "label_inactive": "Stop Frequency",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STOP <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "The stop frequency in Hz.",
+                        "type": "_Value",
+                        "description": "The SCPI input for stop frequency."
+                    },
+                    "value": "The stop frequency.",
+                    "units": "MHz",
+                    "min": 1,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            }
+        },
+        "Bandwidth": {
+            "rig_RBW_Hz": {
+                "label_active": "Resolution Bandwidth",
+                "label_inactive": "Resolution Bandwidth",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "1000000",
+                        "type": "_Value",
+                        "description": "The SCPI input for RBW."
+                    },
+                    "value": "1000000",
+                    "units": "Hz",
+                    "min": 1,
+                    "max": 10000000,
+                    "step": 1
+                }
+            },
+            "rig_VBW_Hz": {
+                "label_active": "Video Bandwidth",
+                "label_inactive": "Video Bandwidth",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "1000000",
+                        "type": "_Value",
+                        "description": "The SCPI input for VBW."
+                    },
+                    "value": "1000000",
+                    "units": "Hz",
+                    "min": 1,
+                    "max": 10000000,
+                    "step": 1
+                }
+            }
+        },
+        "Amplitude": {
+            "rig_Ref_Level_dBm": {
+                "label_active": "Reference Level",
+                "label_inactive": "Reference Level",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:LEVel <value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "value": {
+                        "value": "The reference level in dBm.",
+                        "type": "_Value",
+                        "description": "The SCPI input for reference level."
+                    },
+                    "units": "dBm",
+                    "min": -120,
+                    "max": 0,
+                    "step": 5
+                }
+            },
+            "rig_Attenuation_dB": {
+                "label_active": "Power Attenuation",
+                "label_inactive": "Power Attenuation",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:ATTenuation <value>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "value": {
+                        "value": "The attenuation in dB.",
+                        "type": "_Value",
+                        "description": "The SCPI input for power attenuation."
+                    },
+                    "units": "dB",
+                    "min": 0,
+                    "max": 70,
+                    "step": 10
+                }
+            }
+        },
+        "Trace": {
+            "rig_Averaging": {
+                "label_active": "Averaging Count",
+                "label_inactive": "Averaging Count",
+                "type": "_sliderValue",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:AVERage:COUNt <count_val>"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "count_val": {
+                        "value": "100",
+                        "type": "_Value"
+                    },
+                    "value": "100",
+                    "units": "count",
+                    "min": 1,
+                    "max": 1000,
+                    "step": 1
+                }
+            }
+        }
+    }
+}

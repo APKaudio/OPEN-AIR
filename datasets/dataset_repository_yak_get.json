@@ -1,0 +1,343 @@
+{
+    "GET_COMMANDS": {
+        "Trace": {
+            "Get Single Trace Data": {
+                "label": "Get Single Trace Data",
+
+                "scpi_details": {
+                    "Keysight_Technologies": {
+                        "N9340B": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        },
+                        "N9342CN": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "trace_number": {
+                        "value": "1",
+                        "type": "_Value"
+                    }
+                },
+                "scpi_outputs": {
+                    "trace_data": {
+                        "value": "A list of lists of processed trace data or False on failure.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Marker Data": {
+                "label": "Get Marker Data",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:X?;:CALCulate:MARKer<marker_number>:Y?"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "marker_number": {
+                        "value": "1",
+                        "type": "_Value",
+                        "description": "The marker number."
+                    }
+                },
+                "scpi_outputs": {
+                    "frequency_Hz": {
+                        "value": "The frequency of the marker in Hz.",
+                        "type": "_Value"
+                    },
+                    "amplitude_dBm": {
+                        "value": "The amplitude of the marker in dBm.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Trace Data Array": {
+                "label": "Get Trace Data Array",
+
+                "scpi_details": {
+                    "Keysight_Technologies": {
+                        "N9340B": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        },
+                        "N9342CN": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "trace_number": {
+                        "value": "1",
+                        "type": "_Value",
+                        "description": "The trace number."
+                    }
+                },
+                "scpi_outputs": {
+                    "trace_data": {
+                        "value": "A list of lists of processed trace data or False on failure.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Current Trace Data": {
+                "label": "Get Current Trace Data",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe:DATA?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "trace_data": {
+                        "value": "A list of lists of processed trace data or False on failure.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "Frequency": {
+            "Get Start Frequency": {
+                "label": "Get Start Frequency",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "start_freq": {
+                        "value": "The starting frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Stop Frequency": {
+                "label": "Get Stop Frequency",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STOP?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "stop_freq": {
+                        "value": "The stopping frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Center Frequency": {
+                "label": "Get Center Frequency",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "center_freq": {
+                        "value": "The center frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Span Frequency": {
+                "label": "Get Span Frequency",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:SPAN?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "span_freq": {
+                        "value": "The frequency span in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "Bandwidth": {
+            "Get RBW": {
+                "label": "Get RBW",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "RBW": {
+                        "value": "The resolution bandwidth in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get VBW": {
+                "label": "Get VBW",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "VBW": {
+                        "value": "The video bandwidth in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get VBW Auto State": {
+                "label": "Get VBW Auto State",
+   
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "VBW_auto": {
+                        "value": "Boolean for VBW auto state.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Continuous Mode State": {
+                "label": "Get Continuous Mode State",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":INITiate:CONTinuous?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "continuous_mode": {
+                        "value": "Boolean for continuous mode state.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "Amplitude": {
+            "Get Reference Level": {
+                "label": "Get Reference Level",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:LEVel?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "ref_level": {
+                        "value": "The reference level in dBm.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Attenuation": {
+                "label": "Get Attenuation",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:ATTenuation?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "attenuation": {
+                        "value": "The attenuation in dB.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get Preamp State": {
+                "label": "Get Preamp State",
+
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:PREamp:STATe?"
+                        }
+                    }
+                },
+                "scpi_inputs": {},
+                "scpi_outputs": {
+                    "preamp_state": {
+                        "value": "Boolean for preamp state.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        }
+    }
+}

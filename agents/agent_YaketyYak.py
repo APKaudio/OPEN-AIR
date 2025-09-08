@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.004900.1
+# Version 20250906.223845.1
 
 import os
 import inspect
@@ -25,8 +25,8 @@ from workers.worker_logging import debug_log, console_log
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250904.004900.1"
-current_version_hash = (20250904 * 4900 * 1)
+current_version = "20250906.223845.1"
+current_version_hash = (20250906 * 223845 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -38,6 +38,9 @@ def YakBeg(dispatcher: ScpiDispatcher, command_string: str):
         file=current_file, version=current_version, function=current_function_name,
         console_print_func=dispatcher._print_to_gui_console
     )
+    if not dispatcher.inst:
+        dispatcher._print_to_gui_console("❌ Device is not connected. Cannot perform BEG command.")
+        return "FAILED"
     try:
         response = dispatcher.query_safe(command=command_string)
         if response is not None:
@@ -58,6 +61,9 @@ def YakRig(dispatcher: ScpiDispatcher, command_string: str):
         file=current_file, version=current_version, function=current_function_name,
         console_print_func=dispatcher._print_to_gui_console
     )
+    if not dispatcher.inst:
+        dispatcher._print_to_gui_console("❌ Device is not connected. Cannot perform RIG command.")
+        return "FAILED"
     try:
         if dispatcher.write_safe(command=command_string):
             console_log("✅ Rig command executed successfully.")
@@ -77,12 +83,15 @@ def YakDo(dispatcher: ScpiDispatcher, command_string: str):
         file=current_file, version=current_version, function=current_function_name,
         console_print_func=dispatcher._print_to_gui_console
     )
+    if not dispatcher.inst:
+        dispatcher._print_to_gui_console("❌ Device is not connected. Cannot perform DO command.")
+        return "FAILED"
     try:
         if dispatcher.write_safe(command=command_string):
-            console_log("✅ Command executed successfully.")
+            console_log(f"✅ Command '{command_string}' executed successfully.")
             return "PASSED"
         else:
-            console_log("❌ Command execution failed.")
+            console_log(f"❌ Command '{command_string}' execution failed.")
             return "FAILED"
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
@@ -96,6 +105,9 @@ def YakGet(dispatcher: ScpiDispatcher, command_string: str):
         file=current_file, version=current_version, function=current_function_name,
         console_print_func=dispatcher._print_to_gui_console
     )
+    if not dispatcher.inst:
+        dispatcher._print_to_gui_console("❌ Device is not connected. Cannot perform GET command.")
+        return "FAILED"
     try:
         response = dispatcher.query_safe(command=command_string)
         if response is not None:
@@ -116,14 +128,16 @@ def YakSet(dispatcher: ScpiDispatcher, command_string: str):
         file=current_file, version=current_version, function=current_function_name,
         console_print_func=dispatcher._print_to_gui_console
     )
+    if not dispatcher.inst:
+        dispatcher._print_to_gui_console("❌ Device is not connected. Cannot perform SET command.")
+        return "FAILED"
     try:
         if dispatcher.write_safe(command=command_string):
-            console_log("✅ Command executed successfully.")
+            console_log(f"✅ Command '{command_string}' executed successfully.")
             return "PASSED"
         else:
-            console_log("❌ Command execution failed.")
+            console_log(f"❌ Command '{command_string}' execution failed.")
             return "FAILED"
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
         return "FAILED"
-

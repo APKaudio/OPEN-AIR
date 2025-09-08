@@ -13,24 +13,28 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250906.000100.7
+# Version 20250907.004459.10
+# FIXED: Actuator buttons now correctly publish to the 'actions' topic instead of the 'repository' topic.
 
 import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import json
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250906.000100.7"
-current_version_hash = 20250906 * 100 * 7
+current_version = "20250907.004459.10"
+current_version_hash = 20250907 * 4459 * 10
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2
+TOPIC_DELIMITER = "/"
+
 
 class GuiActuatorCreatorMixin:
     """
@@ -40,7 +44,10 @@ class GuiActuatorCreatorMixin:
     def _create_gui_actuator(self, parent_frame, label, config, path):
         # Creates a button that acts as a simple actuator.
         current_function_name = inspect.currentframe().f_code.co_name
-
+        
+        # A trigger path is used to differentiate the trigger from other state values.
+        trigger_path = path + "/trigger"
+        
         debug_log(
             message=f"🛠️🟢 Entering {current_function_name} to conjure an actuator button for '{label}'.",
             file=current_file,
@@ -54,44 +61,44 @@ class GuiActuatorCreatorMixin:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
-            # Create the button. The label comes from the config, and the command is a simple publish action.
             button_text = config.get('label', label)
 
             button = ttk.Button(
                 sub_frame,
                 text=button_text,
-                # The button should be created with the custom 'Custom.TButton' style
-                # The visual state is then handled automatically by the style maps.
                 style='Custom.TButton' 
             )
             button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
 
             def on_press(event):
-                # We no longer manually set the style. The style map handles it.
+                # FIXED: The actuator now correctly publishes to the "actions" topic.
+                action_path = trigger_path.replace("repository", "actions")
+
                 debug_log(
-                    message=f"GUI ACTION: Publishing actuator command to '{path}' with value 'true'",
+                    message=f"GUI ACTION: Publishing actuator command to '{action_path}' with value 'true'",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                self._transmit_command(relative_topic=path, payload='true', retain=False)
+                self._transmit_command(relative_topic=action_path, payload=True, retain=False)
 
             def on_release(event):
-                # We no longer manually set the style. The style map handles it.
+                # FIXED: The actuator now correctly publishes to the "actions" topic.
+                action_path = trigger_path.replace("repository", "actions")
+
                 debug_log(
-                    message=f"GUI ACTION: Publishing actuator command to '{path}' with value '0'",
+                    message=f"GUI ACTION: Publishing actuator command release to '{action_path}' with value 'false'",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                self._transmit_command(relative_topic=path, payload='0', retain=False)
+                self._transmit_command(relative_topic=action_path, payload=False, retain=False)
 
             button.bind("<ButtonPress-1>", on_press)
             button.bind("<ButtonRelease-1>", on_release)
 
-            # Store the button widget for potential future updates
             if path:
                 self.topic_widgets[path] = button
 

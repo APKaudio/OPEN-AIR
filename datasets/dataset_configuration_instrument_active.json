@@ -8,7 +8,7 @@
         "label_inactive": "Search for devices",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": 0
+        "trigger": 0
       },
 
       "Found_devices": {
@@ -102,7 +102,7 @@
         "label_inactive": "Connect to Device",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": 0
+        "trigger": 0
       },
 
             "Disconnect_device": {
@@ -110,7 +110,7 @@
         "label_inactive": "Device Disconnected",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": 0
+        "trigger": 0
       },
         
         "Device_status": {
@@ -161,7 +161,7 @@
         "label_inactive": "Reset Device",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": 0
+        "trigger": 0
             },
               "Reboot_device": {
         "active": true, 
@@ -169,7 +169,7 @@
         "label_inactive": "Reboot Device",
         "type": "_GuiActuator",
         "AES70": "OcaBooleanActuator",
-        "value": 0
+        "trigger": 0
             }
     
   }
