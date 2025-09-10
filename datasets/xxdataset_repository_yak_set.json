@@ -1,5 +1,7 @@
 {
     "SET_COMMANDS": {
+        "Description": "YakSet (Set): Configures a specific value or state on the instrument. It requires a value as an input argument but does not return a response from the device.",
+        "Description2": "It is used to configure parameters like frequency, bandwidth, or marker position, sending a single value to the instrument without asking for a response.",
         "Amplitude": {
             "Set Reference Level": {
                 "scpi_details": {
@@ -17,6 +19,7 @@
                     "options": {
                         "1": {
                             "label_active": "0",
+                            "active": true,
                             "label_inactive": "0",
                             "value": "0",
                             "selected": false
@@ -24,144 +27,149 @@
                         "2": {
                             "label_active": "-5",
                             "label_inactive": "-5",
+                            "active": true,
                             "value": "-5",
                             "selected": false
                         },
                         "3": {
                             "label_active": "-10",
                             "label_inactive": "-10",
+                            "active": true,
                             "value": "-10",
                             "selected": false
                         },
                         "4": {
                             "label_active": "-15",
                             "label_inactive": "-15",
+                            "active": true,
                             "value": "-15",
                             "selected": false
                         },
                         "5": {
                             "label_active": "-20",
                             "label_inactive": "-20",
+                            "active": true,
                             "value": "-20",
                             "selected": false
                         },
                         "6": {
                             "label_active": "-25",
                             "label_inactive": "-25",
+                            "active": true,
                             "value": "-25",
                             "selected": false
                         },
                         "7": {
                             "label_active": "-30",
-                            "label_inactive": "-30",
+                            "label_inactive": "-30","active": true,
                             "value": "-30",
                             "selected": false
                         },
                         "8": {
                             "label_active": "-35",
-                            "label_inactive": "-35",
+                            "label_inactive": "-35","active": true,
                             "value": "-35",
                             "selected": false
                         },
                         "9": {
                             "label_active": "-40",
-                            "label_inactive": "-40",
+                            "label_inactive": "-40","active": true,
                             "value": "-40",
                             "selected": false
                         },
                         "10": {
                             "label_active": "-45",
-                            "label_inactive": "-45",
+                            "label_inactive": "-45","active": true,
                             "value": "-45",
                             "selected": false
                         },
                         "11": {
                             "label_active": "-50",
-                            "label_inactive": "-50",
+                            "label_inactive": "-50","active": true,
                             "value": "-50",
                             "selected": false
                         },
                         "12": {
                             "label_active": "-55",
-                            "label_inactive": "-55",
+                            "label_inactive": "-55","active": true,
                             "value": "-55",
                             "selected": false
                         },
                         "13": {
                             "label_active": "-60",
-                            "label_inactive": "-60",
+                            "label_inactive": "-60","active": true,
                             "value": "-60",
                             "selected": false
                         },
                         "14": {
                             "label_active": "-65",
-                            "label_inactive": "-65",
+                            "label_inactive": "-65","active": true,
                             "value": "-65",
                             "selected": false
                         },
                         "15": {
                             "label_active": "-70",
-                            "label_inactive": "-70",
+                            "label_inactive": "-70","active": true,
                             "value": "-70",
                             "selected": false
                         },
                         "16": {
                             "label_active": "-75",
-                            "label_inactive": "-75",
+                            "label_inactive": "-75","active": true,
                             "value": "-75",
                             "selected": false
                         },
                         "17": {
                             "label_active": "-80",
-                            "label_inactive": "-80",
+                            "label_inactive": "-80","active": true,
                             "value": "-80",
                             "selected": false
                         },
                         "18": {
                             "label_active": "-85",
-                            "label_inactive": "-85",
+                            "label_inactive": "-85","active": true,
                             "value": "-85",
                             "selected": false
                         },
                         "19": {
                             "label_active": "-90",
-                            "label_inactive": "-90",
+                            "label_inactive": "-90","active": true,
                             "value": "-90",
                             "selected": false
                         },
                         "20": {
                             "label_active": "-95",
-                            "label_inactive": "-95",
+                            "label_inactive": "-95","active": true,
                             "value": "-95",
                             "selected": false
                         },
                         "21": {
                             "label_active": "-100",
-                            "label_inactive": "-100",
+                            "label_inactive": "-100","active": true,
                             "value": "-100",
                             "selected": false
                         },
                         "22": {
                             "label_active": "-105",
-                            "label_inactive": "-105",
+                            "label_inactive": "-105","active": true,
                             "value": "-105",
                             "selected": false
                         },
                         "23": {
                             "label_active": "-110",
-                            "label_inactive": "-110",
+                            "label_inactive": "-110","active": true,
                             "value": "-110",
                             "selected": false
                         },
                         "24": {
                             "label_active": "-115",
-                            "label_inactive": "-115",
+                            "label_inactive": "-115","active": true,
                             "value": "-115",
                             "selected": false
                         },
                         "25": {
                             "label_active": "-120",
-                            "label_inactive": "-120",
+                            "label_inactive": "-120","active": true,
                             "value": "-120",
                             "selected": false
                         }
@@ -271,48 +279,56 @@
                         "1": {
                             "label_active": "0 dB",
                             "label_inactive": "0 dB",
+                            "active": true,
                             "value": "0",
                             "selected": false
                         },
                         "2": {
                             "label_active": "10 dB",
                             "label_inactive": "10 dB",
+                            "active": true,
                             "value": "10",
                             "selected": false
                         },
                         "3": {
                             "label_active": "20 dB",
                             "label_inactive": "20 dB",
+                            "active": true,
                             "value": "20",
                             "selected": false
                         },
                         "4": {
                             "label_active": "30 dB",
                             "label_inactive": "30 dB",
+                            "active": true,
                             "value": "30",
                             "selected": false
                         },
                         "5": {
                             "label_active": "40 dB",
                             "label_inactive": "40 dB",
+                            "active": true,
                             "value": "40",
                             "selected": false
                         },
                         "6": {
                             "label_active": "50 dB",
                             "label_inactive": "50 dB",
+                            "active": true,
                             "value": "50",
                             "selected": false
                         },
                         "7": {
                             "label_active": "60 dB",
                             "label_inactive": "60 dB",
+                            "active": true,
                             "value": "60",
                             "selected": false
                         },
                         "8": {
                             "label_active": "70 dB",
                             "label_inactive": "70 dB",
+                            "active": true,
                             "value": "70",
                             "selected": false
                         }
@@ -337,6 +353,7 @@
                             "label_active": "Auto ON",
                             "label_inactive": "Auto ON",
                             "selected": false
+
                         },
                         "OFF": {
                             "label_active": "Auto OFF",
@@ -419,12 +436,14 @@
                         "1": {
                             "label_active": "FAST",
                             "label_inactive": "FAST",
+                            "active": true,
                             "value": "FAST",
                             "selected": false
                         },
                         "2": {
                             "label_active": "NORMAL",
                             "label_inactive": "NORMAL",
+                            "active": true,
                             "value": "NORMAL",
                             "selected": false
                         }
@@ -448,6 +467,7 @@
                         "1": {
                             "label_active": "LINEAR",
                             "label_inactive": "LINEAR",
+                            "active": true,
                             "value": "LINear",
                             "selected": true
                         }
@@ -845,7 +865,6 @@
                 },
                 "scpi_input_details": {
                     "label": "Search Max Peak",
-    
                     "scpi_inputs": {
                         "marker_number": {
                             "value": "1",
@@ -866,7 +885,6 @@
                 },
                 "scpi_input_details": {
                     "label": "Search Next Peak",
-    
                     "scpi_inputs": {
                         "marker_number": {
                             "value": "1",
@@ -904,7 +922,6 @@
                 "scpi_input_details": {
                     "label_active": "Store Preset",
                     "label_inactive": "Store Preset",
-    
                     "scpi_inputs": {
                         "preset_number": {
                             "value": "0",
@@ -926,7 +943,6 @@
                 "scpi_input_details": {
                     "label_active": "Load Preset",
                     "label_inactive": "Load Preset",
-    
                     "scpi_inputs": {
                         "preset_number": {
                             "value": "0",
@@ -1028,29 +1044,34 @@
                             "label_active": "BLANK",
                             "label_inactive": "BLANK",
                             "value": "BLANk",
+                            "active": true,
                             "selected": false
                         },
                         "2": {
                             "label_active": "MAXHOLD",
                             "label_inactive": "MAXHOLD",
                             "value": "MAXHold",
+                            "active": true,
                             "selected": false
                         },
                         "3": {
                             "label_active": "MINHOLD",
                             "label_inactive": "MINHOLD",
+                            "active": true,
                             "value": "MINHold",
                             "selected": false
                         },
                         "4": {
                             "label_active": "VIEW",
                             "label_inactive": "VIEW",
+                            "active": true,
                             "value": "VIEW",
                             "selected": true
                         },
                         "5": {
                             "label_active": "WRITE",
                             "label_inactive": "WRITE",
+                            "active": true,
                             "value": "WRITe",
                             "selected": false
                         }
@@ -1075,12 +1096,14 @@
                             "label_active": "LOGarithmic",
                             "label_inactive": "LOGarithmic",
                             "value": "LOGarithmic",
+                            "active": true,
                             "selected": true
                         },
                         "2": {
                             "label_active": "LINEAR",
                             "label_inactive": "LINEAR",
                             "value": "LINEAR",
+                            "active": true,
                             "selected": false
                         }
                     }

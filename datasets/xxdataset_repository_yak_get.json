@@ -1,9 +1,10 @@
 {
     "GET_COMMANDS": {
+        "Description": "YakGet (Get): Retrieves a specific value from the instrument. It constructs a query string to ask for a single parameter and returns the response.",
+        "Description2": "This command type is used to read back a single piece of information, such as a frequency, power level, or device state.",
         "Trace": {
             "Get Single Trace Data": {
                 "label": "Get Single Trace Data",
-
                 "scpi_details": {
                     "Keysight_Technologies": {
                         "N9340B": {
@@ -33,7 +34,6 @@
             },
             "Get Marker Data": {
                 "label": "Get Marker Data",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -63,7 +63,6 @@
             },
             "Get Trace Data Array": {
                 "label": "Get Trace Data Array",
-
                 "scpi_details": {
                     "Keysight_Technologies": {
                         "N9340B": {
@@ -94,7 +93,6 @@
             },
             "Get Current Trace Data": {
                 "label": "Get Current Trace Data",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -116,7 +114,6 @@
         "Frequency": {
             "Get Start Frequency": {
                 "label": "Get Start Frequency",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -136,7 +133,6 @@
             },
             "Get Stop Frequency": {
                 "label": "Get Stop Frequency",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -156,7 +152,6 @@
             },
             "Get Center Frequency": {
                 "label": "Get Center Frequency",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -176,7 +171,6 @@
             },
             "Get Span Frequency": {
                 "label": "Get Span Frequency",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -198,7 +192,6 @@
         "Bandwidth": {
             "Get RBW": {
                 "label": "Get RBW",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -218,7 +211,6 @@
             },
             "Get VBW": {
                 "label": "Get VBW",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -238,7 +230,6 @@
             },
             "Get VBW Auto State": {
                 "label": "Get VBW Auto State",
-   
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -258,7 +249,6 @@
             },
             "Get Continuous Mode State": {
                 "label": "Get Continuous Mode State",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -280,7 +270,6 @@
         "Amplitude": {
             "Get Reference Level": {
                 "label": "Get Reference Level",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -300,7 +289,6 @@
             },
             "Get Attenuation": {
                 "label": "Get Attenuation",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -320,7 +308,6 @@
             },
             "Get Preamp State": {
                 "label": "Get Preamp State",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {

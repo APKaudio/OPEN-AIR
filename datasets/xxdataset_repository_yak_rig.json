@@ -1,5 +1,7 @@
 {
     "RIG_COMMANDS": {
+        "Description": "YakRig (Rig): This command takes a multi-part input, substitutes placeholder values into a single SCPI command template, and executes it without a response.",
+        "Description2": "It is typically used for complex settings that configure multiple parameters simultaneously, such as setting all marker positions at once.",
         "Frequency": {
             "rig_center_freq_MHz": {
                 "label_active": "Center Frequency",
@@ -236,6 +238,96 @@
                     "min": 1,
                     "max": 1000,
                     "step": 1
+                }
+            },
+            "rig_all_peak_search": {
+                "label": "Search All Peaks",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT"
+                        }
+                    }
+                },
+                "scpi_outputs": {
+                    "status": {
+                        "value": "PASSED or FAILED",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "rig_all_markers_off": {
+                "label": "Turn All Markers OFF",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
+                        }
+                    }
+                },
+                "scpi_outputs": {
+                    "status": {
+                        "value": "PASSED or FAILED",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "rig_all_markers_on": {
+                "label": "Turn All Markers ON",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;"
+                        }
+                    }
+                },
+                "scpi_outputs": {
+                    "status": {
+                        "value": "PASSED or FAILED",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "rig_trace_modes": {
+                "label": "Set Trace Modes",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "mode1": {
+                        "value": "WRITE",
+                        "type": "_Value"
+                    },
+                    "mode2": {
+                        "value": "MAXHOLD",
+                        "type": "_Value"
+                    },
+                    "mode3": {
+                        "value": "MINHOLD",
+                        "type": "_Value"
+                    },
+                    "mode4": {
+                        "value": "BLANK",
+                        "type": "_Value"
+                    }
+                },
+                "scpi_outputs": {
+                    "status": {
+                        "value": "PASSED or FAILED",
+                        "type": "_Value"
+                    }
                 }
             }
         }

@@ -1,10 +1,11 @@
 {
     "NAB_COMMANDS": {
+        "Description": "YakNab (Nab): Retrieves multiple parameters in a single query.",
+        "Description2": "It requires no inputs and returns multiple arguments as a response.",
         "Amplitude": {
             "NAB_amplitude_settings": {
                 "label_active": "Get All Amplitude Settings",
                 "label_inactive": "Get All Amplitude Settings",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -35,13 +36,12 @@
             "NAB_bandwidth_settings": {
                 "label_active": "Get All Bandwidth Settings",
                 "label_inactive": "Get All Bandwidth Settings",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
                             "type": "_GuiActuator",
                             "trigger": false,
-                            "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SWEep:TIME?"
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
                         }
                     }
                 },
@@ -74,7 +74,6 @@
             "NAB_all_traces": {
                 "label_active": "Get All Trace Data",
                 "label_inactive": "Get All Trace Data",
-
                 "scpi_details": {
                     "Keysight_Technologies": {
                         "N9340B": {
@@ -128,7 +127,6 @@
             "NAB_averaging_settings": {
                 "label_active": "Get Averaging Settings",
                 "label_inactive": "Get Averaging Settings",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -149,13 +147,42 @@
                         "type": "_Value"
                     }
                 }
+            },
+            "NAB_trace_modes_data": {
+                "label": "Get Trace Modes Data",
+                "scpi_details": {
+                    "generic_maker": {
+                        "generic_model": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?"
+                        }
+                    }
+                },
+                "scpi_outputs": {
+                    "Trace1_Mode": {
+                        "value": "",
+                        "type": "_Value"
+                    },
+                    "Trace2_Mode": {
+                        "value": "",
+                        "type": "_Value"
+                    },
+                    "Trace3_Mode": {
+                        "value": "",
+                        "type": "_Value"
+                    },
+                    "Trace4_Mode": {
+                        "value": "",
+                        "type": "_Value"
+                    }
+                }
             }
         },
         "Markers": {
             "NAB_all_marker_settings": {
                 "label_active": "Get All Marker Settings",
                 "label_inactive": "Get All Marker Settings",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -190,7 +217,6 @@
             "NAB_error_information": {
                 "label_active": "Get All Error Information",
                 "label_inactive": "Get All Error Information",
-
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {

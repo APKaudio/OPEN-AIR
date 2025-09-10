@@ -1,53 +1,12 @@
 {
-    "SET_COMMANDS": {
+    "BEG_COMMANDS": {
+        "Description": "YakBeg (Begin): This command type sets multiple instrument parameters and immediately queries for the new values in a single operation.",
+        "Description2": "It takes multiple arguments as input and returns a multi-part response from the instrument.",
         "Frequency": {
-            "Set Start/Stop": {
-                "label_active": "Set Start/Stop",
-                "label_inactive": "Set Start/Stop",
-
-                "scpi_details": {
-                    "Keysight_Technologies": {
-                        "N9340B": {
-                            "type": "_GuiActuator",
-                            "trigger": false,
-                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
-                        },
-                        "N9342CN": {
-                            "type": "_GuiActuator",
-                            "trigger": false,
-                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
-                        }
-                    }
-                },
-                "scpi_inputs": {
-                    "start_freq": {
-                        "value": "111",
-                        "type": "_Value",
-                        "description": "The SCPI input for start frequency."
-                    },
-                    "stop_freq": {
-                        "value": "222",
-                        "type": "_Value",
-                        "description": "The SCPI input for stop frequency."
-                    }
-                },
-                "scpi_outputs": {
-                    "center_freq": {
-                        "value": "",
-                        "type": "_Value",
-                        "description": "The SCPI output for start frequency."
-                    },
-                    "span_freq": {
-                        "value": "",
-                        "type": "_Value",
-                        "description": "The SCPI output for stop frequency."
-                    }
-                }
-            },
-            "Set Center/Span": {
+            "freq_center_span_beg": {
                 "label_active": "Set Center/Span",
                 "label_inactive": "Set Center/Span",
-
+                "type": "_GuiButton",
                 "scpi_details": {
                     "Keysight_Technologies": {
                         "N9340B": {
@@ -87,31 +46,52 @@
                     }
                 }
             },
-            "Set Sweep Time": {
-                "label_active": "Sweep Time",
-                "label_inactive": "Sweep Time",
-                "type": "_sliderValue",
-                "value": "3",
-                "units": "s",
+            "freq_start_stop_beg": {
+                "label_active": "Set Start/Stop",
+                "label_inactive": "Set Start/Stop",
+                "type": "_GuiButton",
                 "scpi_details": {
-                    "Agilent_Technologies": {
+                    "Keysight_Technologies": {
                         "N9340B": {
                             "type": "_GuiActuator",
                             "trigger": false,
-                            "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
+                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+                        },
+                        "N9342CN": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
                     }
                 },
                 "scpi_inputs": {
-                    "time_s": {
-                        "value": "3",
-                        "type": "_Value"
+                    "start_freq": {
+                        "value": "111",
+                        "type": "_Value",
+                        "description": "The SCPI input for start frequency."
+                    },
+                    "stop_freq": {
+                        "value": "222",
+                        "type": "_Value",
+                        "description": "The SCPI input for stop frequency."
+                    }
+                },
+                "scpi_outputs": {
+                    "center_freq": {
+                        "value": "",
+                        "type": "_Value",
+                        "description": "The SCPI output for start frequency."
+                    },
+                    "span_freq": {
+                        "value": "",
+                        "type": "_Value",
+                        "description": "The SCPI output for stop frequency."
                     }
                 }
             }
         },
         "Trace": {
-            "Trace Mode": {
+            "Trace_Mode": {
                 "label_active": "Trace Mode",
                 "label_inactive": "Trace Mode",
                 "type": "_GuiDropDownOption",
@@ -143,13 +123,44 @@
                         "type": "_Value"
                     }
                 }
+            },
+            "YakGet_trace_data": {
+                "label_active": "Get Trace Data",
+                "label_inactive": "Get Trace Data",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "Keysight_Technologies": {
+                        "N9340B": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        },
+                        "N9342CN": {
+                            "type": "_GuiActuator",
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
+                        }
+                    }
+                },
+                "scpi_inputs": {
+                    "trace_number": {
+                        "value": "1",
+                        "type": "_Value"
+                    }
+                },
+                "scpi_outputs": {
+                    "trace_data": {
+                        "value": "A list of lists of processed trace data or False on failure.",
+                        "type": "_Value"
+                    }
+                }
             }
         },
         "Markers": {
-            "Setup Markers": {
+            "marker_setup": {
                 "label_active": "Setup Markers",
                 "label_inactive": "Setup Markers",
-
+                "type": "_GuiButton",
                 "scpi_details": {
                     "generic_maker": {
                         "generic_model": {
@@ -188,50 +199,6 @@
                 "scpi_outputs": {
                     "status": {
                         "value": "PASSED or FAILED.",
-                        "type": "_Value"
-                    }
-                }
-            }
-        },
-        "System": {
-            "Immediate Initiate": {
-                "label_active": "Immediate Initiate",
-                "label_inactive": "Immediate Initiate",
-
-                "scpi_details": {
-                    "generic_maker": {
-                        "generic_model": {
-                            "type": "_GuiActuator",
-                            "trigger": false,
-                            "SCPI_value": ":INITIATE:IMMEDIATE"
-                        }
-                    }
-                },
-                "scpi_inputs": {},
-                "scpi_outputs": {
-                    "success": {
-                        "value": "True on success.",
-                        "type": "_Value"
-                    }
-                }
-            },
-            "Power Cycle Device": {
-                "label_active": "Power Cycle Device",
-                "label_inactive": "Power Cycle Device",
-
-                "scpi_details": {
-                    "generic_maker": {
-                        "generic_model": {
-                            "type": "_GuiActuator",
-                            "trigger": false,
-                            "SCPI_value": ":SYSTem:RESet"
-                        }
-                    }
-                },
-                "scpi_inputs": {},
-                "scpi_outputs": {
-                    "success": {
-                        "value": "True on success.",
                         "type": "_Value"
                     }
                 }
