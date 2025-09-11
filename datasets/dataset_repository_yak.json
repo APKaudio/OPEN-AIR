@@ -216,7 +216,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "SCPI_value": ":SYSTem:RESet"
+                            "SCPI_value": ":SYSTem:POWer:RESet"
                         }
                     },
                     "scpi_outputs": {
@@ -231,7 +231,8 @@
                     "type": "_GuiButton",
                     "scpi_details": {
                         "generic_model": {
-                            "type": "_GuiActuator"
+                            "type": "_GuiActuator",
+                            "SCPI_value": "*RST"                            
                         }
                     }
                 },
@@ -240,7 +241,8 @@
                     "type": "_GuiButton",
                     "scpi_details": {
                         "generic_model": {
-                            "type": "_GuiActuator"
+                            "type": "_GuiActuator",
+                                                        "SCPI_value": ":SYSTem:RESet"
                         }
                     }
                 },
