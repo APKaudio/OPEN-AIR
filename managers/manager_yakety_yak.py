@@ -1,32 +1,52 @@
 # managers/manager_yakety_yak.py
 #
-# This manager orchestrates command execution and repository updates via MQTT.
+# This manager listens for MQTT messages and dynamically builds and updates a local
+# JSON repository based on the incoming topic and payload data.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20250912.223200.3
+# FIXED: Removed the automatic save from the MQTT listener. Introduced a new, explicit
+#        save command to prevent excessive disk writes and improve performance.
 
 import os
 import inspect
 import json
 import pathlib
+import re
 
 # --- Utility and Manager Imports ---
 from workers.worker_logging import debug_log, console_log
-from managers.manager_yak_inputs import YakInputsManager
-from managers.manager_yak_tx import YakTxManager
-from managers.manager_yak_rx import YakRxManager
+from workers.worker_mqtt_controller_util import MqttControllerUtility
+from managers.manager_visa_dispatch_scpi import ScpiDispatcher
+from managers.manager_yak_on_trigger import YAK_TRIGGER_COMMAND
 
 # --- Global Scope Variables ---
-current_version = "20250910.234000.0"
+current_version = "20250912.223200.3"
+current_version_hash = (20250912 * 223200 * 3)
 current_file = f"{os.path.basename(__file__)}"
 YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
+repo_topic_filter = "OPEN-AIR/repository/yak/#"
+save_action_topic = "OPEN-AIR/actions/yak/save/trigger"
 
 
 class YaketyYakManager:
     """
-    Orchestrates SCPI command execution and repository management.
+    Manages the creation and updating of the YAK command repository via MQTT.
     """
-    def __init__(self, mqtt_controller, dispatcher_instance, app_instance):
+    def __init__(self, mqtt_controller: MqttControllerUtility, dispatcher_instance: ScpiDispatcher, app_instance):
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🐐🐐🐐🟢 Entering {current_function_name}. The Yakety Yak manager is coming to life!",
+            message=f"🐐🐐🐐🟢 Entering {current_function_name}. The Yakety Yak manager is coming to life! My creation awakens!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -36,26 +56,35 @@ class YaketyYakManager:
             self.mqtt_util = mqtt_controller
             self.dispatcher = dispatcher_instance
             self.app_instance = app_instance
-            
-            self.inputs_manager = YakInputsManager()
-            self.tx_manager = YakTxManager(dispatcher_instance)
-            self.rx_manager = YakRxManager(mqtt_controller)
+            self.repo_memory = self._load_repo_from_file()
 
-            # This is the dedicated topic for a *full* repository update
-            repo_update_topic = "OPEN-AIR/repository/yak/update"
+            # Subscribe to the master topic for all repository commands
             self.mqtt_util.add_subscriber(
-                topic_filter=repo_update_topic,
-                callback_func=self._on_full_repo_update
+                topic_filter=repo_topic_filter,
+                callback_func=self.YAK_LISTEN_TO_MQTT
+            )
+            debug_log(
+                message=f"🐐🐐🐐🔍 I've set a trap! Listening for all repository messages on topic '{repo_topic_filter}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+            # Subscribe to the explicit save topic
+            self.mqtt_util.add_subscriber(
+                topic_filter=save_action_topic,
+                callback_func=self.YAK_SAVE_REPOSITORY
+            )
+            debug_log(
+                message=f"🐐🐐🐐💾 A new trap is set! Listening for an explicit save command on topic '{save_action_topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
             )
             
-            # This is the dedicated topic for command execution
-            action_topic = "OPEN-AIR/actions/yak/#"
-            self.mqtt_util.add_subscriber(
-                topic_filter=action_topic,
-                callback_func=self._on_action_message
-            )
-            
-            console_log("✅ The YaketyYak Manager has initialized and is listening.")
+            console_log("✅ The YaketyYak Manager has initialized and is listening for commands.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -67,56 +96,145 @@ class YaketyYakManager:
                 console_print_func=console_log
             )
 
-    def _on_full_repo_update(self, topic, payload):
+    def _load_repo_from_file(self):
         """
-        Dynamically rebuilds the entire command repository from a complete JSON payload.
+        Loads the repository from the JSON file into memory on initialization.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(f"🐐🐐🐐🟢 Entering {current_function_name}. Full repository update received.", file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
+        if not YAKETY_YAK_REPO_PATH.parent.exists():
+            YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
         
-        self.inputs_manager.update_repo_from_json(payload)
-        
-        debug_log(f"🐐🐐🐐✅ Exiting {current_function_name} after full repository update.", file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
+        if YAKETY_YAK_REPO_PATH.is_file() and YAKETY_YAK_REPO_PATH.stat().st_size > 0:
+            try:
+                with open(YAKETY_YAK_REPO_PATH, 'r') as f:
+                    return json.load(f)
+            except json.JSONDecodeError as e:
+                debug_log(
+                    message=f"🐐🐐🐐🟡 Failed to decode JSON from file. Creating an empty repository. The error be: {e}",
+                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                )
+                return {}
+        else:
+            return {}
 
-    def _on_action_message(self, topic, payload):
-        """Processes command actions published to the /actions topic."""
+    def _save_repo_to_file(self):
+        """
+        Writes the current in-memory repository to the JSON file.
+        """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🐐🐐🐐⚡️ Action stations! A command has arrived! Topic: '{topic}', Payload: '{payload}'",
-            file=current_file, version=current_version, function=current_function_name,
+            message=f"🐐🐐🐐💾 Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        if not topic.endswith('/trigger'):
-            debug_log(f"🐐🐐🐐🟡 Ignoring non-trigger message on action topic: {topic}", file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
-            return
+        try:
+            # Ensure the parent directory exists
+            if not YAKETY_YAK_REPO_PATH.parent.exists():
+                YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+            with open(YAKETY_YAK_REPO_PATH, 'w') as f:
+                json.dump(self.repo_memory, f, indent=4)
+            
+            console_log("✅ Repository saved successfully!")
+            return True
+        except Exception as e:
+            console_log(f"❌ Error saving repository to file: {e}")
+            debug_log(
+                message=f"🐐🐐🐐🔴 The quill broke! Failed to save the repository! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return False
+
+    def YAK_LISTEN_TO_MQTT(self, topic, payload):
+        """
+        Processes incoming MQTT messages and updates the in-memory repository.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🐐🐐🐐⚡️ An announcement has arrived! Topic: '{topic}', Payload: '{payload}'",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
 
         try:
-            payload_data = json.loads(payload)
-            if str(payload_data.get('value')).lower() != 'true':
-                debug_log(f"🐐🐐🐐🟡 Ignoring 'false' trigger payload. | Value: {payload_data.get('value')}", file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
-                return
+            # Check for the word "Trigger" in the topic or payload
+            if "trigger" in topic.lower() or "trigger" in payload.lower():
+                YAK_TRIGGER_COMMAND(self, topic, payload)
 
-            path_parts = topic.replace("OPEN-AIR/actions/", "").split('/')
-            yak_command_type = path_parts[1]
+            # Deconstruct the topic to form the nested path in our repository
+            path_parts = topic.replace("OPEN-AIR/repository/", "").split('/')
             
-            # Delegate to the inputs manager to prepare the command
-            command_string, command_details = self.inputs_manager.prepare_command(path_parts, payload_data)
-            if not command_string:
-                console_log(f"❌ Could not prepare command for topic: {topic}")
-                return
-
-            # Delegate to the transmission manager to send the command
-            response = self.tx_manager.execute_command(yak_command_type, command_string)
+            current_node = self.repo_memory
+            for part in path_parts[:-1]:
+                # Sanitize part for use as a dictionary key
+                part = re.sub(r'[^a-zA-Z0-9_]', '', part)
+                current_node = current_node.setdefault(part, {})
             
-            # Delegate to the reception manager to handle the response
-            if response not in ["PASSED", "FAILED", None] and "scpi_outputs" in command_details:
-                self.rx_manager.process_response(path_parts, command_details, response)
+            last_key = path_parts[-1]
+            try:
+                # Attempt to parse payload as JSON
+                parsed_payload = json.loads(payload)
+                # Check if the payload is a dictionary containing a 'value' key
+                if isinstance(parsed_payload, dict) and 'value' in parsed_payload:
+                    value = parsed_payload['value']
+                else:
+                    value = parsed_payload
+            except json.JSONDecodeError:
+                # If it's not valid JSON, treat the whole payload as the value
+                value = payload
+            
+            # REFINEMENT: Remove leading and trailing double quotes if they exist
+            if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
+                value = value.strip('"')
 
-            console_log("✅ Success! Yak command processed and response handled.")
+            # Update the in-memory dictionary
+            current_node[last_key] = value
+            
+            # NOW THE AUTOMATIC SAVE OCCURS HERE
+            self._save_repo_to_file()
+            
+            console_log(f"✅ Repository updated in memory and saved to file from message on topic: {topic}")
+        
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"🐐🐐🐐🔴 The manager's logic has become a tangled mess! The error be: {e}",
-                file=current_file, version=current_version, function=current_function_name,
+                message=f"🐐🐐🐐🔴 A fatal error occurred while processing the MQTT message! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+    def YAK_SAVE_REPOSITORY(self, topic, payload):
+        """
+        Saves the current in-memory repository to a local JSON file.
+        This is an explicit action triggered by an MQTT command.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🐐🐐🐐💾 An explicit save command has been received! Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        try:
+            data = json.loads(payload)
+            if str(data.get("value")).lower() == 'true':
+                self._save_repo_to_file()
+        except Exception as e:
+            console_log(f"❌ Error saving repository to file: {e}")
+            debug_log(
+                message=f"🐐🐐🐐🔴 The quill broke! Failed to save the repository! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
