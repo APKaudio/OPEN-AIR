@@ -1,0 +1,367 @@
+{
+
+        "beg": {
+            "Beg_freq_center_span": {
+                "label_active": "Set Center/Span",
+                "label_inactive": "Set Center/Span",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "N9340B": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
+                    },
+                    "N9342CN": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
+                    }
+                },
+                "scpi_inputs": {
+                    "center_freq": {
+                        "value": "111",
+                        "type": "_Value",
+                        "description": "The SCPI input for center frequency."
+                    },
+                    "span_freq": {
+                        "value": "222",
+                        "type": "_Value",
+                        "description": "The SCPI input for span frequency."
+                    }
+                },
+                "scpi_outputs": {
+                    "start_freq": {
+                        "value": "",
+                        "type": "_Value",
+                        "description": "The SCPI output for start frequency."
+                    },
+                    "stop_freq": {
+                        "value": "The stopping frequency.",
+                        "type": "_Value",
+                        "description": "The SCPI output for stop frequency."
+                    }
+                }
+            },
+            "Beg_freq_start_stop": {
+                "label_active": "Set Start/Stop",
+                "label_inactive": "Set Start/Stop",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "N9340B": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+                    },
+                    "N9342CN": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+                    }
+                },
+                "scpi_inputs": {
+                    "start_freq": {
+                        "value": "111",
+                        "type": "_Value",
+                        "description": "The SCPI input for start frequency."
+                    },
+                    "stop_freq": {
+                        "value": "222",
+                        "type": "_Value",
+                        "description": "The SCPI input for stop frequency."
+                    }
+                },
+                "scpi_outputs": {
+                    "center_freq": {
+                        "value": "",
+                        "type": "_Value",
+                        "description": "The SCPI output for start frequency."
+                    },
+                    "span_freq": {
+                        "value": "",
+                        "type": "_Value",
+                        "description": "The SCPI output for stop frequency."
+                    }
+                }
+            }
+        },
+        "get": {
+            "Get_Start_Frequency": {
+                "label": "Get Start Frequency",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt?"
+                    }
+                },
+                "scpi_outputs": {
+                    "start_freq": {
+                        "value": "The starting frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get_Stop_Frequency": {
+                "label": "Get Stop Frequency",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STOP?"
+                    }
+                },
+                "scpi_outputs": {
+                    "stop_freq": {
+                        "value": "The stopping frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get_Center_Frequency": {
+                "label": "Get Center Frequency",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:CENTer?"
+                    }
+                },
+                "scpi_outputs": {
+                    "center_freq": {
+                        "value": "The center frequency in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get_Span_Frequency": {
+                "label": "Get Span Frequency",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:SPAN?"
+                    }
+                },
+                "scpi_outputs": {
+                    "span_freq": {
+                        "value": "The frequency span in Hz.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "rig": {
+            "rig_center_freq_MHz": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:CENTer <hz_value>"
+                    }
+                },
+                "scpi_inputs": {
+                    "hz_value": {
+                        "value": "The frequency value in Hz.",
+                        "type": "_Value",
+                        "description": "The SCPI input for center frequency."
+                    },
+                    "value": "The desired center frequency.",
+                    "units": "MHz",
+                    "min": 0,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            },
+            "rig_span_freq_MHz": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:SPAN <hz_value>"
+                    }
+                },
+                "scpi_input_details": {
+                    "label_active": "Frequency Span",
+                    "label_inactive": "Frequency Span",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "1000",
+                            "type": "_Value"
+                        }
+                    },
+                    "value": "1000",
+                    "units": "Hz",
+                    "min": 0,
+                    "max": 1000,
+                    "step": 0.005
+                }
+            },
+            "rig_start_freq_MHz": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt <hz_value>"
+                    }
+                },
+                "scpi_input_details": {
+                    "label_active": "Start Frequency",
+                    "label_inactive": "Start Frequency",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "1000",
+                            "type": "_Value"
+                        }
+                    },
+                    "value": "1000",
+                    "units": "Hz",
+                    "min": 0,
+                    "max": 5999,
+                    "step": 0.005
+                }
+            },
+            "rig_stop_freq_MHz": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STOP <hz_value>"
+                    }
+                },
+                "scpi_input_details": {
+                    "label_active": "Stop Frequency",
+                    "label_inactive": "Stop Frequency",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "2000",
+                            "type": "_Value"
+                        }
+                    },
+                    "value": "2000",
+                    "units": "Hz",
+                    "min": 1,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            }
+        },
+        "set": {
+            "Set_Center_Frequency": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SENSe:FREQuency:CENTer <hz_value>"
+                    }
+                },
+                "scpi_input": {
+                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "1000",
+                            "type": "_Value"
+                        }
+                    },
+                    "label_active": "Center Frequency",
+                    "label_inactive": "Center Frequency",
+                    "type": "_Value",                    "value": "1000",
+                    "units": "Hz",
+                    "min": 0,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            },
+            "Set_Span_Frequency": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SENSe:FREQuency:SPAN <hz_value>"
+                    }
+                },
+                "scpi_input": {
+                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "1000",
+                            "type": "_Value"
+                        }
+                    },
+                    "label_active": "Frequency Span",
+                    "label_inactive": "Frequency Span",
+                    "type": "_Value",                    "value": "1000",
+                    "units": "Hz",
+                    "min": 0,
+                    "max": 1000,
+                    "step": 0.005
+                }
+            },
+            "Set_Start_Frequency": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt <hz_value>"
+                    }
+                },
+                "scpi_input": {
+                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "1000",
+                            "type": "_Value"
+                        }
+                    },
+                    "label_active": "Start Frequency",
+                    "label_inactive": "Start Frequency",
+                    "type": "_Value",                    "value": "1000",
+                    "units": "Hz",
+                    "min": 0,
+                    "max": 5999,
+                    "step": 0.005
+                }
+            },
+            "Set_Stop_Frequency": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STOP <hz_value>"
+                    }
+                },
+                "scpi_input": {
+                    "scpi_inputs": {
+                        "hz_value": {
+                            "value": "2000",
+                            "type": "_Value"
+                        }
+                    },
+                    "label_active": "Stop Frequency",
+                    "label_inactive": "Stop Frequency",
+                    "type": "_Value",                    "value": "2000",
+                    "units": "Hz",
+                    "min": 1,
+                    "max": 6000,
+                    "step": 0.005
+                }
+            },
+            "Set_Sweep_Time": {
+                "scpi_details": {
+                    "N9340B": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Sweep Time",
+                    "label_inactive": "Sweep Time",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "time_s": {
+                            "value": "3",
+                            "type": "_Value"
+                        }
+                    },
+                    "value": "3",
+                    "units": "s"
+                }
+            }
+        }
+    }

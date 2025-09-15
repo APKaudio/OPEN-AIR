@@ -1,0 +1,79 @@
+{
+
+        "do": {
+            "Do_Store_Preset": {
+                "label_active": "Store Preset",
+                "label_inactive": "Store Preset",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":MMEMory:STORe:STATe"
+                    }
+                },
+                "scpi_inputs": {
+                    "preset_number": {
+                        "value": "0",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Do_Load_Preset": {
+                "label_active": "Load Preset",
+                "label_inactive": "Load Preset",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":MMEMory:LOAD:STATe"
+                    }
+                },
+                "scpi_inputs": {
+                    "preset_number": {
+                        "value": "0",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "set": {
+            "Store_Preset": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":MMEMory:STORe:STATe"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Store Preset",
+                    "label_inactive": "Store Preset",
+                    "scpi_inputs": {
+                        "preset_number": {
+                            "value": "0",
+                            "type": "_Value"
+                        }
+                    }
+                }
+            },
+            "Load_Preset": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":MMEMory:LOAD:STATe"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Load Preset",
+                    "label_inactive": "Load Preset",
+                    "scpi_inputs": {
+                        "preset_number": {
+                            "value": "0",
+                            "type": "_Value"
+                        }
+                    }
+                }
+            }
+        }
+    }

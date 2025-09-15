@@ -1,0 +1,142 @@
+{
+
+        "do": {
+            "Do_Immediate_Scan": {
+                "label_active": "Immediate Scan",
+                "label_inactive": "Immediate Scan",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":INITIATE:IMMEDIATE"
+                    }
+                },
+                "scpi_outputs": {
+                    "success": {
+                        "value": "True on success.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Do_Power_Cycle_Device": {
+                "label_active": "Power Cycle Device",
+                "label_inactive": "Power Cycle Device",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SYSTem:POWer:RESet"
+                    }
+                },
+                "scpi_outputs": {
+                    "success": {
+                        "value": "True on success.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Do_Hard_Reset": {
+                "label": "Hard Reset",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": "*RST"
+                    }
+                }
+            },
+            "Do_Soft_Reset": {
+                "label": "Soft Reset",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SYSTem:RESet"
+                    }
+                }
+            },
+            "Do_Update_Display": {
+                "label": "Update Display",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SYSTem:DISPlay:UPDate"
+                    }
+                }
+            }
+        },
+        "nab": {
+            "NAB_error_information": {
+                "label_active": "Get All Error Information",
+                "label_inactive": "Get All Error Information",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SYSTem:ERRor:COUNt?;:SYSTem:ERRor:CODE?;:SYSTem:ERRor:TEXT?"
+                    }
+                },
+                "scpi_outputs": {
+                    "error_count": {
+                        "value": "The number of errors in the queue.",
+                        "type": "_Value"
+                    },
+                    "error_code": {
+                        "value": "The last error code.",
+                        "type": "_Value"
+                    },
+                    "error_text": {
+                        "value": "The description of the last error.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "set": {
+            "Set_Continuous_Scan": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":INITiate:CONTinuous ON",
+                        "value_off": ":INITiate:CONTinuous OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Continuous Scan",
+                    "label_inactive": "Continuous Scan",
+                    "type": "_GuiButtonToggle",
+                    "options": {
+                        "ON": {
+                            "label_active": "Continuous ON",
+                            "label_inactive": "Continuous ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "Continuous OFF",
+                            "label_inactive": "Continuous OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            },
+            "Immediate_Scan": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":INITiate:IMMediate"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Immediate Scan",
+                    "type": "_GuiButton"
+                }
+            }
+        }
+    }

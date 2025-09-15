@@ -1,0 +1,539 @@
+{
+
+        "get": {
+            "Get_Reference_Level": {
+                "label": "Get Reference Level",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:LEVel?"
+                    }
+                },
+                "scpi_outputs": {
+                    "ref_level": {
+                        "value": "The reference level in dBm.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get_Attenuation": {
+                "label": "Get Attenuation",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:ATTenuation?"
+                    }
+                },
+                "scpi_outputs": {
+                    "attenuation": {
+                        "value": "The attenuation in dB.",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Get_Preamp_State": {
+                "label": "Get Preamp State",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:PREamp:STATe?"
+                    }
+                },
+                "scpi_outputs": {
+                    "preamp_state": {
+                        "value": "Boolean for preamp state.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "nab": {
+            "NAB_amplitude_settings": {
+                "label_active": "Get All Amplitude Settings",
+                "label_inactive": "Get All Amplitude Settings",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:LEVel?;:POWer:RF:ATTenuation?;:POWer:RF:PREamp:STATe?"
+                    }
+                },
+                "scpi_outputs": {
+                    "Ref_Level_dBm": {
+                        "value": "The reference level in dBm.",
+                        "type": "_Value"
+                    },
+                    "Attenuation_dB": {
+                        "value": "The attenuation in dB.",
+                        "type": "_Value"
+                    },
+                    "Preamp_On": {
+                        "value": "Boolean for preamp state.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "rig": {
+            "rig_Ref_Level_dBm": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:LEVel <value>"
+                    }
+                },
+                "scpi_input_details": {
+                    "label_active": "Reference Level",
+                    "label_inactive": "Reference Level",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "value": {
+                            "value": "The reference level in dBm.",
+                            "type": "_Value",
+                            "description": "The SCPI input for reference level."
+                        }
+                    },
+                    "units": "dBm",
+                    "min": -120,
+                    "max": 0,
+                    "step": 5
+                }
+            },
+            "rig_Attenuation_dB": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:RF:ATTenuation <value>"
+                    }
+                },
+                "scpi_input_details": {
+                    "label_active": "Power Attenuation",
+                    "label_inactive": "Power Attenuation",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "value": {
+                            "value": "The attenuation in dB.",
+                            "type": "_Value",
+                            "description": "The SCPI input for power attenuation."
+                        }
+                    },
+                    "units": "dB",
+                    "min": 0,
+                    "max": 70,
+                    "step": 10
+                }
+            }
+        },
+        "set": {
+            "Set_Reference_Level": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <SCPI_Input>"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set Reference Level",
+                    "type": "_GuiDropDownOption",
+                    "options": {
+                        "1": {
+                            "label_active": "0",
+                            "label_inactive": "0",
+                            "value": "0",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "2": {
+                            "label_active": "-5",
+                            "label_inactive": "-5",
+                            "value": "-5",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "3": {
+                            "label_active": "-10",
+                            "label_inactive": "-10",
+                            "value": "-10",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "4": {
+                            "label_active": "-15",
+                            "label_inactive": "-15",
+                            "value": "-15",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "5": {
+                            "label_active": "-20",
+                            "label_inactive": "-20",
+                            "value": "-20",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "6": {
+                            "label_active": "-25",
+                            "label_inactive": "-25",
+                            "value": "-25",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "7": {
+                            "label_active": "-30",
+                            "label_inactive": "-30",
+                            "value": "-30",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "8": {
+                            "label_active": "-35",
+                            "label_inactive": "-35",
+                            "value": "-35",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "9": {
+                            "label_active": "-40",
+                            "label_inactive": "-40",
+                            "value": "-40",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "10": {
+                            "label_active": "-45",
+                            "label_inactive": "-45",
+                            "value": "-45",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "11": {
+                            "label_active": "-50",
+                            "label_inactive": "-50",
+                            "value": "-50",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "12": {
+                            "label_active": "-55",
+                            "label_inactive": "-55",
+                            "value": "-55",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "13": {
+                            "label_active": "-60",
+                            "label_inactive": "-60",
+                            "value": "-60",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "14": {
+                            "label_active": "-65",
+                            "label_inactive": "-65",
+                            "value": "-65",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "15": {
+                            "label_active": "-70",
+                            "label_inactive": "-70",
+                            "value": "-70",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "16": {
+                            "label_active": "-75",
+                            "label_inactive": "-75",
+                            "value": "-75",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "17": {
+                            "label_active": "-80",
+                            "label_inactive": "-80",
+                            "value": "-80",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "18": {
+                            "label_active": "-85",
+                            "label_inactive": "-85",
+                            "value": "-85",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "19": {
+                            "label_active": "-90",
+                            "label_inactive": "-90",
+                            "value": "-90",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "20": {
+                            "label_active": "-95",
+                            "label_inactive": "-95",
+                            "value": "-95",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "21": {
+                            "label_active": "-100",
+                            "label_inactive": "-100",
+                            "value": "-100",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "22": {
+                            "label_active": "-105",
+                            "label_inactive": "-105",
+                            "value": "-105",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "23": {
+                            "label_active": "-110",
+                            "label_inactive": "-110",
+                            "value": "-110",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "24": {
+                            "label_active": "-115",
+                            "label_inactive": "-115",
+                            "value": "-115",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "25": {
+                            "label_active": "-120",
+                            "label_inactive": "-120",
+                            "value": "-120",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        }
+                    }
+                }
+            },
+            "Set_Input_Auto_Attenuation": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":INPut:ATTenuation:AUTO ON",
+                        "value_off": ":INPut:ATTenuation:AUTO OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set Input Auto Attenuation",
+                    "type": "_GuiButtonToggle",
+                    "options": {
+                        "ON": {
+                            "label_active": "Auto ON",
+                            "label_inactive": "Auto ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "Auto OFF",
+                            "label_inactive": "Auto OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            },
+            "Set_Power_Gain": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":POWer:GAIN ON",
+                        "value_off": ":POWer:GAIN OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set Power Gain",
+                    "type": "_GuiButtonToggle",
+                    "options": {
+                        "ON": {
+                            "label_active": "Gain ON",
+                            "label_inactive": "Gain ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "Gain OFF",
+                            "label_inactive": "Gain OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            },
+            "Set_High_Sensitive_Power": {
+                "scpi_details": {
+                    "N9340B": {
+                        "type": "_GuiActuator",
+                        "value_on": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON",
+                        "value_off": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
+                    },
+                    "N9342CN": {
+                        "type": "_GuiActuator",
+                        "value_on": ":POWer:HSENsitive ON",
+                        "value_off": ":POWer:HSENsitive OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set High Sensitive Power",
+                    "options": {
+                        "ON": {
+                            "label_active": "High Sensitivity ON",
+                            "label_inactive": "High Sensitivity ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "High Sensitivity OFF",
+                            "label_inactive": "High Sensitivity OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    },
+                    "type": "_GuiButtonToggle"
+                }
+            },
+            "Set_Power_Attenuation": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:ATTenuation <SCPI_Input>"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set Power Attenuation",
+                    "type": "_GuiDropDownOption",
+                    "options": {
+                        "1": {
+                            "label_active": "0 dB",
+                            "label_inactive": "0 dB",
+                            "value": "0",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "2": {
+                            "label_active": "10 dB",
+                            "label_inactive": "10 dB",
+                            "value": "10",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "3": {
+                            "label_active": "20 dB",
+                            "label_inactive": "20 dB",
+                            "value": "20",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "4": {
+                            "label_active": "30 dB",
+                            "label_inactive": "30 dB",
+                            "value": "30",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "5": {
+                            "label_active": "40 dB",
+                            "label_inactive": "40 dB",
+                            "value": "40",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "6": {
+                            "label_active": "50 dB",
+                            "label_inactive": "50 dB",
+                            "value": "50",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "7": {
+                            "label_active": "60 dB",
+                            "label_inactive": "60 dB",
+                            "value": "60",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "8": {
+                            "label_active": "70 dB",
+                            "label_inactive": "70 dB",
+                            "value": "70",
+                            "active": true,
+                            "trigger": false,
+                            "selected": false
+                        }
+                    }
+                }
+            },
+            "Set_Power_Auto_Attenuation": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":POWer:ATTenuation:AUTO ON",
+                        "value_off": ":POWer:ATTenuation:AUTO OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Set Power Auto Attenuation",
+                    "type": "_GuiButtonToggle",
+                    "options": {
+                        "ON": {
+                            "label_active": "Auto ON",
+                            "label_inactive": "Auto ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "Auto OFF",
+                            "label_inactive": "Auto OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            }
+        }
+    }

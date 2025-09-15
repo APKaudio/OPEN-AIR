@@ -1,0 +1,288 @@
+{
+
+        "beg": {
+            "Beg_marker_setup": {
+                "label_active": "Setup Markers",
+                "label_inactive": "Setup Markers",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X <marker_1_freq_hz>;:CALCulate:MARKer2:X <marker_2_freq_hz>;:CALCulate:MARKer3:X <marker_3_freq_hz>;:CALCulate:MARKer4:X <marker_4_freq_hz>;:CALCulate:MARKer5:X <marker_5_freq_hz>;:CALCulate:MARKer6:X <marker_6_freq_hz>"
+                    }
+                },
+                "scpi_inputs": {
+                    "marker_1_freq_hz": {
+                        "value": "111",
+                        "type": "_Value"
+                    },
+                    "marker_2_freq_hz": {
+                        "value": "222",
+                        "type": "_Value"
+                    },
+                    "marker_3_freq_hz": {
+                        "value": "333",
+                        "type": "_Value"
+                    },
+                    "marker_4_freq_hz": {
+                        "value": "444",
+                        "type": "_Value"
+                    },
+                    "marker_5_freq_hz": {
+                        "value": "555",
+                        "type": "_Value"
+                    },
+                    "marker_6_freq_hz": {
+                        "value": "666",
+                        "type": "_Value"
+                    }
+                },
+                "scpi_outputs": {
+                    "status": {
+                        "value": "PASSED or FAILED.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "do": {
+            "Do_Search_Max_Peak": {
+                "label": "Search Max Peak",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
+                    }
+                },
+                "scpi_inputs": {
+                    "marker_number": {
+                        "value": "1",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Do_Search_Next_Peak": {
+                "label": "Search Next Peak",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
+                    }
+                },
+                "scpi_inputs": {
+                    "marker_number": {
+                        "value": "1",
+                        "type": "_Value"
+                    }
+                }
+            },
+            "Do_Search_All_Peaks": {
+                "label": "Search All Peaks",
+                "type": "_GuiButton",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator"
+                    }
+                }
+            }
+        },
+        "get": {
+            "Get_Marker_Data": {
+                "label": "Get Marker Data",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:X?;:CALCulate:MARKer<marker_number>:Y?"
+                    }
+                },
+                "scpi_inputs": {
+                    "marker_number": {
+                        "value": "1",
+                        "type": "_Value",
+                        "description": "The marker number."
+                    }
+                },
+                "scpi_outputs": {
+                    "frequency_Hz": {
+                        "value": "The frequency of the marker in Hz.",
+                        "type": "_Value"
+                    },
+                    "amplitude_dBm": {
+                        "value": "The amplitude of the marker in dBm.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "nab": {
+            "NAB_all_marker_settings": {
+                "label_active": "Get All Marker Settings",
+                "label_inactive": "Get All Marker Settings",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer:STATe?;:CALCulate:MARKer:X?;:CALCulate:MARKer:Y?;:CALCulate:MARKer:NUMber?"
+                    }
+                },
+                "scpi_outputs": {
+                    "Marker_On": {
+                        "value": "Boolean for marker state.",
+                        "type": "_Value"
+                    },
+                    "Marker_Freq_Hz": {
+                        "value": "The marker frequency in Hz.",
+                        "type": "_Value"
+                    },
+                    "Marker_Amplitude_dBm": {
+                        "value": "The marker amplitude in dBm.",
+                        "type": "_Value"
+                    },
+                    "Marker_Number": {
+                        "value": "The current marker number.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "set": {
+            "Set_Marker_State": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":CALCulate:MARKer<marker_number>:STATe ON",
+                        "value_off": ":CALCulate:MARKer<marker_number>:STATe OFF"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Set Marker State",
+                    "label_inactive": "Set Marker State",
+                    "type": "_GuiButtonToggle",
+                    "scpi_inputs": {
+                        "marker_number": {
+                            "value": "1",
+                            "type": "_Value"
+                        }
+                    },
+                    "options": {
+                        "ON": {
+                            "label_active": "Marker ON",
+                            "label_inactive": "Marker ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "Marker OFF",
+                            "label_inactive": "Marker OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            },
+            "Set_All_Marker_States": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "value_on": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;",
+                        "value_off": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Set All Marker States",
+                    "label_inactive": "Set All Marker States",
+                    "type": "_GuiButtonToggle",
+                    "options": {
+                        "ON": {
+                            "label_active": "All Markers ON",
+                            "label_inactive": "All Markers ON",
+                            "trigger": false,
+                            "selected": false
+                        },
+                        "OFF": {
+                            "label_active": "All Markers OFF",
+                            "label_inactive": "All Markers OFF",
+                            "trigger": false,
+                            "selected": true
+                        }
+                    }
+                }
+            },
+            "Set_Marker_X-position": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:X <x_value>"
+                    }
+                },
+                "scpi_input": {
+                    "label_active": "Set Marker X-position",
+                    "label_inactive": "Set Marker X-position",
+                    "type": "_Value",                    "scpi_inputs": {
+                        "marker_number": {
+                            "value": "1",
+                            "type": "_Value"
+                        },
+                        "x_value": {
+                            "value": "111111",
+                            "type": "_Value"
+                        }
+                    },
+                    "value": "111111",
+                    "units": "Hz"
+                }
+            },
+            "Search_Max_Peak": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Search Max Peak",
+                    "scpi_inputs": {
+                        "marker_number": {
+                            "value": "1",
+                            "type": "_Value"
+                        }
+                    }
+                }
+            },
+            "Search_Next_Peak": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Search Next Peak",
+                    "scpi_inputs": {
+                        "marker_number": {
+                            "value": "1",
+                            "type": "_Value"
+                        }
+                    }
+                }
+            },
+            "Search_All_Peaks": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator"
+                    }
+                },
+                "scpi_input": {
+                    "label": "Search All Peaks",
+                    "type": "_GuiButton"
+                }
+            }
+        }
+    }
