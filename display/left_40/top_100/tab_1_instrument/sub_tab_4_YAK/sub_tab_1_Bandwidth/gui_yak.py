@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/set"
+MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/Bandwidth"
 
 
 

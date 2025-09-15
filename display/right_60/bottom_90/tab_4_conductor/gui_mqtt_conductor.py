@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.124255.1
+# Version 20250914.223648.1
 
 import os
 import inspect
@@ -130,20 +130,20 @@ class MqttConductorFrame(ttk.Frame):
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
         style.configure('Custom.Treeview',
-                        background=colors["table_bg"],
-                        foreground=colors["table_fg"],
-                        fieldbackground=colors["table_bg"],
-                        bordercolor=colors["table_border"],
-                        borderwidth=colors["border_width"])
+                         background=colors["table_bg"],
+                         foreground=colors["table_fg"],
+                         fieldbackground=colors["table_bg"],
+                         bordercolor=colors["table_border"],
+                         borderwidth=colors["border_width"])
         style.configure('Custom.Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
+                         background=colors["table_heading_bg"],
+                         foreground=colors["fg"],
+                         relief=colors["relief"],
+                         borderwidth=colors["border_width"])
         style.configure('Custom.TEntry',
-                        fieldbackground=colors["entry_bg"],
-                        foreground=colors["entry_fg"],
-                        bordercolor=colors["table_border"])
+                         fieldbackground=colors["entry_bg"],
+                         foreground=colors["entry_fg"],
+                         bordercolor=colors["table_border"])
         style.configure('TButton', background=colors["accent"], foreground=colors["text"], padding=5)
 
     def _create_widgets(self):
@@ -173,9 +173,9 @@ class MqttConductorFrame(ttk.Frame):
         server_controls_frame = ttk.Frame(master=top_frame)
         server_controls_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5)
         # --- Bind buttons to the actual utility functions ---
-       # self.start_btn = ttk.Button(master=server_controls_frame, text="Start Broker", command=self.mqtt_util.start_mosquitto)
-       # self.stop_btn = ttk.Button(master=server_controls_frame, text="Stop Broker", command=self.mqtt_util.stop_mosquitto)
-        self.check_status_btn = ttk.Button(master=server_controls_frame, text="Check Status", command=self.mqtt_util.check_status)
+        self.start_btn = ttk.Button(master=server_controls_frame, text="Start Broker", command=lambda: console_log("Mock: Start Broker"))
+        self.stop_btn = ttk.Button(master=server_controls_frame, text="Stop Broker", command=lambda: console_log("Mock: Stop Broker"))
+        self.check_status_btn = ttk.Button(master=server_controls_frame, text="Check Status", command=self._check_status_request)
         self.start_btn.pack(pady=2, padx=5, fill=tk.X)
         self.stop_btn.pack(pady=2, padx=5, fill=tk.X)
         self.check_status_btn.pack(pady=2, padx=5, fill=tk.X)
@@ -345,11 +345,11 @@ class MqttConductorFrame(ttk.Frame):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
        # debug_log(
-       #     message=f"�🔵 Entering '{current_function_name}' to process a system status message.",
-       #     file=current_file,
-       #     version=current_version,
-       #     function=current_function_name,
-       #     console_print_func=console_log
+       #     message=f"🔵 Entering '{current_function_name}' to process a system status message.",
+       #     file=current_file,
+       #     version=current_version,
+       #     function=current_function_name,
+       #     console_print_func=console_log
        # )
         try:
             if "$SYS/broker/version" in topic:
@@ -372,3 +372,12 @@ class MqttConductorFrame(ttk.Frame):
                 function=current_function_name,
                 console_print_func=console_log
             )
+
+    def _check_status_request(self):
+        """
+        Manually triggers a request for system information from the broker.
+        """
+        self.mqtt_util.publish_message(topic="$SYS/broker/version", subtopic="", value="", retain=False)
+        self.mqtt_util.publish_message(topic="$SYS/broker/uptime", subtopic="", value="", retain=False)
+        self.mqtt_util.publish_message(topic="$SYS/broker/messages/sent", subtopic="", value="", retain=False)
+        self.mqtt_util.publish_message(topic="$SYS/broker/clients/connected", subtopic="", value="", retain=False)

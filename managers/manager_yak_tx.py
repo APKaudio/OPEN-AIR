@@ -8,7 +8,7 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250913.130500.10"
+current_version = "20250914.222018.1"
 current_file = f"{os.path.basename(__file__)}"
 
 class YakTxManager:

@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/get"
+MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/Frequency"
 
 
 

@@ -9,7 +9,7 @@ from workers.worker_logging import debug_log, console_log
 import json
 
 # --- Global Scope Variables ---
-current_version = "20250909.225412.7"
+current_version = "20250914.225930.4"
 current_file = f"{os.path.basename(__file__)}"
 
 class YakRxManager:
@@ -28,16 +28,67 @@ class YakRxManager:
             message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
             file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
         )
-        
-        outputs = command_details["scpi_outputs"]
-        response_parts = response.split(';')
 
-        output_keys = list(outputs.keys())
-        for i, key in enumerate(output_keys):
-            if i < len(response_parts):
-                output_topic = f"OPEN-AIR/repository/yak/{path_parts[1]}/{'/'.join(path_parts[2:-1])}/scpi_outputs/{key}/value"
-                self.mqtt_util.publish_message(topic=output_topic, subtopic="", value=response_parts[i])
+        outputs = command_details.get("scpi_outputs", {})
+        debug_log(
+            message=f"ℹ️ YakRxManager received a response from the device.",
+            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+        )
+        debug_log(
+            message=f"ℹ️ Path Parts: {path_parts}",
+            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+        )
+        debug_log(
+            message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
+            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+        )
+        debug_log(
+            message=f"ℹ️ Raw Response: {response}",
+            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+        )
+        
+        try:
+            # Split the response into individual parts
+            response_parts = response.split(';')
+            output_keys = list(outputs.keys())
+
+            if len(response_parts) != len(output_keys):
                 debug_log(
-                    message=f"🐐🐐🐐💾 Publishing output data. Topic: '{output_topic}', Value: '{response_parts[i]}'",
+                    message=f"❌🔴 Mismatched response length! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                 )
+                return
+
+            # FIX: Correctly rebuild the base topic by joining the initial path parts
+            # and appending 'scpi_outputs'. The trigger path is intentionally long, 
+            # so we truncate it to the command node level, which is the 4th index.
+            base_output_topic_parts = ['OPEN-AIR', 'repository'] + path_parts[:4] + ['scpi_outputs']
+            base_output_topic = '/'.join(base_output_topic_parts)
+            
+            # Match and publish each part of the response
+            for i, key in enumerate(output_keys):
+                raw_value = response_parts[i]
+                
+                # Construct the full topic for the specific output value
+                output_topic = f"{base_output_topic}/{key}/value"
+                
+                # Publish the value to the MQTT topic
+                self.mqtt_util.publish_message(
+                    topic=output_topic,
+                    subtopic="",
+                    value=raw_value,
+                    retain=True
+                )
+                debug_log(
+                    message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
+                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                )
+            
+            console_log("✅ Response processed and all output values published to MQTT.")
+
+        except Exception as e:
+            console_log(f"❌ Error processing response: {e}")
+            debug_log(
+                message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )

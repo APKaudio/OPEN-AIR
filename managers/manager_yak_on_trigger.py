@@ -13,10 +13,11 @@ import re
 from workers.worker_logging import debug_log, console_log
 from managers.manager_yak_tx import YakTxManager
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
+from managers.manager_yak_rx import YakRxManager
 
 
-current_version = "20250913.130100.9"
-current_version_hash = (20250913 * 130100 * 9)
+current_version = "20250914.222018.1"
+current_version_hash = (20250914 * 222018 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
@@ -188,17 +189,23 @@ def YAK_TRIGGER_COMMAND(self, topic, payload):
         # Now call the lookup functions on that node.
         scpi_template = _lookup_scpi_command(command_node=command_node, model_key=model_key, command_path=command_path_to_node)
         scpi_inputs = _lookup_inputs(command_node=command_node, command_path=command_path_to_node)
-        _lookup_outputs(command_node=command_node, command_path=command_path_to_node)
+        command_outputs = _lookup_outputs(command_node=command_node, command_path=command_path_to_node)
         
         # Call the new function to fill in the placeholders
         if scpi_template:
             final_scpi_command = _fill_scpi_placeholders(scpi_command_template=scpi_template, scpi_inputs=scpi_inputs)
             
-            # Now, dispatch the filled command to the YakTxManager
+            # Capture the return value from the command execution
             yak_tx_manager = YakTxManager(dispatcher_instance=self.dispatcher)
             # The command type is derived from the second part of the path (e.g., 'beg', 'get', 'set')
             command_type = repo_path_parts[1]
-            yak_tx_manager.execute_command(command_type=command_type, command_string=final_scpi_command)
+            response_value = yak_tx_manager.execute_command(command_type=command_type, command_string=final_scpi_command)
+            
+            # Check if there is a valid response to process
+            if response_value and response_value != "FAILED":
+                # Pass the response to the RX Manager for processing
+                yak_rx_manager = YakRxManager(mqtt_controller=self.mqtt_util)
+                yak_rx_manager.process_response(path_parts=repo_path_parts, command_details={"scpi_outputs": command_outputs}, response=response_value)
         
         debug_log(
             message=f"🔍 Processed trigger for topic: {topic}",
