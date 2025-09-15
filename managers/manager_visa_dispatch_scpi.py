@@ -14,8 +14,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250907.011000.2
-# FIXED: Added get_model and get_manufacturer methods to the class.
+# Version 20250907.011000.3
+# FIXED: Added a check to reject commands containing placeholders (< or >) before sending.
 
 import os
 import inspect
@@ -29,8 +29,8 @@ from workers.worker_logging import debug_log, console_log
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250907.011000.2"
-current_version_hash = (20250907 * 11000 * 2)
+current_version = "20250907.011000.3"
+current_version_hash = (20250907 * 11000 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -141,6 +141,21 @@ class ScpiDispatcher:
             self._print_to_gui_console("❌ Error: Instrument not connected. Cannot write command.")
             debug_log(f"🐐 ❌ No instrument connected. Aborting command write.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
             return False
+        
+        # --- NEW FIX: Reject command if it contains placeholders. ---
+        if "<" in command or ">" in command:
+            error_message = f"❌ Error: Command rejected. Unresolved placeholders found: '{command}'."
+            self._print_to_gui_console(error_message)
+            debug_log(
+                message=f"🐐 ❌ Command rejected! Unresolved placeholders found. The offending command be: {command}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
+            return False
+        # --- END NEW FIX ---
+
         try:
             self.inst.write(command)
             # log_visa_command(command, "SENT") # Requires log_visa_command to be defined/imported
@@ -174,6 +189,21 @@ class ScpiDispatcher:
             self._print_to_gui_console("❌ Error: Instrument not connected. Cannot query command.")
             debug_log(f"🐐 ❌ No instrument connected. Aborting command query.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
             return None
+            
+        # --- NEW FIX: Reject command if it contains placeholders. ---
+        if "<" in command or ">" in command:
+            error_message = f"❌ Error: Query rejected. Unresolved placeholders found: '{command}'."
+            self._print_to_gui_console(error_message)
+            debug_log(
+                message=f"🐐 ❌ Query rejected! Unresolved placeholders found. The offending command be: {command}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
+            return None
+        # --- END NEW FIX ---
+        
         try:
             response = self.inst.query(command).strip()
             # log_visa_command(command, "SENT") # Requires log_visa_command

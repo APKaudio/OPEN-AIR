@@ -11,11 +11,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
                         }
                     },
                     "scpi_inputs": {
@@ -50,11 +52,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
                     },
                     "scpi_inputs": {
@@ -92,7 +96,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
+                            "trigger": false,
+                            "SCPI_value": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
                         }
                     },
                     "scpi_inputs": {
@@ -121,11 +126,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         }
                     },
                     "scpi_inputs": {
@@ -150,7 +157,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X <marker_1_freq_hz>;:CALCulate:MARKer1:X <marker_1_freq_hz>;:CALCulate:MARKer2:X <marker_2_freq_hz>;:CALCulate:MARKer3:X <marker_3_freq_hz>;:CALCulate:MARKer4:X <marker_4_freq_hz>;:CALCulate:MARKer5:X <marker_5_freq_hz>;:CALCulate:MARKer6:X <marker_6_freq_hz>"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer1:STATe ON;:CALCulate:MARKer2:STATe ON;:CALCulate:MARKer3:STATe ON;:CALCulate:MARKer4:STATe ON;:CALCulate:MARKer5:STATe ON;:CALCulate:MARKer6:STATe ON;:CALCulate:MARKer1:X <marker_1_freq_hz>;:CALCulate:MARKer2:X <marker_2_freq_hz>;:CALCulate:MARKer3:X <marker_3_freq_hz>;:CALCulate:MARKer4:X <marker_4_freq_hz>;:CALCulate:MARKer5:X <marker_5_freq_hz>;:CALCulate:MARKer6:X <marker_6_freq_hz>"
                         }
                     },
                     "scpi_inputs": {
@@ -200,7 +208,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":INITIATE:IMMEDIATE"
+                            "trigger": false,
+                            "SCPI_value": ":INITIATE:IMMEDIATE"
                         }
                     },
                     "scpi_outputs": {
@@ -216,7 +225,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SYSTem:POWer:RESet"
+                            "trigger": false,
+                            "SCPI_value": ":SYSTem:POWer:RESet"
                         }
                     },
                     "scpi_outputs": {
@@ -232,7 +242,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": "*RST"                            
+                            "trigger": false,
+                            "SCPI_value": "*RST"
                         }
                     }
                 },
@@ -242,7 +253,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                                                        "trigger":false, "SCPI_value": ":SYSTem:RESet"
+                            "trigger": false,
+                            "SCPI_value": ":SYSTem:RESet"
                         }
                     }
                 },
@@ -252,7 +264,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SYSTem:DISPlay:UPDate"
+                            "trigger": false,
+                            "SCPI_value": ":SYSTem:DISPlay:UPDate"
                         }
                     }
                 }
@@ -263,7 +276,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
                         }
                     },
                     "scpi_inputs": {
@@ -278,7 +292,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
                         }
                     },
                     "scpi_inputs": {
@@ -305,7 +320,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":MMEMory:STORe:STATe"
+                            "trigger": false,
+                            "SCPI_value": ":MMEMory:STORe:STATe"
                         }
                     },
                     "scpi_inputs": {
@@ -321,7 +337,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":MMEMory:LOAD:STATe"
+                            "trigger": false,
+                            "SCPI_value": ":MMEMory:LOAD:STATe"
                         }
                     },
                     "scpi_inputs": {
@@ -339,11 +356,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FORMat:DATA <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":FORMat:DATA <SCPI_Input>"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe:FORMat:DATA <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe:FORMat:DATA <SCPI_Input>"
                         }
                     },
                     "scpi_inputs": {
@@ -359,7 +378,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRAC<trace_number>:MODE <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":TRAC<trace_number>:MODE <SCPI_Input>"
                         }
                     },
                     "scpi_inputs": {
@@ -386,11 +406,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         }
                     },
                     "scpi_inputs": {
@@ -411,7 +433,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:X?;:CALCulate:MARKer<marker_number>:Y?"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:X?;:CALCulate:MARKer<marker_number>:Y?"
                         }
                     },
                     "scpi_inputs": {
@@ -437,11 +460,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe<trace_number>:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe<trace_number>:DATA?"
                         }
                     },
                     "scpi_inputs": {
@@ -463,7 +488,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRACe:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":TRACe:DATA?"
                         }
                     },
                     "scpi_outputs": {
@@ -480,7 +506,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt?"
                         }
                     },
                     "scpi_outputs": {
@@ -495,7 +522,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STOP?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STOP?"
                         }
                     },
                     "scpi_outputs": {
@@ -510,7 +538,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:CENTer?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer?"
                         }
                     },
                     "scpi_outputs": {
@@ -525,7 +554,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:SPAN?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:SPAN?"
                         }
                     },
                     "scpi_outputs": {
@@ -542,7 +572,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:RESolution?"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution?"
                         }
                     },
                     "scpi_outputs": {
@@ -557,7 +588,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:VIDeo?"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo?"
                         }
                     },
                     "scpi_outputs": {
@@ -572,7 +604,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO?"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO?"
                         }
                     },
                     "scpi_outputs": {
@@ -587,7 +620,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":INITiate:CONTinuous?"
+                            "trigger": false,
+                            "SCPI_value": ":INITiate:CONTinuous?"
                         }
                     },
                     "scpi_outputs": {
@@ -604,7 +638,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:LEVel?"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:LEVel?"
                         }
                     },
                     "scpi_outputs": {
@@ -619,7 +654,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:ATTenuation?"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:ATTenuation?"
                         }
                     },
                     "scpi_outputs": {
@@ -634,7 +670,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:PREamp:STATe?"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:PREamp:STATe?"
                         }
                     },
                     "scpi_outputs": {
@@ -658,7 +695,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:LEVel?;:POWer:RF:ATTenuation?;:POWer:RF:PREamp:STATe?"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:LEVel?;:POWer:RF:ATTenuation?;:POWer:RF:PREamp:STATe?"
                         }
                     },
                     "scpi_outputs": {
@@ -684,7 +722,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
                         }
                     },
                     "scpi_outputs": {
@@ -718,11 +757,13 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
                         },
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:MODE? TRACE1;:TRACe:MODE? TRACE2;:TRACe:MODE? TRACE3;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe:MODE? TRACE1;:TRACe:MODE? TRACE2;:TRACe:MODE? TRACE3;:TRACe:DATA? TRACE1;:TRACe:DATA? TRACE2;:TRACe:DATA? TRACE3"
                         }
                     },
                     "scpi_outputs": {
@@ -766,7 +807,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:AVERage:STATe?;:SENSe:AVERage:COUNt?"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:AVERage:STATe?;:SENSe:AVERage:COUNt?"
                         }
                     },
                     "scpi_outputs": {
@@ -785,7 +827,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?"
+                            "trigger": false,
+                            "SCPI_value": ":TRAC1:MODE?;:TRAC2:MODE?;:TRAC3:MODE?;:TRAC4:MODE?"
                         }
                     },
                     "scpi_outputs": {
@@ -815,7 +858,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer:STATe?;:CALCulate:MARKer:X?;:CALCulate:MARKer:Y?;:CALCulate:MARKer:NUMber?"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer:STATe?;:CALCulate:MARKer:X?;:CALCulate:MARKer:Y?;:CALCulate:MARKer:NUMber?"
                         }
                     },
                     "scpi_outputs": {
@@ -845,7 +889,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SYSTem:ERRor:COUNt?;:SYSTem:ERRor:CODE?;:SYSTem:ERRor:TEXT?"
+                            "trigger": false,
+                            "SCPI_value": ":SYSTem:ERRor:COUNt?;:SYSTem:ERRor:CODE?;:SYSTem:ERRor:TEXT?"
                         }
                     },
                     "scpi_outputs": {
@@ -872,13 +917,11 @@
             "Description2": "It is typically used for complex settings that configure multiple parameters simultaneously, such as setting all marker positions at once.",
             "Frequency": {
                 "rig_center_freq_MHz": {
-                    "label_active": "Center Frequency",
-                    "label_inactive": "Center Frequency",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:CENTer <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:CENTer <hz_value>"
                         }
                     },
                     "scpi_inputs": {
@@ -895,69 +938,75 @@
                     }
                 },
                 "rig_span_freq_MHz": {
-                    "label_active": "Frequency Span",
-                    "label_inactive": "Frequency Span",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:SPAN <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:SPAN <hz_value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "The span value in Hz.",
-                            "type": "_Value",
-                            "description": "The SCPI input for frequency span."
+                    "scpi_input_details": {
+                        "label_active": "Frequency Span",
+                        "label_inactive": "Frequency Span",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "hz_value": {
+                                "value": "1000",
+                                "type": "_Value"
+                            }
                         },
-                        "value": "The desired span frequency.",
-                        "units": "MHz",
+                        "value": "1000",
+                        "units": "Hz",
                         "min": 0,
                         "max": 1000,
                         "step": 0.005
                     }
                 },
                 "rig_start_freq_MHz": {
-                    "label_active": "Start Frequency",
-                    "label_inactive": "Start Frequency",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <hz_value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "The start frequency in Hz.",
-                            "type": "_Value",
-                            "description": "The SCPI input for start frequency."
+                    "scpi_input_details": {
+                        "label_active": "Start Frequency",
+                        "label_inactive": "Start Frequency",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "hz_value": {
+                                "value": "1000",
+                                "type": "_Value"
+                            }
                         },
-                        "value": "The start frequency.",
-                        "units": "MHz",
+                        "value": "1000",
+                        "units": "Hz",
                         "min": 0,
                         "max": 5999,
                         "step": 0.005
                     }
                 },
                 "rig_stop_freq_MHz": {
-                    "label_active": "Stop Frequency",
-                    "label_inactive": "Stop Frequency",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STOP <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STOP <hz_value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "The stop frequency in Hz.",
-                            "type": "_Value",
-                            "description": "The SCPI input for stop frequency."
+                    "scpi_input_details": {
+                        "label_active": "Stop Frequency",
+                        "label_inactive": "Stop Frequency",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "hz_value": {
+                                "value": "2000",
+                                "type": "_Value"
+                            }
                         },
-                        "value": "The stop frequency.",
-                        "units": "MHz",
+                        "value": "2000",
+                        "units": "Hz",
                         "min": 1,
                         "max": 6000,
                         "step": 0.005
@@ -966,20 +1015,23 @@
             },
             "Bandwidth": {
                 "rig_RBW_Hz": {
-                    "label_active": "Resolution Bandwidth",
-                    "label_inactive": "Resolution Bandwidth",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
-                            "type": "_Value",
-                            "description": "The SCPI input for RBW."
+                    "scpi_input_details": {
+                        "label_active": "Resolution Bandwidth",
+                        "label_inactive": "Resolution Bandwidth",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "hz_value": {
+                                "value": "1000000",
+                                "type": "_Value",
+                                "description": "The SCPI input for RBW."
+                            }
                         },
                         "value": "1000000",
                         "units": "Hz",
@@ -989,20 +1041,23 @@
                     }
                 },
                 "rig_VBW_Hz": {
-                    "label_active": "Video Bandwidth",
-                    "label_inactive": "Video Bandwidth",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
-                            "type": "_Value",
-                            "description": "The SCPI input for VBW."
+                    "scpi_input_details": {
+                        "label_active": "Video Bandwidth",
+                        "label_inactive": "Video Bandwidth",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "hz_value": {
+                                "value": "1000000",
+                                "type": "_Value",
+                                "description": "The SCPI input for VBW."
+                            }
                         },
                         "value": "1000000",
                         "units": "Hz",
@@ -1014,20 +1069,23 @@
             },
             "Amplitude": {
                 "rig_Ref_Level_dBm": {
-                    "label_active": "Reference Level",
-                    "label_inactive": "Reference Level",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:LEVel <value>"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:LEVel <value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "value": {
-                            "value": "The reference level in dBm.",
-                            "type": "_Value",
-                            "description": "The SCPI input for reference level."
+                    "scpi_input_details": {
+                        "label_active": "Reference Level",
+                        "label_inactive": "Reference Level",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "value": {
+                                "value": "The reference level in dBm.",
+                                "type": "_Value",
+                                "description": "The SCPI input for reference level."
+                            }
                         },
                         "units": "dBm",
                         "min": -120,
@@ -1036,20 +1094,23 @@
                     }
                 },
                 "rig_Attenuation_dB": {
-                    "label_active": "Power Attenuation",
-                    "label_inactive": "Power Attenuation",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:RF:ATTenuation <value>"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:RF:ATTenuation <value>"
                         }
                     },
-                    "scpi_inputs": {
-                        "value": {
-                            "value": "The attenuation in dB.",
-                            "type": "_Value",
-                            "description": "The SCPI input for power attenuation."
+                    "scpi_input_details": {
+                        "label_active": "Power Attenuation",
+                        "label_inactive": "Power Attenuation",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "value": {
+                                "value": "The attenuation in dB.",
+                                "type": "_Value",
+                                "description": "The SCPI input for power attenuation."
+                            }
                         },
                         "units": "dB",
                         "min": 0,
@@ -1060,19 +1121,22 @@
             },
             "Trace": {
                 "rig_Averaging": {
-                    "label_active": "Averaging Count",
-                    "label_inactive": "Averaging Count",
-                    "type": "_sliderValue",
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:AVERage:COUNt <count_val>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:AVERage:COUNt <count_val>"
                         }
                     },
-                    "scpi_inputs": {
-                        "count_val": {
-                            "value": "100",
-                            "type": "_Value"
+                    "scpi_input_details": {
+                        "label_active": "Averaging Count",
+                        "label_inactive": "Averaging Count",
+                        "type": "_sliderValue",
+                        "scpi_inputs": {
+                            "count_val": {
+                                "value": "100",
+                                "type": "_Value"
+                            }
                         },
                         "value": "100",
                         "units": "count",
@@ -1086,7 +1150,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT"
+                            "trigger": false,
+                            "SCPI_value": "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT"
                         }
                     },
                     "scpi_outputs": {
@@ -1101,7 +1166,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
                         }
                     },
                     "scpi_outputs": {
@@ -1116,7 +1182,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;"
                         }
                     },
                     "scpi_outputs": {
@@ -1131,7 +1198,8 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444"
+                            "trigger": false,
+                            "SCPI_value": ":TRAC1:MODE 111;:TRAC2:MODE 222;:TRAC3:MODE 333;:TRAC4:MODE 444"
                         }
                     },
                     "scpi_inputs": {
@@ -1171,10 +1239,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <SCPI_Input>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Reference Level",
                         "type": "_GuiDropDownOption",
                         "options": {
@@ -1183,175 +1252,200 @@
                                 "label_inactive": "0",
                                 "value": "0",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "2": {
                                 "label_active": "-5",
                                 "label_inactive": "-5",
                                 "value": "-5",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "3": {
                                 "label_active": "-10",
                                 "label_inactive": "-10",
                                 "value": "-10",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "4": {
                                 "label_active": "-15",
                                 "label_inactive": "-15",
                                 "value": "-15",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "5": {
                                 "label_active": "-20",
                                 "label_inactive": "-20",
                                 "value": "-20",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "6": {
                                 "label_active": "-25",
                                 "label_inactive": "-25",
                                 "value": "-25",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "7": {
                                 "label_active": "-30",
                                 "label_inactive": "-30",
                                 "value": "-30",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "8": {
                                 "label_active": "-35",
                                 "label_inactive": "-35",
                                 "value": "-35",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "9": {
                                 "label_active": "-40",
                                 "label_inactive": "-40",
                                 "value": "-40",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "10": {
                                 "label_active": "-45",
                                 "label_inactive": "-45",
                                 "value": "-45",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "11": {
                                 "label_active": "-50",
                                 "label_inactive": "-50",
                                 "value": "-50",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "12": {
                                 "label_active": "-55",
                                 "label_inactive": "-55",
                                 "value": "-55",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "13": {
                                 "label_active": "-60",
                                 "label_inactive": "-60",
                                 "value": "-60",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "14": {
                                 "label_active": "-65",
                                 "label_inactive": "-65",
                                 "value": "-65",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "15": {
                                 "label_active": "-70",
                                 "label_inactive": "-70",
                                 "value": "-70",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "16": {
                                 "label_active": "-75",
                                 "label_inactive": "-75",
                                 "value": "-75",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "17": {
                                 "label_active": "-80",
                                 "label_inactive": "-80",
                                 "value": "-80",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "18": {
                                 "label_active": "-85",
                                 "label_inactive": "-85",
                                 "value": "-85",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "19": {
                                 "label_active": "-90",
                                 "label_inactive": "-90",
                                 "value": "-90",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "20": {
                                 "label_active": "-95",
                                 "label_inactive": "-95",
                                 "value": "-95",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "21": {
                                 "label_active": "-100",
                                 "label_inactive": "-100",
                                 "value": "-100",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "22": {
                                 "label_active": "-105",
                                 "label_inactive": "-105",
                                 "value": "-105",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "23": {
                                 "label_active": "-110",
                                 "label_inactive": "-110",
                                 "value": "-110",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "24": {
                                 "label_active": "-115",
                                 "label_inactive": "-115",
                                 "value": "-115",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "25": {
                                 "label_active": "-120",
                                 "label_inactive": "-120",
                                 "value": "-120",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             }
                         }
                     }
@@ -1364,19 +1458,21 @@
                             "value_off": ":INPut:ATTenuation:AUTO OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Input Auto Attenuation",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Auto ON",
                                 "label_inactive": "Auto ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Auto OFF",
                                 "label_inactive": "Auto OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1389,19 +1485,21 @@
                             "value_off": ":POWer:GAIN OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Power Gain",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Gain ON",
                                 "label_inactive": "Gain ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Gain OFF",
                                 "label_inactive": "Gain OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1419,18 +1517,20 @@
                             "value_off": ":POWer:HSENsitive OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set High Sensitive Power",
                         "options": {
                             "ON": {
                                 "label_active": "High Sensitivity ON",
                                 "label_inactive": "High Sensitivity ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "High Sensitivity OFF",
                                 "label_inactive": "High Sensitivity OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         },
                         "type": "_GuiButtonToggle"
@@ -1440,10 +1540,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":POWer:ATTenuation <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":POWer:ATTenuation <SCPI_Input>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Power Attenuation",
                         "type": "_GuiDropDownOption",
                         "options": {
@@ -1452,56 +1553,64 @@
                                 "label_inactive": "0 dB",
                                 "value": "0",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "2": {
                                 "label_active": "10 dB",
                                 "label_inactive": "10 dB",
                                 "value": "10",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "3": {
                                 "label_active": "20 dB",
                                 "label_inactive": "20 dB",
                                 "value": "20",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "4": {
                                 "label_active": "30 dB",
                                 "label_inactive": "30 dB",
                                 "value": "30",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "5": {
                                 "label_active": "40 dB",
                                 "label_inactive": "40 dB",
                                 "value": "40",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "6": {
                                 "label_active": "50 dB",
                                 "label_inactive": "50 dB",
                                 "value": "50",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "7": {
                                 "label_active": "60 dB",
                                 "label_inactive": "60 dB",
                                 "value": "60",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "8": {
                                 "label_active": "70 dB",
                                 "label_inactive": "70 dB",
                                 "value": "70",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             }
                         }
                     }
@@ -1514,19 +1623,21 @@
                             "value_off": ":POWer:ATTenuation:AUTO OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Power Auto Attenuation",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Auto ON",
                                 "label_inactive": "Auto ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Auto OFF",
                                 "label_inactive": "Auto OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1541,19 +1652,21 @@
                             "value_off": ":SENSe:BANDwidth:RESolution:AUTO OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Resolution Bandwidth (RBW) Auto",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Auto ON",
                                 "label_inactive": "Auto ON",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             },
                             "OFF": {
                                 "label_active": "Auto OFF",
                                 "label_inactive": "Auto OFF",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             }
                         }
                     }
@@ -1566,19 +1679,21 @@
                             "value_off": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Video Bandwidth (VBW) Auto",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Auto ON",
                                 "label_inactive": "Auto ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Auto OFF",
                                 "label_inactive": "Auto OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1588,11 +1703,12 @@
                         
                             "N9340B": {
                                 "type": "_GuiActuator",
-                                "trigger":false, "SCPI_value": ":SENSe:SWEep:TIME:AUTO:MODE <SCPI_Input>"
+                                "trigger": false,
+                                "SCPI_value": ":SENSe:SWEep:TIME:AUTO:MODE <SCPI_Input>"
                             }
                         
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Sweep Mode",
                         "type": "_GuiDropDownOption",
                         "options": {
@@ -1601,14 +1717,16 @@
                                 "label_inactive": "FAST",
                                 "value": "FAST",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "2": {
                                 "label_active": "NORMAL",
                                 "label_inactive": "NORMAL",
                                 "value": "NORMAL",
                                 "active": true,
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             }
                         }
                     }
@@ -1617,10 +1735,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:X:SPACing <SCPI_Input>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:X:SPACing <SCPI_Input>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Sweep Spacing",
                         "type": "_GuiDropDownOption",
                         "options": {
@@ -1629,7 +1748,8 @@
                                 "label_inactive": "LINEAR",
                                 "value": "LINear",
                                 "active": true,
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1644,19 +1764,21 @@
                             }
                         
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Sweep TDMode",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "TDMode ON",
                                 "label_inactive": "TDMode ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "TDMode OFF",
                                 "label_inactive": "TDMode OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1669,19 +1791,21 @@
                             "value_off": ":SENSe:SWEep:TIME:AUTO OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Set Sweep Time Auto",
                         "type": "_GuiButtonToggle",
                         "options": {
                             "ON": {
                                 "label_active": "Auto ON",
                                 "label_inactive": "Auto ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Auto OFF",
                                 "label_inactive": "Auto OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1690,10 +1814,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Video Bandwidth",
                         "label_inactive": "Video Bandwidth",
                         "type": "_sliderValue",
@@ -1701,23 +1826,24 @@
                             "hz_value": {
                                 "value": "1000000",
                                 "type": "_Value"
-                            },
-                            "value": "1000000",
-                            "units": "Hz",
-                            "min": 1,
-                            "max": 10000000,
-                            "step": 1
-                        }
+                            }
+                        },
+                        "value": "1000000",
+                        "units": "Hz",
+                        "min": 1,
+                        "max": 10000000,
+                        "step": 1
                     }
                 },
                 "Set_RBW": {
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Resolution Bandwidth",
                         "label_inactive": "Resolution Bandwidth",
                         "type": "_sliderValue",
@@ -1725,13 +1851,13 @@
                             "hz_value": {
                                 "value": "1000000",
                                 "type": "_Value"
-                            },
-                            "value": "1000000",
-                            "units": "Hz",
-                            "min": 1,
-                            "max": 10000000,
-                            "step": 1
-                        }
+                            }
+                        },
+                        "value": "1000000",
+                        "units": "Hz",
+                        "min": 1,
+                        "max": 10000000,
+                        "step": 1
                     }
                 }
             },
@@ -1740,96 +1866,100 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:FREQuency:CENTer <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:FREQuency:CENTer <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
-                        "label_active": "Center Frequency",
-                        "label_inactive": "Center Frequency",
-                        "type": "_sliderValue",
+                    "scpi_input": {
                         "scpi_inputs": {
                             "hz_value": {
                                 "value": "1000",
                                 "type": "_Value"
-                            },
-                            "value": "1000",
-                            "units": "Hz",
-                            "min": 0,
-                            "max": 6000,
-                            "step": 0.005
-                        }
+                            }
+                        },
+                        "label_active": "Center Frequency",
+                        "label_inactive": "Center Frequency",
+                        "type": "_sliderValue",
+                        "value": "1000",
+                        "units": "Hz",
+                        "min": 0,
+                        "max": 6000,
+                        "step": 0.005
                     }
                 },
                 "Set_Span_Frequency": {
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":SENSe:FREQuency:SPAN <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":SENSe:FREQuency:SPAN <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
-                        "label_active": "Frequency Span",
-                        "label_inactive": "Frequency Span",
-                        "type": "_sliderValue",
+                    "scpi_input": {
                         "scpi_inputs": {
                             "hz_value": {
                                 "value": "1000",
                                 "type": "_Value"
-                            },
-                            "value": "1000",
-                            "units": "Hz",
-                            "min": 0,
-                            "max": 1000,
-                            "step": 0.005
-                        }
+                            }
+                        },
+                        "label_active": "Frequency Span",
+                        "label_inactive": "Frequency Span",
+                        "type": "_sliderValue",
+                        "value": "1000",
+                        "units": "Hz",
+                        "min": 0,
+                        "max": 1000,
+                        "step": 0.005
                     }
                 },
                 "Set_Start_Frequency": {
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STARt <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STARt <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
-                        "label_active": "Start Frequency",
-                        "label_inactive": "Start Frequency",
-                        "type": "_sliderValue",
+                    "scpi_input": {
                         "scpi_inputs": {
                             "hz_value": {
                                 "value": "1000",
                                 "type": "_Value"
-                            },
-                            "value": "1000",
-                            "units": "Hz",
-                            "min": 0,
-                            "max": 5999,
-                            "step": 0.005
-                        }
+                            }
+                        },
+                        "label_active": "Start Frequency",
+                        "label_inactive": "Start Frequency",
+                        "type": "_sliderValue",
+                        "value": "1000",
+                        "units": "Hz",
+                        "min": 0,
+                        "max": 5999,
+                        "step": 0.005
                     }
                 },
                 "Set_Stop_Frequency": {
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":FREQuency:STOP <hz_value>"
+                            "trigger": false,
+                            "SCPI_value": ":FREQuency:STOP <hz_value>"
                         }
                     },
-                    "scpi_input_details": {
-                        "label_active": "Stop Frequency",
-                        "label_inactive": "Stop Frequency",
-                        "type": "_sliderValue",
+                    "scpi_input": {
                         "scpi_inputs": {
                             "hz_value": {
                                 "value": "2000",
                                 "type": "_Value"
-                            },
-                            "value": "2000",
-                            "units": "Hz",
-                            "min": 1,
-                            "max": 6000,
-                            "step": 0.005
-                        }
+                            }
+                        },
+                        "label_active": "Stop Frequency",
+                        "label_inactive": "Stop Frequency",
+                        "type": "_sliderValue",
+                        "value": "2000",
+                        "units": "Hz",
+                        "min": 1,
+                        "max": 6000,
+                        "step": 0.005
                     }
                 },
                 "Set_Sweep_Time": {
@@ -1837,11 +1967,12 @@
                         
                             "N9340B": {
                                 "type": "_GuiActuator",
-                                "trigger":false, "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
+                                "trigger": false,
+                                "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
                             }
                         
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Sweep Time",
                         "label_inactive": "Sweep Time",
                         "type": "_sliderValue",
@@ -1849,10 +1980,10 @@
                             "time_s": {
                                 "value": "3",
                                 "type": "_Value"
-                            },
-                            "value": "3",
-                            "units": "s"
-                        }
+                            }
+                        },
+                        "value": "3",
+                        "units": "s"
                     }
                 }
             },
@@ -1865,7 +1996,7 @@
                             "value_off": ":INITiate:CONTinuous OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Continuous Scan",
                         "label_inactive": "Continuous Scan",
                         "type": "_GuiButtonToggle",
@@ -1873,12 +2004,14 @@
                             "ON": {
                                 "label_active": "Continuous ON",
                                 "label_inactive": "Continuous ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Continuous OFF",
                                 "label_inactive": "Continuous OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1887,10 +2020,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":INITiate:IMMediate"
+                            "trigger": false,
+                            "SCPI_value": ":INITiate:IMMediate"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Immediate Scan",
                         "type": "_GuiButton"
                     }
@@ -1905,7 +2039,7 @@
                             "value_off": ":CALCulate:MARKer<marker_number>:STATe OFF"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Set Marker State",
                         "label_inactive": "Set Marker State",
                         "type": "_GuiButtonToggle",
@@ -1919,12 +2053,14 @@
                             "ON": {
                                 "label_active": "Marker ON",
                                 "label_inactive": "Marker ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "Marker OFF",
                                 "label_inactive": "Marker OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1937,7 +2073,7 @@
                             "value_off": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Set All Marker States",
                         "label_inactive": "Set All Marker States",
                         "type": "_GuiButtonToggle",
@@ -1945,12 +2081,14 @@
                             "ON": {
                                 "label_active": "All Markers ON",
                                 "label_inactive": "All Markers ON",
-                                "trigger":false, "selected": false
+                                "trigger": false,
+                                "selected": false
                             },
                             "OFF": {
                                 "label_active": "All Markers OFF",
                                 "label_inactive": "All Markers OFF",
-                                "trigger":false, "selected": true
+                                "trigger": false,
+                                "selected": true
                             }
                         }
                     }
@@ -1959,10 +2097,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:X <x_value>"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:X <x_value>"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Set Marker X-position",
                         "label_inactive": "Set Marker X-position",
                         "type": "_sliderValue",
@@ -1974,20 +2113,21 @@
                             "x_value": {
                                 "value": "111111",
                                 "type": "_Value"
-                            },
-                            "value": "111111",
-                            "units": "Hz"
-                        }
+                            }
+                        },
+                        "value": "111111",
+                        "units": "Hz"
                     }
                 },
                 "Search_Max_Peak": {
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:MAX"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Search Max Peak",
                         "scpi_inputs": {
                             "marker_number": {
@@ -2001,10 +2141,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
+                            "trigger": false,
+                            "SCPI_value": ":CALCulate:MARKer<marker_number>:NEXT"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Search Next Peak",
                         "scpi_inputs": {
                             "marker_number": {
@@ -2020,7 +2161,7 @@
                             "type": "_GuiActuator"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label": "Search All Peaks",
                         "type": "_GuiButton"
                     }
@@ -2031,10 +2172,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":MMEMory:STORe:STATe"
+                            "trigger": false,
+                            "SCPI_value": ":MMEMory:STORe:STATe"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Store Preset",
                         "label_inactive": "Store Preset",
                         "scpi_inputs": {
@@ -2049,10 +2191,11 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger":false, "SCPI_value": ":MMEMory:LOAD:STATe"
+                            "trigger": false,
+                            "SCPI_value": ":MMEMory:LOAD:STATe"
                         }
                     },
-                    "scpi_input_details": {
+                    "scpi_input": {
                         "label_active": "Load Preset",
                         "label_inactive": "Load Preset",
                         "scpi_inputs": {

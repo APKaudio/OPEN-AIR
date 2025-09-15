@@ -164,8 +164,22 @@ class YaketyYakManager:
         )
 
         try:
-            # Check for the word "Trigger" in the topic or payload
-            if "trigger" in topic.lower() or "trigger" in payload.lower():
+            # Attempt to parse payload as JSON
+            try:
+                parsed_payload = json.loads(payload)
+            except json.JSONDecodeError:
+                # If it's not valid JSON, treat it as an empty dictionary for the check.
+                parsed_payload = {}
+                
+            # Check for a "trigger" in the topic AND the value being explicitly True
+            if "trigger" in topic.lower() and isinstance(parsed_payload, dict) and parsed_payload.get('value', False) is True:
+                debug_log(
+                    message="🐐🐐🐐🟢 Trigger event detected with a 'true' value. Initiating command orchestration!",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 YAK_TRIGGER_COMMAND(self, topic, payload)
 
             # Deconstruct the topic to form the nested path in our repository
@@ -178,16 +192,11 @@ class YaketyYakManager:
                 current_node = current_node.setdefault(part, {})
             
             last_key = path_parts[-1]
-            try:
-                # Attempt to parse payload as JSON
-                parsed_payload = json.loads(payload)
-                # Check if the payload is a dictionary containing a 'value' key
-                if isinstance(parsed_payload, dict) and 'value' in parsed_payload:
-                    value = parsed_payload['value']
-                else:
-                    value = parsed_payload
-            except json.JSONDecodeError:
-                # If it's not valid JSON, treat the whole payload as the value
+            
+            # Determine the value to be stored in the repository
+            if isinstance(parsed_payload, dict) and 'value' in parsed_payload:
+                value = parsed_payload['value']
+            else:
                 value = payload
             
             # REFINEMENT: Remove leading and trailing double quotes if they exist
