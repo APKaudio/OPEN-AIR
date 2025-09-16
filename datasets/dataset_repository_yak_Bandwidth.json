@@ -131,21 +131,16 @@
                         "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
                     }
                 },
-                "scpi_input_details": {
-                   
+                
                     "scpi_inputs": {
                         "hz_value": {
                             "value": "1000000",
                             "type": "_Value",
                             "description": "The SCPI input for VBW."
                         }
-                    },
-                    "value": "1000000",
-                    "units": "Hz",
-                    "min": 1,
-                    "max": 10000000,
-                    "step": 1
-                }
+                    }
+            
+                
             }
         },
         "set": {

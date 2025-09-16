@@ -1,10 +1,32 @@
 {
 
         "beg": {
+            
+            "Do_All_Marker_States On": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;"
+                     
+                    }
+                
+                }
+            },
+            "Do_All_Marker_States OFF": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
+                     
+                    }
+                
+                }
+            },
+            
             "Beg_marker_setup": {
-                "label_active": "Setup Markers",
-                "label_inactive": "Setup Markers",
-                "type": "_GuiButton",
+
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -184,34 +206,6 @@
                     }
                 }
             },
-            "Set_All_Marker_States": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "value_on": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;",
-                        "value_off": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
-                    }
-                },
-                "scpi_input": {
-                    "label_active": "Set All Marker States",
-                    "label_inactive": "Set All Marker States",
-                    "type": "_GuiButtonToggle",
-                    "options": {
-                        "ON": {
-                            "label_active": "All Markers ON",
-                            "label_inactive": "All Markers ON",
-                            "trigger": false,
-                            "selected": false
-                        },
-                        "OFF": {
-                            "label_active": "All Markers OFF",
-                            "label_inactive": "All Markers OFF",
-                            "trigger": false,
-                            "selected": true
-                        }
-                    }
-                }
-            },
             "Set_Marker_X-position": {
                 "scpi_details": {
                     "generic_model": {
@@ -221,9 +215,7 @@
                     }
                 },
                 "scpi_input": {
-                    "label_active": "Set Marker X-position",
-                    "label_inactive": "Set Marker X-position",
-                    "type": "_Value",                    "scpi_inputs": {
+                    "scpi_inputs": {
                         "marker_number": {
                             "value": "1",
                             "type": "_Value"
@@ -232,9 +224,7 @@
                             "value": "111111",
                             "type": "_Value"
                         }
-                    },
-                    "value": "111111",
-                    "units": "Hz"
+                    }
                 }
             },
             "Search_Max_Peak": {

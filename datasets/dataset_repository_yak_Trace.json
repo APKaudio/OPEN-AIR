@@ -290,21 +290,14 @@
                         "SCPI_value": ":SENSe:AVERage:COUNt <count_val>"
                     }
                 },
-                "scpi_input_details": {
-                    "label_active": "Averaging Count",
-                    "label_inactive": "Averaging Count",
-                    "type": "_Value",                    "scpi_inputs": {
+                 "scpi_inputs": {
                         "count_val": {
                             "value": "100",
                             "type": "_Value"
                         }
-                    },
-                    "value": "100",
-                    "units": "count",
-                    "min": 1,
-                    "max": 1000,
-                    "step": 1
-                }
+                    }
+             
+                
             },
             "rig_all_peak_search": {
                 "label": "Search All Peaks",
@@ -322,7 +315,7 @@
                     }
                 }
             },
-            "rig_all_markers_off": {
+            "Do_all_markers_off": {
                 "label": "Turn All Markers OFF",
                 "scpi_details": {
                     "generic_model": {
@@ -330,12 +323,8 @@
                         "trigger": false,
                         "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
                     }
-                },
-                "scpi_outputs": {
-                    "status": {
-                        "value": "PASSED or FAILED",
-                        "type": "_Value"
-                    }
+    
+    
                 }
             },
             "rig_all_markers_on": {

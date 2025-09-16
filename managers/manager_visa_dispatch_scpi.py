@@ -68,13 +68,7 @@ class ScpiDispatcher:
                 console_print_func=self._print_to_gui_console
             )
 
-    def get_model(self):
-        """Returns the instrument model string."""
-        return self.model
-
-    def get_manufacturer(self):
-        """Returns the instrument manufacturer string."""
-        return self.manufacturer
+   
 
     def set_instrument_instance(self, inst):
         """

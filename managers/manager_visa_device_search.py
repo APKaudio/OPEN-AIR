@@ -317,7 +317,7 @@ def connect_to_instrument(resource_name, console_print_func=None):
     try:
         rm = pyvisa.ResourceManager()
         inst = rm.open_resource(resource_name)
-        inst.timeout = 10000
+        inst.timeout = 5000
         inst.read_termination = '\n'
         inst.write_termination = '\n'
         inst.query_delay = 0.1
