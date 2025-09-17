@@ -1,85 +1,5 @@
 {
-   "rig": {
-            "rig_Averaging": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":AVERage:TRACE ON;:SENSe:AVERage:COUNt <count_val>"
-                    }
-                },
-                 "scpi_inputs": {
-                        "count_val": {
-                            "value": "100",
-                            "type": "_Value"
-                        }
-                    }
-             
-                
-            },
-          
-            "rig_trace_modes": {
-
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
-                    }
-                },
-                "scpi_inputs": {
-                    "mode1": {
-                        "value": "WRITE",
-                        "type": "_Value"
-                    },
-                    "mode2": {
-                        "value": "MAXHOLD",
-                        "type": "_Value"
-                    },
-                    "mode3": {
-                        "value": "MINHOLD",
-                        "type": "_Value"
-                    },
-                    "mode4": {
-                        "value": "BLANK",
-                        "type": "_Value"
-                    }
-                }
-                
-            }
-        },
-        "beg": {
-
-            "Beg__trace_data": {
-                
-                "scpi_details": {
-                    "N9340B": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":TRACe<trace_number>:DATA?"
-                    },
-                    "N9342CN": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":TRACe:DATA? TRACE<trace_number>"
-                    }
-                },
-                "scpi_inputs": {
-                    "trace_number": {
-                        "value": "1",
-                        "type": "_Value"
-                    }
-                },
-                "scpi_outputs": {
-                    "trace_data": {
-                        "value": "A list of lists of processed trace data or False on failure.",
-                        "type": "_Value"
-                    }
-                }
-            }
-        },
-        
-        "nab": {
+      "nab": {
             "NAB_traces_1_2_3": {
                 "scpi_details": {
                     "N9340B": {
@@ -176,8 +96,99 @@
                     }
                 }
             }
+        },"rig": {
+            "rig_Averaging": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":AVERage:TRACE ON;:SENSe:AVERage:COUNt <count_val>"
+                    }
+                },
+                 "scpi_inputs": {
+                        "count_val": {
+                            "value": "100",
+                            "type": "_Value"
+                        }
+                    }
+             
+                
+            },
+          
+            "rig_trace_modes": {
+
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
+                    }
+                },
+                "scpi_inputs": {
+                    "mode1": {
+                        "value": "WRITE",
+                        "type": "_Value"
+                    },
+                    "mode2": {
+                        "value": "MAXHOLD",
+                        "type": "_Value"
+                    },
+                    "mode3": {
+                        "value": "MINHOLD",
+                        "type": "_Value"
+                    },
+                    "mode4": {
+                        "value": "BLANK",
+                        "type": "_Value"
+                    }
+                }
+                
+            }
         },
+        "beg": {
+
+            "Beg__trace_data": {
+                
+                "scpi_details": {
+                    "N9340B": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":TRACe<trace_number>:DATA?"
+                    },
+                    "N9342CN": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":TRACe:DATA? TRACE<trace_number>"
+                    }
+                },
+                "scpi_inputs": {
+                    "trace_number": {
+                        "value": "1",
+                        "type": "_Value"
+                    }
+                },
+                "scpi_outputs": {
+                    "trace_data": {
+                        "value": "A list of lists of processed trace data or False on failure.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        
+     
         "do": {
+                 "Do_Averaging_off": {
+
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":AVERage:TRACE OFF"
+                    }
+                }
+                
+            },
             "Do_Trace_Data_Format": {
                 "scpi_details": {
                     "N9340B": {
@@ -199,7 +210,7 @@
                 }
             },
             "rig_Trace_Mode": {
-                
+
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",

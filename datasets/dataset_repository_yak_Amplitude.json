@@ -139,7 +139,7 @@
                     "Power_Attenuation":{
                         "type": "_Value",
 
-                        "value": "10"}
+                        "value": "20"}
                 }
             },
             

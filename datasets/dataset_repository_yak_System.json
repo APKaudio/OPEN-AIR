@@ -32,7 +32,17 @@
     }
 }
         },
-        "do": {
+          "Do_Update_Display": {
+
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":SYSTem:DISPlay:UPDate"
+                    }
+                }
+            },
+            "do": {
 
             "Do_Clear_Device": {
 
@@ -67,19 +77,10 @@
                     }
                 
                 }
-            },
+            }
             
            
-            "Do_Update_Display": {
-
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SYSTem:DISPlay:UPDate"
-                    }
-                }
-            }
+          
         }
         
     }

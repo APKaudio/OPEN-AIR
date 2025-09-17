@@ -40,12 +40,12 @@
                 },
                 "scpi_inputs": {
                     "center_freq": {
-                        "value": "111",
+                        "value": "11111111",
                         "type": "_Value",
                         "description": "The SCPI input for center frequency."
                     },
                     "span_freq": {
-                        "value": "222",
+                        "value": "222222",
                         "type": "_Value",
                         "description": "The SCPI input for span frequency."
                     }
@@ -73,12 +73,12 @@
                 },
                 "scpi_inputs": {
                     "start_freq": {
-                        "value": "11100",
+                        "value": "123456789",
                         "type": "_Value",
                         "description": "The SCPI input for start frequency."
                     },
                     "stop_freq": {
-                        "value": "222000",
+                        "value": "987654321",
                         "type": "_Value",
                         "description": "The SCPI input for stop frequency."
                     }
@@ -174,7 +174,7 @@
                 },
                 "scpi_inputs": {
                     "hz_value": {
-                        "value": "123456",
+                        "value": "12345678",
                         "type": "_Value",
                         "description": "The SCPI input for center frequency."
                     }
@@ -191,7 +191,7 @@
                 },
               "scpi_inputs": {
                         "hz_value": {
-                            "value": "1000",
+                            "value": "12345678",
                             "type": "_Value"
                         }
                     }
@@ -207,7 +207,7 @@
                 },
                  "scpi_inputs": {
                         "hz_value": {
-                            "value": "1000",
+                            "value": "12345678",
                             "type": "_Value"
                         }
                     }
@@ -222,31 +222,14 @@
                 },
                 "scpi_inputs": {
                         "hz_value": {
-                            "value": "2000",
+                            "value": "987654321",
                             "type": "_Value"
                         }
                     }
             
         
         
-            },
-            "Set_Sweep_Time": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
-                    }
-                },
-                "scpi_inputs": {
-                    
-                        "time_s": {
-                            "value": "3",
-                            "type": "_Value"
-                        }
-                    }
-                    
-                }
+            }
             }
         }
     
