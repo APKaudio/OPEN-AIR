@@ -125,6 +125,23 @@
                     }
                     }
                 },
+                
+            "Set_Power_Attenuation": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":POWer:ATTenuation <Power_Attenuation>"
+                    }},
+                
+                "scpi_inputs": {
+
+                    "Power_Attenuation":{
+                        "type": "_value",
+                                   
+                        "value": "10"}
+                }
+            },
             
             "Set_Input_Auto_Attenuation_ON": {
                 "scpi_details": {
@@ -203,22 +220,6 @@
                 
                 
                 
-            },
-            "Set_Power_Attenuation": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":POWer:ATTenuation <Power_Attenuation>"
-                    }},
-                
-                "scpi_input": {
-
-                    "Power_Attenuation":{
-                        "type": "_value",
-                        "trigger": false,                 
-                        "value": "10"}
-                }
             }
 
             }
