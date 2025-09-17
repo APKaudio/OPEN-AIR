@@ -1,7 +1,7 @@
 {
 
-        "nab": {
-            "NAB_error_information": {
+        "Get": {
+            "Get_error_information": {
 
                 "scpi_details": {
                     "generic_model": {
@@ -16,7 +16,7 @@
                         "type": "_Value"
                     }
                 }
-            },"NAB_identification_query": {
+            },"Get_identification_query": {
     "scpi_details": {
         "generic_model": {
             "type": "_GuiActuator",
@@ -45,7 +45,7 @@
                 
                 }
             },
-            "Do_Hard_Reset": {
+            "Do_Reset": {
 
                 "scpi_details": {
                     "generic_model": {
@@ -57,7 +57,7 @@
             },
             
 
-            "Do_Power_Cycle_Device": {
+            "Do_Power_Cycle": {
 
                 "scpi_details": {
                     "generic_model": {
@@ -69,16 +69,7 @@
                 }
             },
             
-            "Do_Soft_Reset": {
-
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SYSTem:RESet"
-                    }
-                }
-            },
+           
             "Do_Update_Display": {
 
                 "scpi_details": {

@@ -1,7 +1,4 @@
-{
-    
-
-       
+{         
         "nab": {
             "NAB_bandwidth_settings": {
 
@@ -37,38 +34,25 @@
             }
         },
         "rig": {
-            "rig_RBW_Hz": {
+            "rig_RBW_VBW_Hz": {
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
+                        "SCPI_value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
                     }
                 },
 
                     
                     "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
+                        "rbw_hz_value": {
+                            "value": "100000",
                             "type": "_Value",
                             "description": "The SCPI input for RBW."
-                        }
-                    
+                        },
 
-                }
-            },
-            "rig_VBW_Hz": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
-                    }
-                },
-                
-                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
+                        "vbw_hz_value": {
+                            "value": "100000",
                             "type": "_Value",
                             "description": "The SCPI input for VBW."
                         }
@@ -78,201 +62,107 @@
             }
         },
         "set": {
-            "Set_Resolution_Bandwidth_(RBW)_Auto ON": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO ON"
-                        
-                    }
-                
+       
+        "Set_Sweep_time": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:SWEep:TIME <sweep_time_s>"
                 }
             },
-            "Set_Resolution_Bandwidth_(RBW)_Auto OFF": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
-                        
-                    }
-                
-                }                
-            },
-            "Set_Video_Bandwidth_(VBW)_Auto_on": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
-                        
-                    }
+            "scpi_inputs": {
+                "sweep_time_s": {
+                    "value": "4",
+                    "type": "_Value"
                 }
-               
-            },
-            "Set_Video_Bandwidth_(VBW)_Auto_OFF": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                                                "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
-                    }
-                }
-               
-            },
-            "Set_Sweep_Mode": {
-                "scpi_details": {
-                    "N9340B": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:SWEep:TIME:AUTO:MODE <SCPI_Input>"
-                    }
-                },
-                "scpi_input": {
-                    "label": "Set Sweep Mode",
-                    "type": "_GuiDropDownOption",
-                    "options": {
-                        "1": {
-                            "label_active": "FAST",
-                            "label_inactive": "FAST",
-                            "value": "FAST",
-                            "active": true,
-                            "trigger": false,
-                            "selected": false
-                        },
-                        "2": {
-                            "label_active": "NORMAL",
-                            "label_inactive": "NORMAL",
-                            "value": "NORMAL",
-                            "active": true,
-                            "trigger": false,
-                            "selected": false
-                        }
-                    }
+            }
+        },
+        "Set_VBW": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
                 }
             },
-            "Set_Sweep_Spacing": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:X:SPACing <SCPI_Input>"
-                    }
-                },
-                "scpi_input": {
-                    "label": "Set Sweep Spacing",
-                    "type": "_GuiDropDownOption",
-                    "options": {
-                        "1": {
-                            "label_active": "LINEAR",
-                            "label_inactive": "LINEAR",
-                            "value": "LINear",
-                            "active": true,
-                            "trigger": false,
-                            "selected": true
-                        }
-                    }
-                }
-            },
-            "Set_Sweep_TDMode_(N9340B)": {
-                "scpi_details": {
-                    "N9340B": {
-                        "type": "_GuiActuator",
-                        "value_on": ":SENSe:SWEep:TDMode ON",
-                        "value_off": ":SENSe:SWEep:TDMode OFF"
-                    }
-                },
-                "scpi_input": {
-                    "label": "Set Sweep TDMode",
-                    "type": "_GuiButtonToggle",
-                    "options": {
-                        "ON": {
-                            "label_active": "TDMode ON",
-                            "label_inactive": "TDMode ON",
-                            "trigger": false,
-                            "selected": false
-                        },
-                        "OFF": {
-                            "label_active": "TDMode OFF",
-                            "label_inactive": "TDMode OFF",
-                            "trigger": false,
-                            "selected": true
-                        }
-                    }
-                }
-            },
-            "Set_Sweep_Time_Auto": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "value_on": ":SENSe:SWEep:TIME:AUTO ON",
-                        "value_off": ":SENSe:SWEep:TIME:AUTO OFF"
-                    }
-                },
-                "scpi_input": {
-                    "label": "Set Sweep Time Auto",
-                    "type": "_GuiButtonToggle",
-                    "options": {
-                        "ON": {
-                            "label_active": "Auto ON",
-                            "label_inactive": "Auto ON",
-                            "trigger": false,
-                            "selected": false
-                        },
-                        "OFF": {
-                            "label_active": "Auto OFF",
-                            "label_inactive": "Auto OFF",
-                            "trigger": false,
-                            "selected": true
-                        }
-                    }
-                }
-            },
-            "Set_VBW": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
-                    }
-                },
-                "scpi_input": {
-                    "label_active": "Video Bandwidth",
-                    "label_inactive": "Video Bandwidth",
-                    "type": "_Value",                
-                        "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
-                            "type": "_Value"
-                        }
-                    },
+            "scpi_inputs": {
+                "hz_value": {
                     "value": "1000000",
-                    "units": "Hz",
-                    "min": 1,
-                    "max": 10000000,
-                    "step": 1
+                    "type": "_Value"
+                }
+            }
+        },
+        "Set_RBW": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
                 }
             },
-            "Set_RBW": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
-                    }
-                },
-                "scpi_input": {
-                    "label_active": "Resolution Bandwidth",
-                    "label_inactive": "Resolution Bandwidth",
-                    "type": "_Value",                    "scpi_inputs": {
-                        "hz_value": {
-                            "value": "1000000",
-                            "type": "_Value"
-                        }
-                    },
+            "scpi_inputs": {
+                "hz_value": {
                     "value": "1000000",
-                    "units": "Hz",
-                    "min": 1,
-                    "max": 10000000,
-                    "step": 1
+                    "type": "_Value"
+                }
+            }
+        },
+    "Do":{
+        "Do_Sweep_Time_Auto_ON": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:SWEep:TIME:AUTO ON"
+                }
+            }
+        },
+        "Do_Sweep_Time_Auto_OFF": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:SWEep:TIME:AUTO OFF"
+                }
+            }
+        }
+    },
+        "do_Video_Bandwidth_Auto_ON": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
+                }
+            }
+        },
+        "do_Video_Bandwidth_Auto_OFF": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
+                }
+            }
+        },
+           "Set_Resolution_Bandwidth_Auto_ON": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO ON"
+                }
+            }
+        },
+        "Set_Resolution_Bandwidth_Auto_OFF": {
+            "scpi_details": {
+                "generic_model": {
+                    "type": "_GuiActuator",
+                    "trigger": false,
+                    "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
                 }
             }
         }
     }
+}
