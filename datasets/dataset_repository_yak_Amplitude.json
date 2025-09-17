@@ -121,7 +121,7 @@
                     
                       "type": "_Value",
 
-                    "Value": "0"
+                    "value": "-40"
                     }
                     }
                 },
@@ -137,8 +137,8 @@
                 "scpi_inputs": {
 
                     "Power_Attenuation":{
-                        "type": "_value",
-                                   
+                        "type": "_Value",
+
                         "value": "10"}
                 }
             },
@@ -148,7 +148,7 @@
                     "generic_model": {
                         "trigger": false,
                         "type": "_GuiActuator",
-                        "SCPI_value": ":INPut:ATTenuation:AUTO ON"
+                        "SCPI_value": ":POWer:ATTenuation:AUTO ON"
                         
                     }
                 },
@@ -158,7 +158,7 @@
                          "generic_model": {
                              "type": "_GuiActuator",
                                 "trigger": false,
-                            "SCPI_value": ":INPut:ATTenuation:AUTO OFF"
+                            "SCPI_value": ":POWer:ATTenuation:AUTO OFF"
                     }
                 
                 
