@@ -97,7 +97,43 @@
                         "type": "_Value"
                     }
                 }
+            },            "Do_Immediate_Scan": {
+
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":INITIATE:IMMEDIATE"
+                    }
+                }
+                
+            }, 
+            "Set_Continuous_Scan_On": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":INITiate:CONTinuous ON"
+                        
+                    }
+                
+                
+                }
+            },
+            "Set_Continuous_Scan_OFF": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":INITiate:CONTinuous OFF"
+                        
+                    }
+                
+                
+                }
             }
+            
+        
         },
         "get": {
             "Get_Single_Trace_Data": {
