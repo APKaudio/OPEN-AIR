@@ -2,10 +2,7 @@
 
         "beg": {
             "Beg_Trace_Mode": {
-                "label_active": "Trace Mode",
-                "label_inactive": "Trace Mode",
                 
-                "value": "The trace modes for all traces.",
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -33,9 +30,7 @@
                 }
             },
             "Beg__trace_data": {
-                "label_active": "Get Trace Data",
-                "label_inactive": "Get Trace Data",
-                "type": "_GuiButton",
+                
                 "scpi_details": {
                     "N9340B": {
                         "type": "_GuiActuator",
@@ -64,13 +59,11 @@
         },
         "do": {
             "Do_Trace_Data_Format": {
-                "label_active": "Set Trace Data Format",
-                "label_inactive": "Set Trace Data Format",
                 "scpi_details": {
                     "N9340B": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":FORMat:DATA <ASCI>"
+                        "SCPI_value": ":FORMat:DATA <SCPI_Input>"
                     },
                     "N9342CN": {
                         "type": "_GuiActuator",
@@ -86,13 +79,12 @@
                 }
             },
             "Do_Trace_Mode": {
-                "label_active": "Set Trace Mode",
-                "label_inactive": "Set Trace Mode",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":TRAC<trace_number>:MODE <SCPI_Input>"
+                        "SCPI_value": ":TRAC<trace_number>:MODE <Trace_Mode>"
                     }
                 },
                 "scpi_inputs": {
@@ -100,7 +92,7 @@
                         "value": "1",
                         "type": "_Value"
                     },
-                    "SCPI_Input": {
+                    "Trace_Mode": {
                         "value": "WRITe",
                         "type": "_Value"
                     }
@@ -136,7 +128,7 @@
                 }
             },
             "Get_Trace_Data_Array": {
-                "label": "Get Trace Data Array",
+                
                 "scpi_details": {
                     "N9340B": {
                         "type": "_GuiActuator",
@@ -164,7 +156,7 @@
                 }
             },
             "Get_Current_Trace_Data": {
-                "label": "Get Current Trace Data",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -182,8 +174,6 @@
         },
         "nab": {
             "NAB_all_traces": {
-                "label_active": "Get All Trace Data",
-                "label_inactive": "Get All Trace Data",
                 "scpi_details": {
                     "N9340B": {
                         "type": "_GuiActuator",
@@ -299,50 +289,7 @@
              
                 
             },
-            "rig_all_peak_search": {
-                "label": "Search All Peaks",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": "CALCulate:MARKer1:MAXimum; :CALCulate:MARKer2:MAXimum:LEFT; :CALCulate:MARKer3:MAXimum:RIGHt; :CALCulate:MARKer4:MAXimum:LEFT; :CALCulate:MARKer5:MAXimum:RIGHt; :CALCulate:MARKer6:MAXimum:LEFT"
-                    }
-                },
-                "scpi_outputs": {
-                    "status": {
-                        "value": "PASSED or FAILED",
-                        "type": "_Value"
-                    }
-                }
-            },
-            "Do_all_markers_off": {
-                "label": "Turn All Markers OFF",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":CALCulate:MARKer1:STATe OFF; :CALCulate:MARKer2:STATe OFF; :CALCulate:MARKer3:STATe OFF; :CALCulate:MARKer4:STATe OFF; :CALCulate:MARKer5:STATe OFF; :CALCulate:MARKer6:STATe OFF;"
-                    }
-    
-    
-                }
-            },
-            "rig_all_markers_on": {
-                "label": "Turn All Markers ON",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":CALCulate:MARKer1:STATe ON; :CALCulate:MARKer2:STATe ON; :CALCulate:MARKer3:STATe ON; :CALCulate:MARKer4:STATe ON; :CALCulate:MARKer5:STATe ON; :CALCulate:MARKer6:STATe ON;"
-                    }
-                },
-                "scpi_outputs": {
-                    "status": {
-                        "value": "PASSED or FAILED",
-                        "type": "_Value"
-                    }
-                }
-            },
+          
             "rig_trace_modes": {
                 "label": "Set Trace Modes",
                 "scpi_details": {
@@ -369,13 +316,8 @@
                         "value": "BLANK",
                         "type": "_Value"
                     }
-                },
-                "scpi_outputs": {
-                    "status": {
-                        "value": "PASSED or FAILED",
-                        "type": "_Value"
-                    }
                 }
+                
             }
         }
     }

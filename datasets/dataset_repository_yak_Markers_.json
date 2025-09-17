@@ -1,5 +1,36 @@
 {
 
+        "nab": {
+            "NAB_all_marker_settings": {
+                "label_active": "Get All Marker Settings",
+                "label_inactive": "Get All Marker Settings",
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":CALCulate:MARKer:STATe?;:CALCulate:MARKer:X?;:CALCulate:MARKer:Y?;:CALCulate:MARKer:NUMber?"
+                    }
+                },
+                "scpi_outputs": {
+                    "Marker_On": {
+                        "value": "Boolean for marker state.",
+                        "type": "_Value"
+                    },
+                    "Marker_Freq_Hz": {
+                        "value": "The marker frequency in Hz.",
+                        "type": "_Value"
+                    },
+                    "Marker_Amplitude_dBm": {
+                        "value": "The marker amplitude in dBm.",
+                        "type": "_Value"
+                    },
+                    "Marker_Number": {
+                        "value": "The current marker number.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
         "beg": {
             
             "Do_All_Marker_States On": {
@@ -59,13 +90,9 @@
                         "value": "666",
                         "type": "_Value"
                     }
-                },
-                "scpi_outputs": {
-                    "status": {
-                        "value": "PASSED or FAILED.",
-                        "type": "_Value"
-                    }
                 }
+     
+     
             }
         },
         "do": {
@@ -135,37 +162,6 @@
                     },
                     "amplitude_dBm": {
                         "value": "The amplitude of the marker in dBm.",
-                        "type": "_Value"
-                    }
-                }
-            }
-        },
-        "nab": {
-            "NAB_all_marker_settings": {
-                "label_active": "Get All Marker Settings",
-                "label_inactive": "Get All Marker Settings",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":CALCulate:MARKer:STATe?;:CALCulate:MARKer:X?;:CALCulate:MARKer:Y?;:CALCulate:MARKer:NUMber?"
-                    }
-                },
-                "scpi_outputs": {
-                    "Marker_On": {
-                        "value": "Boolean for marker state.",
-                        "type": "_Value"
-                    },
-                    "Marker_Freq_Hz": {
-                        "value": "The marker frequency in Hz.",
-                        "type": "_Value"
-                    },
-                    "Marker_Amplitude_dBm": {
-                        "value": "The marker amplitude in dBm.",
-                        "type": "_Value"
-                    },
-                    "Marker_Number": {
-                        "value": "The current marker number.",
                         "type": "_Value"
                     }
                 }

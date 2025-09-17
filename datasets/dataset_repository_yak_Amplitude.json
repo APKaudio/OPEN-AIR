@@ -1,5 +1,60 @@
 {
 
+        "nab": {
+            "NAB_amplitude_settings": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
+                    }
+                },
+                "scpi_outputs": {
+                    "Ref_Level_dBm": {
+                        "value": "The reference level in dBm.",
+                        "type": "_Value"
+                    },
+                    "Attenuation_dB": {
+                        "value": "The attenuation in dB.",
+                        "type": "_Value"
+                    },
+                    "Preamp_On": {
+                        "value": "Boolean for preamp state.",
+                        "type": "_Value"
+                    }
+                }
+            }
+        },
+        "rig": {
+            "rig_Ref_Level_dBm": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
+                    }
+                },
+                "scpi_inputs": {
+                        "Ref_Level_dBm": {
+                            "value": "-45",
+                            "type": "_Value",
+                            "description": "The SCPI input for reference level."
+                        },
+
+                        "Attenuation_dB": {
+                            "value": "10",
+                            "type": "_Value",
+                            "description": "The SCPI input for power attenuation."
+                        },
+                        "Preamp_On": {
+                            "value": "1",
+                            "type": "_Value",
+                            "description": "The SCPI input for power attenuation."
+                        }
+                   
+                }
+            }
+        },
         "get": {
             "Get_Reference_Level": {
                 
@@ -7,7 +62,8 @@
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":POWer:RF:LEVel?"
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
+
                     }
                 },
                 "scpi_outputs": {
@@ -36,10 +92,11 @@
             "Get_Preamp_State": {
                 
                 "scpi_details": {
-                    "generic_model": {
+
+                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":POWer:RF:PREamp:STATe?"
+                        "SCPI_value": ":SENSE:POWer:RF:GAIN:STATe?"
                     }
                 },
                 "scpi_outputs": {
@@ -47,69 +104,6 @@
                         "value": "Boolean for preamp state.",
                         "type": "_Value"
                     }
-                }
-            }
-        },
-        "nab": {
-            "NAB_amplitude_settings": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":POWer:RF:LEVel?;:POWer:RF:ATTenuation?;:POWer:RF:PREamp:STATe?"
-                    }
-                },
-                "scpi_outputs": {
-                    "Ref_Level_dBm": {
-                        "value": "The reference level in dBm.",
-                        "type": "_Value"
-                    },
-                    "Attenuation_dB": {
-                        "value": "The attenuation in dB.",
-                        "type": "_Value"
-                    },
-                    "Preamp_On": {
-                        "value": "Boolean for preamp state.",
-                        "type": "_Value"
-                    }
-                }
-            }
-        },
-        "rig": {
-            "rig_Ref_Level_dBm": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":POWer:RF:LEVel <Ref_Level_dBm>"
-                    }
-                },
-                "scpi_inputs": {
-                        "Ref_Level_dBm": {
-                            "value": "The reference level in dBm.",
-                            "type": "_Value",
-                            "description": "The SCPI input for reference level."
-                        }
-                    }
-                
-            },
-            "rig_Attenuation_dB": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":POWer:RF:ATTenuation <Attenuation_dB>"
-                    }
-                },
-             
-                    
-                       "scpi_inputs": {
-                        "Attenuation_dB": {
-                            "value": "The attenuation in dB.",
-                            "type": "_Value",
-                            "description": "The SCPI input for power attenuation."
-                        }
-                   
                 }
             }
         },
@@ -126,28 +120,28 @@
                     "Ref_Level_dBm": {
                     
                       "type": "_Value",
-                    "trigger": false,
+
                     "Value": "0"
                     }
                     }
-                }
-            },
+                },
+            
             "Set_Input_Auto_Attenuation_ON": {
                 "scpi_details": {
                     "generic_model": {
                         "trigger": false,
                         "type": "_GuiActuator",
-                        "value": ":INPut:ATTenuation:AUTO ON"
+                        "SCPI_value": ":INPut:ATTenuation:AUTO ON"
                         
                     }
                 },
                 
                 "Set_Input_Auto_Attenuation_OFF": {
                     "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                "trigger": false,
-                        "value": ":INPut:ATTenuation:AUTO ON"
+                         "generic_model": {
+                             "type": "_GuiActuator",
+                                "trigger": false,
+                            "SCPI_value": ":INPut:ATTenuation:AUTO OFF"
                     }
                 
                 
@@ -158,7 +152,7 @@
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":POWer:GAIN ON"
+                        "SCPI_value": ":POWer:GAIN ON"
                         
                     }
                 }
@@ -169,7 +163,7 @@
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":POWer:GAIN OFF"
+                        "SCPI_value": ":POWer:GAIN OFF"
                     }
                 }
             
@@ -179,13 +173,13 @@
                     "N9340B": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
                         
                     },
                     "N9342CN": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":POWer:HSENsitive ON"
+                        "SCPI_value": ":POWer:HSENsitive ON"
                         
                     }
                 }
@@ -198,12 +192,12 @@
                     "N9340B": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
+                        "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
                     },
                     "N9342CN": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "value": ":POWer:HSENsitive OFF"
+                        "SCPI_value": ":POWer:HSENsitive OFF"
                     }
                 }
                 
@@ -225,31 +219,8 @@
                         "trigger": false,                 
                         "value": "10"}
                 }
-                },
-
-            "Set_Power_Auto_Attenuation_ON": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "value": ":POWer:ATTenuation:AUTO ON",
-                        "trigger": false
-
-                        
-                    }
-                }
-                 
-             },
-             "Set_Power_Auto_Attenuation_OFF": {
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "value": ":POWer:ATTenuation:AUTO OFF",
-                        "trigger": false
-
-                        
-                    }
-                }
-                 
-                }
             }
-        
+
+            }
+        }
+    

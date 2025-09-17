@@ -1,76 +1,10 @@
 {
     
 
-        "get": {
-            "Get_RBW": {
-                "label": "Get RBW",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:RESolution?"
-                    }
-                },
-                "scpi_outputs": {
-                    "RBW": {
-                        "value": "The resolution bandwidth in Hz.",
-                        "type": "_Value"
-                    }
-                }
-            },
-            "Get_VBW": {
-                "label": "Get VBW",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:VIDeo?"
-                    }
-                },
-                "scpi_outputs": {
-                    "VBW": {
-                        "value": "The video bandwidth in Hz.",
-                        "type": "_Value"
-                    }
-                }
-            },
-            "Get_VBW_Auto_State": {
-                "label": "Get VBW Auto State",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO?"
-                    }
-                },
-                "scpi_outputs": {
-                    "VBW_auto": {
-                        "value": "Boolean for VBW auto state.",
-                        "type": "_Value"
-                    }
-                }
-            },
-            "Get_Continuous_Mode_State": {
-                "label": "Get Continuous Mode State",
-                "scpi_details": {
-                    "generic_model": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":INITiate:CONTinuous?"
-                    }
-                },
-                "scpi_outputs": {
-                    "continuous_mode": {
-                        "value": "Boolean for continuous mode state.",
-                        "type": "_Value"
-                    }
-                }
-            }
-        },
+       
         "nab": {
             "NAB_bandwidth_settings": {
-                "label_active": "Get All Bandwidth Settings",
-                "label_inactive": "Get All Bandwidth Settings",
+
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -148,7 +82,7 @@
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
-                        "value": ":SENSe:BANDwidth:RESolution:AUTO ON"
+                        "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO ON"
                         
                     }
                 
@@ -158,7 +92,7 @@
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
-                        "value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
+                        "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
                         
                     }
                 
@@ -168,7 +102,7 @@
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
-                        "value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
+                        "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
                         
                     }
                 }
@@ -178,7 +112,7 @@
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
-                                                "value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
+                                                "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
                     }
                 }
                
