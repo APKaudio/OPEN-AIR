@@ -31,16 +31,8 @@
 
         "beg": {
             "Beg_freq_center_span": {
-                "label_active": "Set Center/Span",
-                "label_inactive": "Set Center/Span",
-                "type": "_GuiButton",
                 "scpi_details": {
-                    "N9340B": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
-                    },
-                    "N9342CN": {
+                    "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
                         "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
@@ -72,16 +64,8 @@
                 }
             },
             "Beg_freq_start_stop": {
-                "label_active": "Set Start/Stop",
-                "label_inactive": "Set Start/Stop",
-                "type": "_GuiButton",
                 "scpi_details": {
-                    "N9340B": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
-                    },
-                    "N9342CN": {
+                    "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
                         "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
@@ -115,7 +99,7 @@
         },
         "get": {
             "Get_Start_Frequency": {
-                "label": "Get Start Frequency",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -131,7 +115,7 @@
                 }
             },
             "Get_Stop_Frequency": {
-                "label": "Get Stop Frequency",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -147,7 +131,7 @@
                 }
             },
             "Get_Center_Frequency": {
-                "label": "Get Center Frequency",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -163,7 +147,7 @@
                 }
             },
             "Get_Span_Frequency": {
-                "label": "Get Span Frequency",
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -248,7 +232,7 @@
             },
             "Set_Sweep_Time": {
                 "scpi_details": {
-                    "N9340B": {
+                    "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
                         "SCPI_value": ":SENSe:SWEep:TIME <time_s>"
