@@ -783,7 +783,7 @@
                     "scpi_details": {
                         "N9342CN": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":MMEMory:CATalog? \\\"<preset_path>\\\" "
                         }
                     },

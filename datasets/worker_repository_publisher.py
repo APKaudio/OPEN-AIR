@@ -135,7 +135,7 @@ def main(mqtt_util: MqttControllerUtility):
             
             file_topic_path = "/".join(topic_levels)
             
-            root_topic = f"OPEN-AIR/{file_topic_path}"
+            root_topic = f"OPEN-AIR/repository/{file_topic_path}"
             
             try:
                 debug_log(
