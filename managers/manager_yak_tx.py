@@ -8,7 +8,7 @@ import inspect
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250914.222018.1"
+current_version = "20250917.214201.1"
 current_file = f"{os.path.basename(__file__)}"
 
 class YakTxManager:
@@ -24,16 +24,20 @@ class YakTxManager:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
+        # --- FIX: Clean the command string before sending ---
+        cleaned_command = command_string.strip()
+        # --- END FIX ---
+        
         # Check if the command string contains a '?' to identify it as a query
-        if '?' in command_string:
+        if '?' in cleaned_command:
             debug_log(
                 message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching query command now!",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
-            return self.dispatcher.query_safe(command_string)
+            return self.dispatcher.query_safe(cleaned_command)
         else:
             debug_log(
                 message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching write command now!",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
-            return self.dispatcher.write_safe(command_string)
+            return self.dispatcher.write_safe(cleaned_command)
