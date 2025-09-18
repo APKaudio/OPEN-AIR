@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250918.010500.5
+# Version 20250918.014500.9
 
 import os
 import inspect
@@ -23,6 +23,7 @@ import tkinter as tk
 from tkinter import ttk
 import pathlib
 from tkinter import filedialog
+import csv
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
@@ -33,8 +34,8 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250918
-CURRENT_TIME = 10500
-REVISION_NUMBER = 5
+CURRENT_TIME = 14500
+REVISION_NUMBER = 9
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
 current_file_path = pathlib.Path(__file__).resolve()
@@ -137,6 +138,9 @@ class InstrumentTranslatorGUI(ttk.Frame):
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
             console_log("✅ Instrument Translator GUI initialized successfully!")
+            
+            # --- NEW: Load initial data from CSV if the file exists ---
+            self._load_data_from_csv()
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -162,6 +166,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
         )
         
         # Manually define all the columns based on the expected flattened data structure
+        # This list is now the definitive source of truth for the columns.
         headers = [
             "Parameter", "Active", "FileName", "NickName", "Start", "Stop", 
             "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
@@ -172,8 +177,55 @@ class InstrumentTranslatorGUI(ttk.Frame):
         
         self.commands_table["columns"] = tuple(headers)
         for col in headers:
+            # Set a default width based on header length for better initial display
+            width = 40  # Set a fixed width as requested
             self.commands_table.heading(col, text=col.replace("_", " ").title())
-            self.commands_table.column(col, width=150, stretch=True)
+            self.commands_table.column(col, width=width, stretch=True)
+            
+    def _load_data_from_csv(self):
+        """
+        Reads a CSV file and populates the Treeview with the data.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🟢 Attempting to load initial data from presets.csv.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        csv_file_path = pathlib.Path(__file__).parent.parent.parent / "DATA" / "presets.csv"
+        
+        if not csv_file_path.exists():
+            console_log("🟡 presets.csv not found. Starting with an empty table.")
+            return
+
+        try:
+            with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csv_file:
+                csv_reader = csv.DictReader(csv_file)
+                headers = csv_reader.fieldnames
+                
+                # Clear existing table data
+                for item in self.commands_table.get_children():
+                    self.commands_table.delete(item)
+                
+                # Load new data
+                for row in csv_reader:
+                    # Create a full list of values based on the current column order
+                    full_values = [row.get(col, '') for col in self.commands_table["columns"]]
+                    self.commands_table.insert('', tk.END, values=full_values)
+                
+                console_log(f"✅ Data successfully loaded from {csv_file_path}.")
+        except Exception as e:
+            console_log(f"❌ Error loading data from presets.csv: {e}")
+            debug_log(
+                message=f"❌🔴 Arrr, a plague upon this error! Failed to load CSV data. The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
     def _apply_styles(self, theme_name: str):
         """
@@ -196,12 +248,6 @@ class InstrumentTranslatorGUI(ttk.Frame):
                         bordercolor=colors["table_border"],
                         borderwidth=colors["border_width"])
 
-        style.configure('Custom.Treeview.Heading',
-                        background=colors["table_heading_bg"],
-                        foreground=colors["fg"],
-                        relief=colors["relief"],
-                        borderwidth=colors["border_width"])
-
     def _on_commands_message(self, topic, payload):
         """
         Callback for when an MQTT message is received on the commands topic. 
@@ -218,6 +264,26 @@ class InstrumentTranslatorGUI(ttk.Frame):
         )
         
         try:
+            # Check for a "delete" payload (e.g., an empty string from an un-retained message)
+            if payload == "":
+                # Extract the parameter path from the topic
+                topic_parts = topic.split('/')
+                # The parameter path is everything after the topic prefix
+                parameter_path = '/'.join(topic_parts[len(self.topic_entry.get().split('/')):])
+
+                # Find the item with the matching Parameter path and remove it
+                item_to_delete = None
+                for item_id in self.commands_table.get_children():
+                    item_data = self.commands_table.item(item_id, 'values')
+                    if item_data and item_data[0] == parameter_path:
+                        item_to_delete = item_id
+                        break
+                
+                if item_to_delete:
+                    self.commands_table.delete(item_to_delete)
+                    console_log(f"✅ Removed row for deleted topic: '{parameter_path}'.")
+                return
+
             pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
                 topic=topic,
                 payload=payload,
@@ -231,7 +297,9 @@ class InstrumentTranslatorGUI(ttk.Frame):
                     if new_header not in current_columns:
                         self.commands_table["columns"] = current_columns + [new_header]
                         self.commands_table.heading(new_header, text=new_header.replace("_", " ").title())
-                        self.commands_table.column(new_header, width=150, stretch=True)
+                        # Set a default width for new columns
+                        width = 40
+                        self.commands_table.column(new_header, width=width, stretch=True)
                         current_columns.append(new_header)
                             
                 # Iterate through each row of the new data to update or add
@@ -294,7 +362,31 @@ class InstrumentTranslatorGUI(ttk.Frame):
             return  # Not on a cell
 
         # Get column index from column ID string
-        column_index = int(column_id.replace("#", "")) - 1
+        try:
+            column_index = int(column_id.replace("#", "")) - 1
+            # Get the column header from the column index
+            # Use the explicit column names from the Treeview
+            column_header_raw = self.commands_table.heading(column_id, 'text')
+            column_header = column_header_raw.replace(' ', '_').lower()
+
+            debug_log(
+                message=f"🔍🔵 Starting cell edit. Item_ID: {item_id}, Column_ID: {column_id}, Column_Header: '{column_header}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+        except Exception as e:
+            debug_log(
+                message=f"❌🔴 Failed to get column info for editing. Headers may be missing or corrupt! Error: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            console_log("❌ Cannot edit cell. Table headers are missing or corrupted. Please restart the application.")
+            return
         
         # Get the current value of the cell
         current_value = self.commands_table.item(item_id, 'values')[column_index]
@@ -319,38 +411,45 @@ class InstrumentTranslatorGUI(ttk.Frame):
             """
             new_value = edit_entry.get()
             
-            # Get the column header from the column index
-            column_header = self.commands_table.heading(column_id, 'text').replace(' ', '_').lower()
+            try:
+                # Get the parameter path from the first column
+                parameter_path = self.commands_table.item(item_id, 'values')[0]
+                
+                # Construct the full MQTT topic
+                # The format is ROOT_TOPIC/Parameter/column_header
+                topic = f"{self.topic_entry.get()}/{parameter_path}/{column_header}"
+                
+                debug_log(
+                    message=f"🖥️🔵 Cell edited. Publishing new value '{new_value}' to topic '{topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                
+                # Publish the new value to MQTT
+                self.mqtt_util.publish_message(topic=topic, subtopic="", value=new_value, retain=True)
 
-            # Get the parameter path from the first column
-            parameter_path = self.commands_table.item(item_id, 'values')[0]
-            
-            # Construct the full MQTT topic
-            # The format is ROOT_TOPIC/Parameter/column_header
-            topic = f"{self.topic_entry.get()}/{parameter_path}/{column_header}"
-            
-            debug_log(
-                message=f"🖥️🔵 Cell edited. Publishing new value '{new_value}' to topic '{topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-            
-            # Publish the new value to MQTT
-            self.mqtt_util.publish_message(topic=topic, subtopic="", value=new_value, retain=True)
+                # Update the Treeview cell directly with the new value
+                all_values = list(self.commands_table.item(item_id, 'values'))
+                all_values[column_index] = new_value
+                self.commands_table.item(item_id, values=all_values)
 
-            # Update the Treeview cell directly with the new value
-            all_values = list(self.commands_table.item(item_id, 'values'))
-            all_values[column_index] = new_value
-            self.commands_table.item(item_id, values=all_values)
+                # A celebratory message to signal success
+                console_log(f"✅ Cell updated and new value pushed to MQTT: '{new_value}'.")
+            except Exception as e:
+                console_log(f"❌ Error updating cell value. Error: {e}")
+                debug_log(
+                    message=f"❌🔴 Failed to update cell or publish to MQTT! Error: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
             # Clean up the entry widget
             edit_entry.destroy()
             
-            # A celebratory message to signal success
-            console_log(f"✅ Cell updated and new value pushed to MQTT: '{new_value}'.")
-
         # Bind events to the entry widget for finishing editing
         edit_entry.bind("<Return>", on_update_cell)
         edit_entry.bind("<FocusOut>", on_update_cell)

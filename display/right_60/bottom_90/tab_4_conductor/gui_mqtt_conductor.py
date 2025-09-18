@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250914.223648.1
+# Version 20250918.021500.2
 
 import os
 import inspect
@@ -37,7 +37,7 @@ from display.styling.style import THEMES, DEFAULT_THEME
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
 CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
 CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 1
+REVISION_NUMBER = 2
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"display/right_40/bottom_90/tab_4_conductor/{os.path.basename(__file__)}"
@@ -108,8 +108,6 @@ class MqttConductorFrame(ttk.Frame):
             
             self.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-            
-
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -179,6 +177,10 @@ class MqttConductorFrame(ttk.Frame):
         self.start_btn.pack(pady=2, padx=5, fill=tk.X)
         self.stop_btn.pack(pady=2, padx=5, fill=tk.X)
         self.check_status_btn.pack(pady=2, padx=5, fill=tk.X)
+        
+        # --- NEW: Clear Retained Messages Button ---
+        self.clear_retained_btn = ttk.Button(master=server_controls_frame, text="Clear Retained Messages", command=self._clear_retained_messages)
+        self.clear_retained_btn.pack(pady=2, padx=5, fill=tk.X)
 
         publish_frame = ttk.LabelFrame(master=top_frame, text=PUBLISH_FRAME_TEXT)
         publish_frame.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, expand=True)
@@ -244,7 +246,7 @@ class MqttConductorFrame(ttk.Frame):
         """Allows the utility to log messages to the table."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-    #    debug_log(
+    #   debug_log(
     #        message=f"🐐🔵 Entering '{current_function_name}' to add a message to the table.",
     #        file=current_file,
     #        version=current_version,
@@ -321,7 +323,7 @@ class MqttConductorFrame(ttk.Frame):
     def _on_message(self, topic, payload):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-    #    debug_log(
+    #   debug_log(
     #        message=f"🐐🔵 Entering '{current_function_name}' to process a general MQTT message.",
     #        file=current_file,
     #        version=current_version,
@@ -345,11 +347,11 @@ class MqttConductorFrame(ttk.Frame):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
        # debug_log(
-       #     message=f"🔵 Entering '{current_function_name}' to process a system status message.",
-       #     file=current_file,
-       #     version=current_version,
-       #     function=current_function_name,
-       #     console_print_func=console_log
+       #     message=f"🔵 Entering '{current_function_name}' to process a system status message.",
+       #     file=current_file,
+       #     version=current_version,
+       #     function=current_function_name,
+       #     console_print_func=console_log
        # )
         try:
             if "$SYS/broker/version" in topic:
@@ -381,3 +383,30 @@ class MqttConductorFrame(ttk.Frame):
         self.mqtt_util.publish_message(topic="$SYS/broker/uptime", subtopic="", value="", retain=False)
         self.mqtt_util.publish_message(topic="$SYS/broker/messages/sent", subtopic="", value="", retain=False)
         self.mqtt_util.publish_message(topic="$SYS/broker/clients/connected", subtopic="", value="", retain=False)
+
+    def _clear_retained_messages(self):
+        """
+        Shuts down the Mosquitto broker and clears its persistence file to remove all retained messages.
+        This function needs to be implemented within the MQTT utility class.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🐐🟢 Initiating command to clear all retained MQTT messages.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        console_log("🟡 Clearing retained messages by stopping the broker and deleting the persistence file...")
+        try:
+            self.mqtt_util.clear_retained_messages()
+            console_log("✅ Retained messages successfully cleared!")
+        except Exception as e:
+            console_log(f"❌ Failed to clear retained messages: {e}")
+            debug_log(
+                message=f"❌🔴 Avast! The clearing protocol has failed! Error: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
