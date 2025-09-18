@@ -38,6 +38,7 @@ current_file = f"{os.path.basename(__file__)}"
 
 # --- Constant Variables (No Magic Numbers) ---
 # MQTT Broker settings
+#BROKER_ADDRESS = "44.44.44.159"
 BROKER_ADDRESS = "localhost"
 BROKER_PORT = 1883
 BROKER_TIMEOUT = 60

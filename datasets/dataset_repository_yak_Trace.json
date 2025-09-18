@@ -54,7 +54,7 @@
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":AVERage:TRACE 1?;:SENSe:AVERage:COUNt?"
+                        "SCPI_value": ":SENSe:AVERage?;:SENSe:AVERage:COUNt?"
                     }
                 },
                 "scpi_outputs": {
@@ -68,8 +68,8 @@
                     }
                 }
             },
-            "NAB_trace_modes_data": {
-                "label": "Get Trace Modes Data",
+            "NAB_trace_mode": {
+                
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -97,7 +97,7 @@
                 }
             }
         },"rig": {
-            "rig_Averaging": {
+            "rig_Averaging_on_With_Count": {
                 "scpi_details": {
                     "generic_model": {
                         "type": "_GuiActuator",
@@ -115,7 +115,7 @@
                 
             },
           
-            "rig_trace_modes": {
+            "rig_All_trace_modes": {
 
                 "scpi_details": {
                     "generic_model": {

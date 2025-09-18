@@ -6,16 +6,15 @@
                     "N9342CN": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":MMEMory:CATalog? \"<preset_path>\""
+                        "SCPI_value": ":MMEMory:CATalog? \"<preset_path>\" "
 
                     }
                 },
                       "scpi_inputs": {
                         "preset_path": {
-                            "value": "C://PRESETS//",  
+                            "value": "C:\\PRESETS\\",  
                             "type": "_Value"    
-                        }
-                    },
+                        } },
 
                     "scpi_outputs": {
                         "preset_catalog_list": {
@@ -26,27 +25,23 @@
                 }
             },
         "Set": {
-            "Set_Store_Preset": {
-                "label_active": "Store Preset",
-                "label_inactive": "Store Preset",
+            "Set_stored_Preset": {
+
                 "scpi_details": {
                     "N9342CN": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName><path_terminator>"                    }
+                        "SCPI_value": ":MMEMory:LOAD STA,\"<preset_path><preset_fileName>\" "
+                      }
                 },
                 "scpi_inputs": {
                     "preset_fileName": {
                         "value": "14.STA",
                         "type": "_Value"
                     }, "preset_path": {
-                            "value": "C://PRESETS//",  
+                            "value": "C:\\PRESETS\\",  
                             "type": "_Value"
-                        }
-                        , "path_terminator": {
-                            "value": "\\\"",  
-                            "type": "_Value"
-                        }
+                        } 
                 }
             },
             "Do_Load_Preset": {
@@ -66,24 +61,6 @@
                     }
                 }
             }
-        },
-        "Get": {
-            "Get_Memory_Catalog": {
-                "scpi_details": {
-                    "N9342CN": {
-                        "type": "_GuiActuator",
-                        "trigger": false,
-                        "SCPI_value": ":MMEMory:STORe:STATe <preset_number>"
-                    }
-                },
-
-                    "scpi_inputs": {
-                        "preset_number": {
-                            "value": "0",
-                            "type": "_Value"
-                        }
-                    
-                }
-            }}
+        }
         }
     

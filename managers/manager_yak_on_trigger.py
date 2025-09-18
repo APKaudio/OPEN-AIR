@@ -16,8 +16,8 @@ from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yak_rx import YakRxManager
 
 
-current_version = "20250917.230501.1"
-current_version_hash = (20250917 * 230501 * 1)
+current_version = "20250917.232502.1"
+current_version_hash = (20250917 * 232502 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
@@ -140,13 +140,16 @@ def _fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
             placeholder = f"<{key}>"
             value_to_substitute = str(details.get("value", ""))
             
-            # --- NEW FIX: Replace the backslash-quote with a plain quote before substitution ---
-            filled_command = filled_command.replace('\"', '"').replace('\\"', '"')
-
-            # Check for a missing trailing quote and add it if necessary
-            if filled_command.startswith(':MMEMory:CATalog?') and not filled_command.endswith('"'):
-                filled_command += '"'
-            # --- END NEW FIX ---
+            # --- NEW FIX: Replace the placeholder value with a single double quote for the path terminator ---
+            filled_command = filled_command.replace('\\"', '"')
+            
+            if placeholder == "<path_terminator>" and placeholder in filled_command:
+                filled_command = filled_command.replace(placeholder, '"')
+                value_to_substitute = '"'
+            
+            if placeholder == "<path_starter>" and placeholder in filled_command:
+                filled_command = filled_command.replace(placeholder, '"')
+                value_to_substitute = '"'
             
             if placeholder in filled_command:
                 filled_command = filled_command.replace(placeholder, value_to_substitute)

@@ -1,7 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
-
-
-# display/gui_marker_editor.py
+# gui_preset_editor.py
 #
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
@@ -17,7 +14,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.181840.1
+# Version 20250918.010500.5
 
 import os
 import inspect
@@ -35,16 +32,17 @@ from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250825
-CURRENT_TIME = 181840
-REVISION_NUMBER = 1
-current_version = "20250825.181840.1"
-current_version_hash = 20250825 * 181840 * 1
+CURRENT_DATE = 20250918
+CURRENT_TIME = 10500
+REVISION_NUMBER = 5
+current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
+current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
+MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
 
 
 class InstrumentTranslatorGUI(ttk.Frame):
@@ -105,7 +103,13 @@ class InstrumentTranslatorGUI(ttk.Frame):
             vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
+            # --- NEW: Create headers on initialization so the table is always populated ---
+            self._create_headers()
+            
             self.mqtt_util.add_subscriber(topic_filter=f"{self.topic_entry.get()}/#", callback_func=self._on_commands_message)
+
+            # --- NEW: Bind double-click event for cell editing ---
+            self.commands_table.bind("<Double-1>", self._on_edit_cell)
 
             # --- File Controls Section ---
             file_frame = ttk.LabelFrame(self, text="File")
@@ -144,6 +148,33 @@ class InstrumentTranslatorGUI(ttk.Frame):
                 console_print_func=console_log
             )
     
+    def _create_headers(self):
+        """
+        Creates all the columns in the Treeview when the GUI is initialized.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🟢 Creating table headers on initialization.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        # Manually define all the columns based on the expected flattened data structure
+        headers = [
+            "Parameter", "Active", "FileName", "NickName", "Start", "Stop", 
+            "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
+            "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", 
+            "Trace3Mode", "Trace4Mode", "Marker1Max", "Marker2Max", 
+            "Marker3Max", "Marker4Max", "Marker5Max", "Marker6Max"
+        ]
+        
+        self.commands_table["columns"] = tuple(headers)
+        for col in headers:
+            self.commands_table.heading(col, text=col.replace("_", " ").title())
+            self.commands_table.column(col, width=150, stretch=True)
+
     def _apply_styles(self, theme_name: str):
         """
         Applies the specified theme to the GUI elements using ttk.Style.
@@ -194,14 +225,15 @@ class InstrumentTranslatorGUI(ttk.Frame):
             )
 
             if pivoted_rows:
-                # Dynamically configure columns ONLY IF this is the first data payload.
-                if not self.commands_table["columns"]:
-                    new_headers = list(pivoted_rows[0].keys())
-                    self.commands_table["columns"] = tuple(new_headers)
-                    for col in new_headers:
-                        self.commands_table.heading(col, text=col.replace("_", " ").title())
-                        self.commands_table.column(col, width=150, stretch=True)
-
+                # Add any new columns that might have appeared dynamically
+                current_columns = list(self.commands_table["columns"])
+                for new_header in pivoted_rows[0].keys():
+                    if new_header not in current_columns:
+                        self.commands_table["columns"] = current_columns + [new_header]
+                        self.commands_table.heading(new_header, text=new_header.replace("_", " ").title())
+                        self.commands_table.column(new_header, width=150, stretch=True)
+                        current_columns.append(new_header)
+                            
                 # Iterate through each row of the new data to update or add
                 for row in pivoted_rows:
                     parameter_path = row.get("Parameter")
@@ -214,17 +246,29 @@ class InstrumentTranslatorGUI(ttk.Frame):
                             item_id_to_update = item_id
                             break
                     
+                    # Create a full list of values based on the current column order
+                    full_values = [row.get(col, '') for col in self.commands_table["columns"]]
+
                     if item_id_to_update:
                         # Update the existing row
-                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
-                        self.commands_table.item(item_id_to_update, values=new_values)
+                        self.commands_table.item(item_id_to_update, values=full_values)
                         console_log(f"✅ Updated existing row for '{parameter_path}'.")
                     else:
                         # Insert a new row if it doesn't exist
-                        new_values = [row.get(col, '') for col in self.commands_table["columns"]]
-                        self.commands_table.insert('', tk.END, values=new_values)
+                        self.commands_table.insert('', tk.END, values=full_values)
                         console_log(f"✅ Added new row for '{parameter_path}'.")
-
+            else:
+                # NEW: Handle row deletion if the payload is empty
+                topic_parts = topic.split('/')
+                # The parameter path is everything after the topic prefix
+                parameter_path = '/'.join(topic_parts[len(self.topic_entry.get().split('/')):])
+                
+                # Find the item with the matching Parameter path and remove it
+                for item_id in self.commands_table.get_children():
+                    if self.commands_table.item(item_id, 'values')[0] == parameter_path:
+                        self.commands_table.delete(item_id)
+                        console_log(f"✅ Removed row for deleted topic: '{parameter_path}'.")
+                        break
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -234,6 +278,91 @@ class InstrumentTranslatorGUI(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+
+    def _on_edit_cell(self, event):
+        """
+        Event handler for a double-click on a table cell. It creates a temporary
+        Entry widget for in-place editing.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        # Get the item and column that were double-clicked
+        item_id = self.commands_table.identify_row(event.y)
+        column_id = self.commands_table.identify_column(event.x)
+        
+        if not item_id or not column_id:
+            return  # Not on a cell
+
+        # Get column index from column ID string
+        column_index = int(column_id.replace("#", "")) - 1
+        
+        # Get the current value of the cell
+        current_value = self.commands_table.item(item_id, 'values')[column_index]
+        
+        # Get the bounding box of the cell to place the entry widget
+        bbox = self.commands_table.bbox(item_id, column_id)
+        if not bbox:
+            return
+            
+        x, y, width, height = bbox
+
+        # Create a temporary Entry widget for editing
+        edit_entry = ttk.Entry(self.commands_table)
+        edit_entry.place(x=x, y=y, width=width, height=height)
+        edit_entry.insert(0, current_value)
+        edit_entry.focus_set()
+        edit_entry.select_range(0, tk.END)
+
+        def on_update_cell(event):
+            """
+            Inner function to capture the new value and push it to MQTT.
+            """
+            new_value = edit_entry.get()
+            
+            # Get the column header from the column index
+            column_header = self.commands_table.heading(column_id, 'text').replace(' ', '_').lower()
+
+            # Get the parameter path from the first column
+            parameter_path = self.commands_table.item(item_id, 'values')[0]
+            
+            # Construct the full MQTT topic
+            # The format is ROOT_TOPIC/Parameter/column_header
+            topic = f"{self.topic_entry.get()}/{parameter_path}/{column_header}"
+            
+            debug_log(
+                message=f"🖥️🔵 Cell edited. Publishing new value '{new_value}' to topic '{topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+            # Publish the new value to MQTT
+            self.mqtt_util.publish_message(topic=topic, subtopic="", value=new_value, retain=True)
+
+            # Update the Treeview cell directly with the new value
+            all_values = list(self.commands_table.item(item_id, 'values'))
+            all_values[column_index] = new_value
+            self.commands_table.item(item_id, values=all_values)
+
+            # Clean up the entry widget
+            edit_entry.destroy()
+            
+            # A celebratory message to signal success
+            console_log(f"✅ Cell updated and new value pushed to MQTT: '{new_value}'.")
+
+        # Bind events to the entry widget for finishing editing
+        edit_entry.bind("<Return>", on_update_cell)
+        edit_entry.bind("<FocusOut>", on_update_cell)
+
+        # A quick debug log to show we've entered edit mode
+        debug_log(
+            message=f"🛠️🟢 Initiating cell edit mode for Item '{item_id}' at Column '{column_id}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
 
     def _export_table_data(self):
         """
