@@ -31,18 +31,18 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
                         }
                     },
                     "scpi_inputs": {
                         "Ref_Level_dBm": {
-                            "value": "-45",
+                            "value": "-50",
                             "type": "_Value",
                             "description": "The SCPI input for reference level."
                         },
                         "Attenuation_dB": {
-                            "value": "10",
+                            "value": "20",
                             "type": "_Value",
                             "description": "The SCPI input for power attenuation."
                         },
@@ -290,13 +290,13 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
                         }
                     },
                     "scpi_inputs": {
                         "hz_value": {
-                            "value": "3000000",
+                            "value": "30000",
                             "type": "_Value"
                         }
                     }
@@ -578,6 +578,52 @@
                         "hz_value": {
                             "value": "987654321",
                             "type": "_Value"
+                        }
+                    }
+                }
+            },
+            "Rig": {
+                "Rig_freq_start_stop": {
+                    "scpi_details": {
+                        "generic_model": {
+                            "type": "",
+                            "trigger": "",
+                            "SCPI_value": ""
+                        }
+                    },
+                    "scpi_inputs": {
+                        "start_freq": {
+                            "value": "",
+                            "type": "",
+                            "description": ""
+                        },
+                        "stop_freq": {
+                            "value": "",
+                            "type": "",
+                            "description": ""
+                        }
+                    }
+                }
+            },
+            "rig": {
+                "Rig_freq_start_stop": {
+                    "scpi_inputs": {
+                        "start_freq": {
+                            "value": 530000000.0,
+                            "type": "_Value",
+                            "description": "The SCPI input for start frequency."
+                        },
+                        "stop_freq": {
+                            "value": 590000000.0,
+                            "type": "_Value",
+                            "description": "The SCPI input for stop frequency."
+                        }
+                    },
+                    "scpi_details": {
+                        "generic_model": {
+                            "trigger": false,
+                            "type": "_GuiActuator",
+                            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
                         }
                     }
                 }
@@ -1029,7 +1075,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":TRAC1:MODE <mode1>;:TRAC2:MODE <mode2>;:TRAC3:MODE <mode3>;:TRAC4:MODE <mode4>"
                         }
                     },
@@ -1039,11 +1085,11 @@
                             "type": "_Value"
                         },
                         "mode2": {
-                            "value": "MAXHOLD",
+                            "value": "MAXhold",
                             "type": "_Value"
                         },
                         "mode3": {
-                            "value": "MINHOLD",
+                            "value": "MINhold",
                             "type": "_Value"
                         },
                         "mode4": {

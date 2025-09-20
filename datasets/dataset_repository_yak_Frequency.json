@@ -28,7 +28,30 @@
                     }
                 }
             }},
-
+"rig":{
+ "Rig_freq_start_stop": {
+                "scpi_details": {
+                    "generic_model": {
+                        "type": "_GuiActuator",
+                        "trigger": false,
+                        "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
+                    }
+                },
+                "scpi_inputs": {
+                    "start_freq": {
+                        "value": "123456789",
+                        "type": "_Value",
+                        "description": "The SCPI input for start frequency."
+                    },
+                    "stop_freq": {
+                        "value": "987654321",
+                        "type": "_Value",
+                        "description": "The SCPI input for stop frequency."
+                    }
+                }
+                }
+           
+},
         "beg": {
             "Beg_freq_center_span": {
                 "scpi_details": {
