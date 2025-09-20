@@ -1,4 +1,4 @@
-# OPEN-AIR/datasets/worker_meta_publisher.py
+# OPEN-AIR/datasets/worker_repository_publisher.py
 #
 # A script to read and publish JSON datasets from the local directory to an MQTT broker.
 # This version includes enhanced logging and versioning to aid in debugging and tracking.
@@ -13,8 +13,10 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250903.231004.5
-# UPDATED: The main function now exclusively publishes files that start with the prefix 'meta_'.
+#
+# Version 20250919.214648.5
+# UPDATED: The main function now exclusively publishes files that start with the prefix 'repository_'.
+# FIXED: Added a check to skip publishing a preset's sub-tree if its "Active" flag is false.
 
 import os
 import json
@@ -29,8 +31,8 @@ from workers.worker_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250903
-CURRENT_TIME = 231004
+CURRENT_DATE = 20250919
+CURRENT_TIME = 214648
 REVISION_NUMBER = 5
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
@@ -49,6 +51,17 @@ def publish_recursive(mqtt_util, base_topic, data):
         for key, value in data.items():
             clean_key = key.replace(' ', '_').replace('/', '_')
             new_topic = f"{base_topic}/{clean_key}"
+
+            # NEW FIX: Check for the 'Active' flag and skip the rest of the tree if it's false.
+            if isinstance(value, dict) and 'Active' in value and str(value.get('Active')).lower() == 'false':
+                debug_log(
+                    message=f"💾🟡 Skipping inactive preset '{clean_key}'. No further children will be published.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"repository_publisher.{current_function_name}",
+                    console_print_func=console_log
+                )
+                continue
 
             # If the value is a dictionary and contains metadata, publish the metadata
             if isinstance(value, dict) and any(k in value for k in ["type", "AES70", "description"]):
@@ -76,11 +89,13 @@ def publish_recursive(mqtt_util, base_topic, data):
     elif isinstance(data, list):
         for item in data:
             if isinstance(item, dict):
+                # --- START OF FIX: Only get the first key and its value for the topic.
                 item_key = next(iter(item.keys()))
                 item_value = item[item_key]
 
                 new_topic = f"{base_topic}/{item_key}"
                 publish_recursive(mqtt_util, new_topic, item_value)
+                # --- END OF FIX ---
             else:
                 new_topic = f"{base_topic}"
                 publish_recursive(mqtt_util, new_topic, item)
@@ -92,7 +107,7 @@ def publish_recursive(mqtt_util, base_topic, data):
 
 def main(mqtt_util: MqttControllerUtility):
     """
-    Publishes the contents of JSON files that start with 'meta_' in the current
+    Publishes the contents of JSON files that start with 'repository_' in the current
     directory to the MQTT broker, flattening the JSON structure into detailed topics.
     
     Args:
@@ -101,31 +116,31 @@ def main(mqtt_util: MqttControllerUtility):
     current_function_name = inspect.currentframe().f_code.co_name
 
     debug_log(
-        message="🖥️🟢 Entering 'main' to publish JSON meta files.",
+        message="🖥️🟢 Entering 'main' to publish JSON repository files.",
         file=current_file,
         version=current_version,
-        function=f"meta_publisher.{current_function_name}",
+        function=f"repository_publisher.{current_function_name}",
         console_print_func=console_log
     )
     
     try:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         
-        # MODIFIED: Filter for files starting with 'meta_' and ending with '.json'
-        json_files = [f for f in os.listdir(current_directory) if f.startswith('meta_') and f.endswith('.json')]
+        # MODIFIED: Filter for files starting with 'repository_' and ending with '.json'
+        json_files = [f for f in os.listdir(current_directory) if f.startswith('repository_') and f.endswith('.json')]
             
         if not json_files:
-            console_log("No JSON files starting with 'meta_' found in the current directory.")
+            console_log("No JSON files starting with 'repository_' found in the current directory.")
             return
 
-        console_log(f"Found {len(json_files)} 'meta_' JSON file(s) to publish. Publishing recursively...")
+        console_log(f"Found {len(json_files)} 'repository_' JSON file(s) to publish. Publishing recursively...")
 
         for file_name in json_files:
             file_path = os.path.join(current_directory, file_name)
             
             base_name = os.path.splitext(os.path.basename(file_name))[0]
-            if base_name.startswith("meta_"):
-                base_name = base_name.replace("meta_", "", 1)
+            if base_name.startswith("repository_"):
+                base_name = base_name.replace("repository_", "", 1)
             
             base_name_clean = base_name.replace(' ', '_')
             
@@ -133,14 +148,14 @@ def main(mqtt_util: MqttControllerUtility):
             
             file_topic_path = "/".join(topic_levels)
             
-            root_topic = f"OPEN-AIR/{file_topic_path}"
+            root_topic = f"OPEN-AIR/repository/{file_topic_path}"
             
             try:
                 debug_log(
                     message=f"🔍🔵 Processing file: '{file_name}'",
                     file=current_file,
                     version=current_version,
-                    function=f"meta_publisher.{current_function_name}",
+                    function=f"repository_publisher.{current_function_name}",
                     console_print_func=console_log
                 )
                 with open(file_path, 'r') as f:
@@ -163,7 +178,7 @@ def main(mqtt_util: MqttControllerUtility):
             message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
             file=current_file,
             version=current_version,
-            function=f"meta_publisher.{current_function_name}",
+            function=f"repository_publisher.{current_function_name}",
             console_print_func=console_log
         )
 

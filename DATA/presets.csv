@@ -1,0 +1,17 @@
+Parameter,Active,FileName,NickName,Start,Stop,Center,Span,RBW,VBW,RefLevel,Attenuation,MaxHold,HighSens,PreAmp,Trace1Mode,Trace2Mode,Trace3Mode,Trace4Mode,filename
+PRESET_001,true,14MON.STA,14 MON,470,530,500,60,30000,null,null,-50,null,null,null,WRITE,MAXhold,MINhold,null,14MON.STA
+PRESET_002,true,24MON.STA,24MON,530,590,560,60,30000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_003,true,34MON.STA,34MON,590,650,620,60,30000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_004,true,44MON.STA,Name,650,710,680,60,30000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_005,true,470608MON.STA,470-608 MON,470,608,539,138,30000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_006,true,44.STA,44 Anthony,650,710,680,60,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_007,true,02.STA,02,54,88,71,34,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_008,true,450-470LMR.STA,450-470LMR,450,470,460,20,1000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_009,true,34.STA,34,590,650,620,60,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_010,true,14.STA,14,470,530,500,60,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_011,true,07.STA,7,174,218,196,44,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_012,true,DECT_NA.STA,DECT NA,1920,1930,1925,10,100000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_013,true,DECT_EU.STA,DECT EU,1880,1900,1890,20,300000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_014,true,22GHZCAMS.STA,22GHZCAMS,2200,2300,2250,100,1000000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_015,true,2GHZCAMS.STA,Wireless cameras,2050,2300,2175,250,1000000,null,null,-50,null,null,null,Write,MAXhold,MINhold,null,
+PRESET_089,,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,

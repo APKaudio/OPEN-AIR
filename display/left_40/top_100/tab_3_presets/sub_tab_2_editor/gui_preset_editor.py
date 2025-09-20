@@ -14,7 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250918.014500.9
+# Version 20250919.215237.12
+# FIXED: The file now explicitly logs the full path where it attempts to save the CSV.
+# FIXED: Improved the error handling for the save function to catch and report file-writing errors.
 
 import os
 import inspect
@@ -33,9 +35,9 @@ from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250918
-CURRENT_TIME = 14500
-REVISION_NUMBER = 9
+CURRENT_DATE = 20250919
+CURRENT_TIME = 215237
+REVISION_NUMBER = 12
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
 current_file_path = pathlib.Path(__file__).resolve()
@@ -44,7 +46,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 
 # --- No Magic Numbers (as per your instructions) ---
 MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
-
+CSV_FILE_PATH = pathlib.Path("../../../DATA/presets.csv")
 
 class InstrumentTranslatorGUI(ttk.Frame):
     """
@@ -171,8 +173,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
             "Parameter", "Active", "FileName", "NickName", "Start", "Stop", 
             "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
             "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", 
-            "Trace3Mode", "Trace4Mode", "Marker1Max", "Marker2Max", 
-            "Marker3Max", "Marker4Max", "Marker5Max", "Marker6Max"
+            "Trace3Mode", "Trace4Mode"
         ]
         
         self.commands_table["columns"] = tuple(headers)
@@ -195,7 +196,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
             console_print_func=console_log
         )
         
-        csv_file_path = pathlib.Path(__file__).parent.parent.parent / "DATA" / "presets.csv"
+        csv_file_path = pathlib.Path(__file__).parent.parent.parent / CSV_FILE_PATH
         
         if not csv_file_path.exists():
             console_log("🟡 presets.csv not found. Starting with an empty table.")
@@ -325,18 +326,10 @@ class InstrumentTranslatorGUI(ttk.Frame):
                         # Insert a new row if it doesn't exist
                         self.commands_table.insert('', tk.END, values=full_values)
                         console_log(f"✅ Added new row for '{parameter_path}'.")
-            else:
-                # NEW: Handle row deletion if the payload is empty
-                topic_parts = topic.split('/')
-                # The parameter path is everything after the topic prefix
-                parameter_path = '/'.join(topic_parts[len(self.topic_entry.get().split('/')):])
-                
-                # Find the item with the matching Parameter path and remove it
-                for item_id in self.commands_table.get_children():
-                    if self.commands_table.item(item_id, 'values')[0] == parameter_path:
-                        self.commands_table.delete(item_id)
-                        console_log(f"✅ Removed row for deleted topic: '{parameter_path}'.")
-                        break
+                        
+                # NEW FIX: Call the save function after the table has been updated
+                self._save_current_table_to_csv()
+
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -466,6 +459,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
     def _export_table_data(self):
         """
         Opens a file dialog and exports the current data from the table to a CSV file.
+        This is for a manual export via a button click.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -485,14 +479,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
             )
             
             if file_path:
-                data = []
-                headers = self.commands_table["columns"]
-                for item_id in self.commands_table.get_children():
-                    row_values = self.commands_table.item(item_id, 'values')
-                    row_dict = dict(zip(headers, row_values))
-                    data.append(row_dict)
-                    
-                self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
+                self._save_current_table_to_csv(file_path=file_path)
                 console_log(f"✅ Data successfully exported to {file_path}!")
             else:
                 console_log("🟡 CSV export canceled by user.")
@@ -501,6 +488,47 @@ class InstrumentTranslatorGUI(ttk.Frame):
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+    def _save_current_table_to_csv(self, file_path=None):
+        """
+        NEW: Private method to extract data from the Treeview and save it to a CSV.
+        If no file path is specified, it saves to the default presets.csv location.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        if file_path is None:
+            # FIX: Use a pathlib object for robust path handling
+            file_path = pathlib.Path(__file__).parent.parent.parent / CSV_FILE_PATH
+        
+        debug_log(
+            message=f"💾🟢 Saving current table data to the resolved path: '{file_path.resolve()}'",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        try:
+            data = []
+            headers = self.commands_table["columns"]
+            
+            for item_id in self.commands_table.get_children():
+                row_values = self.commands_table.item(item_id, 'values')
+                row_dict = dict(zip(headers, row_values))
+                data.append(row_dict)
+                
+            self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
+            console_log(f"✅ Table data synchronized with '{file_path}'.")
+
+        except Exception as e:
+            console_log(f"❌ Error saving table data to CSV: {e}")
+            debug_log(
+                message=f"❌🔴 The data save to CSV has failed! A plague upon this error: {e}",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

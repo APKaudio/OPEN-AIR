@@ -186,12 +186,7 @@ class PresetFromDeviceWorker:
                 "Trace2Mode": "",
                 "Trace3Mode": "",
                 "Trace4Mode": "",
-                "Marker1Max": "",
-                "Marker2Max": "",
-                "Marker3Max": "",
-                "Marker4Max": "",
-                "Marker5Max": "",
-                "Marker6Max": ""
+
             }
             
             # Publish each key-value pair individually
