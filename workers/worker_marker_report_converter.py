@@ -28,11 +28,17 @@ import pdfplumber
 import inspect
 import numpy as np
 
+current_file = os.path.basename(__file__) # Get current file name for debug_log
+current_version = "20250815.200000.3"
+current_version_hash = (20250815 * 200000 * 3)
+
+headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"] # NEW: Added Peak header
+
 # Updated imports for new logging functions
-from workers.worker_logging import debug_log, console_log
+from workers.worker_logging import debug_log,console_log
 
 
-def convert_html_report_to_csv(html_content):
+def Marker_convert_IAShtml_report_to_csv(html_content):
     """
     Converts the HTML frequency coordination report into a list of dictionaries
     suitable for CSV output, handling multiple zones. This version is based on
@@ -55,18 +61,12 @@ def convert_html_report_to_csv(html_content):
     current_file = os.path.basename(__file__) # Get current file name for debug_log
 
     
-    debug_log("Starting HTML report conversion.", file=current_file, function=current_function)
+    debug_log("Starting HTML report conversion.", 
+               file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
     soup = BeautifulSoup(html_content, 'html.parser')
     
-    csv_headers = [
-        "ZONE",
-        "GROUP",
-        "DEVICE",
-        "NAME",
-        "FREQ",
-        "Peak" # NEW: Added Peak header
-    ]
+
     
     data_rows = []
 
@@ -78,7 +78,7 @@ def convert_html_report_to_csv(html_content):
     if first_zone_p:
         main_content_container = first_zone_p.find_parent('span')
         
-        debug_log(f"Found main content container based on first zone paragraph.", file=current_file, function=current_function)
+        debug_log(f"Found main content container based on first zone paragraph.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
     
     if not main_content_container:
         main_table = soup.find('table', class_='MainTable')
@@ -93,12 +93,12 @@ def convert_html_report_to_csv(html_content):
                     else:
                         main_content_container = second_tr_td
                     
-                    debug_log(f"Found main content container based on MainTable structure.", file=current_file, function=current_function)
+                    debug_log(f"Found main content container based on MainTable structure.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
     
     if not main_content_container:
         
-        debug_log("Warning: Could not find the main content container. No data will be extracted.", file=current_file, function=current_function)
-        return csv_headers, data_rows
+        debug_log("Warning: Could not find the main content container. No data will be extracted.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        return headers, data_rows
 
     current_zone_type = ""
     # Iterate through the children of the identified main content container
@@ -110,7 +110,7 @@ def convert_html_report_to_csv(html_content):
             if zone_text.startswith("Zone:"):
                 current_zone_type = zone_text.replace("Zone:", "").strip()
         
-                debug_log(f"Processing Zone: {current_zone_type}", file=current_file, function=current_function)
+                debug_log(f"Processing Zone: {current_zone_type}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         
         elif element.name == 'table' and 'Assignment' in element.get('class', []):
             table = element
@@ -118,10 +118,10 @@ def convert_html_report_to_csv(html_content):
             device_name_tag = table.find('th')
             current_group_name = device_name_tag.get_text(strip=True) if device_name_tag else ""
         
-            debug_log(f"Processing Group: {current_group_name}", file=current_file, function=current_function)
+            debug_log(f"Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             rows_in_table = table.find_all('tr')[1:] # Skip the first row as it contains the <th> (device_name)
-            debug_log(f"Found {len(rows_in_table)} rows in current table.", file=current_file, function=current_function)
+            debug_log(f"Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             for row in rows_in_table:
                 data_spans = row.find_all('span')
@@ -152,15 +152,15 @@ def convert_html_report_to_csv(html_content):
                                         freq_MHz = value * 1000 # GHz to MHz
                                     elif unit == 'khz':
                                         freq_MHz = value / 1000 # kHz to MHz
-                                    debug_log(f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
+                                    debug_log(f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                                 else:
                                     # Fallback if regex doesn't match, assume MHz
                                     freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
-                                    debug_log(f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
+                                    debug_log(f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             except ValueError:
     
-                                debug_log(f"HTML Freq conversion error: '{channel_frequency_str}'", file=current_file, function=current_function)
+                                debug_log(f"HTML Freq conversion error: '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                                 freq_MHz = "Invalid Frequency"
 
                             row_data = {
@@ -168,12 +168,12 @@ def convert_html_report_to_csv(html_content):
                                 "GROUP": current_group_name,
                                 "DEVICE": band_type,
                                 "NAME": channel_name,
-                                "FREQ": freq_MHz, # Store in MHz
-                                "Peak": np.nan # NEW: Added Peak column
+                                "FREQ (MHZ)": freq_MHz, # Store in MHz
+                                "PEAK": np.nan # NEW: Added Peak column
                             }
                             if band_type or channel_frequency_str or channel_name:
                                 data_rows.append(row_data)
-                                debug_log(f"Added HTML row: {row_data}", file=current_file, function=current_function)
+                                debug_log(f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 else:
                     # Process rows that have <td>s directly (e.g., blank rows or specific structures without inner spans)
                     cells = row.find_all('td')
@@ -203,15 +203,15 @@ def convert_html_report_to_csv(html_content):
                                         freq_MHz = value / 1000
                                 else: # No unit specified, assume MHz
                                     freq_MHz = value
-                                debug_log(f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
+                                debug_log(f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             else:
                                 # Fallback if regex doesn't match, assume MHz
                                 freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
-                                debug_log(f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz", file=current_file, function=current_function)
+                                debug_log(f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                         except ValueError:
     
-                            debug_log(f"HTML Freq conversion error (direct td): '{channel_frequency_str}'", file=current_file, function=current_function)
+                            debug_log(f"HTML Freq conversion error (direct td): '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             freq_MHz = "Invalid Frequency"
 
                         row_data = {
@@ -219,18 +219,18 @@ def convert_html_report_to_csv(html_content):
                             "GROUP": current_group_name,
                             "DEVICE": band_type,
                             "NAME": channel_name,
-                            "FREQ": freq_MHz, # Store in MHz
-                            "Peak": np.nan # NEW: Added Peak column
+                            "FREQ (MHZ)": freq_MHz, # Store in MHz
+                            "PEAK": np.nan # NEW: Added Peak column
                         }
                         if band_type or channel_frequency_str or channel_name:
                             data_rows.append(row_data)
-                            debug_log(f"Added HTML row (direct td): {row_data}", file=current_file, function=current_function)
+                            debug_log(f"Added HTML row (direct td): {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
     
-    debug_log(f"Finished HTML report conversion. Extracted {len(data_rows)} rows.", file=current_file, function=current_function)
-    return csv_headers, data_rows
+    debug_log(f"Finished HTML report conversion. Extracted {len(data_rows)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    return headers, data_rows
 
 
-def generate_csv_from_shw(xml_file_path):
+def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
     """
     Parses an SHW (XML) file and extracts frequency data, converting it
     into a standardized CSV format. This version is based on the SHOW to CSV.py
@@ -256,9 +256,9 @@ def generate_csv_from_shw(xml_file_path):
     current_file = os.path.basename(__file__)
 
     
-    debug_log(f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.", file=current_file, function=current_function)
+    debug_log(f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
-    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ", "Peak"] # NEW: Added Peak header
+    
     csv_data = []
 
     try:
@@ -266,13 +266,13 @@ def generate_csv_from_shw(xml_file_path):
             tree = ET.parse(f)
         root = tree.getroot()
         
-        debug_log("XML file parsed successfully.", file=current_file, function=current_function)
+        debug_log("XML file parsed successfully.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
         # Iterate through 'freq_entry' elements
         for i, freq_entry in enumerate(root.findall('.//freq_entry')):
             if i % 100 == 0: # Print progress every 100 entries
                 
-                debug_log(f"Processing SHW entry {i}...", file=current_file, function=current_function)
+                debug_log(f"Processing SHW entry {i}...",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             # Reverting ZONE and GROUP extraction to match SHOW to CSV.py prototype
             zone_element = freq_entry.find('compat_key/zone')
@@ -297,15 +297,15 @@ def generate_csv_from_shw(xml_file_path):
             if freq_element is not None and freq_element.text is not None:
                 freq_str = freq_element.text 
                 
-                debug_log(f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'", file=current_file, function=current_function)
+                debug_log(f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
                 try:
                     # Convert kHz to MHz as per user's clarification
                     freq_MHz = float(freq_str) / 1000.0 
-                    debug_log(f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz", file=current_file, function=current_function)
+                    debug_log(f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 except ValueError:
     
-                    debug_log(f"SHW Freq conversion error: '{freq_str}'", file=current_file, function=current_function)
+                    debug_log(f"SHW Freq conversion error: '{freq_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                     freq_MHz = "Invalid Frequency"
 
             csv_data.append({
@@ -313,27 +313,27 @@ def generate_csv_from_shw(xml_file_path):
                 "GROUP": group,
                 "DEVICE": device,
                 "NAME": name,
-                "FREQ": freq_MHz, # Store in MHz
-                "Peak": np.nan # NEW: Added Peak column
+                "FREQ (MHZ)": freq_MHz, # Store in MHz
+                "PEAK": np.nan # NEW: Added Peak column
             })
     
-        debug_log(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.", file=current_file, function=current_function)
+        debug_log(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         return headers, csv_data
 
     except FileNotFoundError:
     
-        debug_log(f"Error: The file '{xml_file_path}' was not found.", file=current_file, function=current_function)
+        debug_log(f"Error: The file '{xml_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise FileNotFoundError(f"The file '{xml_file_path}' was not found.")
     except ET.ParseError as e:
     
-        debug_log(f"Error: Malformed XML (SHW) file '{xml_file_path}': {e}", file=current_file, function=current_function)
+        debug_log(f"Error: Malformed XML (SHW) file '{xml_file_path}': {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise ET.ParseError(f"Error parsing XML (SHW) file '{xml_file_path}': {e}")
     except Exception as e:
     
-        debug_log(f"Error during SHW conversion data extraction: {e}", file=current_file, function=current_function)
+        debug_log(f"Error during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise
 
-def convert_pdf_report_to_csv(pdf_file_path):
+def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
     """
     Parses a PDF file (Sound Base format) and extracts frequency data, converting it
     into a standardized CSV format. This function maps PDF fields to the MARKERS.CSV
@@ -362,20 +362,20 @@ def convert_pdf_report_to_csv(pdf_file_path):
     current_file = os.path.basename(__file__)
 
     
-    debug_log(f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.", file=current_file, function=current_function)
+    debug_log(f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
-    headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ", "Peak"] # NEW: Added Peak header
+    
     csv_data = []
 
     try:
         with pdfplumber.open(pdf_file_path) as pdf:
             last_known_group = "Uncategorized" # Default group if not found
             
-            debug_log(f"Opened PDF with {len(pdf.pages)} pages.", file=current_file, function=current_function)
+            debug_log(f"Opened PDF with {len(pdf.pages)} pages.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             for page_num, page in enumerate(pdf.pages):
         
-                debug_log(f"Processing Page {page_num + 1}...", file=current_file, function=current_function)
+                debug_log(f"Processing Page {page_num + 1}...",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 # Extract text for group headers
                 lines = page.extract_text().splitlines()
                 lines = [line.strip() for line in lines if line.strip()]
@@ -384,7 +384,7 @@ def convert_pdf_report_to_csv(pdf_file_path):
                                  if re.match(r".+\(\d+ frequencies\)", line)]
 
                 tables = page.extract_tables()
-                debug_log(f"Found {len(tables)} tables on Page {page_num + 1}.", file=current_file, function=current_function)
+                debug_log(f"Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
                 group_index = 0
                 for table_num, table in enumerate(tables):
@@ -394,14 +394,14 @@ def convert_pdf_report_to_csv(pdf_file_path):
 
                     current_zone = last_known_group # PDF Group -> CSV ZONE
         
-                    debug_log(f"Processing Table {table_num + 1} for Zone: {current_zone}", file=current_file, function=current_function)
+                    debug_log(f"Processing Table {table_num + 1} for Zone: {current_zone}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
                     for row_num, row in enumerate(table):
                         if not row or all(cell is None or cell.strip() == "" for cell in row):
                             continue
 
                         if "Model" in row[0] and "Frequency" in row[-1]: # Skip header rows
-                            debug_log(f"Skipping header row: {row}", file=current_file, function=current_function)
+                            debug_log(f"Skipping header row: {row}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             continue
 
                         clean_row = [cell.replace("\n", " ").strip() if cell else "" for cell in row]
@@ -412,7 +412,7 @@ def convert_pdf_report_to_csv(pdf_file_path):
                         model_pdf, band_pdf, name_pdf, preset_pdf, spacing_pdf, frequency_pdf_str = clean_row
 
                         if model_pdf.strip() == current_zone.strip(): # Skip rows that mistakenly repeat the group name
-                            debug_log(f"Skipping duplicate group name row: {row}", file=current_file, function=current_function)
+                            debug_log(f"Skipping duplicate group name row: {row}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             continue
 
                         # Map PDF fields to CSV fields
@@ -432,10 +432,10 @@ def convert_pdf_report_to_csv(pdf_file_path):
                         try:
                             # The frequency is already in MHz, so no conversion needed
                             freq_MHz_csv = float(frequency_pdf_str)
-                            debug_log(f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz", file=current_file, function=current_function)
+                            debug_log(f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                         except ValueError:
         
-                            debug_log(f"PDF Freq conversion error: '{frequency_pdf_str}'", file=current_file, function=current_function)
+                            debug_log(f"PDF Freq conversion error: '{frequency_pdf_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                             freq_MHz_csv = "Invalid Frequency"
 
                         csv_data.append({
@@ -443,19 +443,121 @@ def convert_pdf_report_to_csv(pdf_file_path):
                             "GROUP": group_csv,
                             "DEVICE": device_csv,
                             "NAME": name_csv,
-                            "FREQ": freq_MHz_csv,
-                            "Peak": np.nan # NEW: Added Peak column
+                            "FREQ (MHZ)": freq_MHz_csv,
+                            "PEAK": np.nan # NEW: Added Peak column
                         })
-                        debug_log(f"Added PDF row: {csv_data[-1]}", file=current_file, function=current_function)
+                        debug_log(f"Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         
-        debug_log(f"Finished PDF report conversion. Extracted {len(csv_data)} rows.", file=current_file, function=current_function)
+        debug_log(f"Finished PDF report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         return headers, csv_data
 
     except FileNotFoundError:
         
-        debug_log(f"Error: The file '{pdf_file_path}' was not found.", file=current_file, function=current_function)
+        debug_log(f"Error: The file '{pdf_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise FileNotFoundError(f"The file '{pdf_file_path}' was not found.")
     except Exception as e:
         
-        debug_log(f"Error during PDF conversion data extraction: {e}", file=current_file, function=current_function)
+        debug_log(f"Error during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise
+
+
+def Marker_convert_csv_unknow_report_to_csv(file_path):
+    """
+    Performs a 'best-effort' conversion of a CSV file with unknown headers
+    to the standardized marker report format.
+    
+    Args:
+        file_path (str): The path to the input CSV file.
+    
+    Returns:
+        tuple: A tuple containing the standardized headers and a list of
+               dictionaries with the matched data.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(
+        message=f"🛠️🟢 Starting best-effort CSV conversion for: {file_path}",
+        file=current_file,
+        version=current_version,
+        function=current_function,
+        console_print_func=console_log
+    )
+    
+    # Standardized headers and their common aliases
+    standard_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
+    header_aliases = {
+        "zone": ["zone", "area", "location"],
+        "group": ["group", "channel_group"],
+        "device": ["device", "dev_type", "model"],
+        "name": ["name", "alias", "description"],
+        "freq (mhz)": ["freq", "frequency", "frequency_mhz", "freq (mhz)"],
+        "peak": ["peak", "peak_level", "max_level", "dbm"]
+    }
+    
+    try:
+        with open(file_path, 'r', newline='') as csvfile:
+            reader = csv.reader(csvfile)
+            input_headers = [h.strip().lower() for h in next(reader)]
+            data = list(reader)
+        
+        header_map = {}
+        for std_header in standard_headers:
+            aliases = header_aliases.get(std_header.lower(), [std_header.lower()])
+            for alias in aliases:
+                if alias in input_headers:
+                    header_map[std_header] = input_headers.index(alias)
+                    break
+        
+        processed_data = []
+        for row in data:
+            new_row = {header: None for header in standard_headers}
+            
+            for std_header, index in header_map.items():
+                if index < len(row):
+                    value = row[index].strip()
+                    if std_header.lower() == "freq (mhz)" and value:
+                        try:
+                            # Attempt to convert to MHz if needed
+                            match = re.search(r'(\d+(?:\.\d+)?)\s*(?:(k|m|g)?hz)?', value, re.IGNORECASE)
+                            if match:
+                                val = float(match.group(1))
+                                unit = match.group(2)
+                                if unit and unit.lower() == 'k':
+                                    val /= 1000
+                                elif unit and unit.lower() == 'g':
+                                    val *= 1000
+                                new_row[std_header] = val
+                            else:
+                                new_row[std_header] = float(value)
+                        except ValueError:
+                            new_row[std_header] = value
+                    else:
+                        new_row[std_header] = value
+            processed_data.append(new_row)
+            
+        debug_log(
+            message=f"✅ Finished best-effort conversion. Headers mapped: {header_map}",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        return standard_headers, processed_data
+        
+    except FileNotFoundError:
+        debug_log(
+            message=f"❌ Error: The file '{file_path}' was not found.",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        return [], []
+    except Exception as e:
+        debug_log(
+            message=f"❌ Error during best-effort CSV conversion: {e}",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        return [], []

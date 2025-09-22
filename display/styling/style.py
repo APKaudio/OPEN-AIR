@@ -1,4 +1,4 @@
-# styling/style.py
+# display/styling/style.py
 #
 # Defines the color palettes for different UI themes, providing a centralized
 # source for application-wide style configurations.
@@ -14,14 +14,16 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250905.022800.17
+# Version 20250921.211000.1
 
 import os
 import copy
+import tkinter as tk
+from tkinter import ttk
 
 # --- Global Scope Variables ---
-current_version = "20250905.022800.17"
-current_version_hash = (20250905 * 22800 * 17)
+current_version = "20250921.211000.1"
+current_version_hash = (20250921 * 211000 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # The default theme to use. This can be changed here to easily switch the entire application's style.
