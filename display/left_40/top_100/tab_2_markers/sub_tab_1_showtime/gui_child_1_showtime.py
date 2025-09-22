@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.145500.10
+# Version 20250922.160500.13
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -29,11 +29,12 @@ import re
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.worker_marker_file_handling import maker_file_check_for_markers_file
+from workers.worker_marker_tune_to_marker import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.145500.10"
-current_version_hash = (20250922 * 145500 * 10)
+current_version = "20250922.160500.13"
+current_version_hash = (20250922 * 160500 * 13)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -257,6 +258,20 @@ class ShowtimeTab(ttk.Frame):
             console_print_func=console_log
         )
 
+    def _calculate_freq_range(self, data):
+        """
+        Calculates the min and max frequencies from a list of marker dictionaries.
+        """
+        freqs = []
+        for marker in data:
+            try:
+                freqs.append(float(marker.get('FREQ (MHZ)', 0)))
+            except (ValueError, TypeError):
+                continue
+        if freqs:
+            return min(freqs), max(freqs)
+        return None, None
+
     def _create_zone_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
@@ -272,9 +287,21 @@ class ShowtimeTab(ttk.Frame):
         sorted_zones = sorted(self.grouped_markers.keys())
         for i, zone_name in enumerate(sorted_zones):
             is_selected = self.selected_zone == zone_name
+            
+            all_zone_devices = []
+            for group in self.grouped_markers[zone_name].values():
+                all_zone_devices.extend(group)
+            min_freq, max_freq = self._calculate_freq_range(all_zone_devices)
+            
+            freq_range_text = ""
+            if min_freq is not None and max_freq is not None:
+                freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
+
+            button_text = f"{zone_name}{freq_range_text}"
+
             button = ttk.Button(
                 self.zone_frame,
-                text=zone_name,
+                text=button_text,
                 command=lambda z=zone_name: self._on_zone_toggle(z),
                 style='Custom.TButton' if not is_selected else 'Custom.Selected.TButton'
             )
@@ -313,9 +340,19 @@ class ShowtimeTab(ttk.Frame):
             sorted_groups = sorted(self.grouped_markers[self.selected_zone].keys())
             for i, group_name in enumerate(sorted_groups):
                 is_selected = self.selected_group == group_name
+
+                group_devices = self.grouped_markers[self.selected_zone][group_name]
+                min_freq, max_freq = self._calculate_freq_range(group_devices)
+                
+                freq_range_text = ""
+                if min_freq is not None and max_freq is not None:
+                    freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
+                
+                button_text = f"{group_name}{freq_range_text}"
+                
                 button = ttk.Button(
                     self.group_frame,
-                    text=group_name,
+                    text=button_text,
                     command=lambda g=group_name: self._on_group_toggle(g),
                     style='Custom.TButton' if not is_selected else 'Custom.Selected.TButton'
                 )
@@ -501,3 +538,6 @@ class ShowtimeTab(ttk.Frame):
             self.selected_device_button = button
             self.selected_device_button.config(style='Custom.Selected.TButton')
             console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ (MHZ)', 'N/A')} MHz.")
+            
+            # 💡 NEW: This is the new logic for tuning
+            Push_Marker_to_Center_Freq(mqtt_controller=self.mqtt_util, marker_data=marker_data)

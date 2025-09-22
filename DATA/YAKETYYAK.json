@@ -425,12 +425,14 @@
                         "center_freq": {
                             "value": "11111111",
                             "type": "_Value",
-                            "description": "The SCPI input for center frequency."
+                            "description": "The SCPI input for center frequency.",
+                            "": "{\"value\": 601000000.0}"
                         },
                         "span_freq": {
                             "value": "222222",
                             "type": "_Value",
-                            "description": "The SCPI input for span frequency."
+                            "description": "The SCPI input for span frequency.",
+                            "": "{\"value\": 1000000.0}"
                         }
                     },
                     "scpi_outputs": {
