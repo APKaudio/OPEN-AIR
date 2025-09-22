@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.160500.13
+# Version 20250922.162000.15
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -33,8 +33,8 @@ from workers.worker_marker_tune_to_marker import Push_Marker_to_Center_Freq, Pus
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.160500.13"
-current_version_hash = (20250922 * 160500 * 13)
+current_version = "20250922.162000.15"
+current_version_hash = (20250922 * 162000 * 15)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -160,6 +160,10 @@ class ShowtimeTab(ttk.Frame):
         self.device_frame.grid_columnconfigure(1, weight=1)
         self.device_frame.grid_columnconfigure(2, weight=1)
         self.device_frame.grid_columnconfigure(3, weight=1)
+        
+        # New "Tune" button
+        self.tune_button = ttk.Button(self.filter_frame, text="TUNE", command=self._on_tune_request, style='Green.TButton')
+        self.tune_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
     
     def _reset_filters(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -380,6 +384,8 @@ class ShowtimeTab(ttk.Frame):
             console_print_func=console_log
         )
         
+        if self.selected_device_button:
+            self.selected_device_button.config(style='Custom.TButton')
         self.selected_device_button = None
 
         for widget in self.device_frame.winfo_children():
@@ -426,7 +432,9 @@ class ShowtimeTab(ttk.Frame):
                 text=button_text,
                 style='Custom.TButton'
             )
-            button.configure(command=lambda data=row_data, b=button: self._on_marker_button_click(data, b))
+            # Store data directly on the button object
+            button.marker_data = row_data
+            button.configure(command=lambda b=button: self._on_marker_button_click(b))
             
             row = i // 4
             col = i % 4
@@ -439,6 +447,85 @@ class ShowtimeTab(ttk.Frame):
             function=f"{self.__class__.__name__}.{current_function}",
             console_print_func=console_log
         )
+            
+    def _on_tune_request(self):
+        """
+        Tunes the instrument based on the current selections.
+        This is the new central tuning logic.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(
+            message="🛠️🟢 'TUNE' button clicked. Initiating tuning request.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            console_print_func=console_log
+        )
+        
+        if self.selected_device_button:
+            # Case 1: A specific device is selected
+            marker_data = self.selected_device_button.marker_data
+            debug_log(
+                message=f"🔍 Device button selected. Tuning to center frequency of {marker_data.get('NAME', 'N/A')}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+            Push_Marker_to_Center_Freq(mqtt_controller=self.mqtt_util, marker_data=marker_data)
+        elif self.selected_group:
+            # Case 2: A group is selected, but no device
+            debug_log(
+                message=f"🔍 No device selected. Tuning to start/stop frequency of selected Group: {self.selected_group}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+            group_devices = self.grouped_markers[self.selected_zone][self.selected_group]
+            min_freq, max_freq = self._calculate_freq_range(group_devices)
+            
+            if min_freq is not None and max_freq is not None:
+                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            else:
+                console_log("❌ Failed to tune: No valid frequencies found in selected group.")
+                
+        elif self.selected_zone:
+            # Case 3: A zone is selected, but no group or device
+            debug_log(
+                message=f"🔍 No group selected. Tuning to start/stop frequency of selected Zone: {self.selected_zone}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+            all_zone_devices = []
+            for group_name in self.grouped_markers[self.selected_zone]:
+                all_zone_devices.extend(self.grouped_markers[self.selected_zone][group_name])
+            min_freq, max_freq = self._calculate_freq_range(all_zone_devices)
+            
+            if min_freq is not None and max_freq is not None:
+                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            else:
+                console_log("❌ Failed to tune: No valid frequencies found in selected zone.")
+        else:
+            # Case 4: No filters selected, tune to all markers
+            debug_log(
+                message="🔍 No filters selected. Tuning to start/stop frequency of all markers.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+            min_freq, max_freq = self._calculate_freq_range(self.marker_data)
+            
+            if min_freq is not None and max_freq is not None:
+                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            else:
+                console_log("❌ Failed to tune: No valid frequencies found in marker data.")
             
     def _on_zone_toggle(self, zone_name):
         current_function = inspect.currentframe().f_code.co_name
@@ -517,7 +604,7 @@ class ShowtimeTab(ttk.Frame):
         for widget in self.group_frame.winfo_children():
             widget.destroy()
 
-    def _on_marker_button_click(self, marker_data, button):
+    def _on_marker_button_click(self, button):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
             message="🛠️🔵 Device button clicked. Toggling selection.",
@@ -526,6 +613,7 @@ class ShowtimeTab(ttk.Frame):
             function=f"{self.__class__.__name__}.{current_function}",
             console_print_func=console_log
         )
+        marker_data = button.marker_data
         
         if self.selected_device_button == button:
             self.selected_device_button.config(style='Custom.TButton')
@@ -538,6 +626,3 @@ class ShowtimeTab(ttk.Frame):
             self.selected_device_button = button
             self.selected_device_button.config(style='Custom.Selected.TButton')
             console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ (MHZ)', 'N/A')} MHz.")
-            
-            # 💡 NEW: This is the new logic for tuning
-            Push_Marker_to_Center_Freq(mqtt_controller=self.mqtt_util, marker_data=marker_data)
