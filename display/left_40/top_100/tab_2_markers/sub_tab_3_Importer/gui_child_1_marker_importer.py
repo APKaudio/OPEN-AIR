@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250921.214729.1
+# Version 20250921.232515.2
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
@@ -44,13 +44,14 @@ from workers.worker_marker_file_handling import (
     maker_file_save_open_air_file
 )
 from workers.worker_marker_report_converter import (
-    Marker_convert_wwb_zip_report_to_csv  # New import for the zip worker
+    Marker_convert_wwb_zip_report_to_csv,  # New import for the zip worker
+    Marker_convert_SB_v2_PDF_File_report_to_csv # NEW: Import for the SB v2 PDF converter
 )
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250921.214729.1"
-current_version_hash = (20250921 * 214729 * 1)
+current_version = "20250921.232515.2"
+current_version_hash = (20250921 * 232515 * 2)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -198,6 +199,10 @@ class MarkerImporterTab(ttk.Frame):
         self.load_sb_pdf_button = ttk.Button(load_markers_frame, text="Load SB PDF", style='Action.TButton', command=self._load_sb_pdf_action)
         self.load_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
         
+        # NEW: Add the button to load the new SB V2.pdf format
+        self.load_sb_v2_pdf_button = ttk.Button(load_markers_frame, text="Load SB V2.pdf", style='Action.TButton', command=self._load_sb_v2_pdf_action)
+        self.load_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
+        
         marker_table_frame = ttk.LabelFrame(self, text="Marker Editor", padding=(5,5,5,5))
         marker_table_frame.grid(row=1, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="nsew")
         marker_table_frame.grid_columnconfigure(0, weight=1)
@@ -311,6 +316,38 @@ class MarkerImporterTab(ttk.Frame):
 
     def _load_sb_pdf_action(self):
         headers, data = maker_file_load_sb_pdf()
+        if headers and data:
+            self.tree_headers = headers
+            self.tree_data = data
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _load_sb_v2_pdf_action(self):
+        """
+        Action to load a new SB V2.pdf file via a dialog.
+        This function now calls the new worker function to process the file.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        # The GUI handles the file dialog to get the path.
+        file_path = filedialog.askopenfilename(
+            defaultextension=".pdf",
+            filetypes=[("Sound Base V2 PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+        if not file_path:
+            debug_log(
+                message="🛠️🟡 'Load SB V2.pdf' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+            return
+
+        # Pass the file path to the new worker function.
+        headers, data = Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path=file_path)
+        
+        # Update the GUI with the results from the worker.
         if headers and data:
             self.tree_headers = headers
             self.tree_data = data

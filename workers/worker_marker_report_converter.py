@@ -1,4 +1,4 @@
-# worker/worker_marker_report_converter.py
+# workers/worker_marker_report_converter.py
 #
 # This file contains utility functions for converting various spectrum analyzer
 # report formats (HTML, SHW, Soundbase PDF) into a standardized CSV format.
@@ -9,7 +9,7 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
@@ -621,7 +621,6 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
         debug_log(f"Error during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise
 
-
 def Marker_convert_csv_unknow_report_to_csv(file_path):
     """
     Performs a 'best-effort' conversion of a CSV file with unknown headers
@@ -718,6 +717,102 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
     except Exception as e:
         debug_log(
             message=f"❌ Error during best-effort CSV conversion: {e}",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        return [], []
+    
+
+
+def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
+    """
+    Parses a PDF file (Sound Base v2 format) and extracts frequency data, converting it
+    into a standardized CSV format.
+
+    Args:
+        pdf_file_path (str): The full path to the PDF file.
+        
+    Returns:
+        tuple: A tuple containing:
+               - headers (list): A list of strings representing the CSV header row.
+               - csv_data (list): A list of dictionaries, where each dictionary
+                                  represents a row of data with keys matching the headers.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    
+    debug_log(
+        message=f"🛠️🟢 Starting PDF (Sound Base v2) report conversion for: {os.path.basename(pdf_file_path)}",
+        file=current_file,
+        version=current_version,
+        function=f"{current_function}",
+        console_print_func=console_log
+    )
+    
+    csv_data = []
+
+    try:
+        with pdfplumber.open(pdf_file_path) as pdf:
+            text = pdf.pages[0].extract_text()
+            
+            # Use regex to find the ZONE
+            zone_match = re.search(r'ZONE: (.+)', text)
+            zone = zone_match.group(1).strip() if zone_match else 'N/A'
+            debug_log(f"🔍 Found ZONE: {zone}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            
+            # The pattern to find all groups
+            group_pattern = re.compile(r'^\s*([A-Z\s&]+ IEM\'S|[A-Z\s&]+ MICS & BACKLINE)\s*$', re.MULTILINE)
+            
+            lines = text.split('\n')
+            current_group = None
+            
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                
+                # Check if the line is a new group header
+                group_match = group_pattern.search(line)
+                if group_match:
+                    current_group = group_match.group(1).strip()
+                    debug_log(f"🔍 Found new GROUP: {current_group}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    continue
+                
+                # Regex to find all frequency-device pairs on the current line
+                device_matches = re.findall(r'(\d+\.\d+)\s+([\w\s-]+?(?=\s*\d+\.\d+|$))', line)
+                
+                if device_matches:
+                    for freq, device in device_matches:
+                        device_clean = device.strip()
+                        freq_clean = freq.strip()
+                        
+                        if current_group:
+                            csv_data.append({
+                                'ZONE': zone,
+                                'GROUP': current_group,
+                                'DEVICE': device_clean,
+                                'NAME': device_clean,
+                                'FREQ (MHZ)': freq_clean,
+                                'PEAK': np.nan 
+                            })
+                            
+            debug_log(f"✅ Finished conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            return headers, csv_data
+
+    except FileNotFoundError:
+        debug_log(
+            message=f"❌ Error: The file '{pdf_file_path}' was not found.",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        return [], []
+    except Exception as e:
+        debug_log(
+            message=f"❌ Error during PDF conversion: {e}",
             file=current_file,
             version=current_version,
             function=current_function,
