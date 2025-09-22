@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.013245.4
+# Version 20250922.034500.8
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
@@ -50,8 +50,8 @@ from workers.worker_marker_report_converter import (
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.013245.4"
-current_version_hash = (20250922 * 13245 * 4)
+current_version = "20250922.034500.8"
+current_version_hash = (20250922 * 34500 * 8)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -121,7 +121,15 @@ class MarkerImporterTab(ttk.Frame):
                         foreground=colors["fg"],
                         relief=colors["relief"],
                         borderwidth=colors["border_width"])
-
+        
+        # NEW: Styling for the entry editor.
+        style.configure('Markers.TEntry',
+                        fieldbackground=colors["entry_bg"],
+                        foreground=colors["entry_fg"],
+                        insertbackground=colors["fg"],
+                        selectbackground=colors["hover_blue"],
+                        selectforeground=colors["text"])
+        
         # Button styling - Refined to use central theme dictionary
         style.configure('TButton',
                         background=colors["secondary"],
@@ -175,7 +183,6 @@ class MarkerImporterTab(ttk.Frame):
         self.grid_rowconfigure(1, weight=1) 
         self.grid_rowconfigure(2, weight=0) 
         self.grid_rowconfigure(3, weight=0)
-        self.grid_rowconfigure(4, weight=0)
         
         load_markers_frame = ttk.LabelFrame(self, text="Load Markers", padding=(5,5,5,5))
         load_markers_frame.grid(row=0, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
@@ -223,6 +230,11 @@ class MarkerImporterTab(ttk.Frame):
         tree_xscroll.grid(row=1, column=0, sticky="ew")
         self.marker_tree.configure(xscrollcommand=tree_xscroll.set)
         
+        # NEW: Bindings for editing, sorting, and deleting
+        self.marker_tree.bind("<Double-1>", self._on_tree_double_click)
+        self.marker_tree.bind("<Button-1>", self._on_tree_header_click, add="+")
+        self.marker_tree.bind("<Delete>", self._delete_selected_row)
+        
         # NEW: Create a frame for the 'Append' buttons
         append_markers_frame = ttk.LabelFrame(self, text="Append Markers", padding=(5,5,5,5))
         append_markers_frame.grid(row=2, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
@@ -269,7 +281,7 @@ class MarkerImporterTab(ttk.Frame):
             console_print_func=console_log
         )
         for col in standardized_headers:
-            self.marker_tree.heading(col, text=col)
+            self.marker_tree.heading(col, text=col, command=lambda c=col: self._sort_treeview(c, False))
             self.marker_tree.column(col, width=100)
             
         for row in self.tree_data:
@@ -465,3 +477,327 @@ class MarkerImporterTab(ttk.Frame):
     def _save_open_air_file_action(self):
         # Call the worker function with the current data from the GUI
         maker_file_save_open_air_file(self.tree_headers, self.tree_data)
+        
+    def _delete_selected_row(self, event):
+        """Deletes the currently selected row from the Treeview and the underlying data."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"[{current_file} - {current_function}] Delete key pressed.",
+                  file=current_file,
+                  version=current_version,
+                  function=current_function,
+                  console_print_func=console_log)
+
+        selected_items = self.marker_tree.selection()
+        if not selected_items:
+            console_log("🟡 No row selected to delete.")
+            return
+
+        for item in selected_items:
+            # Get the index of the item to delete
+            index_in_tree = self.marker_tree.index(item)
+            if index_in_tree < len(self.tree_data):
+                # Remove from both the GUI and the internal data structure
+                self.marker_tree.delete(item)
+                del self.tree_data[index_in_tree]
+                console_log(f"✅ Deleted row {index_in_tree + 1}.")
+            else:
+                console_log(f"❌ Error: Row {index_in_tree + 1} not found in data.")
+
+        # Save the updated data to the intermediate file
+        maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _on_tree_double_click(self, event):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"[{current_file} - {current_function}] Treeview double-clicked for editing.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    console_print_func=console_log)
+
+        if not self.marker_tree.identify_region(event.x, event.y) == "cell":
+            return
+
+        column_id = self.marker_tree.identify_column(event.x)
+        item_id = self.marker_tree.identify_row(event.y)
+
+        if not item_id or not column_id:
+            return
+
+        col_index = int(column_id[1:]) - 1
+        if col_index < 0 or col_index >= len(self.tree_headers):
+            debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for editing.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function,
+                        console_print_func=console_log)
+            return
+
+        current_value = self.marker_tree.item(item_id, 'values')[col_index]
+
+        self._start_editing_cell(item_id, col_index, initial_value=current_value)
+
+    def _start_editing_cell(self, item, col_index, initial_value=""):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+
+        for widget in self.marker_tree.winfo_children():
+            if isinstance(widget, ttk.Entry) and widget.winfo_name() == "cell_editor":
+                widget.destroy()
+
+        entry_editor = ttk.Entry(self.marker_tree, style="Markers.TEntry", name="cell_editor")
+        entry_editor.insert(0, initial_value)
+        entry_editor.focus_force()
+
+        x, y, width, height = self.marker_tree.bbox(item, self.marker_tree["columns"][col_index])
+        entry_editor.place(x=x, y=y, width=width, height=height)
+
+        entry_editor.current_item = item
+        entry_editor.current_col_index = col_index
+
+        def on_edit_complete_and_navigate(event, navigate_direction=None):
+            new_value = entry_editor.get()
+            entry_editor.destroy()
+
+            current_values = list(self.marker_tree.item(item, 'values'))
+            current_values[col_index] = new_value
+            self.marker_tree.item(item, values=current_values)
+
+            row_idx = self.marker_tree.index(item)
+            if row_idx < len(self.tree_data) and isinstance(self.tree_data[row_idx], dict):
+                self.tree_data[row_idx][self.tree_headers[col_index]] = new_value
+                console_log(f"Updated cell: Row {row_idx+1}, Column '{self.tree_headers[col_index]}' to '{new_value}'")
+                debug_log(f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{self.tree_headers[col_index]}'] to '{new_value}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function,
+                            console_print_func=console_log)
+                
+                # Update the intermediate file after each edit.
+                maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+            else:
+                debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function,
+                            console_print_func=console_log)
+
+            if navigate_direction:
+                self._navigate_cells(item, col_index, navigate_direction)
+
+        entry_editor.bind("<Return>", lambda e: on_edit_complete_and_navigate(e, "down"))
+        entry_editor.bind("<Tab>", lambda e: on_edit_complete_and_navigate(e, "right"))
+        entry_editor.bind("<Shift-Tab>", lambda e: on_edit_complete_and_navigate(e, "left"))
+        entry_editor.bind("<Control-Return>", lambda e: on_edit_complete_and_navigate(e, "ctrl_down"))
+        entry_editor.bind("<FocusOut>", lambda e: on_edit_complete_and_navigate(e, None))
+        entry_editor.bind("<Up>", lambda e: on_edit_complete_and_navigate(e, "up"))
+        entry_editor.bind("<Down>", lambda e: on_edit_complete_and_navigate(e, "down"))
+        entry_editor.bind("<Left>", lambda e: on_edit_complete_and_navigate(e, "left"))
+        entry_editor.bind("<Right>", lambda e: on_edit_complete_and_navigate(e, "right"))
+
+    def _navigate_cells(self, current_item, current_col_index, direction):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"[{current_file} - {current_function}] Navigating cells.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    console_print_func=console_log)
+
+        items = self.marker_tree.get_children()
+        num_rows = len(items)
+        num_cols = len(self.tree_headers)
+
+        current_row_idx = items.index(current_item) if current_item in items else -1
+        
+        next_item = None
+        next_col_index = -1
+        initial_value_for_next_cell = ""
+
+        if current_row_idx == -1:
+            debug_log(f"[{current_file} - {current_function}] Current item not found in tree for navigation.",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function,
+                        console_print_func=console_log)
+            return
+
+        if direction == "down":
+            next_row_idx = current_row_idx + 1
+            next_col_index = current_col_index
+            if next_row_idx < num_rows:
+                next_item = items[next_row_idx]
+        elif direction == "up":
+            next_row_idx = current_row_idx - 1
+            next_col_index = current_col_index
+            if next_row_idx >= 0:
+                next_item = items[next_row_idx]
+        elif direction == "right":
+            next_col_index = current_col_index + 1
+            if next_col_index < num_cols:
+                next_item = current_item
+            else:
+                next_row_idx = current_row_idx + 1
+                if next_row_idx < num_rows:
+                    next_item = items[next_row_idx]
+                    next_col_index = 0
+        elif direction == "left":
+            next_col_index = current_col_index - 1
+            if next_col_index >= 0:
+                next_item = current_item
+            else:
+                next_row_idx = current_row_idx - 1
+                if next_row_idx >= 0:
+                    next_item = items[next_row_idx]
+                    next_col_index = num_cols - 1
+        elif direction == "ctrl_down":
+            next_row_idx = current_row_idx + 1
+            next_col_index = current_col_index
+            if next_row_idx < num_rows:
+                next_item = items[next_row_idx]
+                prev_cell_value = self.marker_tree.item(current_item, 'values')[current_col_index]
+                initial_value_for_next_cell = self._increment_string_with_trailing_digits(prev_cell_value)
+                
+                # Update the new row's internal data immediately before editing
+                new_values = list(self.marker_tree.item(next_item, 'values'))
+                new_values[next_col_index] = initial_value_for_next_cell
+                self.marker_tree.item(next_item, values=new_values)
+                if next_row_idx < len(self.tree_data) and isinstance(self.tree_data[next_row_idx], dict):
+                    self.tree_data[next_row_idx][self.tree_headers[next_col_index]] = initial_value_for_next_cell
+            else:
+                debug_log(f"[{current_file} - {current_function}] Cannot Ctrl+Enter: No row below.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function,
+                            console_print_func=console_log)
+                return
+
+        if next_item is not None and next_col_index != -1:
+            if direction != "ctrl_down":
+                try:
+                    next_item_values = self.marker_tree.item(next_item, 'values')
+                    if 0 <= next_col_index < len(next_item_values):
+                        initial_value_for_next_cell = next_item_values[next_col_index]
+                    else:
+                        debug_log(f"[{current_file} - {current_function}] Next column index {next_col_index} out of bounds for next item values. Setting empty.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=current_function,
+                                    console_print_func=console_log)
+                        initial_value_for_next_cell = ""
+                except Exception as e:
+                    debug_log(f"[{current_file} - {current_function}] Error getting initial value for next cell: {e}. Setting empty.",
+                                file=current_file,
+                                version=current_version,
+                                function=current_function,
+                                console_print_func=console_log)
+                    initial_value_for_next_cell = ""
+
+            self.marker_tree.focus(next_item)
+            self.marker_tree.selection_set(next_item)
+            self.after(10, lambda: self._start_editing_cell(next_item, next_col_index, initial_value_for_next_cell))
+        else:
+            debug_log(f"[{current_file} - {current_function}] No cell to navigate to in direction: {direction}",
+                        file=current_file,
+                        version=current_version,
+                        function=current_function,
+                        console_print_func=console_log)
+    
+    def _increment_string_with_trailing_digits(self, text):
+        match = re.search(r'(\d+)$', text)
+        if match:
+            num_str = match.group(1)
+            num_int = int(num_str)
+            incremented_num = num_int + 1
+            new_num_str = str(incremented_num).zfill(len(num_str))
+            return text[:-len(num_str)] + new_num_str
+        return text
+
+    def _on_tree_header_click(self, event):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"[{current_file} - {current_function}] Treeview header clicked for sorting.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    console_print_func=console_log)
+
+        region = self.marker_tree.identify_region(event.x, event.y)
+        if region == "heading":
+            column_id = self.marker_tree.identify_column(event.x)
+            col_index = int(column_id[1:]) - 1
+            if col_index < 0 or col_index >= len(self.tree_headers):
+                debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for sorting.",
+                            file=current_file,
+                            version=current_version,
+                            function=current_function,
+                            console_print_func=console_log)
+                return
+
+            column_name = self.tree_headers[col_index]
+
+            if self.sort_column == column_name:
+                self.sort_direction = not self.sort_direction
+            else:
+                self.sort_column = column_name
+                self.sort_direction = True
+
+            self._sort_treeview(column_name, self.sort_direction)
+
+    def _sort_treeview(self, column_name, ascending):
+        current_function = inspect.currentframe().f_code.co_name
+        current_file = os.path.basename(__file__)
+        debug_log(f"[{current_file} - {current_function}] Sorting treeview by '{column_name}', ascending: {ascending}.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    console_print_func=console_log)
+
+        def get_sort_key(item):
+            # FIXED: Access the value by key from the dictionary item
+            value = item.get(column_name, "")
+            try:
+                # Attempt to convert to float for numerical sorting
+                return float(value)
+            except (ValueError, TypeError):
+                # Fallback to string sorting for non-numeric values
+                return str(value)
+
+        # FIXED: The sort method is now applied directly to the list of dictionaries
+        self.tree_data.sort(key=get_sort_key, reverse=not ascending)
+
+        # Re-populate the treeview to reflect the new sort order
+        self._populate_marker_tree()
+        console_log(f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
+            
+    def _populate_marker_tree(self):
+        """Re-populates the treeview from the internal data model."""
+        self.marker_tree.delete(*self.marker_tree.get_children())
+        standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
+        
+        # Ensure columns are set before inserting data
+        self.marker_tree["columns"] = standardized_headers
+        for col in standardized_headers:
+            self.marker_tree.heading(col, text=col, command=lambda c=col: self._sort_treeview(c, self.sort_column != c or not self.sort_direction))
+            self.marker_tree.column(col, width=100)
+            
+        for row in self.tree_data:
+            values = [row.get(raw_header, '') for raw_header in standardized_headers]
+            self.marker_tree.insert("", "end", values=values)
+            
+    def _update_markers_display_tab_data(self):
+        """A placeholder function to simulate updating a display tab."""
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"[{current_file} - {current_function}] Notifying display tab of data change.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function,
+                    console_print_func=console_log)
+        # In a real-world scenario, this would publish an MQTT message
+        # to the display tab's listener.
+        # self.mqtt_util.publish_message(topic="display/markers/data_updated", value=self.tree_data)
+
+    def _save_markers_file_internally(self):
+        """Saves the current internal state to the intermediate file."""
+        maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
