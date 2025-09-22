@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250921.232515.2
+# Version 20250922.013245.4
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
@@ -50,8 +50,8 @@ from workers.worker_marker_report_converter import (
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250921.232515.2"
-current_version_hash = (20250921 * 232515 * 2)
+current_version = "20250922.013245.4"
+current_version_hash = (20250922 * 13245 * 4)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -174,6 +174,8 @@ class MarkerImporterTab(ttk.Frame):
         self.grid_rowconfigure(0, weight=0) 
         self.grid_rowconfigure(1, weight=1) 
         self.grid_rowconfigure(2, weight=0) 
+        self.grid_rowconfigure(3, weight=0)
+        self.grid_rowconfigure(4, weight=0)
         
         load_markers_frame = ttk.LabelFrame(self, text="Load Markers", padding=(5,5,5,5))
         load_markers_frame.grid(row=0, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
@@ -202,7 +204,7 @@ class MarkerImporterTab(ttk.Frame):
         # NEW: Add the button to load the new SB V2.pdf format
         self.load_sb_v2_pdf_button = ttk.Button(load_markers_frame, text="Load SB V2.pdf", style='Action.TButton', command=self._load_sb_v2_pdf_action)
         self.load_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
-        
+
         marker_table_frame = ttk.LabelFrame(self, text="Marker Editor", padding=(5,5,5,5))
         marker_table_frame.grid(row=1, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="nsew")
         marker_table_frame.grid_columnconfigure(0, weight=1)
@@ -221,8 +223,35 @@ class MarkerImporterTab(ttk.Frame):
         tree_xscroll.grid(row=1, column=0, sticky="ew")
         self.marker_tree.configure(xscrollcommand=tree_xscroll.set)
         
+        # NEW: Create a frame for the 'Append' buttons
+        append_markers_frame = ttk.LabelFrame(self, text="Append Markers", padding=(5,5,5,5))
+        append_markers_frame.grid(row=2, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
+        append_markers_frame.grid_columnconfigure(0, weight=1)
+        append_markers_frame.grid_columnconfigure(1, weight=1)
+        append_markers_frame.grid_columnconfigure(2, weight=1)
+        append_markers_frame.grid_columnconfigure(3, weight=1)
+        
+        self.append_csv_button = ttk.Button(append_markers_frame, text="Append CSV Marker Set", style='Action.TButton', command=self._append_markers_file_action)
+        self.append_csv_button.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+        
+        self.append_ias_html_button = ttk.Button(append_markers_frame, text="Append IAS HTML", style='Action.TButton', command=self._append_ias_html_action)
+        self.append_ias_html_button.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
+        
+        self.append_wwb_shw_button = ttk.Button(append_markers_frame, text="Append WWB.shw", style='Action.TButton', command=self._append_wwb_shw_action)
+        self.append_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
+        
+        self.append_wwb_zip_button = ttk.Button(append_markers_frame, text="Append WWB.zip", style='Action.TButton', command=self._append_wwb_zip_action)
+        self.append_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
+
+        self.append_sb_pdf_button = ttk.Button(append_markers_frame, text="Append SB PDF", style='Action.TButton', command=self._append_sb_pdf_action)
+        self.append_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
+        
+        self.append_sb_v2_pdf_button = ttk.Button(append_markers_frame, text="Append SB V2.pdf", style='Action.TButton', command=self._append_sb_v2_pdf_action)
+        self.append_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
+
         self.save_open_air_button = ttk.Button(self, text="Save Markers as Open Air.csv", style='Orange.TButton', command=self._save_open_air_file_action)
-        self.save_open_air_button.grid(row=2, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
+        self.save_open_air_button.grid(row=3, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
+
 
     def _update_treeview(self):
         # The GUI is now responsible for updating the display.
@@ -351,6 +380,85 @@ class MarkerImporterTab(ttk.Frame):
         if headers and data:
             self.tree_headers = headers
             self.tree_data = data
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    # --- NEW: Append Action Wrappers ---
+    def _append_markers_file_action(self):
+        headers, new_data = maker_file_load_markers_file()
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _append_ias_html_action(self):
+        headers, new_data = maker_file_load_ias_html()
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _append_wwb_shw_action(self):
+        headers, new_data = maker_file_load_wwb_shw()
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+    
+    def _append_wwb_zip_action(self):
+        current_function = inspect.currentframe().f_code.co_name
+        file_path = filedialog.askopenfilename(
+            defaultextension=".zip",
+            filetypes=[("Shure Wireless Workbench files", "*.zip"), ("All files", "*.*")]
+        )
+        if not file_path:
+            debug_log(
+                message="🛠️🟡 'Append WWB.zip' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+            return
+
+        headers, new_data = Marker_convert_wwb_zip_report_to_csv(file_path=file_path)
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _append_sb_pdf_action(self):
+        headers, new_data = maker_file_load_sb_pdf()
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+
+    def _append_sb_v2_pdf_action(self):
+        current_function = inspect.currentframe().f_code.co_name
+        file_path = filedialog.askopenfilename(
+            defaultextension=".pdf",
+            filetypes=[("Sound Base V2 PDF files", "*.pdf"), ("All files", "*.*")]
+        )
+        if not file_path:
+            debug_log(
+                message="🛠️🟡 'Append SB V2.pdf' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+            return
+
+        headers, new_data = Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path=file_path)
+        if headers and new_data:
+            self.tree_headers = headers
+            self.tree_data.extend(new_data)
             self._update_treeview()
             maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
 
