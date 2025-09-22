@@ -16,6 +16,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 # Version 20250815.200000.3 (FIXED: The headers for CSV conversions now include a "Peak" column with a placeholder value to prevent data loss.)
+# MODIFIED: Added a new function Marker_convert_wwb_zip_report_to_csv to handle WWB zip files.
 
 import csv
 import subprocess
@@ -27,6 +28,9 @@ from bs4 import BeautifulSoup
 import pdfplumber
 import inspect
 import numpy as np
+import zipfile
+import io
+# Removed the unnecessary import: from tkinter import filedialog
 
 current_file = os.path.basename(__file__) # Get current file name for debug_log
 current_version = "20250815.200000.3"
@@ -121,6 +125,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
             debug_log(f"Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             rows_in_table = table.find_all('tr')[1:] # Skip the first row as it contains the <th> (device_name)
+      
             debug_log(f"Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
             for row in rows_in_table:
@@ -173,7 +178,8 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                             }
                             if band_type or channel_frequency_str or channel_name:
                                 data_rows.append(row_data)
-                                debug_log(f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                           
+                            debug_log(f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 else:
                     # Process rows that have <td>s directly (e.g., blank rows or specific structures without inner spans)
                     cells = row.find_all('td')
@@ -183,6 +189,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         channel_frequency_str = channel_frequency_tag.get_text(strip=True) if channel_frequency_tag else ""
                         
                         channel_name = cells[1].get_text(strip=True)
+                     
                         if not channel_name:
                             channel_name = cells[2].get_text(strip=True)
 
@@ -192,7 +199,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                             freq_match = re.search(r'(\d+(?:\.\d+)?)\s*(?:(k|m|g)?hz)?', channel_frequency_str, re.IGNORECASE)
                             if freq_match:
                                 value = float(freq_match.group(1))
-                                unit_group = freq_match.group(3)
+                                unit_group = freq_match.group(2) # FIX: Changed from group(3) to group(2) to match regex changes
                                 if unit_group:
                                     unit = unit_group.lower()
                                     if unit == 'm': # MHz
@@ -217,6 +224,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         row_data = {
                             "ZONE": current_zone_type,
                             "GROUP": current_group_name,
+                        
                             "DEVICE": band_type,
                             "NAME": channel_name,
                             "FREQ (MHZ)": freq_MHz, # Store in MHz
@@ -279,7 +287,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             zone = zone_element.text if zone_element is not None else "N/A"
 
             group = freq_entry.get('tag', "N/A") # Extract GROUP from the 'tag' attribute of freq_entry
-            
+           
             # Extract DEVICE (manufacturer, model, band)
             manufacturer = freq_entry.find('manufacturer').text if freq_entry.find('manufacturer') is not None else "N/A"
             model = freq_entry.find('model').text if freq_entry.find('model') is not None else "N/A"
@@ -296,7 +304,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             freq_MHz = "N/A"
             if freq_element is not None and freq_element.text is not None:
                 freq_str = freq_element.text 
-                
+            
                 debug_log(f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
                 try:
@@ -333,6 +341,157 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
         debug_log(f"Error during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         raise
 
+def Marker_convert_wwb_zip_report_to_csv(file_path):
+    """
+    Parses a WWB.zip file, extracts relevant information, and returns a standardized
+    list of dictionaries.
+
+    Args:
+        file_path (str): The full path to the WWB.zip archive.
+
+    Returns:
+        tuple: A tuple containing:
+               - headers (list): A list of strings representing the CSV header row.
+               - csv_data (list): A list of dictionaries, where each dictionary
+                                  represents a row of data with keys matching the headers.
+    """
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+
+    if not file_path:
+        debug_log(
+            message="🛠️🟡 No file path provided for zip conversion.",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
+        return [], []
+        
+    debug_log(
+        message=f"🛠️🟢 Starting ZIP report conversion for: {os.path.basename(file_path)}",
+        file=current_file,
+        version=current_version,
+        function=f"{current_function}",
+        console_print_func=console_log
+    )
+    
+    csv_data = []
+
+    try:
+        # Parse the zip filename to get ZONE and GROUP
+        zip_filename_stem = os.path.splitext(os.path.basename(file_path))[0]
+        # Example: 'Chase Rice 08-09-25_Main Stage Direct Support_wwb'
+        zip_parts = re.split(r'_(?=\w+)', zip_filename_stem)
+        
+        # The ZONE is the first part, stripping the date part.
+        zone = zip_parts[0] if len(zip_parts) > 0 else "N/A"
+        
+        # The main group is the second part, stripping the last two parts.
+        group_match = re.search(r'([^_]+)_wwb$', zip_filename_stem)
+        main_group = group_match.group(1).replace('_', ' ') if group_match else "N/A"
+        
+        console_log(f"Derived from ZIP filename: ZONE='{zone}', Main Group='{main_group}'")
+
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+            csv_files = [name for name in zip_ref.namelist() if name.endswith('.csv')]
+            
+            if not csv_files:
+                console_log("❌ Error: No .csv file found inside the .zip archive.")
+                debug_log(
+                    message="❌🔴 No CSV file found within ZIP. Mission failed!",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
+                return [], []
+            
+            if len(csv_files) > 1:
+                console_log(f"🟡 Warning: Found multiple .csv files. Processing all of them.")
+                debug_log(
+                    message=f"🛠️🟡 Found multiple CSV files. Processing all of them.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
+
+            for csv_file_name in csv_files:
+                # Parse the CSV filename for device and group
+                csv_filename_stem = os.path.splitext(os.path.basename(csv_file_name))[0]
+                csv_filename_parts = csv_filename_stem.split('_')
+                
+                device = csv_filename_parts[0] if len(csv_filename_parts) > 0 else "N/A"
+                csv_group = csv_filename_parts[1] if len(csv_filename_parts) > 1 else "N/A"
+
+                with zip_ref.open(csv_file_name) as csv_in_zip:
+                    csv_reader = csv.reader(io.TextIOWrapper(csv_in_zip, 'utf-8'))
+                    
+                    for row in csv_reader:
+                        if not row:
+                            continue
+                        
+                        try:
+                            # Assume the first column is the frequency in MHz
+                            freq_mhz = float(row[0])
+                            
+                            row_data = {
+                                "ZONE": zone,
+                                "GROUP": csv_group,
+                                "DEVICE": device,
+                                "NAME": "",  # The prompt says just the freq, so name can be empty or the freq itself.
+                                "FREQ (MHZ)": freq_mhz,
+                                "PEAK": np.nan 
+                            }
+                            csv_data.append(row_data)
+                            debug_log(f"Added ZIP CSV row: {row_data}",
+                                        file=current_file,
+                                        version=current_version,
+                                        function=f"{current_function}",
+                                        console_print_func=console_log)
+                        except (ValueError, IndexError):
+                            # Skip rows that are not valid frequency data
+                            debug_log(f"Skipping non-frequency data row: {row}",
+                                        file=current_file,
+                                        version=current_version,
+                                        function=f"{current_function}",
+                                        console_print_func=console_log)
+            
+        console_log(f"✅ Extracted and converted {len(csv_files)} CSV files successfully!")
+        return headers, csv_data
+
+    except FileNotFoundError:
+        debug_log(
+            message=f"❌ Error: The file '{file_path}' was not found.",
+            file=current_file,
+            version=current_version,
+            function=current_function,
+            console_print_func=console_log
+        )
+        console_log(f"Error: The file '{file_path}' was not found.")
+        return [], []
+    except zipfile.BadZipFile:
+        debug_log(
+            message=f"❌ Error: The file '{file_path}' is not a valid zip archive.",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
+        console_log(f"Error: The file '{file_path}' is not a valid zip archive.")
+        return [], []
+    except Exception as e:
+        debug_log(
+            message=f"❌ Error converting ZIP file: {e}",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
+        console_log(f"Error: Failed to convert ZIP file. {e}")
+        return [], []
+    
 def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
     """
     Parses a PDF file (Sound Base format) and extracts frequency data, converting it
@@ -381,7 +540,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                 lines = [line.strip() for line in lines if line.strip()]
 
                 group_headers = [(i, line) for i, line in enumerate(lines)
-                                 if re.match(r".+\(\d+ frequencies\)", line)]
+                           if re.match(r".+\(\d+ frequencies\)", line)]
 
                 tables = page.extract_tables()
                 debug_log(f"Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
@@ -429,6 +588,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                         name_csv = name_pdf # PDF Name -> CSV NAME
 
                         freq_MHz_csv = "N/A"
+        
                         try:
                             # The frequency is already in MHz, so no conversion needed
                             freq_MHz_csv = float(frequency_pdf_str)
@@ -439,6 +599,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                             freq_MHz_csv = "Invalid Frequency"
 
                         csv_data.append({
+               
                             "ZONE": zone_csv,
                             "GROUP": group_csv,
                             "DEVICE": device_csv,
@@ -485,6 +646,7 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
     # Standardized headers and their common aliases
     standard_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
     header_aliases = {
+    
         "zone": ["zone", "area", "location"],
         "group": ["group", "channel_group"],
         "device": ["device", "dev_type", "model"],
@@ -506,7 +668,7 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                 if alias in input_headers:
                     header_map[std_header] = input_headers.index(alias)
                     break
-        
+       
         processed_data = []
         for row in data:
             new_row = {header: None for header in standard_headers}
@@ -526,6 +688,7 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                                 elif unit and unit.lower() == 'g':
                                     val *= 1000
                                 new_row[std_header] = val
+                  
                             else:
                                 new_row[std_header] = float(value)
                         except ValueError:
@@ -542,7 +705,7 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
             console_print_func=console_log
         )
         return standard_headers, processed_data
-        
+  
     except FileNotFoundError:
         debug_log(
             message=f"❌ Error: The file '{file_path}' was not found.",

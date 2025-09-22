@@ -43,6 +43,9 @@ from workers.worker_marker_file_handling import (
     maker_file_save_intermediate_file,
     maker_file_save_open_air_file
 )
+from workers.worker_marker_report_converter import (
+    Marker_convert_wwb_zip_report_to_csv  # New import for the zip worker
+)
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -188,6 +191,10 @@ class MarkerImporterTab(ttk.Frame):
         self.load_wwb_shw_button = ttk.Button(load_markers_frame, text="Load WWB.shw", style='Action.TButton', command=self._load_wwb_shw_action)
         self.load_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
         
+        # NEW: Add the button to load WWB.zip files
+        self.load_wwb_zip_button = ttk.Button(load_markers_frame, text="Load WWB.zip", style='Action.TButton', command=self._load_wwb_zip_action)
+        self.load_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
+
         self.load_sb_pdf_button = ttk.Button(load_markers_frame, text="Load SB PDF", style='Action.TButton', command=self._load_sb_pdf_action)
         self.load_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
         
@@ -268,6 +275,34 @@ class MarkerImporterTab(ttk.Frame):
 
     def _load_wwb_shw_action(self):
         headers, data = maker_file_load_wwb_shw()
+        if headers and data:
+            self.tree_headers = headers
+            self.tree_data = data
+            self._update_treeview()
+            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+    
+    def _load_wwb_zip_action(self):
+        """
+        Action to load a WWB.zip file via a dialog.
+        """
+        current_function = inspect.currentframe().f_code.co_name
+        
+        # The GUI now handles the file dialog.
+        file_path = filedialog.askopenfilename(
+            defaultextension=".zip",
+            filetypes=[("Shure Wireless Workbench files", "*.zip"), ("All files", "*.*")]
+        )
+        if not file_path:
+            debug_log(
+                message="🛠️🟡 'Load WWB.zip' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+            return
+
+        headers, data = Marker_convert_wwb_zip_report_to_csv(file_path=file_path)
         if headers and data:
             self.tree_headers = headers
             self.tree_data = data
