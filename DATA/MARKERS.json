@@ -1,852 +1,156 @@
 {
     "zone-01": {
-        "name": "Parking Lot   East and West Stage",
+        "name": "MAIN STAGE DIRECT SUPPORT",
         "selected": "false",
         "groups": {
             "group-01": {
-                "name": "CFTO",
+                "name": "CHASE RICE IEM'S",
                 "selected": "false",
                 "devices": {
                     "device-01": {
                         "active": "True",
-                        "name": "'0/0",
-                        "freq_mhz": "563.2",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "515.775",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-02": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "517.05",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-03": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "517.725",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-04": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "520.25",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-05": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "520.75",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-06": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "525.4",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-07": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "526.5",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-08": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "527.1",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-09": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "529.4",
+                        "peak": "",
+                        "selected": "false"
+                    },
+                    "device-10": {
+                        "active": "True",
+                        "name": "",
+                        "freq_mhz": "532.0",
+                        "peak": "",
                         "selected": "false"
                     }
                 }
             },
             "group-02": {
-                "name": "CP24 IFB",
+                "name": "CR MICS & BACKLINE",
                 "selected": "false",
                 "devices": {
                     "device-01": {
                         "active": "True",
-                        "name": "CP24 IFB 14",
-                        "freq_mhz": "594.9",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "602.55",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-02": {
                         "active": "True",
-                        "name": "IFB 17 CP24 Patio",
-                        "freq_mhz": "601.0",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "599.225",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-03": {
                         "active": "True",
-                        "name": "CP24 IFB 18  Patio",
-                        "freq_mhz": "692.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-03": {
-                "name": "EAST STAGE  Camila Cabello Senn  HH  470-558",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "496.075",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "516.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-04": {
-                "name": "EAST STAGE  Imagine Dragons Shure  IEM  626-698",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "640.025",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "642.45",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "661.675",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "593.65",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-04": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "662.825",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "592.25",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-05": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "665.0",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "589.15",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-06": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "667.35",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-05": {
-                "name": "EAST STAGE  Imagine Dragons Shure HH 518-578",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "519.15",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "522.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-06": {
-                "name": "EAST STAGE  Niall Horan Shure Instru 606-666",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "615.125",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "616.55",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "618.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "623.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-07": {
-                "name": "EAST STAGE  Shure PSM-1000 IEM 470-542",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "471.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "472.825",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "473.2",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "474.025",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "475.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "481.975",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "588.575",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-07": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "484.225",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "587.575",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-08": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "486.3",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "586.925",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-09": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "487.95",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "585.875",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-10": {
                         "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "488.825",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-11": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "489.3",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-12": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "490.9",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-08": {
-                "name": "EAST STAGE  Shure UHR-G1 HH 470-530",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "492.775",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "499.025",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "512.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "514.35",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "515.45",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "517.05",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "524.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "525.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "526.625",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "528.175",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-09": {
-                "name": "EAST STAGE Iggy Azalea Senn HH  614.075-697.795",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "528.65",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "615.675",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "621.825",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-10": {
-                "name": "EAST STAGE Imagine Dragons Shure Instru 572-636",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "579.475",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "580.725",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "581.075",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "581.575",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "582.95",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "583.425",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "616.05",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "619.95",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-11": {
-                "name": "General Audio",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'4/0",
-                        "freq_mhz": "544.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'4/A",
-                        "freq_mhz": "545.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'6/A",
-                        "freq_mhz": "548.2",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'9/A",
-                        "freq_mhz": "553.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'A/9",
-                        "freq_mhz": "554.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'A/F",
-                        "freq_mhz": "555.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "'B/2",
-                        "freq_mhz": "683.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "'D/D",
-                        "freq_mhz": "687.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-12": {
-                "name": "New Audio",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'0/4",
-                        "freq_mhz": "563.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'0/B",
-                        "freq_mhz": "564.3",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-13": {
-                "name": "RF Wireless  Senn SKM5200  662-698",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "662-698",
-                        "freq_mhz": "663.465",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "676.975",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "677.625",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "678.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "679.275",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "679.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "680.025",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "NAME GOES HERE",
-                        "freq_mhz": "681.125",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "681.425",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "683.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-11": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "684.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-12": {
-                        "active": "True",
-                        "name": "662-698",
-                        "freq_mhz": "694.715",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-13": {
-                        "active": "True",
-                        "name": "662-698",
-                        "freq_mhz": "695.085",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-14": {
-                        "active": "True",
-                        "name": "662-698",
-                        "freq_mhz": "695.69",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-14": {
-                "name": "RF Wireless Senn SR350 IEM  626-662",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "641.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "645.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "647.15",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "656.175",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "656.65",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "657.55",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-15": {
-                "name": "Steph Gustatis Senn G-3 IEM",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'Senn IEM",
-                        "freq_mhz": "566.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-16": {
-                "name": "WEST STAGE  Arkells Senn 3732 HH  470-638",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "496.89",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "513.15",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-17": {
-                "name": "WEST STAGE DNCE Shure  Instruments 572-636",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "575.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "576.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-18": {
-                "name": "WEST STAGE Shure PSM-1000 IEM  554-626",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "596.625",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "599.675",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-19": {
-                "name": "WEST STAGE Shure PSM-1000 IEM  626-698",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "643.975",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "658.05",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "662.375",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "665.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "665.975",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "676.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "688.775",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "690.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-20": {
-                "name": "WEST STAGE Shure UHR-H4  HH 518-578",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "519.95",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "521.625",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "522.95",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "523.425",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "525.85",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "527.125",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "527.525",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "'",
-                        "freq_mhz": "529.0",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "585.425",
+                        "peak": "",
                         "selected": "false"
                     }
                 }
@@ -854,543 +158,137 @@
         }
     },
     "zone-02": {
-        "name": "Zone 1",
+        "name": "MAIN STAGE SUPPORT",
         "selected": "false",
         "groups": {
             "group-01": {
-                "name": "E-Talk / \"Space\" Studio",
+                "name": "DAUGHTRY IEM'S",
                 "selected": "false",
                 "devices": {
                     "device-01": {
                         "active": "True",
-                        "name": "ACR2 RF 19",
-                        "freq_mhz": "471.385",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "533.2",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-02": {
                         "active": "True",
-                        "name": "ACR2 RF 20",
-                        "freq_mhz": "474.5",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "532.8",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-03": {
                         "active": "True",
-                        "name": "ACR2 RF 21",
-                        "freq_mhz": "479.215",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "532.1",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-04": {
                         "active": "True",
-                        "name": "ACR2 RF 22",
-                        "freq_mhz": "482.95",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "530.575",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-05": {
                         "active": "True",
-                        "name": "ACR2 RF 23",
-                        "freq_mhz": "485.35",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "529.4",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-06": {
                         "active": "True",
-                        "name": "ACR2 RF 24",
-                        "freq_mhz": "488.315",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "525.35",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-07": {
                         "active": "True",
-                        "name": "ACR2 RF 25",
-                        "freq_mhz": "493.31",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-02": {
-                "name": "Master IFB Social/MTV/MDS/E-Talk/Park/Queen/John",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Master IFM 5",
-                        "freq_mhz": "569.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Master IFM 6",
-                        "freq_mhz": "575.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "Master IFM 2",
-                        "freq_mhz": "647.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "Master IFM 3",
-                        "freq_mhz": "649.2",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "Master IFM 4",
-                        "freq_mhz": "657.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "Master IFM 1",
-                        "freq_mhz": "663.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-03": {
-                "name": "Spare IEM SR2050  626-698Mhz",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Spare Senn IEM 1",
-                        "freq_mhz": "638.975",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Spare Senn IEM 2",
-                        "freq_mhz": "640.825",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "Spare Senn IEM 3",
-                        "freq_mhz": "643.225",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "Spare Senn IEM 4",
-                        "freq_mhz": "644.45",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "Spare Seen IEM 5",
-                        "freq_mhz": "645.15",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "Spare Senn IEM 6",
-                        "freq_mhz": "645.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-04": {
-                "name": "To ACR4 from The Social/MTV/MDS/E-Talk Studios",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "ACR4 RF 1",
-                        "freq_mhz": "470.805",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "ACR4 RF 2",
-                        "freq_mhz": "472.365",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "ACR4 RF 3",
-                        "freq_mhz": "483.565",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "ACR4 RF 4",
-                        "freq_mhz": "486.925",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "ACR4 RF 5",
-                        "freq_mhz": "490.18",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "ACR4 RF 6",
-                        "freq_mhz": "490.535",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "ACR4 RF 7",
-                        "freq_mhz": "495.375",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "524.825",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-08": {
                         "active": "True",
-                        "name": "ACR4 RF 8",
-                        "freq_mhz": "514.905",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "524.0",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-09": {
                         "active": "True",
-                        "name": "ACR4 RF 9",
-                        "freq_mhz": "517.985",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "521.725",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-10": {
                         "active": "True",
-                        "name": "ACR4 RF 10",
-                        "freq_mhz": "519.63",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "519.825",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-11": {
                         "active": "True",
-                        "name": "ACR4 RF 11",
-                        "freq_mhz": "520.25",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "577.625",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-12": {
                         "active": "True",
-                        "name": "ACR4 RF 12",
-                        "freq_mhz": "520.58",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
-    },
-    "zone-03": {
-        "name": "Zone 2",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "CP 24 Studio",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "CP24 Intercom Tx",
-                        "freq_mhz": "476.05",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "CP24 Beltpack 1",
-                        "freq_mhz": "497.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "CP24 Beltpack 2",
-                        "freq_mhz": "497.85",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "CP24 Beltpack 3",
-                        "freq_mhz": "497.95",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "CP24 Beltpack 4",
-                        "freq_mhz": "498.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "CP24 Mic 1",
-                        "freq_mhz": "542.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "CP24 Mic 2",
-                        "freq_mhz": "542.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "CP24 Mic 3",
-                        "freq_mhz": "545.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "CP24 Mic 4",
-                        "freq_mhz": "547.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "CP24 Mic 5",
-                        "freq_mhz": "550.3",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-11": {
-                        "active": "True",
-                        "name": "CP24 Miv 6",
-                        "freq_mhz": "550.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-12": {
-                        "active": "True",
-                        "name": "CP24 Mic 7",
-                        "freq_mhz": "589.5",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "576.825",
+                        "peak": "",
                         "selected": "false"
                     },
                     "device-13": {
                         "active": "True",
-                        "name": "CP24 IFB 15",
-                        "freq_mhz": "598.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
-    },
-    "zone-04": {
-        "name": "Zone 3",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "Audio Operator Brett Harman",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Brett Harman #1",
-                        "freq_mhz": "551.7",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "573.825",
+                        "peak": "",
                         "selected": "false"
                     },
-                    "device-02": {
+                    "device-14": {
                         "active": "True",
-                        "name": "Brett Harman #2",
-                        "freq_mhz": "552.0",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "573.175",
+                        "peak": "",
                         "selected": "false"
                     },
-                    "device-03": {
+                    "device-15": {
                         "active": "True",
-                        "name": "Brett Harman #3",
-                        "freq_mhz": "572.4",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "597.65",
+                        "peak": "",
                         "selected": "false"
                     },
-                    "device-04": {
+                    "device-16": {
                         "active": "True",
-                        "name": "Brett Harman #4",
-                        "freq_mhz": "573.9",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "596.475",
+                        "peak": "",
                         "selected": "false"
                     },
-                    "device-05": {
+                    "device-17": {
                         "active": "True",
-                        "name": "Brett Harman #5",
-                        "freq_mhz": "675.0",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "594.725",
+                        "peak": "",
                         "selected": "false"
                     },
-                    "device-06": {
+                    "device-18": {
                         "active": "True",
-                        "name": "Brett Harman #6",
-                        "freq_mhz": "680.5",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-02": {
-                "name": "Audio Operator Mathew McNiven",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Mathew McNiven #1",
-                        "freq_mhz": "565.2",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Mathew McNiven #2",
-                        "freq_mhz": "566.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "Mathew McNiven #3",
-                        "freq_mhz": "676.05",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "Mathew McNiven #4",
-                        "freq_mhz": "682.65",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
-    },
-    "zone-05": {
-        "name": "Zone 4",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "XDcam Block 22",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Dylan NcNiven, 1",
-                        "freq_mhz": "570.0",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Dylan Mcniven, 2",
-                        "freq_mhz": "570.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
-    },
-    "zone-06": {
-        "name": "Zone 5",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "CP24 ENG",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Brian Van Tx 1",
-                        "freq_mhz": "546.4",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Brian Van Tx 2",
-                        "freq_mhz": "556.3",
-                        "peak": "nan",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
-    },
-    "zone-07": {
-        "name": "Zone 6",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "XDcam Block 21",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "Donovan McNiven #1",
-                        "freq_mhz": "543.1",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "Donovan McNiven #2",
-                        "freq_mhz": "543.7",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "Jim Needham #1",
-                        "freq_mhz": "548.8",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "Jim Needham #2",
-                        "freq_mhz": "549.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "Steohen Gelder #1",
-                        "freq_mhz": "552.6",
-                        "peak": "nan",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "Stephen Gelder #2",
-                        "freq_mhz": "553.5",
-                        "peak": "nan",
+                        "name": "",
+                        "freq_mhz": "593.6",
+                        "peak": "",
                         "selected": "false"
                     }
                 }

@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250904.213147.2
+# Version 20250925.234130.1
 
 import os
 import inspect
@@ -22,7 +22,6 @@ import sys
 import pathlib
 import importlib
 import time
-
 
 
 # Project-specific Imports
@@ -43,15 +42,18 @@ from managers.manager_yakety_yak import YaketyYakManager
 from managers.manager_visa_reset import VisaResetManager
 
 
-# Add the project's root directory to the system path to allow for imports from
-# all sub-folders (e.g., 'configuration' and 'display'). This is a robust way to handle imports.
+# --- GLOBAL PATH ANCHOR ---
+# This defines the absolute, true root path of the project, irrespective of the CWD.
 try:
-    project_root = str(pathlib.Path(__file__).resolve().parent)
-    if project_root not in sys.path:
-        sys.path.append(project_root)
+    GLOBAL_PROJECT_ROOT = pathlib.Path(__file__).resolve().parent
+    # Add the project's root directory to the system path to allow for imports from
+    # all sub-folders (e.g., 'configuration' and 'display'). This is a robust way to handle imports.
+    if str(GLOBAL_PROJECT_ROOT) not in sys.path:
+        sys.path.append(str(GLOBAL_PROJECT_ROOT))
 except Exception as e:
     # Fallback in case of an issue with pathlib
-    print(f"Error adding project root to sys.path: {e}")
+    print(f"Error setting GLOBAL_PROJECT_ROOT: {e}")
+    GLOBAL_PROJECT_ROOT = pathlib.Path(".") # Set to relative fallback if absolutely necessary
 
 # This block ensures the console can handle UTF-8 characters, preventing encoding errors.
 if os.name == 'nt':
@@ -68,9 +70,9 @@ from display.gui_display import Application
 
 
 # --- Global Scope Variables ---
-current_version = "20250904.213147.2"
+current_version = "20250925.234130.1"
 # Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
-current_version_hash = (20250904 * 213147 * 2)
+current_version_hash = (20250925 * 234130 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -87,8 +89,7 @@ def action_check_dependancies():
 
     try:
         # --- Function logic goes here ---
-        # Placeholder f
-        # or dependency checking logic
+        # Placeholder for dependency checking logic
         console_log("✅ A most glorious success! Dependencies are in order.")
         return True
 
@@ -117,6 +118,7 @@ def action_check_configuration():
         console_print_func=console_log
     )
 
+   
     try:
 
         # Placeholder for configuration validation
@@ -217,6 +219,7 @@ def main():
             mqtt_util_instance.connect_mqtt()
             action_open_display(mqtt_util_instance)
         else:
+        
             console_log("❌ Halting startup due to configuration errors.")
     else:
         console_log("❌ Halting startup due to missing dependencies.")

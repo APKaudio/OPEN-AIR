@@ -14,7 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250921.214619.1
+# Version 20250925.234130.2
+# MODIFIED: Re-anchored the project root calculation to a known path relative to the worker file.
+
 import os
 import csv
 import xml.etree.ElementTree as ET
@@ -39,10 +41,11 @@ from workers.worker_marker_report_converter import (
 )
 
 # --- Global Scope Variables ---
-current_version = "20250921.214619.1"
-current_version_hash = (20250921 * 214619 * 1)
+current_version = "20250925.234130.2"
+current_version_hash = (20250925 * 234130 * 2)
 current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parents[1]
+# FIX: The project root is one level up from the 'workers' folder.
+project_root = current_file_path.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
 
 # --- Constants ---
@@ -53,6 +56,7 @@ def maker_file_check_for_markers_file():
     """Checks for the MARKERS.csv file in the DATA directory and loads it if it exists."""
     current_function = inspect.currentframe().f_code.co_name
     
+    # ANCHOR FIX: Use the stable project_root calculated above.
     target_path = project_root / 'DATA' / 'MARKERS.csv'
     
     debug_log(
@@ -374,6 +378,7 @@ def maker_file_load_sb_pdf():
 def maker_file_save_intermediate_file(tree_headers, tree_data):
     """Saves the current tree data to a file named 'MARKERS.csv' in the DATA directory at the project root level."""
     current_function = inspect.currentframe().f_code.co_name
+    # ANCHOR FIX: Use the stable project_root calculated above.
     target_path = project_root / 'DATA' / 'MARKERS.csv'
     
     debug_log(

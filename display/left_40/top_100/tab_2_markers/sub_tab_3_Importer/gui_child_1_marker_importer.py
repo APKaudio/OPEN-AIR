@@ -15,7 +15,8 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.034500.9
+# Version 20250925.234600.1
+
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
@@ -28,9 +29,17 @@ import json
 import datetime
 import re
 import pathlib
-import pandas as pd
-import numpy as np
 from tkinter import TclError
+
+# --- Graceful Dependency Importing ---
+try:
+    import pandas as pd
+    import numpy as np
+    PANDAS_AVAILABLE = True
+except ImportError:
+    pd = None
+    np = None
+    PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
@@ -50,8 +59,8 @@ from workers.worker_marker_report_converter import (
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.034500.9"
-current_version_hash = (20250922 * 34500 * 9)
+current_version = "20250925.234600.1"
+current_version_hash = (20250925 * 234600 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -75,21 +84,28 @@ class MarkerImporterTab(ttk.Frame):
             console_print_func=console_log
         )
         super().__init__(master, **kwargs)
-        
+
         self.app_instance = app_instance
         self.mqtt_util = mqtt_util
         self.tree_headers = []
-        self.tree_data = []    
+        self.tree_data = []
         self.sort_column = None
         self.sort_direction = False
-        
+
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
-        
+
+        if not PANDAS_AVAILABLE:
+            console_log("❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.")
+            # Optionally, disable the whole tab or show an error message
+            error_label = ttk.Label(self, text="Error: NumPy and Pandas libraries are required for this tab.", foreground="red")
+            error_label.pack(pady=20)
+            return
+
         # Call the worker to check for an existing file on startup
         self.tree_headers, self.tree_data = maker_file_check_for_markers_file()
         self._update_treeview()
-        
+
         debug_log(
             message="🛠️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
             file=current_file,
@@ -121,8 +137,7 @@ class MarkerImporterTab(ttk.Frame):
                         foreground=colors["fg"],
                         relief=colors["relief"],
                         borderwidth=colors["border_width"])
-        
-        # NEW: Styling for the entry editor.
+
         style.configure('Markers.TEntry',
                         fieldbackground=colors["entry_bg"],
                         foreground=colors["entry_fg"],
@@ -130,7 +145,6 @@ class MarkerImporterTab(ttk.Frame):
                         selectbackground=colors["hover_blue"],
                         selectforeground=colors["text"])
         
-        # Button styling - Refined to use central theme dictionary
         style.configure('TButton',
                         background=colors["secondary"],
                         foreground=colors["text"],
@@ -140,9 +154,6 @@ class MarkerImporterTab(ttk.Frame):
                   background=[('pressed', colors["accent"]),
                               ('active', colors["hover_blue"])])
         
-        # NOTE: Removed the redundant 'Blue', 'Orange', and 'Red' style definitions
-        # to adhere to the core theme. The following `configure` and `map` calls
-        # for specific button styles are now more streamlined.
         style.configure('Green.TButton', background='#6a9955', foreground='#ffffff')
         style.map('Green.TButton',
                   background=[('pressed', '!disabled', '#4a6f3b'),
@@ -191,7 +202,6 @@ class MarkerImporterTab(ttk.Frame):
         load_markers_frame.grid_columnconfigure(2, weight=1)
         load_markers_frame.grid_columnconfigure(3, weight=1) 
         
-        # The button is now configured with the `Action.TButton` style
         self.load_csv_button = ttk.Button(load_markers_frame, text="Load CSV Marker Set", style='Action.TButton', command=self._load_markers_file_action)
         self.load_csv_button.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
         
@@ -200,8 +210,7 @@ class MarkerImporterTab(ttk.Frame):
         
         self.load_wwb_shw_button = ttk.Button(load_markers_frame, text="Load WWB.shw", style='Action.TButton', command=self._load_wwb_shw_action)
         self.load_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
-        
-        # NEW: Add the button to load WWB.zip files
+
         self.load_wwb_zip_button = ttk.Button(load_markers_frame, text="Load WWB.zip", style='Action.TButton', command=self._load_wwb_zip_action)
         self.load_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
 
@@ -218,9 +227,8 @@ class MarkerImporterTab(ttk.Frame):
         
         self.marker_tree = ttk.Treeview(marker_table_frame, show=("headings", "tree"))
         self.marker_tree.grid(row=0, column=0, sticky="nsew", padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
-        
         self.marker_tree.column("#0", width=0, stretch=tk.NO)
-
+        
         tree_yscroll = ttk.Scrollbar(marker_table_frame, orient="vertical", command=self.marker_tree.yview)
         tree_yscroll.grid(row=0, column=1, sticky="ns")
         self.marker_tree.configure(yscrollcommand=tree_yscroll.set)
@@ -228,13 +236,11 @@ class MarkerImporterTab(ttk.Frame):
         tree_xscroll = ttk.Scrollbar(marker_table_frame, orient="horizontal", command=self.marker_tree.xview)
         tree_xscroll.grid(row=1, column=0, sticky="ew")
         self.marker_tree.configure(xscrollcommand=tree_xscroll.set)
-        
-        # NEW: Bindings for editing, sorting, and deleting
+
         self.marker_tree.bind("<Double-1>", self._on_tree_double_click)
         self.marker_tree.bind("<Button-1>", self._on_tree_header_click, add="+")
         self.marker_tree.bind("<Delete>", self._delete_selected_row)
-        
-        # NEW: Create a frame for the 'Append' buttons
+
         append_markers_frame = ttk.LabelFrame(self, text="Append Markers", padding=(5,5,5,5))
         append_markers_frame.grid(row=2, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
         append_markers_frame.grid_columnconfigure(0, weight=1)
@@ -250,7 +256,7 @@ class MarkerImporterTab(ttk.Frame):
         
         self.append_wwb_shw_button = ttk.Button(append_markers_frame, text="Append WWB.shw", style='Action.TButton', command=self._append_wwb_shw_action)
         self.append_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
-        
+
         self.append_wwb_zip_button = ttk.Button(append_markers_frame, text="Append WWB.zip", style='Action.TButton', command=self._append_wwb_zip_action)
         self.append_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
 
@@ -263,15 +269,10 @@ class MarkerImporterTab(ttk.Frame):
         self.save_open_air_button = ttk.Button(self, text="Save Markers as Open Air.csv", style='Orange.TButton', command=self._save_open_air_file_action)
         self.save_open_air_button.grid(row=3, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
 
-
     def _update_treeview(self):
-        # The GUI is now responsible for updating the display.
         self.marker_tree.delete(*self.marker_tree.get_children())
-        
-        # We need to map the new column names to the old internal names for consistency.
         standardized_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
         self.marker_tree["columns"] = standardized_headers
-        
         debug_log(
             message=f"🔁🔵 Now adding {len(self.tree_data)} rows to the Treeview. Headers: {standardized_headers}",
             file=current_file,
@@ -282,18 +283,13 @@ class MarkerImporterTab(ttk.Frame):
         for col in standardized_headers:
             self.marker_tree.heading(col, text=col, command=lambda c=col: self._sort_treeview(c, False))
             self.marker_tree.column(col, width=100)
-            
+
         for row in self.tree_data:
-            # We now assume the data coming from the worker is already a dictionary.
             if isinstance(row, dict):
                 values = [row.get(raw_header, '') for raw_header in standardized_headers]
                 self.marker_tree.insert("", "end", values=values)
             else:
                 self.marker_tree.insert("", "end", values=row)
-
-    # --- ACTION WRAPPERS ---
-    # These functions are now simple wrappers that call the worker functions
-    # and then update the GUI with the results.
 
     def _check_for_markers_file(self):
         headers, data = maker_file_check_for_markers_file()
@@ -325,14 +321,9 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_data = data
             self._update_treeview()
             self._save_markers_file_internally()
-    
+
     def _load_wwb_zip_action(self):
-        """
-        Action to load a WWB.zip file via a dialog.
-        """
         current_function = inspect.currentframe().f_code.co_name
-        
-        # The GUI now handles the file dialog.
         file_path = filedialog.askopenfilename(
             defaultextension=".zip",
             filetypes=[("Shure Wireless Workbench files", "*.zip"), ("All files", "*.*")]
@@ -346,7 +337,6 @@ class MarkerImporterTab(ttk.Frame):
                 console_print_func=console_log
             )
             return
-
         headers, data = Marker_convert_wwb_zip_report_to_csv(file_path=file_path)
         if headers and data:
             self.tree_headers = headers
@@ -363,13 +353,7 @@ class MarkerImporterTab(ttk.Frame):
             self._save_markers_file_internally()
 
     def _load_sb_v2_pdf_action(self):
-        """
-        Action to load a new SB V2.pdf file via a dialog.
-        This function now calls the new worker function to process the file.
-        """
         current_function = inspect.currentframe().f_code.co_name
-        
-        # The GUI handles the file dialog to get the path.
         file_path = filedialog.askopenfilename(
             defaultextension=".pdf",
             filetypes=[("Sound Base V2 PDF files", "*.pdf"), ("All files", "*.*")]
@@ -383,18 +367,13 @@ class MarkerImporterTab(ttk.Frame):
                 console_print_func=console_log
             )
             return
-
-        # Pass the file path to the new worker function.
         headers, data = Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path=file_path)
-        
-        # Update the GUI with the results from the worker.
         if headers and data:
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
             self._save_markers_file_internally()
 
-    # --- NEW: Append Action Wrappers ---
     def _append_markers_file_action(self):
         headers, new_data = maker_file_load_markers_file()
         if headers and new_data:
@@ -418,7 +397,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_data.extend(new_data)
             self._update_treeview()
             self._save_markers_file_internally()
-    
+
     def _append_wwb_zip_action(self):
         current_function = inspect.currentframe().f_code.co_name
         file_path = filedialog.askopenfilename(
@@ -434,7 +413,6 @@ class MarkerImporterTab(ttk.Frame):
                 console_print_func=console_log
             )
             return
-
         headers, new_data = Marker_convert_wwb_zip_report_to_csv(file_path=file_path)
         if headers and new_data:
             self.tree_headers = headers
@@ -465,7 +443,6 @@ class MarkerImporterTab(ttk.Frame):
                 console_print_func=console_log
             )
             return
-
         headers, new_data = Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path=file_path)
         if headers and new_data:
             self.tree_headers = headers
@@ -474,123 +451,73 @@ class MarkerImporterTab(ttk.Frame):
             self._save_markers_file_internally()
 
     def _save_open_air_file_action(self):
-        """
-        Saves the current tree data to a file and calls the MQTT publisher.
-        """
-        # Call the worker function with the current data from the GUI
         maker_file_save_open_air_file(self.tree_headers, self.tree_data)
-        # NEW: After saving, publish the new data to MQTT.
         if self.mqtt_util:
             self._publish_markers_to_mqtt()
-        
-    def _delete_selected_row(self, event):
-        """Deletes the currently selected row from the Treeview and the underlying data."""
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"[{current_file} - {current_function}] Delete key pressed.",
-                  file=current_file,
-                  version=current_version,
-                  function=current_function,
-                  console_print_func=console_log)
 
+    def _delete_selected_row(self, event):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(f"[{current_file} - {current_function}] Delete key pressed.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         selected_items = self.marker_tree.selection()
         if not selected_items:
             console_log("🟡 No row selected to delete.")
             return
-
         for item in selected_items:
-            # Get the index of the item to delete
             index_in_tree = self.marker_tree.index(item)
             if index_in_tree < len(self.tree_data):
-                # Remove from both the GUI and the internal data structure
                 self.marker_tree.delete(item)
                 del self.tree_data[index_in_tree]
                 console_log(f"✅ Deleted row {index_in_tree + 1}.")
             else:
                 console_log(f"❌ Error: Row {index_in_tree + 1} not found in data.")
-
-        # Save the updated data to the intermediate file and publish to MQTT.
         self._save_markers_file_internally()
 
     def _on_tree_double_click(self, event):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"[{current_file} - {current_function}] Treeview double-clicked for editing.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function,
-                    console_print_func=console_log)
-
+        debug_log(f"[{current_file} - {current_function}] Treeview double-clicked for editing.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         if not self.marker_tree.identify_region(event.x, event.y) == "cell":
             return
-
         column_id = self.marker_tree.identify_column(event.x)
         item_id = self.marker_tree.identify_row(event.y)
-
         if not item_id or not column_id:
             return
-
         col_index = int(column_id[1:]) - 1
         if col_index < 0 or col_index >= len(self.tree_headers):
-            debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for editing.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function,
-                        console_print_func=console_log)
+            debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for editing.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
             return
-
         current_value = self.marker_tree.item(item_id, 'values')[col_index]
-
         self._start_editing_cell(item_id, col_index, initial_value=current_value)
 
     def _start_editing_cell(self, item, col_index, initial_value=""):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-
         for widget in self.marker_tree.winfo_children():
             if isinstance(widget, ttk.Entry) and widget.winfo_name() == "cell_editor":
                 widget.destroy()
-
         entry_editor = ttk.Entry(self.marker_tree, style="Markers.TEntry", name="cell_editor")
         entry_editor.insert(0, initial_value)
         entry_editor.focus_force()
-
         x, y, width, height = self.marker_tree.bbox(item, self.marker_tree["columns"][col_index])
         entry_editor.place(x=x, y=y, width=width, height=height)
-
         entry_editor.current_item = item
         entry_editor.current_col_index = col_index
-
         def on_edit_complete_and_navigate(event, navigate_direction=None):
             new_value = entry_editor.get()
             entry_editor.destroy()
-
             current_values = list(self.marker_tree.item(item, 'values'))
             current_values[col_index] = new_value
             self.marker_tree.item(item, values=current_values)
-
             row_idx = self.marker_tree.index(item)
             if row_idx < len(self.tree_data) and isinstance(self.tree_data[row_idx], dict):
                 self.tree_data[row_idx][self.tree_headers[col_index]] = new_value
                 console_log(f"Updated cell: Row {row_idx+1}, Column '{self.tree_headers[col_index]}' to '{new_value}'")
-                debug_log(f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{self.tree_headers[col_index]}'] to '{new_value}'.",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function,
-                            console_print_func=console_log)
-                
-                # Update the intermediate file after each edit.
+                debug_log(f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{self.tree_headers[col_index]}'] to '{new_value}'.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 self._save_markers_file_internally()
-
             else:
-                debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function,
-                            console_print_func=console_log)
-
+                debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
             if navigate_direction:
                 self._navigate_cells(item, col_index, navigate_direction)
-
         entry_editor.bind("<Return>", lambda e: on_edit_complete_and_navigate(e, "down"))
         entry_editor.bind("<Tab>", lambda e: on_edit_complete_and_navigate(e, "right"))
         entry_editor.bind("<Shift-Tab>", lambda e: on_edit_complete_and_navigate(e, "left"))
@@ -604,30 +531,17 @@ class MarkerImporterTab(ttk.Frame):
     def _navigate_cells(self, current_item, current_col_index, direction):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"[{current_file} - {current_function}] Navigating cells.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function,
-                    console_print_func=console_log)
-
+        debug_log(f"[{current_file} - {current_function}] Navigating cells.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         items = self.marker_tree.get_children()
         num_rows = len(items)
         num_cols = len(self.tree_headers)
-
         current_row_idx = items.index(current_item) if current_item in items else -1
-        
         next_item = None
         next_col_index = -1
         initial_value_for_next_cell = ""
-
         if current_row_idx == -1:
-            debug_log(f"[{current_file} - {current_function}] Current item not found in tree for navigation.",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function,
-                        console_print_func=console_log)
+            debug_log(f"[{current_file} - {current_function}] Current item not found in tree for navigation.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
             return
-
         if direction == "down":
             next_row_idx = current_row_idx + 1
             next_col_index = current_col_index
@@ -663,21 +577,14 @@ class MarkerImporterTab(ttk.Frame):
                 next_item = items[next_row_idx]
                 prev_cell_value = self.marker_tree.item(current_item, 'values')[current_col_index]
                 initial_value_for_next_cell = self._increment_string_with_trailing_digits(prev_cell_value)
-                
-                # Update the new row's internal data immediately before editing
                 new_values = list(self.marker_tree.item(next_item, 'values'))
                 new_values[next_col_index] = initial_value_for_next_cell
                 self.marker_tree.item(next_item, values=new_values)
                 if next_row_idx < len(self.tree_data) and isinstance(self.tree_data[next_row_idx], dict):
                     self.tree_data[next_row_idx][self.tree_headers[next_col_index]] = initial_value_for_next_cell
-            else:
-                debug_log(f"[{current_file} - {current_function}] Cannot Ctrl+Enter: No row below.",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function,
-                            console_print_func=console_log)
-                return
-
+                else:
+                    debug_log(f"[{current_file} - {current_function}] Cannot Ctrl+Enter: No row below.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    return
         if next_item is not None and next_col_index != -1:
             if direction != "ctrl_down":
                 try:
@@ -685,30 +592,17 @@ class MarkerImporterTab(ttk.Frame):
                     if 0 <= next_col_index < len(next_item_values):
                         initial_value_for_next_cell = next_item_values[next_col_index]
                     else:
-                        debug_log(f"[{current_file} - {current_function}] Next column index {next_col_index} out of bounds for next item values. Setting empty.",
-                                    file=current_file,
-                                    version=current_version,
-                                    function=current_function,
-                                    console_print_func=console_log)
+                        debug_log(f"[{current_file} - {current_function}] Next column index {next_col_index} out of bounds for next item values. Setting empty.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                         initial_value_for_next_cell = ""
                 except Exception as e:
-                    debug_log(f"[{current_file} - {current_function}] Error getting initial value for next cell: {e}. Setting empty.",
-                                file=current_file,
-                                version=current_version,
-                                function=current_function,
-                                console_print_func=console_log)
+                    debug_log(f"[{current_file} - {current_function}] Error getting initial value for next cell: {e}. Setting empty.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                     initial_value_for_next_cell = ""
-
             self.marker_tree.focus(next_item)
             self.marker_tree.selection_set(next_item)
             self.after(10, lambda: self._start_editing_cell(next_item, next_col_index, initial_value_for_next_cell))
         else:
-            debug_log(f"[{current_file} - {current_function}] No cell to navigate to in direction: {direction}",
-                        file=current_file,
-                        version=current_version,
-                        function=current_function,
-                        console_print_func=console_log)
-    
+            debug_log(f"[{current_file} - {current_function}] No cell to navigate to in direction: {direction}", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+
     def _increment_string_with_trailing_digits(self, text):
         match = re.search(r'(\d+)$', text)
         if match:
@@ -722,104 +616,57 @@ class MarkerImporterTab(ttk.Frame):
     def _on_tree_header_click(self, event):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"[{current_file} - {current_function}] Treeview header clicked for sorting.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function,
-                    console_print_func=console_log)
-
+        debug_log(f"[{current_file} - {current_function}] Treeview header clicked for sorting.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         region = self.marker_tree.identify_region(event.x, event.y)
         if region == "heading":
             column_id = self.marker_tree.identify_column(event.x)
             col_index = int(column_id[1:]) - 1
             if col_index < 0 or col_index >= len(self.tree_headers):
-                debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for sorting.",
-                            file=current_file,
-                            version=current_version,
-                            function=current_function,
-                            console_print_func=console_log)
+                debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for sorting.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
                 return
-
             column_name = self.tree_headers[col_index]
-
             if self.sort_column == column_name:
                 self.sort_direction = not self.sort_direction
             else:
                 self.sort_column = column_name
                 self.sort_direction = True
-
             self._sort_treeview(column_name, self.sort_direction)
 
     def _sort_treeview(self, column_name, ascending):
         current_function = inspect.currentframe().f_code.co_name
         current_file = os.path.basename(__file__)
-        debug_log(f"[{current_file} - {current_function}] Sorting treeview by '{column_name}', ascending: {ascending}.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function,
-                    console_print_func=console_log)
-
+        debug_log(f"[{current_file} - {current_function}] Sorting treeview by '{column_name}', ascending: {ascending}.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         def get_sort_key(item):
-            # FIXED: Access the value by key from the dictionary item
             value = item.get(column_name, "")
             try:
-                # Attempt to convert to float for numerical sorting
                 return float(value)
             except (ValueError, TypeError):
-                # Fallback to string sorting for non-numeric values
                 return str(value)
-
-        # FIXED: The sort method is now applied directly to the list of dictionaries
         self.tree_data.sort(key=get_sort_key, reverse=not ascending)
-
-        # Re-populate the treeview to reflect the new sort order
         self._populate_marker_tree()
         console_log(f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
-            
+
     def _populate_marker_tree(self):
         """Re-populates the treeview from the internal data model."""
         self.marker_tree.delete(*self.marker_tree.get_children())
         standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
-        
-        # Ensure columns are set before inserting data
         self.marker_tree["columns"] = standardized_headers
         for col in standardized_headers:
             self.marker_tree.heading(col, text=col, command=lambda c=col: self._sort_treeview(c, self.sort_column != c or not self.sort_direction))
             self.marker_tree.column(col, width=100)
-            
         for row in self.tree_data:
             values = [row.get(raw_header, '') for raw_header in standardized_headers]
             self.marker_tree.insert("", "end", values=values)
-            
+
     def _update_markers_display_tab_data(self):
-        """A placeholder function to simulate updating a display tab."""
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(f"[{current_file} - {current_function}] Notifying display tab of data change.",
-                    file=current_file,
-                    version=current_version,
-                    function=current_function,
-                    console_print_func=console_log)
-        # In a real-world scenario, this would publish an MQTT message
-        # to the display tab's listener.
-        # self.mqtt_util.publish_message(topic="display/markers/data_updated", value=self.tree_data)
+        debug_log(f"[{current_file} - {current_function}] Notifying display tab of data change.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
 
     def _save_markers_file_internally(self):
-        """
-        Saves the current internal state to the intermediate file and publishes to MQTT.
-        """
         maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
-        # NEW: After saving, publish the new data to MQTT.
         if self.mqtt_util:
             self._publish_markers_to_mqtt()
 
     def _publish_markers_to_mqtt(self):
-        """
-        Publishes the current marker data to the MQTT broker in a structured format.
-        """
         from workers.worker_marker_peak_hunter import Peak_hunter_CSV_to_MQTT
-        # We need to pass the file path, but the helper function saves to a known location.
-        # The worker function needs the path to the file.
-        # This assumes that `maker_file_save_intermediate_file` saves to the same location
-        # that `Peak_hunter_CSV_to_MQTT` watches.
-
         Peak_hunter_CSV_to_MQTT(mqtt_util=self.mqtt_util)

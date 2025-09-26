@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.162000.17
+# Version 20250925.235100.1
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -26,6 +26,16 @@ import pathlib
 from collections import defaultdict
 import re
 
+# --- Graceful Dependency Importing ---
+try:
+    import pandas as pd
+    import numpy as np
+    PANDAS_NUMPY_AVAILABLE = True
+except ImportError:
+    pd = None
+    np = None
+    PANDAS_NUMPY_AVAILABLE = False
+
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.worker_marker_file_handling import maker_file_check_for_markers_file
@@ -33,8 +43,8 @@ from workers.worker_marker_tune_to_marker import Push_Marker_to_Center_Freq, Pus
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.162000.17"
-current_version_hash = (20250922 * 162000 * 17)
+current_version = "20250925.235100.1"
+current_version_hash = (20250925 * 235100 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -66,6 +76,14 @@ class ShowtimeTab(ttk.Frame):
 
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
+
+        if not PANDAS_NUMPY_AVAILABLE:
+            console_log("❌ Critical dependencies 'pandas' or 'numpy' not found. Showtime tab will be disabled.")
+            for widget in self.winfo_children():
+                widget.destroy()
+            error_label = ttk.Label(self, text="Error: NumPy and Pandas libraries are required for this tab.", foreground="red")
+            error_label.pack(pady=20)
+            return
         
         parent_notebook = parent.master
         parent_notebook.bind("<<NotebookTabChanged>>", self._on_tab_selected)
@@ -162,10 +180,6 @@ class ShowtimeTab(ttk.Frame):
         self.device_frame.grid_columnconfigure(2, weight=1)
         self.device_frame.grid_columnconfigure(3, weight=1)
         
-        # New "Tune" button
-        # self.tune_button = ttk.Button(self.filter_frame, text="TUNE", command=self._on_tune_request, style='Green.TButton')
-        # self.tune_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
-    
     def _reset_filters(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
@@ -300,7 +314,7 @@ class ShowtimeTab(ttk.Frame):
             
             freq_range_text = ""
             if min_freq is not None and max_freq is not None:
-                freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
+                freq_range_text = f"\\n{min_freq} MHz - {max_freq} MHz"
 
             button_text = f"{zone_name}{freq_range_text}"
 
@@ -351,7 +365,7 @@ class ShowtimeTab(ttk.Frame):
                 
                 freq_range_text = ""
                 if min_freq is not None and max_freq is not None:
-                    freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
+                    freq_range_text = f"\\n{min_freq} MHz - {max_freq} MHz"
                 
                 button_text = f"{group_name}{freq_range_text}"
                 
@@ -423,9 +437,9 @@ class ShowtimeTab(ttk.Frame):
             )
 
         for i, row_data in enumerate(filtered_devices):
-            button_text = (f"{row_data.get('NAME', 'N/A')}\n"
-                           f"{row_data.get('DEVICE', 'N/A')}\n"
-                           f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\n"
+            button_text = (f"{row_data.get('NAME', 'N/A')}\\n"
+                           f"{row_data.get('DEVICE', 'N/A')}\\n"
+                           f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\\n"
                            f"[********************]")
             
             button = ttk.Button(
