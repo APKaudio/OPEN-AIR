@@ -314,7 +314,7 @@ class ShowtimeTab(ttk.Frame):
             
             freq_range_text = ""
             if min_freq is not None and max_freq is not None:
-                freq_range_text = f"\\n{min_freq} MHz - {max_freq} MHz"
+                freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
 
             button_text = f"{zone_name}{freq_range_text}"
 
@@ -365,7 +365,7 @@ class ShowtimeTab(ttk.Frame):
                 
                 freq_range_text = ""
                 if min_freq is not None and max_freq is not None:
-                    freq_range_text = f"\\n{min_freq} MHz - {max_freq} MHz"
+                    freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
                 
                 button_text = f"{group_name}{freq_range_text}"
                 
@@ -437,9 +437,9 @@ class ShowtimeTab(ttk.Frame):
             )
 
         for i, row_data in enumerate(filtered_devices):
-            button_text = (f"{row_data.get('NAME', 'N/A')}\\n"
-                           f"{row_data.get('DEVICE', 'N/A')}\\n"
-                           f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\\n"
+            button_text = (f"{row_data.get('NAME', 'N/A')}\n"
+                           f"{row_data.get('DEVICE', 'N/A')}\n"
+                           f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\n"
                            f"[********************]")
             
             button = ttk.Button(
