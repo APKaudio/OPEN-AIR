@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.162000.15
+# Version 20250922.162000.17
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -33,8 +33,8 @@ from workers.worker_marker_tune_to_marker import Push_Marker_to_Center_Freq, Pus
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.162000.15"
-current_version_hash = (20250922 * 162000 * 15)
+current_version = "20250922.162000.17"
+current_version_hash = (20250922 * 162000 * 17)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -80,6 +80,7 @@ class ShowtimeTab(ttk.Frame):
         style.configure('TFrame', background=colors["bg"])
         style.configure('TLabel', background=colors["bg"], foreground=colors["fg"])
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
+        # FIXED: Apply wraplength to the base button style for consistent wrapping.
         style.configure('Custom.TButton',
                         background=colors["button_style_toggle"]["background"], 
                         foreground=colors["button_style_toggle"]["foreground"],
@@ -162,8 +163,8 @@ class ShowtimeTab(ttk.Frame):
         self.device_frame.grid_columnconfigure(3, weight=1)
         
         # New "Tune" button
-        self.tune_button = ttk.Button(self.filter_frame, text="TUNE", command=self._on_tune_request, style='Green.TButton')
-        self.tune_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
+        # self.tune_button = ttk.Button(self.filter_frame, text="TUNE", command=self._on_tune_request, style='Green.TButton')
+        # self.tune_button.grid(row=4, column=0, padx=5, pady=5, sticky="ew")
     
     def _reset_filters(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -425,7 +426,7 @@ class ShowtimeTab(ttk.Frame):
             button_text = (f"{row_data.get('NAME', 'N/A')}\n"
                            f"{row_data.get('DEVICE', 'N/A')}\n"
                            f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\n"
-                           f"PEAK: [*************]")
+                           f"[********************]")
             
             button = ttk.Button(
                 self.device_frame,
@@ -448,14 +449,119 @@ class ShowtimeTab(ttk.Frame):
             console_print_func=console_log
         )
             
-    def _on_tune_request(self):
+    def _on_zone_toggle(self, zone_name):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🔵 Zone toggle clicked for: {zone_name}. Current selection: {self.selected_zone}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            console_print_func=console_log
+        )
+        if self.selected_zone == zone_name:
+            self.selected_zone = None
+            self.selected_group = None
+            debug_log(
+                message="🛠️🟡 Deselected Zone. Clearing Group selection.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+        else:
+            self.selected_zone = zone_name
+            self.selected_group = None
+            debug_log(
+                message=f"🛠️🟢 Selected new Zone: {self.selected_zone}. Clearing Group selection.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+        
+        self._create_zone_buttons()
+        self._create_group_buttons()
+        self._create_device_buttons()
+        
+        self._on_tune_request_from_selection()
+        
+    def _on_group_toggle(self, group_name):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🔵 Group toggle clicked for: {group_name}. Current selection: {self.selected_group}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            console_print_func=console_log
+        )
+        if self.selected_group == group_name:
+            self.selected_group = None
+            debug_log(
+                message="🛠️🟡 Deselected Group. Showing all devices for the current Zone.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+        else:
+            self.selected_group = group_name
+            debug_log(
+                message=f"🛠️🟢 Selected new Group: {self.selected_group}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+            
+        self._create_group_buttons()
+        self._create_device_buttons()
+        
+        self._on_tune_request_from_selection()
+        
+    def _clear_group_buttons(self):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(
+            message="🛠️🔵 Clearing group buttons.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            console_print_func=console_log
+        )
+        for widget in self.group_frame.winfo_children():
+            widget.destroy()
+
+    def _on_marker_button_click(self, button):
+        current_function = inspect.currentframe().f_code.co_name
+        debug_log(
+            message="🛠️🔵 Device button clicked. Toggling selection.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            console_print_func=console_log
+        )
+        marker_data = button.marker_data
+        
+        if self.selected_device_button == button:
+            self.selected_device_button.config(style='Custom.TButton')
+            self.selected_device_button = None
+            console_log(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
+        else:
+            if self.selected_device_button:
+                self.selected_device_button.config(style='Custom.TButton')
+            
+            self.selected_device_button = button
+            self.selected_device_button.config(style='Custom.Selected.TButton')
+            console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ (MHZ)', 'N/A')} MHz.")
+        
+        self._on_tune_request_from_selection()
+
+    def _on_tune_request_from_selection(self):
         """
         Tunes the instrument based on the current selections.
-        This is the new central tuning logic.
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
-            message="🛠️🟢 'TUNE' button clicked. Initiating tuning request.",
+            message="🛠️🟢 Initiating tuning request based on current selection.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function}",
@@ -526,103 +632,3 @@ class ShowtimeTab(ttk.Frame):
                 Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
             else:
                 console_log("❌ Failed to tune: No valid frequencies found in marker data.")
-            
-    def _on_zone_toggle(self, zone_name):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🔵 Zone toggle clicked for: {zone_name}. Current selection: {self.selected_zone}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
-        )
-        if self.selected_zone == zone_name:
-            self.selected_zone = None
-            self.selected_group = None
-            debug_log(
-                message="🛠️🟡 Deselected Zone. Clearing Group selection.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
-        else:
-            self.selected_zone = zone_name
-            self.selected_group = None
-            debug_log(
-                message=f"🛠️🟢 Selected new Zone: {self.selected_zone}. Clearing Group selection.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
-        
-        self._create_zone_buttons()
-        self._create_group_buttons()
-        self._create_device_buttons()
-        
-    def _on_group_toggle(self, group_name):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🔵 Group toggle clicked for: {group_name}. Current selection: {self.selected_group}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
-        )
-        if self.selected_group == group_name:
-            self.selected_group = None
-            debug_log(
-                message="🛠️🟡 Deselected Group. Showing all devices for the current Zone.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
-        else:
-            self.selected_group = group_name
-            debug_log(
-                message=f"🛠️🟢 Selected new Group: {self.selected_group}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
-            
-        self._create_group_buttons()
-        self._create_device_buttons()
-        
-    def _clear_group_buttons(self):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message="🛠️🔵 Clearing group buttons.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
-        )
-        for widget in self.group_frame.winfo_children():
-            widget.destroy()
-
-    def _on_marker_button_click(self, button):
-        current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message="🛠️🔵 Device button clicked. Toggling selection.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
-        )
-        marker_data = button.marker_data
-        
-        if self.selected_device_button == button:
-            self.selected_device_button.config(style='Custom.TButton')
-            self.selected_device_button = None
-            console_log(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
-        else:
-            if self.selected_device_button:
-                self.selected_device_button.config(style='Custom.TButton')
-            
-            self.selected_device_button = button
-            self.selected_device_button.config(style='Custom.Selected.TButton')
-            console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ (MHZ)', 'N/A')} MHz.")

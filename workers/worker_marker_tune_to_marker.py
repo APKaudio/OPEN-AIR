@@ -1,4 +1,4 @@
-# workers/worker_marker_tune_to_marker.py
+# # workers/worker_marker_tune_to_marker.py
 #
 # This worker module contains the logic for tuning an instrument to a selected marker's
 # frequency. It handles the necessary data conversion and MQTT communication.
@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.155900.5
+# Version 20250922.155900.6
 import os
 import inspect
 import sys
@@ -24,8 +24,8 @@ import json
 from workers.worker_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250922.155900.5"
-current_version_hash = (20250922 * 155900 * 5)
+current_version = "20250922.155900.6"
+current_version_hash = (20250922 * 155900 * 6)
 current_file = os.path.basename(__file__)
 
 def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
@@ -68,7 +68,8 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
 
         try:
             freq_mhz = float(freq_mhz)
-            center_freq_hz = freq_mhz * 1e6
+            # FIX: Convert to integer for HZ value
+            center_freq_hz = int(freq_mhz * 1e6)
         except (ValueError, TypeError) as e:
             debug_log(
                 message=f"❌🔴 Error converting frequency to float: {e}",
@@ -88,11 +89,12 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             console_print_func=console_log
         )
         
+        # FIX: Ensure all values published are integers
         mqtt_controller.publish_message(topic=CENTER_FREQ_TOPIC, subtopic="", value=center_freq_hz)
         console_log(f"✅ Set CENTER_FREQ to {center_freq_hz} Hz.")
         
-        mqtt_controller.publish_message(topic=SPAN_FREQ_TOPIC, subtopic="", value=default_span)
-        console_log(f"✅ Set SPAN_FREQ to {default_span} Hz.")
+        mqtt_controller.publish_message(topic=SPAN_FREQ_TOPIC, subtopic="", value=int(default_span))
+        console_log(f"✅ Set SPAN_FREQ to {int(default_span)} Hz.")
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=True)
         debug_log(
@@ -176,8 +178,9 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
             return
 
         # Calculate start and stop frequencies
-        start_freq_hz = center_freq_hz - buffer
-        stop_freq_hz = center_freq_hz + buffer
+        # FIX: Convert to integer for HZ value
+        start_freq_hz = int(center_freq_hz - buffer)
+        stop_freq_hz = int(center_freq_hz + buffer)
 
         debug_log(
             message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",

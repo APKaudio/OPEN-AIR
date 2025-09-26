@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250922.034500.8
+# Version 20250922.034500.9
 import tkinter as tk
 from tkinter import filedialog, ttk
 import os
@@ -24,9 +24,9 @@ import xml.etree.ElementTree as ET
 import sys
 import inspect
 import threading
-import json 
-import datetime 
-import re 
+import json
+import datetime
+import re
 import pathlib
 import pandas as pd
 import numpy as np
@@ -44,14 +44,14 @@ from workers.worker_marker_file_handling import (
     maker_file_save_open_air_file
 )
 from workers.worker_marker_report_converter import (
-    Marker_convert_wwb_zip_report_to_csv,  # New import for the zip worker
-    Marker_convert_SB_v2_PDF_File_report_to_csv # NEW: Import for the SB v2 PDF converter
+    Marker_convert_wwb_zip_report_to_csv,
+    Marker_convert_SB_v2_PDF_File_report_to_csv
 )
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250922.034500.8"
-current_version_hash = (20250922 * 34500 * 8)
+current_version = "20250922.034500.9"
+current_version_hash = (20250922 * 34500 * 9)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -208,7 +208,6 @@ class MarkerImporterTab(ttk.Frame):
         self.load_sb_pdf_button = ttk.Button(load_markers_frame, text="Load SB PDF", style='Action.TButton', command=self._load_sb_pdf_action)
         self.load_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
         
-        # NEW: Add the button to load the new SB V2.pdf format
         self.load_sb_v2_pdf_button = ttk.Button(load_markers_frame, text="Load SB V2.pdf", style='Action.TButton', command=self._load_sb_v2_pdf_action)
         self.load_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
 
@@ -309,7 +308,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _load_ias_html_action(self):
         headers, data = maker_file_load_ias_html()
@@ -317,7 +316,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _load_wwb_shw_action(self):
         headers, data = maker_file_load_wwb_shw()
@@ -325,7 +324,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
     
     def _load_wwb_zip_action(self):
         """
@@ -353,7 +352,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _load_sb_pdf_action(self):
         headers, data = maker_file_load_sb_pdf()
@@ -361,7 +360,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _load_sb_v2_pdf_action(self):
         """
@@ -393,7 +392,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data = data
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     # --- NEW: Append Action Wrappers ---
     def _append_markers_file_action(self):
@@ -402,7 +401,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _append_ias_html_action(self):
         headers, new_data = maker_file_load_ias_html()
@@ -410,7 +409,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _append_wwb_shw_action(self):
         headers, new_data = maker_file_load_wwb_shw()
@@ -418,7 +417,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
     
     def _append_wwb_zip_action(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -441,7 +440,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _append_sb_pdf_action(self):
         headers, new_data = maker_file_load_sb_pdf()
@@ -449,7 +448,7 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _append_sb_v2_pdf_action(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -472,11 +471,17 @@ class MarkerImporterTab(ttk.Frame):
             self.tree_headers = headers
             self.tree_data.extend(new_data)
             self._update_treeview()
-            maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+            self._save_markers_file_internally()
 
     def _save_open_air_file_action(self):
+        """
+        Saves the current tree data to a file and calls the MQTT publisher.
+        """
         # Call the worker function with the current data from the GUI
         maker_file_save_open_air_file(self.tree_headers, self.tree_data)
+        # NEW: After saving, publish the new data to MQTT.
+        if self.mqtt_util:
+            self._publish_markers_to_mqtt()
         
     def _delete_selected_row(self, event):
         """Deletes the currently selected row from the Treeview and the underlying data."""
@@ -503,8 +508,8 @@ class MarkerImporterTab(ttk.Frame):
             else:
                 console_log(f"❌ Error: Row {index_in_tree + 1} not found in data.")
 
-        # Save the updated data to the intermediate file
-        maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+        # Save the updated data to the intermediate file and publish to MQTT.
+        self._save_markers_file_internally()
 
     def _on_tree_double_click(self, event):
         current_function = inspect.currentframe().f_code.co_name
@@ -574,7 +579,7 @@ class MarkerImporterTab(ttk.Frame):
                             console_print_func=console_log)
                 
                 # Update the intermediate file after each edit.
-                maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+                self._save_markers_file_internally()
 
             else:
                 debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.",
@@ -799,5 +804,22 @@ class MarkerImporterTab(ttk.Frame):
         # self.mqtt_util.publish_message(topic="display/markers/data_updated", value=self.tree_data)
 
     def _save_markers_file_internally(self):
-        """Saves the current internal state to the intermediate file."""
+        """
+        Saves the current internal state to the intermediate file and publishes to MQTT.
+        """
         maker_file_save_intermediate_file(self.tree_headers, self.tree_data)
+        # NEW: After saving, publish the new data to MQTT.
+        if self.mqtt_util:
+            self._publish_markers_to_mqtt()
+
+    def _publish_markers_to_mqtt(self):
+        """
+        Publishes the current marker data to the MQTT broker in a structured format.
+        """
+        from workers.worker_marker_peak_hunter import Peak_hunter_CSV_to_MQTT
+        # We need to pass the file path, but the helper function saves to a known location.
+        # The worker function needs the path to the file.
+        # This assumes that `maker_file_save_intermediate_file` saves to the same location
+        # that `Peak_hunter_CSV_to_MQTT` watches.
+
+        Peak_hunter_CSV_to_MQTT(mqtt_util=self.mqtt_util)

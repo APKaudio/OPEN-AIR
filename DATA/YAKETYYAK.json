@@ -417,19 +417,19 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
                         }
                     },
                     "scpi_inputs": {
                         "center_freq": {
-                            "value": "11111111",
+                            "value": 692100000,
                             "type": "_Value",
                             "description": "The SCPI input for center frequency.",
                             "": "{\"value\": 601000000.0}"
                         },
                         "span_freq": {
-                            "value": "222222",
+                            "value": 1000000,
                             "type": "_Value",
                             "description": "The SCPI input for span frequency.",
                             "": "{\"value\": 1000000.0}"
@@ -437,12 +437,12 @@
                     },
                     "scpi_outputs": {
                         "start_freq": {
-                            "value": "",
+                            "value": "+6.916000000E+08",
                             "type": "_Value",
                             "description": "The SCPI output for start frequency."
                         },
                         "stop_freq": {
-                            "value": "The stopping frequency.",
+                            "value": "+6.926000000E+08",
                             "type": "_Value",
                             "description": "The SCPI output for stop frequency."
                         }
@@ -452,30 +452,30 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
                     },
                     "scpi_inputs": {
                         "start_freq": {
-                            "value": "123456789",
+                            "value": 546300000,
                             "type": "_Value",
                             "description": "The SCPI input for start frequency."
                         },
                         "stop_freq": {
-                            "value": "987654321",
+                            "value": 740700000,
                             "type": "_Value",
                             "description": "The SCPI input for stop frequency."
                         }
                     },
                     "scpi_outputs": {
                         "center_freq": {
-                            "value": "",
+                            "value": "+6.435000000E+08",
                             "type": "_Value",
                             "description": "The SCPI output for start frequency."
                         },
                         "span_freq": {
-                            "value": "",
+                            "value": "+1.944000000E+08",
                             "type": "_Value",
                             "description": "The SCPI output for stop frequency."
                         }
