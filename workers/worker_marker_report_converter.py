@@ -36,7 +36,7 @@ current_file = os.path.basename(__file__) # Get current file name for debug_log
 current_version = "20250815.200000.3"
 current_version_hash = (20250815 * 200000 * 3)
 
-headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"] # NEW: Added Peak header
+headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added Peak header
 
 # Updated imports for new logging functions
 from workers.worker_logging import debug_log,console_log
@@ -173,7 +173,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                 "GROUP": current_group_name,
                                 "DEVICE": band_type,
                                 "NAME": channel_name,
-                                "FREQ (MHZ)": freq_MHz, # Store in MHz
+                                "FREQ_MHZ": freq_MHz, # Store in MHz
                                 "PEAK": np.nan # NEW: Added Peak column
                             }
                             if band_type or channel_frequency_str or channel_name:
@@ -227,7 +227,7 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         
                             "DEVICE": band_type,
                             "NAME": channel_name,
-                            "FREQ (MHZ)": freq_MHz, # Store in MHz
+                            "FREQ_MHZ": freq_MHz, # Store in MHz
                             "PEAK": np.nan # NEW: Added Peak column
                         }
                         if band_type or channel_frequency_str or channel_name:
@@ -321,7 +321,7 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
                 "GROUP": group,
                 "DEVICE": device,
                 "NAME": name,
-                "FREQ (MHZ)": freq_MHz, # Store in MHz
+                "FREQ_MHZ": freq_MHz, # Store in MHz
                 "PEAK": np.nan # NEW: Added Peak column
             })
     
@@ -441,7 +441,7 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
                                 "GROUP": csv_group,
                                 "DEVICE": device,
                                 "NAME": "",  # The prompt says just the freq, so name can be empty or the freq itself.
-                                "FREQ (MHZ)": freq_mhz,
+                                "FREQ_MHZ": freq_mhz,
                                 "PEAK": np.nan 
                             }
                             csv_data.append(row_data)
@@ -604,7 +604,7 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                             "GROUP": group_csv,
                             "DEVICE": device_csv,
                             "NAME": name_csv,
-                            "FREQ (MHZ)": freq_MHz_csv,
+                            "FREQ_MHZ": freq_MHz_csv,
                             "PEAK": np.nan # NEW: Added Peak column
                         })
                         debug_log(f"Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
@@ -643,14 +643,14 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
     )
     
     # Standardized headers and their common aliases
-    standard_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
+    standard_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
     header_aliases = {
     
         "zone": ["zone", "area", "location"],
         "group": ["group", "channel_group"],
         "device": ["device", "dev_type", "model"],
         "name": ["name", "alias", "description"],
-        "freq (mhz)": ["freq", "frequency", "frequency_mhz", "freq (mhz)"],
+        "FREQ_MHZ": ["freq", "frequency", "frequency_mhz", "FREQ_MHZ"],
         "peak": ["peak", "peak_level", "max_level", "dbm"]
     }
     
@@ -675,7 +675,7 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
             for std_header, index in header_map.items():
                 if index < len(row):
                     value = row[index].strip()
-                    if std_header.lower() == "freq (mhz)" and value:
+                    if std_header.lower() == "FREQ_MHZ" and value:
                         try:
                             # Attempt to convert to MHz if needed
                             match = re.search(r'(\d+(?:\.\d+)?)\s*(?:(k|m|g)?hz)?', value, re.IGNORECASE)
@@ -794,7 +794,7 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
                                 'GROUP': current_group,
                                 'DEVICE': device_clean,
                                 'NAME': device_clean,
-                                'FREQ (MHZ)': freq_clean,
+                                'FREQ_MHZ': freq_clean,
                                 'PEAK': np.nan 
                             })
                             

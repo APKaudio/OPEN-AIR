@@ -54,10 +54,10 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         default_span = 1e6 # 1 MHz
         
-        freq_mhz = marker_data.get('FREQ (MHZ)', None)
+        freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             debug_log(
-                message="❌🔴 Error: Marker data is missing the 'FREQ (MHZ)' key.",
+                message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -151,10 +151,10 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         STOP_FREQ_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/stop_freq/value"
         START_STOP_TRIGGER_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_start_stop/scpi_details/generic_model/trigger"
         
-        freq_mhz = marker_data.get('FREQ (MHZ)', None)
+        freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             debug_log(
-                message="❌🔴 Error: Marker data is missing the 'FREQ (MHZ)' key.",
+                message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",

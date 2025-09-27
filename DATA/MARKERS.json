@@ -1,298 +1,2536 @@
 {
-    "zone-01": {
-        "name": "MAIN STAGE DIRECT SUPPORT",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "CHASE RICE IEM'S",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "515.775",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "517.05",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "517.725",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "520.25",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "520.75",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "525.4",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "526.5",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "527.1",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "529.4",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "532.0",
-                        "peak": "",
-                        "selected": "false"
-                    }
-                }
-            },
-            "group-02": {
-                "name": "CR MICS & BACKLINE",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "602.55",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "599.225",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "593.65",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "592.25",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "589.15",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "588.575",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "587.575",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "586.925",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "585.875",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "585.425",
-                        "peak": "",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
+    "total_devices": 253,
+    "min_frequency_mhz": 470.225,
+    "max_frequency_mhz": 661.8,
+    "span_mhz": 191.57499999999993,
+    "Device-001": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "472.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
     },
-    "zone-02": {
-        "name": "MAIN STAGE SUPPORT",
-        "selected": "false",
-        "groups": {
-            "group-01": {
-                "name": "DAUGHTRY IEM'S",
-                "selected": "false",
-                "devices": {
-                    "device-01": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "533.2",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-02": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "532.8",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-03": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "532.1",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-04": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "530.575",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-05": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "529.4",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-06": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "525.35",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-07": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "524.825",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-08": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "524.0",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-09": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "521.725",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-10": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "519.825",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-11": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "577.625",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-12": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "576.825",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-13": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "573.825",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-14": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "573.175",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-15": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "597.65",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-16": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "596.475",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-17": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "594.725",
-                        "peak": "",
-                        "selected": "false"
-                    },
-                    "device-18": {
-                        "active": "True",
-                        "name": "",
-                        "freq_mhz": "593.6",
-                        "peak": "",
-                        "selected": "false"
-                    }
-                }
-            }
-        }
+    "Device-002": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "473.525",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-003": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "478.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-004": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "479.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-005": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "483.15",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-006": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "484.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-007": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "486.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-008": {
+        "Name": "Shure IEM 1",
+        "Device": "Shure - PSM900 - G7",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "513.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-009": {
+        "Name": "Shure IEM 2",
+        "Device": "Shure - PSM900 - G7",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "514.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-010": {
+        "Name": "",
+        "Device": "None - None - G7",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "515.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-011": {
+        "Name": "Shure IEM 4",
+        "Device": "Shure - PSM900 - G7",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "525.6",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-012": {
+        "Name": "",
+        "Device": "None - None - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "653.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-013": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "521.325",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-014": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "528.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-015": {
+        "Name": "",
+        "Device": "None - None - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "",
+        "FREQ_MHZ": "599.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-016": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "519.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-017": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "520.2",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-018": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "520.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-019": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "521.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-020": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "522.925",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-021": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "524.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-022": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "525.125",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-023": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "527.0",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-024": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "527.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-025": {
+        "Name": "",
+        "Device": "None - None - TV14-36",
+        "Zone": "STATION ENG",
+        "Group": "",
+        "FREQ_MHZ": "528.85",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-026": {
+        "Name": "",
+        "Device": "None - None - 43",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "654.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-027": {
+        "Name": "R-MC-21",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "587.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-028": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "06.ST.38.WEATHER CENTER",
+        "Group": "",
+        "FREQ_MHZ": "588.19",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-029": {
+        "Name": "",
+        "Device": "None - None - 43",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "658.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-030": {
+        "Name": "",
+        "Device": "None - None - J8E",
+        "Zone": "10.ST.41.ROGERS.IFB.J8E",
+        "Group": "",
+        "FREQ_MHZ": "616.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-031": {
+        "Name": "R-MC-S1",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "600.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-032": {
+        "Name": "R-MC-S2",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "600.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-033": {
+        "Name": "R-MC-S3",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "601.1",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-034": {
+        "Name": "R-MC-S4",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "572.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-035": {
+        "Name": "OMPENG-6",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "534.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-036": {
+        "Name": "OMPENG-7",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "535.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-037": {
+        "Name": "OMPENG-5",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "533.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-038": {
+        "Name": "OMPENG-8",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "535.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-039": {
+        "Name": "DSQENG-8",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "533.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-040": {
+        "Name": "DSQENG-7",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "532.925",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-041": {
+        "Name": "DSQENG-6",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "532.525",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-042": {
+        "Name": "DSQENG-5",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "531.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-043": {
+        "Name": "IFB-01",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "470.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-044": {
+        "Name": "IFB-02",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "470.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-045": {
+        "Name": "IFB-03",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "471.4",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-046": {
+        "Name": "IFB-04",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "471.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-047": {
+        "Name": "IFB-05",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "473.925",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-048": {
+        "Name": "IFB-06",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "474.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-049": {
+        "Name": "IFB-07",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "475.275",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-050": {
+        "Name": "IFB-08",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB14.20",
+        "Group": "",
+        "FREQ_MHZ": "475.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-051": {
+        "Name": "IFB-09",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "476.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-052": {
+        "Name": "IFB-10",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "476.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-053": {
+        "Name": "IFB-11",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "477.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-054": {
+        "Name": "IFB-12",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "477.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-055": {
+        "Name": "IFB-13",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "480.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-056": {
+        "Name": "IFB-14",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "480.625",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-057": {
+        "Name": "IFB-15",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "481.375",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-058": {
+        "Name": "IFB-16",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB15.20",
+        "Group": "",
+        "FREQ_MHZ": "481.875",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-059": {
+        "Name": "IFB-17",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB16.20",
+        "Group": "",
+        "FREQ_MHZ": "482.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-060": {
+        "Name": "IFB-18",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB16.20",
+        "Group": "",
+        "FREQ_MHZ": "482.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-061": {
+        "Name": "IFB-19",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB16.20",
+        "Group": "",
+        "FREQ_MHZ": "483.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-062": {
+        "Name": "IFB-20",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10.ST.41.ROGERS.IFB16.20",
+        "Group": "",
+        "FREQ_MHZ": "484.9",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-063": {
+        "Name": "DSQENG-1",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "530.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-064": {
+        "Name": "DSQENG-2",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "531.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-065": {
+        "Name": "DSQENG-3",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "531.65",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-066": {
+        "Name": "DSQENG-4",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "532.1",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-067": {
+        "Name": "OMPENG-3",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "529.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-068": {
+        "Name": "OMPENG-2",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "530.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-069": {
+        "Name": "OMPENG-4",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "534.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-070": {
+        "Name": "OMPENG-1",
+        "Device": "Sony - DWR-S02DN - TV22-25",
+        "Zone": "10.ST.41.ROGERS.ENG.20",
+        "Group": "",
+        "FREQ_MHZ": "535.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-071": {
+        "Name": "Sony Mic 1",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "654.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-072": {
+        "Name": "Sony Mic 3",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "656.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-073": {
+        "Name": "Sony Mic 5",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "657.2",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-074": {
+        "Name": "Sony Mic 7",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "660.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-075": {
+        "Name": "Sony Mic 2",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "661.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-076": {
+        "Name": "Sony Mic 4",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "642.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-077": {
+        "Name": "Sony Mic 6",
+        "Device": "Sony - DWR-R02DN - 42",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "643.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-078": {
+        "Name": "Sony Mic 8",
+        "Device": "Sony - DWR-R02DN - 43",
+        "Zone": "01.STUDIO.55.FLOOR.K",
+        "Group": "",
+        "FREQ_MHZ": "645.5",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-079": {
+        "Name": "Sennheiser - MIC 1",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "574.88",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-080": {
+        "Name": "Sennheiser - MIC 2",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "575.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-081": {
+        "Name": "Sennheiser - MIC 3",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "575.885",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-082": {
+        "Name": "Sennheiser - MIC 4",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "579.86",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-083": {
+        "Name": "Sennheiser - MIC 5",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "585.76",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-084": {
+        "Name": "Sennheiser - MIC 6",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "590.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-085": {
+        "Name": "Sennheiser - MIC 7",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "592.995",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-086": {
+        "Name": "Sennheiser - MIC 8",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.50.FLOOR.A.NEWSNET",
+        "Group": "",
+        "FREQ_MHZ": "616.61",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-087": {
+        "Name": "",
+        "Device": "None - None - L",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "589.28",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-088": {
+        "Name": "",
+        "Device": "None - None - L",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "593.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-089": {
+        "Name": "",
+        "Device": "None - None - L",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "595.83",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-090": {
+        "Name": "",
+        "Device": "None - None - L",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "616.99",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-091": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "654.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-092": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "657.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-093": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "658.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-094": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "04.ST.53.FLOOR.B.FISHBOWL",
+        "Group": "",
+        "FREQ_MHZ": "660.6",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-095": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "06.ST.38.WEATHER CENTER",
+        "Group": "",
+        "FREQ_MHZ": "590.08",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-096": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "06.ST.38.WEATHER CENTER",
+        "Group": "",
+        "FREQ_MHZ": "591.64",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-097": {
+        "Name": "IEM - MOB 1",
+        "Device": "Shure - PSM900 - G6",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "490.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-098": {
+        "Name": "IEM - MOB 2",
+        "Device": "Shure - PSM900 - G6",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "500.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-099": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - SR 2000 - Aw",
+        "Zone": "06.ST.38.WEATHER CENTER",
+        "Group": "",
+        "FREQ_MHZ": "537.6",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-100": {
+        "Name": "IN RACK ",
+        "Device": "Shure - ULXD4 - G50",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "530.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-101": {
+        "Name": "IN RACK",
+        "Device": "Shure - PSM900 - G6",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "476.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-102": {
+        "Name": "MOBILE 1",
+        "Device": "Shure - ULXD4 - G50",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "531.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-103": {
+        "Name": "MOBILE 2",
+        "Device": "Shure - ULXD4 - G50",
+        "Zone": "06.ST.211.RADIO RECORDING",
+        "Group": "",
+        "FREQ_MHZ": "532.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-104": {
+        "Name": "Sennheiser - MIC 1 - PRI",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.WB13.ST.F.LOCAL NEWS",
+        "Group": "",
+        "FREQ_MHZ": "582.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-105": {
+        "Name": "Sennheiser - MIC 1 - BKUP",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.WB13.ST.F.LOCAL NEWS",
+        "Group": "",
+        "FREQ_MHZ": "586.835",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-106": {
+        "Name": "Sennheiser - MIC 2",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.WB13.ST.F.LOCAL NEWS",
+        "Group": "",
+        "FREQ_MHZ": "594.69",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-107": {
+        "Name": "Sennheiser - MIC 3",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.WB13.ST.F.LOCAL NEWS",
+        "Group": "",
+        "FREQ_MHZ": "599.895",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-108": {
+        "Name": "Shure - MIC 1",
+        "Device": "Shure - SLX_master_list - G5",
+        "Zone": "10.CONF.ARTIST LOUNGE",
+        "Group": "",
+        "FREQ_MHZ": "494.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-109": {
+        "Name": "Shure - MIC 2",
+        "Device": "Shure - SLX_master_list - G5",
+        "Zone": "10.CONF.ARTIST LOUNGE",
+        "Group": "",
+        "FREQ_MHZ": "496.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-110": {
+        "Name": "Shure - MIC 3",
+        "Device": "Shure - SLX_master_list - G5",
+        "Zone": "10.CONF.ARTIST LOUNGE",
+        "Group": "",
+        "FREQ_MHZ": "498.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-111": {
+        "Name": "Shure - MIC 4",
+        "Device": "Shure - SLX_master_list - G5",
+        "Zone": "10.CONF.ARTIST LOUNGE",
+        "Group": "",
+        "FREQ_MHZ": "499.8",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-112": {
+        "Name": "Sony - MIC 1",
+        "Device": "Sony - DWR-R02DN - 34-36",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "592.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-113": {
+        "Name": "Sony - MIC 5",
+        "Device": "Sony - DWR-R02DN - 34-36",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "594.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-114": {
+        "Name": "Sennheiser - MIC 2",
+        "Device": "Sennheiser - EM 2000 - Aw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "532.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-115": {
+        "Name": "Sennheiser - MIC 3",
+        "Device": "Sennheiser - EM 2000 - Aw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "554.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-116": {
+        "Name": "Sennheiser - MIC 4",
+        "Device": "Sennheiser - EM 2000 - Aw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "517.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-117": {
+        "Name": "Sennheiser - IEM 3",
+        "Device": "Sennheiser - SR 2000 - Gw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "598.275",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-118": {
+        "Name": "Sennheiser - IEM 4",
+        "Device": "Sennheiser - SR 2000 - Gw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "601.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-119": {
+        "Name": "Sennheiser - IEM 5",
+        "Device": "Sennheiser - SR 2000 - Gw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "616.325",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-120": {
+        "Name": "Sennheiser - IEM 1",
+        "Device": "Sennheiser - SR 2000 - Bw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "654.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-121": {
+        "Name": "Sennheiser - IEM 2",
+        "Device": "Sennheiser - SR 2000 - Bw",
+        "Zone": "05.ST.54.FLOOR.E.SRC NEWS",
+        "Group": "",
+        "FREQ_MHZ": "659.425",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-122": {
+        "Name": "Shure",
+        "Device": "Shure - BLX4 - H10",
+        "Zone": "09.CONF.DIGITAL SERVICES",
+        "Group": "",
+        "FREQ_MHZ": "571.675",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-123": {
+        "Name": "Shure",
+        "Device": "Shure - BLX4 - H9",
+        "Zone": "09.CONF.DIGITAL SERVICES",
+        "Group": "",
+        "FREQ_MHZ": "537.0",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-124": {
+        "Name": "Shure",
+        "Device": "Shure - BLX4 - H9",
+        "Zone": "09.CONF.DIGITAL SERVICES",
+        "Group": "",
+        "FREQ_MHZ": "534.85",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-125": {
+        "Name": "Sennheiser - RF 3",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "574.58",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-126": {
+        "Name": "Sennheiser - RF 4",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "589.84",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-127": {
+        "Name": "Sennheiser - RF 1",
+        "Device": "Sennheiser - EM 3732 - C",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "580.115",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-128": {
+        "Name": "Sennheiser - RF 2",
+        "Device": "Sennheiser - EM 3732 - C",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "586.52",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-129": {
+        "Name": "Sennheiser - RF 5",
+        "Device": "Sennheiser - EM 3732 - C",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "590.28",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-130": {
+        "Name": "Sennheiser - RF 6",
+        "Device": "Sennheiser - EM 3732 - C",
+        "Zone": "04.ST.55.FLOOR.D.NATIONAL",
+        "Group": "",
+        "FREQ_MHZ": "616.135",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-131": {
+        "Name": "Sony Rental 1",
+        "Device": "Sony - DWR-R02D - 42-45",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "654.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-132": {
+        "Name": "Sony Rental 2",
+        "Device": "Sony - DWR-R02D - 42-45",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "656.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-133": {
+        "Name": "Sony Rental 3",
+        "Device": "Sony - DWR-R02D - 42-45",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "661.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-134": {
+        "Name": "Sony Rental 4",
+        "Device": "Sony - DWR-R02D - 42-45",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "661.8",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-135": {
+        "Name": "IFB-23",
+        "Device": "Shure - PSM1000 - J8E",
+        "Zone": "10.ST.41.ROGERS.IFB.J8E",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "579.6",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-136": {
+        "Name": "IFB-24",
+        "Device": "Shure - PSM1000 - J8E",
+        "Zone": "10.ST.41.ROGERS.IFB.J8E",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "582.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-137": {
+        "Name": "IFB-22",
+        "Device": "Shure - PSM1000 - J8E",
+        "Zone": "10.ST.41.ROGERS.IFB.J8E",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "586.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-138": {
+        "Name": "",
+        "Device": "None - None - J8E",
+        "Zone": "10.ST.41.ROGERS.IFB.J8E",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "592.325",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-139": {
+        "Name": "R-MC-27",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "574.125",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-140": {
+        "Name": "R-MC-28",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "574.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-141": {
+        "Name": "R-MC-25",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "576.875",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-142": {
+        "Name": "R-MC-26",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "579.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-143": {
+        "Name": "R-MC-23",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "579.8",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-144": {
+        "Name": "R-MC-24",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "580.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-145": {
+        "Name": "R-MC-22",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "581.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-146": {
+        "Name": "R-MC-19",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "582.525",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-147": {
+        "Name": "R-MC-20",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "583.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-148": {
+        "Name": "R-MC-17",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "584.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-149": {
+        "Name": "R-MC-18",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "584.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-150": {
+        "Name": "R-MC-15",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "585.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-151": {
+        "Name": "R-MC-16",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "585.65",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-152": {
+        "Name": "",
+        "Device": "None - None - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "586.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-153": {
+        "Name": "R-MC-14",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "586.425",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-154": {
+        "Name": "R-MC-11",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "601.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-155": {
+        "Name": "R-MC-12",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "587.95",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-156": {
+        "Name": "R-MC-09",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "590.8",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-157": {
+        "Name": "R-MC-10",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "591.4",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-158": {
+        "Name": "R-MC-07",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "591.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-159": {
+        "Name": "R-MC-08",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "592.2",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-160": {
+        "Name": "R-MC-05",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "594.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-161": {
+        "Name": "R-MC-06",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "595.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-162": {
+        "Name": "R-MC-03",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "597.375",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-163": {
+        "Name": "R-MC-04",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "598.1",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-164": {
+        "Name": "R-MC-01",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "598.9",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-165": {
+        "Name": "R-MC-02",
+        "Device": "Shure - AD4D-A - G57",
+        "Zone": "10.ST.41.ROGERS.MICS.20",
+        "Group": "10.Rogers 2020",
+        "FREQ_MHZ": "599.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-166": {
+        "Name": "Sennheiser",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "06.ST.38.WEATHER CENTER",
+        "Group": "06.WeatherStudi",
+        "FREQ_MHZ": "594.28",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-167": {
+        "Name": "",
+        "Device": "None - None - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "522.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-168": {
+        "Name": " Sennheiser 4",
+        "Device": "Sennheiser - EM6000 - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "523.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-169": {
+        "Name": "",
+        "Device": "None - None - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "526.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-170": {
+        "Name": "Sennheiser 3",
+        "Device": "Sennheiser - EM6000 - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "527.8",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-171": {
+        "Name": "Sennheiser 1",
+        "Device": "Sennheiser - EM6000 - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "528.675",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-172": {
+        "Name": "Sennheiser 2",
+        "Device": "Sennheiser - EM6000 - A1A4",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "530.275",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-173": {
+        "Name": "Sennheiser SYS 2 - MIC 01",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "574.455",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-174": {
+        "Name": "Sennheiser SYS 2 - MIC 02",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "575.305",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-175": {
+        "Name": "Sennheiser SYS 2 - MIC 03",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "576.73",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-176": {
+        "Name": "Sennheiser SYS 2 - MIC 04",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "578.655",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-177": {
+        "Name": "Sennheiser SYS 2 - MIC 05",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "583.4",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-178": {
+        "Name": "Sennheiser SYS 2 - MIC 06",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "589.325",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-179": {
+        "Name": "Sennheiser SYS 2 - MIC 07",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "593.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-180": {
+        "Name": "Sennheiser SYS 2 - MIC 09",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "597.715",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-181": {
+        "Name": "Sennheiser SYS 2 - MIC 08",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "596.465",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-182": {
+        "Name": "",
+        "Device": "None - None - L",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "601.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-183": {
+        "Name": "IFB 3",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "513.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-184": {
+        "Name": "IFB 4",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "513.625",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-185": {
+        "Name": "",
+        "Device": "None - None - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "515.175",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-186": {
+        "Name": "IFB 1",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "515.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-187": {
+        "Name": "Sennheiser SYS 1 - MIC 02",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "573.085",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-188": {
+        "Name": "Sennheiser SYS 1 - MIC 03",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "573.995",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-189": {
+        "Name": "Sennheiser SYS 1 - MIC 04",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "578.205",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-190": {
+        "Name": "Sennheiser SYS 1 - MIC 05",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "581.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-191": {
+        "Name": "Sennheiser SYS 1 - MIC 06",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "589.42",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-192": {
+        "Name": "Sennheiser SYS 1 - MIC 07",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "590.18",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-193": {
+        "Name": "Sennheiser SYS 1 - MIC 08",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "597.31",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-194": {
+        "Name": "Sennheiser SYS 1 - MIC 09",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "599.86",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-195": {
+        "Name": "Sennheiser SYS 1 - MIC 10",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "601.675",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-196": {
+        "Name": "Sennheiser SYS 1 - MIC 01",
+        "Device": "Sennheiser - EM 3732-II - L",
+        "Zone": "10.SYS.2 SENN.MOBILE MICS",
+        "Group": "",
+        "FREQ_MHZ": "572.71",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-197": {
+        "Name": "Sennheiser - IEM - 1",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "653.875",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-198": {
+        "Name": "Sennheiser - IEM - 2",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "655.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-199": {
+        "Name": "Sennheiser - IEM - 3",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "655.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-200": {
+        "Name": "Sennheiser - IEM - 4",
+        "Device": "Sennheiser - SR 2050 - Bw",
+        "Zone": "10.SYS.1.GOULD MICS",
+        "Group": "",
+        "FREQ_MHZ": "659.15",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-201": {
+        "Name": "LAV 4",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "574.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-202": {
+        "Name": "STICK 5",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "575.0",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-203": {
+        "Name": "LAV 1",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "575.7",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-204": {
+        "Name": "STICK 6",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "577.65",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-205": {
+        "Name": "STICK 7",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "578.1",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-206": {
+        "Name": "LAV 5",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "579.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-207": {
+        "Name": "LAV 3",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "581.0",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-208": {
+        "Name": "STICK 3",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "582.425",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-209": {
+        "Name": "LAV 2",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "582.85",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-210": {
+        "Name": "STICK 1",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "581.675",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-211": {
+        "Name": "STICK 4",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "584.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-212": {
+        "Name": "STICK 2",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "585.6",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-213": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "576.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-214": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "576.5",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-215": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "586.925",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-216": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "588.575",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-217": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "589.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-218": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "589.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-219": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "593.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-220": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "593.65",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-221": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "595.65",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-222": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "596.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-223": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "596.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-224": {
+        "Name": "Shure",
+        "Device": "Shure - AD4Q-A - G57",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "598.525",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-225": {
+        "Name": "Shure",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "516.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-226": {
+        "Name": "Shure",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "523.825",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-227": {
+        "Name": "Shure",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "526.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-228": {
+        "Name": "Shure",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "527.525",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-229": {
+        "Name": "Shure",
+        "Device": "Shure - PSM1000 - G10",
+        "Zone": "10 STATION AXIENT MICS",
+        "Group": "",
+        "FREQ_MHZ": "512.475",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-230": {
+        "Name": "Sennheiser 1",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "472.125",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-231": {
+        "Name": "Sennheiser 2",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "473.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-232": {
+        "Name": "Sennheiser 3",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "474.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-233": {
+        "Name": "Sennheiser 4",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "477.3",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-234": {
+        "Name": "Sennheiser 5",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "480.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-235": {
+        "Name": "Sennheiser 6",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "481.925",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-236": {
+        "Name": "Sennheiser 7",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "483.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-237": {
+        "Name": "Sennheiser 8",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "00.TechStores",
+        "Group": "",
+        "FREQ_MHZ": "487.025",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-238": {
+        "Name": "Sennheiser IFB 2",
+        "Device": "Sennheiser - EM 2050 - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "577.5",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-239": {
+        "Name": "Sennheiser IFB 3",
+        "Device": "Sennheiser - EM 2050 - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "580.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-240": {
+        "Name": "Sennheiser IFB 4",
+        "Device": "Sennheiser - EM 2050 - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "581.25",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-241": {
+        "Name": "R-MC-17",
+        "Device": "Shure - AD4D-A - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "584.45",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-242": {
+        "Name": "Sennheiser IFB 6",
+        "Device": "Sennheiser - EM 2050 - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "593.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-243": {
+        "Name": "",
+        "Device": "None - None - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "595.625",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-244": {
+        "Name": "",
+        "Device": "None - None - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "600.975",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-245": {
+        "Name": "Sennheiser IFB 1",
+        "Device": "Sennheiser - EM 2050 - Gw",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "572.75",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-246": {
+        "Name": "Sennheiser 1",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "470.225",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-247": {
+        "Name": "Sennheiser 2",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "471.05",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-248": {
+        "Name": "Sennheiser 3",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "474.075",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-249": {
+        "Name": "Sennheiser 4",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "478.775",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-250": {
+        "Name": "Sennheiser 5",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "482.725",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-251": {
+        "Name": "Sennheiser 6",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "484.35",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-252": {
+        "Name": "Sennheiser 7",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "485.55",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
+    },
+    "Device-253": {
+        "Name": "Sennheiser 8",
+        "Device": "Sennheiser - EM 9046 - A1",
+        "Zone": "01.STUDIO.ATRIUM",
+        "Group": "",
+        "FREQ_MHZ": "487.85",
+        "Peak": "nan",
+        "active": "True",
+        "selected": "false"
     }
 }

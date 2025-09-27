@@ -271,7 +271,7 @@ class MarkerImporterTab(ttk.Frame):
 
     def _update_treeview(self):
         self.marker_tree.delete(*self.marker_tree.get_children())
-        standardized_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
+        standardized_headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
         self.marker_tree["columns"] = standardized_headers
         debug_log(
             message=f"🔁🔵 Now adding {len(self.tree_data)} rows to the Treeview. Headers: {standardized_headers}",
@@ -649,7 +649,7 @@ class MarkerImporterTab(ttk.Frame):
     def _populate_marker_tree(self):
         """Re-populates the treeview from the internal data model."""
         self.marker_tree.delete(*self.marker_tree.get_children())
-        standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ (MHZ)", "PEAK"]
+        standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
         self.marker_tree["columns"] = standardized_headers
         for col in standardized_headers:
             self.marker_tree.heading(col, text=col, command=lambda c=col: self._sort_treeview(c, self.sort_column != c or not self.sort_direction))
@@ -668,5 +668,5 @@ class MarkerImporterTab(ttk.Frame):
             self._publish_markers_to_mqtt()
 
     def _publish_markers_to_mqtt(self):
-        from workers.worker_marker_peak_hunter import Peak_hunter_CSV_to_MQTT
-        Peak_hunter_CSV_to_MQTT(mqtt_util=self.mqtt_util)
+        from workers.worker_marker_peak_mqtt import csv_to_json_and_publish
+        csv_to_json_and_publish(mqtt_util=self.mqtt_util)

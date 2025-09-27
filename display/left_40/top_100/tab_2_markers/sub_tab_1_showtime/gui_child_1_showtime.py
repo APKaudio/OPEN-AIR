@@ -284,7 +284,7 @@ class ShowtimeTab(ttk.Frame):
         freqs = []
         for marker in data:
             try:
-                freqs.append(float(marker.get('FREQ (MHZ)', 0)))
+                freqs.append(float(marker.get('FREQ_MHZ', 0)))
             except (ValueError, TypeError):
                 continue
         if freqs:
@@ -439,7 +439,7 @@ class ShowtimeTab(ttk.Frame):
         for i, row_data in enumerate(filtered_devices):
             button_text = (f"{row_data.get('NAME', 'N/A')}\n"
                            f"{row_data.get('DEVICE', 'N/A')}\n"
-                           f"{row_data.get('FREQ (MHZ)', 'N/A')} MHz\n"
+                           f"{row_data.get('FREQ_MHZ', 'N/A')} MHz\n"
                            f"[********************]")
             
             button = ttk.Button(
@@ -565,7 +565,7 @@ class ShowtimeTab(ttk.Frame):
             
             self.selected_device_button = button
             self.selected_device_button.config(style='Custom.Selected.TButton')
-            console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ (MHZ)', 'N/A')} MHz.")
+            console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
         
         self._on_tune_request_from_selection()
 
@@ -606,7 +606,7 @@ class ShowtimeTab(ttk.Frame):
             min_freq, max_freq = self._calculate_freq_range(group_devices)
             
             if min_freq is not None and max_freq is not None:
-                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
                 Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
             else:
                 console_log("❌ Failed to tune: No valid frequencies found in selected group.")
@@ -626,7 +626,7 @@ class ShowtimeTab(ttk.Frame):
             min_freq, max_freq = self._calculate_freq_range(all_zone_devices)
             
             if min_freq is not None and max_freq is not None:
-                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
                 Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
             else:
                 console_log("❌ Failed to tune: No valid frequencies found in selected zone.")
@@ -642,7 +642,7 @@ class ShowtimeTab(ttk.Frame):
             min_freq, max_freq = self._calculate_freq_range(self.marker_data)
             
             if min_freq is not None and max_freq is not None:
-                mock_marker_data = {'FREQ (MHZ)': (min_freq + max_freq) / 2}
+                mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
                 Push_Marker_to_Start_Stop_Freq(mqtt_controller=self.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
             else:
                 console_log("❌ Failed to tune: No valid frequencies found in marker data.")
