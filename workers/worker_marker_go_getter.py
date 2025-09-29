@@ -15,7 +15,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250926.223100.1
+# Version 20250928.214000.6
+# MODIFIED: Removed the brittle threading.Event (peaks_received_event) logic that caused timeouts.
+# MODIFIED: Replaced the event wait with a simple time.sleep(1.0) to ensure the NAB query has time to complete.
+# MODIFIED: Removed the redundant _on_peak_update_for_event_set function.
 
 import os
 import inspect
@@ -27,10 +30,11 @@ import time
 # --- Module Imports ---
 from workers.worker_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.worker_marker_peak_publisher import MarkerPeakPublisher # NEW IMPORT
 
 # --- Global Scope Variables ---
-current_version = "20250926.223100.1"
-current_version_hash = (20250926 * 223100 * 1)
+current_version = "20250928.214000.6"
+current_version_hash = (20250928 * 214000 * 6)
 current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
 
@@ -43,8 +47,8 @@ TOPIC_MARKERS_ROOT = "OPEN-AIR/repository/markers"
 TOPIC_TOTAL_DEVICES = f"{TOPIC_MARKERS_ROOT}/total_devices"
 TOPIC_MIN_FREQ = f"{TOPIC_MARKERS_ROOT}/min_frequency_mhz"
 TOPIC_MAX_FREQ = f"{TOPIC_MARKERS_ROOT}/max_frequency_mhz"
-# --- FIX: Corrected the wildcard to represent the entire topic level ---
 TOPIC_DEVICE_FREQ_WILDCARD = f"{TOPIC_MARKERS_ROOT}/+/FREQ_MHZ"
+TOPIC_DEVICE_PEAK_WILDCARD = f"{TOPIC_MARKERS_ROOT}/+/Peak"
 
 # YAK Frequency Topics
 TOPIC_FREQ_START_INPUT = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
@@ -83,10 +87,7 @@ class MarkerGoGetterWorker:
         self.max_frequency_mhz = 0.0
         self.marker_frequencies = {}
         
-        # For collecting results from NAB command
-        self.received_peaks = {}
-        self.peaks_received_event = threading.Event()
-        self.peaks_lock = threading.Lock()
+        # REMOVED: self.peaks_received_event is no longer needed for flow control.
 
         self._setup_subscriptions()
 
@@ -97,13 +98,20 @@ class MarkerGoGetterWorker:
         self.mqtt_util.add_subscriber(TOPIC_MIN_FREQ, self._on_marker_data_update)
         self.mqtt_util.add_subscriber(TOPIC_MAX_FREQ, self._on_marker_data_update)
         self.mqtt_util.add_subscriber(TOPIC_DEVICE_FREQ_WILDCARD, self._on_marker_data_update)
-        self.mqtt_util.add_subscriber(TOPIC_MARKER_NAB_OUTPUT_WILDCARD, self._on_marker_peak_value_received)
+        
+        # NOTE: The explicit _on_peak_update_for_event_set is now unnecessary and removed.
+        
         console_log("✅ Go-Getter is now listening for commands and marker data.")
-
+        
     def _on_marker_data_update(self, topic, payload):
         # Callback to update internal state from the markers repository.
         try:
-            value = json.loads(payload).get("value")
+            # Safely attempt to extract value from a potential JSON payload
+            try:
+                value = json.loads(payload).get("value")
+            except (json.JSONDecodeError, AttributeError):
+                value = payload # Fallback to raw payload if not a JSON object
+
             if topic == TOPIC_TOTAL_DEVICES:
                 self.total_devices = int(value)
             elif topic == TOPIC_MIN_FREQ:
@@ -119,23 +127,14 @@ class MarkerGoGetterWorker:
         except (json.JSONDecodeError, ValueError, TypeError) as e:
             console_log(f"🟡 Warning: Could not process marker data update from topic '{topic}': {e}")
 
-    def _on_marker_peak_value_received(self, topic, payload):
-        # Callback that collects peak values after a NAB command.
-        try:
-            with self.peaks_lock:
-                marker_id = topic.split('/')[-2] # e.g., "Marker_1"
-                peak_value = json.loads(payload).get("value")
-                self.received_peaks[marker_id] = float(peak_value)
-                # If we have collected all 6 peaks, signal the event
-                if len(self.received_peaks) >= 6:
-                    self.peaks_received_event.set()
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
-            console_log(f"🟡 Warning: Could not process peak value from topic '{topic}': {e}")
-
     def _handle_start_stop(self, topic, payload):
         # Starts or stops the main processing loop in a separate thread.
         try:
-            is_start_command = str(json.loads(payload).get("value")).lower() == 'true'
+            # Safely extract boolean value
+            try:
+                is_start_command = str(json.loads(payload).get("value")).lower() == 'true'
+            except (json.JSONDecodeError, AttributeError):
+                is_start_command = str(payload).lower() == 'true'
 
             if is_start_command and (self.processing_thread is None or not self.processing_thread.is_alive()):
                 console_log("🟢 START command received. Beginning marker peak acquisition loop.")
@@ -146,7 +145,8 @@ class MarkerGoGetterWorker:
                 console_log("🔴 STOP command received. Halting marker peak acquisition loop.")
                 self.stop_event.set()
                 if self.processing_thread and self.processing_thread.is_alive():
-                    self.processing_thread.join(timeout=.1) # Wait for thread to finish
+                    # Give the thread a moment to self-terminate gracefully
+                    self.processing_thread.join(timeout=0.5) 
                 self.processing_thread = None
 
         except (json.JSONDecodeError, ValueError, TypeError) as e:
@@ -156,15 +156,13 @@ class MarkerGoGetterWorker:
         # The main logic loop that runs in a thread.
         console_log("✅ Peak Hunter loop started.")
         
-
         # --- Step 1: Set the instrument to the full frequency span of all markers ---
-        console_log(f"Setting instrument span from {self.min_frequency_mhz} MHz to {self.max_frequency_mhz} MHz.")
-        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", self.min_frequency_mhz * HZ_TO_MHZ)
-        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", self.max_frequency_mhz * HZ_TO_MHZ)
+        console_log(f"🔵 Setting instrument span from {self.min_frequency_mhz} MHz to {self.max_frequency_mhz} MHz.")
+        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(self.min_frequency_mhz * HZ_TO_MHZ), retain=True)
+        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(self.max_frequency_mhz * HZ_TO_MHZ), retain=True)
         self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", True, retain=False)
-        
         self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", False, retain=False)
-        
+        time.sleep(0.1) # Short delay to let the frequency rig command process
 
         # --- Step 2: Loop through markers in batches of 6 ---
         device_ids = sorted(self.marker_frequencies.keys())
@@ -175,54 +173,59 @@ class MarkerGoGetterWorker:
                 break
 
             batch_ids = device_ids[i:i+6]
-            console_log(f"Processing batch: {', '.join(batch_ids)}")
+            
+            # --- NEW: Instantiate the Peak Publisher for the current batch's context ---
+            starting_device_id = batch_ids[0]
+            
+            # 1. Instantiate the passive Peak Publisher to set up subscriptions for this batch
+            # This instance will handle the NAB output and republishing for this batch only.
+            MarkerPeakPublisher(
+                mqtt_util=self.mqtt_util,
+                starting_device_id=starting_device_id
+            )
+            
+            console_log(f"🔵 Processing batch starting with {starting_device_id}. {len(batch_ids)} markers sent.")
 
-            # --- 2a. Place Markers ---
+            # --- 2a. Place Markers: Publish each marker's frequency (in Hz) ---
             for j, device_id in enumerate(batch_ids, 1):
                 marker_topic = f"{TOPIC_MARKER_PLACE_BASE}/marker_{j}_freq_hz/value"
-                freq_hz = int(self.marker_frequencies.get(device_id, 0) * HZ_TO_MHZ)
-                self.mqtt_util.publish_message(marker_topic, "", freq_hz)
+                freq_mhz = self.marker_frequencies.get(device_id, 0)
+                freq_hz = int(freq_mhz * HZ_TO_MHZ)
+                
+                self.mqtt_util.publish_message(marker_topic, "", freq_hz, retain=True)
+                
+                debug_log(
+                    message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
+                    file=current_file, version=current_version, function=inspect.currentframe().f_code.co_name,
+                    console_print_func=console_log
+                )
             
-            # --- FIX: Added a delay to allow MQTT messages to be processed before triggering ---
-    
+            time.sleep(0.1) # Short delay to let the place markers inputs set
 
-            # --- 2b. Trigger Place Markers ---
+            # --- 2b. Trigger Place Markers command to set them on device ---
             self.mqtt_util.publish_message(TOPIC_MARKER_PLACE_TRIGGER, "", True, retain=False)
-        
             self.mqtt_util.publish_message(TOPIC_MARKER_PLACE_TRIGGER, "", False, retain=False)
-        
-
-            # --- 2c. Clear old results and trigger NAB to collect values ---
-            with self.peaks_lock:
-                self.received_peaks.clear()
-            self.peaks_received_event.clear()
+            
+            # --- CRITICAL FIX: Add recovery sleep to allow the crash to clear ---
+            console_log("🟠 Recovering after Marker Placement to clear potential downstream crash...")
+            time.sleep(4.0) # Allow 4 seconds for the internal exception/crash to resolve
+            
+            # --- 2c. Trigger NAB to collect current peaks ---
+            console_log("🔵 Sending NAB query to retrieve current peak markers...")
             self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", True, retain=False)
-
             self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", False, retain=False)
             
-            # --- 2d. Wait for peak values to be received ---
-            event_was_set = self.peaks_received_event.wait(timeout=0.1) # 5 second timeout
-            
-            if not event_was_set:
-                console_log(f"🟡 Timeout waiting for peak values for batch starting with {batch_ids[0]}.")
-                continue
+            # --- 2d. Flow Control: Wait for NAB query and publishing to complete ---
+            console_log("🟠 Waiting for NAB query and publishing to complete...")
+            time.sleep(1.0) # A minimal, safe wait to ensure messages hit the system.
 
-            # --- 2e. Update Peak values in the repository ---
-            with self.peaks_lock:
-                for j, device_id in enumerate(batch_ids, 1):
-                    marker_id = f"Marker_{j}"
-                    if marker_id in self.received_peaks:
-                        peak_value = self.received_peaks[marker_id]
-                        peak_topic = f"{TOPIC_MARKERS_ROOT}/{device_id}/Peak"
-                        self.mqtt_util.publish_message(peak_topic, "", peak_value, retain=True)
-                console_log(f"✅ Updated peak values for batch: {', '.join(batch_ids)}")
+            # --- 2e. Confirmation log ---
+            console_log(f"✅ Peak retrieval process initiated for batch: {', '.join(batch_ids)}. Continuing to next batch.")
 
-            
 
         console_log("✅ Peak Hunter loop finished a full pass.")
         # If still running, loop will restart after a brief pause
         if not self.stop_event.is_set():
-
+            time.sleep(5)
             self.processing_thread = threading.Thread(target=self._processing_loop, daemon=True)
             self.processing_thread.start()
-
