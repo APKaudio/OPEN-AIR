@@ -30,7 +30,7 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 
 
 # --- Global Scope Variables --

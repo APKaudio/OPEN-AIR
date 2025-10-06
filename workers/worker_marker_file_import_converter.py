@@ -39,7 +39,7 @@ current_version_hash = (20250815 * 200000 * 3)
 headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added Peak header
 
 # Updated imports for new logging functions
-from workers.worker_logging import debug_log,console_log
+from workers.worker_active_logging import debug_log,console_log
 
 
 def Marker_convert_IAShtml_report_to_csv(html_content):

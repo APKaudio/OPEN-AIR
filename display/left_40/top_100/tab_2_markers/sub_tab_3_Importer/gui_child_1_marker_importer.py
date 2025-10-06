@@ -42,8 +42,8 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
-from workers.worker_marker_file_handling import (
+from workers.worker_active_logging import debug_log, console_log
+from workers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file,
     maker_file_load_markers_file,
     maker_file_load_ias_html,
@@ -52,7 +52,7 @@ from workers.worker_marker_file_handling import (
     maker_file_save_intermediate_file,
     maker_file_save_open_air_file
 )
-from workers.worker_marker_report_converter import (
+from workers.worker_marker_file_import_converter import (
     Marker_convert_wwb_zip_report_to_csv,
     Marker_convert_SB_v2_PDF_File_report_to_csv
 )
@@ -668,5 +668,5 @@ class MarkerImporterTab(ttk.Frame):
             self._publish_markers_to_mqtt()
 
     def _publish_markers_to_mqtt(self):
-        from workers.worker_marker_peak_mqtt import csv_to_json_and_publish
+        from workers.worker_marker_csv_to_json_mqtt import csv_to_json_and_publish
         csv_to_json_and_publish(mqtt_util=self.mqtt_util)

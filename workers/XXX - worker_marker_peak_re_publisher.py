@@ -15,25 +15,25 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250928.220600.3
-# FIXED: Increased critical sleep delay to 1.0s to ensure the MQTT client processes 
-#        the new wildcard subscription before YakRxManager starts publishing.
-# MODIFIED: Added verbose debug logging to confirm subscription registration and activation times.
+# Version 20250928.221500.5
+# FIXED: Removed time.sleep from __init__ to prevent blocking the main thread.
+# MODIFIED: Added verbose debug logs to confirm when the handler fires.
+# MODIFIED: Added aggressive error handling to publish an ERROR string if conversion fails.
 
 import os
 import inspect
 import json
 import threading
 import re
-import time # CRITICAL IMPORT
+import time 
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
-current_version = "20250928.220600.3"
-current_version_hash = (20250928 * 220600 * 3)
+current_version = "20250928.221500.5"
+current_version_hash = (20250928 * 221500 * 5)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- MQTT Topic Constants ---
@@ -66,16 +66,8 @@ class MarkerPeakPublisher:
             console_print_func=console_log
         )
 
-        # 1. Register Subscription
+        # Register Subscription
         self._setup_subscriptions()
-        debug_log(
-            message=f"🛠️🟠 Subscription requested. Waiting 1.0s for MQTT client to process wildcard filter...",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        # 2. CRITICAL FIX: Allow 1.0s for subscription to become active
-        time.sleep(1.0) 
 
         console_log(f"✅ Peak Publisher for {starting_device_id} is active and ready to catch peak values.")
 
@@ -116,9 +108,17 @@ class MarkerPeakPublisher:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
+        debug_log(
+            message=f"🐐🟢 PUBLISHER HANDLER FIRED for topic: {topic}",
+            file=current_file, version=current_version, function=current_function_name,
+            console_print_func=console_log
+        )
+        
         try:
             # 1. Extract Marker ID and Peak Value
             marker_id = topic.split('/')[-2] # e.g., "Marker_1"
+            device_id = self.marker_to_device_map.get(marker_id)
+            final_peak_topic = f"{TOPIC_MARKERS_ROOT}/{device_id}/Peak"
             
             # Safely extract peak value
             try:
@@ -127,30 +127,49 @@ class MarkerPeakPublisher:
             except (json.JSONDecodeError, AttributeError):
                 peak_value = payload # Fallback to raw payload
             
-            float_peak_value = float(peak_value)
+            # 2. Validation and Publishing
+            try:
+                # Attempt to convert to float. This will fail if the value is 'nan' or 'ERROR'.
+                float_peak_value = float(peak_value)
 
-            # 2. Republishing - Publish to the final repo path
-            device_id = self.marker_to_device_map.get(marker_id)
-            if device_id:
-                final_peak_topic = f"{TOPIC_MARKERS_ROOT}/{device_id}/Peak"
-                self.mqtt_util.publish_message(final_peak_topic, "", float_peak_value, retain=True)
+                # Republishing - Publish to the final repo path
+                if device_id:
+                    self.mqtt_util.publish_message(final_peak_topic, "", float_peak_value, retain=True)
+                    
+                    debug_log(
+                        message=f"🐐💾 REPUBLISH SUCCESS: {device_id} ({marker_id}) peak: {float_peak_value} dBm. Final Topic: {final_peak_topic}",
+                        file=current_file, version=current_version, function=current_function_name,
+                        console_print_func=console_log
+                    )
+                else:
+                    debug_log(
+                        message=f"🐐🟡 REPUBLISH WARNING: Peak received for {marker_id} but no Device-ID found in batch map.",
+                        file=current_file, version=current_version, function=current_function_name,
+                        console_print_func=console_log
+                    )
+            
+            except ValueError:
+                # This block handles "nan" or non-numeric strings, which is your requested error spot.
+                error_message = "ERROR: Peak Value Invalid"
+                self.mqtt_util.publish_message(final_peak_topic, "", error_message, retain=True)
                 
                 debug_log(
-                    message=f"🐐💾 REPUBLISH SUCCESS: {device_id} ({marker_id}) peak: {float_peak_value} dBm. Final Topic: {final_peak_topic}",
-                    file=current_file, version=current_version, function=current_function_name,
-                    console_print_func=console_log
-                )
-            else:
-                debug_log(
-                    message=f"🐐🟡 REPUBLISH WARNING: Peak received for {marker_id} but no Device-ID found in batch map.",
+                    message=f"🐐🔴 REPUBLISH ERROR: Peak Value '{peak_value}' for {device_id} failed conversion. Published Error Status.",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
                 )
 
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
-            console_log(f"❌ Error processing peak value from topic '{topic}': {e}")
+
+        except Exception as e:
+            # General failure protection
+            # Find the first device ID in the map for error context
+            first_device_id = next(iter(self.marker_to_device_map.values()), "UNKNOWN_DEVICE")
+            final_peak_topic = f"{TOPIC_MARKERS_ROOT}/{first_device_id}/Peak"
+            self.mqtt_util.publish_message(final_peak_topic, "", "CRITICAL_ERROR", retain=True)
+            
+            console_log(f"❌ Critical Error in Peak Publisher for {first_device_id}: {e}")
             debug_log(
-                message=f"🐐🔴 Repackaging Failed in Publisher: Error: {e}",
+                message=f"🐐🔴 CRITICAL FAILURE in Publisher Flow. Error: {e}",
                 file=current_file, version=current_version, function=current_function_name,
                 console_print_func=console_log
             )

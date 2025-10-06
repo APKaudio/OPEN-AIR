@@ -29,7 +29,7 @@ from collections import defaultdict
 from itertools import filterfalse
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 

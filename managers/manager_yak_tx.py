@@ -5,7 +5,7 @@
 
 import os
 import inspect
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
 current_version = "20250917.214201.1"

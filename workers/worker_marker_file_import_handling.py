@@ -14,8 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250925.234130.2
-# MODIFIED: Re-anchored the project root calculation to a known path relative to the worker file.
+# Version 20251005.220127.1
 
 import os
 import csv
@@ -32,8 +31,8 @@ import numpy as np
 from tkinter import filedialog, messagebox
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
-from workers.worker_marker_report_converter import (
+from workers.worker_active_logging import debug_log, console_log
+from workers.worker_marker_file_import_converter import (
     Marker_convert_IAShtml_report_to_csv,
     Marker_convert_SB_PDF_File_report_to_csv,
     Marker_convert_WWB_SHW_File_report_to_csv,
@@ -41,8 +40,8 @@ from workers.worker_marker_report_converter import (
 )
 
 # --- Global Scope Variables ---
-current_version = "20250925.234130.2"
-current_version_hash = (20250925 * 234130 * 2)
+current_version = "20251005.220127.1"
+current_version_hash = (20251005 * 220127 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
@@ -51,9 +50,11 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2
+# NEW CONSTANT: Define the canonical headers
+CANONICAL_HEADERS = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
 
 def maker_file_check_for_markers_file():
-    """Checks for the MARKERS.csv file in the DATA directory and loads it if it exists."""
+    # Checks for the MARKERS.csv file in the DATA directory and loads it if it exists.
     current_function = inspect.currentframe().f_code.co_name
     
     # ANCHOR FIX: Use the stable project_root calculated above.
@@ -78,7 +79,11 @@ def maker_file_check_for_markers_file():
         try:
             with open(target_path, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
-                headers = next(reader)
+                # Use canonical headers if the file is empty or headers are bad
+                try:
+                    headers = next(reader)
+                except StopIteration:
+                    headers = CANONICAL_HEADERS
                 data = list(reader)
             
             debug_log(
@@ -106,12 +111,10 @@ def maker_file_check_for_markers_file():
             function=f"{current_function}",
             console_print_func=console_log
         )
-    return [], []
+    return CANONICAL_HEADERS, []
 
 def maker_file_load_markers_file():
-    """
-    Opens a file dialog, loads a generic CSV file, and returns its headers and data.
-    """
+    # Opens a file dialog, loads a generic CSV file, and returns its headers and data.
     current_function = inspect.currentframe().f_code.co_name
     file_path = filedialog.askopenfilename(
         defaultextension=".csv",
@@ -137,6 +140,7 @@ def maker_file_load_markers_file():
     console_log(f"Action: Load CSV Marker Set from {os.path.basename(file_path)}.")
     
     try:
+        # Pass the desired headers to the converter for consistency
         headers, data = Marker_convert_csv_unknow_report_to_csv(file_path)
 
         if not data:
@@ -165,7 +169,8 @@ def maker_file_load_markers_file():
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return headers, data
+        # Ensure we return canonical headers so the GUI knows what columns to show.
+        return CANONICAL_HEADERS, data
     except Exception as e:
         debug_log(
             message=f"❌ Error loading CSV file: {e}",
@@ -178,9 +183,7 @@ def maker_file_load_markers_file():
         return [], []
 
 def maker_file_load_ias_html():
-    """
-    Opens a file dialog, loads an IAS HTML file, converts it, and returns the data.
-    """
+    # Opens a file dialog, loads an IAS HTML file, converts it, and returns the data.
     current_function = inspect.currentframe().f_code.co_name
     file_path = filedialog.askopenfilename(
         defaultextension=".html",
@@ -233,7 +236,7 @@ def maker_file_load_ias_html():
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return headers, data
+        return CANONICAL_HEADERS, data
     except Exception as e:
         debug_log(
             message=f"❌ Error converting HTML report: {e}",
@@ -246,9 +249,7 @@ def maker_file_load_ias_html():
         return [], []
 
 def maker_file_load_wwb_shw():
-    """
-    Opens a file dialog, loads a WWB .shw file, converts it, and returns the data.
-    """
+    # Opens a file dialog, loads a WWB .shw file, converts it, and returns the data.
     current_function = inspect.currentframe().f_code.co_name
     file_path = filedialog.askopenfilename(
         defaultextension=".shw",
@@ -298,7 +299,7 @@ def maker_file_load_wwb_shw():
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return headers, data
+        return CANONICAL_HEADERS, data
     except Exception as e:
         debug_log(
             message=f"❌ Error converting SHW file: {e}",
@@ -311,9 +312,7 @@ def maker_file_load_wwb_shw():
         return [], []
 
 def maker_file_load_sb_pdf():
-    """
-    Opens a file dialog, loads a Soundbase PDF file, converts it, and returns the data.
-    """
+    # Opens a file dialog, loads a Soundbase PDF file, converts it, and returns the data.
     current_function = inspect.currentframe().f_code.co_name
     file_path = filedialog.askopenfilename(
         defaultextension=".pdf",
@@ -363,7 +362,7 @@ def maker_file_load_sb_pdf():
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return headers, data
+        return CANONICAL_HEADERS, data
     except Exception as e:
         debug_log(
             message=f"❌ Error converting PDF report: {e}",
@@ -376,7 +375,7 @@ def maker_file_load_sb_pdf():
         return [], []
     
 def maker_file_save_intermediate_file(tree_headers, tree_data):
-    """Saves the current tree data to a file named 'MARKERS.csv' in the DATA directory at the project root level."""
+    # Saves the current tree data to a file named 'MARKERS.csv' in the DATA directory at the project root level.
     current_function = inspect.currentframe().f_code.co_name
     # ANCHOR FIX: Use the stable project_root calculated above.
     target_path = project_root / 'DATA' / 'MARKERS.csv'
@@ -391,17 +390,19 @@ def maker_file_save_intermediate_file(tree_headers, tree_data):
     
     try:
         with open(target_path, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=tree_headers)
+            # Use DictWriter to ensure only rows that match the headers are written
+            writer = csv.DictWriter(csvfile, fieldnames=CANONICAL_HEADERS) 
             
-            if tree_headers:
-                writer.writeheader()
+            # Use CANONICAL_HEADERS to ensure consistent output file
+            writer.writeheader()
             writer.writerows(tree_data)
+            
         console_log(f"Intermediate file saved as {target_path}")
     except Exception as e:
         console_log(f"Error: Failed to save intermediate MARKERS.csv file. {e}")
         
 def maker_file_save_open_air_file(tree_headers, tree_data):
-    """Saves the current tree data to a file named 'OpenAir.csv' in the DATA directory."""
+    # Saves the current tree data to a file named 'OpenAir.csv' in the DATA directory.
     current_function = inspect.currentframe().f_code.co_name
     
     if not tree_headers or not tree_data:

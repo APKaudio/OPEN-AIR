@@ -29,7 +29,7 @@ import sys
 
 # --- Module Imports ---
 # Path manipulation is now handled by main.py
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
 current_version = "20250902.100615.5"

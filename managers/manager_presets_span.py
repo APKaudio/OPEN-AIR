@@ -22,7 +22,7 @@ import json
 import pathlib
 
 # Assume these are imported from a central logging utility and MQTT controller
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---

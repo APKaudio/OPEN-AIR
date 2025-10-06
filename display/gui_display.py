@@ -39,7 +39,7 @@ import pathlib
 # --- Module Imports ---
 # We no longer need to add the parent directory to the path as this is handled in main.py
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 

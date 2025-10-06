@@ -12,7 +12,7 @@ from tkinter import ttk
 import pathlib
 import os
 
-from workers.worker_logging import console_log
+from workers.worker_active_logging import console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 

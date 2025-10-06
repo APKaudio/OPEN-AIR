@@ -23,7 +23,7 @@ import pyvisa
 import time
 
 # --- Utility and Worker Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 # NOTE: The log_visa_command function needs to be created or imported from its location.
 # from display.debug_logic import log_visa_command
 

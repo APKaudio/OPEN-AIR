@@ -25,7 +25,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from workers.worker_logging import debug_log , console_log
+from workers.worker_active_logging import debug_log , console_log
 
 
 

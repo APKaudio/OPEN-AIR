@@ -30,7 +30,7 @@ import datetime
 # from ref.ref_program_default_values import DEFAULT_CONFIG
 # from ref.ref_file_paths import DATA_FOLDER_PATH, CONFIG_FILE_PATH
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 

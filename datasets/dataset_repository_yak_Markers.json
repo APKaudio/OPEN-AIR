@@ -7,27 +7,45 @@
                     "generic_model": {
                         "type": "_GuiActuator",
                         "trigger": false,
-                        "SCPI_value": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?"
+                          "SCPI_value": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?;:CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer6:X?"
                     }
                 },
                 "scpi_outputs": {
                     "Marker_1": {
-                        "value": "Marker 1 Value in Hz",
+                        "value": "Marker 1 Value in dBm",
                         "type": "_Value"
                     },"Marker_2": {
-                        "value": "Marker 2 Value in Hz",
+                        "value": "Marker 2 Value in dBm",
                         "type": "_Value"
                     },"Marker_3": {
-                        "value": "Marker 3 Value in Hz",
+                        "value": "Marker 3 Value in dBm",
                         "type": "_Value"
                     },"Marker_4": {
-                        "value": "Marker 4 Value in Hz",
+                        "value": "Marker 4 Value in dBm",
                         "type": "_Value"
                     },"Marker_5": {
-                        "value": "Marker 5 Value in Hz",
+                        "value": "Marker 5 Value in dBm",
                         "type": "_Value"
                     },"Marker_6": {
-                        "value": "Marker 6 Value in Hz",
+                        "value": "Marker 6 Value in dBm",
+                        "type": "_Value"
+                    },"Marker_1_freq": {
+                        "value": "Marker 1 Frequency in Hz",
+                        "type": "_Value"
+                    },"Marker_2_freq": {
+                        "value": "Marker 2 Frequency in Hz",
+                        "type": "_Value"
+                    },"Marker_3_freq": {
+                        "value": "Marker 3 Frequency in Hz",
+                        "type": "_Value"
+                    },"Marker_4_freq": {
+                        "value": "Marker 4 Frequency in Hz",
+                        "type": "_Value"
+                    },"Marker_5_freq": {
+                        "value": "Marker 5 Frequency in Hz",
+                        "type": "_Value"
+                    },"Marker_6_freq": {
+                        "value": "Marker 6 Frequency in Hz",
                         "type": "_Value"
                     }
                 }

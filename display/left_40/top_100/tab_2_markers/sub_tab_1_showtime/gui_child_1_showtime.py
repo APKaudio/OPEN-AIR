@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250925.235100.1
+# Version 20250925.235100.3
 import tkinter as tk
 from tkinter import ttk
 import os
@@ -37,14 +37,17 @@ except ImportError:
     PANDAS_NUMPY_AVAILABLE = False
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
-from workers.worker_marker_file_handling import maker_file_check_for_markers_file
-from workers.worker_marker_tune_to_marker import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
+from workers.worker_active_logging import debug_log, console_log
+from workers.worker_marker_file_import_handling import maker_file_check_for_markers_file
+# FIXED: Importing tuning functions from the correct location.
+from workers.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
+# NEW: Import the refactored logic function
+from workers.worker_marker_logic import calculate_frequency_range
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250925.235100.1"
-current_version_hash = (20250925 * 235100 * 1)
+current_version = "20250925.235100.3"
+current_version_hash = (20250925 * 235100 * 3)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -218,7 +221,7 @@ class ShowtimeTab(ttk.Frame):
             self._create_zone_buttons()
             self._create_group_buttons()
             self._create_device_buttons()
-            
+           
     def _load_marker_data(self):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
@@ -277,19 +280,8 @@ class ShowtimeTab(ttk.Frame):
             console_print_func=console_log
         )
 
-    def _calculate_freq_range(self, data):
-        """
-        Calculates the min and max frequencies from a list of marker dictionaries.
-        """
-        freqs = []
-        for marker in data:
-            try:
-                freqs.append(float(marker.get('FREQ_MHZ', 0)))
-            except (ValueError, TypeError):
-                continue
-        if freqs:
-            return min(freqs), max(freqs)
-        return None, None
+    # REMOVED OLD: _calculate_freq_range(self, data)
+    # The new implementation uses the imported utility function.
 
     def _create_zone_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
@@ -310,7 +302,8 @@ class ShowtimeTab(ttk.Frame):
             all_zone_devices = []
             for group in self.grouped_markers[zone_name].values():
                 all_zone_devices.extend(group)
-            min_freq, max_freq = self._calculate_freq_range(all_zone_devices)
+            # UPDATED: Use the imported utility function
+            min_freq, max_freq = calculate_frequency_range(all_zone_devices)
             
             freq_range_text = ""
             if min_freq is not None and max_freq is not None:
@@ -361,7 +354,8 @@ class ShowtimeTab(ttk.Frame):
                 is_selected = self.selected_group == group_name
 
                 group_devices = self.grouped_markers[self.selected_zone][group_name]
-                min_freq, max_freq = self._calculate_freq_range(group_devices)
+                # UPDATED: Use the imported utility function
+                min_freq, max_freq = calculate_frequency_range(group_devices)
                 
                 freq_range_text = ""
                 if min_freq is not None and max_freq is not None:
@@ -603,7 +597,8 @@ class ShowtimeTab(ttk.Frame):
                 console_print_func=console_log
             )
             group_devices = self.grouped_markers[self.selected_zone][self.selected_group]
-            min_freq, max_freq = self._calculate_freq_range(group_devices)
+            # UPDATED: Use the imported utility function
+            min_freq, max_freq = calculate_frequency_range(group_devices)
             
             if min_freq is not None and max_freq is not None:
                 mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
@@ -623,7 +618,8 @@ class ShowtimeTab(ttk.Frame):
             all_zone_devices = []
             for group_name in self.grouped_markers[self.selected_zone]:
                 all_zone_devices.extend(self.grouped_markers[self.selected_zone][group_name])
-            min_freq, max_freq = self._calculate_freq_range(all_zone_devices)
+            # UPDATED: Use the imported utility function
+            min_freq, max_freq = calculate_frequency_range(all_zone_devices)
             
             if min_freq is not None and max_freq is not None:
                 mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
@@ -639,7 +635,8 @@ class ShowtimeTab(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-            min_freq, max_freq = self._calculate_freq_range(self.marker_data)
+            # UPDATED: Use the imported utility function
+            min_freq, max_freq = calculate_frequency_range(self.marker_data)
             
             if min_freq is not None and max_freq is not None:
                 mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}

@@ -27,8 +27,8 @@ import time
 
 # Project-specific Imports
 from workers.worker_mqtt_controller_util import MqttControllerUtility
-from workers.worker_logging import debug_log, console_log
-from workers.worker_marker_go_getter import MarkerGoGetterWorker
+from workers.worker_active_logging import debug_log, console_log
+from workers.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
 from datasets.worker_dataset_publisher import main as dataset_publisher_main
 from datasets.worker_repository_publisher import main as repository_publisher_main
 from display.styling.style import THEMES, DEFAULT_THEME
@@ -67,7 +67,7 @@ if os.name == 'nt':
         pass
 
 # Import core application modules
-from workers.worker_logging import console_log, debug_log
+from workers.worker_active_logging import console_log, debug_log
 from display.gui_display import Application
 
 

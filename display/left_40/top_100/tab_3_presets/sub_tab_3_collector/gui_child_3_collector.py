@@ -25,7 +25,7 @@ from collections import defaultdict
 from datetime import datetime
 
 # --- Module Imports ---
-from workers.worker_logging import console_log, debug_log
+from workers.worker_active_logging import console_log, debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_preset_from_device import PresetFromDeviceWorker
 from workers.worker_mqtt_controller_util import MqttControllerUtility

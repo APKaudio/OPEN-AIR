@@ -20,7 +20,7 @@
 import os
 import tkinter as tk
 from tkinter import ttk
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 import inspect
 import json
 

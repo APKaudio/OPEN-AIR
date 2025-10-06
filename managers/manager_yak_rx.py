@@ -5,7 +5,7 @@
 
 import os
 import inspect
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 import json
 
 # --- Global Scope Variables ---

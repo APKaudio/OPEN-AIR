@@ -28,7 +28,7 @@ import paho.mqtt.client as mqtt
 import threading
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_recon_data_node_builder import recon_data_publisher

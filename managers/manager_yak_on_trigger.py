@@ -10,7 +10,7 @@ import pathlib
 import re
 
 # --- Utility and Manager Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 from managers.manager_yak_tx import YakTxManager
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yak_rx import YakRxManager

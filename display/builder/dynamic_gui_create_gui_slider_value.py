@@ -23,7 +23,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.worker_logging import debug_log, console_log
+from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
 current_version = "20250902.212500.1"
