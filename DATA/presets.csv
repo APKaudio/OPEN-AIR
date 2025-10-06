@@ -15,4 +15,5 @@ PRESET_013,true,DECT_EU.STA,DECT EU,1880,1900,1890,20,300000,null,-50,20,null,nu
 PRESET_014,true,22GHZCAMS.STA,22GHZCAMS,2200,2300,2250,100,1000000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_015,true,2GHZCAMS.STA,Wireless cameras,2050,2300,2175,250,1000000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_025,,null,null,null,null,null,null,null,null,-50,null,null,null,1,null,null,null,BLANK
-PRESET_018,,null,null,null,null,null,null,null,null,-50,null,null,null,1,null,null,,
+PRESET_020,,null,null,null,null,null,null,null,null,-50,null,null,null,1,null,null,null,BLANK
+PRESET_017,,null,null,null,null,null,null,null,null,-50,null,,,,,,,

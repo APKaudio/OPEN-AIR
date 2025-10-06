@@ -15,12 +15,13 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251005.225426.2
+# Version 20251005.225426.4
 # REFACTOR: Consolidated tuning logic from the defunct worker_marker_tune_to_marker.py
 # and modularized the main processing loop by moving marker placement/query into 
 # a dedicated helper method, '_place_and_query_markers_for_batch'.
-# FIXED: Removed defunct MarkerPeakPublisher instantiation.
 # FIXED: Re-added the missing subscription method '_on_peak_update_for_event_set' to resolve the initialization crash.
+# MODIFIED: Removed the problematic line causing TypeError and simplified loop control to rely solely on self.stop_event, 
+#           which is correctly set by the _handle_start_stop MQTT callback.
 
 import os
 import inspect
@@ -35,9 +36,9 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 
 # --- Global Scope Variables ---
-current_version = "20251005.225426.2"
+current_version = "20251005.225426.4"
 # The hash calculation drops the leading zero from the hour (e.g., 083015 becomes 83015).
-current_version_hash = (20251005 * 225426 * 2)
+current_version_hash = (20251005 * 225426 * 4)
 current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
 
@@ -92,6 +93,11 @@ class MarkerGoGetterWorker:
         self.max_frequency_mhz = 0.0
         self.marker_frequencies = {}
         
+        # New variables to track frequency state for conditional updates
+        self.last_min_freq = None
+        self.last_max_freq = None
+        self.first_run = True
+
         # For flow control signaling
         self.peaks_received_event = threading.Event() 
 
@@ -115,7 +121,7 @@ class MarkerGoGetterWorker:
 
     def _on_peak_update_for_event_set(self, topic, payload):
         """
-        NEW: A placeholder method to satisfy the subscription. In a non-mock setup,
+        A placeholder method to satisfy the subscription. In a non-mock setup,
         this would signal a threading event to continue the main processing loop.
         """
         self.peaks_received_event.set()
@@ -157,6 +163,8 @@ class MarkerGoGetterWorker:
             if is_start_command and (self.processing_thread is None or not self.processing_thread.is_alive()):
                 console_log("🟢 START command received. Beginning marker peak acquisition loop.")
                 self.stop_event.clear()
+                # Reset first run flag when starting a new sequence
+                self.first_run = True
                 self.processing_thread = threading.Thread(target=self._processing_loop, daemon=True)
                 self.processing_thread.start()
             elif not is_start_command:
@@ -171,10 +179,10 @@ class MarkerGoGetterWorker:
             console_log(f"❌ Error processing start/stop command: {e}")
 
     
-    def _place_and_query_markers_for_batch(self, batch_ids):
+    def _place_markers_for_batch(self, batch_ids):
         """
         MODULAR FUNCTION: Sets the frequency of up to 6 markers and triggers the 
-        NAB query to read their peak values.
+        placement command.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -192,7 +200,7 @@ class MarkerGoGetterWorker:
                 console_print_func=console_log
             )
         
-        
+        time.sleep(0.1) # Short delay to let the place markers inputs set
 
         # --- 2. Trigger Place Markers command to set them on device ---
         self.mqtt_util.publish_message(TOPIC_MARKER_PLACE_TRIGGER, "", True, retain=False)
@@ -200,58 +208,99 @@ class MarkerGoGetterWorker:
         
         # --- 3. CRITICAL FIX: Add recovery sleep to allow the crash to clear ---
         console_log("🟠 Recovering after Marker Placement to clear potential downstream crash...")
+        time.sleep(0.2) # Allow 4 seconds for the internal exception/crash to resolve
         
+    def _query_markers_for_batch(self, batch_ids):
+        """
+        NEW FUNCTION: Triggers the NAB query to read the marker peak values.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
         
-        # --- 4. Trigger NAB to collect current peaks ---
+        # --- 1. Trigger NAB to collect current peaks ---
         console_log("🔵 Sending NAB query to retrieve current peak markers...")
         self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", True, retain=False)
         self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", False, retain=False)
         
-        # --- 5. Flow Control: Wait for NAB query and publishing to complete ---
+        # --- 2. Flow Control: Wait for NAB query and publishing to complete ---
         console_log("🟠 Waiting for NAB query and publishing to complete...")
-        
-        
+        time.sleep(0.2) # A minimal, safe wait to ensure messages hit the system.
 
         console_log(f"✅ Peak retrieval process initiated for batch: {', '.join(batch_ids)}.")
+        
+    def _set_instrument_frequency_span(self):
+        """
+        Sets the instrument to the full frequency span of all markers, but only if 
+        the min/max frequency has changed or if it's the first run.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+
+        if (self.min_frequency_mhz == self.last_min_freq and
+            self.max_frequency_mhz == self.last_max_freq and
+            not self.first_run):
+            
+            debug_log(
+                message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
+                file=current_file, version=current_version, function=current_function_name,
+                console_print_func=console_log
+            )
+            return
+
+        # Update last known state
+        self.last_min_freq = self.min_frequency_mhz
+        self.last_max_freq = self.max_frequency_mhz
+        
+        console_log(f"🔵 Setting instrument span from {self.min_frequency_mhz} MHz to {self.max_frequency_mhz} MHz.")
+        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(self.min_frequency_mhz * HZ_TO_MHZ), retain=True)
+        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(self.max_frequency_mhz * HZ_TO_MHZ), retain=True)
+        self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", True, retain=False)
+        self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", False, retain=False)
+        time.sleep(0.1) # Short delay to let the frequency rig command process
+        
+        self.first_run = False
+        console_log("✅ Instrument span set successfully.")
+        
 
 
     def _processing_loop(self):
         # The main logic loop that runs in a thread.
         console_log("✅ Peak Hunter loop started.")
         
-        # --- Step 1: Set the instrument to the full frequency span of all markers ---
-        # This section is kept for contextual setting of the frequency range
-        console_log(f"🔵 Setting instrument span from {self.min_frequency_mhz} MHz to {self.max_frequency_mhz} MHz.")
-        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(self.min_frequency_mhz * HZ_TO_MHZ), retain=True)
-        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(self.max_frequency_mhz * HZ_TO_MHZ), retain=True)
-        self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", True, retain=False)
-        self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", False, retain=False)
-        
-
-
-        # --- Step 2: Loop through markers in batches of 6 ---
-        device_ids = sorted(self.marker_frequencies.keys())
-
-        for i in range(0, len(device_ids), 6):
-            if self.stop_event.is_set():
-                console_log("Loop terminated by STOP command.")
-                break
-
-            batch_ids = device_ids[i:i+6]
+        # --- Loop Control: Check the stop event first ---
+        while not self.stop_event.is_set():
+            # NOTE: Removed redundant check on TOPIC_START_STOP as stop_event handles thread control.
             
-            # Use the new modular function to handle marker placement and query
-            self._place_and_query_markers_for_batch(batch_ids=batch_ids)
-
-            # --- Confirmation log and flow control ---
-            console_log(f"✅ Batch {i//6 + 1} processed. Continuing to next batch.")
-
-
-        console_log("✅ Peak Hunter loop finished a full pass.")
-        # If still running, loop will restart after a brief pause
-        if not self.stop_event.is_set():
+            # --- Step 1: Set the instrument to the full frequency span of all markers (Conditional) ---
+            self._set_instrument_frequency_span()
             
-            self.processing_thread = threading.Thread(target=self._processing_loop, daemon=True)
-            self.processing_thread.start()
+            # --- Step 2: Loop through markers in batches of 6 ---
+            device_ids = sorted(self.marker_frequencies.keys())
+
+            for i in range(0, len(device_ids), 6):
+                if self.stop_event.is_set():
+                    console_log("Loop terminated by STOP command during batch processing.")
+                    break
+
+                batch_ids = device_ids[i:i+6]
+                
+                # Use the dedicated modular function to handle marker placement
+                self._place_markers_for_batch(batch_ids=batch_ids)
+
+                # --- DELAY as requested ---
+                time.sleep(0.2)
+                
+                # Use the dedicated modular function to query the batch
+                self._query_markers_for_batch(batch_ids=batch_ids)
+
+                # --- Confirmation log and flow control ---
+                console_log(f"✅ Batch {i//6 + 1} processed. Continuing to next batch.")
+
+
+            console_log("✅ Peak Hunter loop finished a full pass.")
+            
+            # Pause before the next iteration
+            if not self.stop_event.is_set():
+                console_log("🟠 Full pass complete. Resting for 5 seconds before next loop iteration.")
+                time.sleep(1)
 
 
 # --- TUNING HELPER FUNCTIONS (Moved from worker_marker_tune_to_marker.py) ---
