@@ -1,6 +1,7 @@
-# configuration/logging.py
+# workers/worker_active_logging.py
 #
-# A simple utility file to provide standardized debugging functions for the application.
+# A central utility file to provide standardized logging functions for the entire application,
+# including console output, file writing, and conditional logging for specialized data like VISA commands.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -13,83 +14,147 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250822.215200.1
+# Version 20251006.215117.1
 
 import os
 import inspect
 import datetime
 import pathlib
+import json # Used for JSON logging if a payload is passed
+import sys
 
-# --- Global Scope Variables ---
-# ⏰ As requested, the version is now hardcoded to the time this file was generated.
-# The version strings and numbers below are static and will not change at runtime.
-current_version = "20250822.215200.1"
-# The hash calculation drops the leading zero from the hour, but 21 has no leading zero.
-current_version_hash = (20250822 * 215200 * 1)
+# --- Global Scope Variables (as per Section 4.4) ---
+# W: 20251006, X: 215117, Y: 1
+current_version = "20251006.215117.1"
+current_version_hash = (20251006 * 215117 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-# --- Logging Toggles ---
-LOG_TO_TERMINAL = True
-LOG_TO_FILE = True
-# The log file path is now relative to the parent directory.
+# --- Configuration Placeholders (To be set by the main application's config manager) ---
+# NOTE: These are temporary global placeholders that a Configuration Manager will eventually set.
+global_settings = {
+    "general_debug_enabled": True, # The main toggle for debug messages
+    "debug_to_terminal": True,     # Output debug to the terminal/IDE console
+    "debug_to_file": True,         # Output debug to the debug log file
+    "log_truncation_enabled": True, # Truncate large numeric payloads
+    "include_console_messages_to_debug_file": True, # Include console_log output in debug file
+    "log_visa_commands_enabled": True, # Log all SCPI commands sent/received
+    "include_visa_messages_to_debug_file": True, # Include VISA logs in the main debug file
+    "debug_to_gui_console": True,  # Output debug to the in-app console
+}
+# Log file paths (relative to the project root for safety)
 FILE_LOG_DIR = pathlib.Path("DATA/debug")
+VISA_LOG_FILENAME = "visa_commands.log"
+DEBUG_FILE_PATH = None  # This will be dynamically set/updated
 
 # Global variable to store the current log filename
-current_log_filename = None
+current_debug_log_filename = None
+
+# --- Constants (No Magic Numbers) ---
+MAX_LOG_LENGTH = 150 
+TRUNCATION_SUFFIX = " ... [Truncated]"
+
+# --- Global Redirectors (To be set by the GUI Application) ---
+# These functions will be overwritten by the GUI's text redirectors.
+GUI_CONSOLE_PRINT_FUNC = print 
+GUI_LOG_TO_DEBUG_CONSOLE_FUNC = lambda x: print(f"GUI_DEBUG: {x}") 
+GUI_CLEAR_CONSOLE_FUNC = lambda: None
+# =========================================================================
+
 
 def get_log_filename():
-    """
-    Returns a unique filename based on the current date and minute.
-    """
-    global current_log_filename
+    # Returns a unique filename based on the current date and minute.
+    global current_debug_log_filename
     
-    # Check if the filename needs to be updated (new minute)
     current_minute = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    if current_log_filename is None or not current_log_filename.startswith(f"debug_log_{current_minute}"):
-        current_log_filename = f"debug_log_{current_minute}.log"
+    if current_debug_log_filename is None or not current_debug_log_filename.startswith(f"debug_log_{current_minute}"):
+        current_debug_log_filename = f"debug_log_{current_minute}.log"
         
-    return current_log_filename
+    return current_debug_log_filename
+
+def _safe_print(message: str):
+    # Prints to the terminal, avoiding recursion issues if print is hooked.
+    # Uses the global GUI_CONSOLE_PRINT_FUNC if set, otherwise standard print.
+    if 'GUI_CONSOLE_PRINT_FUNC' in globals() and callable(GUI_CONSOLE_PRINT_FUNC):
+        GUI_CONSOLE_PRINT_FUNC(message)
+    else:
+        # Fallback to direct sys.stdout.write to bypass any hooks
+        sys.stdout.write(message + '\n')
+        
+def _log_to_file(message: str, log_filename: str):
+    # Helper to safely write a message to a file.
+    log_path = FILE_LOG_DIR / log_filename
+    
+    try:
+        # Create the log directory if it does not exist
+        if not FILE_LOG_DIR.exists():
+            FILE_LOG_DIR.mkdir(parents=True, exist_ok=True)
+            
+        with open(log_path, "a", encoding="utf-8") as log_file:
+            log_file.write(message + "\n")
+            
+    except Exception as e:
+        _safe_print(f"❌ Error writing to log file '{log_path}': {e}")
+
+def _truncate_message(message: str) -> str:
+    # Truncates long messages as per spec, specifically targeting numeric-heavy payloads.
+    if not global_settings["log_truncation_enabled"]:
+        return message
+
+    # Simplified check for a long string that looks like a data dump
+    if len(message) > MAX_LOG_LENGTH and all(c.isdigit() or c in '.-+e' for c in message.replace(' ', '').replace(',', '').replace(';', '')):
+        return message[:MAX_LOG_LENGTH] + TRUNCATION_SUFFIX
+    elif len(message) > MAX_LOG_LENGTH and message.count('/') > 5:
+        # Also truncate long MQTT topic paths
+        return message[:MAX_LOG_LENGTH] + TRUNCATION_SUFFIX
+        
+    return message
+
+
+# =========================================================================
+# PUBLIC LOGGING API (Called by other modules)
+# =========================================================================
 
 def console_log(message: str):
-    """
-    Prints a message to the console if the toggle is enabled.
-    """
-    current_function_name = inspect.currentframe().f_code.co_name
-
-    try:
-        if LOG_TO_TERMINAL:
-            print(message)
-
-    except Exception as e:
-        if LOG_TO_TERMINAL:
-            print(f"❌ Error in {current_function_name}: {e}")
+    # Logs a user-facing message to the console and conditionally to the debug file.
+    if global_settings["debug_to_terminal"]:
+        _safe_print(message)
+        
+    if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
+        # We don't prepend file/version/function for console logs
+        _log_to_file(f"🖥️ {message}", get_log_filename())
 
 def debug_log(message: str, file: str, version: str, function: str, console_print_func):
-    """
-    Prints a detailed debug message with a 'mad scientist' personality,
-    directing output based on the global toggles.
-    """
-    current_function_name = inspect.currentframe().f_code.co_name
+    # Logs a detailed debug message to the specified outputs.
+    if not global_settings["general_debug_enabled"]:
+        return
+
+    # Truncate the message before prepending metadata
+    truncated_message = _truncate_message(message)
     
-    try:
-        # Re-formatting the message to better match the 'mad scientist' persona
-        log_message = f"💡📝{message} | {file} | {version} Function: {function}"
+    # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
+    log_entry = f"{truncated_message} | {file} | {version} Function: {function}"
 
-        # --- Function logic goes here ---
-        if LOG_TO_TERMINAL:
-            console_print_func(log_message)
+    if global_settings["debug_to_terminal"]:
+        console_print_func(log_entry)
 
-        if LOG_TO_FILE:
-            # We explicitly open the log file with UTF-8 encoding to support emojis
-            log_filename = get_log_filename()
-            log_path = FILE_LOG_DIR / log_filename
-            
-            # Create the DATA directory if it does not exist
-            FILE_LOG_DIR.mkdir(exist_ok=True)
-            
-            with open(log_path, "a", encoding="utf-8") as log_file:
-                log_file.write(log_message + "\n")
+    if global_settings["debug_to_file"]:
+        _log_to_file(log_entry, get_log_filename())
 
-    except Exception as e:
-        if LOG_TO_TERMINAL:
-            console_print_func(f"❌ Error in {current_function_name}: {e}")
+def log_visa_command(command: str, direction: str):
+    # Logs SCPI commands sent to and responses received from the instrument.
+    if not global_settings["log_visa_commands_enabled"]:
+        return
+        
+    direction_emoji = "➡️" if direction == "SENT" else "⬅️"
+    
+    # Truncate command, primarily for large query responses
+    truncated_command = _truncate_message(command)
+    
+    log_entry = f"{direction_emoji} {direction}: {truncated_command}"
+
+    # Log to VISA-specific file
+    _log_to_file(log_entry, VISA_LOG_FILENAME)
+
+    # Conditionally log to main debug file
+    if global_settings["include_visa_messages_to_debug_file"]:
+        _log_to_file(f"🐐 {log_entry}", get_log_filename())

@@ -3,7 +3,7 @@
         "PRESET_001": {
             "Active": true,
             "FileName": "14MON.STA",
-            "NickName": "14 MON",
+            "NickName": "470-530    14 MON",
             "Start": "470",
             "Stop": "530",
             "Center": "500",
@@ -25,7 +25,7 @@
         "PRESET_002": {
             "Active": true,
             "FileName": "24MON.STA",
-            "NickName": "24MON",
+            "NickName": "530-590     24MON",
             "Start": "530",
             "Stop": "590",
             "Center": "560",
@@ -47,7 +47,7 @@
         "PRESET_003": {
             "Active": true,
             "FileName": "34MON.STA",
-            "NickName": "34MON",
+            "NickName": "590 - 650      34MON",
             "Start": "590",
             "Stop": "650",
             "Center": "620",
@@ -69,7 +69,7 @@
         "PRESET_004": {
             "Active": true,
             "FileName": "44MON.STA",
-            "NickName": "Name",
+            "NickName": "650 - 710      44MON",
             "Start": "650",
             "Stop": "710",
             "Center": "680",
@@ -113,7 +113,7 @@
         "PRESET_006": {
             "Active": true,
             "FileName": "44.STA",
-            "NickName": "44 Anthony",
+            "NickName": "650-710",
             "Start": "650",
             "Stop": "710",
             "Center": "680",
@@ -135,7 +135,7 @@
         "PRESET_007": {
             "Active": true,
             "FileName": "02.STA",
-            "NickName": "02",
+            "NickName": "54-88 MHz",
             "Start": "54",
             "Stop": "88",
             "Center": "71",
@@ -157,7 +157,7 @@
         "PRESET_008": {
             "Active": true,
             "FileName": "450-470LMR.STA",
-            "NickName": "450-470LMR",
+            "NickName": "450-470 LMR",
             "Start": "450",
             "Stop": "470",
             "Center": "460",
@@ -350,205 +350,5 @@
             "Trace3Mode": "MINhold",
             "Trace4Mode": "BLANK"
         }
-    },
-    {
-        "PRESET_017": {
-            "Active": false,
-            "FileName": null,
-            "NickName": null,
-            "Start": null,
-            "Stop": null,
-            "Center": null,
-            "Span": null,
-            "RBW": null,
-            "VBW": null,
-            "RefLevel": "-50",
-            "Attenuation": null,
-            "MaxHold": null,
-            "HighSens": null,
-            "PreAmp": "1",
-            "Trace1Mode": null,
-            "Trace2Mode": null,
-            "Trace3Mode": null,
-            "Trace4Mode": "BLANK"
-        }
-    },
-    {
-        "PRESET_018": {
-            "Active": false,
-            "FileName": null,
-            "NickName": null,
-            "Start": null,
-            "Stop": null,
-            "Center": null,
-            "Span": null,
-            "RBW": null,
-            "VBW": null,
-            "RefLevel": "-50",
-            "Attenuation": null,
-            "MaxHold": null,
-            "HighSens": null,
-            "PreAmp": "1",
-            "Trace1Mode": null,
-            "Trace2Mode": null,
-            "Trace3Mode": null,
-            "Trace4Mode": "BLANK"
-        }
-    },
-    {
-        "PRESET_019": {
-            "Active": false,
-            "FileName": null,
-            "NickName": null,
-            "Start": null,
-            "Stop": null,
-            "Center": null,
-            "Span": null,
-            "RBW": null,
-            "VBW": null,
-            "RefLevel": "-50",
-            "Attenuation": null,
-            "MaxHold": null,
-            "HighSens": null,
-            "PreAmp": "1",
-            "Trace1Mode": null,
-            "Trace2Mode": null,
-            "Trace3Mode": null,
-            "Trace4Mode": "BLANK"
-        }
-    },
-    {
-        "PRESET_020": {
-            "Active": false,
-            "FileName": null,
-            "NickName": null,
-            "Start": null,
-            "Stop": null,
-            "Center": null,
-            "Span": null,
-            "RBW": null,
-            "VBW": null,
-            "RefLevel": "-50",
-            "Attenuation": null,
-            "MaxHold": null,
-            "HighSens": null,
-            "PreAmp": "1",
-            "Trace1Mode": null,
-            "Trace2Mode": null,
-            "Trace3Mode": null,
-            "Trace4Mode": "BLANK"
-        }
-    },
-
-
-        {
-            "PRESET_021": {
-                "Active": false,
-                "FileName": null,
-                "NickName": null,
-                "Start": null,
-                "Stop": null,
-                "Center": null,
-                "Span": null,
-                "RBW": null,
-                "VBW": null,
-                "RefLevel": "-50",
-                "Attenuation": null,
-                "MaxHold": null,
-                "HighSens": null,
-                "PreAmp": "1",
-                "Trace1Mode": null,
-                "Trace2Mode": null,
-                "Trace3Mode": null,
-                "Trace4Mode": "BLANK"
-            }
-        },
-        {
-            "PRESET_022": {
-                "Active": false,
-                "FileName": null,
-                "NickName": null,
-                "Start": null,
-                "Stop": null,
-                "Center": null,
-                "Span": null,
-                "RBW": null,
-                "VBW": null,
-                "RefLevel": "-50",
-                "Attenuation": null,
-                "MaxHold": null,
-                "HighSens": null,
-                "PreAmp": "1",
-                "Trace1Mode": null,
-                "Trace2Mode": null,
-                "Trace3Mode": null,
-                "Trace4Mode": "BLANK"
-            }
-        },
-        {
-            "PRESET_023": {
-                "Active": false,
-                "FileName": null,
-                "NickName": null,
-                "Start": null,
-                "Stop": null,
-                "Center": null,
-                "Span": null,
-                "RBW": null,
-                "VBW": null,
-                "RefLevel": "-50",
-                "Attenuation": null,
-                "MaxHold": null,
-                "HighSens": null,
-                "PreAmp": "1",
-                "Trace1Mode": null,
-                "Trace2Mode": null,
-                "Trace3Mode": null,
-                "Trace4Mode": "BLANK"
-            }
-        },
-        {
-            "PRESET_024": {
-                "Active": false,
-                "FileName": null,
-                "NickName": null,
-                "Start": null,
-                "Stop": null,
-                "Center": null,
-                "Span": null,
-                "RBW": null,
-                "VBW": null,
-                "RefLevel": "-50",
-                "Attenuation": null,
-                "MaxHold": null,
-                "HighSens": null,
-                "PreAmp": "1",
-                "Trace1Mode": null,
-                "Trace2Mode": null,
-                "Trace3Mode": null,
-                "Trace4Mode": "BLANK"
-            }
-        },
-        {
-            "PRESET_025": {
-                "Active": false,
-                "FileName": null,
-                "NickName": null,
-                "Start": null,
-                "Stop": null,
-                "Center": null,
-                "Span": null,
-                "RBW": null,
-                "VBW": null,
-                "RefLevel": "-50",
-                "Attenuation": null,
-                "MaxHold": null,
-                "HighSens": null,
-                "PreAmp": "1",
-                "Trace1Mode": null,
-                "Trace2Mode": null,
-                "Trace3Mode": null,
-                "Trace4Mode": "BLANK"
-            }
-        } 
-    ]
+    }
+]

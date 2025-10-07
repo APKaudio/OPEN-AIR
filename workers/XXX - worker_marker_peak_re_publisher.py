@@ -37,7 +37,7 @@ current_version_hash = (20250928 * 221500 * 5)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- MQTT Topic Constants ---
-TOPIC_MARKERS_ROOT = "OPEN-AIR/repository/markers"
+TOPIC_MARKERS_ROOT = "OPEN-AIR/measurements""
 TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_*/value"
 NUMBER_OF_MARKERS = 6
 

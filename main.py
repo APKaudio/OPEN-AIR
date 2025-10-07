@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250925.234130.1
+# Version 20251006.220900.1
 
 import os
 import inspect
@@ -29,6 +29,7 @@ import time
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
+from workers.worker_active_peak_publisher import ActivePeakPublisher  # << ADDED WORKER IMPORT
 from datasets.worker_dataset_publisher import main as dataset_publisher_main
 from datasets.worker_repository_publisher import main as repository_publisher_main
 from display.styling.style import THEMES, DEFAULT_THEME
@@ -72,9 +73,9 @@ from display.gui_display import Application
 
 
 # --- Global Scope Variables ---
-current_version = "20250925.234130.1"
+current_version = "20251006.220900.1"
 # Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
-current_version_hash = (20250925 * 234130 * 1)
+current_version_hash = (20251006 * 220900 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -185,8 +186,12 @@ def action_open_display(mqtt_util_instance):
             app_instance=app
         )
         
-        # ADDED: Instantiate the new MarkerGoGetterWorker
+        # ADDED: Instantiate the worker responsible for sweeping and collecting marker data
         marker_go_getter = MarkerGoGetterWorker(mqtt_util=mqtt_util_instance)
+        
+        # ADDED: Instantiate the worker responsible for pivoting marker output to hierarchical topics
+        active_peak_publisher = ActivePeakPublisher(mqtt_util=mqtt_util_instance)
+
 
         # Publish the dataset after the GUI is created but before mainloop() starts
         dataset_publisher_main(mqtt_util_instance)
@@ -232,4 +237,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

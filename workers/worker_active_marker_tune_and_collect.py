@@ -15,13 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251005.225426.4
-# REFACTOR: Consolidated tuning logic from the defunct worker_marker_tune_to_marker.py
-# and modularized the main processing loop by moving marker placement/query into 
-# a dedicated helper method, '_place_and_query_markers_for_batch'.
-# FIXED: Re-added the missing subscription method '_on_peak_update_for_event_set' to resolve the initialization crash.
-# MODIFIED: Removed the problematic line causing TypeError and simplified loop control to rely solely on self.stop_event, 
-#           which is correctly set by the _handle_start_stop MQTT callback.
+# Version 20251006.225130.6
 
 import os
 import inspect
@@ -36,11 +30,14 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 
 # --- Global Scope Variables ---
-current_version = "20251005.225426.4"
+current_version = "20251006.225130.6"
 # The hash calculation drops the leading zero from the hour (e.g., 083015 becomes 83015).
-current_version_hash = (20251005 * 225426 * 4)
+current_version_hash = (20251006 * 225130 * 6)
 current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
+
+# --- NEW CONSTANT: Frequency Buffer (in MHz) ---
+BUFFER_START_STOP_MHZ = 0.1
 
 # --- MQTT Topic Constants (UPDATED FOR /IDENTITY NESTING) ---
 # Control Topics
@@ -229,8 +226,8 @@ class MarkerGoGetterWorker:
         
     def _set_instrument_frequency_span(self):
         """
-        Sets the instrument to the full frequency span of all markers, but only if 
-        the min/max frequency has changed or if it's the first run.
+        Sets the instrument to the full frequency span of all markers, 
+        but only if the min/max frequency has changed or if it's the first run.
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
@@ -248,10 +245,16 @@ class MarkerGoGetterWorker:
         # Update last known state
         self.last_min_freq = self.min_frequency_mhz
         self.last_max_freq = self.max_frequency_mhz
+    
+        # --- APPLY THE BUFFER HERE ---
+        # Add buffer to the maximum frequency
+        new_max_freq = self.max_frequency_mhz + BUFFER_START_STOP_MHZ
+        # Subtract buffer from the minimum frequency (ensuring it doesn't go below zero)
+        new_min_freq = max(0, self.min_frequency_mhz - BUFFER_START_STOP_MHZ)
         
-        console_log(f"🔵 Setting instrument span from {self.min_frequency_mhz} MHz to {self.max_frequency_mhz} MHz.")
-        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(self.min_frequency_mhz * HZ_TO_MHZ), retain=True)
-        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(self.max_frequency_mhz * HZ_TO_MHZ), retain=True)
+        console_log(f"🔵 Setting instrument span from {new_min_freq} MHz to {new_max_freq} MHz (with {BUFFER_START_STOP_MHZ} MHz buffer).")
+        self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(new_min_freq * HZ_TO_MHZ), retain=True)
+        self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(new_max_freq * HZ_TO_MHZ), retain=True)
         self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", True, retain=False)
         self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", False, retain=False)
         time.sleep(0.1) # Short delay to let the frequency rig command process
@@ -304,8 +307,6 @@ class MarkerGoGetterWorker:
 
 
 # --- TUNING HELPER FUNCTIONS (Moved from worker_marker_tune_to_marker.py) ---
-# NOTE: These functions remain outside the class to allow calling them by external workers
-# or the GUI directly without needing a MarkerGoGetterWorker instance.
 
 def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
     """

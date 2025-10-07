@@ -1,12 +1,12 @@
 Parameter,Active,FileName,NickName,Start,Stop,Center,Span,RBW,VBW,RefLevel,Attenuation,MaxHold,HighSens,PreAmp,Trace1Mode,Trace2Mode,Trace3Mode,Trace4Mode
-PRESET_001,true,14MON.STA,14 MON,470,530,500,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_002,true,24MON.STA,24MON,530,590,560,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_003,true,34MON.STA,34MON,590,650,620,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_004,true,44MON.STA,Name,650,710,680,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_001,true,14MON.STA,470-530    14 MON,470,530,500,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_002,true,24MON.STA,530-590     24MON,530,590,560,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_003,true,34MON.STA,590 - 650      34MON,590,650,620,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_004,true,44MON.STA,650 - 710      44MON,650,710,680,60,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_005,true,470608MON.STA,470-608 MON,470,608,539,138,30000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_006,true,44.STA,44 Anthony,650,710,680,60,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_007,true,02.STA,02,54,88,71,34,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
-PRESET_008,true,450-470LMR.STA,450-470LMR,450,470,460,20,1000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_006,true,44.STA,650-710,650,710,680,60,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_007,true,02.STA,54-88 MHz,54,88,71,34,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
+PRESET_008,true,450-470LMR.STA,450-470 LMR,450,470,460,20,1000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_009,true,34.STA,34,590,650,620,60,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_010,true,14.STA,14,470,530,500,60,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
 PRESET_011,true,07.STA,7,174,218,196,44,300000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
@@ -17,3 +17,4 @@ PRESET_015,true,2GHZCAMS.STA,Wireless cameras,2050,2300,2175,250,1000000,null,-5
 PRESET_025,,null,null,null,null,null,null,null,null,-50,null,null,null,1,null,null,null,BLANK
 PRESET_020,,null,null,null,null,null,null,null,null,-50,null,null,null,1,null,null,null,BLANK
 PRESET_017,,null,null,null,null,null,null,null,null,-50,null,,,,,,,
+PRESET_016,true,3GHZCAMS.STA,3GHZCAMS,3150,3300,3225,150,1000000,null,-50,20,null,null,1,WRITE,MAXhold,MINhold,BLANK
