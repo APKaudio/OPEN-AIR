@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251006.215117.1
+# Version 20251009.214456.2
 
 import os
 import inspect
@@ -24,9 +24,9 @@ import json # Used for JSON logging if a payload is passed
 import sys
 
 # --- Global Scope Variables (as per Section 4.4) ---
-# W: 20251006, X: 215117, Y: 1
-current_version = "20251006.215117.1"
-current_version_hash = (20251006 * 215117 * 1)
+# W: 20251009, X: 214456, Y: 2
+current_version = "20251009.214456.2"
+current_version_hash = (20251009 * 214456 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
@@ -72,8 +72,7 @@ def get_log_filename():
     return current_debug_log_filename
 
 def _safe_print(message: str):
-    # Prints to the terminal, avoiding recursion issues if print is hooked.
-    # Uses the global GUI_CONSOLE_PRINT_FUNC if set, otherwise standard print.
+    # Prints to the console/GUI target, avoiding recursion issues if print is hooked.
     if 'GUI_CONSOLE_PRINT_FUNC' in globals() and callable(GUI_CONSOLE_PRINT_FUNC):
         GUI_CONSOLE_PRINT_FUNC(message)
     else:
@@ -84,11 +83,17 @@ def _log_to_file(message: str, log_filename: str):
     # Helper to safely write a message to a file.
     log_path = FILE_LOG_DIR / log_filename
     
+    # --- NEW FIX: Ensure the log directory exists before trying to open the file. ---
     try:
-        # Create the log directory if it does not exist
         if not FILE_LOG_DIR.exists():
             FILE_LOG_DIR.mkdir(parents=True, exist_ok=True)
-            
+            _safe_print(f"✅ Created missing log directory: {FILE_LOG_DIR}")
+    except Exception as e:
+        _safe_print(f"❌ Critical Error: Failed to create log directory '{FILE_LOG_DIR}': {e}")
+        return # Abort logging if directory creation fails
+    # --- END NEW FIX ---
+    
+    try:
         with open(log_path, "a", encoding="utf-8") as log_file:
             log_file.write(message + "\n")
             
@@ -140,6 +145,7 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     if global_settings["debug_to_file"]:
         _log_to_file(log_entry, get_log_filename())
 
+# PUBLIC API: Implemented as per the user's explicit request.
 def log_visa_command(command: str, direction: str):
     # Logs SCPI commands sent to and responses received from the instrument.
     if not global_settings["log_visa_commands_enabled"]:
@@ -150,6 +156,7 @@ def log_visa_command(command: str, direction: str):
     # Truncate command, primarily for large query responses
     truncated_command = _truncate_message(command)
     
+    # The log entry format for the visa file is simple
     log_entry = f"{direction_emoji} {direction}: {truncated_command}"
 
     # Log to VISA-specific file

@@ -14,9 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250912.223200.3
-# FIXED: Removed the automatic save from the MQTT listener. Introduced a new, explicit
-#        save command to prevent excessive disk writes and improve performance.
+# Version 20251009.213617.4
 
 import os
 import inspect
@@ -29,12 +27,13 @@ from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yak_on_trigger import YAK_TRIGGER_COMMAND
+from workers.worker_project_paths import YAKETY_YAK_REPO_PATH # NEW: Import YAKETY_YAK_REPO_PATH
 
 # --- Global Scope Variables ---
-current_version = "20250912.223200.3"
-current_version_hash = (20250912 * 223200 * 3)
+current_version = "20251009.213617.4"
+current_version_hash = (20251009 * 213617 * 4)
 current_file = f"{os.path.basename(__file__)}"
-YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
+# DELETED: YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
 repo_topic_filter = "OPEN-AIR/repository/yak/#"
 save_action_topic = "OPEN-AIR/actions/yak/save/trigger"
 
@@ -101,11 +100,14 @@ class YaketyYakManager:
         Loads the repository from the JSON file into memory on initialization.
         """
         current_function_name = inspect.currentframe().f_code.co_name
+        # UPDATED: Use the imported path constant
         if not YAKETY_YAK_REPO_PATH.parent.exists():
             YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
         
+        # UPDATED: Use the imported path constant
         if YAKETY_YAK_REPO_PATH.is_file() and YAKETY_YAK_REPO_PATH.stat().st_size > 0:
             try:
+                # UPDATED: Use the imported path constant
                 with open(YAKETY_YAK_REPO_PATH, 'r') as f:
                     return json.load(f)
             except json.JSONDecodeError as e:
@@ -123,6 +125,7 @@ class YaketyYakManager:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
+            # UPDATED: Use the imported path constant
             message=f"🐐🐐🐐💾 Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
             file=current_file,
             version=current_version,
@@ -131,9 +134,11 @@ class YaketyYakManager:
         )
         try:
             # Ensure the parent directory exists
+            # UPDATED: Use the imported path constant
             if not YAKETY_YAK_REPO_PATH.parent.exists():
                 YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
 
+            # UPDATED: Use the imported path constant
             with open(YAKETY_YAK_REPO_PATH, 'w') as f:
                 json.dump(self.repo_memory, f, indent=4)
             
@@ -228,6 +233,7 @@ class YaketyYakManager:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
+            # UPDATED: Use the imported path constant
             message=f"🐐🐐🐐💾 An explicit save command has been received! Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
             file=current_file,
             version=current_version,

@@ -14,8 +14,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250907.011000.3
+# Version 20251009.214021.4
 # FIXED: Added a check to reject commands containing placeholders (< or >) before sending.
+# FIXED: Implemented a call to the new log_visa_command utility function for logging SCPI I/O.
 
 import os
 import inspect
@@ -23,14 +24,13 @@ import pyvisa
 import time
 
 # --- Utility and Worker Imports ---
-from workers.worker_active_logging import debug_log, console_log
-# NOTE: The log_visa_command function needs to be created or imported from its location.
-# from display.debug_logic import log_visa_command
+# UPDATED: Import the centralized log_visa_command
+from workers.worker_active_logging import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250907.011000.3"
-current_version_hash = (20250907 * 11000 * 3)
+current_version = "20251009.214021.4"
+current_version_hash = (20251009 * 214021 * 4)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -136,7 +136,7 @@ class ScpiDispatcher:
             debug_log(f"🐐 ❌ No instrument connected. Aborting command write.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
             return False
         
-        # --- NEW FIX: Reject command if it contains placeholders. ---
+        # --- Reject command if it contains placeholders. ---
         if "<" in command or ">" in command:
             error_message = f"❌ Error: Command rejected. Unresolved placeholders found: '{command}'."
             self._print_to_gui_console(error_message)
@@ -152,7 +152,8 @@ class ScpiDispatcher:
 
         try:
             self.inst.write(command)
-            # log_visa_command(command, "SENT") # Requires log_visa_command to be defined/imported
+            # NEW: Log the command sent to the device
+            log_visa_command(command=command, direction="SENT") 
             self._print_to_gui_console(f"✅ Sent command: {command}")
             return True
         except Exception as e:
@@ -184,7 +185,7 @@ class ScpiDispatcher:
             debug_log(f"🐐 ❌ No instrument connected. Aborting command query.", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
             return None
             
-        # --- NEW FIX: Reject command if it contains placeholders. ---
+        # --- Reject command if it contains placeholders. ---
         if "<" in command or ">" in command:
             error_message = f"❌ Error: Query rejected. Unresolved placeholders found: '{command}'."
             self._print_to_gui_console(error_message)
@@ -199,9 +200,12 @@ class ScpiDispatcher:
         # --- END NEW FIX ---
         
         try:
+            # NEW: Log the query command sent
+            log_visa_command(command=command, direction="SENT")
             response = self.inst.query(command).strip()
-            # log_visa_command(command, "SENT") # Requires log_visa_command
-            # log_visa_command(response, "RECEIVED") # Requires log_visa_command
+            # NEW: Log the response received
+            log_visa_command(command=response, direction="RECEIVED")
+            
             self._print_to_gui_console(f"✅ Sent query: {command}")
             self._print_to_gui_console(f"✅ Received response: {response}")
             return response

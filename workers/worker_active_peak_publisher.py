@@ -242,33 +242,3 @@ class ActivePeakPublisher:
                 function=f"{__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-if __name__ == "__main__":
-    # This block is for testing the worker's functionality
-    class MockMqttUtility:
-        def __init__(self):
-            self.subscribers = {}
-        def add_subscriber(self, topic_filter, callback_func):
-            # This mock subscribes directly to the callback function
-            self.subscribers[topic_filter] = callback_func
-        def publish_message(self, topic, subtopic, value, retain=False):
-            full_topic = f"{topic}/{subtopic}" if subtopic else topic
-            if full_topic.startswith(TOPIC_MEASUREMENTS_ROOT):
-                print(f"HIERARCHICAL PUBLISH: {full_topic} -> {value}")
-            
-    mock_mqtt_util = MockMqttUtility()
-    publisher = ActivePeakPublisher(mqtt_util=mock_mqtt_util)
-    
-    # Simulate a partial message (peak arrives first)
-    peak_topic = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_1/value"
-    publisher._on_marker_message(peak_topic, json.dumps({"value": -55.6}))
-    
-    # Simulate the second partial message (frequency arrives next)
-    freq_topic = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_1_freq/value"
-    publisher._on_marker_message(freq_topic, json.dumps({"value": 612345000.0}))
-
-    # Simulate another full message (Marker_2)
-    peak_topic_2 = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_2/value"
-    freq_topic_2 = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_2_freq/value"
-    publisher._on_marker_message(peak_topic_2, json.dumps({"value": -90.0}))
-    publisher._on_marker_message(freq_topic_2, json.dumps({"value": 470123000.0}))

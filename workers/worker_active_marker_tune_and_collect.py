@@ -197,7 +197,7 @@ class MarkerGoGetterWorker:
                 console_print_func=console_log
             )
         
-        time.sleep(0.1) # Short delay to let the place markers inputs set
+        time.sleep(0.2) # Short delay to let the place markers inputs set
 
         # --- 2. Trigger Place Markers command to set them on device ---
         self.mqtt_util.publish_message(TOPIC_MARKER_PLACE_TRIGGER, "", True, retain=False)
@@ -205,7 +205,7 @@ class MarkerGoGetterWorker:
         
         # --- 3. CRITICAL FIX: Add recovery sleep to allow the crash to clear ---
         console_log("🟠 Recovering after Marker Placement to clear potential downstream crash...")
-        time.sleep(0.2) # Allow 4 seconds for the internal exception/crash to resolve
+        time.sleep(0.3) # Allow 4 seconds for the internal exception/crash to resolve
         
     def _query_markers_for_batch(self, batch_ids):
         """
@@ -289,7 +289,7 @@ class MarkerGoGetterWorker:
                 self._place_markers_for_batch(batch_ids=batch_ids)
 
                 # --- DELAY as requested ---
-                time.sleep(0.2)
+                time.sleep(0.5)
                 
                 # Use the dedicated modular function to query the batch
                 self._query_markers_for_batch(batch_ids=batch_ids)
@@ -300,10 +300,6 @@ class MarkerGoGetterWorker:
 
             console_log("✅ Peak Hunter loop finished a full pass.")
             
-            # Pause before the next iteration
-            if not self.stop_event.is_set():
-                console_log("🟠 Full pass complete. Resting for 5 seconds before next loop iteration.")
-                time.sleep(1)
 
 
 # --- TUNING HELPER FUNCTIONS (Moved from worker_marker_tune_to_marker.py) ---

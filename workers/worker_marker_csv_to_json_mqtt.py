@@ -26,13 +26,14 @@ from collections import defaultdict
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
+
 
 # --- Global Scope Variables ---
 current_version = "20251005.220127.2"
 current_version_hash = (20251005 * 220127 * 2)
 current_file = f"{os.path.basename(__file__)}"
-MARKERS_JSON_PATH = pathlib.Path("DATA/MARKERS.json")
-MARKERS_CSV_PATH = pathlib.Path("DATA/MARKERS.csv")
+
 MQTT_BASE_TOPIC = "OPEN-AIR/repository/markers"
 
 

@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251005.220127.1
+# Version 20251009.213617.2
 
 import os
 import csv
@@ -38,10 +38,12 @@ from workers.worker_marker_file_import_converter import (
     Marker_convert_WWB_SHW_File_report_to_csv,
     Marker_convert_csv_unknow_report_to_csv
 )
+from workers.worker_project_paths import GLOBAL_PROJECT_ROOT # NEW: Import GLOBAL_PROJECT_ROOT
+
 
 # --- Global Scope Variables ---
-current_version = "20251005.220127.1"
-current_version_hash = (20251005 * 220127 * 1)
+current_version = "20251009.213617.2"
+current_version_hash = (20251009 * 213617 * 2)
 current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
@@ -57,8 +59,8 @@ def maker_file_check_for_markers_file():
     # Checks for the MARKERS.csv file in the DATA directory and loads it if it exists.
     current_function = inspect.currentframe().f_code.co_name
     
-    # ANCHOR FIX: Use the stable project_root calculated above.
-    target_path = project_root / 'DATA' / 'MARKERS.csv'
+    # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
+    target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
     debug_log(
         message=f"🛠️🕵️‍♂️ Checking for existing markers file at: {target_path}",
@@ -377,8 +379,8 @@ def maker_file_load_sb_pdf():
 def maker_file_save_intermediate_file(tree_headers, tree_data):
     # Saves the current tree data to a file named 'MARKERS.csv' in the DATA directory at the project root level.
     current_function = inspect.currentframe().f_code.co_name
-    # ANCHOR FIX: Use the stable project_root calculated above.
-    target_path = project_root / 'DATA' / 'MARKERS.csv'
+    # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
+    target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
     debug_log(
         message=f"💾🟢 Saving data to intermediate file: {target_path}. Headers: {tree_headers}, first row: {tree_data[0] if tree_data else 'N/A'}",
