@@ -14,9 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250907.002515.2
-# FIXED: Updated subscriptions and callbacks to listen for the new '/trigger' subtopic,
-# aligning with the updated actuator logic.
+# Version 20250907.002515.6 (Fixed GUI slot mapping to start at option 1)
 
 import inspect
 import os
@@ -34,9 +32,12 @@ from workers.worker_active_logging import debug_log, console_log
 
 
 # --- Global Scope Variables --
-current_version = "20250907.002515.2"
-current_version_hash = (20250907 * 2515 * 2)
+current_version = "20250907.002515.6"
+current_version_hash = (20250907 * 2515 * 6)
 current_file = f"{os.path.basename(__file__)}"
+
+# --- New Constant for Max Devices ---
+MAX_GUI_DEVICE_SLOTS = 40
 
 
 class VisaDeviceManager:
@@ -190,27 +191,41 @@ class VisaDeviceManager:
             console_log(f"❌ Error in _on_gui_disconnect_request: {e}")
             
     def _update_found_devices_gui(self, resources):
-        # Updates the GUI's `Found_devices` listbox based on the search results.
+        # Updates the GUI's `Found_devices` listbox based on the search results,
+        # supporting up to MAX_GUI_DEVICE_SLOTS (40) devices.
         try:
             base_topic = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Found_devices"
-            for i in range(1, 11):
+            
+            # Use min() to ensure we don't try to fill more slots than exist or are needed
+            num_resources_to_show = min(len(resources), MAX_GUI_DEVICE_SLOTS)
+            
+            # 1. Populate the slots with found resources
+            # NOTE: range starts at 1 and goes up to num_resources_to_show + 1
+            for i in range(1, num_resources_to_show + 1):
                 option_topic_prefix = f"{base_topic}/options/{i}"
-                if i <= len(resources):
-                    device_name = resources[i-1]
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="true", retain=False)
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value=device_name, retain=False)
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value=device_name, retain=False)
-                else:
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="false", retain=False)
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
-                    self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
-            # START OF FIX: After updating the list, explicitly set the first item as selected.
+                device_name = resources[i-1]
+                
+                # Activate slot and set labels
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="true", retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value=device_name, retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value=device_name, retain=False)
+                
+            # 2. Deactivate remaining slots (from num_resources_to_show + 1 up to MAX_GUI_DEVICE_SLOTS)
+            for i in range(num_resources_to_show + 1, MAX_GUI_DEVICE_SLOTS + 1):
+                option_topic_prefix = f"{base_topic}/options/{i}"
+                
+                # Deactivate slot and clear labels
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/active", subtopic="", value="false", retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_active", subtopic="", value="", retain=False)
+                self.mqtt_util.publish_message(topic=f"{option_topic_prefix}/label_inactive", subtopic="", value="", retain=False)
+            
+            # Set the first item as selected if any were found
             if resources:
                 first_device_topic = f"{base_topic}/options/1/selected"
                 self.mqtt_util.publish_message(topic=first_device_topic, subtopic="", value='true', retain=False)
                 console_log("✅ First device automatically selected after search.")
-            # END OF FIX
-            console_log("✅ GUI device list updated with search results.")
+            
+            console_log("✅ GUI device list updated with search results (up to 40 slots used).")
         except Exception as e:
             console_log(f"❌ Error in _update_found_devices_gui: {e}")
 
@@ -300,8 +315,29 @@ def list_visa_resources(console_print_func=None):
     debug_log(message="Listing VISA resources... Let's find some devices!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     try:
         rm = pyvisa.ResourceManager()
-        resources = rm.list_resources()
-        debug_log(message=f"Found VISA resources: {resources}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
+        
+        # KEY CHANGE: Explicitly search for all instrument types, especially TCPIP.
+        # '?*::INSTR' is the wildcard search pattern for all resource types supported by the backend.
+        all_resources = rm.list_resources('?*::INSTR') 
+
+        # --- Resource Reordering Logic (FIX) ---
+        usb_resources = []
+        tcpip_resources = []
+        other_resources = []
+
+        for res in all_resources:
+            if res.startswith('USB'):
+                usb_resources.append(res)
+            elif res.startswith('TCPIP'):
+                tcpip_resources.append(res)
+            else: # Catches ASRL, GPIB, etc.
+                other_resources.append(res)
+        
+        # Prioritize list: USB -> TCPIP -> Other (ASRL)
+        resources = usb_resources + tcpip_resources + other_resources
+        # --- End Resource Reordering Logic ---
+        
+        debug_log(message=f"Found VISA resources (Reordered): {resources}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return list(resources)
     except Exception as e:
         error_msg = f"❌ Error listing VISA resources: {e}."
