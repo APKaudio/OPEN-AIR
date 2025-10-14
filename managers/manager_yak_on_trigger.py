@@ -14,13 +14,13 @@ from workers.worker_active_logging import debug_log, console_log
 from managers.manager_yak_tx import YakTxManager
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yak_rx import YakRxManager
+from workers.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 
 current_version = "20250917.232502.1"
 current_version_hash = (20250917 * 232502 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
-YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
 
 
 def _get_command_node(repo, command_path_parts, function_name):

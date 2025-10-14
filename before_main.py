@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251013.213500.1 
+# Version 20251013.200641.9 (Added psutil and zeroconf for PyVISA-py network support)
 
 import sys
 import inspect
@@ -24,10 +24,10 @@ import os
 import subprocess 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-# W: 20251013, X: 213500, Y: 1
-current_version = "20251013.213500.1"
-# The hash calculation drops the leading zero from the hour (21 -> 21)
-current_version_hash = (20251013 * 213500 * 1)
+# W: 20251013, X: 200641, Y: 9
+current_version = "20251013.200641.9"
+# The hash calculation drops the leading zero from the hour (20 -> 20)
+current_version_hash = (20251013 * 200641 * 9)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Mock Logging Functions (for standalone operation before app logger is active) ---
@@ -41,31 +41,30 @@ def _mock_debug_log(message, file, version, function, console_print_func):
         print(f"DEBUG: {message} | {file} | {version} Function: {function}")
         
 # --- Constants (No Magic Numbers) ---
-# Dictionary structure: { "Friendly Name": ("Python Import Name", "PyPI Install Name") }
-EXTERNAL_PACKAGES_MAP = {
-    "pyvisa": ("pyvisa", "pyvisa"),
-    "paho-mqtt": ("paho.mqtt.client", "paho-mqtt"),
-    "pandas": ("pandas", "pandas"),
-    "numpy": ("numpy", "numpy"),
-    "matplotlib": ("matplotlib", "matplotlib"),
-    "pdfplumber": ("pdfplumber", "pdfplumber"),
-    "beautifulsoup4 (bs4)": ("bs4", "beautifulsoup4"), # Using full PyPI name for safety
-    # --- INSTRUMENT PROTOCOL DEPENDENCIES ---
-    "pyusb": ("usb.core", "pyusb"),
-    "python-usbtmc": ("usbtmc", "python-usbtmc"),
-    "python-vxi11": ("vxi11", "python-vxi11"),
-    "pyserial": ("serial", "pyserial"),
-    "python-gpib": ("Gpib", "python-gpib"), 
-    # --- PyVISA-py Backend Dependencies ---
-    "psutil": ("psutil", "psutil"),
-    "zeroconf": ("zeroconf", "zeroconf"),
+# Packages that require pip install/uninstall/reinstall
+EXTERNAL_PACKAGES = {
+    "pyvisa": "pyvisa",
+    "paho-mqtt": "paho.mqtt.client",
+    "pandas": "pandas",
+    "numpy": "numpy",
+    "matplotlib": "matplotlib",
+    "pdfplumber": "pdfplumber",
+    "beautifulsoup4 (bs4)": "bs4",
+    # --- NEW INSTRUMENT PROTOCOL DEPENDENCIES ---
+    "pyusb": "usb.core",
+    "python-usbtmc": "usbtmc",
+    "python-vxi11": "vxi11",
+    "pyserial": "serial",
+    "python-gpib": "Gpib", # The module name used for the Python bindings
+    # --- New PyVISA-py Backend Dependencies for Full TCPIP Functionality ---
+    "psutil": "psutil",
+    "zeroconf": "zeroconf",
 }
 # Packages that are generally built-in and only require an import check
 BUILTIN_PACKAGES = {
     "python-csv": "csv",
     "python-threading": "threading",
-    "python-subprocess": "subprocess",
-    "python-tkinter": "tkinter" # Tkinter/Tcl is crucial for GUI and needs explicit check
+    "python-subprocess": "subprocess"
 }
 
 def _execute_pip_command(action, package_name, console_print_func):
@@ -126,18 +125,34 @@ def action_check_dependancies():
     # NEW: Determine if the script is running in 'fresh' mode
     is_fresh_mode = any("fresh" in arg.lower() for arg in sys.argv)
     
-    _mock_console_log(f"🔍 Starting dependency check ({len(EXTERNAL_PACKAGES_MAP) + len(BUILTIN_PACKAGES)} modules required). Fresh Mode: {is_fresh_mode}")
+    _mock_console_log(f"🔍 Starting dependency check ({len(EXTERNAL_PACKAGES) + len(BUILTIN_PACKAGES)} modules required). Fresh Mode: {is_fresh_mode}")
     
     missing_packages = []
 
     try:
         # --- 1. Process External Packages (Conditional Refresh) ---
         _mock_console_log("\n--- Checking/Refreshing External Packages ---")
-        for friendly_name, (import_name, pypi_name) in EXTERNAL_PACKAGES_MAP.items():
+        for friendly_name, import_name in EXTERNAL_PACKAGES.items():
             
-            # 1a. Check installation status using the import name
+            # --- Dynamically Determine the PyPI Package Name ---
+            package_name_for_pip = import_name.split('.')[0]
+            
+            # Overrides for cases where PyPI name differs from import root or module
+            if friendly_name == "paho-mqtt":
+                package_name_for_pip = "paho-mqtt"
+            elif friendly_name == "python-usbtmc":
+                package_name_for_pip = "python-usbtmc"
+            elif friendly_name == "python-vxi11":
+                package_name_for_pip = "python-vxi11"
+            elif friendly_name == "python-gpib":
+                # FINAL FIX: We must use the correct PyPI name, even if installation fails
+                package_name_for_pip = "python-gpib" 
+            elif friendly_name == "pyserial":
+                 package_name_for_pip = "pyserial"
+            # --- End Overrides ---
+            
             try:
-                __import__(import_name if '.' not in import_name else import_name.split('.')[0])
+                __import__(import_name)
                 is_installed = True
             except ImportError:
                 is_installed = False
@@ -147,19 +162,15 @@ def action_check_dependancies():
                 # Scenario A: Installed, running in fresh mode -> Force uninstall/reinstall
                 _mock_console_log(f"✅ Found '{friendly_name}'. Forcing refresh...")
                 
-                # Uninstall using the PyPI name
-                _execute_pip_command("uninstall", pypi_name, _mock_console_log)
+                _execute_pip_command("uninstall", package_name_for_pip, _mock_console_log)
                 
-                # Reinstall using the PyPI name
-                if not _execute_pip_command("install", pypi_name, _mock_console_log):
+                if not _execute_pip_command("install", package_name_for_pip, _mock_console_log):
                     missing_packages.append(friendly_name) 
 
             elif not is_installed:
                 # Scenario B: Not installed -> Attempt install
                 _mock_console_log(f"❌ '{friendly_name}' is missing. Attempting install...")
-                
-                # Install using the PyPI name
-                if not _execute_pip_command("install", pypi_name, _mock_console_log):
+                if not _execute_pip_command("install", package_name_for_pip, _mock_console_log):
                     missing_packages.append(friendly_name)
             
             elif is_installed and not is_fresh_mode:
@@ -182,10 +193,7 @@ def action_check_dependancies():
             _mock_console_log("❌ CRITICAL FAILURE: Missing/Failed Dependencies!")
             _mock_console_log("The following critical packages failed to install or are missing:")
             for pkg in missing_packages:
-                if pkg == "python-tkinter":
-                    _mock_console_log(f" - {pkg} (GUI): Requires OS-level package (e.g., 'sudo apt install python3-tk').")
-                else:
-                    _mock_console_log(f" - {pkg}")
+                _mock_console_log(f" - {pkg}")
             _mock_console_log("\nManual installation may be required.")
             _mock_console_log("="*50 + "\n")
             

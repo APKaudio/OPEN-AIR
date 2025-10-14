@@ -78,29 +78,29 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
                         }
                     },
                     "scpi_outputs": {
                         "RBW_Hz": {
-                            "value": "The resolution bandwidth in Hz.",
+                            "value": "+1.000000000E+06",
                             "type": "_Value"
                         },
                         "VBW_Hz": {
-                            "value": "The video bandwidth in Hz.",
+                            "value": "+1.000000000E+06",
                             "type": "_Value"
                         },
                         "VBW_Auto_On": {
-                            "value": "Boolean for VBW auto state.",
+                            "value": "1",
                             "type": "_Value"
                         },
                         "Continuous_Mode_On": {
-                            "value": "Boolean for continuous mode state.",
+                            "value": "1",
                             "type": "_Value"
                         },
                         "Sweep_Time_s": {
-                            "value": "The sweep time in seconds.",
+                            "value": "+3.430874624E-01",
                             "type": "_Value"
                         }
                     }
@@ -111,7 +111,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
                         }
                     },
@@ -134,7 +134,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:SWEep:TIME <sweep_time_s>"
                         }
                     },
@@ -149,7 +149,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
                         }
                     },
@@ -164,7 +164,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
                         }
                     },
@@ -239,21 +239,21 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
                         }
                     },
                     "scpi_outputs": {
                         "Ref_Level_dBm": {
-                            "value": "The reference level in dBm.",
+                            "value": "+0.000000000E+00",
                             "type": "_Value"
                         },
                         "Attenuation_dB": {
-                            "value": "The attenuation in dB.",
+                            "value": "20",
                             "type": "_Value"
                         },
                         "Preamp_On": {
-                            "value": "Boolean for preamp state.",
+                            "value": "0",
                             "type": "_Value"
                         }
                     }
@@ -264,7 +264,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
                         }
                     },
@@ -292,13 +292,13 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
                         }
                     },
                     "scpi_outputs": {
                         "ref_level": {
-                            "value": "The reference level in dBm.",
+                            "value": "-4.500000000E+01",
                             "type": "_Value"
                         }
                     }
@@ -307,13 +307,13 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":POWer:RF:ATTenuation?"
                         }
                     },
                     "scpi_outputs": {
                         "attenuation": {
-                            "value": "The attenuation in dB.",
+                            "value": "10",
                             "type": "_Value"
                         }
                     }
@@ -322,13 +322,13 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":SENSE:POWer:RF:GAIN:STATe?"
                         }
                     },
                     "scpi_outputs": {
                         "preamp_state": {
-                            "value": "Boolean for preamp state.",
+                            "value": "1",
                             "type": "_Value"
                         }
                     }
@@ -405,7 +405,7 @@
                     "scpi_details": {
                         "N9340B": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
                         },
                         "N9342CN": {
@@ -1012,25 +1012,25 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
                     },
                     "scpi_outputs": {
                         "start_freq": {
-                            "value": "The current start frequency in Hz.",
+                            "value": "+0.000000000E+00",
                             "type": "_Value"
                         },
                         "stop_freq": {
-                            "value": "The current stop frequency in Hz.",
+                            "value": "+3.000000000E+09",
                             "type": "_Value"
                         },
                         "center_freq": {
-                            "value": "The current center frequency in Hz.",
+                            "value": "+1.500000000E+09",
                             "type": "_Value"
                         },
                         "span_freq": {
-                            "value": "The current span frequency in Hz.",
+                            "value": "+3.000000000E+09",
                             "type": "_Value"
                         }
                     }
@@ -1041,7 +1041,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
                         }
                     },
@@ -1064,7 +1064,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:CENTer <center_freq>;:FREQuency:SPAN <span_freq>;:FREQuency:STARt?;:FREQuency:STOP?"
                         }
                     },
@@ -1082,12 +1082,12 @@
                     },
                     "scpi_outputs": {
                         "start_freq": {
-                            "value": "",
+                            "value": "+1.100000000E+07",
                             "type": "_Value",
                             "description": "The SCPI output for start frequency."
                         },
                         "stop_freq": {
-                            "value": "The stopping frequency.",
+                            "value": "+1.122222200E+07",
                             "type": "_Value",
                             "description": "The SCPI output for stop frequency."
                         }
@@ -1097,7 +1097,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": "false",
+                            "trigger": false,
                             "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
                     },
@@ -1115,12 +1115,12 @@
                     },
                     "scpi_outputs": {
                         "center_freq": {
-                            "value": "",
+                            "value": "+4.994377715E+08",
                             "type": "_Value",
                             "description": "The SCPI output for start frequency."
                         },
                         "span_freq": {
-                            "value": "",
+                            "value": "+9.764330990E+08",
                             "type": "_Value",
                             "description": "The SCPI output for stop frequency."
                         }

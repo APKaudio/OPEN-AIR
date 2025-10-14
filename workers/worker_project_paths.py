@@ -14,18 +14,18 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251009.213617.1
+# Version 20251013.212800.2
 
 import os
 import inspect
 import pathlib
-from workers.worker_active_logging import debug_log, console_log
+# DELETED: from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20251009.213617.1"
+current_version = "20251013.212800.2"
 # The hash calculation drops the leading zero from the hour (e.g., 083015 becomes 83015).
 # The current time is 21:36:17
-current_version_hash = (20251009 * 213617 * 1)
+current_version_hash = (20251013 * 212800 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Global Path Anchor ---
@@ -35,7 +35,8 @@ try:
     # Resolve the path to this file, get its parent (workers/), and then get that parent (OPEN-AIR/)
     GLOBAL_PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 except Exception as e:
-    console_log(f"❌ Critical Error establishing GLOBAL_PROJECT_ROOT in {current_file}: {e}")
+    # Use a simple print or standard fallback in case of a critical error, but do NOT use debug_log here.
+    print(f"❌ Critical Error establishing GLOBAL_PROJECT_ROOT in {current_file}: {e}")
     GLOBAL_PROJECT_ROOT = pathlib.Path(".")
 
 
@@ -53,21 +54,15 @@ def get_absolute_path(relative_path: str):
     """
     # [A brief, one-sentence description of the function's purpose.]
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(f"🛠️🟢 Resolving path for: {relative_path}",
-              file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
+    
+    # DELETED: debug_log(f"🛠️🟢 Resolving path for: {relative_path}", ...)
               
     try:
         absolute_path = GLOBAL_PROJECT_ROOT / relative_path
-        console_log(f"✅ Resolved Path: {absolute_path}")
+        # DELETED: console_log(f"✅ Resolved Path: {absolute_path}")
         return absolute_path
 
     except Exception as e:
-        console_log(f"❌ Error in {current_function_name}: {e}")
-        debug_log(
-            message=f"🛠️🔴 Arrr, the code be capsized! Failed to resolve path! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        # DELETED: console_log and debug_log calls for error handling
+        print(f"❌ Error in {current_function_name}: {e}")
         return pathlib.Path(relative_path) # Return a relative path as a fallback

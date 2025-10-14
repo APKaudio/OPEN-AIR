@@ -23,11 +23,15 @@ import pathlib
 import json # Used for JSON logging if a payload is passed
 import sys
 
+from workers.worker_project_paths import GLOBAL_PROJECT_ROOT
+
+
 # --- Global Scope Variables (as per Section 4.4) ---
 # W: 20251009, X: 214456, Y: 2
 current_version = "20251009.214456.2"
 current_version_hash = (20251009 * 214456 * 2)
 current_file = f"{os.path.basename(__file__)}"
+
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
 # NOTE: These are temporary global placeholders that a Configuration Manager will eventually set.
@@ -42,7 +46,8 @@ global_settings = {
     "debug_to_gui_console": True,  # Output debug to the in-app console
 }
 # Log file paths (relative to the project root for safety)
-FILE_LOG_DIR = pathlib.Path("DATA/debug")
+FILE_LOG_DIR = GLOBAL_PROJECT_ROOT / "DATA" / "debug"
+
 VISA_LOG_FILENAME = "visa_commands.log"
 DEBUG_FILE_PATH = None  # This will be dynamically set/updated
 

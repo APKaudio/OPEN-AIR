@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251009.213617.4
+# Version 20251013.213000.5
 
 import os
 import inspect
@@ -27,13 +27,15 @@ from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.manager_yak_on_trigger import YAK_TRIGGER_COMMAND
-from workers.worker_project_paths import YAKETY_YAK_REPO_PATH # NEW: Import YAKETY_YAK_REPO_PATH
+# FIXED: Re-import YAKETY_YAK_REPO_PATH after circular dependency fix
+from workers.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 # --- Global Scope Variables ---
-current_version = "20251009.213617.4"
-current_version_hash = (20251009 * 213617 * 4)
+current_version = "20251013.213000.5"
+# The version hash is updated to reflect the current revision
+current_version_hash = (20251013 * 213000 * 5)
 current_file = f"{os.path.basename(__file__)}"
-# DELETED: YAKETY_YAK_REPO_PATH = pathlib.Path("DATA/YAKETYYAK.json")
+# DELETED: YAKETY_YAK_REPO_PATH is now imported from worker_project_paths.py
 repo_topic_filter = "OPEN-AIR/repository/yak/#"
 save_action_topic = "OPEN-AIR/actions/yak/save/trigger"
 
@@ -55,6 +57,11 @@ class YaketyYakManager:
             self.mqtt_util = mqtt_controller
             self.dispatcher = dispatcher_instance
             self.app_instance = app_instance
+            
+            # FIXED: Ensure the repository folder exists before trying to load or save.
+            if not YAKETY_YAK_REPO_PATH.parent.exists():
+                YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
+                
             self.repo_memory = self._load_repo_from_file()
 
             # Subscribe to the master topic for all repository commands
@@ -100,14 +107,11 @@ class YaketyYakManager:
         Loads the repository from the JSON file into memory on initialization.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        # UPDATED: Use the imported path constant
-        if not YAKETY_YAK_REPO_PATH.parent.exists():
-            YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # The check for directory existence is now in __init__
         
-        # UPDATED: Use the imported path constant
         if YAKETY_YAK_REPO_PATH.is_file() and YAKETY_YAK_REPO_PATH.stat().st_size > 0:
             try:
-                # UPDATED: Use the imported path constant
+                # Use the imported path constant
                 with open(YAKETY_YAK_REPO_PATH, 'r') as f:
                     return json.load(f)
             except json.JSONDecodeError as e:
@@ -133,8 +137,7 @@ class YaketyYakManager:
             console_print_func=console_log
         )
         try:
-            # Ensure the parent directory exists
-            # UPDATED: Use the imported path constant
+            # Ensure the parent directory exists (already checked in __init__, but good to be safe)
             if not YAKETY_YAK_REPO_PATH.parent.exists():
                 YAKETY_YAK_REPO_PATH.parent.mkdir(parents=True, exist_ok=True)
 
@@ -153,7 +156,7 @@ class YaketyYakManager:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            return False
+        return False
 
     def YAK_LISTEN_TO_MQTT(self, topic, payload):
         """
@@ -195,7 +198,7 @@ class YaketyYakManager:
                 # Sanitize part for use as a dictionary key
                 part = re.sub(r'[^a-zA-Z0-9_]', '', part)
                 current_node = current_node.setdefault(part, {})
-            
+           
             last_key = path_parts[-1]
             
             # Determine the value to be stored in the repository
@@ -204,6 +207,7 @@ class YaketyYakManager:
             else:
                 value = payload
             
+           
             # REFINEMENT: Remove leading and trailing double quotes if they exist
             if isinstance(value, str) and value.startswith('"') and value.endswith('"'):
                 value = value.strip('"')
