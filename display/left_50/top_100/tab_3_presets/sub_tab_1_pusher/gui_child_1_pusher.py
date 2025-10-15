@@ -1,4 +1,4 @@
-# display/left_40/top_100/tab_3_presets/sub_tab_1_pusher/gui_child_1_pusher.py
+# display/left_50/top_100/tab_3_presets/sub_tab_1_pusher/gui_child_1_pusher.py
 #
 # A GUI frame with a button to manually load presets from a CSV file.
 #
@@ -13,9 +13,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250919.230530.1
+# Version 20251014.220800.4
 #
-# MODIFIED: Restored the manual "Select Presets" button and fixed the data sorting logic.
+# MODIFIED: Simplified load logic to read the new, unified, normalized CSV structure 
+#           (Presets as Rows, Attributes as Columns) directly for stability.
 
 import os
 import inspect
@@ -23,23 +24,28 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 import csv
 import pathlib
+import json 
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_preset_pusher import PresetPusherWorker
+import workers.worker_project_paths 
 
 # --- Global Scope Variables ---
-current_version = "20250919.230530.1"
-current_version_hash = (20250919 * 230530 * 1)
+current_version = "20251014.220800.4"
+current_version_hash = (20251014 * 220800 * 4)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
 BUTTON_GRID_COLUMNS = 4
-# We are no longer using a hardcoded path here due to previous issues.
-# The user will select the file manually.
-CSV_FILE_PATH = None
+ALL_ATTRIBUTES = [
+    "Active", "FileName", "NickName", "Start", "Stop", 
+    "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
+    "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", 
+    "Trace3Mode", "Trace4Mode"
+]
 
 class PresetPusherGui(ttk.Frame):
     """
@@ -67,46 +73,58 @@ class PresetPusherGui(ttk.Frame):
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
 
-        console_log("✅ Celebration of success! The PresetPusherGui did initialize.")
+        # Load data immediately
+        self._load_presets_from_repo()
+        
+        console_log("✅ Celebration of success! The PresetPusherGui did initialize and load presets.")
 
-    def _load_presets_from_csv(self):
+    def _load_presets_from_repo(self):
         """
-        Loads presets from a CSV file chosen by the user via a file dialog.
+        Loads presets directly from the normalized CSV structure (Presets as Rows).
         """
         current_function_name = inspect.currentframe().f_code.co_name
+        
+        # 1. Resolve Path (Using getattr for safe access)
+        filepath = getattr(workers.worker_project_paths, 'PRESET_REPO_PATH', None)
+        
+        if not filepath or not pathlib.Path(filepath).is_file():
+            console_log("❌ Preset repository file not found. Starting with no presets.")
+            return
+
         debug_log(
-            message=f"🛠️🟢 Opening file dialog to load preset data from CSV.",
+            message=f"🛠️🟢 Automatically loading normalized preset data from repository: {filepath}",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        filepath = filedialog.askopenfilename(
-            initialdir=os.getcwd(),
-            title="Select Presets CSV File",
-            filetypes=[("CSV files", "*.csv")]
-        )
-        
-        if not filepath:
-            console_log("🟡 Preset file selection canceled.")
-            return
 
         self.presets_data = []
         try:
             with open(filepath, mode='r', newline='', encoding='utf-8') as csv_file:
+                # Assuming the file is now in the normalized format (Preset rows, Attribute columns)
                 csv_reader = csv.DictReader(csv_file)
-                for row in csv_reader:
-                    if row.get('Active', 'false').lower() == 'true':
-                        self.presets_data.append(row)
-            
-            self.presets_data.sort(key=lambda x: (x['NickName'].isdigit(), int(x['NickName']) if x['NickName'].isdigit() else x['NickName']))
 
-            console_log(f"✅ Loaded {len(self.presets_data)} active presets from '{filepath}'.")
+                for row_dict in csv_reader:
+                    
+                    # Ensure row has the minimal required keys (Parameter/Preset_Key and Active)
+                    if 'Parameter' in row_dict:
+                        row_dict['Preset_Key'] = row_dict.pop('Parameter')
+                    
+                    # We treat the row dictionary as the monolithic preset dictionary
+                    if str(row_dict.get('Active', 'false')).lower() == 'true':
+                        self.presets_data.append(row_dict)
+                    
+            
+            # Sort data by NickName numerically if possible, otherwise alphabetically
+            self.presets_data.sort(key=lambda x: (x.get('NickName', '').isdigit(), int(x.get('NickName', '')) if x.get('NickName', '').isdigit() else x.get('NickName', '')))
+
+            console_log(f"✅ Loaded {len(self.presets_data)} active presets from repository.")
             
             self._rebuild_gui()
             
         except Exception as e:
-            console_log(f"❌ Error loading presets from CSV: {e}")
+            console_log(f"❌ Error loading presets from repository: {e}")
             debug_log(
                 message=f"🛠️🔴 Arrr, the code be capsized! Failed to load presets! The error be: {e}",
                 file=current_file,
@@ -117,20 +135,8 @@ class PresetPusherGui(ttk.Frame):
 
     def _create_widgets(self):
         """
-        Creates the main widgets, including the button to select the presets file.
+        Creates the main widgets, now removing the manual Load Button.
         """
-        # Top Frame for the Load Button
-        load_frame = ttk.Frame(self)
-        load_frame.pack(fill=tk.X, padx=10, pady=5, side=tk.TOP)
-        
-        load_button = ttk.Button(
-            load_frame,
-            text="Select Presets",
-            style='Custom.TButton',
-            command=self._load_presets_from_csv
-        )
-        load_button.pack(fill=tk.X, expand=True)
-
         # Frame for the Preset Buttons
         self.presets_frame = ttk.LabelFrame(self, text="Available Presets")
         self.presets_frame.pack(fill=tk.X, padx=10, pady=5, side=tk.TOP)
@@ -158,6 +164,7 @@ class PresetPusherGui(ttk.Frame):
 
         # Create new buttons
         for i, preset in enumerate(self.presets_data):
+            # Pass the monolithic dictionary for processing
             button_text = self._format_button_text(preset)
             button = ttk.Button(
                 self.button_frame,
@@ -200,11 +207,7 @@ class PresetPusherGui(ttk.Frame):
             
     def _get_info_keys(self):
         """Returns the list of keys to display in the info box, sorted by importance."""
-        return [
-            "FileName", "NickName", "Start", "Stop", "Center", "Span", "RBW", "VBW",
-            "RefLevel", "Attenuation", "MaxHold", "HighSens", "PreAmp",
-            "Trace1Mode", "Trace2Mode", "Trace3Mode", "Trace4Mode"
-        ]
+        return ALL_ATTRIBUTES 
 
     def _format_button_text(self, preset):
         """
@@ -240,7 +243,13 @@ class PresetPusherGui(ttk.Frame):
                 break
 
         self._update_info_labels(selected_preset)
-        self.preset_worker.Tune_to_preset(list(selected_preset.values()))
+        
+        # Build the ordered values list as required by the worker's API
+        # The worker expects the preset key + all attributes.
+        ordered_values = [selected_preset.get('Preset_Key', '')] 
+        ordered_values.extend([selected_preset.get(key, '') for key in self._get_info_keys()]) 
+        
+        self.preset_worker.Tune_to_preset(ordered_values)
         
     def _update_info_labels(self, preset):
         """
@@ -287,7 +296,7 @@ class PresetPusherGui(ttk.Frame):
 
         style.map('Custom.TButton',
                   background=[('pressed', colors["button_style_actuator"]["Button_Pressed_Bg"]),
-                                  ('active', colors["button_style_actuator"]["Button_Hover_Bg"])],
+                              ('active', colors["button_style_actuator"]["Button_Hover_Bg"])],
                   foreground=[('pressed', colors["button_style_actuator"]["foreground"])])
 
         style.configure('Custom.Selected.TButton',
@@ -299,5 +308,5 @@ class PresetPusherGui(ttk.Frame):
         
         style.map('Custom.Selected.TButton',
                   background=[('pressed', colors["button_style_toggle"]["Button_Pressed_Bg"]),
-                                  ('active', colors["button_style_toggle"]["Button_Hover_Bg"])],
+                              ('active', colors["button_style_toggle"]["Button_Hover_Bg"])],
                   foreground=[('pressed', colors["button_style_toggle"]["Button_Selected_Fg"])])

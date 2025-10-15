@@ -1,4 +1,4 @@
-# Before_main.py
+# root/before_main.py
 #
 # A standalone script to verify the installation of all critical external
 # dependencies before launching the main application. This script will attempt to
@@ -15,8 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251013.200641.9 (Added psutil and zeroconf for PyVISA-py network support)
-
+# Version 20251014.220800.1
 import sys
 import inspect
 import datetime
@@ -24,10 +23,10 @@ import os
 import subprocess 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-# W: 20251013, X: 200641, Y: 9
-current_version = "20251013.200641.9"
-# The hash calculation drops the leading zero from the hour (20 -> 20)
-current_version_hash = (20251013 * 200641 * 9)
+# W: 20251014, X: 220800, Y: 1
+current_version = "20251014.220800.1"
+# The hash calculation drops the leading zero from the hour (22 -> 22)
+current_version_hash = (20251014 * 220800 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Mock Logging Functions (for standalone operation before app logger is active) ---
@@ -47,7 +46,7 @@ EXTERNAL_PACKAGES = {
     "paho-mqtt": "paho.mqtt.client",
     "pandas": "pandas",
     "numpy": "numpy",
-    "matplotlib": "matplotlib",
+    "matplotlib": "matplotlib", # <--- ADDED MATPLOTLIB
     "pdfplumber": "pdfplumber",
     "beautifulsoup4 (bs4)": "bs4",
     # --- NEW INSTRUMENT PROTOCOL DEPENDENCIES ---
@@ -124,7 +123,7 @@ def action_check_dependancies():
     
     # NEW: Determine if the script is running in 'fresh' mode
     is_fresh_mode = any("fresh" in arg.lower() for arg in sys.argv)
-    
+  
     _mock_console_log(f"🔍 Starting dependency check ({len(EXTERNAL_PACKAGES) + len(BUILTIN_PACKAGES)} modules required). Fresh Mode: {is_fresh_mode}")
     
     missing_packages = []
@@ -149,6 +148,8 @@ def action_check_dependancies():
                 package_name_for_pip = "python-gpib" 
             elif friendly_name == "pyserial":
                  package_name_for_pip = "pyserial"
+            elif friendly_name == "beautifulsoup4 (bs4)":
+                 package_name_for_pip = "beautifulsoup4"
             # --- End Overrides ---
             
             try:
@@ -156,7 +157,7 @@ def action_check_dependancies():
                 is_installed = True
             except ImportError:
                 is_installed = False
-            
+     
             
             if is_installed and is_fresh_mode:
                 # Scenario A: Installed, running in fresh mode -> Force uninstall/reinstall
@@ -185,6 +186,7 @@ def action_check_dependancies():
                 __import__(import_name)
                 _mock_console_log(f"✅ Found '{friendly_name}'.")
             except ImportError:
+            
                 missing_packages.append(friendly_name)
 
         # --- 3. Final Result ---
@@ -197,6 +199,7 @@ def action_check_dependancies():
             _mock_console_log("\nManual installation may be required.")
             _mock_console_log("="*50 + "\n")
             
+ 
             # Allow the main application to handle the error
             return False
 
