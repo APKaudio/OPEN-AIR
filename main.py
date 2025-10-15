@@ -36,7 +36,8 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 
 #managers
-from managers.manager_settings_frequency import FrequencySettingsManager
+from managers.manager_instrument_settings_frequency import FrequencySettingsManager
+from managers.manager_instrument_settings_bandwidth import BandwidthSettingsManager
 from managers.manager_presets_span import SpanSettingsManager
 from managers.manager_visa_device_search import VisaDeviceManager
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
@@ -166,7 +167,11 @@ def action_open_display(mqtt_util_instance):
 
 
         frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
+        bandwidth_manager = BandwidthSettingsManager(mqtt_controller=mqtt_util_instance)
+
         span_manager = SpanSettingsManager(mqtt_controller=mqtt_util_instance)
+
+
         # PASS THE SCPI DISPATCHER TO THE DEVICE MANAGER FOR SYNCHRONIZATION
         manager_visa_connection = VisaDeviceManager(
             mqtt_controller=mqtt_util_instance,

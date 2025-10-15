@@ -14,23 +14,26 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250901.221341.10
+# Version 20251014.224313.1
 # FIXED: Removed the call to the non-existent `get_retained_value` method.
 # FIXED: Implemented an internal dictionary to track the locked state of controls, preventing feedback loops.
 # FIXED: All published float values are now rounded to three decimal places for consistent precision.
 # FIXED: Added validation to ensure start and stop frequencies are not negative.
+# ADDED: Implemented full two-way synchronization with the YAK repository (SCPI device).
 
 import os
 import inspect
 import json 
+import time # Added for delays in triggering YAK commands
 
 # Assume these are imported from a central logging utility and MQTT controller
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
-current_version = "20250901.221341.10"
-current_version_hash = (20250901 * 221341 * 10)
+current_version = "20251014.224313.1"
+# Hash calculated based on YYYYMMDD * HHMMSS * Revision (20251014 * 224313 * 1)
+current_version_hash = (20251014 * 224313 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -38,6 +41,32 @@ class FrequencySettingsManager:
     """
     Manages the logic and synchronization of all frequency-related settings.
     """
+    
+    # --- CONSTANTS FOR YAK/SCPI COMMANDS (Protocol 4.1) ---
+    HZ_TO_MHZ = 1_000_000
+    YAK_BASE = "OPEN-AIR/repository/yak/Frequency"
+    YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_Frequency_settings/scpi_details/generic_model/trigger"
+    
+    YAK_CENTER_INPUT = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_inputs/hz_value/value"
+    YAK_CENTER_TRIGGER = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_details/generic_model/trigger"
+
+    YAK_SPAN_INPUT = f"{YAK_BASE}/set/set_span_freq_MHz/scpi_inputs/hz_value/value"
+    YAK_SPAN_TRIGGER = f"{YAK_BASE}/set/set_span_freq_MHz/scpi_details/generic_model/trigger"
+
+    YAK_START_INPUT = f"{YAK_BASE}/set/set_start_freq_MHz/scpi_inputs/hz_value/value"
+    YAK_START_TRIGGER = f"{YAK_BASE}/set/set_start_freq_MHz/scpi_details/generic_model/trigger"
+
+    YAK_STOP_INPUT = f"{YAK_BASE}/set/set_stop_freq_MHz/scpi_inputs/hz_value/value"
+    YAK_STOP_TRIGGER = f"{YAK_BASE}/set/set_stop_freq_MHz/scpi_details/generic_model/trigger"
+    
+    YAK_NAB_OUTPUTS = {
+        "start_freq/value": "Settings/fields/start_freq_MHz/value",
+        "stop_freq/value": "Settings/fields/stop_freq_MHz/value",
+        "center_freq/value": "Settings/fields/center_freq_MHz/value",
+        "span_freq/value": "Settings/fields/span_freq_MHz/value",
+    }
+    
+    # --- END CONSTANTS ---
 
     def __init__(self, mqtt_controller: MqttControllerUtility):
         # Initializes the manager and subscribes to relevant topics.
@@ -93,11 +122,110 @@ class FrequencySettingsManager:
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+            
+        # ALSO SUBSCRIBE TO YAK REPOSITORY OUTPUTS (for the UPDATE ALL function)
+        for yak_suffix in self.YAK_NAB_OUTPUTS.keys():
+            yak_topic = f"{self.YAK_BASE}/nab/NAB_Frequency_settings/scpi_outputs/{yak_suffix}"
+            self.mqtt_controller.add_subscriber(topic_filter=yak_topic, callback_func=self._on_message)
+            debug_log(
+                message=f"🔍 Subscribed to YAK output '{yak_topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+
+    def _publish_to_yak_and_trigger(self, value_mhz, input_topic, trigger_topic):
+        # Publishes the value (converted to Hz) to the YAK repository and triggers the SCPI command.
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        try:
+            value_hz = int(round(float(value_mhz) * self.HZ_TO_MHZ))
+            
+            # 1. Publish the value (Hz) to the YAK input topic
+            self.mqtt_controller.publish_message(
+                topic=input_topic,
+                subtopic="",
+                value=value_hz,
+                retain=True # Retain the input value
+            )
+
+            # 2. Trigger the SCPI command (True then False)
+            self.mqtt_controller.publish_message(
+                topic=trigger_topic,
+                subtopic="",
+                value=True,
+                retain=False
+            )
+            # Short delay to allow the trigger to be processed by the manager.
+            time.sleep(0.01)
+            self.mqtt_controller.publish_message(
+                topic=trigger_topic,
+                subtopic="",
+                value=False,
+                retain=False
+            )
+            
+            debug_log(
+                message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+            # 3. Call the master update function to re-synchronize all 4 values.
+            self._update_all_from_device()
+
+        except Exception as e:
+            console_log(f"❌ Error dispatching YAK command: {e}")
+            debug_log(
+                message=f"🛠️🔴 YAK dispatch failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _update_all_from_device(self):
+        # Implements the 'UPDATE ALL' logic by querying the device for the four values.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        # 1. Trigger the NAB command (True then False)
+        self.mqtt_controller.publish_message(
+            topic=self.YAK_UPDATE_TOPIC,
+            subtopic="",
+            value=True,
+            retain=False
+        )
+        time.sleep(0.01) # Short delay
+        self.mqtt_controller.publish_message(
+            topic=self.YAK_UPDATE_TOPIC,
+            subtopic="",
+            value=False,
+            retain=False
+        )
+        
+        console_log("✅ UPDATE ALL command sent to refresh frequency values from device.")
+    
 
     def _on_message(self, topic, payload):
         # The main message processing callback.
         current_function_name = inspect.currentframe().f_code.co_name
         
+        # Handle incoming YAK repository updates first (for the UPDATE ALL function)
+        if topic.startswith(f"{self.YAK_BASE}/nab/NAB_Frequency_settings/scpi_outputs"):
+            self._process_yak_output(topic, payload)
+            return
+
         # NEW: Check the internal lock state before processing.
         if self._locked_state.get(topic, False):
             debug_log(
@@ -133,21 +261,29 @@ class FrequencySettingsManager:
                 if self.center_freq is None or abs(self.center_freq - new_val) > 0.001:
                     self.center_freq = new_val
                     self._update_start_stop_from_center_span()
+                    # Trigger YAK command for Center
+                    self._publish_to_yak_and_trigger(new_val, self.YAK_CENTER_INPUT, self.YAK_CENTER_TRIGGER)
             elif "span_freq_MHz/value" in topic:
                 new_val = float(value)
                 if self.span_freq is None or abs(self.span_freq - new_val) > 0.001:
                     self.span_freq = new_val
                     self._update_start_stop_from_center_span()
+                    # Trigger YAK command for Span
+                    self._publish_to_yak_and_trigger(new_val, self.YAK_SPAN_INPUT, self.YAK_SPAN_TRIGGER)
             elif "start_freq_MHz/value" in topic:
                 new_val = float(value)
                 if self.start_freq is None or abs(self.start_freq - new_val) > 0.001:
                     self.start_freq = new_val
                     self._update_center_and_span_from_start_stop()
+                    # Trigger YAK command for Start
+                    self._publish_to_yak_and_trigger(new_val, self.YAK_START_INPUT, self.YAK_START_TRIGGER)
             elif "stop_freq_MHz/value" in topic:
                 new_val = float(value)
                 if self.stop_freq is None or abs(self.stop_freq - new_val) > 0.001:
                     self.stop_freq = new_val
                     self._update_center_and_span_from_start_stop()
+                    # Trigger YAK command for Stop
+                    self._publish_to_yak_and_trigger(new_val, self.YAK_STOP_INPUT, self.YAK_STOP_TRIGGER)
             elif "Presets/fields/SPAN/options" in topic:
                 if topic.endswith("/value"):
                     option_number = int(topic.split('/')[-2])
@@ -174,6 +310,58 @@ class FrequencySettingsManager:
                 console_print_func=console_log
             )
 
+    def _process_yak_output(self, topic, payload):
+        # Processes the output from the NAB_Frequency_settings query.
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        try:
+            # 1. Determine which GUI topic corresponds to this YAK output topic
+            yak_suffix = topic.split('/scpi_outputs/')[1]
+            gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
+            
+            if not gui_suffix:
+                debug_log(
+                    message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                return
+
+            # 2. Extract the value from the payload (which is Hz from YAK)
+            try:
+                value_hz = float(json.loads(payload).get('value', payload))
+            except (json.JSONDecodeError, ValueError, TypeError):
+                value_hz = float(payload)
+                
+            value_mhz = value_hz / self.HZ_TO_MHZ
+            
+            # 3. Set the lock before publishing back to GUI (to prevent feedback loop)
+            full_gui_topic = f"{self.base_topic}/{gui_suffix}"
+            self._locked_state[full_gui_topic] = True
+            
+            # 4. Publish the updated value (in MHz) back to the GUI topic
+            self._publish_update(topic_suffix=gui_suffix, value=value_mhz)
+            
+            debug_log(
+                message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+        except Exception as e:
+            console_log(f"❌ Error processing YAK output for {topic}: {e}")
+            debug_log(
+                message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
     def _update_start_stop_from_center_span(self):
         # Recalculates start and stop frequencies based on center and span.
         current_function_name = inspect.currentframe().f_code.co_name
