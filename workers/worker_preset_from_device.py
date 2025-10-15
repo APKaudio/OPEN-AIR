@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250918.002319.2
+# Version 20251013.221814.3
 
 import os
 import inspect
@@ -31,8 +31,9 @@ from workers.worker_active_logging import debug_log, console_log
 # --- Global Scope Variables (as per your instructions) ---
 current_date = datetime.datetime.now().strftime("%Y%m%d")
 current_time = datetime.datetime.now().strftime("%H%M%S")
-current_version = f"{current_date}.{current_time}.2"
-current_version_hash = (int(current_date) * int(current_time) * 2)
+# UPDATED VERSION: 20251013.221814.3
+current_version = f"{current_date}.{current_time}.3" 
+current_version_hash = (int(current_date) * int(current_time) * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- MQTT Topic Constants (No Magic Numbers) ---
@@ -149,17 +150,19 @@ class PresetFromDeviceWorker:
 
     def publish_presets_to_repository(self, preset_list: list):
         """
-        Takes a list of preset filenames and publishes each attribute to a unique topic.
+        Takes a list of preset filenames and publishes the full preset data 
+        dictionary as a single JSON payload to one topic per preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟢 Publishing {len(preset_list)} presets to repository.",
+            message=f"🛠️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
         
+        num_published = 0
         for i, filename in enumerate(preset_list):
             if i >= 25:
                 break
@@ -186,19 +189,19 @@ class PresetFromDeviceWorker:
                 "Trace2Mode": "",
                 "Trace3Mode": "",
                 "Trace4Mode": "",
-
             }
             
-            # Publish each key-value pair individually
-            for key, value in preset_data.items():
-                self.mqtt_util.publish_message(
-                    topic=f"{PRESET_REPOSITORY_TOPIC}/{preset_key}/{key}",
-                    subtopic="",
-                    value=value,
-                    retain=True
-                )
+            # Publish the entire dictionary as a single JSON blob
+            self.mqtt_util.publish_message(
+                topic=f"{PRESET_REPOSITORY_TOPIC}/{preset_key}",
+                subtopic="",
+                value=json.dumps(preset_data), # Publish the whole dict as a string
+                retain=True
+            )
             
-        console_log(f"✅ Successfully published {i + 1} presets to the repository.")
+            num_published = i + 1
+
+        console_log(f"✅ Successfully published {num_published} presets as monolithic nodes to the repository.")
 
 
     def present_presets_from_device(self, preset_filename: str):

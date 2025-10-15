@@ -13,8 +13,9 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20250903.231153.4
+# Version 20251013.221941.5
 # UPDATED: The main function now exclusively publishes files that start with the prefix 'repository_'.
+# FIXED: The recursive publishing logic is updated to handle list of dictionary objects by publishing the inner content as a single JSON blob to prevent excessive nesting.
 
 import os
 import json
@@ -29,9 +30,9 @@ from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250903
-CURRENT_TIME = 231153
-REVISION_NUMBER = 4
+CURRENT_DATE = 20251013
+CURRENT_TIME = 221941
+REVISION_NUMBER = 5
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
 current_file_path = pathlib.Path(__file__).resolve()
@@ -49,6 +50,23 @@ def publish_recursive(mqtt_util, base_topic, data):
         for key, value in data.items():
             clean_key = key.replace(' ', '_').replace('/', '_')
             new_topic = f"{base_topic}/{clean_key}"
+
+            # --- NEW: Check for JSON string value (for monolithic publishing) ---
+            if isinstance(value, str):
+                try:
+                    # Attempt to load the value as a dictionary (e.g., preset blob)
+                    json_value = json.loads(value)
+                    if isinstance(json_value, dict):
+                        # If it is a dictionary (like the monolithic preset data), 
+                        # publish the entire content as a flat JSON string and STOP recursion.
+                        mqtt_util.publish_message(topic=new_topic, subtopic="", value=value, retain=True)
+                        console_log(f"Published monolithic topic: '{new_topic}'")
+                        continue
+                except (json.JSONDecodeError, TypeError):
+                    # Not a JSON string or not a dict, proceed with normal recursion
+                    pass
+            # --- END NEW CHECK ---
+
 
             # If the value is a dictionary and contains metadata, publish the metadata
             if isinstance(value, dict) and any(k in value for k in ["type", "AES70", "description"]):
@@ -76,14 +94,17 @@ def publish_recursive(mqtt_util, base_topic, data):
     elif isinstance(data, list):
         for item in data:
             if isinstance(item, dict):
-                # --- START OF FIX: Only get the first key and its value for the topic.
+                # We expect the structure to be [{"KEY": {DATA}}]
                 item_key = next(iter(item.keys()))
                 item_value = item[item_key]
 
                 new_topic = f"{base_topic}/{item_key}"
-                publish_recursive(mqtt_util, new_topic, item_value)
-                # --- END OF FIX ---
+                
+                # Publish the inner content as a JSON string to keep it monolithic and stop recursion here
+                mqtt_util.publish_message(topic=new_topic, subtopic="", value=json.dumps(item_value), retain=True)
+                console_log(f"Published monolithic topic: '{new_topic}'")
             else:
+                # If the list contains simple values, continue recursion
                 new_topic = f"{base_topic}"
                 publish_recursive(mqtt_util, new_topic, item)
                 

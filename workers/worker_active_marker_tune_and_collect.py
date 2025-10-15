@@ -41,7 +41,7 @@ BUFFER_START_STOP_MHZ = 0.1
 
 # --- MQTT Topic Constants (UPDATED FOR /IDENTITY NESTING) ---
 # Control Topics
-TOPIC_START_STOP = "OPEN-AIR/configuration/start-stop-pause/Buttons/options/START/selected"
+TOPIC_START_STOP = "OPEN-AIR/configuration/Start-Stop-Pause/Buttons/options/START/selected"
 
 # Marker Repository Topics
 TOPIC_MARKERS_ROOT = "OPEN-AIR/repository/markers"

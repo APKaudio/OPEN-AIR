@@ -1,4 +1,4 @@
-# gui_preset_editor.py
+# display/left_50/top_100/tab_3_presets/sub_tab_2_editor/gui_preset_editor.py
 #
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
@@ -14,9 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250919.215237.12
-# FIXED: The file now explicitly logs the full path where it attempts to save the CSV.
-# FIXED: Improved the error handling for the save function to catch and report file-writing errors.
+# Version 20251014.214047.24
 
 import os
 import inspect
@@ -26,18 +24,21 @@ from tkinter import ttk
 import pathlib
 from tkinter import filedialog
 import csv
+import json 
+from decimal import Decimal 
+from tkinter import TclError 
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_file_csv_export import CsvExportUtility
-from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
+import workers.worker_project_paths 
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250919
-CURRENT_TIME = 215237
-REVISION_NUMBER = 12
+CURRENT_DATE = 20251014
+CURRENT_TIME = 214047
+REVISION_NUMBER = 24
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
 current_file_path = pathlib.Path(__file__).resolve()
@@ -46,24 +47,32 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 
 # --- No Magic Numbers (as per your instructions) ---
 MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
-CSV_FILE_PATH = pathlib.Path("../../../DATA/presets.csv")
+# Fallback path definition (actual path will be dynamically imported)
+PRESET_REPO_PATH_FALLBACK = pathlib.Path("DATA/PRESET.CSV")
+
+# FIXED LIST OF ATTRIBUTES (New static columns)
+ATTRIBUTES = [
+    "Active", "FileName", "NickName", "Start", "Stop", 
+    "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
+    "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", 
+    "Trace3Mode", "Trace4Mode"
+]
+# The first column is always 'Parameter' (The Preset Key, e.g., PRESET_001)
+HEADERS = ["Parameter"] + ATTRIBUTES 
+# Fixed column width for all columns
+COLUMN_WIDTH = 150
+
 
 class InstrumentTranslatorGUI(ttk.Frame):
     """
     A GUI component for displaying MQTT data in a table and exporting it.
+    The table is normalized: rows are presets, columns are attributes.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
-        """
-        Initializes the GUI, sets up the layout, and subscribes to the MQTT topic.
-        
-        Args:
-            parent (tk.Widget): The parent widget for this frame.
-            mqtt_util (MqttControllerUtility): The MQTT utility instance for communication.
-        """
         current_function_name = inspect.currentframe().f_code.co_name
 
         debug_log(
-            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
+            message=f"🖥️🟢 Initializing the {self.__class__.__name__}. Normalized view active.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -79,24 +88,22 @@ class InstrumentTranslatorGUI(ttk.Frame):
             self.current_version_hash = current_version_hash
             self.mqtt_util = mqtt_util
             self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
-            self.data_flattener = MqttDataFlattenerUtility(print_to_gui_func=console_log)
+            # Normalized data model: {preset_key: {attribute: value, ...}, ...}
+            self.normalized_data = {} 
             self.current_class_name = self.__class__.__name__
 
             self._apply_styles(theme_name=DEFAULT_THEME)
 
-            # --- MQTT Topic Entry Section ---
-            topic_frame = ttk.LabelFrame(self, text="MQTT Topic Filter")
-            topic_frame.pack(fill=tk.X, padx=10, pady=5)
-            self.topic_entry = ttk.Entry(topic_frame, width=80)
-            self.topic_entry.insert(0, MQTT_TOPIC_FILTER)
-            self.topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-            
             # --- MQTT Message Log Table ---
             self.table_frame = ttk.Frame(self)
             self.table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
             horizontal_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.HORIZONTAL)
-            self.commands_table = ttk.Treeview(self.table_frame, xscrollcommand=horizontal_scrollbar.set, show="headings", style="Custom.Treeview")
+            self.commands_table = ttk.Treeview(self.table_frame, 
+                                               xscrollcommand=horizontal_scrollbar.set, 
+                                               show="headings", 
+                                               columns=HEADERS, 
+                                               style="Custom.Treeview")
             horizontal_scrollbar.config(command=self.commands_table.xview)
             
             vertical_scrollbar = ttk.Scrollbar(self.table_frame, orient=tk.VERTICAL, command=self.commands_table.yview)
@@ -106,25 +113,42 @@ class InstrumentTranslatorGUI(ttk.Frame):
             vertical_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             self.commands_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-            # --- NEW: Create headers on initialization so the table is always populated ---
+            # --- Create headers based on HEADERS (Columns) ---
             self._create_headers()
             
-            self.mqtt_util.add_subscriber(topic_filter=f"{self.topic_entry.get()}/#", callback_func=self._on_commands_message)
+            self.mqtt_util.add_subscriber(topic_filter=f"{MQTT_TOPIC_FILTER}/#", callback_func=self._on_commands_message) 
 
             # --- NEW: Bind double-click event for cell editing ---
             self.commands_table.bind("<Double-1>", self._on_edit_cell)
+
+            # --- Persistence Bindings (Load on Init, Save on Exit) ---
+            parent_widget = parent
+            while not isinstance(parent_widget, tk.Tk):
+                if isinstance(parent_widget, ttk.Notebook):
+                    parent_widget.bind("<<NotebookTabChanged>>", self._on_tab_change_save_data, add="+")
+                    break
+                parent_widget = parent_widget.master
 
             # --- File Controls Section ---
             file_frame = ttk.LabelFrame(self, text="File")
             file_frame.pack(fill=tk.X, padx=10, pady=5)
            
-            # Button: Export to CSV
+            # Button: Export to CSV (Normalized, Flat Structure)
             self.export_button = ttk.Button(
                 file_frame,
-                text="Export to CSV",
+                text="Export to CSV (Normalized)",
                 command=self._export_table_data
             )
             self.export_button.pack(side=tk.LEFT, padx=5, pady=5)
+            
+            # Button: Save to Internal Repository (Original Transposed Structure)
+            # UPDATED TEXT to reflect the new normalized save format.
+            self.save_repo_button = ttk.Button(
+                file_frame,
+                text="Save to Internal Repo (Normalized)",
+                command=lambda: self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
+            )
+            self.save_repo_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 
             # --- Status Bar at the bottom ---
@@ -141,8 +165,9 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
             console_log("✅ Instrument Translator GUI initialized successfully!")
             
-            # --- NEW: Load initial data from CSV if the file exists ---
+            # --- Load initial data from CSV and render ---
             self._load_data_from_csv()
+            self._update_treeview()
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -156,47 +181,30 @@ class InstrumentTranslatorGUI(ttk.Frame):
     
     def _create_headers(self):
         """
-        Creates all the columns in the Treeview when the GUI is initialized.
+        Creates all the columns in the Treeview and configures them with a fixed width.
         """
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Creating table headers on initialization.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        self.commands_table["columns"] = HEADERS
         
-        # Manually define all the columns based on the expected flattened data structure
-        # This list is now the definitive source of truth for the columns.
-        headers = [
-            "Parameter", "Active", "FileName", "NickName", "Start", "Stop", 
-            "Center", "Span", "RBW", "VBW", "RefLevel", "Attenuation", 
-            "MaxHold", "HighSens", "PreAmp", "Trace1Mode", "Trace2Mode", 
-            "Trace3Mode", "Trace4Mode"
-        ]
-        
-        self.commands_table["columns"] = tuple(headers)
-        for col in headers:
-            # Set a default width based on header length for better initial display
-            width = 40  # Set a fixed width as requested
-            self.commands_table.heading(col, text=col.replace("_", " ").title())
-            self.commands_table.column(col, width=width, stretch=True)
+        for col_name in HEADERS:
+            display_name = col_name.replace('_', ' ').title()
+            
+            self.commands_table.heading(col_name, text=display_name, command=lambda c=col_name: self._sort_treeview(c, False))
+            
+            # All columns are fixed width 150px
+            if col_name == "Parameter":
+                self.commands_table.column(col_name, width=150, stretch=False, anchor='w')
+            else:
+                self.commands_table.column(col_name, width=COLUMN_WIDTH, stretch=False, anchor='center')
             
     def _load_data_from_csv(self):
         """
-        Reads a CSV file and populates the Treeview with the data.
+        Reads the original presets.csv, extracts preset data, and populates the 
+        normalized_data dictionary.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Attempting to load initial data from presets.csv.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
-        csv_file_path = pathlib.Path(__file__).parent.parent.parent / CSV_FILE_PATH
+        # 1. Resolve the correct path 
+        csv_file_path = self._resolve_preset_repo_path()
         
         if not csv_file_path.exists():
             console_log("🟡 presets.csv not found. Starting with an empty table.")
@@ -205,28 +213,347 @@ class InstrumentTranslatorGUI(ttk.Frame):
         try:
             with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
-                headers = csv_reader.fieldnames
                 
-                # Clear existing table data
-                for item in self.commands_table.get_children():
-                    self.commands_table.delete(item)
+                preset_keys = []
+                transposed_data_from_csv = {} 
                 
-                # Load new data
                 for row in csv_reader:
-                    # Create a full list of values based on the current column order
-                    full_values = [row.get(col, '') for col in self.commands_table["columns"]]
-                    self.commands_table.insert('', tk.END, values=full_values)
-                
-                console_log(f"✅ Data successfully loaded from {csv_file_path}.")
+                    attribute = row.get("Parameter")
+                    if attribute in ATTRIBUTES:
+                        transposed_data_from_csv[attribute] = row
+                        
+                        for key in row.keys():
+                            if key.startswith("PRESET_0") and key not in preset_keys:
+                                preset_keys.append(key)
+
+                # Now build the final normalized_data model (1 entry per preset)
+                for preset_key in sorted(preset_keys):
+                    self.normalized_data[preset_key] = {"Parameter": preset_key}
+                    
+                    if 'Active' in transposed_data_from_csv and preset_key in transposed_data_from_csv['Active']:
+                        json_blob_str = transposed_data_from_csv['Active'][preset_key]
+                        
+                        # Remove surrounding quotes if present
+                        if json_blob_str.startswith('"') and json_blob_str.endswith('"'):
+                            json_blob_str = json_blob_str.strip('"')
+
+                        # NOTE: We skip json.loads here, assuming the original file had an error
+                        # and instead just populate the model with the attributes as they appear in the JSON
+                        # This ensures the model holds the source of truth, regardless of the Active field's true value.
+
+                        # FIX: We re-implement the actual loading logic here from the JSON blob
+                        try:
+                            preset_data = json.loads(json_blob_str)
+                            for attribute in ATTRIBUTES:
+                                self.normalized_data[preset_key][attribute] = preset_data.get(attribute, 'N/A')
+                        except json.JSONDecodeError:
+                            # Fallback if the JSON blob itself is corrupt
+                            console_log(f"🟡 Warning: Corrupt JSON blob for {preset_key}. Using default/N/A values.")
+                            for attribute in ATTRIBUTES:
+                                self.normalized_data[preset_key][attribute] = 'N/A'
+                        
+            console_log(f"✅ Data successfully loaded from {csv_file_path} and normalized in memory.")
         except Exception as e:
             console_log(f"❌ Error loading data from presets.csv: {e}")
             debug_log(
-                message=f"❌🔴 Arrr, a plague upon this error! Failed to load CSV data. The error be: {e}",
+                message=f"❌🔴 Failed to load and normalize CSV data. The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+            
+    def _update_treeview(self):
+        """
+        Re-populates the Treeview from the internal normalized_data model.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+
+        # Clear existing rows
+        self.commands_table.delete(*self.commands_table.get_children())
+        
+        # Insert new rows
+        for preset_key in sorted(self.normalized_data.keys()):
+            row_data = self.normalized_data[preset_key]
+            
+            # Create a list of values matching the column order (HEADERS)
+            row_values = [row_data.get(header, 'N/A') for header in HEADERS]
+            
+            # Use the preset_key as the item ID (iid) for easy lookups
+            self.commands_table.insert("", tk.END, iid=preset_key, values=row_values)
+
+        debug_log(
+            message=f"🖥️✅ Treeview updated with {len(self.normalized_data)} preset rows.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+
+    def _on_commands_message(self, topic, payload):
+        """
+        Callback for when an MQTT message is received.
+        Updates the internal normalized_data model and triggers a UI refresh and save.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        try:
+            topic_parts = topic.split('/')
+            
+            # --- Case 1: Monolithic Preset Update (from another component/device) ---
+            if len(topic_parts) == len(MQTT_TOPIC_FILTER.split('/')) + 1 and topic_parts[-2] == "presets":
+                preset_key = topic_parts[-1]
+                
+                # 1. Check for a delete message (empty payload or null value)
+                if payload == "" or payload.lower() == 'null':
+                    self._delete_preset(preset_key)
+                    # Trigger immediate save after deletion
+                    self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
+                    return
+
+                # 2. Parse the monolithic JSON blob
+                preset_data_str = json.loads(payload)["value"]
+                if preset_data_str.startswith('"') and preset_data_str.endswith('"'):
+                    preset_data_str = preset_data_str.strip('"')
+
+                preset_data = json.loads(preset_data_str)
+                
+                # 3. Update normalized_data model
+                self.normalized_data[preset_key] = {"Parameter": preset_key}
+                for attribute in ATTRIBUTES:
+                    self.normalized_data[preset_key][attribute] = preset_data.get(attribute, 'N/A')
+                    
+                console_log(f"✅ Updated preset '{preset_key}' from monolithic MQTT topic.")
+                
+                # Trigger immediate save after successful update
+                self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
+                
+            # --- Case 2: Single Field Update (robustness for external single-field updates) ---
+            elif len(topic_parts) == len(MQTT_TOPIC_FILTER.split('/')) + 2 and topic_parts[-3] == "presets":
+                preset_key = topic_parts[-2]
+                attribute = topic_parts[-1] 
+                payload_value = json.loads(payload)["value"]
+                
+                # 1. Update normalized_data model
+                if preset_key in self.normalized_data and attribute in self.normalized_data[preset_key]:
+                    self.normalized_data[preset_key][attribute] = payload_value
+                    console_log(f"✅ Updated attribute '{attribute}' for preset '{preset_key}'.")
+                    
+                # Trigger immediate save after single field update
+                self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
+                
+            # --- Final steps ---
+            self._update_treeview()
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌🔴 Update failed! The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _delete_preset(self, preset_key):
+        """Removes a preset from the internal model and triggers a UI refresh."""
+        if preset_key in self.normalized_data:
+            del self.normalized_data[preset_key]
+        self._update_treeview()
+
+    def _on_edit_cell(self, event):
+        """
+        Event handler for a double-click on a table cell. Triggers **republish of the whole blob**
+        after updating a single cell in the internal model.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        item_id = self.commands_table.identify_row(event.y)
+        column_id = self.commands_table.identify_column(event.x)
+        
+        # Do not edit column #0 or the first column ('Parameter')
+        if not item_id or not column_id or column_id == '#0' or column_id == '#1': 
+            return 
+
+        try:
+            # 1. Identify the Preset (Row ID) and Attribute (Column Header)
+            preset_key = item_id 
+            col_identifier = self.commands_table.heading(column_id, 'id')
+            attribute = col_identifier 
+            current_value = self.commands_table.set(item_id, attribute)
+            
+            # 2. Create the editor widget (standard process)
+            bbox = self.commands_table.bbox(item_id, column_id)
+            if not bbox: return
+            x, y, width, height = bbox
+            edit_entry = ttk.Entry(self.commands_table, style="Markers.TEntry", name="cell_editor")
+            edit_entry.place(x=x, y=y, width=width, height=height)
+            edit_entry.insert(0, current_value)
+            edit_entry.focus_set()
+            edit_entry.select_range(0, tk.END)
+
+            def on_update_cell(event):
+                new_value = edit_entry.get()
+                
+                try:
+                    # Update the internal model immediately
+                    if preset_key in self.normalized_data:
+                        self.normalized_data[preset_key][attribute] = new_value
+                    
+                    # 1. Rebuild the monolithic JSON blob from the updated internal model
+                    updated_preset_data = {}
+                    for attr in ATTRIBUTES:
+                        updated_preset_data[attr] = self.normalized_data[preset_key].get(attr, 'N/A')
+                        
+                    monolithic_blob = json.dumps(updated_preset_data)
+                    
+                    # 2. Publish the monolithic blob to the single preset topic (triggers Case 1 logic)
+                    topic = f"{MQTT_TOPIC_FILTER}/{preset_key}"
+                    self.mqtt_util.publish_message(topic=topic, subtopic="", value=monolithic_blob, retain=True)
+
+                    console_log(f"✅ Full blob for '{preset_key}' republished after '{attribute}' edit.")
+                except Exception as e:
+                    console_log(f"❌ Error sending cell update to MQTT. Error: {e}")
+
+                edit_entry.destroy()
+            
+            edit_entry.bind("<Return>", on_update_cell)
+            edit_entry.bind("<FocusOut>", on_update_cell)
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+
+    def _export_table_data(self):
+        """
+        Opens a file dialog and exports the current data from the internal model to a new CSV file 
+        in the clean, normalized format (rows are presets, columns are attributes), matching the table exactly.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        try:
+            file_path = filedialog.asksaveasfilename(
+                initialdir=os.getcwd(),
+                title="Save Table Data as CSV (Normalized)",
+                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+                defaultextension=".csv"
+            )
+            
+            if file_path:
+                # Use the core saving logic, passing the path for user export
+                self._save_data_to_csv_from_normalized_model(file_path=file_path)
+                console_log(f"✅ Data successfully exported to {file_path}!")
+            else:
+                console_log("🟡 CSV export canceled by user.")
+
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            
+    # --- CORE FIX IMPLEMENTATION: Unifying the save logic ---
+    def _save_data_to_csv_from_normalized_model(self, file_path: pathlib.Path):
+        """
+        Saves the normalized table data (Preset rows, Attribute columns) directly to a CSV,
+        matching the table view exactly.
+        
+        This function is now the *only* core saving mechanism, used for both 
+        user exports and internal repository persistence, ensuring identical formats.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        debug_log(
+            message=f"💾🟢 Saving normalized data (table format) to: '{file_path}'",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        
+        try:
+            # 1. Prepare the data for the normalized CSV structure (table view)
+            final_csv_rows = []
+            for preset_key in sorted(self.normalized_data.keys()):
+                 final_csv_rows.append(self.normalized_data[preset_key])
+                
+            # 2. Write to the CSV file
+            csv_headers = HEADERS # ["Parameter", "Active", "FileName", ...]
+            
+            with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=csv_headers) 
+                
+                writer.writeheader()
+                writer.writerows(final_csv_rows)
+
+            if file_path == self._resolve_preset_repo_path():
+                 console_log(f"✅ Internal preset repository synchronized (Normalized format).")
+            else:
+                console_log(f"✅ Table data exported to '{file_path}'.")
+
+        except Exception as e:
+            console_log(f"❌ Error saving normalized CSV: {e}")
+            debug_log(
+                message=f"❌🔴 Failed to save normalized CSV. The error be: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+    def _on_tab_change_save_data(self, event):
+        """Saves data to the internal repository path when the tab is exited."""
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        tab_widget = event.widget
+        selected_tab = tab_widget.select()
+        
+        current_tabs = [tab_widget.tab(i, "text") for i in tab_widget.tabs()]
+        if not current_tabs:
+            return
+
+        try:
+            current_tab_index = tab_widget.index(selected_tab)
+        except TclError:
+            return
+
+        if current_tabs[current_tab_index] != "Preset Editor": 
+            # Now calls the core, unified save function, ensuring the repo file is normalized.
+            self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
+            debug_log(
+                message="💾🔵 Saving presets on tab exit.",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            
+    def _resolve_preset_repo_path(self):
+        """Attempts to import the constant PRESET_REPO_PATH, falling back if necessary."""
+        try:
+            # Use the imported module
+            import workers.worker_project_paths
+            if hasattr(workers.worker_project_paths, 'PRESET_REPO_PATH'):
+                return workers.worker_project_paths.PRESET_REPO_PATH
+        except Exception:
+            return PRESET_REPO_PATH_FALLBACK
+
+
+    def _sort_treeview(self, column_name, ascending):
+        """
+        Sorts the treeview rows based on the values in the selected column.
+        """
+        preset_names = list(self.commands_table["columns"])
+        try:
+            col_index = preset_names.index(column_name)
+        except ValueError:
+            return 
+
+        l = [(self.commands_table.set(k, column_name), k) for k in self.commands_table.get_children('')]
+        
+        l.sort(key=lambda x: str(x[0]), reverse=not ascending)
+        
+        for index, (val, k) in enumerate(l):
+            self.commands_table.move(k, '', index)
+
+        self.sort_column = column_name
+        self.sort_direction = ascending
 
     def _apply_styles(self, theme_name: str):
         """
@@ -248,289 +575,3 @@ class InstrumentTranslatorGUI(ttk.Frame):
                         fieldbackground=colors["table_bg"],
                         bordercolor=colors["table_border"],
                         borderwidth=colors["border_width"])
-
-    def _on_commands_message(self, topic, payload):
-        """
-        Callback for when an MQTT message is received on the commands topic. 
-        It processes the message, flattens the data, and updates or adds rows to the table.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
-            file=self.current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        try:
-            # Check for a "delete" payload (e.g., an empty string from an un-retained message)
-            if payload == "":
-                # Extract the parameter path from the topic
-                topic_parts = topic.split('/')
-                # The parameter path is everything after the topic prefix
-                parameter_path = '/'.join(topic_parts[len(self.topic_entry.get().split('/')):])
-
-                # Find the item with the matching Parameter path and remove it
-                item_to_delete = None
-                for item_id in self.commands_table.get_children():
-                    item_data = self.commands_table.item(item_id, 'values')
-                    if item_data and item_data[0] == parameter_path:
-                        item_to_delete = item_id
-                        break
-                
-                if item_to_delete:
-                    self.commands_table.delete(item_to_delete)
-                    console_log(f"✅ Removed row for deleted topic: '{parameter_path}'.")
-                return
-
-            pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
-                topic=topic,
-                payload=payload,
-                topic_prefix=self.topic_entry.get()
-            )
-
-            if pivoted_rows:
-                # Add any new columns that might have appeared dynamically
-                current_columns = list(self.commands_table["columns"])
-                for new_header in pivoted_rows[0].keys():
-                    if new_header not in current_columns:
-                        self.commands_table["columns"] = current_columns + [new_header]
-                        self.commands_table.heading(new_header, text=new_header.replace("_", " ").title())
-                        # Set a default width for new columns
-                        width = 40
-                        self.commands_table.column(new_header, width=width, stretch=True)
-                        current_columns.append(new_header)
-                            
-                # Iterate through each row of the new data to update or add
-                for row in pivoted_rows:
-                    parameter_path = row.get("Parameter")
-                    
-                    # Find if a row with this Parameter already exists
-                    item_id_to_update = None
-                    for item_id in self.commands_table.get_children():
-                        row_values = self.commands_table.item(item_id, 'values')
-                        if row_values and row_values[0] == parameter_path:
-                            item_id_to_update = item_id
-                            break
-                    
-                    # Create a full list of values based on the current column order
-                    full_values = [row.get(col, '') for col in self.commands_table["columns"]]
-
-                    if item_id_to_update:
-                        # Update the existing row
-                        self.commands_table.item(item_id_to_update, values=full_values)
-                        console_log(f"✅ Updated existing row for '{parameter_path}'.")
-                    else:
-                        # Insert a new row if it doesn't exist
-                        self.commands_table.insert('', tk.END, values=full_values)
-                        console_log(f"✅ Added new row for '{parameter_path}'.")
-                        
-                # NEW FIX: Call the save function after the table has been updated
-                self._save_current_table_to_csv()
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _on_edit_cell(self, event):
-        """
-        Event handler for a double-click on a table cell. It creates a temporary
-        Entry widget for in-place editing.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        # Get the item and column that were double-clicked
-        item_id = self.commands_table.identify_row(event.y)
-        column_id = self.commands_table.identify_column(event.x)
-        
-        if not item_id or not column_id:
-            return  # Not on a cell
-
-        # Get column index from column ID string
-        try:
-            column_index = int(column_id.replace("#", "")) - 1
-            # Get the column header from the column index
-            # Use the explicit column names from the Treeview
-            column_header_raw = self.commands_table.heading(column_id, 'text')
-            column_header = column_header_raw.replace(' ', '_').lower()
-
-            debug_log(
-                message=f"🔍🔵 Starting cell edit. Item_ID: {item_id}, Column_ID: {column_id}, Column_Header: '{column_header}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-        except Exception as e:
-            debug_log(
-                message=f"❌🔴 Failed to get column info for editing. Headers may be missing or corrupt! Error: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-            console_log("❌ Cannot edit cell. Table headers are missing or corrupted. Please restart the application.")
-            return
-        
-        # Get the current value of the cell
-        current_value = self.commands_table.item(item_id, 'values')[column_index]
-        
-        # Get the bounding box of the cell to place the entry widget
-        bbox = self.commands_table.bbox(item_id, column_id)
-        if not bbox:
-            return
-            
-        x, y, width, height = bbox
-
-        # Create a temporary Entry widget for editing
-        edit_entry = ttk.Entry(self.commands_table)
-        edit_entry.place(x=x, y=y, width=width, height=height)
-        edit_entry.insert(0, current_value)
-        edit_entry.focus_set()
-        edit_entry.select_range(0, tk.END)
-
-        def on_update_cell(event):
-            """
-            Inner function to capture the new value and push it to MQTT.
-            """
-            new_value = edit_entry.get()
-            
-            try:
-                # Get the parameter path from the first column
-                parameter_path = self.commands_table.item(item_id, 'values')[0]
-                
-                # Construct the full MQTT topic
-                # The format is ROOT_TOPIC/Parameter/column_header
-                topic = f"{self.topic_entry.get()}/{parameter_path}/{column_header}"
-                
-                debug_log(
-                    message=f"🖥️🔵 Cell edited. Publishing new value '{new_value}' to topic '{topic}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-                
-                # Publish the new value to MQTT
-                self.mqtt_util.publish_message(topic=topic, subtopic="", value=new_value, retain=True)
-
-                # Update the Treeview cell directly with the new value
-                all_values = list(self.commands_table.item(item_id, 'values'))
-                all_values[column_index] = new_value
-                self.commands_table.item(item_id, values=all_values)
-
-                # A celebratory message to signal success
-                console_log(f"✅ Cell updated and new value pushed to MQTT: '{new_value}'.")
-            except Exception as e:
-                console_log(f"❌ Error updating cell value. Error: {e}")
-                debug_log(
-                    message=f"❌🔴 Failed to update cell or publish to MQTT! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-
-            # Clean up the entry widget
-            edit_entry.destroy()
-            
-        # Bind events to the entry widget for finishing editing
-        edit_entry.bind("<Return>", on_update_cell)
-        edit_entry.bind("<FocusOut>", on_update_cell)
-
-        # A quick debug log to show we've entered edit mode
-        debug_log(
-            message=f"🛠️🟢 Initiating cell edit mode for Item '{item_id}' at Column '{column_id}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-    def _export_table_data(self):
-        """
-        Opens a file dialog and exports the current data from the table to a CSV file.
-        This is for a manual export via a button click.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🔵 Preparing to export table data to CSV.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-        try:
-            file_path = filedialog.asksaveasfilename(
-                initialdir=os.getcwd(),
-                title="Save Table Data as CSV",
-                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-                defaultextension=".csv"
-            )
-            
-            if file_path:
-                self._save_current_table_to_csv(file_path=file_path)
-                console_log(f"✅ Data successfully exported to {file_path}!")
-            else:
-                console_log("🟡 CSV export canceled by user.")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-            
-    def _save_current_table_to_csv(self, file_path=None):
-        """
-        NEW: Private method to extract data from the Treeview and save it to a CSV.
-        If no file path is specified, it saves to the default presets.csv location.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        
-        if file_path is None:
-            # FIX: Use a pathlib object for robust path handling
-            file_path = pathlib.Path(__file__).parent.parent.parent / CSV_FILE_PATH
-        
-        debug_log(
-            message=f"💾🟢 Saving current table data to the resolved path: '{file_path.resolve()}'",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        try:
-            data = []
-            headers = self.commands_table["columns"]
-            
-            for item_id in self.commands_table.get_children():
-                row_values = self.commands_table.item(item_id, 'values')
-                row_dict = dict(zip(headers, row_values))
-                data.append(row_dict)
-                
-            self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
-            console_log(f"✅ Table data synchronized with '{file_path}'.")
-
-        except Exception as e:
-            console_log(f"❌ Error saving table data to CSV: {e}")
-            debug_log(
-                message=f"❌🔴 The data save to CSV has failed! A plague upon this error: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )

@@ -46,7 +46,7 @@ except Exception as e:
 MARKERS_JSON_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "MARKERS.json"
 MARKERS_CSV_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "MARKERS.csv"
 YAKETY_YAK_REPO_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "YAKETYYAK.json"
-
+PRESET_REPO_PATH = GLOBAL_PROJECT_ROOT / "DATA" / "PRESET.csv"
 
 def get_absolute_path(relative_path: str):
     """
