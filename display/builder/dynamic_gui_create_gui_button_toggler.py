@@ -13,21 +13,23 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250906.000100.6
-# FIXED: The button styles have been corrected to match the user's request,
-# using the 'Selected' style for the selected state, and relying on the central style map.
+# Version 20251019.212800.7 
+# FIXED: Implemented a mandatory delay between publishing the 'false' and 'true' messages
+#        to resolve the MQTT message ordering race condition and ensure the Manager processes
+#        the preset change correctly.
 
 import os
 import tkinter as tk
 from tkinter import ttk
 import inspect
+import time # CRITICAL: Import time for necessary delay
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250906.000100.6"
-current_version_hash = 20250906 * 100 * 6
+current_version = "20251019.212800.7"
+current_version_hash = (20251019 * 212800 * 7)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
@@ -92,17 +94,26 @@ class GuiButtonTogglerCreatorMixin:
             def create_command(key):
                 def command():
                     current_selection = selected_var.get()
+                    
+                    # 1. Force Deselect (if any selected)
                     if current_selection:
-                        # Deselect the previous button
+                        # CRITICAL: Publish the DESELECT to the old key
                         deselect_path = f"{path}/options/{current_selection}/selected"
                         self._transmit_command(relative_topic=deselect_path, payload='false')
+                        
+                        # CRITICAL: Add a minimal, synchronous delay to prevent race condition.
+                        # This pause allows the application's MQTT client to send the first message 
+                        # before the second one is sent on the same thread.
+                        time.sleep(0.01)
 
-                    # Select the new button
+                    # 2. Force Select the new button
                     selected_path = f"{path}/options/{key}/selected"
                     self._transmit_command(relative_topic=selected_path, payload='true')
 
+                    # 3. Update the local UI state after messages are published
                     selected_var.set(key)
                     update_button_styles()
+                    
                 return command
 
             max_cols = 5
