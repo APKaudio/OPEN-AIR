@@ -9,7 +9,8 @@ from workers.worker_active_logging import debug_log, console_log
 import json
 
 # --- Global Scope Variables ---
-current_version = "20250914.225930.4"
+current_version = "20251019.222302.1"
+current_version_hash = (20251019 * 222302 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 class YakRxManager:
@@ -18,6 +19,7 @@ class YakRxManager:
     """
     def __init__(self, mqtt_controller):
         self.mqtt_util = mqtt_controller
+        self.NAB_BANDWIDTH_TRIGGER_PATH = ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
 
     def process_response(self, path_parts, command_details, response):
         """
@@ -49,19 +51,75 @@ class YakRxManager:
         
         try:
             # Split the response into individual parts
-            response_parts = response.split(';')
+            response_parts = [p.strip() for p in response.split(';')]
             output_keys = list(outputs.keys())
+            
+            # --- START FIX: Order Correction for NAB_bandwidth_settings ---
+            
+            # Check if this is the specific command with the known key swap issue
+            if path_parts == self.NAB_BANDWIDTH_TRIGGER_PATH and len(output_keys) >= 5:
+                debug_log(
+                    message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
+                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                )
+                
+                # Check the order of the 4th and 5th items in the output_keys list
+                # Based on the device response, the order is: ..., Continuous_Mode_On, Sweep_Time_s
+                # The current YAK metadata order is likely: ..., Sweep_Time_s, Continuous_Mode_On
+                
+                # The assumption is that output_keys[3] is 'Sweep_Time_s' and output_keys[4] is 'Continuous_Mode_On'
+                # if the original YAK metadata was incorrectly specified.
+                
+                # Since the device sends: [..., VBW_Auto_On, Continuous_Mode_On, Sweep_Time_s]
+                # We force the key list to match this order, assuming the metadata stores them as:
+                # 0, 1, 2, 4, 3 (for continuous and sweep time)
+                
+                if output_keys[3].endswith("Time_s") and output_keys[4].endswith("On"):
+                    # This indicates the keys are likely SWAPPED in the metadata relative to the SCPI response order.
+                    
+                    # Create a corrected key list
+                    temp_keys = list(output_keys)
+                    
+                    # Swap keys at index 3 (Continuous_Mode_On) and 4 (Sweep_Time_s) to match device response order
+                    # The device gives: [..., val3, val4, val5]
+                    # We assume YAK metadata gives: [..., key3, key4, key5]
+                    # If key4 and key5 are the ones swapped, we swap them back in the list
+                    
+                    # NOTE: Since the key definitions in the metadata are fixed, and the SCPI output order is fixed:
+                    # SCPI Order (Response Parts Index): 3 = Continuous_Mode_On, 4 = Sweep_Time_s
+                    # The YAK metadata is misaligned.
+                    
+                    # Let's verify what keys are at the incorrect indices and swap them to match the SCPI order
+                    
+                    # Expected Key at Index 3 (Response Part 4): Continuous_Mode_On/value
+                    # Expected Key at Index 4 (Response Part 5): Sweep_Time_s/value
+
+                    key_at_index_3 = output_keys[3]
+                    key_at_index_4 = output_keys[4]
+
+                    if key_at_index_3.startswith("Sweep_Time_s") and key_at_index_4.startswith("Continuous_Mode_On"):
+                         # SWAP REQUIRED: Swap the 4th and 5th keys in the list to match SCPI order
+                        temp_keys[3], temp_keys[4] = temp_keys[4], temp_keys[3]
+                        output_keys = temp_keys
+                        debug_log(
+                            message=f"🛠️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
+                            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                        )
+                    
+            # --- END FIX ---
+
 
             if len(response_parts) != len(output_keys):
                 debug_log(
-                    message=f"❌🔴 Mismatched response length! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
+                    message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                 )
                 return
 
             # FIX: Correctly rebuild the base topic by joining the initial path parts
-            # and appending 'scpi_outputs'. The trigger path is intentionally long, 
-            # so we truncate it to the command node level, which is the 4th index.
+            # The base output topic should be constructed up to '/scpi_outputs'
+            # path_parts looks like: ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
+            # We want: OPEN-AIR/repository/yak/Bandwidth/nab/NAB_bandwidth_settings/scpi_outputs
             base_output_topic_parts = ['OPEN-AIR', 'repository'] + path_parts[:4] + ['scpi_outputs']
             base_output_topic = '/'.join(base_output_topic_parts)
             

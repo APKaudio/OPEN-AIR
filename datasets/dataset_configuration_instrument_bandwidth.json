@@ -10,9 +10,9 @@
         "type": "_sliderValue",
         "handler": "set_rbw",
         "locked": false,
-        "value": "1",
+        "value": "0",
         "min": "1",
-        "max": "10",
+        "max": "1",
         "units": "MHz"
       },
       "Resolutiin Band Width": {
@@ -92,9 +92,9 @@
         "type": "_sliderValue",
         "handler": "set_sweep_time",
         "locked": false,
-        "value": "1",
+        "value": "0",
         "min": "1",
-        "max": "10",
+        "max": "50",
         "units": "s"
       },
       "vbw_MHz": {
@@ -103,9 +103,9 @@
         "type": "_sliderValue",
         "handler": "set_vbw",
         "locked": false,
-        "value": "1",
-        "min": "1",
-        "max": "10",
+        "value": "0",
+        "min": "0",
+        "max": "1",
         "units": "MHz"
       },
       "Video Band Width ": {
