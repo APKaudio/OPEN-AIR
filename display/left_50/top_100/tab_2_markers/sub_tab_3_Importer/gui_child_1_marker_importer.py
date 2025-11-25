@@ -189,52 +189,42 @@ class MarkerImporterTab(ttk.Frame):
                               ('active', colors["button_style_toggle"]["foreground"])])
 
     def _create_widgets(self):
-        self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(0, weight=0) 
-        self.grid_rowconfigure(1, weight=1) 
-        self.grid_rowconfigure(2, weight=0) 
-        self.grid_rowconfigure(3, weight=0)
+        self.pack(fill=tk.BOTH, expand=True)
         
         load_markers_frame = ttk.LabelFrame(self, text="Load Markers", padding=(5,5,5,5))
-        load_markers_frame.grid(row=0, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
-        load_markers_frame.grid_columnconfigure(0, weight=1)
-        load_markers_frame.grid_columnconfigure(1, weight=1)
-        load_markers_frame.grid_columnconfigure(2, weight=1)
-        load_markers_frame.grid_columnconfigure(3, weight=1) 
+        load_markers_frame.pack(fill=tk.X, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
         
         self.load_csv_button = ttk.Button(load_markers_frame, text="Load CSV Marker Set", style='Action.TButton', command=self._load_markers_file_action)
-        self.load_csv_button.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+        self.load_csv_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.load_ias_html_button = ttk.Button(load_markers_frame, text="Load IAS HTML", style='Action.TButton', command=self._load_ias_html_action)
-        self.load_ias_html_button.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
+        self.load_ias_html_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.load_wwb_shw_button = ttk.Button(load_markers_frame, text="Load WWB.shw", style='Action.TButton', command=self._load_wwb_shw_action)
-        self.load_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
+        self.load_wwb_shw_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         self.load_wwb_zip_button = ttk.Button(load_markers_frame, text="Load WWB.zip", style='Action.TButton', command=self._load_wwb_zip_action)
-        self.load_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
+        self.load_wwb_zip_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         self.load_sb_pdf_button = ttk.Button(load_markers_frame, text="Load SB PDF", style='Action.TButton', command=self._load_sb_pdf_action)
-        self.load_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
+        self.load_sb_pdf_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.load_sb_v2_pdf_button = ttk.Button(load_markers_frame, text="Load SB V2.pdf", style='Action.TButton', command=self._load_sb_v2_pdf_action)
-        self.load_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
+        self.load_sb_v2_pdf_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         marker_table_frame = ttk.LabelFrame(self, text="Marker Editor", padding=(5,5,5,5))
-        marker_table_frame.grid(row=1, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="nsew")
-        marker_table_frame.grid_columnconfigure(0, weight=1)
-        marker_table_frame.grid_rowconfigure(0, weight=1)
+        marker_table_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
         
         self.marker_tree = ttk.Treeview(marker_table_frame, show=("headings", "tree"))
-        self.marker_tree.grid(row=0, column=0, sticky="nsew", padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+        self.marker_tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
         self.marker_tree.column("#0", width=0, stretch=tk.NO)
         
         tree_yscroll = ttk.Scrollbar(marker_table_frame, orient="vertical", command=self.marker_tree.yview)
-        tree_yscroll.grid(row=0, column=1, sticky="ns")
+        tree_yscroll.pack(side=tk.RIGHT, fill=tk.Y)
         self.marker_tree.configure(yscrollcommand=tree_yscroll.set)
         
         tree_xscroll = ttk.Scrollbar(marker_table_frame, orient="horizontal", command=self.marker_tree.xview)
-        tree_xscroll.grid(row=1, column=0, sticky="ew")
+        tree_xscroll.pack(side=tk.BOTTOM, fill=tk.X)
         self.marker_tree.configure(xscrollcommand=tree_xscroll.set)
 
         self.marker_tree.bind("<Double-1>", self._on_tree_double_click)
@@ -242,32 +232,28 @@ class MarkerImporterTab(ttk.Frame):
         self.marker_tree.bind("<Delete>", self._delete_selected_row)
 
         append_markers_frame = ttk.LabelFrame(self, text="Append Markers", padding=(5,5,5,5))
-        append_markers_frame.grid(row=2, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
-        append_markers_frame.grid_columnconfigure(0, weight=1)
-        append_markers_frame.grid_columnconfigure(1, weight=1)
-        append_markers_frame.grid_columnconfigure(2, weight=1)
-        append_markers_frame.grid_columnconfigure(3, weight=1)
+        append_markers_frame.pack(fill=tk.X, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
         
         self.append_csv_button = ttk.Button(append_markers_frame, text="Append CSV Marker Set", style='Action.TButton', command=self._append_markers_file_action)
-        self.append_csv_button.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
+        self.append_csv_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.append_ias_html_button = ttk.Button(append_markers_frame, text="Append IAS HTML", style='Action.TButton', command=self._append_ias_html_action)
-        self.append_ias_html_button.grid(row=0, column=1, padx=2, pady=2, sticky="ew")
+        self.append_ias_html_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.append_wwb_shw_button = ttk.Button(append_markers_frame, text="Append WWB.shw", style='Action.TButton', command=self._append_wwb_shw_action)
-        self.append_wwb_shw_button.grid(row=0, column=2, padx=2, pady=2, sticky="ew")
+        self.append_wwb_shw_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         self.append_wwb_zip_button = ttk.Button(append_markers_frame, text="Append WWB.zip", style='Action.TButton', command=self._append_wwb_zip_action)
-        self.append_wwb_zip_button.grid(row=1, column=2, padx=2, pady=2, sticky="ew")
+        self.append_wwb_zip_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         self.append_sb_pdf_button = ttk.Button(append_markers_frame, text="Append SB PDF", style='Action.TButton', command=self._append_sb_pdf_action)
-        self.append_sb_pdf_button.grid(row=0, column=3, padx=2, pady=2, sticky="ew")
+        self.append_sb_pdf_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
         
         self.append_sb_v2_pdf_button = ttk.Button(append_markers_frame, text="Append SB V2.pdf", style='Action.TButton', command=self._append_sb_v2_pdf_action)
-        self.append_sb_v2_pdf_button.grid(row=1, column=3, padx=2, pady=2, sticky="ew")
+        self.append_sb_v2_pdf_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
         self.save_open_air_button = ttk.Button(self, text="Save Markers as Open Air.csv", style='Orange.TButton', command=self._save_open_air_file_action)
-        self.save_open_air_button.grid(row=3, column=0, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, sticky="ew")
+        self.save_open_air_button.pack(fill=tk.X, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
     def _update_treeview(self):
         self.marker_tree.delete(*self.marker_tree.get_children())

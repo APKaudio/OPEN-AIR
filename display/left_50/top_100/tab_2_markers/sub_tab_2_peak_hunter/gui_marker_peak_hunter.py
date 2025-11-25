@@ -42,7 +42,7 @@ current_version = "20250825.181840.1"
 current_version_hash = 20250825 * 181840 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("\", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
 
