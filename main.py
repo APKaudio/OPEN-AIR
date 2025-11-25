@@ -60,7 +60,7 @@ try:
     from managers.manager_visa_dispatch_scpi import ScpiDispatcher
     from managers.manager_yakety_yak import YaketyYakManager
     from managers.manager_visa_reset import VisaResetManager
-    from managers.manager_instrument_settings_markers import MarkerSettingsManager
+    from managers.manager_instrument_settings_markers import MarkersSettingsManager
 
 except Exception as e:
     # Fallback logging if the path and initial imports fail
@@ -201,7 +201,7 @@ def action_open_display(mqtt_util_instance):
         )
 
         # ADDED: Instantiate the MarkerSettingsManager
-        marker_settings_manager = MarkerSettingsManager(mqtt_controller=mqtt_util_instance)
+        marker_settings_manager = MarkersSettingsManager(mqtt_controller=mqtt_util_instance)
         
         # ADDED: Instantiate the worker responsible for sweeping and collecting marker data
         marker_go_getter = MarkerGoGetterWorker(mqtt_util=mqtt_util_instance)
