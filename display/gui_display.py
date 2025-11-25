@@ -280,17 +280,28 @@ class Application(tk.Tk):
 
                     frame_instance = None
                     try:
-                        # 1. Attempt instantiation with a config object including theme colors
-                        config = {"theme_colors": self.theme_colors}
-                        frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
-                    except TypeError:
-                        try:
-                            # 2. Fallback to standard arguments (parent, mqtt_util)
-                            frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util)
-                        except TypeError:
-                            # 3. Fallback to minimal arguments (parent)
-                            frame_instance = obj(parent_widget)
-
+                        # Special handling for DynamicGuiBuilder
+                        if name == "DynamicGuiBuilder" and hasattr(module, "MQTT_TOPIC_FILTER"):
+                            config = {
+                                "base_topic": module.MQTT_TOPIC_FILTER,
+                                "log_to_gui_console": console_log,
+                                "log_to_gui_treeview": None,
+                                "theme_colors": self.theme_colors
+                            }
+                            frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
+                        else:
+                            # General handling for other components
+                            config = {"theme_colors": self.theme_colors}
+                            try:
+                                # 1. Attempt with config
+                                frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
+                            except TypeError:
+                                try:
+                                    # 2. Fallback to standard
+                                    frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util)
+                                except TypeError:
+                                    # 3. Fallback to minimal
+                                    frame_instance = obj(parent_widget)
 
                         # If instantiation was successful
                         if frame_instance:
