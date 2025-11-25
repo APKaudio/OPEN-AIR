@@ -66,7 +66,6 @@ class ShowtimeTab(ttk.Frame):
             console_print_func=console_log
         )
         super().__init__(parent, *args, **kwargs)
-        self.pack(fill=tk.BOTH, expand=True)
 
         self.mqtt_util = mqtt_util
         self.buttons = []

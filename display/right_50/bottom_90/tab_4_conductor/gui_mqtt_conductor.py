@@ -105,8 +105,6 @@ class MqttConductorFrame(ttk.Frame):
             self.mqtt_util.print_to_gui_func = self.log_to_gui
             self.mqtt_util.add_subscriber(topic_filter="#", callback_func=self._on_message)
             self.mqtt_util.add_subscriber(topic_filter="$SYS/#", callback_func=self._on_sys_message)
-            
-            self.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
