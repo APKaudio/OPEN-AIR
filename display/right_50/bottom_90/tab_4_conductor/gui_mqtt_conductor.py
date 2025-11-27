@@ -1,7 +1,7 @@
-# display/right_40/bottom_90/tab_4_conductor/gui_mqtt_conductor.py
+# display/base_gui_component.py
 #
-# A comprehensive GUI component for managing and testing an MQTT broker and client.
-# This file now integrates with the MqttControllerUtility to handle all broker and client logic.
+# This component allows for real-time control and monitoring of MQTT messages,
+# offering a centralized "conductor" view of the system's communication.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -14,19 +14,15 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250918.021500.2
+# Version 20251127.000000.1
 
 import os
 import inspect
 import datetime
 import tkinter as tk
-from tkinter import ttk, scrolledtext
-import subprocess
-import threading
+from tkinter import ttk
+import pathlib
 import json
-import paho.mqtt.client as mqtt
-from collections import defaultdict
-from itertools import filterfalse
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
@@ -34,10 +30,10 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
-CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
-CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
-REVISION_NUMBER = 2
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+CURRENT_TIME_HASH = 0
+REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"display/right_40/bottom_90/tab_4_conductor/{os.path.basename(__file__)}"

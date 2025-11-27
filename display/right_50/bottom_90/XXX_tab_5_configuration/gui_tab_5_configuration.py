@@ -1,6 +1,5 @@
-# tabs/Experiments/tab_experiments_child_initial_configuration.py
-#
-# This file defines the InitialConfigurationTab, a child tab for the Experiments
+# This is a specialized GUI component designed for the Configuration tab.
+# It acts as a test harness for features related to configuration management within the main
 # section. This refactored version is a standalone test harness with mock functionality.
 #
 # Author: Anthony Peter Kuzub
@@ -14,30 +13,27 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.133000.1
+# Version 20251127.000000.1
 
-import tkinter as tk
-from tkinter import ttk, scrolledtext, filedialog
-import inspect
 import os
+import inspect
 import datetime
+import tkinter as tk
+from tkinter import ttk
+import pathlib
+import sys
+import json
+import paho.mqtt.client as mqtt
 
-# --- Mocking core dependencies for this standalone test file ---
-# We are intentionally removing the following imports for this test version:
-# from display.debug_logic import debug_log
-# from display.console_logic import console_log
-# from settings_and_config.config_manager_save import load_program_config, save_program_config
-# from ref.ref_program_default_values import DEFAULT_CONFIG
-# from ref.ref_file_paths import DATA_FOLDER_PATH, CONFIG_FILE_PATH
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
-from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_mqtt_controller_util import MqttControllerUtility
+from display.styling.style import THEMES, DEFAULT_THEME
 
-# --- Version Information ---
-CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
-CURRENT_TIME = datetime.datetime.now().strftime("%H%M%S")
-CURRENT_TIME_HASH = int(datetime.datetime.now().strftime("%H%M%S"))
+# --- Global Scope Variables ---
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+CURRENT_TIME_HASH = 0
 REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)

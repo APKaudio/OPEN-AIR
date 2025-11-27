@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250823.001500.20
+# Version 20251127.000000.1
 
 import os
 import inspect
@@ -32,10 +32,10 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-CURRENT_TIME_HASH = 1500
-REVISION_NUMBER = 20
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+CURRENT_TIME_HASH = 0
+REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root

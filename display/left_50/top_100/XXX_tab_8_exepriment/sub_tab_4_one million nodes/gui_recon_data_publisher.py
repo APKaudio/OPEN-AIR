@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250901.185600.3
+# Version 20251127.000000.1
 
 import os
 import inspect
@@ -25,19 +25,17 @@ import pathlib
 import sys
 import json
 import paho.mqtt.client as mqtt
-import threading
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
-from workers.worker_recon_data_node_builder import recon_data_publisher
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250901
-CURRENT_TIME = 185600
-CURRENT_TIME_HASH = 185600
-REVISION_NUMBER = 3
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+CURRENT_TIME_HASH = 0
+REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 # Dynamically get the file path relative to the project root
