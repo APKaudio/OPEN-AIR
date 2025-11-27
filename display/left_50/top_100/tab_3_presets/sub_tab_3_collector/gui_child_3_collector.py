@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250917.235651.1
+# Version 20251127.000000.1
 
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
@@ -32,8 +32,8 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20250917.235651.1"
-current_version_hash = (20250917 * 235651 * 1)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 class DevicePresetsTab(ttk.Frame):

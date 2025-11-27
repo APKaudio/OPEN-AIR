@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251014.214047.24
+# Version 20251127.000000.1
 
 import os
 import inspect
@@ -24,27 +24,26 @@ from tkinter import ttk
 import pathlib
 from tkinter import filedialog
 import csv
-import json 
-from decimal import Decimal 
-from tkinter import TclError 
+import json
+from decimal import Decimal
+from tkinter import TclError
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
-import workers.worker_project_paths 
+import workers.worker_project_paths
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20251014
-CURRENT_TIME = 214047
-REVISION_NUMBER = 24
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
-
 # --- No Magic Numbers (as per your instructions) ---
 MQTT_TOPIC_FILTER = "OPEN-AIR/repository/presets"
 # Fallback path definition (actual path will be dynamically imported)

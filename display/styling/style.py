@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250921.211000.1
+# Version 20251127.000000.1
 
 import os
 import copy
@@ -22,8 +22,8 @@ import tkinter as tk
 from tkinter import ttk
 
 # --- Global Scope Variables ---
-current_version = "20250921.211000.1"
-current_version_hash = (20250921 * 211000 * 1)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # The default theme to use. This can be changed here to easily switch the entire application's style.

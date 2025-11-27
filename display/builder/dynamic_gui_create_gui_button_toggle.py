@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250906.000100.6
+# Version 20251127.000000.1
 # FIXED: The button styles have been corrected to match the user's request,
 # using the 'Selected' style for the ON state, and relying on the central style map.
 
@@ -25,8 +25,8 @@ import inspect
 import json
 
 # --- Global Scope Variables ---
-current_version = "20250906.000100.6"
-current_version_hash = 20250906 * 100 * 6
+current_version = "20251127.000000.1"
+current_version_hash = 20251127 * 0 * 1
 current_file = f"{os.path.basename(__file__)}"
 
 TOPIC_DELIMITER = "/"

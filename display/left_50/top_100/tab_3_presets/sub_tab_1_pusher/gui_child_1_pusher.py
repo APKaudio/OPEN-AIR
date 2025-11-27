@@ -13,9 +13,9 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251014.220800.4
+# Version 20251127.000000.1
 #
-# MODIFIED: Simplified load logic to read the new, unified, normalized CSV structure 
+# MODIFIED: Simplified load logic to read the new, unified, normalized CSV structure
 #           (Presets as Rows, Attributes as Columns) directly for stability.
 
 import os
@@ -24,20 +24,19 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 import csv
 import pathlib
-import json 
+import json
 
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_preset_pusher import PresetPusherWorker
-import workers.worker_project_paths 
+import workers.worker_project_paths
 
 # --- Global Scope Variables ---
-current_version = "20251014.220800.4"
-current_version_hash = (20251014 * 220800 * 4)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
-
 # --- Constants ---
 BUTTON_GRID_COLUMNS = 4
 ALL_ATTRIBUTES = [

@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250907.004459.10
+# Version 20251127.000000.1
 # FIXED: Actuator buttons now correctly publish to the 'actions' topic instead of the 'repository' topic.
 
 import os
@@ -26,8 +26,8 @@ import json
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250907.004459.10"
-current_version_hash = 20250907 * 4459 * 10
+current_version = "20251127.000000.1"
+current_version_hash = 20251127 * 0 * 1
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---

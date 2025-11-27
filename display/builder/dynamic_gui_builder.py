@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250906.000100.21
+# Version 20251127.000000.1
 
 import os
 import inspect
@@ -43,8 +43,8 @@ from display.builder.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixi
 
 
 # --- Global Scope Variables ---
-current_version = "20250906.000100.21"
-current_version_hash = 20250906 * 100 * 21
+current_version = "20251127.000000.1"
+current_version_hash = 20251127 * 0 * 1
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---

@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250903.102500.9
+# Version 20251127.000000.1
 # NEW: Added a dedicated 'rebuild_options' method that allows the dropdown to dynamically refresh its list of available options based on a provided configuration dictionary.
 # FIXED: The creation function now stores a reference to the 'rebuild_options' method in the topic_widgets tuple for the parent builder to call.
 
@@ -27,8 +27,8 @@ from decimal import Decimal
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250903.102500.9"
-current_version_hash = (20250903 * 102500 * 9)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
