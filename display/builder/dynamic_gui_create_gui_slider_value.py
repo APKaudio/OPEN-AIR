@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.212500.1
+# Version 20251127.000000.1
 # FIXED: The slider's visual thickness has been doubled by configuring its style to have a larger sliderlength,
 # making it more prominent in the user interface.
 
@@ -26,8 +26,8 @@ import inspect
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250902.212500.1"
-current_version_hash = (20250902 * 212500 * 1)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---

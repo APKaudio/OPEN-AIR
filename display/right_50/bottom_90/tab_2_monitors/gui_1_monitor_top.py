@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251026.220340.3 (Blank Graph)
+# Version 20251127.000000.1 (Blank Graph)
 # MODIFIED: Removed all plot-specific colors, titles, and axis styling to create a blank graph.
 
 import os
@@ -35,11 +35,11 @@ from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-REVISION_NUMBER = 21
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+REVISION_NUMBER = 1
 
-current_version = "20251026.220340.3" # Updated version number
+current_version = "20251127.000000.1" # Updated version number
 # Dynamically get the file path relative to the project root
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent

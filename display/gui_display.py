@@ -16,10 +16,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251026.231143.3 # REVISION NUMBER INCREASED
-# FIXED: Added logic in _build_from_directory to ensure tab frames expand to fill the Notebook, 
+# Version 20251127.000000.1 # REVISION NUMBER INCREASED
+# FIXED: Added logic in _build_from_directory to ensure tab frames expand to fill the Notebook,
 #        resolving the issue where child frames (like the Matplotlib plot) were not visible.
-# FIXED: Added logic to suppress the implicit dependency on PIL/ImageTk during dynamic module loading, 
+# FIXED: Added logic to suppress the implicit dependency on PIL/ImageTk during dynamic module loading,
 #        resolving the persistent environmental error on application startup.
 
 # 📚 Python's standard library modules are our trusty sidekicks!
@@ -46,17 +46,16 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20251026.231143.3"
+current_version = "20251127.000000.1"
 # The hash calculation drops the leading zero from the hour (23 -> 23)
-current_version_hash = (20251026 * 231143 * 3)
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants (Pulled from old global state) ---
-CURRENT_DATE = 20250904
-CURRENT_TIME = 225500
-CURRENT_TIME_HASH = 225500
-REVISION_NUMBER = 81
-
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
+CURRENT_TIME_HASH = 0
+REVISION_NUMBER = 1
 
 class Application(tk.Tk):
     """

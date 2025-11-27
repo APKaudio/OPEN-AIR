@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250902.100412.2
+# Version 20251127.000000.1
 # FIXED: The toggle_and_publish function now passes the raw boolean value instead of a JSON string to prevent double-encoding during MQTT transmission.
 
 import os
@@ -26,8 +26,8 @@ import json
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20250902.100412.2"
-current_version_hash = (20250902 * 100412 * 2)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants ---
