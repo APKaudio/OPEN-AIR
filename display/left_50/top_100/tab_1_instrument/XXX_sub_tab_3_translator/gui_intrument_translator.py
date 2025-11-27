@@ -71,8 +71,9 @@ class InstrumentTranslatorGUI(ttk.Frame):
         )
 
         try:
+            if 'config' in kwargs:
+                kwargs.pop('config')
             super().__init__(parent, *args, **kwargs)
-            self.pack(fill=tk.BOTH, expand=True)
 
             self.current_file = current_file
             self.current_version = current_version

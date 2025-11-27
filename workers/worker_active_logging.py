@@ -14,7 +14,10 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251009.214456.2
+# Version 20251026.225659.1
+# DEFINITIVE FIX: Removed all direct references to sys.stdout and sys.stderr in utility functions 
+#                 to prevent fatal crashes during module loading in specific thread contexts.
+# NEW FEATURE: Logs messages containing '❌' or '🔴' to a dedicated "ERRORS.log" file.
 
 import os
 import inspect
@@ -27,9 +30,8 @@ from workers.worker_project_paths import GLOBAL_PROJECT_ROOT
 
 
 # --- Global Scope Variables (as per Section 4.4) ---
-# W: 20251009, X: 214456, Y: 2
-current_version = "20251009.214456.2"
-current_version_hash = (20251009 * 214456 * 2)
+current_version = "20251026.225659.1"
+current_version_hash = (20251026 * 225659 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 
@@ -50,6 +52,7 @@ FILE_LOG_DIR = GLOBAL_PROJECT_ROOT / "DATA" / "debug"
 
 VISA_LOG_FILENAME = "visa_commands.log"
 DEBUG_FILE_PATH = None  # This will be dynamically set/updated
+ERRORS_LOG_FILENAME = "ERRORS.log" # NEW CONSTANT FOR ERROR LOGGING
 
 # Global variable to store the current log filename
 current_debug_log_filename = None
@@ -57,6 +60,8 @@ current_debug_log_filename = None
 # --- Constants (No Magic Numbers) ---
 MAX_LOG_LENGTH = 150 
 TRUNCATION_SUFFIX = " ... [Truncated]"
+ERROR_MARKER_CRITICAL = "🔴"
+ERROR_MARKER_USER = "❌"
 
 # --- Global Redirectors (To be set by the GUI Application) ---
 # These functions will be overwritten by the GUI's text redirectors.
@@ -64,6 +69,11 @@ GUI_CONSOLE_PRINT_FUNC = print
 GUI_LOG_TO_DEBUG_CONSOLE_FUNC = lambda x: print(f"GUI_DEBUG: {x}") 
 GUI_CLEAR_CONSOLE_FUNC = lambda: None
 # =========================================================================
+
+def _log_to_error_file(message: str):
+    # Logs the message to the dedicated ERRORS.log file if it contains a failure marker.
+    if ERROR_MARKER_USER in message or ERROR_MARKER_CRITICAL in message:
+        _log_to_file(message, ERRORS_LOG_FILENAME)
 
 
 def get_log_filename():
@@ -81,8 +91,8 @@ def _safe_print(message: str):
     if 'GUI_CONSOLE_PRINT_FUNC' in globals() and callable(GUI_CONSOLE_PRINT_FUNC):
         GUI_CONSOLE_PRINT_FUNC(message)
     else:
-        # Fallback to direct sys.stdout.write to bypass any hooks
-        sys.stdout.write(message + '\n')
+        # FALLBACK FIX: Use print() without arguments to avoid file=sys.stderr crash
+        print(message)
         
 def _log_to_file(message: str, log_filename: str):
     # Helper to safely write a message to a file.
@@ -94,7 +104,8 @@ def _log_to_file(message: str, log_filename: str):
             FILE_LOG_DIR.mkdir(parents=True, exist_ok=True)
             _safe_print(f"✅ Created missing log directory: {FILE_LOG_DIR}")
     except Exception as e:
-        _safe_print(f"❌ Critical Error: Failed to create log directory '{FILE_LOG_DIR}': {e}")
+        # FALLBACK FIX: Use simple print.
+        print(f"❌ Critical Error: Failed to create log directory '{FILE_LOG_DIR}': {e}")
         return # Abort logging if directory creation fails
     # --- END NEW FIX ---
     
@@ -103,7 +114,8 @@ def _log_to_file(message: str, log_filename: str):
             log_file.write(message + "\n")
             
     except Exception as e:
-        _safe_print(f"❌ Error writing to log file '{log_path}': {e}")
+        # FALLBACK FIX: Use simple print.
+        print(f"❌ Error writing to log file '{log_path}': {e}")
 
 def _truncate_message(message: str) -> str:
     # Truncates long messages as per spec, specifically targeting numeric-heavy payloads.
@@ -126,12 +138,19 @@ def _truncate_message(message: str) -> str:
 
 def console_log(message: str):
     # Logs a user-facing message to the console and conditionally to the debug file.
+    
+    # 1. Log to console output
     if global_settings["debug_to_terminal"]:
         _safe_print(message)
         
+    # 2. Log to main debug file
     if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
         # We don't prepend file/version/function for console logs
         _log_to_file(f"🖥️ {message}", get_log_filename())
+
+    # 3. Log to errors file if it contains the marker
+    _log_to_error_file(message)
+
 
 def debug_log(message: str, file: str, version: str, function: str, console_print_func):
     # Logs a detailed debug message to the specified outputs.
@@ -144,11 +163,17 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
     log_entry = f"{truncated_message} | {file} | {version} Function: {function}"
 
+    # 1. Log to console output
     if global_settings["debug_to_terminal"]:
         console_print_func(log_entry)
 
+    # 2. Log to main debug file
     if global_settings["debug_to_file"]:
         _log_to_file(log_entry, get_log_filename())
+        
+    # 3. Log to errors file if it contains the marker
+    _log_to_error_file(message)
+
 
 # PUBLIC API: Implemented as per the user's explicit request.
 def log_visa_command(command: str, direction: str):
@@ -162,11 +187,14 @@ def log_visa_command(command: str, direction: str):
     truncated_command = _truncate_message(command)
     
     # The log entry format for the visa file is simple
-    log_entry = f"{direction_emoji} {direction}: {truncated_command}"
+    log_entry = f"🐐 {direction_emoji} {direction}: {truncated_command}"
 
-    # Log to VISA-specific file
+    # 1. Log to VISA-specific file
     _log_to_file(log_entry, VISA_LOG_FILENAME)
 
-    # Conditionally log to main debug file
+    # 2. Conditionally log to main debug file
     if global_settings["include_visa_messages_to_debug_file"]:
         _log_to_file(f"🐐 {log_entry}", get_log_filename())
+        
+    # 3. Log to errors file if it contains the marker
+    _log_to_error_file(log_entry)

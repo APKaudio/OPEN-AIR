@@ -65,6 +65,8 @@ class ShowtimeTab(ttk.Frame):
             function=f"{self.__class__.__name__}.{current_function}",
             console_print_func=console_log
         )
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
 
         self.mqtt_util = mqtt_util

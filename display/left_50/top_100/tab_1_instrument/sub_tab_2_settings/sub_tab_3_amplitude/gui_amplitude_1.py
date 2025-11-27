@@ -55,8 +55,9 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
-        self.pack(fill=tk.BOTH, expand=True)
 
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"

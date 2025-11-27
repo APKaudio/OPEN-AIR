@@ -248,11 +248,18 @@ class FrequencySettingsManager:
         )
         
         try:
+            # --- REVISION: Robustly handle payload parsing and cleaning (fixes 'could not convert string to float: "500"')
             try:
+                # 1. Try to load as JSON and extract 'value' key (common for structured payloads)
                 parsed_payload = json.loads(payload)
-                value = parsed_payload.get('value', payload)
-            except json.JSONDecodeError:
-                value = payload
+                value_str = parsed_payload.get('value', payload)
+            except (json.JSONDecodeError, TypeError):
+                # 2. If not JSON, use the raw payload
+                value_str = payload
+
+            # 3. Clean the string: strip whitespace, double quotes, and single quotes.
+            value = str(value_str).strip().strip('"').strip("'")
+            # --- END REVISION ---
 
 
             # Update local state variables and check for changes before triggering updates.
@@ -330,10 +337,20 @@ class FrequencySettingsManager:
                 return
 
             # 2. Extract the value from the payload (which is Hz from YAK)
+            # --- REVISION: Robustly handle payload parsing and cleaning (fixes YAK output errors)
             try:
-                value_hz = float(json.loads(payload).get('value', payload))
+                # 1. Try to load as JSON and extract 'value' key (YAK's usual format)
+                parsed_payload = json.loads(payload)
+                value_str = parsed_payload.get('value', payload)
             except (json.JSONDecodeError, ValueError, TypeError):
-                value_hz = float(payload)
+                # 2. If not JSON, use the raw payload
+                value_str = payload
+
+            # 3. Clean the string: strip quotes, backslashes, and whitespace.
+            cleaned_value = str(value_str).strip().strip('"').strip("'").strip('\\').strip()
+            
+            value_hz = float(cleaned_value)
+            # --- END REVISION ---
                 
             value_mhz = value_hz / self.HZ_TO_MHZ
             

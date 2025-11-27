@@ -90,14 +90,37 @@ class Application(tk.Tk):
             super().__init__()
             self.title("OPEN-AIR 2")
             self.geometry("1600x1200")
+            self.lift() # Bring window to front
+            self.attributes('-topmost', True) # Keep window on top
+            self.after_idle(self.attributes, '-topmost', False) # Release topmost after idle
+            debug_log(
+                message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. Forced to foreground.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
             self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
+            debug_log(
+                message=f"🔍🔵 Applied theme: {DEFAULT_THEME}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
             self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
             self.mqtt_util.connect_mqtt()
 
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
-            
+            debug_log(
+                message="🔍🔵 Finished building GUI from directory structure.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -111,6 +134,14 @@ class Application(tk.Tk):
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application using ttk.Style."""
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🔍🔵 Applying styles for theme: {theme_name}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         colors = THEMES.get(theme_name, THEMES["dark"])
         style = ttk.Style(self)
         style.theme_use("clam")
@@ -139,6 +170,13 @@ class Application(tk.Tk):
                         borderwidth=0)
 
         self.configure(background=colors["bg"])
+        debug_log(
+            message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         
         return colors
 
@@ -146,18 +184,46 @@ class Application(tk.Tk):
     def _build_from_directory(self, path: pathlib.Path, parent_widget):
         """Recursively builds the GUI based on folder structure."""
         current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🔍🔵 Entering _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         
         try:
             sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
+            debug_log(
+                message=f"🔍🔵 Found sub_dirs in '{path}': {[d.name for d in sub_dirs]}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
   
             layout_dirs = [d for d in sub_dirs if d.name.split('_')[0] in ['left', 'right', 'top', 'bottom']]
             
             if layout_dirs:
+                debug_log(
+                    message=f"🔍🔵 Found layout_dirs in '{path}': {[d.name for d in layout_dirs]}. Applying layout logic.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 is_horizontal = any(d.name.startswith('left_') or d.name.startswith('right_') for d in layout_dirs)
                 is_vertical = any(d.name.startswith('top_') or d.name.startswith('bottom_') for d in layout_dirs)
 
                 if is_horizontal and is_vertical:
                     console_log(f"❌ Layout Error: Cannot mix horizontal and vertical layouts in '{path}'.")
+                    debug_log(
+                        message=f"❌🔴 Layout Error: Mixed horizontal and vertical layouts detected in '{path}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                     return
 
                 sort_order = ['left', 'top', 'right', 'bottom']
@@ -172,10 +238,24 @@ class Application(tk.Tk):
                             rel_width = percentage / 100.0
                             new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             new_frame.place(relx=current_relx, rely=0, relwidth=rel_width, relheight=1.0)
+                            debug_log(
+                                message=f"🔍🔵 Created horizontal frame for '{sub_dir.name}' placed at relx={current_relx}, relwidth={rel_width}.",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                             current_relx += rel_width
-                        except (IndexError, ValueError):
-                            console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'.")
+                        except (IndexError, ValueError) as e:
+                            console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
+                            debug_log(
+                                message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                 
                 elif is_vertical:
                     current_rely = 0.0
@@ -186,17 +266,45 @@ class Application(tk.Tk):
                             rel_height = percentage / 100.0
                             new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             new_frame.place(relx=0, rely=current_rely, relwidth=1.0, relheight=rel_height)
+                            debug_log(
+                                message=f"🔍🔵 Created vertical frame for '{sub_dir.name}' placed at rely={current_rely}, relheight={rel_height}.",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                             current_rely += rel_height
-                        except (IndexError, ValueError):
-                            console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'.")
+                        except (IndexError, ValueError) as e:
+                            console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
+                            debug_log(
+                                message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                 return
 
             is_tab_container = any(d.name.startswith("tab_") or d.name.startswith("sub_tab_") for d in sub_dirs)
  
             if is_tab_container:
+                debug_log(
+                    message=f"🔍🔵 Found tab container directories in '{path}'. Creating ttk.Notebook.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 notebook = ttk.Notebook(parent_widget)
                 notebook.pack(fill=tk.BOTH, expand=True)
+                debug_log(
+                    message="🔍🔵 ttk.Notebook packed (fill=BOTH, expand=True).",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 
                 notebook.bind('<Control-Button-1>', self._tear_off_tab)
                 notebook.bind('<<NotebookTabChanged>>', self._on_tab_change)
@@ -210,6 +318,13 @@ class Application(tk.Tk):
                     tab_frame.grid_rowconfigure(0, weight=1)
                     tab_frame.grid_columnconfigure(0, weight=1)
                     tab_frame.grid(row=0, column=0, sticky="nsew") # Place the frame in the notebook area
+                    debug_log(
+                        message=f"🔍🔵 Created tab frame for '{tab_dir.name}'. Grid configured and placed.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                     
                     self._frames_by_path[tab_dir] = tab_frame
                     
@@ -217,18 +332,98 @@ class Application(tk.Tk):
                     start_index = next((i for i, part in enumerate(parts) if part.isdigit()), -1)
                     display_name = " ".join(parts[start_index + 1:]).title() if start_index != -1 else tab_dir.name
                     notebook.add(tab_frame, text=display_name)
+                    debug_log(
+                        message=f"🔍🔵 Added tab '{display_name}' to notebook.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                     
                     # The recursive call will place the contents (like ScanViewGUIFrame) inside the tab_frame
                     self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
                 return
 
-            for sub_dir in sub_dirs:
-                if sub_dir.name.startswith("child_"):
-                    self._build_child_container(path=sub_dir, parent_widget=parent_widget)
+            if "tab_2_monitors" in str(path):
+                debug_log(
+                    message=f"🔍🔵 Special handling for 'tab_2_monitors' in path: '{path}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
+                parent_widget.grid_rowconfigure(0, weight=1)
+                parent_widget.grid_rowconfigure(1, weight=1)
+                parent_widget.grid_rowconfigure(2, weight=1)
+                parent_widget.grid_columnconfigure(0, weight=1)
+                
+                for i, py_file in enumerate(py_files):
+                    module_name = py_file.stem
+                    debug_log(
+                        message=f"🔍🔵 Dynamically importing module '{module_name}' for monitor frame.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    spec = importlib.util.spec_from_file_location(module_name, py_file)
+                    module = importlib.util.module_from_spec(spec)
+                    sys.modules[module_name] = module
+                    spec.loader.exec_module(module)
 
-            py_files = [f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py']
-            for py_file in py_files:
-                self._build_child_container(path=py_file, parent_widget=parent_widget)
+                    for name, obj in inspect.getmembers(module):
+                        if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)) and obj.__module__ == module.__name__:
+                            try:
+                                config = {"theme_colors": self.theme_colors}
+                                frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
+                                frame_instance.grid(row=i, column=0, sticky="nsew")
+                                debug_log(
+                                    message=f"🔍🔵 Instantiated and gridded '{name}' from '{py_file.name}'.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
+                            except Exception as e:
+                                console_log(f"❌ Failed to instantiate '{name}' from '{py_file.name}': {e}")
+                                debug_log(
+                                    message=f"❌🔴 Error instantiating '{name}' from '{py_file.name}': {e}",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
+                return
+            else:
+                debug_log(
+                    message=f"🔍🔵 Applying general build logic for path: '{path}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                for sub_dir in sub_dirs:
+                    if sub_dir.name.startswith("child_"):
+                        debug_log(
+                            message=f"🔍🔵 Building child container for subdirectory: '{sub_dir.name}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
+                        self._build_child_container(path=sub_dir, parent_widget=parent_widget)
+
+                py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
+                for py_file in py_files:
+                    debug_log(
+                        message=f"🔍🔵 Building child container for Python file: '{py_file.name}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    self._build_child_container(path=py_file, parent_widget=parent_widget)
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for path {path}: {e}")
@@ -269,7 +464,7 @@ class Application(tk.Tk):
 
             # --- START FIXED, ROBUST INSTANTIATION LOGIC ---
             for name, obj in inspect.getmembers(module):
-                if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)):
+                if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)) and obj.__module__ == module.__name__:
                     debug_log(
                         message=f"🔍🔵 Found a valid GUI class: '{name}'. Attempting safe instantiation.",
                         file=current_file,
@@ -306,6 +501,13 @@ class Application(tk.Tk):
                         # If instantiation was successful
                         if frame_instance:
                             frame_instance.pack(fill=tk.BOTH, expand=True)
+                            debug_log(
+                                message=f"🔍🔵 Successfully instantiated and packed '{name}'.",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                             return
                         else:
                             raise RuntimeError(f"Instantiation failed for class '{name}'.")
@@ -323,6 +525,13 @@ class Application(tk.Tk):
                         error_frame = ttk.Frame(parent_widget)
                         error_frame.pack(fill=tk.BOTH, expand=True)
                         ttk.Label(error_frame, text=f"ERROR LOADING: {gui_file.name}", foreground="red").pack(pady=10)
+                        debug_log(
+                            message=f"🔍🔵 Displayed error frame for '{gui_file.name}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                         return
 
             # If we iterate all members and find no class
@@ -342,24 +551,59 @@ class Application(tk.Tk):
     def _tear_off_tab(self, event):
         """Tears a tab off of its Notebook and places it into a new Toplevel window."""
         current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🔍🔵 Attempting to tear off tab from event: {event}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         
         try:
             notebook = event.widget
             tab_id = notebook.identify(event.x, event.y)
             if not tab_id:
+                debug_log(
+                    message="⚠️ No tab identified at click location.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return 
             frame_id = notebook.tab(tab_id, "id")
             tab_title = notebook.tab(tab_id, "text")
             
             if frame_id in self._detached_windows:
                 console_log(f"⚠️ Tab '{tab_title}' is already in a detached window.")
+                debug_log(
+                    message=f"⚠️ Tab '{tab_title}' is already detached.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return
 
             new_window = tk.Toplevel(self)
             new_window.title(tab_title)
+            debug_log(
+                message=f"🔍🔵 Created new Toplevel window for detached tab '{tab_title}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             
             notebook.hide(tab_id)
             frame_id.pack(in_=new_window, fill=tk.BOTH, expand=True)
+            debug_log(
+                message=f"🔍🔵 Hid original tab and packed frame into new window.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             
             self._detached_windows[frame_id] = {
                 "window": new_window,
@@ -370,6 +614,13 @@ class Application(tk.Tk):
             new_window.protocol("WM_DELETE_WINDOW", lambda: self._re_attach_tab(frame_id))
 
             console_log(f"✅ Celebration of success! Tab '{tab_title}' has been detached and is now a new window.")
+            debug_log(
+                message=f"✅ Tab '{tab_title}' successfully detached.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -384,9 +635,23 @@ class Application(tk.Tk):
     def _re_attach_tab(self, frame):
         """Re-attaches a detached frame back to its original Notebook."""
         current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🔍🔵 Attempting to re-attach tab for frame: {frame}.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
   
         try:
             if frame not in self._detached_windows:
+                debug_log(
+                    message=f"⚠️ Frame {frame} not found in detached windows.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return
             state = self._detached_windows[frame]
             notebook = state["notebook"]
@@ -397,11 +662,32 @@ class Application(tk.Tk):
             frame.pack(in_=notebook, fill=tk.BOTH, expand=True)
             
             notebook.add(frame, text=tab_title)
+            debug_log(
+                message=f"🔍🔵 Re-packed frame into notebook and re-added tab '{tab_title}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
             del self._detached_windows[frame]
             window.destroy()
+            debug_log(
+                message=f"🔍🔵 Destroyed detached window for '{tab_title}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             
             console_log(f"✅ Celebration of success! Tab '{tab_title}' has been re-attached.")
+            debug_log(
+                message=f"✅ Tab '{tab_title}' successfully re-attached.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -448,6 +734,13 @@ class Application(tk.Tk):
             self.last_selected_tab_name = newly_selected_tab_name
             
             console_log("✅ Celebration of success!")
+            debug_log(
+                message="✅ Tab change logged successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

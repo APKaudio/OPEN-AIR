@@ -62,9 +62,10 @@ class BaseGUIFrame(ttk.Frame):
         )
         
         try:
+            if 'config' in kwargs:
+                kwargs.pop('config')
             # --- Function logic goes here ---
             super().__init__(parent, *args, **kwargs)
-            self.pack(fill=tk.BOTH, expand=True)
 
             # Fix for the bug: Assign global variables as instance attributes
             self.current_file = current_file

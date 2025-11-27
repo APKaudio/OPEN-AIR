@@ -55,6 +55,8 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the Presets pusher GUI, loading data from CSV and creating buttons.
         """
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 

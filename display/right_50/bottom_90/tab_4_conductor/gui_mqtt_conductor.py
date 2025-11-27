@@ -89,6 +89,8 @@ class MqttConductorFrame(ttk.Frame):
         )
         
         try:
+            if 'config' in kwargs:
+                kwargs.pop('config')
             super().__init__(parent, *args, **kwargs)
             self.mqtt_util = mqtt_util
             

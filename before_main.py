@@ -1,4 +1,4 @@
-# root/before_main.py
+# OPEN-AIR/before_main.py
 #
 # A standalone script to verify the installation of all critical external
 # dependencies before launching the main application. This script will attempt to
@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251014.220800.1
+# Version 20251026.225541.2
 import sys
 import inspect
 import datetime
@@ -23,10 +23,9 @@ import os
 import subprocess 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-# W: 20251014, X: 220800, Y: 1
-current_version = "20251014.220800.1"
+current_version = "20251026.225541.2"
 # The hash calculation drops the leading zero from the hour (22 -> 22)
-current_version_hash = (20251014 * 220800 * 1)
+current_version_hash = (20251026 * 225541 * 2)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Mock Logging Functions (for standalone operation before app logger is active) ---
@@ -42,20 +41,21 @@ def _mock_debug_log(message, file, version, function, console_print_func):
 # --- Constants (No Magic Numbers) ---
 # Packages that require pip install/uninstall/reinstall
 EXTERNAL_PACKAGES = {
-    "pyvisa": "pyvisa",
-    "paho-mqtt": "paho.mqtt.client",
-    "pandas": "pandas",
+    # --- CORE PROJECT DEPENDENCIES ---
     "numpy": "numpy",
-    "matplotlib": "matplotlib", # <--- ADDED MATPLOTLIB
+    "pandas": "pandas",
+    "matplotlib": "matplotlib",
+    "Pillow (for Matplotlib/Tkinter image support)": "PIL", 
+    "paho-mqtt": "paho.mqtt.client",
     "pdfplumber": "pdfplumber",
     "beautifulsoup4 (bs4)": "bs4",
-    # --- NEW INSTRUMENT PROTOCOL DEPENDENCIES ---
+    # --- VISA/SCPI DEPENDENCIES (PyVISA-py backend requires all of these) ---
+    "pyvisa": "pyvisa",
     "pyusb": "usb.core",
     "python-usbtmc": "usbtmc",
     "python-vxi11": "vxi11",
     "pyserial": "serial",
-    "python-gpib": "Gpib", # The module name used for the Python bindings
-    # --- New PyVISA-py Backend Dependencies for Full TCPIP Functionality ---
+    "python-gpib": "Gpib", 
     "psutil": "psutil",
     "zeroconf": "zeroconf",
 }
@@ -63,18 +63,31 @@ EXTERNAL_PACKAGES = {
 BUILTIN_PACKAGES = {
     "python-csv": "csv",
     "python-threading": "threading",
-    "python-subprocess": "subprocess"
+    "python-subprocess": "subprocess",
+    "python-pathlib": "pathlib", 
+    "python-json": "json" 
 }
+
+# --- PIP Command Actions ---
+ACTION_INSTALL = "install"
+ACTION_UNINSTALL = "uninstall"
+FLAG_BREAK_SYSTEM_PACKAGES = "--break-system-packages"
+FLAG_ASSUME_YES = "-y"
+ERROR_NOT_INSTALLED = "not installed"
+CRITICAL_FAILURE_MESSAGE = "❌ CRITICAL FAILURE: Missing/Failed Dependencies!"
+MANUAL_INSTALL_INSTRUCTION = "\nManual installation may be required. Remember to use a virtual environment or the '--break-system-packages' flag."
+
 
 def _execute_pip_command(action, package_name, console_print_func):
     """Safely executes a pip install or uninstall command."""
+    current_function_name = inspect.currentframe().f_code.co_name
     command = [sys.executable, "-m", "pip", action, package_name]
     
     # MANDATORY FIX: Add the flag to override system package management (PEP 668)
-    command.append("--break-system-packages") 
+    command.append(FLAG_BREAK_SYSTEM_PACKAGES) 
 
-    if action == "uninstall":
-        command.append("-y") # Assume yes for uninstall
+    if action == ACTION_UNINSTALL:
+        command.append(FLAG_ASSUME_YES) # Assume yes for uninstall
         
     log_message = f"🛠️ Running 'pip {action}' for {package_name}..."
     console_print_func(log_message)
@@ -82,7 +95,7 @@ def _execute_pip_command(action, package_name, console_print_func):
         message=f"🛠️🟢 Running pip command: {' '.join(command)}",
         file=current_file,
         version=current_version,
-        function="_execute_pip_command",
+        function=current_function_name,
         console_print_func=console_print_func
     )
 
@@ -95,7 +108,7 @@ def _execute_pip_command(action, package_name, console_print_func):
             return True
         else:
             # Suppress "Package not installed" errors for uninstall, but report others
-            if action == "uninstall" and "not installed" in result.stderr.lower():
+            if action == ACTION_UNINSTALL and ERROR_NOT_INSTALLED in result.stderr.lower():
                 console_print_func(f"🟡 {package_name} was not installed. Skipping uninstall.")
                 return True
             else:
@@ -144,12 +157,13 @@ def action_check_dependancies():
             elif friendly_name == "python-vxi11":
                 package_name_for_pip = "python-vxi11"
             elif friendly_name == "python-gpib":
-                # FINAL FIX: We must use the correct PyPI name, even if installation fails
                 package_name_for_pip = "python-gpib" 
             elif friendly_name == "pyserial":
-                 package_name_for_pip = "pyserial"
+                package_name_for_pip = "pyserial"
             elif friendly_name == "beautifulsoup4 (bs4)":
                  package_name_for_pip = "beautifulsoup4"
+            elif friendly_name == "Pillow (for Matplotlib/Tkinter image support)":
+                package_name_for_pip = "Pillow" 
             # --- End Overrides ---
             
             try:
@@ -163,15 +177,15 @@ def action_check_dependancies():
                 # Scenario A: Installed, running in fresh mode -> Force uninstall/reinstall
                 _mock_console_log(f"✅ Found '{friendly_name}'. Forcing refresh...")
                 
-                _execute_pip_command("uninstall", package_name_for_pip, _mock_console_log)
+                _execute_pip_command(ACTION_UNINSTALL, package_name_for_pip, _mock_console_log)
                 
-                if not _execute_pip_command("install", package_name_for_pip, _mock_console_log):
+                if not _execute_pip_command(ACTION_INSTALL, package_name_for_pip, _mock_console_log):
                     missing_packages.append(friendly_name) 
 
             elif not is_installed:
                 # Scenario B: Not installed -> Attempt install
                 _mock_console_log(f"❌ '{friendly_name}' is missing. Attempting install...")
-                if not _execute_pip_command("install", package_name_for_pip, _mock_console_log):
+                if not _execute_pip_command(ACTION_INSTALL, package_name_for_pip, _mock_console_log):
                     missing_packages.append(friendly_name)
             
             elif is_installed and not is_fresh_mode:
@@ -186,20 +200,22 @@ def action_check_dependancies():
                 __import__(import_name)
                 _mock_console_log(f"✅ Found '{friendly_name}'.")
             except ImportError:
-            
                 missing_packages.append(friendly_name)
 
         # --- 3. Final Result ---
         if missing_packages:
             _mock_console_log("\n" + "="*50)
-            _mock_console_log("❌ CRITICAL FAILURE: Missing/Failed Dependencies!")
+            _mock_console_log(CRITICAL_FAILURE_MESSAGE)
             _mock_console_log("The following critical packages failed to install or are missing:")
             for pkg in missing_packages:
                 _mock_console_log(f" - {pkg}")
-            _mock_console_log("\nManual installation may be required.")
+            
+            # --- INCORPORATED USER'S REQUESTED MESSAGE HERE ---
+            _mock_console_log(MANUAL_INSTALL_INSTRUCTION)
+            # --- END INCORPORATED MESSAGE ---
+            
             _mock_console_log("="*50 + "\n")
             
- 
             # Allow the main application to handle the error
             return False
 

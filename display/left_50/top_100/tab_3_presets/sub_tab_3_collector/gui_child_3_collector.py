@@ -41,8 +41,9 @@ class DevicePresetsTab(ttk.Frame):
     A minimal GUI component for the Presets Tab with a single button.
     """
     def __init__(self, parent, mqtt_util: MqttControllerUtility = None, *args, **kwargs):
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
-        self.pack(fill="both", expand=True)
 
         self.mqtt_util = mqtt_util
         self.preset_worker = PresetFromDeviceWorker(mqtt_util=self.mqtt_util)
