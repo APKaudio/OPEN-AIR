@@ -23,7 +23,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/Trace"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250827.194600.1
+# Version 20251127.000000.1
 
 import os
 import inspect
