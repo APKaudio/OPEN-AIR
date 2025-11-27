@@ -15,7 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250925.234600.1
+# Version 20251127.000000.1
 
 import tkinter as tk
 from tkinter import filedialog, ttk
@@ -59,8 +59,8 @@ from workers.worker_marker_file_import_converter import (
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-current_version = "20250925.234600.1"
-current_version_hash = (20250925 * 234600 * 1)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")

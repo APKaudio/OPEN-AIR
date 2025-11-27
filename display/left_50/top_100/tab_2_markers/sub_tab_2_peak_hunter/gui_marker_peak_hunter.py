@@ -17,7 +17,7 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/repository/markers"
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250825.181840.1
+# Version 20251127.000000.1
 
 import os
 import inspect
@@ -35,11 +35,11 @@ from workers.worker_mqtt_data_flattening import MqttDataFlattenerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250825
-CURRENT_TIME = 181840
+CURRENT_DATE = 20251127
+CURRENT_TIME = 0
 REVISION_NUMBER = 1
-current_version = "20250825.181840.1"
-current_version_hash = 20250825 * 181840 * 1
+current_version = "20251127.000000.1"
+current_version_hash = 20251127 * 0 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
