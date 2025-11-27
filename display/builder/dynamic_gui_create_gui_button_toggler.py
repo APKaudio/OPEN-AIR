@@ -13,7 +13,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251019.212800.7 
+# Version 20251127.000000.1
 # FIXED: Implemented a mandatory delay between publishing the 'false' and 'true' messages
 #        to resolve the MQTT message ordering race condition and ensure the Manager processes
 #        the preset change correctly.
@@ -28,10 +28,9 @@ import time # CRITICAL: Import time for necessary delay
 from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
-current_version = "20251019.212800.7"
-current_version_hash = (20251019 * 212800 * 7)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
-
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2

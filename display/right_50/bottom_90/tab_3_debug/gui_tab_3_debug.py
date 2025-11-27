@@ -14,7 +14,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20251026.222055.1
+# Version 20251127.000000.1
 # MODIFIED: Inherits from the centralized BaseGUIFrame and uses clean attribute referencing.
 
 import os
@@ -36,8 +36,8 @@ from display.right_50.bottom_90.prototype.base_gui_component_rebuilt import Base
 
 
 # --- Global Scope Variables (Protocol 4.4) ---
-current_version = "20251026.222055.1"
-current_version_hash = (20251026 * 222055 * 1)
+current_version = "20251127.000000.1"
+current_version_hash = (20251127 * 0 * 1)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[4] 
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
