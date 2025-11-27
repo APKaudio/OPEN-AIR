@@ -6,6 +6,17 @@ import os
 import sys
 import io
 import re
+from workers.worker_active_logging import debug_log, console_log
+
+ENABLE_DEBUG = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if ENABLE_DEBUG:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if ENABLE_DEBUG:
+        console_log(message)
 
 class CSVToJSONApp(tk.Tk):
     """
@@ -20,10 +31,6 @@ class CSVToJSONApp(tk.Tk):
         self.csv_filepath = ""
         self.headers = []
         self.header_widgets = {}
-
-        # Capture print statements for debugging
-        self.debug_log = io.StringIO()
-        self.original_stdout = sys.stdout
 
         self.setup_frames()
         self.create_widgets()
@@ -219,9 +226,6 @@ class CSVToJSONApp(tk.Tk):
         """
         Helper function to generate JSON data from the current UI configuration.
         """
-        self.debug_log = io.StringIO()
-        sys.stdout = self.debug_log
-        print("Starting JSON generation...\n")
 
         try:
             df = pd.read_csv(self.csv_filepath, keep_default_na=False)
@@ -250,8 +254,8 @@ class CSVToJSONApp(tk.Tk):
 
             df.sort_values(by=sort_by_columns, inplace=True, kind='stable')
             
-            print(f"Header Configuration Map: {json.dumps(header_map, indent=2)}")
-            print(f"\nSorting by columns: {sort_by_columns}")
+            console_log_switch(f"Header Configuration Map: {json.dumps(header_map, indent=2)}")
+            console_log_switch(f"\nSorting by columns: {sort_by_columns}")
             
             root_name = self.root_name_entry.get()
             final_json = {root_name: []}
@@ -262,18 +266,18 @@ class CSVToJSONApp(tk.Tk):
                 messagebox.showerror("Error", "The root 'Hierarchical Key' or 'Value as Key' must be selected to form the root of the JSON structure.")
                 return {}
             
-            print("\nJSON generated successfully.")
+            console_log_switch("\nJSON generated successfully.")
             return final_json
         
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred during generation: {e}")
-            print(f"Error: {e}")
+            console_log_switch(f"Error: {e}")
             return {}
 
     def preview_json(self):
         """Generates and displays a preview of the JSON output."""
         if not self.csv_filepath or not os.path.exists(self.csv_filepath):
-            print("Please select a valid input CSV file to see a preview.")
+            console_log_switch("Please select a valid input CSV file to see a preview.")
             self.update_output_with_json({})
             return
 
@@ -336,11 +340,7 @@ class CSVToJSONApp(tk.Tk):
         except Exception as e:
             self.raw_json_text.insert(tk.END, f"Error formatting JSON: {e}")
         
-        sys.stdout = self.original_stdout
-        print(self.debug_log.getvalue())
-        sys.stdout = self.debug_log
-        self.debug_log.seek(0)
-        self.debug_log.truncate(0)
+
 
     def build_json_hierarchy(self, df, header_map, parent_key):
         """
@@ -348,7 +348,7 @@ class CSVToJSONApp(tk.Tk):
         This version now correctly handles multiple grouping keys per level.
         """
         output_list = []
-        print(f"\n--- build_json_hierarchy called with parent_key: '{parent_key}' and DataFrame size: {len(df)}")
+        console_log_switch(f"\n--- build_json_hierarchy called with parent_key: '{parent_key}' and DataFrame size: {len(df)}")
         
         # Get all headers nested under the current parent_key
         current_level_configs = sorted(
@@ -361,7 +361,7 @@ class CSVToJSONApp(tk.Tk):
         
         # Base case: No more grouping keys at this level
         if first_grouping_key_config is None:
-            print(f"No more grouping keys for parent_key: '{parent_key}'. Processing simple key-value pairs.")
+            console_log_switch(f"No more grouping keys for parent_key: '{parent_key}'. Processing simple key-value pairs.")
             output_list = []
             if not df.empty:
                 simple_configs = [h for h in current_level_configs if h['role'] in ["Simple Value", "Sub Key"]]

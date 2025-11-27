@@ -28,6 +28,16 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
+ENABLE_DEBUG = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if ENABLE_DEBUG:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if ENABLE_DEBUG:
+        console_log(message)
+
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250903
 CURRENT_TIME = 230800
@@ -90,7 +100,7 @@ def publish_recursive(mqtt_util, base_topic, data):
     else:
         cleaned_topic = base_topic.replace("#", "").replace("+", "")
         mqtt_util.publish_message(topic=cleaned_topic, subtopic="", value=json.dumps(data), retain=True)
-        console_log(f"Published topic: '{cleaned_topic}' with value: '{json.dumps(data)}'")
+        console_log_switch(f"Published topic: '{cleaned_topic}' with value: '{json.dumps(data)}'")
 
 def main(mqtt_util: MqttControllerUtility):
     """
@@ -102,12 +112,12 @@ def main(mqtt_util: MqttControllerUtility):
     """
     current_function_name = inspect.currentframe().f_code.co_name
 
-    debug_log(
+    debug_log_switch(
         message="🖥️🟢 Entering 'main' to publish JSON datasets.",
         file=current_file,
         version=current_version,
         function=f"dataset_publisher.{current_function_name}",
-        console_print_func=console_log
+        console_print_func=console_log_switch
     )
     
     try:
@@ -117,10 +127,10 @@ def main(mqtt_util: MqttControllerUtility):
         json_files = [f for f in os.listdir(current_directory) if f.startswith('dataset_') and f.endswith('.json')]
             
         if not json_files:
-            console_log("No JSON files starting with 'dataset_' found in the current directory.")
+            console_log_switch("No JSON files starting with 'dataset_' found in the current directory.")
             return
 
-        console_log(f"Found {len(json_files)} 'dataset_' JSON file(s) to publish. Publishing recursively...")
+        console_log_switch(f"Found {len(json_files)} 'dataset_' JSON file(s) to publish. Publishing recursively...")
 
         for file_name in json_files:
             file_path = os.path.join(current_directory, file_name)
@@ -138,12 +148,12 @@ def main(mqtt_util: MqttControllerUtility):
             root_topic = f"OPEN-AIR/{file_topic_path}"
             
             try:
-                debug_log(
+                debug_log_switch(
                     message=f"🔍🔵 Processing file: '{file_name}'",
                     file=current_file,
                     version=current_version,
                     function=f"dataset_publisher.{current_function_name}",
-                    console_print_func=console_log
+                    console_print_func=console_log_switch
                 )
                 with open(file_path, 'r') as f:
                     data = json.load(f)
@@ -151,25 +161,25 @@ def main(mqtt_util: MqttControllerUtility):
                 mqtt_util.publish_message(topic=f"{root_topic}/#", subtopic="", value="", retain=True)
                 
                 publish_recursive(mqtt_util, root_topic, data)
-                console_log(f"✅ Finished processing file: '{file_name}'")
+                console_log_switch(f"✅ Finished processing file: '{file_name}'")
 
             except json.JSONDecodeError:
-                print(f"Error: Could not decode JSON from file '{file_name}'. Skipping.")
+                console_log_switch(f"Error: Could not decode JSON from file '{file_name}'. Skipping.")
             except Exception as e:
-                print(f"An unexpected error occurred while processing '{file_name}': {e}")
+                console_log_switch(f"An unexpected error occurred while processing '{file_name}': {e}")
             
 
     except Exception as e:
-        console_log(f"❌ Error in {current_function_name}: {e}")
-        debug_log(
+        console_log_switch(f"❌ Error in {current_function_name}: {e}")
+        debug_log_switch(
             message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
             file=current_file,
             version=current_version,
             function=f"dataset_publisher.{current_function_name}",
-            console_print_func=console_log
+            console_print_func=console_log_switch
         )
 
 if __name__ == "__main__":
     # This block would typically be called from a main application script
     # For standalone testing, you'd need to mock MqttControllerUtility
-    print("This script is designed to be imported as a module. Exiting.")
+    console_log_switch("This script is designed to be imported as a module. Exiting.")

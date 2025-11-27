@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import subprocess
 import sys
 import os
@@ -63,3 +64,16 @@ def build():
 
 if __name__ == "__main__":
     build()
+=======
+from workers.worker_active_logging import debug_log, console_log
+ENABLE_DEBUG = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if ENABLE_DEBUG:
+        debug_log_switch(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if ENABLE_DEBUG:
+        console_log_switch(message)
+
+>>>>>>> Stashed changes
