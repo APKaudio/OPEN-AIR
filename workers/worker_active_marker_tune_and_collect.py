@@ -1,5 +1,16 @@
 # workers/worker_active_marker_tune_and_collect.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # This worker listens for a start command and then continuously loops through all
 # markers from the repository, gets their peak values from the instrument, and
 # updates the repository with the new peak data.
@@ -35,6 +46,7 @@ current_version = "20251006.225130.6"
 current_version_hash = (20251006 * 225130 * 6)
 current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
+Local_Debug_Enable = False
 
 # --- NEW CONSTANT: Frequency Buffer (in MHz) ---
 BUFFER_START_STOP_MHZ = 0.1
@@ -74,11 +86,12 @@ class MarkerGoGetterWorker:
     def __init__(self, mqtt_util: MqttControllerUtility):
         # Initializes the worker, sets up state variables, and subscribes to topics.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Initializing the tireless Marker Go-Getter!",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing the tireless Marker Go-Getter!",
+                file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         self.mqtt_util = mqtt_util
         self.processing_thread = None
@@ -191,11 +204,12 @@ class MarkerGoGetterWorker:
             
             self.mqtt_util.publish_message(topic=marker_topic, subtopic="", value=freq_hz, retain=True)
             
-            debug_log(
-                message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
-                file=current_file, version=current_version, function=current_function_name,
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
+                    file=current_file, version=current_version, function=current_function_name,
+                    console_print_func=console_log
+                )
         
         time.sleep(0.2) # Short delay to let the place markers inputs set
 
@@ -235,11 +249,12 @@ class MarkerGoGetterWorker:
             self.max_frequency_mhz == self.last_max_freq and
             not self.first_run):
             
-            debug_log(
-                message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
-                file=current_file, version=current_version, function=current_function_name,
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
+                    file=current_file, version=current_version, function=current_function_name,
+                    console_print_func=console_log
+                )
             return
 
         # Update last known state
@@ -310,13 +325,14 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
     based on a selected marker, and then triggers the SCPI command.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="🛠️🟢 Received request to tune to marker. Processing data...",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message="🛠️🟢 Received request to tune to marker. Processing data...",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
 
     try:
         # Define the MQTT topics as constants
@@ -328,13 +344,14 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
-            debug_log(
-                message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
-                file=current_file,
-                version=current_version,
-                function=f"{current_function}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
             console_log("❌ Failed to tune: Marker data is incomplete.")
             return
 
@@ -343,23 +360,25 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             # FIX: Convert to integer for HZ value
             center_freq_hz = int(freq_mhz * HZ_TO_MHZ)
         except (ValueError, TypeError) as e:
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Error converting frequency to float: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
+            console_log("❌ Failed to tune: Invalid frequency value.")
+            return
+
+        if Local_Debug_Enable:
             debug_log(
-                message=f"❌🔴 Error converting frequency to float: {e}",
+                message=f"🔍 Freq from marker: {freq_mhz} MHz -> {center_freq_hz} Hz. Setting Span to {DEFAULT_SPAN_HZ} Hz.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-            console_log("❌ Failed to tune: Invalid frequency value.")
-            return
-
-        debug_log(
-            message=f"🔍 Freq from marker: {freq_mhz} MHz -> {center_freq_hz} Hz. Setting Span to {DEFAULT_SPAN_HZ} Hz.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
         
         # FIX: Ensure all values published are integers
         mqtt_controller.publish_message(topic=CENTER_FREQ_TOPIC, subtopic="", value=center_freq_hz)
@@ -369,33 +388,36 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         console_log(f"✅ Set SPAN_FREQ to {int(DEFAULT_SPAN_HZ)} Hz.")
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=True)
-        debug_log(
-            message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=False)
-        debug_log(
-            message="🛠️🔵 Trigger reset to False. Command sequence complete.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔵 Trigger reset to False. Command sequence complete.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
         console_log("✅ Tuning command sequence complete.")
 
     except Exception as e:
-        debug_log(
-            message=f"❌🔴 Critical error during marker tuning: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 Critical error during marker tuning: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"❌ An error occurred while tuning to the marker: {e}")
 
 def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
@@ -404,13 +426,14 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
     then publishes the values and triggers the SCPI command.
     """
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(
-        message=f"🛠️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message=f"🛠️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
 
     try:
         # Define the MQTT topics as constants
@@ -420,13 +443,14 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
-            debug_log(
-                message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
-                file=current_file,
-                version=current_version,
-                function=f"{current_function}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
             console_log("❌ Failed to tune: Marker data is incomplete.")
             return
 
@@ -434,13 +458,14 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
             freq_mhz = float(freq_mhz)
             center_freq_hz = freq_mhz * HZ_TO_MHZ
         except (ValueError, TypeError) as e:
-            debug_log(
-                message=f"❌🔴 Error converting frequency to float: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{current_function}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Error converting frequency to float: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
             console_log("❌ Failed to tune: Invalid frequency value.")
             return
 
@@ -449,13 +474,14 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         start_freq_hz = int(center_freq_hz - buffer)
         stop_freq_hz = int(center_freq_hz + buffer)
 
-        debug_log(
-            message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
         # Publish start frequency
         mqtt_controller.publish_message(topic=START_FREQ_TOPIC, subtopic="", value=start_freq_hz)
@@ -467,32 +493,35 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         # Trigger SCPI command
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=True)
-        debug_log(
-            message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
         # Reset the trigger
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=False)
-        debug_log(
-            message="🛠️🔵 Trigger reset to False. Command sequence complete.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔵 Trigger reset to False. Command sequence complete.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
         console_log("✅ Tuning command sequence complete.")
 
     except Exception as e:
-        debug_log(
-            message=f"❌🔴 Critical error during marker tuning with buffer: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 Critical error during marker tuning with buffer: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"❌ An error occurred while tuning to the marker with a buffer: {e}")

@@ -1,5 +1,16 @@
 # workers/worker_active_logging.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A central utility file to provide standardized logging functions for the entire application,
 # including console output, file writing, and conditional logging for specialized data like VISA commands.
 #
@@ -33,6 +44,7 @@ from workers.worker_project_paths import GLOBAL_PROJECT_ROOT
 current_version = "20251026.225659.1"
 current_version_hash = (20251026 * 225659 * 1)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
@@ -156,23 +168,28 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     # Logs a detailed debug message to the specified outputs.
     if not global_settings["general_debug_enabled"]:
         return
-
-    # Truncate the message before prepending metadata
-    truncated_message = _truncate_message(message)
-    
-    # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
-    log_entry = f"{truncated_message} | {file} | {version} Function: {function}"
-
-    # 1. Log to console output
-    if global_settings["debug_to_terminal"]:
-        console_print_func(log_entry)
-
-    # 2. Log to main debug file
-    if global_settings["debug_to_file"]:
-        _log_to_file(log_entry, get_log_filename())
         
-    # 3. Log to errors file if it contains the marker
-    _log_to_error_file(message)
+    # Get the calling frame
+    frame = inspect.currentframe().f_back
+    
+    # Check if Local_Debug_Enable is defined and True in the calling frame
+    if 'Local_Debug_Enable' in frame.f_globals and frame.f_globals['Local_Debug_Enable']:
+        # Truncate the message before prepending metadata
+        truncated_message = _truncate_message(message)
+        
+        # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
+        log_entry = f"{truncated_message} | {file} | {version} Function: {function}"
+
+        # 1. Log to console output
+        if global_settings["debug_to_terminal"]:
+            console_print_func(log_entry)
+
+        # 2. Log to main debug file
+        if global_settings["debug_to_file"]:
+            _log_to_file(log_entry, get_log_filename())
+            
+        # 3. Log to errors file if it contains the marker
+        _log_to_error_file(message)
 
 
 # PUBLIC API: Implemented as per the user's explicit request.

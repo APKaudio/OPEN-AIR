@@ -1,5 +1,16 @@
 # workers/worker_preset_pusher.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A worker module to process a selected preset and push the corresponding
 # SCPI commands via MQTT to configure the instrument.
 #
@@ -29,6 +40,7 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 current_version = "20250919.231000.1"
 current_version_hash = (20250919 * 231000 * 1)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 HZ_TO_MHZ = 1_000_000
 
@@ -68,13 +80,14 @@ class PresetPusherWorker:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.mqtt_controller = mqtt_controller
-        debug_log(
-            message=f"🛠️🟢 The preset pusher has been summoned!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 The preset pusher has been summoned!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
     def Tune_to_preset(self, preset_values):
         """
@@ -84,13 +97,14 @@ class PresetPusherWorker:
             preset_values (list): A list of values for the selected preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Attuning the instrument to the selected preset. Ready the coils!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Attuning the instrument to the selected preset. Ready the coils!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         # Mapping the input list to readable variables
         keys = [
@@ -115,10 +129,11 @@ class PresetPusherWorker:
             console_log("✅ Start/Stop frequencies set.")
         except Exception as e:
             console_log(f"❌ Error setting Start/Stop frequencies: {e}")
-            debug_log(
-                message=f"🛠️🔴 The frequency setter is on the fritz! The error be: {e}",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 The frequency setter is on the fritz! The error be: {e}",
+                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                )
 
         # --- Conditional: Set RBW ---
         if preset_dict.get('RBW') is not None and preset_dict.get('RBW').lower() != 'null':
@@ -157,13 +172,14 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=False)
             console_log("✅ Trace modes set.")
         
-        debug_log(
-            message=f"🛠️✅ The tuning sequence is complete! All command triggers have been sent.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️✅ The tuning sequence is complete! All command triggers have been sent.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
 
 if __name__ == "__main__":

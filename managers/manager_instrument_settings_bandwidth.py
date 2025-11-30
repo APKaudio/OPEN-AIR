@@ -1,5 +1,16 @@
 # managers/manager_instrument_settings_bandwidth.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A manager for bandwidth-related settings (RBW, VBW, Sweep Time), ensuring that
 # the GUI state and device commands are synchronized.
 #
@@ -38,6 +49,7 @@ current_version = "20251019.224155.13"
 # Note: For hashing, any leading zero in the hour is dropped (e.g., 083015 becomes 83015).
 current_version_hash = (20251019 * 224155 * 13)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class BandwidthSettingsManager:
@@ -123,33 +135,36 @@ class BandwidthSettingsManager:
             f"{self.base_topic}/Settings/fields/Sweep_Mode/options/Single/selected": False, 
         }
         
-        debug_log(
-            message=f"🛠️🟢 Initializing BandwidthSettingsManager. Args: mqtt_controller={id(mqtt_controller)}. Internal maps initialized.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing BandwidthSettingsManager. Args: mqtt_controller={id(mqtt_controller)}. Internal maps initialized.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._subscribe_to_topics()
         
         # FIXED: Explicitly request initial config state to populate preset maps.
-        debug_log(
-            message=f"🛠️🔵 Forcing initial NAB update to populate preset maps (RBW/VBW config values).",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🔵 Forcing initial NAB update to populate preset maps (RBW/VBW config values).",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         self._update_all_from_device()
         
-        debug_log(
-            message=f"🛠️🟢 Initialization complete. Current internal values: RBW={self.rbw_value}, VBW={self.vbw_value}, SweepTime={self.sweep_time_value}. Locked state keys: {list(self._locked_state.keys())}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initialization complete. Current internal values: RBW={self.rbw_value}, VBW={self.vbw_value}, SweepTime={self.sweep_time_value}. Locked state keys: {list(self._locked_state.keys())}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
 
     def _subscribe_to_topics(self):
@@ -177,35 +192,38 @@ class BandwidthSettingsManager:
             f"{self.base_topic}/Settings/fields/Sweep_Mode/options/Single/selected", 
         ]
         
-        debug_log(
-            message=f"🔍🟢 Starting subscription process for {len(topic_list) + len(self.YAK_NAB_OUTPUTS)} topics.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        for topic in topic_list:
-            self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🔍 Subscribed GUI/Config topic: '{topic}'.",
+                message=f"🔍🟢 Starting subscription process for {len(topic_list) + len(self.YAK_NAB_OUTPUTS)} topics.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+        
+        for topic in topic_list:
+            self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed GUI/Config topic: '{topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
         for yak_suffix in BandwidthSettingsManager.YAK_NAB_OUTPUTS.keys():
             # YAK_NAB_OUTPUTS keys now include the suffix, e.g., "RBW_Hz/value"
             yak_topic = f"{self.YAK_BASE}/nab/NAB_bandwidth_settings/scpi_outputs/{yak_suffix}"
             self.mqtt_controller.add_subscriber(topic_filter=yak_topic, callback_func=self._on_message)
-            debug_log(
-                message=f"🔍 Subscribed YAK output topic: '{yak_topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed YAK output topic: '{yak_topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _publish_rbw_and_trigger(self, value_mhz):
         # NOTE: Using placeholder for current_function_name
@@ -213,13 +231,14 @@ class BandwidthSettingsManager:
         # Publish value is the integer Hz equivalent
         value_hz = int(round(value_mhz * self.HZ_TO_MHZ))
         
-        debug_log(
-            message=f"🐐🔵 Converting RBW MHz={value_mhz} to Hz={value_hz}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🐐🔵 Converting RBW MHz={value_mhz} to Hz={value_hz}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._publish_to_yak_and_trigger(
             value=value_hz, 
@@ -231,13 +250,14 @@ class BandwidthSettingsManager:
         # NOTE: Using placeholder for current_function_name
         current_function_name = "BandwidthSettingsManager._publish_sweep_time_and_trigger"
         
-        debug_log(
-            message=f"🐐🔵 Publishing raw Sweep Time (s): {value_s}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🐐🔵 Publishing raw Sweep Time (s): {value_s}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._publish_to_yak_and_trigger(
             value=float(value_s),
@@ -251,13 +271,14 @@ class BandwidthSettingsManager:
         # Publish value is the integer Hz equivalent
         value_hz = int(round(value_mhz * self.HZ_TO_MHZ))
         
-        debug_log(
-            message=f"🐐🔵 Converting VBW MHz={value_mhz} to Hz={value_hz}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🐐🔵 Converting VBW MHz={value_mhz} to Hz={value_hz}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._publish_to_yak_and_trigger(
             value=value_hz, 
@@ -269,56 +290,62 @@ class BandwidthSettingsManager:
         # NOTE: Using placeholder for current_function_name
         current_function_name = "BandwidthSettingsManager._publish_vbw_auto_and_trigger"
         
-        debug_log(f"🐐🟢 Entering {current_function_name} with is_auto_on={is_auto_on}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🐐🟢 Entering {current_function_name} with is_auto_on={is_auto_on}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         
         try:
             trigger_topic = self.YAK_VBW_AUTO_ON_TRIGGER if is_auto_on else self.YAK_VBW_AUTO_OFF_TRIGGER
             
-            debug_log(
-                message=f"🐐🔵 Publishing True to trigger topic: {trigger_topic}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐🔵 Publishing True to trigger topic: {trigger_topic}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
             time.sleep(0.01)
             self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
             
-            debug_log(
-                message=f"🐐✅ VBW Auto {'ON' if is_auto_on else 'OFF'} dispatched to {trigger_topic}. Calling update.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ VBW Auto {'ON' if is_auto_on else 'OFF'} dispatched to {trigger_topic}. Calling update.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
             self._update_all_from_device()
 
         except Exception as e:
             console_log(f"❌ Error dispatching VBW Auto command: {e}")
-            debug_log(
-                message=f"🛠️🔴 VBW Auto dispatch failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 VBW Auto dispatch failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _publish_to_yak_and_trigger(self, value, input_topic, trigger_topic):
         # NOTE: Using placeholder for current_function_name
         current_function_name = "BandwidthSettingsManager._publish_to_yak_and_trigger"
         
-        debug_log(f"🐐🟢 Entering {current_function_name}. Value='{value}', Input='{input_topic}', Trigger='{trigger_topic}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🐐🟢 Entering {current_function_name}. Value='{value}', Input='{input_topic}', Trigger='{trigger_topic}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
         try:
-            debug_log(
-                message=f"🐐🔵 Publishing retained value '{value}' to input topic: {input_topic}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐🔵 Publishing retained value '{value}' to input topic: {input_topic}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             self.mqtt_controller.publish_message(
                 topic=input_topic,
                 subtopic="",
@@ -326,47 +353,51 @@ class BandwidthSettingsManager:
                 retain=True
             )
 
-            debug_log(
-                message=f"🐐🔵 Publishing True/False sequence to trigger topic: {trigger_topic}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐🔵 Publishing True/False sequence to trigger topic: {trigger_topic}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
             time.sleep(0.01)
             self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
             
-            debug_log(
-                message=f"🐐✅ YAK command sequence complete. Calling update.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ YAK command sequence complete. Calling update.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
             self._update_all_from_device()
 
         except Exception as e:
             console_log(f"❌ Error dispatching YAK command: {e}")
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 YAK dispatch failed! Input='{input_topic}'. The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+            
+    def _update_all_from_device(self):
+        # NOTE: Using placeholder for current_function_name
+        current_function_name = "BandwidthSettingsManager._update_all_from_device"
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🛠️🔴 YAK dispatch failed! Input='{input_topic}'. The error be: {e}",
+                message=f"🐐🟢 Entering {current_function_name}. Triggering NAB_bandwidth_settings to synchronize all 5 values.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            
-    def _update_all_from_device(self):
-        # NOTE: Using placeholder for current_function_name
-        current_function_name = "BandwidthSettingsManager._update_all_from_device"
-        debug_log(
-            message=f"🐐🟢 Entering {current_function_name}. Triggering NAB_bandwidth_settings to synchronize all 5 values.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
         self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=True, retain=False)
         time.sleep(0.01)
@@ -378,40 +409,44 @@ class BandwidthSettingsManager:
         # Gets the numeric multiplier for a given unit string (e.g., "kHz" -> 1000)
         current_function_name = "BandwidthSettingsManager._get_multiplier"
         
-        debug_log(f"🔍🟢 Entering {current_function_name} with unit_string='{unit_string}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🔍🟢 Entering {current_function_name} with unit_string='{unit_string}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         
         try:
             # Clean and uppercase the unit string for lookup
             clean_unit = unit_string.strip().upper()
             multiplier = self.UNIT_MULTIPLIERS.get(clean_unit, 1.0)
             
-            debug_log(
-                message=f"🔍🔵 Looked up clean unit '{clean_unit}'. Multiplier found: {multiplier}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-            
-            if multiplier == 1.0 and clean_unit not in self.UNIT_MULTIPLIERS:
+            if Local_Debug_Enable:
                 debug_log(
-                    message=f"🟡 Unknown unit string '{unit_string}'. Defaulting multiplier to 1.0 (assuming Hz/s).",
+                    message=f"🔍🔵 Looked up clean unit '{clean_unit}'. Multiplier found: {multiplier}.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
             
+            if multiplier == 1.0 and clean_unit not in self.UNIT_MULTIPLIERS:
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🟡 Unknown unit string '{unit_string}'. Defaulting multiplier to 1.0 (assuming Hz/s).",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+            
             return multiplier
 
         except Exception as e:
-            debug_log(
-                message=f"🛠️🔴 Failed to calculate unit multiplier for '{unit_string}'. The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Failed to calculate unit multiplier for '{unit_string}'. The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return 1.0 # Default to 1.0 on error
 
 
@@ -419,7 +454,8 @@ class BandwidthSettingsManager:
         # NOTE: Using placeholder for current_function_name
         current_function_name = "BandwidthSettingsManager._process_yak_output"
         
-        debug_log(f"🐐🟢 Entering {current_function_name}. Topic='{topic}', Raw Payload='{payload}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🐐🟢 Entering {current_function_name}. Topic='{topic}', Raw Payload='{payload}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         
         try:
             # Note: yak_suffix now includes '/value' e.g. "RBW_Hz/value"
@@ -427,23 +463,27 @@ class BandwidthSettingsManager:
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             
             if not gui_suffix:
-                debug_log(f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 return
 
             try:
                 # Payload extraction is always tricky, log both states.
                 raw_value_json = json.loads(payload)
                 raw_value = raw_value_json.get('value', payload)
-                debug_log(f"🔍🔵 Parsed payload. raw_value='{raw_value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Parsed payload. raw_value='{raw_value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except (json.JSONDecodeError, TypeError):
                 raw_value = payload
-                debug_log(f"🔍🔵 Failed JSON parse. Using raw payload. raw_value='{raw_value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Failed JSON parse. Using raw payload. raw_value='{raw_value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             
             full_gui_topic = f"{self.base_topic}/{gui_suffix}"
             
             # --- START LOCKING THE GUI TOPIC BEFORE PUBLICATION ---
             if full_gui_topic in self._locked_state:
-                debug_log(f"🔒🔵 Setting lock state for NAB echo topic: {full_gui_topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔒🔵 Setting lock state for NAB echo topic: {full_gui_topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._locked_state[full_gui_topic] = True
             # --- END LOCKING ---
             
@@ -452,26 +492,30 @@ class BandwidthSettingsManager:
                 final_value_hz = float(raw_value)
                 final_value_mhz = final_value_hz / self.HZ_TO_MHZ
                 self.rbw_value = final_value_mhz 
-                debug_log(f"🔍🔵 RBW conversion: {final_value_hz} Hz -> {final_value_mhz} MHz. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 RBW conversion: {final_value_hz} Hz -> {final_value_mhz} MHz. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._publish_update(topic_suffix=gui_suffix, value=final_value_mhz)
                 
             elif "VBW_Hz" in yak_suffix:
                 final_value_hz = float(raw_value)
                 final_value_mhz = final_value_hz / self.HZ_TO_MHZ
                 self.vbw_value = final_value_mhz
-                debug_log(f"🔍🔵 VBW conversion: {final_value_hz} Hz -> {final_value_mhz} MHz. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 VBW conversion: {final_value_hz} Hz -> {final_value_mhz} MHz. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._publish_update(topic_suffix=gui_suffix, value=final_value_mhz)
                 
             elif "VBW_Auto_On" in yak_suffix:
                 is_on = (str(raw_value).strip() == '1')
-                debug_log(f"🔍🔵 VBW Auto: Raw='{raw_value}', is_on={is_on}. Publishing updates.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 VBW Auto: Raw='{raw_value}', is_on={is_on}. Publishing updates.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._publish_update(topic_suffix="Settings/fields/VBW_Automatic/options/ON/selected", value=is_on)
                 self._publish_update(topic_suffix="Settings/fields/VBW_Automatic/options/OFF/selected", value=not is_on)
                 
             # LOGICAL MAPPING: Continuous Mode (Receives boolean)
             elif "Continuous_Mode_On" in yak_suffix:
                 is_on = (str(raw_value).strip() == '1')
-                debug_log(f"🔍🔵 Continuous Mode: Raw='{raw_value}', is_on={is_on}. Publishing updates for Continuous/Single.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Continuous Mode: Raw='{raw_value}', is_on={is_on}. Publishing updates for Continuous/Single.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 
                 # Update Continuous Mode toggle
                 self._publish_update(topic_suffix="Settings/fields/Sweep_Mode/options/Continuous/selected", value=is_on)
@@ -484,27 +528,30 @@ class BandwidthSettingsManager:
             elif "Sweep_Time_s" in yak_suffix:
                 final_value = float(raw_value)
                 self.sweep_time_value = final_value
-                debug_log(f"🔍🔵 Sweep Time: {final_value} s. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Sweep Time: {final_value} s. Publishing update.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._publish_update(topic_suffix=gui_suffix, value=final_value)
 
 
-            debug_log(
-                message=f"🐐✅ YAK output processed. Synced {gui_suffix} with '{raw_value}'. Exiting function.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ YAK output processed. Synced {gui_suffix} with '{raw_value}'. Exiting function.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
         except Exception as e:
             console_log(f"❌ Error processing YAK output for {topic}: {e}")
-            debug_log(
-                message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
 
     # --- Message Handler and Logic ---
@@ -513,7 +560,8 @@ class BandwidthSettingsManager:
         # NOTE: Using placeholder for current_function_name
         current_function_name = "BandwidthSettingsManager._on_message"
         
-        debug_log(f"🛠️🟢 Entering {current_function_name}. Topic='{topic}', Raw Payload='{payload}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🛠️🟢 Entering {current_function_name}. Topic='{topic}', Raw Payload='{payload}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         
         if topic.startswith(f"{self.YAK_BASE}/nab/NAB_bandwidth_settings/scpi_outputs"):
             self._process_yak_output(topic, payload)
@@ -523,13 +571,16 @@ class BandwidthSettingsManager:
             try:
                 parsed_payload = json.loads(payload)
                 value = parsed_payload.get('value', payload)
-                debug_log(f"🔍🔵 Payload parsed successfully. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Payload parsed successfully. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except json.JSONDecodeError:
                 value = payload
-                debug_log(f"🔍🔵 Payload is not JSON. Using raw payload. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Payload is not JSON. Using raw payload. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         except Exception:
             value = payload
-            debug_log(f"🔍🔵 General payload parsing error. Using raw payload. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+            if Local_Debug_Enable:
+                debug_log(f"🔍🔵 General payload parsing error. Using raw payload. Value='{value}'.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
         # Helper to extract option number
         def _get_option_number(t):
@@ -541,13 +592,14 @@ class BandwidthSettingsManager:
 
         # --- START LOCK CHECK ---
         if self._locked_state.get(topic, False):
-            debug_log(
-                message=f"🟡 Message on locked topic '{topic}' received. Value='{value}'. IGNORING to prevent loop. UNLOCKING topic.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🟡 Message on locked topic '{topic}' received. Value='{value}'. IGNORING to prevent loop. UNLOCKING topic.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             # UNLOCK THE TOPIC IMMEDIATELY AFTER RECEIVING THE ECHO
             self._locked_state[topic] = False
             return
@@ -562,9 +614,11 @@ class BandwidthSettingsManager:
                     value_float = float(str(value))
                     # Store the value 
                     self.rbw_preset_values[option_number] = value_float 
-                    debug_log(f"💾 Stored RBW preset RAW value: Option {option_number} is {value_float}. Map size: {len(self.rbw_preset_values)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"💾 Stored RBW preset RAW value: Option {option_number} is {value_float}. Map size: {len(self.rbw_preset_values)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except Exception as e:
-                debug_log(f"🟡 Error processing RBW preset value: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Error processing RBW preset value: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             return
         
         # --- LOGIC FOR POPULATING VBW PRESET MAPS (Value Topics) ---
@@ -575,9 +629,11 @@ class BandwidthSettingsManager:
                     value_float = float(str(value))
                     # Store the value 
                     self.vbw_preset_values[option_number] = value_float 
-                    debug_log(f"💾 Stored VBW preset RAW value: Option {option_number} is {value_float}. Map size: {len(self.vbw_preset_values)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"💾 Stored VBW preset RAW value: Option {option_number} is {value_float}. Map size: {len(self.vbw_preset_values)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except Exception as e:
-                debug_log(f"🟡 Error processing VBW preset value: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Error processing VBW preset value: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             return
         
         # --- LOGIC FOR POPULATING RBW PRESET MAPS (Unit Topics) ---
@@ -587,9 +643,11 @@ class BandwidthSettingsManager:
                 if option_number is not None:
                     unit_str = str(value)
                     self.rbw_preset_units[option_number] = unit_str 
-                    debug_log(f"💾 Stored RBW preset unit: Option {option_number} is '{unit_str}'. Map size: {len(self.rbw_preset_units)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"💾 Stored RBW preset unit: Option {option_number} is '{unit_str}'. Map size: {len(self.rbw_preset_units)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except Exception as e:
-                debug_log(f"🟡 Error processing RBW preset unit: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Error processing RBW preset unit: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             return
             
         # --- LOGIC FOR POPULATING VBW PRESET MAPS (Unit Topics) ---
@@ -599,53 +657,63 @@ class BandwidthSettingsManager:
                 if option_number is not None:
                     unit_str = str(value)
                     self.vbw_preset_units[option_number] = unit_str 
-                    debug_log(f"💾 Stored VBW preset unit: Option {option_number} is '{unit_str}'. Map size: {len(self.vbw_preset_units)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"💾 Stored VBW preset unit: Option {option_number} is '{unit_str}'. Map size: {len(self.vbw_preset_units)}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             except Exception as e:
-                debug_log(f"🟡 Error processing VBW preset unit: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Error processing VBW preset unit: {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             return
             
         
         try:
             # Attempt conversion outside of specific blocks
             new_val_float = float(value) if isinstance(value, (int, float)) or (isinstance(value, str) and value.replace('.', '', 1).isdigit()) else None
-            debug_log(f"🔍🔵 Value conversion check: new_val_float={new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+            if Local_Debug_Enable:
+                debug_log(f"🔍🔵 Value conversion check: new_val_float={new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
 
             if topic.endswith("/RBW/value"):
                 if new_val_float is not None:
-                    debug_log(f"🔍🔵 Current RBW value: {self.rbw_value}. New value: {new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"🔍🔵 Current RBW value: {self.rbw_value}. New value: {new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                     
                     if self.rbw_value is None or abs(self.rbw_value - new_val_float) > 0.1:
                         self.rbw_value = new_val_float
                         self._publish_rbw_and_trigger(value_mhz=new_val_float) 
                     else:
-                        debug_log("🟡 RBW change below threshold (0.1 MHz). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                        if Local_Debug_Enable:
+                            debug_log("🟡 RBW change below threshold (0.1 MHz). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
                 
             elif topic.endswith("/Sweep_time_s/value"):
                 if new_val_float is not None:
-                    debug_log(f"🔍🔵 Current Sweep Time value: {self.sweep_time_value}. New value: {new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"🔍🔵 Current Sweep Time value: {self.sweep_time_value}. New value: {new_val_float}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                     
                     if self.sweep_time_value is None or abs(self.sweep_time_value - new_val_float) > 0.001: 
                         self.sweep_time_value = new_val_float
                         self._publish_sweep_time_and_trigger(value_s=new_val_float)
                     else:
-                        debug_log("🟡 Sweep Time change below threshold (0.001 s). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                        if Local_Debug_Enable:
+                            debug_log("🟡 Sweep Time change below threshold (0.001 s). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
 
             elif topic.endswith("/vbw_MHz/value"):
                 if new_val_float is not None:
                     new_val_mhz = new_val_float
-                    debug_log(f"🔍🔵 Current VBW value: {self.vbw_value}. New value: {new_val_mhz}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"🔍🔵 Current VBW value: {self.vbw_value}. New value: {new_val_mhz}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                     if self.vbw_value is None or abs(self.vbw_value - new_val_mhz) > 0.001:
                         self.vbw_value = new_val_mhz
                         self._publish_vbw_and_trigger(value_mhz=new_val_mhz) 
                     else:
-                        debug_log("🟡 VBW change below threshold (0.001 MHz). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                        if Local_Debug_Enable:
+                            debug_log("🟡 VBW change below threshold (0.001 MHz). Ignoring.", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
             
             elif "Resolutiin_Band_Width/options" in topic and topic.endswith("/selected") and str(value).lower() == 'true':
-                debug_log(f"🔍🔵 Preset Button Pressed (RBW). Topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Preset Button Pressed (RBW). Topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._apply_preset(
                     topic=topic, 
                     preset_value_map=self.rbw_preset_values, 
@@ -655,7 +723,8 @@ class BandwidthSettingsManager:
                 )
 
             elif "Video_Band_Width_/options" in topic and topic.endswith("/selected") and str(value).lower() == 'true':
-                debug_log(f"🔍🔵 Preset Button Pressed (VBW). Topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Preset Button Pressed (VBW). Topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 self._apply_preset(
                     topic=topic, 
                     preset_value_map=self.vbw_preset_values,
@@ -666,27 +735,30 @@ class BandwidthSettingsManager:
                     
             elif "VBW_Automatic/options" in topic and topic.endswith("/selected"):
                 is_selected = str(value).lower() == 'true'
-                debug_log(f"🔍🔵 VBW Auto toggle detected. is_selected={is_selected}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 VBW Auto toggle detected. is_selected={is_selected}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 if is_selected:
                     is_on = "ON" in topic
                     self._publish_vbw_auto_and_trigger(is_auto_on=is_on)
                     
             elif "Sweep_Mode/options/Continuous/selected" in topic:
                 is_selected = str(value).lower() == 'true'
-                debug_log(f"🔍🔵 Sweep Mode Continuous toggle detected. is_selected={is_selected}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Sweep Mode Continuous toggle detected. is_selected={is_selected}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 # No YAK command is triggered from here; this is likely just for locking the sweep time value if going into Continuous mode
 
             console_log("✅ Celebration of success! The bandwidth settings logic ran.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The logic has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Arrr, the code be capsized! The logic has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     # --- Preset Helper ---
     
@@ -694,7 +766,8 @@ class BandwidthSettingsManager:
         # Applies a preset value to both the GUI (in MHz) and the device (in Hz).
         current_function_name = "BandwidthSettingsManager._apply_preset"
         
-        debug_log(f"🔁🟢 Entering {current_function_name}. Topic='{topic}', is_rbw={is_rbw}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+        if Local_Debug_Enable:
+            debug_log(f"🔁🟢 Entering {current_function_name}. Topic='{topic}', is_rbw={is_rbw}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
         
         try:
             # 1. Get the option number, raw value, and unit string
@@ -702,7 +775,8 @@ class BandwidthSettingsManager:
             raw_value = preset_value_map.get(option_number)
             unit_string = preset_unit_map.get(option_number)
             
-            debug_log(f"🔍🔵 Preset lookup for option {option_number}: Raw Value='{raw_value}', Unit='{unit_string}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+            if Local_Debug_Enable:
+                debug_log(f"🔍🔵 Preset lookup for option {option_number}: Raw Value='{raw_value}', Unit='{unit_string}'", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
             
             if raw_value is not None and unit_string is not None:
                 # 2. Convert raw value + unit to final Hz value for YAK
@@ -712,13 +786,15 @@ class BandwidthSettingsManager:
                 # 3. Convert final Hz value to MHz for GUI Topic publication
                 new_value_mhz = final_value_hz / self.HZ_TO_MHZ
                 
-                debug_log(f"🔍🔵 Conversion complete: Multiplier={multiplier}, final_value_hz={final_value_hz}, new_value_mhz={new_value_mhz}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🔍🔵 Conversion complete: Multiplier={multiplier}, final_value_hz={final_value_hz}, new_value_mhz={new_value_mhz}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
                 full_target_topic = f"{self.base_topic}/{target_suffix}"
                 
                 # --- START LOCKING THE GUI TOPIC BEFORE PUBLICATION ---
                 if full_target_topic in self._locked_state:
-                    debug_log(f"🔒🔵 Setting lock state for NAB echo topic: {full_target_topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                    if Local_Debug_Enable:
+                        debug_log(f"🔒🔵 Setting lock state for NAB echo topic: {full_target_topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                     self._locked_state[full_target_topic] = True
                 # --- END LOCKING ---
                 
@@ -732,7 +808,8 @@ class BandwidthSettingsManager:
                     value=True,
                     retain=False
                 )
-                debug_log(f"💾 Published True state to button topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"💾 Published True state to button topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
                 
                 # 5. Publish to YAK Topic (in Hz) and trigger
                 yak_input = self.YAK_RBW_INPUT if is_rbw else self.YAK_VBW_INPUT
@@ -744,25 +821,27 @@ class BandwidthSettingsManager:
                     trigger_topic=yak_trigger
                 )
 
-                debug_log(
-                    message=f"🔁✅ Preset applied! Exiting function.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🔁✅ Preset applied! Exiting function.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
             else:
                 # --- REFRESH AND UN-SELECT LOGIC (Failure Path) ---
                 error_message = f"Preset data missing for option {option_number}. RAW value: {raw_value}, Unit: {unit_string}. Current Value Map Keys: {list(preset_value_map.keys())}. Current Unit Map Keys: {list(preset_unit_map.keys())}"
                 console_log(f"❌ Error: {error_message} Attempting to refresh configuration and un-select button...")
                 
-                debug_log(
-                    message=f"🛠️🔴 Preset lookup failed! Missing config data. Un-selecting button. The error be: {error_message}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🛠️🔴 Preset lookup failed! Missing config data. Un-selecting button. The error be: {error_message}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 
                 # 1. Un-select the button that was just pressed to clear the stuck state
                 self.mqtt_controller.publish_message(
@@ -771,20 +850,22 @@ class BandwidthSettingsManager:
                     value=False,
                     retain=False
                 )
-                debug_log(f"💾 Published False state to button topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"💾 Published False state to button topic: {topic}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}", console_print_func=console_log)
 
                 
                 # 2. Trigger a full update to prompt the MQTT broker to resend retained config messages.
                 self._update_all_from_device()
 
         except Exception as e:
-            debug_log(
-                message=f"🛠️🔴 Failed to apply preset from topic '{topic}'. The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Failed to apply preset from topic '{topic}'. The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     # --- Publishing Helper ---
 
@@ -797,13 +878,14 @@ class BandwidthSettingsManager:
         # Rounding for GUI display consistency
         rounded_value = round(float(value), 6) 
         
-        debug_log(
-            message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self.mqtt_controller.publish_message(
             topic=full_topic,

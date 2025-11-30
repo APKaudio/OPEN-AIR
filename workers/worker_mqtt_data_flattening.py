@@ -1,5 +1,16 @@
 # workers/worker_mqtt_data_flattening.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A utility module to process and flatten nested MQTT payloads into a format
 # suitable for display in a flat table or export to CSV. It buffers incoming
 # messages until a complete set is received, then pivots the data.
@@ -32,6 +43,7 @@ REVISION_NUMBER = 21
 current_version = "20250825.151032.21"
 current_version_hash = 63895914278400
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class MqttDataFlattenerUtility:
@@ -50,13 +62,14 @@ class MqttDataFlattenerUtility:
         """
         Clears the internal data buffer.
         """
-        debug_log(
-            message="🛠️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.clear_buffer",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.clear_buffer",
+                console_print_func=self._print_to_gui_console
+            )
         self.data_buffer = {}
         self.last_unique_identifier = None
 
@@ -81,13 +94,14 @@ class MqttDataFlattenerUtility:
             if self.data_buffer:
                 return self._flush_buffer()
             else:
-                debug_log(
-                    message="🛠️🟡 Flush command received, but buffer is empty. Nothing to do.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message="🛠️🟡 Flush command received, but buffer is empty. Nothing to do.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=self._print_to_gui_console
+                    )
                 return []
         
         try:
@@ -99,13 +113,14 @@ class MqttDataFlattenerUtility:
                 self.clear_buffer()
                 return []
             
-            debug_log(
-                message=f"🛠️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
 
             # Extract the unique data set identifier (the second-to-last node)
             relative_topic = topic.replace(f"{topic_prefix}/", "", 1)
@@ -127,24 +142,26 @@ class MqttDataFlattenerUtility:
             
         except json.JSONDecodeError as e:
             console_log(f"❌ Error decoding JSON payload for topic '{topic}': {e}")
-            debug_log(
-                message=f"🛠️🔴 The JSON be a-sailing to its doom! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 The JSON be a-sailing to its doom! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
             self.clear_buffer()
             return []
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
             self.clear_buffer()
             return []
 
@@ -154,13 +171,14 @@ class MqttDataFlattenerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
-            message="🛠️🟢 Processing buffer and commencing pivoting and flattening!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟢 Processing buffer and commencing pivoting and flattening!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         
         flattened_data = {}
         flattened_data['Parameter'] = self.last_unique_identifier
@@ -186,13 +204,14 @@ class MqttDataFlattenerUtility:
             self.data_buffer[new_topic] = new_data
             self.last_unique_identifier = new_identifier
         
-        debug_log(
-            message="🛠️✅ Behold! I have transmogrified the data! The final payload is below.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️✅ Behold! I have transmogrified the data! The final payload is below.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         
         console_log(json.dumps(flattened_data, indent=2))
         return [flattened_data]

@@ -1,5 +1,16 @@
 # managers/manager_instrument_settings_markers.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A manager for marker-related settings.
 #
 # Author: Anthony Peter Kuzub
@@ -26,6 +37,7 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 current_version = "20251124.150000.1"
 current_version_hash = (20251124 * 150000 * 1)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class MarkersSettingsManager:
@@ -40,13 +52,14 @@ class MarkersSettingsManager:
         self.mqtt_controller = mqtt_controller
         self.base_topic = "OPEN-AIR/configuration/instrument/marker"
         
-        debug_log(
-            message=f"🛠️🟢 Initializing MarkersSettingsManager and setting up subscriptions.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing MarkersSettingsManager and setting up subscriptions.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._subscribe_to_topics()
 
@@ -57,25 +70,27 @@ class MarkersSettingsManager:
         # Example topic subscription
         topic = f"{self.base_topic}/#"
         self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
-        debug_log(
-            message=f"🔍 Subscribed to '{topic}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍 Subscribed to '{topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
     def _on_message(self, topic, payload):
         # The main message processing callback.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
-            message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         try:
             # Placeholder for marker logic
@@ -83,10 +98,11 @@ class MarkersSettingsManager:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The marker logic has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Arrr, the code be capsized! The marker logic has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )

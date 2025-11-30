@@ -1,5 +1,16 @@
 # workers/worker_active_peak_publisher.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A worker module that listens for marker frequency and amplitude outputs from the
 # YAK repository and republishes the data to a new, deeply hierarchical topic
 # structure based on the frequency (GHz down to 1s of kHz).
@@ -35,6 +46,7 @@ current_version = "20251006.223430.3"
 # The hash calculation removes leading zeros, if any.
 current_version_hash = (20251006 * 223430 * 3)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- Constants (No Magic Numbers) ---
 # FIX: Using the single-level wildcard '+' to match the dynamic 'Marker_X' or 'Marker_X_freq' segment.
@@ -53,13 +65,14 @@ class ActivePeakPublisher:
         # Initializes the publisher and sets up subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
-            message=f"🛠️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         self.mqtt_util = mqtt_util
         # Buffer to hold incomplete marker data (Peak or Freq only)
@@ -74,13 +87,14 @@ class ActivePeakPublisher:
         self.mqtt_util.add_subscriber(TOPIC_MARKER_PEAK_WILDCARD, self._on_marker_message)
         self.mqtt_util.add_subscriber(TOPIC_MARKER_FREQ_WILDCARD, self._on_marker_message)
         
-        debug_log(
-            message=f"🔍 Subscribed to both peak and frequency wildcards.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}._setup_subscriptions",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍 Subscribed to both peak and frequency wildcards.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._setup_subscriptions",
+                console_print_func=console_log
+            )
 
     def _on_marker_message(self, topic, payload):
         # Primary callback to receive data, buffer it, and check for completeness.
@@ -109,13 +123,14 @@ class ActivePeakPublisher:
             # a) Invalid JSON structure (JSONDecodeError)
             # b) Missing 'value' key (TypeError/AttributeError from get("value") )
             # c) Unparsable number string (ValueError)
-            debug_log(
-                message=f"🛠️🟡 Silent Skip: Unparsable payload '{payload}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🟡 Silent Skip: Unparsable payload '{payload}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return
 
         # Initialize marker entry if it doesn't exist
@@ -130,13 +145,14 @@ class ActivePeakPublisher:
             self.marker_data_buffer[marker_id]['peak'] = numeric_value
             data_type = "Peak"
 
-        debug_log(
-            message=f"🛠️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
-            file=current_file,
-            version=current_version,
-            function=f"{__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
+                file=current_file,
+                version=current_version,
+                function=f"{__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         # Check if both peak and frequency are now available
         buffer_entry = self.marker_data_buffer[marker_id]
@@ -224,21 +240,23 @@ class ActivePeakPublisher:
                 retain=True
             )
 
-            debug_log(
-                message=f"🐐💾 Reposted {marker_id} data to hierarchical topic.",
-                file=current_file,
-                version=current_version,
-                function=f"{__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐💾 Reposted {marker_id} data to hierarchical topic.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             console_log(f"✅ Reposted {marker_id} ({round(freq_mhz, 3)} MHz) to {full_topic}")
 
         except Exception as e:
             console_log(f"❌ Error during hierarchical republishing for {marker_id}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )

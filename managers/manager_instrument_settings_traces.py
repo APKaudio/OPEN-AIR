@@ -1,7 +1,17 @@
-# managers/manager_settings_frequency.py
+# managers/manager_instrument_settings_traces.py
 #
-# A manager for frequency-related settings, ensuring that center, span, start, and stop
-# frequencies remain synchronized based on user-driven changes.
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# A manager for trace-related settings.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -32,6 +42,7 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 current_version = "20250901.221341.10"
 current_version_hash = (20250901 * 221341 * 10)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class TracesSettingsManager:
@@ -44,7 +55,7 @@ class TracesSettingsManager:
         current_function_name = inspect.currentframe().f_code.co_name
         
         self.mqtt_controller = mqtt_controller
-        self.base_topic = "OPEN-AIR/configuration/instrument/frequency"
+        self.base_topic = "OPEN-AIR/configuration/instrument/trace"
         
         # Internal state variables to track current values
         self.center_freq = None
@@ -63,13 +74,14 @@ class TracesSettingsManager:
             f"{self.base_topic}/Settings/fields/stop_freq_MHz/value": False,
         }
         
-        debug_log(
-            message=f"🛠️🟢 Initializing FrequencySettingsManager and setting up subscriptions.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing TracesSettingsManager and setting up subscriptions.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._subscribe_to_topics()
 
@@ -86,13 +98,14 @@ class TracesSettingsManager:
         
         for topic in topic_list:
             self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
-            debug_log(
-                message=f"🔍 Subscribed to '{topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed to '{topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _on_message(self, topic, payload):
         # The main message processing callback.
@@ -100,24 +113,26 @@ class TracesSettingsManager:
         
         # NEW: Check the internal lock state before processing.
         if self._locked_state.get(topic, False):
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🟡 Message on locked topic '{topic}' received. Ignoring to prevent loop.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+            # Unlock the topic immediately after receiving the message.
+            self._locked_state[topic] = False
+            return
+            
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🟡 Message on locked topic '{topic}' received. Ignoring to prevent loop.",
+                message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'. Executing synchronization logic.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            # Unlock the topic immediately after receiving the message.
-            self._locked_state[topic] = False
-            return
-            
-        debug_log(
-            message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'. Executing synchronization logic.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
         try:
             try:
@@ -152,13 +167,14 @@ class TracesSettingsManager:
                 if topic.endswith("/value"):
                     option_number = int(topic.split('/')[-2])
                     self.preset_values[option_number] = float(value)
-                    debug_log(
-                        message=f"💾 Saved preset value: Option {option_number} is {value} MHz.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"💾 Saved preset value: Option {option_number} is {value} MHz.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                 elif topic.endswith("/selected") and str(value).lower() == 'true':
                     self._update_span_from_preset(topic=topic)
             
@@ -166,13 +182,14 @@ class TracesSettingsManager:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The frequency logic has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Arrr, the code be capsized! The frequency logic has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _update_start_stop_from_center_span(self):
         # Recalculates start and stop frequencies based on center and span.
@@ -181,11 +198,12 @@ class TracesSettingsManager:
         if self.center_freq is not None and self.span_freq is not None:
             if self.span_freq <= 0:
                 console_log(f"❌ Error: Frequency span cannot be zero or negative. Value received: {self.span_freq}")
-                debug_log(f"🟡 Warning! Invalid span value ({self.span_freq}) received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid span value ({self.span_freq}) received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
 
             new_start = round(self.center_freq - (self.span_freq / 2.0), 3)
@@ -198,13 +216,14 @@ class TracesSettingsManager:
             self._publish_update(topic_suffix="Settings/fields/start_freq_MHz/value", value=new_start)
             self._publish_update(topic_suffix="Settings/fields/stop_freq_MHz/value", value=new_stop)
             
-            debug_log(
-                message=f"🔁 Recalculated start/stop from center/span. Start: {new_start}, Stop: {new_stop}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔁 Recalculated start/stop from center/span. Start: {new_start}, Stop: {new_stop}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _update_center_and_span_from_start_stop(self):
         # Recalculates center and span frequencies based on start and stop.
@@ -213,20 +232,22 @@ class TracesSettingsManager:
         if self.start_freq is not None and self.stop_freq is not None:
             if self.start_freq < 0 or self.stop_freq < 0:
                 console_log(f"❌ Error: Start and stop frequencies cannot be negative. Start: {self.start_freq}, Stop: {self.stop_freq}.")
-                debug_log(f"🟡 Warning! Invalid negative frequency values received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid negative frequency values received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
             
             if self.stop_freq < self.start_freq:
                 console_log(f"❌ Error: Stop frequency ({self.stop_freq}) cannot be less than start frequency ({self.start_freq}).")
-                debug_log(f"🟡 Warning! Invalid start/stop combination received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid start/stop combination received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
                 
             new_span = round(self.stop_freq - self.start_freq, 3)
@@ -239,13 +260,14 @@ class TracesSettingsManager:
             self._publish_update(topic_suffix="Settings/fields/span_freq_MHz/value", value=new_span)
             self._publish_update(topic_suffix="Settings/fields/center_freq_MHz/value", value=new_center)
             
-            debug_log(
-                message=f"🔁 Recalculated center/span from start/stop. Center: {new_center}, Span: {new_span}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔁 Recalculated center/span from start/stop. Center: {new_center}, Span: {new_span}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
    
 
@@ -257,13 +279,14 @@ class TracesSettingsManager:
         
         rounded_value = round(value, 3)
         
-        debug_log(
-            message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self.mqtt_controller.publish_message(
             topic=full_topic,

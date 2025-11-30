@@ -1,5 +1,16 @@
 # workers/worker_mqtt_controller_util.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A utility module to handle the logic for interfacing with an external MQTT broker.
 # This version refactors the client to centrally manage subscriptions and dispatch messages.
 #
@@ -35,6 +46,7 @@ from workers.worker_active_logging import debug_log, console_log
 current_version = "20250902.100615.5"
 current_version_hash = (20250902 * 100615 * 5)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- Constant Variables (No Magic Numbers) ---
 # MQTT Broker settings
@@ -59,13 +71,14 @@ class MqttControllerUtility:
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
-            message=f"🛠️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=print_to_gui_func
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=print_to_gui_func
+            )
         
         try:
             # --- Function logic goes here ---
@@ -80,13 +93,14 @@ class MqttControllerUtility:
             console_log("✅ Celebration of success!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
             
     def add_subscriber(self, topic_filter: str, callback_func):
         """
@@ -98,24 +112,26 @@ class MqttControllerUtility:
         # [A] First, we store the subscription request.
         self._subscribers[topic_filter] = callback_func
         
-        debug_log(
-            message=f"🛠️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=self._print_to_gui_console
+            )
 
         # [A] Only subscribe immediately if the client is already connected.
         if self.mqtt_client and self.mqtt_client.is_connected():
             self.mqtt_client.subscribe(topic_filter)
-            debug_log(
-                message=f"🔍 Subscribed immediately to '{topic_filter}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.add_subscriber",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed immediately to '{topic_filter}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.add_subscriber",
+                    console_print_func=self._print_to_gui_console
+                )
         # [A] If not connected, add it to the pending list for later.
         else:
             self._pending_subscriptions[topic_filter] = callback_func
@@ -126,13 +142,14 @@ class MqttControllerUtility:
         We now subscribe to all stored topics here.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         
         # [A] Subscribe to all stored topics on connection.
         if self._pending_subscriptions:
@@ -172,13 +189,14 @@ class MqttControllerUtility:
         """Connects the MQTT client to the broker in a separate thread."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to connect MQTT client.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Entering '{current_function_name}' to connect MQTT client.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         try:
             self.mqtt_client = mqtt.Client()
             self.mqtt_client.on_connect = self.on_connect
@@ -191,25 +209,27 @@ class MqttControllerUtility:
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
 
     def show_topics(self):
         """Displays a list of all topics seen by the MQTT client."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to display topics.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Entering '{current_function_name}' to display topics.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         try:
             if self.topics_seen:
                 topics_str = "\n".join(sorted(self.topics_seen))
@@ -219,13 +239,14 @@ class MqttControllerUtility:
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
 
     def publish_message(self, topic: str, subtopic: str, value, retain=False):
         """Publishes a message to a topic via the MQTT client, with an optional retain flag."""
@@ -258,13 +279,14 @@ class MqttControllerUtility:
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
 
     def subscribe_to_topic(self, topic, callback):
         # Subscribes to a given topic and registers a callback.

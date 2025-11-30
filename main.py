@@ -1,5 +1,16 @@
 # OPEN-AIR/main.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # This file serves as the main entry point for the application, orchestrating startup checks and GUI launch.
 #
 # Author: Anthony Peter Kuzub
@@ -61,6 +72,14 @@ try:
     from managers.manager_yakety_yak import YaketyYakManager
     from managers.manager_visa_reset import VisaResetManager
     from managers.manager_instrument_settings_markers import MarkersSettingsManager
+
+    # --- Set DATA_DIR ---
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # Running as a bundled executable
+        DATA_DIR = os.path.join(os.path.dirname(sys.executable), 'DATA')
+    else:
+        # Running from source
+        DATA_DIR = os.path.join(GLOBAL_PROJECT_ROOT, 'DATA')
 
 except Exception as e:
     # Fallback logging if the path and initial imports fail

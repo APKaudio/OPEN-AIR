@@ -19,6 +19,7 @@ hidden_imports = [
     'zeroconf',
     'tkinter',
     'tkinter.ttk',
+    'seaborn',
     'display.gui_display'
 ]
 hidden_imports += collect_submodules('workers')
@@ -36,6 +37,7 @@ a = Analysis(
         ('display', 'display'),
         ('datasets', 'datasets'),
         ('managers', 'managers'),
+        ('DATA', 'DATA'),
         ('/usr/share/tcltk/tcl8.6', 'tcl'),
         ('/usr/share/tcltk/tk8.6', 'tk')
     ],

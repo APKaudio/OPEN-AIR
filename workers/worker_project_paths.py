@@ -1,5 +1,16 @@
 # workers/worker_project_paths.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A utility module for defining all application file paths relative to the project root,
 # ensuring consistent file access across all sub-modules.
 #
@@ -19,6 +30,7 @@
 import os
 import inspect
 import pathlib
+import sys
 # DELETED: from workers.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables (as per your instructions) ---
@@ -27,13 +39,18 @@ current_version = "20251013.212800.2"
 # The current time is 21:36:17
 current_version_hash = (20251013 * 212800 * 2)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- Global Path Anchor ---
 # In main.py, GLOBAL_PROJECT_ROOT is defined as the parent of the script being executed.
 # Since this file is within the 'workers' directory, we must ascend one level up to the project root.
 try:
-    # Resolve the path to this file, get its parent (workers/), and then get that parent (OPEN-AIR/)
-    GLOBAL_PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # Running as a bundled executable
+        GLOBAL_PROJECT_ROOT = pathlib.Path(sys.executable).parent
+    else:
+        # Running from source
+        GLOBAL_PROJECT_ROOT = pathlib.Path(__file__).resolve().parent.parent
 except Exception as e:
     # Use a simple print or standard fallback in case of a critical error, but do NOT use debug_log here.
     print(f"❌ Critical Error establishing GLOBAL_PROJECT_ROOT in {current_file}: {e}")

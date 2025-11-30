@@ -1,5 +1,16 @@
 # workers/worker_visa_pre_flight_check.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A standalone utility script to scan all available VISA resources (USB, TCP/IP, Serial, etc.)
 # and list them for diagnostic purposes.
 #
@@ -49,6 +60,7 @@ current_version = "20251013.202759.4"
 # The hash calculation drops the leading zero from the hour (20 -> 20)
 current_version_hash = (20251013 * 202759 * 4)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- Mock Logging Functions (for standalone operation) ---
 def console_log(message):
@@ -63,13 +75,14 @@ def debug_log(message, file, version, function, console_print_func):
 def list_visa_resources():
     # Lists all available VISA resources using PyVISA.
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
-        file=current_file,
-        version=current_version,
-        function=current_function_name,
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log
+        )
 
     # Determine which backend to try. We prioritize the pure-Python backend (@py).
     backend_to_use = '@py'
@@ -141,13 +154,14 @@ def list_visa_resources():
         console_log(f"  Details: {e}")
     except Exception as e:
         console_log(f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}")
-        debug_log(
-            message=f"🖥️🔴 VISA scan failed: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🔴 VISA scan failed: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
     return []
 
 if __name__ == "__main__":

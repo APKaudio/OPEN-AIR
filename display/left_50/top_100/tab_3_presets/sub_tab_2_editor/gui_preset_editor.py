@@ -1,5 +1,16 @@
 # display/left_50/top_100/tab_3_presets/sub_tab_2_editor/gui_preset_editor.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A GUI component for editing markers, designed to handle both full data sets
 # and single-value updates intelligently via MQTT.
 #
@@ -36,11 +47,11 @@ from display.styling.style import THEMES, DEFAULT_THEME
 import workers.worker_project_paths
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20251127
-CURRENT_TIME = 0
+CURRENT_DATE = 20251129
+CURRENT_TIME = 222500
 REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER
+current_version_hash = (CURRENT_DATE * CURRENT_TIME * REVISION_NUMBER)
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
@@ -62,10 +73,10 @@ HEADERS = ["Parameter"] + ATTRIBUTES
 COLUMN_WIDTH = 150
 
 
-class InstrumentTranslatorGUI(ttk.Frame):
+class PresetEditorGUI(ttk.Frame):
     """
-    A GUI component for displaying MQTT data in a table and exporting it.
-    The table is normalized: rows are presets, columns are attributes.
+    A GUI component for displaying and editing preset data from a CSV,
+    normalized for table display.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         current_function_name = inspect.currentframe().f_code.co_name
@@ -163,7 +174,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Instrument Translator GUI initialized successfully!")
+            console_log("✅ Preset Editor GUI initialized successfully!")
             
             # --- Load initial data from CSV and render ---
             self._load_data_from_csv()
@@ -214,43 +225,20 @@ class InstrumentTranslatorGUI(ttk.Frame):
             with open(csv_file_path, mode='r', newline='', encoding='utf-8') as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 
-                preset_keys = []
-                transposed_data_from_csv = {} 
-                
+                # Clear existing data
+                self.normalized_data = {}
+
                 for row in csv_reader:
-                    attribute = row.get("Parameter")
-                    if attribute in ATTRIBUTES:
-                        transposed_data_from_csv[attribute] = row
-                        
-                        for key in row.keys():
-                            if key.startswith("PRESET_0") and key not in preset_keys:
-                                preset_keys.append(key)
-
-                # Now build the final normalized_data model (1 entry per preset)
-                for preset_key in sorted(preset_keys):
-                    self.normalized_data[preset_key] = {"Parameter": preset_key}
-                    
-                    if 'Active' in transposed_data_from_csv and preset_key in transposed_data_from_csv['Active']:
-                        json_blob_str = transposed_data_from_csv['Active'][preset_key]
-                        
-                        # Remove surrounding quotes if present
-                        if json_blob_str.startswith('"') and json_blob_str.endswith('"'):
-                            json_blob_str = json_blob_str.strip('"')
-
-                        # NOTE: We skip json.loads here, assuming the original file had an error
-                        # and instead just populate the model with the attributes as they appear in the JSON
-                        # This ensures the model holds the source of truth, regardless of the Active field's true value.
-
-                        # FIX: We re-implement the actual loading logic here from the JSON blob
-                        try:
-                            preset_data = json.loads(json_blob_str)
-                            for attribute in ATTRIBUTES:
-                                self.normalized_data[preset_key][attribute] = preset_data.get(attribute, 'N/A')
-                        except json.JSONDecodeError:
-                            # Fallback if the JSON blob itself is corrupt
-                            console_log(f"🟡 Warning: Corrupt JSON blob for {preset_key}. Using default/N/A values.")
-                            for attribute in ATTRIBUTES:
-                                self.normalized_data[preset_key][attribute] = 'N/A'
+                    preset_key = row.get("Parameter")
+                    if preset_key:
+                        self.normalized_data[preset_key] = {"Parameter": preset_key}
+                        for attribute in ATTRIBUTES:
+                            # Directly assign attributes from CSV, converting 'Active' to boolean
+                            value = row.get(attribute, 'N/A')
+                            if attribute == "Active":
+                                self.normalized_data[preset_key][attribute] = value.lower() == 'true'
+                            else:
+                                self.normalized_data[preset_key][attribute] = value
                         
             console_log(f"✅ Data successfully loaded from {csv_file_path} and normalized in memory.")
         except Exception as e:

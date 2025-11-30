@@ -1,5 +1,16 @@
 # workers/recon_data_publisher.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A script to generate and publish MQTT topics from a CSV file,
 # simulating a detailed frequency scan for the 'Recon' module.
 #
@@ -27,6 +38,7 @@ import re
 # --- Module Imports ---
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_active_logging import debug_log, console_log
+import workers.worker_project_paths
 
 # --- Global Scope Variables ---
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")
@@ -37,10 +49,11 @@ REVISION_NUMBER = 3
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- Constants ---
 MQTT_ROOT_TOPIC = "OPEN-AIR/recon"
-CSV_FILE_PATH = "DATA/ThisIsMyScan_RBW10K_HOLD3_Offset0_20250729_091431.csv"
+CSV_FILE_PATH = workers.worker_project_paths.GLOBAL_PROJECT_ROOT / "DATA" / "ThisIsMyScan_RBW10K_HOLD3_Offset0_20250729_091431.csv"
 
 
 def recon_data_publisher(mqtt_util_instance, console_log_func):
@@ -49,13 +62,14 @@ def recon_data_publisher(mqtt_util_instance, console_log_func):
     MQTT topics with a predefined hierarchical structure.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
-        message=f"🛠️🟢 Entering '{current_function_name}' to begin publishing data from CSV.",
-        file=current_file,
-        version=current_version,
-        function=current_function_name,
-        console_print_func=console_log_func
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message=f"🛠️🟢 Entering '{current_function_name}' to begin publishing data from CSV.",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log_func
+        )
 
     try:
         if not mqtt_util_instance:
@@ -131,13 +145,14 @@ def recon_data_publisher(mqtt_util_instance, console_log_func):
 
     except Exception as e:
         console_log_func(f"❌ Error in {current_function_name}: {e}")
-        debug_log(
-            message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log_func
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log_func
+            )
 
 # Example Usage
 if __name__ == "__main__":

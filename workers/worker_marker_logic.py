@@ -1,5 +1,16 @@
 # workers/utils_marker_logic.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A utility module to contain core business logic functions related to marker data
 # processing and calculation, ensuring separation of concerns (DOP 6.2).
 #
@@ -35,6 +46,7 @@ current_version = "20251005.230247.1"
 # The hash calculation drops the leading zero from the hour (23 -> 23)
 current_version_hash = (20251005 * 230247 * 1)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 def calculate_frequency_range(marker_data_list):
@@ -42,22 +54,24 @@ def calculate_frequency_range(marker_data_list):
     current_function_name = inspect.currentframe().f_code.co_name
     
     # [A brief, one-sentence description of the function's purpose.]
-    debug_log(
-        message=f"🛠️🟢 Entering {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
-        file=current_file,
-        version=current_version,
-        function=current_function_name,
-        console_print_func=console_log
-    )
-
-    if not marker_data_list:
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 The marker list is an empty void! Returning null range.",
+            message=f"🛠️🟢 Entering {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
             file=current_file,
             version=current_version,
             function=current_function_name,
             console_print_func=console_log
         )
+
+    if not marker_data_list:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 The marker list is an empty void! Returning null range.",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
         return None, None
 
     if not NUMPY_AVAILABLE:
@@ -85,11 +99,12 @@ def calculate_frequency_range(marker_data_list):
 
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
-        debug_log(
-            message=f"🛠️🔴 Arrr, the code be capsized! Calculation failed: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🔴 Arrr, the code be capsized! Calculation failed: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
         return None, None

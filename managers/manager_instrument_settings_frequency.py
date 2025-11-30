@@ -1,5 +1,16 @@
-# managers/manager_settings_frequency.py
+# managers/manager_instrument_settings_frequency.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A manager for frequency-related settings, ensuring that center, span, start, and stop
 # frequencies remain synchronized based on user-driven changes.
 #
@@ -35,6 +46,7 @@ current_version = "20251014.224313.1"
 # Hash calculated based on YYYYMMDD * HHMMSS * Revision (20251014 * 224313 * 1)
 current_version_hash = (20251014 * 224313 * 1)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class FrequencySettingsManager:
@@ -92,13 +104,14 @@ class FrequencySettingsManager:
             f"{self.base_topic}/Settings/fields/stop_freq_MHz/value": False,
         }
         
-        debug_log(
-            message=f"🛠️🟢 Initializing FrequencySettingsManager and setting up subscriptions.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing FrequencySettingsManager and setting up subscriptions.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._subscribe_to_topics()
 
@@ -115,25 +128,27 @@ class FrequencySettingsManager:
         
         for topic in topic_list:
             self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
-            debug_log(
-                message=f"🔍 Subscribed to '{topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed to '{topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
         # ALSO SUBSCRIBE TO YAK REPOSITORY OUTPUTS (for the UPDATE ALL function)
         for yak_suffix in self.YAK_NAB_OUTPUTS.keys():
             yak_topic = f"{self.YAK_BASE}/nab/NAB_Frequency_settings/scpi_outputs/{yak_suffix}"
             self.mqtt_controller.add_subscriber(topic_filter=yak_topic, callback_func=self._on_message)
-            debug_log(
-                message=f"🔍 Subscribed to YAK output '{yak_topic}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍 Subscribed to YAK output '{yak_topic}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
 
     def _publish_to_yak_and_trigger(self, value_mhz, input_topic, trigger_topic):
@@ -167,37 +182,40 @@ class FrequencySettingsManager:
                 retain=False
             )
             
-            debug_log(
-                message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
             # 3. Call the master update function to re-synchronize all 4 values.
             self._update_all_from_device()
 
         except Exception as e:
             console_log(f"❌ Error dispatching YAK command: {e}")
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 YAK dispatch failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+
+    def _update_all_from_device(self):
+        # Implements the 'UPDATE ALL' logic by querying the device for the four values.
+        current_function_name = inspect.currentframe().f_code.co_name
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🛠️🔴 YAK dispatch failed! The error be: {e}",
+                message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-    def _update_all_from_device(self):
-        # Implements the 'UPDATE ALL' logic by querying the device for the four values.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
         # 1. Trigger the NAB command (True then False)
         self.mqtt_controller.publish_message(
@@ -228,24 +246,26 @@ class FrequencySettingsManager:
 
         # NEW: Check the internal lock state before processing.
         if self._locked_state.get(topic, False):
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🟡 Message on locked topic '{topic}' received. Ignoring to prevent loop.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+            # Unlock the topic immediately after receiving the message.
+            self._locked_state[topic] = False
+            return
+            
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🟡 Message on locked topic '{topic}' received. Ignoring to prevent loop.",
+                message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'. Executing synchronization logic.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-            # Unlock the topic immediately after receiving the message.
-            self._locked_state[topic] = False
-            return
-            
-        debug_log(
-            message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'. Executing synchronization logic.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
         try:
             # --- REVISION: Robustly handle payload parsing and cleaning (fixes 'could not convert string to float: "500"')
@@ -295,13 +315,14 @@ class FrequencySettingsManager:
                 if topic.endswith("/value"):
                     option_number = int(topic.split('/')[-2])
                     self.preset_values[option_number] = float(value)
-                    debug_log(
-                        message=f"💾 Saved preset value: Option {option_number} is {value} MHz.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"💾 Saved preset value: Option {option_number} is {value} MHz.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                 elif topic.endswith("/selected") and str(value).lower() == 'true':
                     self._update_span_from_preset(topic=topic)
             
@@ -309,13 +330,14 @@ class FrequencySettingsManager:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The frequency logic has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Arrr, the code be capsized! The frequency logic has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _process_yak_output(self, topic, payload):
         # Processes the output from the NAB_Frequency_settings query.
@@ -327,13 +349,14 @@ class FrequencySettingsManager:
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             
             if not gui_suffix:
-                debug_log(
-                    message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 return
 
             # 2. Extract the value from the payload (which is Hz from YAK)
@@ -361,23 +384,25 @@ class FrequencySettingsManager:
             # 4. Publish the updated value (in MHz) back to the GUI topic
             self._publish_update(topic_suffix=gui_suffix, value=value_mhz)
             
-            debug_log(
-                message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
         except Exception as e:
             console_log(f"❌ Error processing YAK output for {topic}: {e}")
-            debug_log(
-                message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
     def _update_start_stop_from_center_span(self):
         # Recalculates start and stop frequencies based on center and span.
@@ -386,11 +411,12 @@ class FrequencySettingsManager:
         if self.center_freq is not None and self.span_freq is not None:
             if self.span_freq <= 0:
                 console_log(f"❌ Error: Frequency span cannot be zero or negative. Value received: {self.span_freq}")
-                debug_log(f"🟡 Warning! Invalid span value ({self.span_freq}) received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid span value ({self.span_freq}) received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
 
             new_start = round(self.center_freq - (self.span_freq / 2.0), 3)
@@ -403,13 +429,14 @@ class FrequencySettingsManager:
             self._publish_update(topic_suffix="Settings/fields/start_freq_MHz/value", value=new_start)
             self._publish_update(topic_suffix="Settings/fields/stop_freq_MHz/value", value=new_stop)
             
-            debug_log(
-                message=f"🔁 Recalculated start/stop from center/span. Start: {new_start}, Stop: {new_stop}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔁 Recalculated start/stop from center/span. Start: {new_start}, Stop: {new_stop}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _update_center_and_span_from_start_stop(self):
         # Recalculates center and span frequencies based on start and stop.
@@ -418,20 +445,22 @@ class FrequencySettingsManager:
         if self.start_freq is not None and self.stop_freq is not None:
             if self.start_freq < 0 or self.stop_freq < 0:
                 console_log(f"❌ Error: Start and stop frequencies cannot be negative. Start: {self.start_freq}, Stop: {self.stop_freq}.")
-                debug_log(f"🟡 Warning! Invalid negative frequency values received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid negative frequency values received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
             
             if self.stop_freq < self.start_freq:
                 console_log(f"❌ Error: Stop frequency ({self.stop_freq}) cannot be less than start frequency ({self.start_freq}).")
-                debug_log(f"🟡 Warning! Invalid start/stop combination received. Ignoring update.",
-                          file=current_file,
-                          version=current_version,
-                          function=f"{self.__class__.__name__}.{current_function_name}",
-                          console_print_func=console_log)
+                if Local_Debug_Enable:
+                    debug_log(f"🟡 Warning! Invalid start/stop combination received. Ignoring update.",
+                              file=current_file,
+                              version=current_version,
+                              function=f"{self.__class__.__name__}.{current_function_name}",
+                              console_print_func=console_log)
                 return
                 
             new_span = round(self.stop_freq - self.start_freq, 3)
@@ -444,13 +473,14 @@ class FrequencySettingsManager:
             self._publish_update(topic_suffix="Settings/fields/span_freq_MHz/value", value=new_span)
             self._publish_update(topic_suffix="Settings/fields/center_freq_MHz/value", value=new_center)
             
-            debug_log(
-                message=f"🔁 Recalculated center/span from start/stop. Center: {new_center}, Span: {new_span}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔁 Recalculated center/span from start/stop. Center: {new_center}, Span: {new_span}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
    
 
@@ -462,13 +492,14 @@ class FrequencySettingsManager:
         
         rounded_value = round(value, 3)
         
-        debug_log(
-            message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"💾 Publishing new value '{rounded_value}' to topic '{full_topic}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self.mqtt_controller.publish_message(
             topic=full_topic,

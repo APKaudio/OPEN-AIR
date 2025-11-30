@@ -1,5 +1,16 @@
-# csv_utils.py
+# workers/utils_csv_writer.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # This module provides utility functions for writing spectrum scan data to CSV files.
 # It encapsulates the logic for handling file paths, directory creation, and data formatting
 # for CSV output, ensuring consistent data storage for analysis and historical tracking.
@@ -8,7 +19,7 @@
 # Blog: www.Like.audio (Contributor to this project)
 #
 # Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no change to use, modify, or fork this software.
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 #
 # Build Log: https://like.audio/category/software/spectrum-scanner/
 # Source Code: https://github.com/APKaudio/
@@ -18,6 +29,7 @@
 
 current_version = "20250810.134500.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250810 * 134500 * 1 # Example hash, adjust as needed
+Local_Debug_Enable = False
 
 import csv
 import os
@@ -50,28 +62,31 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
     """
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    debug_log(f"Attempting to write scan data to CSV: {file_path}, append_mode={append_mode}. Let's save this data!",
-                file=__file__,
-                version=current_version,
-                function=current_function)
+    if Local_Debug_Enable:
+        debug_log(f"Attempting to write scan data to CSV: {file_path}, append_mode={append_mode}. Let's save this data!",
+                    file=__file__,
+                    version=current_version,
+                    function=current_function)
 
     # Ensure the directory exists
     output_dir = os.path.dirname(file_path)
     if output_dir and not os.path.exists(output_dir):
         try:
             os.makedirs(output_dir)
-            debug_log(f"Created directory: {output_dir}. Path cleared!",
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
+            if Local_Debug_Enable:
+                debug_log(f"Created directory: {output_dir}. Path cleared!",
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
         except OSError as e:
             error_msg = f"❌ Error creating directory '{output_dir}': {e}. This is a disaster!"
             # WRAPPED WITH after() to prevent cross-thread access
             app_instance_ref.after(0, lambda: console_print_func(error_msg))
-            debug_log(error_msg,
-                        file=__file__,
-                        version=current_version,
-                        function=current_function)
+            if Local_Debug_Enable:
+                debug_log(error_msg,
+                            file=__file__,
+                            version=current_version,
+                            function=current_function)
             raise IOError(f"Failed to create directory {output_dir}") from e
 
     try:
@@ -91,35 +106,39 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
             
             if write_header:
                 csv_writer.writerow(header)
-                debug_log(f"Wrote header to CSV file: {file_path}. Header added!",
-                            file=__file__,
-                            version=current_version,
-                            function=current_function)
+                if Local_Debug_Enable:
+                    debug_log(f"Wrote header to CSV file: {file_path}. Header added!",
+                                file=__file__,
+                                version=current_version,
+                                function=current_function)
             
             # Write data rows
             for freq_MHz, level_dBm in data:
                 csv_writer.writerow([f"{freq_MHz:.3f}", f"{level_dBm:.3f}"])
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!"))
-        debug_log(f"Scan data written to CSV: {file_path}. Mission accomplished!",
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
+        if Local_Debug_Enable:
+            debug_log(f"Scan data written to CSV: {file_path}. Mission accomplished!",
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
     except IOError as e:
         error_msg = f"❌ I/O Error writing to CSV file {file_path}: {e}. This is a disaster!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        debug_log(error_msg,
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
+        if Local_Debug_Enable:
+            debug_log(error_msg,
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         raise # Re-raise to allow higher-level error handling
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while writing to CSV file {file_path}: {e}. What a mess!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        debug_log(error_msg,
-                    file=__file__,
-                    version=current_version,
-                    function=current_function)
+        if Local_Debug_Enable:
+            debug_log(error_msg,
+                        file=__file__,
+                        version=current_version,
+                        function=current_function)
         raise # Re-raise to allow higher-level error handling

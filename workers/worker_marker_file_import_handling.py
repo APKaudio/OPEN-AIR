@@ -1,5 +1,16 @@
 # workers/worker_marker_file_handling.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # This worker module handles all file I/O and data processing logic for marker files,
 # separating it from the GUI's presentation layer.
 #
@@ -48,6 +59,7 @@ current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+Local_Debug_Enable = False
 
 # --- Constants ---
 DEFAULT_PAD_X = 5
@@ -62,22 +74,24 @@ def maker_file_check_for_markers_file():
     # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
     target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
-    debug_log(
-        message=f"🛠️🕵️‍♂️ Checking for existing markers file at: {target_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
-    
-    if target_path.is_file():
+    if Local_Debug_Enable:
         debug_log(
-            message=f"✅ Found an existing MARKERS.csv file. Attempting to load.",
+            message=f"🛠️🕵️‍♂️ Checking for existing markers file at: {target_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
+    
+    if target_path.is_file():
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"✅ Found an existing MARKERS.csv file. Attempting to load.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         try:
             with open(target_path, 'r', newline='') as csvfile:
                 reader = csv.reader(csvfile)
@@ -88,31 +102,34 @@ def maker_file_check_for_markers_file():
                     headers = CANONICAL_HEADERS
                 data = list(reader)
             
-            debug_log(
-                message="✅ Successfully loaded MARKERS.csv on startup.",
-                file=current_file,
-                version=current_version,
-                function=f"{current_function}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message="✅ Successfully loaded MARKERS.csv on startup.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
             return headers, data
         except Exception as e:
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌ Error loading existing MARKERS.csv on startup: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{current_function}",
+                    console_print_func=console_log
+                )
+            console_log(f"Error: Failed to load existing MARKERS.csv. {e}")
+    else:
+        if Local_Debug_Enable:
             debug_log(
-                message=f"❌ Error loading existing MARKERS.csv on startup: {e}",
+                message="🛠️🟡 No existing MARKERS.csv found. Starting with a blank table.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-            console_log(f"Error: Failed to load existing MARKERS.csv. {e}")
-    else:
-        debug_log(
-            message="🛠️🟡 No existing MARKERS.csv found. Starting with a blank table.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
     return CANONICAL_HEADERS, []
 
 def maker_file_load_markers_file():
@@ -123,22 +140,24 @@ def maker_file_load_markers_file():
         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
     )
     if not file_path:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Load CSV Marker Set' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        return [], []
+
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 'Load CSV Marker Set' action cancelled by user.",
+            message=f"🛠️🟢 'Load CSV Marker Set' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return [], []
-
-    debug_log(
-        message=f"🛠️🟢 'Load CSV Marker Set' button clicked. Opening file: {file_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
     console_log(f"Action: Load CSV Marker Set from {os.path.basename(file_path)}.")
     
     try:
@@ -149,38 +168,42 @@ def maker_file_load_markers_file():
             console_log("❌ Failed to process CSV file or no data found.")
             return [], []
 
-        debug_log(
-            message=f"🔍🔵 Received Headers: {headers}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
-        debug_log(
-            message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received Headers: {headers}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
-        debug_log(
-            message="✅ CSV file loaded successfully.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="✅ CSV file loaded successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         # Ensure we return canonical headers so the GUI knows what columns to show.
         return CANONICAL_HEADERS, data
     except Exception as e:
-        debug_log(
-            message=f"❌ Error loading CSV file: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error loading CSV file: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"Error: Failed to process CSV file. {e}")
         return [], []
 
@@ -192,22 +215,24 @@ def maker_file_load_ias_html():
         filetypes=[("HTML files", "*.html;*.htm"), ("All files", "*.*")]
     )
     if not file_path:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Load IAS HTML' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        return [], []
+        
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 'Load IAS HTML' action cancelled by user.",
+            message=f"🛠️🟢 'Load IAS HTML' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return [], []
-        
-    debug_log(
-        message=f"🛠️🟢 'Load IAS HTML' button clicked. Opening file: {file_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
     console_log(f"Action: Load IAS HTML from {os.path.basename(file_path)}.")
 
     try:
@@ -216,37 +241,41 @@ def maker_file_load_ias_html():
 
         headers, data = Marker_convert_IAShtml_report_to_csv(html_content)
 
-        debug_log(
-            message=f"🔍🔵 Received Headers: {headers}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
-        debug_log(
-            message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received Headers: {headers}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
 
-        debug_log(
-            message="✅ HTML report converted successfully.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="✅ HTML report converted successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         return CANONICAL_HEADERS, data
     except Exception as e:
-        debug_log(
-            message=f"❌ Error converting HTML report: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error converting HTML report: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"Error: Failed to convert HTML file. {e}")
         return [], []
 
@@ -258,58 +287,64 @@ def maker_file_load_wwb_shw():
         filetypes=[("Shure Wireless Workbench files", "*.shw"), ("All files", "*.*")]
     )
     if not file_path:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Load WWB.shw' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        return [], []
+        
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 'Load WWB.shw' action cancelled by user.",
+            message=f"🛠️🟢 'Load WWB.shw' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return [], []
-        
-    debug_log(
-        message=f"🛠️🟢 'Load WWB.shw' button clicked. Opening file: {file_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
     console_log(f"Action: Load WWB.shw from {os.path.basename(file_path)}.")
     
     try:
         headers, data = Marker_convert_WWB_SHW_File_report_to_csv(file_path)
 
-        debug_log(
-            message=f"🔍🔵 Received Headers: {headers}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
-        debug_log(
-            message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received Headers: {headers}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         
-        debug_log(
-            message="✅ SHW file converted successfully.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="✅ SHW file converted successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         return CANONICAL_HEADERS, data
     except Exception as e:
-        debug_log(
-            message=f"❌ Error converting SHW file: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error converting SHW file: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"Error: Failed to convert SHW file. {e}")
         return [], []
 
@@ -321,58 +356,64 @@ def maker_file_load_sb_pdf():
         filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
     )
     if not file_path:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Load SB PDF' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        return [], []
+        
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 'Load SB PDF' action cancelled by user.",
+            message=f"🛠️🟢 'Load SB PDF' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return [], []
-        
-    debug_log(
-        message=f"🛠️🟢 'Load SB PDF' button clicked. Opening file: {file_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
     console_log(f"Action: Load SB PDF from {os.path.basename(file_path)}.")
 
     try:
         headers, data = Marker_convert_SB_PDF_File_report_to_csv(file_path)
 
-        debug_log(
-            message=f"🔍🔵 Received Headers: {headers}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
-        debug_log(
-            message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received Headers: {headers}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
 
-        debug_log(
-            message="✅ PDF report converted successfully.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="✅ PDF report converted successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         return CANONICAL_HEADERS, data
     except Exception as e:
-        debug_log(
-            message=f"❌ Error converting PDF report: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error converting PDF report: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"Error: Failed to convert PDF file. {e}")
         return [], []
     
@@ -382,13 +423,14 @@ def maker_file_save_intermediate_file(tree_headers, tree_data):
     # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
     target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
-    debug_log(
-        message=f"💾🟢 Saving data to intermediate file: {target_path}. Headers: {tree_headers}, first row: {tree_data[0] if tree_data else 'N/A'}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message=f"💾🟢 Saving data to intermediate file: {target_path}. Headers: {tree_headers}, first row: {tree_data[0] if tree_data else 'N/A'}",
+            file=current_file,
+            version=current_version,
+            function=f"{current_function}",
+            console_print_func=console_log
+        )
     
     try:
         with open(target_path, 'w', newline='') as csvfile:
@@ -408,13 +450,14 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
     current_function = inspect.currentframe().f_code.co_name
     
     if not tree_headers or not tree_data:
-        debug_log(
-            message="🛠️🟡 'Save Open Air' action aborted: no data in treeview.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Save Open Air' action aborted: no data in treeview.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log("Action: Save Markers as Open Air.csv. No data to save.")
         return
 
@@ -424,22 +467,24 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
     )
     if not file_path:
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🟡 'Save Open Air' action cancelled by user.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
+        return
+
+    if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟡 'Save Open Air' action cancelled by user.",
+            message=f"🛠️🟢 'Save Open Air' button clicked. Saving to: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
             console_print_func=console_log
         )
-        return
-
-    debug_log(
-        message=f"🛠️🟢 'Save Open Air' button clicked. Saving to: {file_path}",
-        file=current_file,
-        version=current_version,
-        function=f"{current_function}",
-        console_print_func=console_log
-    )
     console_log(f"Action: Saving Markers as Open Air.csv to {os.path.basename(file_path)}.")
     
     try:
@@ -449,19 +494,21 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
             writer.writerows(tree_data)
         
         console_log(f"File saved successfully to {file_path}")
-        debug_log(
-            message="✅ File saved successfully.",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="✅ File saved successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
     except Exception as e:
-        debug_log(
-            message=f"❌ Error saving Open Air CSV file: {e}",
-            file=current_file,
-            version=current_version,
-            function=f"{current_function}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error saving Open Air CSV file: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )
         console_log(f"Error: Failed to save file. {e}")

@@ -1,5 +1,16 @@
 # workers/worker_preset_from_device.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A worker module to handle the logic for querying, parsing, and presenting
 # presets stored on the connected instrument via MQTT.
 #
@@ -35,6 +46,7 @@ current_time = datetime.datetime.now().strftime("%H%M%S")
 current_version = f"{current_date}.{current_time}.3" 
 current_version_hash = (int(current_date) * int(current_time) * 3)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 # --- MQTT Topic Constants (No Magic Numbers) ---
 ROOT_TOPIC = "OPEN-AIR/repository/yak/Memory"
@@ -59,13 +71,14 @@ class PresetFromDeviceWorker:
         self.last_preset_list = None
         self.preset_list_event = threading.Event()
 
-        debug_log(
-            message=f"🛠️🟢 Initializing preset worker and subscribing to root topic.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Initializing preset worker and subscribing to root topic.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         # Subscribe to the master topic and all its sub-levels
         self.mqtt_util.add_subscriber(topic_filter=f"{ROOT_TOPIC}/#", callback_func=self._on_mqtt_message)
@@ -91,13 +104,14 @@ class PresetFromDeviceWorker:
         The result is handled by the _on_mqtt_message callback.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Triggering device to send preset catalog.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Triggering device to send preset catalog.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             # Set the trigger to true
@@ -121,13 +135,14 @@ class PresetFromDeviceWorker:
         of valid filenames ending in '.STA'.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Parsing raw preset string for valid '.STA' files.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Parsing raw preset string for valid '.STA' files.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         if not raw_preset_string:
             return []
@@ -154,13 +169,14 @@ class PresetFromDeviceWorker:
         dictionary as a single JSON payload to one topic per preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         num_published = 0
         for i, filename in enumerate(preset_list):
@@ -209,13 +225,14 @@ class PresetFromDeviceWorker:
         Sets the specified preset filename and triggers the device to store it.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🛠️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             # 1. Push the filename value via MQTT

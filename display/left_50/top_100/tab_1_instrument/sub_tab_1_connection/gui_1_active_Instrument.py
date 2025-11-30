@@ -1,19 +1,17 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/active/Instrument_Connection"
-
-
-
-
-
-
-
-
-
-
-
-# display_gui_child_pusher.py
-
+# display/left_50/top_100/tab_1_instrument/sub_tab_1_connection/gui_1_active_Instrument.py
 #
-# A GUI frame that uses the DynamicGuiBuilder to create widgets for frequency settings.
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# A GUI frame that uses the DynamicGuiBuilder to create widgets for the active instrument connection.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -41,11 +39,13 @@ from workers.worker_active_logging import debug_log, console_log
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
+current_file = f"{os.path.basename(__file__)}"
+MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/active/Instrument_Connection"
 
 
-class PresetPusherGui(ttk.Frame):
+class ActiveInstrumentGui(ttk.Frame):
     """
-    A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
+    A container frame that instantiates the DynamicGuiBuilder for the active instrument connection.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         """
@@ -58,7 +58,7 @@ class PresetPusherGui(ttk.Frame):
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to initialize the PresetPusherGui.",
+            message=f"🛠️🟢 Entering {current_function_name} to initialize the ActiveInstrumentGui.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -76,7 +76,7 @@ class PresetPusherGui(ttk.Frame):
                 mqtt_util=mqtt_util,
                 config=config
             )
-            console_log("✅ Celebration of success! The PresetPusherGui did initialize its dynamic GUI builder.")
+            console_log("✅ Celebration of success! The ActiveInstrumentGui did initialize its dynamic GUI builder.")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(

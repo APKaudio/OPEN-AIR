@@ -1,5 +1,16 @@
 # workers/worker_marker_csv_to_json_mqtt.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # This module reads a CSV file, converts it to a structured JSON format,
 # saves the JSON, and publishes the entire structure to an MQTT topic.
 #
@@ -33,6 +44,7 @@ from workers.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # N
 current_version = "20251005.220127.2"
 current_version_hash = (20251005 * 220127 * 2)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 MQTT_BASE_TOPIC = "OPEN-AIR/repository/markers"
 
@@ -58,13 +70,14 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
     MODIFIED: Uses the new nested structure with an 'IDENTITY' blob.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
-        message=f"🛠️🟢 Initiating device-centric CSV to JSON conversion and MQTT publish. Applying new nested structure.",
-        file=current_file,
-        version=current_version,
-        function=current_function_name,
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message=f"🛠️🟢 Initiating device-centric CSV to JSON conversion and MQTT publish. Applying new nested structure.",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log
+        )
 
     if not MARKERS_CSV_PATH.is_file():
         console_log(f"❌ {MARKERS_CSV_PATH} not found. Aborting operation.")
@@ -131,13 +144,14 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         console_log("✅ Successfully read CSV and generated nested JSON structure with summary data.")
     except Exception as e:
         console_log(f"❌ Error processing CSV file: {e}")
-        debug_log(
-            message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
         return
 
     # --- Step 2: Save the generated structure to MARKERS.json ---
@@ -149,13 +163,14 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         console_log(f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
     except Exception as e:
         console_log(f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
-        debug_log(
-            message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
         return
 
     # --- Step 3: Publish the entire structure to MQTT ---
@@ -171,10 +186,11 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         console_log("✅ Successfully published the full marker set to MQTT.")
     except Exception as e:
         console_log(f"❌ Error publishing to MQTT: {e}")
-        debug_log(
-            message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )

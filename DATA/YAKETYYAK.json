@@ -98,18 +98,18 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": false,
+                            "trigger": "false",
                             "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
                         }
                     },
                     "scpi_inputs": {
                         "start_freq": {
-                            "value": 0,
+                            "value": "123456789",
                             "type": "_Value",
                             "description": "The SCPI input for start frequency."
                         },
                         "stop_freq": {
-                            "value": 100000,
+                            "value": "987654321",
                             "type": "_Value",
                             "description": "The SCPI input for stop frequency."
                         }
@@ -160,24 +160,24 @@
                     },
                     "scpi_inputs": {
                         "start_freq": {
-                            "value": 359855000,
+                            "value": 486225000,
                             "type": "_Value",
                             "description": "The SCPI input for start frequency."
                         },
                         "stop_freq": {
-                            "value": 807635000,
+                            "value": 748124999,
                             "type": "_Value",
                             "description": "The SCPI input for stop frequency."
                         }
                     },
                     "scpi_outputs": {
                         "center_freq": {
-                            "value": "+4.038670000E+08",
+                            "value": "+6.171749995E+08",
                             "type": "_Value",
                             "description": "The SCPI output for start frequency."
                         },
                         "span_freq": {
-                            "value": "+8.075360000E+08",
+                            "value": "+2.618999990E+08",
                             "type": "_Value",
                             "description": "The SCPI output for stop frequency."
                         }

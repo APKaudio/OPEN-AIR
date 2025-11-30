@@ -1,5 +1,16 @@
 # workers/worker_file_csv_export.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A utility module to handle the logic for exporting data to a CSV file.
 #
 # Author: Anthony Peter Kuzub
@@ -29,6 +40,7 @@ REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = False
 
 
 class CsvExportUtility:
@@ -48,13 +60,14 @@ class CsvExportUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to save data to CSV at '{file_path}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=self._print_to_gui_console
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Entering '{current_function_name}' to save data to CSV at '{file_path}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
         
         try:
             if not data:
@@ -73,10 +86,11 @@ class CsvExportUtility:
             
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )

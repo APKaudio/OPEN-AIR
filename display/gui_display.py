@@ -1,5 +1,16 @@
 # display/gui_display.py
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251129  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 1 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # A script that dynamically builds the application's Tkinter GUI based on the
 # predefined directory structure. It acts as the "orchestrator," recursively
 # traversing a folder hierarchy to construct the user interface, now with
@@ -341,7 +352,6 @@ class Application(tk.Tk):
                     
                     # The recursive call will place the contents (like ScanViewGUIFrame) inside the tab_frame
                     self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
-                return
 
             if "tab_2_monitors" in str(path):
                 debug_log(
