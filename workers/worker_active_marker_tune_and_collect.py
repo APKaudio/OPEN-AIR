@@ -48,6 +48,15 @@ current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
 Local_Debug_Enable = False
 
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
+
 # --- NEW CONSTANT: Frequency Buffer (in MHz) ---
 BUFFER_START_STOP_MHZ = 0.1
 
@@ -87,7 +96,7 @@ class MarkerGoGetterWorker:
         # Initializes the worker, sets up state variables, and subscribes to topics.
         current_function_name = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Initializing the tireless Marker Go-Getter!",
                 file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
@@ -126,7 +135,7 @@ class MarkerGoGetterWorker:
         # FIXED: This method was missing but is now the target of the NAB outputs.
         self.mqtt_util.add_subscriber(TOPIC_MARKER_NAB_OUTPUT_WILDCARD, self._on_peak_update_for_event_set)
         
-        console_log("✅ Go-Getter is now listening for commands and marker data.")
+        console_log_switch("✅ Go-Getter is now listening for commands and marker data.")
 
 
     def _on_peak_update_for_event_set(self, topic, payload):
@@ -159,7 +168,7 @@ class MarkerGoGetterWorker:
                     device_id = topic_parts[-3]
                     self.marker_frequencies[device_id] = float(value)
         except (json.JSONDecodeError, ValueError, TypeError) as e:
-            console_log(f"🟡 Warning: Could not process marker data update from topic '{topic}': {e}")
+            console_log_switch(f"🟡 Warning: Could not process marker data update from topic '{topic}': {e}")
 
     def _handle_start_stop(self, topic, payload):
         # Starts or stops the main processing loop in a separate thread.
@@ -171,14 +180,14 @@ class MarkerGoGetterWorker:
                 is_start_command = str(payload).lower() == 'true'
 
             if is_start_command and (self.processing_thread is None or not self.processing_thread.is_alive()):
-                console_log("🟢 START command received. Beginning marker peak acquisition loop.")
+                console_log_switch("🟢 START command received. Beginning marker peak acquisition loop.")
                 self.stop_event.clear()
                 # Reset first run flag when starting a new sequence
                 self.first_run = True
                 self.processing_thread = threading.Thread(target=self._processing_loop, daemon=True)
                 self.processing_thread.start()
             elif not is_start_command:
-                console_log("🔴 STOP command received. Halting marker peak acquisition loop.")
+                console_log_switch("🔴 STOP command received. Halting marker peak acquisition loop.")
                 self.stop_event.set()
                 if self.processing_thread and self.processing_thread.is_alive():
                     # Give the thread a moment to self-terminate gracefully
@@ -205,7 +214,7 @@ class MarkerGoGetterWorker:
             self.mqtt_util.publish_message(topic=marker_topic, subtopic="", value=freq_hz, retain=True)
             
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
@@ -218,7 +227,7 @@ class MarkerGoGetterWorker:
         self.mqtt_util.publish_message(TOPIC_MARKER_PLACE_TRIGGER, "", False, retain=False)
         
         # --- 3. CRITICAL FIX: Add recovery sleep to allow the crash to clear ---
-        console_log("🟠 Recovering after Marker Placement to clear potential downstream crash...")
+        console_log_switch("🟠 Recovering after Marker Placement to clear potential downstream crash...")
         time.sleep(0.3) # Allow 4 seconds for the internal exception/crash to resolve
         
     def _query_markers_for_batch(self, batch_ids):
@@ -228,15 +237,15 @@ class MarkerGoGetterWorker:
         current_function_name = inspect.currentframe().f_code.co_name
         
         # --- 1. Trigger NAB to collect current peaks ---
-        console_log("🔵 Sending NAB query to retrieve current peak markers...")
+        console_log_switch("🔵 Sending NAB query to retrieve current peak markers...")
         self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", True, retain=False)
         self.mqtt_util.publish_message(TOPIC_MARKER_NAB_TRIGGER, "", False, retain=False)
         
         # --- 2. Flow Control: Wait for NAB query and publishing to complete ---
-        console_log("🟠 Waiting for NAB query and publishing to complete...")
+        console_log_switch("🟠 Waiting for NAB query and publishing to complete...")
         time.sleep(0.2) # A minimal, safe wait to ensure messages hit the system.
 
-        console_log(f"✅ Peak retrieval process initiated for batch: {', '.join(batch_ids)}.")
+        console_log_switch(f"✅ Peak retrieval process initiated for batch: {', '.join(batch_ids)}.")
         
     def _set_instrument_frequency_span(self):
         """
@@ -250,7 +259,7 @@ class MarkerGoGetterWorker:
             not self.first_run):
             
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
@@ -267,7 +276,7 @@ class MarkerGoGetterWorker:
         # Subtract buffer from the minimum frequency (ensuring it doesn't go below zero)
         new_min_freq = max(0, self.min_frequency_mhz - BUFFER_START_STOP_MHZ)
         
-        console_log(f"🔵 Setting instrument span from {new_min_freq} MHz to {new_max_freq} MHz (with {BUFFER_START_STOP_MHZ} MHz buffer).")
+        console_log_switch(f"🔵 Setting instrument span from {new_min_freq} MHz to {new_max_freq} MHz (with {BUFFER_START_STOP_MHZ} MHz buffer).")
         self.mqtt_util.publish_message(TOPIC_FREQ_START_INPUT, "", int(new_min_freq * HZ_TO_MHZ), retain=True)
         self.mqtt_util.publish_message(TOPIC_FREQ_STOP_INPUT, "", int(new_max_freq * HZ_TO_MHZ), retain=True)
         self.mqtt_util.publish_message(TOPIC_FREQ_TRIGGER, "", True, retain=False)
@@ -275,13 +284,13 @@ class MarkerGoGetterWorker:
         time.sleep(0.1) # Short delay to let the frequency rig command process
         
         self.first_run = False
-        console_log("✅ Instrument span set successfully.")
+        console_log_switch("✅ Instrument span set successfully.")
         
 
 
     def _processing_loop(self):
         # The main logic loop that runs in a thread.
-        console_log("✅ Peak Hunter loop started.")
+        console_log_switch("✅ Peak Hunter loop started.")
         
         # --- Loop Control: Check the stop event first ---
         while not self.stop_event.is_set():
@@ -295,7 +304,7 @@ class MarkerGoGetterWorker:
 
             for i in range(0, len(device_ids), 6):
                 if self.stop_event.is_set():
-                    console_log("Loop terminated by STOP command during batch processing.")
+                    console_log_switch("Loop terminated by STOP command during batch processing.")
                     break
 
                 batch_ids = device_ids[i:i+6]
@@ -310,10 +319,10 @@ class MarkerGoGetterWorker:
                 self._query_markers_for_batch(batch_ids=batch_ids)
 
                 # --- Confirmation log and flow control ---
-                console_log(f"✅ Batch {i//6 + 1} processed. Continuing to next batch.")
+                console_log_switch(f"✅ Batch {i//6 + 1} processed. Continuing to next batch.")
 
 
-            console_log("✅ Peak Hunter loop finished a full pass.")
+            console_log_switch("✅ Peak Hunter loop finished a full pass.")
             
 
 
@@ -326,7 +335,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
     """
     current_function = inspect.currentframe().f_code.co_name
     if Local_Debug_Enable:
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Received request to tune to marker. Processing data...",
             file=current_file,
             version=current_version,
@@ -345,7 +354,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
                     version=current_version,
@@ -361,7 +370,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             center_freq_hz = int(freq_mhz * HZ_TO_MHZ)
         except (ValueError, TypeError) as e:
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
                     version=current_version,
@@ -372,7 +381,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             return
 
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Freq from marker: {freq_mhz} MHz -> {center_freq_hz} Hz. Setting Span to {DEFAULT_SPAN_HZ} Hz.",
                 file=current_file,
                 version=current_version,
@@ -382,14 +391,14 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         # FIX: Ensure all values published are integers
         mqtt_controller.publish_message(topic=CENTER_FREQ_TOPIC, subtopic="", value=center_freq_hz)
-        console_log(f"✅ Set CENTER_FREQ to {center_freq_hz} Hz.")
+        console_log_switch(f"✅ Set CENTER_FREQ to {center_freq_hz} Hz.")
         
         mqtt_controller.publish_message(topic=SPAN_FREQ_TOPIC, subtopic="", value=int(DEFAULT_SPAN_HZ))
-        console_log(f"✅ Set SPAN_FREQ to {int(DEFAULT_SPAN_HZ)} Hz.")
+        console_log_switch(f"✅ Set SPAN_FREQ to {int(DEFAULT_SPAN_HZ)} Hz.")
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=True)
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
@@ -399,7 +408,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=False)
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message="🛠️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
@@ -407,11 +416,11 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
                 console_print_func=console_log
             )
         
-        console_log("✅ Tuning command sequence complete.")
+        console_log_switch("✅ Tuning command sequence complete.")
 
     except Exception as e:
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"❌🔴 Critical error during marker tuning: {e}",
                 file=current_file,
                 version=current_version,
@@ -427,7 +436,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
     """
     current_function = inspect.currentframe().f_code.co_name
     if Local_Debug_Enable:
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
             file=current_file,
             version=current_version,
@@ -444,7 +453,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
                     version=current_version,
@@ -459,7 +468,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
             center_freq_hz = freq_mhz * HZ_TO_MHZ
         except (ValueError, TypeError) as e:
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
                     version=current_version,
@@ -475,7 +484,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         stop_freq_hz = int(center_freq_hz + buffer)
 
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",
                 file=current_file,
                 version=current_version,
@@ -485,16 +494,16 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         # Publish start frequency
         mqtt_controller.publish_message(topic=START_FREQ_TOPIC, subtopic="", value=start_freq_hz)
-        console_log(f"✅ Set START_FREQ to {start_freq_hz} Hz.")
+        console_log_switch(f"✅ Set START_FREQ to {start_freq_hz} Hz.")
         
         # Publish stop frequency
         mqtt_controller.publish_message(topic=STOP_FREQ_TOPIC, subtopic="", value=stop_freq_hz)
-        console_log(f"✅ Set STOP_FREQ to {stop_freq_hz} Hz.")
+        console_log_switch(f"✅ Set STOP_FREQ to {stop_freq_hz} Hz.")
         
         # Trigger SCPI command
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=True)
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
@@ -505,7 +514,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         # Reset the trigger
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=False)
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message="🛠️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
@@ -513,11 +522,11 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
                 console_print_func=console_log
             )
         
-        console_log("✅ Tuning command sequence complete.")
+        console_log_switch("✅ Tuning command sequence complete.")
 
     except Exception as e:
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"❌🔴 Critical error during marker tuning with buffer: {e}",
                 file=current_file,
                 version=current_version,

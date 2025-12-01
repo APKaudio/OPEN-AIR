@@ -24,6 +24,13 @@ from workers.worker_active_logging import debug_log, console_log
 import inspect
 import json
 
+
+Local_Debug_Enable = False
+
+# The wrapper functions debug_log_switch and console_log_switch are removed
+# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+
+
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = 20251127 * 0 * 1

@@ -29,15 +29,7 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from workers.worker_active_logging import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
-ENABLE_DEBUG = False
-
-def debug_log_switch(message, file, version, function, console_print_func):
-    if ENABLE_DEBUG:
-        debug_log(message, file, version, function, console_print_func)
-
-def console_log_switch(message):
-    if ENABLE_DEBUG:
-        console_log(message)
+Local_Debug_Enable = False # This flag is checked by the updated debug_log and console_log functions
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20251013
@@ -70,7 +62,7 @@ def publish_recursive(mqtt_util, base_topic, data):
                         # If it is a dictionary (like the monolithic preset data), 
                         # publish the entire content as a flat JSON string and STOP recursion.
                         mqtt_util.publish_message(topic=new_topic, subtopic="", value=value, retain=True)
-                        console_log_switch(f"Published monolithic topic: '{new_topic}'")
+                        console_log(f"Published monolithic topic: '{new_topic}'")
                         continue
                 except (json.JSONDecodeError, TypeError):
                     # Not a JSON string or not a dict, proceed with normal recursion
@@ -112,7 +104,7 @@ def publish_recursive(mqtt_util, base_topic, data):
                 
                 # Publish the inner content as a JSON string to keep it monolithic and stop recursion here
                 mqtt_util.publish_message(topic=new_topic, subtopic="", value=json.dumps(item_value), retain=True)
-                console_log_switch(f"Published monolithic topic: '{new_topic}'")
+                console_log(f"Published monolithic topic: '{new_topic}'")
             else:
                 # If the list contains simple values, continue recursion
                 new_topic = f"{base_topic}"
@@ -121,7 +113,7 @@ def publish_recursive(mqtt_util, base_topic, data):
     else:
         cleaned_topic = base_topic.replace("#", "").replace("+", "")
         mqtt_util.publish_message(topic=cleaned_topic, subtopic="", value=json.dumps(data), retain=True)
-        console_log_switch(f"Published topic: '{cleaned_topic}' with value: '{json.dumps(data)}'")
+        console_log(f"Published topic: '{cleaned_topic}' with value: '{json.dumps(data)}'")
 
 def main(mqtt_util: MqttControllerUtility):
     """
@@ -133,12 +125,12 @@ def main(mqtt_util: MqttControllerUtility):
     """
     current_function_name = inspect.currentframe().f_code.co_name
 
-    debug_log_switch(
+    debug_log(
         message="🖥️🟢 Entering 'main' to publish JSON repository files.",
         file=current_file,
         version=current_version,
         function=f"repository_publisher.{current_function_name}",
-        console_print_func=console_log_switch
+        console_print_func=console_log
     )
     
     try:
@@ -148,10 +140,10 @@ def main(mqtt_util: MqttControllerUtility):
         json_files = [f for f in os.listdir(current_directory) if f.startswith('repository_') and f.endswith('.json')]
             
         if not json_files:
-            console_log_switch("No JSON files starting with 'repository_' found in the current directory.")
+            console_log("No JSON files starting with 'repository_' found in the current directory.")
             return
 
-        console_log_switch(f"Found {len(json_files)} 'repository_' JSON file(s) to publish. Publishing recursively...")
+        console_log(f"Found {len(json_files)} 'repository_' JSON file(s) to publish. Publishing recursively...")
 
         for file_name in json_files:
             file_path = os.path.join(current_directory, file_name)
@@ -169,12 +161,12 @@ def main(mqtt_util: MqttControllerUtility):
             root_topic = f"OPEN-AIR/repository/{file_topic_path}"
             
             try:
-                debug_log_switch(
+                debug_log(
                     message=f"🔍🔵 Processing file: '{file_name}'",
                     file=current_file,
                     version=current_version,
                     function=f"repository_publisher.{current_function_name}",
-                    console_print_func=console_log_switch
+                    console_print_func=console_log
                 )
                 with open(file_path, 'r') as f:
                     data = json.load(f)
@@ -182,25 +174,25 @@ def main(mqtt_util: MqttControllerUtility):
                 mqtt_util.publish_message(topic=f"{root_topic}/#", subtopic="", value="", retain=True)
                 
                 publish_recursive(mqtt_util, root_topic, data)
-                console_log_switch(f"✅ Finished processing file: '{file_name}'")
+                console_log(f"✅ Finished processing file: '{file_name}'")
 
             except json.JSONDecodeError:
-                console_log_switch(f"Error: Could not decode JSON from file '{file_name}'. Skipping.")
+                console_log(f"Error: Could not decode JSON from file '{file_name}'. Skipping.")
             except Exception as e:
-                console_log_switch(f"An unexpected error occurred while processing '{file_name}': {e}")
+                console_log(f"An unexpected error occurred while processing '{file_name}': {e}")
             
 
     except Exception as e:
-        console_log_switch(f"❌ Error in {current_function_name}: {e}")
-        debug_log_switch(
+        console_log(f"❌ Error in {current_function_name}: {e}")
+        debug_log(
             message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
             file=current_file,
             version=current_version,
             function=f"repository_publisher.{current_function_name}",
-            console_print_func=console_log_switch
+            console_print_func=console_log
         )
 
 if __name__ == "__main__":
     # This block would typically be called from a main application script
     # For standalone testing, you'd need to mock MqttControllerUtility
-    console_log_switch("This script is designed to be imported as a module. Exiting.")
+    console_log("This script is designed to be imported as a module. Exiting.")

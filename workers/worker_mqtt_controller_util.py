@@ -48,6 +48,14 @@ current_version_hash = (20250902 * 100615 * 5)
 current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = False
 
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
 # --- Constant Variables (No Magic Numbers) ---
 # MQTT Broker settings
 #BROKER_ADDRESS = "44.44.44.159"
@@ -72,7 +80,7 @@ class MqttControllerUtility:
         current_function_name = inspect.currentframe().f_code.co_name
         
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
                 file=current_file,
                 version=current_version,
@@ -90,11 +98,11 @@ class MqttControllerUtility:
             # [A] New list to store pending subscriptions before connection is made.
             self._pending_subscriptions = {}
 
-            console_log("✅ Celebration of success!")
+            console_log_switch("✅ Celebration of success!")
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
@@ -113,7 +121,7 @@ class MqttControllerUtility:
         self._subscribers[topic_filter] = callback_func
         
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
                 file=current_file,
                 version=current_version,
@@ -125,7 +133,7 @@ class MqttControllerUtility:
         if self.mqtt_client and self.mqtt_client.is_connected():
             self.mqtt_client.subscribe(topic_filter)
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"🔍 Subscribed immediately to '{topic_filter}'.",
                     file=current_file,
                     version=current_version,
@@ -143,7 +151,7 @@ class MqttControllerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
                 file=current_file,
                 version=current_version,
@@ -159,7 +167,7 @@ class MqttControllerUtility:
 
         # We subscribe to a wildcard topic once to catch everything.
         client.subscribe("#")
-        self._print_to_gui_console(f"✅ Connected to broker with rc={rc}")
+        console_log_switch(f"✅ Connected to broker with rc={rc}") # Informational
 
     def on_message(self, client, userdata, msg):
         """Callback for when an MQTT message is received."""
@@ -190,7 +198,7 @@ class MqttControllerUtility:
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Entering '{current_function_name}' to connect MQTT client.",
                 file=current_file,
                 version=current_version,
@@ -205,12 +213,11 @@ class MqttControllerUtility:
             
             thread = threading.Thread(target=self.mqtt_client.loop_forever, daemon=True)
             thread.start()
-            self._print_to_gui_console("✅ MQTT client connection initiated in a background thread.")
-
+            console_log_switch("✅ MQTT client connection initiated in a background thread.") # Informational
         except Exception as e:
-            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
@@ -223,7 +230,7 @@ class MqttControllerUtility:
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Entering '{current_function_name}' to display topics.",
                 file=current_file,
                 version=current_version,
@@ -232,15 +239,14 @@ class MqttControllerUtility:
             )
         try:
             if self.topics_seen:
-                topics_str = "\n".join(sorted(self.topics_seen))
-                self._print_to_gui_console(f"Observed Topics:\n{topics_str}")
+                                console_log_switch(f"Observed Topics:\n{'\n'.join(sorted(self.topics_seen))}") # Informational
             else:
-                self._print_to_gui_console("⚠️ No topics observed yet.")
+                console_log_switch("⚠️ No topics observed yet.") # Warning
 
         except Exception as e:
-            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
@@ -252,7 +258,7 @@ class MqttControllerUtility:
         """Publishes a message to a topic via the MQTT client, with an optional retain flag."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        #debug_log(
+        #debug_log_switch(
         #    message=f"🛠️🟢 Entering '{current_function_name}' to publish a message.",
         #    file=current_file,
         #    version=current_version,
@@ -262,7 +268,7 @@ class MqttControllerUtility:
         try:
             # --- START OF FIX: Correctly handle falsy values like 0 and False ---
             if not topic or (value is None and value != False and value != 0):
-                self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}")
+                self._print_to_gui_console(f"❌ {NO_TOPIC_OR_VALUE_MSG}") # Always show errors
                 return
             # --- END OF FIX ---
 
@@ -272,15 +278,16 @@ class MqttControllerUtility:
             if self.mqtt_client and self.mqtt_client.is_connected():
                 # The key change is here: adding the `retain=retain` argument.
                 self.mqtt_client.publish(full_topic, payload, retain=retain)
-                self._print_to_gui_console(f"Published to {full_topic}: {payload} with retain={retain}")
+                if Local_Debug_Enable:
+                    console_log_switch(f"Published to {full_topic}: {payload} with retain={retain}") # Informational
 #                console_log(f"✅ Published message to topic '{full_topic}' with retain flag set to '{retain}'.")
             else:
-                self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
+                self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}") # Always show errors
 
         except Exception as e:
-            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,

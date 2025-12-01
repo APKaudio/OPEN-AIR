@@ -26,6 +26,18 @@ from decimal import Decimal
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 
+
+Local_Debug_Enable = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
+
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
@@ -44,7 +56,7 @@ class GuiDropdownOptionCreatorMixin:
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a dropdown for '{label}'.",
             file=current_file,
             version=current_version,
@@ -112,7 +124,7 @@ class GuiDropdownOptionCreatorMixin:
                         self._last_selected_option = selected_key
                         selected_value_var.set(selected_value) # Update the value var
 
-                    debug_log(
+                    debug_log_switch(
                         message=f"GUI ACTION: Publishing to '{new_path}' with value 'true'",
                         file=current_file,
                         version=current_version,
@@ -121,7 +133,7 @@ class GuiDropdownOptionCreatorMixin:
                     )
 
                 except ValueError:
-                    console_log("❌ Invalid selection in dropdown.")
+                    console_log_switch("❌ Invalid selection in dropdown.")
 
             # Set the listbox foreground color to black.
             parent_frame.option_add('*TCombobox*Listbox.foreground', 'black')
@@ -143,12 +155,12 @@ class GuiDropdownOptionCreatorMixin:
                 # FIX: Storing the rebuild_options method in the tuple
                 self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
-            console_log("✅ Celebration of success! The dropdown menu did appear.")
+            console_log_switch("✅ Celebration of success! The dropdown menu did appear.")
             return sub_frame
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🔴 Arrr, the code be capsized! The dropdown creation has failed! The error be: {e}",
                 file=current_file,
                 version=current_version,

@@ -24,6 +24,18 @@ from decimal import Decimal
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 
+
+Local_Debug_Enable = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
+
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
@@ -43,7 +55,7 @@ class GuiListboxCreatorMixin:
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a listbox for '{label}'.",
             file=current_file,
             version=current_version,
@@ -117,7 +129,7 @@ class GuiListboxCreatorMixin:
                         
                         self._last_selected_option_listbox = selected_key
 
-                    debug_log(
+                    debug_log_switch(
                         message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
                         file=current_file,
                         version=current_version,
@@ -125,19 +137,19 @@ class GuiListboxCreatorMixin:
                         console_print_func=console_log
                     )
                 except (ValueError, StopIteration):
-                    console_log("❌ Invalid selection in listbox.")
+                    console_log_switch("❌ Invalid selection in listbox.")
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
             if path:
                 self.topic_widgets[path] = (listbox, rebuild_options_for_listbox, options_map)
 
-            console_log("✅ Celebration of success! The listbox menu did appear.")
+            console_log_switch("✅ Celebration of success! The listbox menu did appear.")
             return sub_frame
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🔴 Arrr, the code be capsized! The listbox creation has failed! The error be: {e}",
                 file=current_file,
                 version=current_version,

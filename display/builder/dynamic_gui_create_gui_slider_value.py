@@ -25,6 +25,18 @@ import inspect
 # --- Module Imports ---
 from workers.worker_active_logging import debug_log, console_log
 
+
+Local_Debug_Enable = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
+
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
@@ -43,7 +55,7 @@ class SliderValueCreatorMixin:
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🟢 Entering '{current_function_name}' to create a slider and value box for '{label}'.",
             file=current_file,
             version=current_version,
@@ -95,7 +107,7 @@ class SliderValueCreatorMixin:
 
             def on_slider_release(event):
                 new_val = float(slider.get())
-                debug_log(
+                debug_log_switch(
                     message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                     file=current_file,
                     version=current_version,
@@ -109,7 +121,7 @@ class SliderValueCreatorMixin:
                     new_val = float(entry.get())
                     if min_val <= new_val <= max_val:
                         slider.set(new_val)
-                        debug_log(
+                        debug_log_switch(
                             message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                             file=current_file,
                             version=current_version,
@@ -118,7 +130,7 @@ class SliderValueCreatorMixin:
                         )
                         self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
-                    console_log("Invalid input, please enter a number.")
+                    console_log_switch("Invalid input, please enter a number.")
 
             slider.config(command=on_slider_move)
             slider.bind("<ButtonRelease-1>", on_slider_release)
@@ -128,12 +140,12 @@ class SliderValueCreatorMixin:
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
 
-            console_log("✅ Celebration of success! The slider value box did appear.")
+            console_log_switch("✅ Celebration of success! The slider value box did appear.")
             return sub_frame
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🔴 Arrr, the code be capsized! The slider value box creation has failed! The error be: {e}",
                 file=current_file,
                 version=current_version,

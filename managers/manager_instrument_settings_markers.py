@@ -39,6 +39,14 @@ current_version_hash = (20251124 * 150000 * 1)
 current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = False
 
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
 
 class MarkersSettingsManager:
     """
@@ -53,7 +61,7 @@ class MarkersSettingsManager:
         self.base_topic = "OPEN-AIR/configuration/instrument/marker"
         
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Initializing MarkersSettingsManager and setting up subscriptions.",
                 file=current_file,
                 version=current_version,
@@ -71,7 +79,7 @@ class MarkersSettingsManager:
         topic = f"{self.base_topic}/#"
         self.mqtt_controller.add_subscriber(topic_filter=topic, callback_func=self._on_message)
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Subscribed to '{topic}'.",
                 file=current_file,
                 version=current_version,
@@ -84,7 +92,7 @@ class MarkersSettingsManager:
         current_function_name = inspect.currentframe().f_code.co_name
         
         if Local_Debug_Enable:
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🔵 Received message on topic '{topic}' with payload '{payload}'.",
                 file=current_file,
                 version=current_version,
@@ -94,12 +102,13 @@ class MarkersSettingsManager:
         
         try:
             # Placeholder for marker logic
-            console_log(f"✅ Marker setting updated on topic: {topic}")
+            if Local_Debug_Enable:
+                console_log_switch(f"✅ Marker setting updated on topic: {topic}")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             if Local_Debug_Enable:
-                debug_log(
+                debug_log_switch(
                     message=f"🛠️🔴 Arrr, the code be capsized! The marker logic has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,

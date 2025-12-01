@@ -54,10 +54,13 @@ DEFAULT_PAD_Y = 2
 DEFAULT_FRAME_PAD = 5
 BUTTON_PADDING_MULTIPLIER = 5
 BUTTON_BORDER_MULTIPLIER = 2
-DEBUG_MODE = True
+Local_Debug_Enable = False # This flag is checked by the updated debug_log and console_log functions
 TITLE_FONT = ('Helvetica', 12, 'bold')
 SECTION_FONT = ('Helvetica', 11, 'bold')
 
+
+# The wrapper functions debug_log_switch and console_log_switch are removed
+# as the core debug_log and console_log now directly handle Local_Debug_Enable.
 
 class DynamicGuiBuilder(
     ttk.Frame,

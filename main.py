@@ -82,7 +82,7 @@ try:
         DATA_DIR = os.path.join(GLOBAL_PROJECT_ROOT, 'DATA')
 
 except Exception as e:
-    # Fallback logging if the path and initial imports fail
+    # Fallback logging if the path and initial imports failCreate GEMINI.md files to customize your interactions with Gemini.
     print(f"❌ CRITICAL INITIALIZATION ERROR: {e}", file=sys.stderr)
     print("Application halted at startup due to module import failure.")
     sys.exit(1)

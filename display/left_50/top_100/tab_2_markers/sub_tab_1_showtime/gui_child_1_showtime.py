@@ -45,6 +45,17 @@ from workers.worker_active_marker_tune_and_collect import Push_Marker_to_Center_
 from workers.worker_marker_logic import calculate_frequency_range
 from display.styling.style import THEMES, DEFAULT_THEME
 
+Local_Debug_Enable = False
+
+def debug_log_switch(message, file, version, function, console_print_func):
+    if Local_Debug_Enable:
+        debug_log(message, file, version, function, console_print_func)
+
+def console_log_switch(message):
+    if Local_Debug_Enable:
+        console_log(message)
+
+
 # --- Global Scope Variables ---
 current_version = "20250925.235100.3"
 current_version_hash = (20250925 * 235100 * 3)
@@ -58,7 +69,7 @@ class ShowtimeTab(ttk.Frame):
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Initializing ShowtimeTab. Ready for showtime!",
             file=current_file,
             version=current_version,
@@ -82,7 +93,7 @@ class ShowtimeTab(ttk.Frame):
         self._create_widgets()
 
         if not PANDAS_NUMPY_AVAILABLE:
-            console_log("❌ Critical dependencies 'pandas' or 'numpy' not found. Showtime tab will be disabled.")
+            console_log_switch("❌ Critical dependencies 'pandas' or 'numpy' not found. Showtime tab will be disabled.")
             for widget in self.winfo_children():
                 widget.destroy()
             error_label = ttk.Label(self, text="Error: NumPy and Pandas libraries are required for this tab.", foreground="red")
@@ -104,7 +115,7 @@ class ShowtimeTab(ttk.Frame):
         style.configure('TLabelframe', background=colors["bg"], foreground=colors["fg"])
         # FIXED: Apply wraplength to the base button style for consistent wrapping.
         style.configure('Custom.TButton',
-                        background=colors["button_style_toggle"]["background"], 
+                        background=colors["button_style_toggle"]["background"],
                         foreground=colors["button_style_toggle"]["foreground"],
                         padding=10, relief=colors["relief"],
                         wraplength=150,
@@ -125,7 +136,7 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_widgets(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Creating the three-pane filter layout.",
             file=current_file,
             version=current_version,
@@ -186,7 +197,7 @@ class ShowtimeTab(ttk.Frame):
         
     def _reset_filters(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🔵 Resetting all filters and rebuilding the UI.",
             file=current_file,
             version=current_version,
@@ -204,13 +215,13 @@ class ShowtimeTab(ttk.Frame):
         self._create_zone_buttons()
         self._create_group_buttons()
         self._create_device_buttons()
-        console_log("✅ Filters reset. All markers displayed.")
+        console_log_switch("✅ Filters reset. All markers displayed.")
 
     def _on_tab_selected(self, event):
         current_function = inspect.currentframe().f_code.co_name
         
         if event is None or event.widget.tab(event.widget.select(), "text") == "Showtime":
-            debug_log(
+            debug_log_switch(
                 message="🛠️🟢 'Showtime' tab activated. Reloading marker data and buttons.",
                 file=current_file,
                 version=current_version,
@@ -225,7 +236,7 @@ class ShowtimeTab(ttk.Frame):
            
     def _load_marker_data(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Loading raw marker data from file.",
             file=current_file,
             version=current_version,
@@ -238,13 +249,13 @@ class ShowtimeTab(ttk.Frame):
         if not raw_data:
             self.marker_data = []
             self.column_headers = []
-            console_log("🟡 No marker data found in MARKERS.csv. No buttons will be created.")
+            console_log_switch("🟡 No marker data found in MARKERS.csv. No buttons will be created.")
             return
 
         self.marker_data = [dict(zip(raw_headers, row)) for row in raw_data if len(row) == len(raw_headers)]
         self.column_headers = raw_headers
 
-        debug_log(
+        debug_log_switch(
             message=f"✅ Loaded {len(self.marker_data)} rows. Converted to dictionaries for sorting and display.",
             file=current_file,
             version=current_version,
@@ -254,7 +265,7 @@ class ShowtimeTab(ttk.Frame):
             
     def _process_and_sort_markers(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🔵 Processing and sorting marker data by Zone, Group, and Device.",
             file=current_file,
             version=current_version,
@@ -273,7 +284,7 @@ class ShowtimeTab(ttk.Frame):
             for group, devices in groups.items():
                 devices.sort(key=lambda x: x.get('NAME', ''))
         
-        debug_log(
+        debug_log_switch(
             message="✅ Markers grouped and sorted successfully.",
             file=current_file,
             version=current_version,
@@ -286,7 +297,7 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_zone_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Creating Zone filter buttons.",
             file=current_file,
             version=current_version,
@@ -325,7 +336,7 @@ class ShowtimeTab(ttk.Frame):
         for i in range(4):
             self.zone_frame.grid_columnconfigure(i, weight=1)
         
-        debug_log(
+        debug_log_switch(
             message=f"✅ Zone buttons created for {len(sorted_zones)} zones.",
             file=current_file,
             version=current_version,
@@ -335,7 +346,7 @@ class ShowtimeTab(ttk.Frame):
         
     def _create_group_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Creating Group filter buttons.",
             file=current_file,
             version=current_version,
@@ -376,7 +387,7 @@ class ShowtimeTab(ttk.Frame):
         else:
             self.group_frame.grid_remove()
             
-        debug_log(
+        debug_log_switch(
             message=f"✅ Group buttons updated for selected zone.",
             file=current_file,
             version=current_version,
@@ -386,7 +397,7 @@ class ShowtimeTab(ttk.Frame):
 
     def _create_device_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Creating Device buttons.",
             file=current_file,
             version=current_version,
@@ -404,7 +415,7 @@ class ShowtimeTab(ttk.Frame):
         filtered_devices = []
         if self.selected_zone and self.selected_group:
             filtered_devices = self.grouped_markers[self.selected_zone][self.selected_group]
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Showing devices for Zone: {self.selected_zone} and Group: {self.selected_group}.",
                 file=current_file,
                 version=current_version,
@@ -414,7 +425,7 @@ class ShowtimeTab(ttk.Frame):
         elif self.selected_zone:
             for group_name in self.grouped_markers[self.selected_zone]:
                 filtered_devices.extend(self.grouped_markers[self.selected_zone][group_name])
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Showing all devices for selected Zone: {self.selected_zone}.",
                 file=current_file,
                 version=current_version,
@@ -423,7 +434,7 @@ class ShowtimeTab(ttk.Frame):
             )
         else:
             filtered_devices = self.marker_data
-            debug_log(
+            debug_log_switch(
                 message="🔍 Showing all devices from MARKERS.csv.",
                 file=current_file,
                 version=current_version,
@@ -432,10 +443,12 @@ class ShowtimeTab(ttk.Frame):
             )
 
         for i, row_data in enumerate(filtered_devices):
-            button_text = (f"{row_data.get('NAME', 'N/A')}\n"
+            button_text = (
+                           f"{row_data.get('NAME', 'N/A')}\n"
                            f"{row_data.get('DEVICE', 'N/A')}\n"
                            f"{row_data.get('FREQ_MHZ', 'N/A')} MHz\n"
-                           f"[********************]")
+                           f"[********************]"
+                          )
             
             button = ttk.Button(
                 self.device_frame,
@@ -450,7 +463,7 @@ class ShowtimeTab(ttk.Frame):
             col = i % 4
             button.grid(row=row, column=col, padx=5, pady=5, sticky="ew")
 
-        debug_log(
+        debug_log_switch(
             message=f"✅ Created {len(filtered_devices)} device buttons.",
             file=current_file,
             version=current_version,
@@ -460,7 +473,7 @@ class ShowtimeTab(ttk.Frame):
             
     def _on_zone_toggle(self, zone_name):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🔵 Zone toggle clicked for: {zone_name}. Current selection: {self.selected_zone}.",
             file=current_file,
             version=current_version,
@@ -470,7 +483,7 @@ class ShowtimeTab(ttk.Frame):
         if self.selected_zone == zone_name:
             self.selected_zone = None
             self.selected_group = None
-            debug_log(
+            debug_log_switch(
                 message="🛠️🟡 Deselected Zone. Clearing Group selection.",
                 file=current_file,
                 version=current_version,
@@ -480,7 +493,7 @@ class ShowtimeTab(ttk.Frame):
         else:
             self.selected_zone = zone_name
             self.selected_group = None
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Selected new Zone: {self.selected_zone}. Clearing Group selection.",
                 file=current_file,
                 version=current_version,
@@ -496,7 +509,7 @@ class ShowtimeTab(ttk.Frame):
         
     def _on_group_toggle(self, group_name):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message=f"🛠️🔵 Group toggle clicked for: {group_name}. Current selection: {self.selected_group}.",
             file=current_file,
             version=current_version,
@@ -505,7 +518,7 @@ class ShowtimeTab(ttk.Frame):
         )
         if self.selected_group == group_name:
             self.selected_group = None
-            debug_log(
+            debug_log_switch(
                 message="🛠️🟡 Deselected Group. Showing all devices for the current Zone.",
                 file=current_file,
                 version=current_version,
@@ -514,7 +527,7 @@ class ShowtimeTab(ttk.Frame):
             )
         else:
             self.selected_group = group_name
-            debug_log(
+            debug_log_switch(
                 message=f"🛠️🟢 Selected new Group: {self.selected_group}.",
                 file=current_file,
                 version=current_version,
@@ -529,7 +542,7 @@ class ShowtimeTab(ttk.Frame):
         
     def _clear_group_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🔵 Clearing group buttons.",
             file=current_file,
             version=current_version,
@@ -541,7 +554,7 @@ class ShowtimeTab(ttk.Frame):
 
     def _on_marker_button_click(self, button):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🔵 Device button clicked. Toggling selection.",
             file=current_file,
             version=current_version,
@@ -553,14 +566,14 @@ class ShowtimeTab(ttk.Frame):
         if self.selected_device_button == button:
             self.selected_device_button.config(style='Custom.TButton')
             self.selected_device_button = None
-            console_log(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
+            console_log_switch(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
         else:
             if self.selected_device_button:
                 self.selected_device_button.config(style='Custom.TButton')
             
             self.selected_device_button = button
             self.selected_device_button.config(style='Custom.Selected.TButton')
-            console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
+            console_log_switch(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
         
         self._on_tune_request_from_selection()
 
@@ -569,7 +582,7 @@ class ShowtimeTab(ttk.Frame):
         Tunes the instrument based on the current selections.
         """
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
+        debug_log_switch(
             message="🛠️🟢 Initiating tuning request based on current selection.",
             file=current_file,
             version=current_version,
@@ -580,7 +593,7 @@ class ShowtimeTab(ttk.Frame):
         if self.selected_device_button:
             # Case 1: A specific device is selected
             marker_data = self.selected_device_button.marker_data
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 Device button selected. Tuning to center frequency of {marker_data.get('NAME', 'N/A')}.",
                 file=current_file,
                 version=current_version,
@@ -590,7 +603,7 @@ class ShowtimeTab(ttk.Frame):
             Push_Marker_to_Center_Freq(mqtt_controller=self.mqtt_util, marker_data=marker_data)
         elif self.selected_group:
             # Case 2: A group is selected, but no device
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 No device selected. Tuning to start/stop frequency of selected Group: {self.selected_group}.",
                 file=current_file,
                 version=current_version,
@@ -609,7 +622,7 @@ class ShowtimeTab(ttk.Frame):
                 
         elif self.selected_zone:
             # Case 3: A zone is selected, but no group or device
-            debug_log(
+            debug_log_switch(
                 message=f"🔍 No group selected. Tuning to start/stop frequency of selected Zone: {self.selected_zone}.",
                 file=current_file,
                 version=current_version,
@@ -629,7 +642,7 @@ class ShowtimeTab(ttk.Frame):
                 console_log("❌ Failed to tune: No valid frequencies found in selected zone.")
         else:
             # Case 4: No filters selected, tune to all markers
-            debug_log(
+            debug_log_switch(
                 message="🔍 No filters selected. Tuning to start/stop frequency of all markers.",
                 file=current_file,
                 version=current_version,

@@ -56,6 +56,11 @@ from workers.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
+Local_Debug_Enable = False
+
+# The wrapper functions debug_log_switch and console_log_switch are removed
+# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+
 # --- Global Scope Variables (as per Protocol 4.4) ---
 current_version = "20251127.000000.1"
 # The hash calculation drops the leading zero from the hour (23 -> 23)

@@ -150,17 +150,19 @@ def _truncate_message(message: str) -> str:
 
 def console_log(message: str):
     # Logs a user-facing message to the console and conditionally to the debug file.
-    
-    # 1. Log to console output
-    if global_settings["debug_to_terminal"]:
-        _safe_print(message)
-        
-    # 2. Log to main debug file
-    if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
-        # We don't prepend file/version/function for console logs
-        _log_to_file(f"🖥️ {message}", get_log_filename())
 
-    # 3. Log to errors file if it contains the marker
+    frame = inspect.currentframe().f_back
+    if 'Local_Debug_Enable' in frame.f_globals and frame.f_globals['Local_Debug_Enable']:
+        # 1. Log to console output
+        if global_settings["debug_to_terminal"]:
+            _safe_print(message)
+            
+        # 2. Log to main debug file
+        if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
+            # We don't prepend file/version/function for console logs
+            _log_to_file(f"🖥️ {message}", get_log_filename())
+
+    # 3. Log to errors file if it contains the marker (always, regardless of debug flag)
     _log_to_error_file(message)
 
 

@@ -1,11 +1,5 @@
 from workers.worker_active_logging import debug_log, console_log
-ENABLE_DEBUG = False
+Local_Debug_Enable = False
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if ENABLE_DEBUG:
-        debug_log_switch(message, file, version, function, console_print_func)
-
-def console_log_switch(message):
-    if ENABLE_DEBUG:
-        console_log_switch(message)
-
+# The wrapper functions debug_log_switch and console_log_switch are removed
+# as the core debug_log and console_log now directly handle Local_Debug_Enable.
