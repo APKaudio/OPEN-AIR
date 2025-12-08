@@ -5,6 +5,13 @@ import os
 import sys
 import pathlib
 
+# --- Path Setup ---
+# This defines the absolute, true root path of the project, irrespective of the CWD.
+SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
+
+# Assuming sys.path is already set up by main.py
+from workers.active.worker_active_logging import console_log
+
 try:
     from PIL import Image, ImageTk
     PIL_AVAILABLE = True
@@ -12,30 +19,7 @@ except ImportError:
     Image = None
     ImageTk = None
     PIL_AVAILABLE = False
-    # Fallback console_log from within the splash_screen module if worker_active_logging is not yet available
-    try:
-        # This ensures console_log is available for the warning message
-        # when PIL is not available but worker_active_logging might be.
-        SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-        if str(SPLASH_ROOT_DIR) not in sys.path:
-            sys.path.append(str(SPLASH_ROOT_DIR))
-        from workers.active.worker_active_logging import console_log
-    except ImportError:
-        def console_log(message):
-            print(message)
     console_log("WARNING: Pillow (PIL) not available. Splash screen will not display image.")
-
-# --- Path Setup ---
-# This ensures the splash screen can find the project root to locate the image and other modules.
-try:
-    SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-    if str(SPLASH_ROOT_DIR) not in sys.path:
-        sys.path.append(str(SPLASH_ROOT_DIR))
-    from workers.active.worker_active_logging import console_log
-except ImportError:
-    # Fallback if the path logic fails or modules are not found
-    def console_log(message):
-        print(message)
 
 class SplashScreen:
     def __init__(self):
