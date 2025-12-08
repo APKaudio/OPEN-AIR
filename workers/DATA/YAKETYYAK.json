@@ -1,0 +1,29 @@
+{
+    "yak": {
+        "Frequency": {
+            "rig": {
+                "Rig_freq_start_stop": {
+                    "scpi_inputs": {
+                        "start_freq": {
+                            "value": ""
+                        },
+                        "stop_freq": {
+                            "value": ""
+                        }
+                    }
+                }
+            }
+        },
+        "Bandwidth": {
+            "nab": {
+                "NAB_bandwidth_settings": {
+                    "scpi_details": {
+                        "generic_model": {
+                            "trigger": ""
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

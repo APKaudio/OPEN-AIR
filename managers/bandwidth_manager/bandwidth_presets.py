@@ -1,9 +1,9 @@
 # managers/bandwidth_manager/bandwidth_presets.py
 
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
-from workers.worker_active_logging import console_log
+from workers.active.worker_active_logging import console_log
 
 class BandwidthPresets:
     """Handles preset logic for bandwidth settings."""

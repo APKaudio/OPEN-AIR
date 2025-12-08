@@ -13,7 +13,7 @@ import seaborn as sns
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-from workers.worker_active_logging import console_log
+from workers.active.worker_active_logging import console_log
 
 class ScanViewGUIFrame(ttk.Frame):
     

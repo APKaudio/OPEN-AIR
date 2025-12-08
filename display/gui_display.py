@@ -51,12 +51,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 #// --------------------------------------------------------
 
 # --- Module Imports ---
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 # The wrapper functions debug_log_switch and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.

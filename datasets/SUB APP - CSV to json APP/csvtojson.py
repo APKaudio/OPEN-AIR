@@ -6,9 +6,9 @@ import os
 import sys
 import io
 import re
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 class CSVToJSONApp(tk.Tk):
     """

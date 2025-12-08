@@ -1,7 +1,7 @@
 # managers/bandwidth_manager/bandwidth_callbacks.py
 
 import json
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from .bandwidth_presets import BandwidthPresets

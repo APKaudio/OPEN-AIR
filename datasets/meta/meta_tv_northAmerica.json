@@ -1,0 +1,286 @@
+[
+  {
+    "id": "atsc_usa",
+    "name": "ATSC (USA)",
+    "description": "Advanced Television Systems Committee standard for the United States",
+    "country": "United States",
+    "region": "North America",
+    "type": "tv",
+    "start_frequency_mhz": 54,
+    "stop_frequency_mhz": 806,
+    "channels": [
+      {
+        "channel": "2",
+        "frequency_mhz": 54
+      },
+      {
+        "channel": "3",
+        "frequency_mhz": 60
+      },
+      {
+        "channel": "4",
+        "frequency_mhz": 66
+      },
+      {
+        "channel": "5",
+        "frequency_mhz": 76
+      },
+      {
+        "channel": "6",
+        "frequency_mhz": 82
+      },
+      {
+        "channel": "7",
+        "frequency_mhz": 174
+      },
+      {
+        "channel": "8",
+        "frequency_mhz": 180
+      },
+      {
+        "channel": "9",
+        "frequency_mhz": 186
+      },
+      {
+        "channel": "10",
+        "frequency_mhz": 192
+      },
+      {
+        "channel": "11",
+        "frequency_mhz": 198
+      },
+      {
+        "channel": "12",
+        "frequency_mhz": 204
+      },
+      {
+        "channel": "13",
+        "frequency_mhz": 210
+      },
+      {
+        "channel": "14",
+        "frequency_mhz": 470
+      },
+      {
+        "channel": "15",
+        "frequency_mhz": 476
+      },
+      {
+        "channel": "16",
+        "frequency_mhz": 482
+      },
+      {
+        "channel": "17",
+        "frequency_mhz": 488
+      },
+      {
+        "channel": "18",
+        "frequency_mhz": 494
+      },
+      {
+        "channel": "19",
+        "frequency_mhz": 500
+      },
+      {
+        "channel": "20",
+        "frequency_mhz": 506
+      },
+      {
+        "channel": "21",
+        "frequency_mhz": 512
+      },
+      {
+        "channel": "22",
+        "frequency_mhz": 518
+      },
+      {
+        "channel": "23",
+        "frequency_mhz": 524
+      },
+      {
+        "channel": "24",
+        "frequency_mhz": 530
+      },
+      {
+        "channel": "25",
+        "frequency_mhz": 536
+      },
+      {
+        "channel": "26",
+        "frequency_mhz": 542
+      },
+      {
+        "channel": "27",
+        "frequency_mhz": 548
+      },
+      {
+        "channel": "28",
+        "frequency_mhz": 554
+      },
+      {
+        "channel": "29",
+        "frequency_mhz": 560
+      },
+      {
+        "channel": "30",
+        "frequency_mhz": 566
+      },
+      {
+        "channel": "31",
+        "frequency_mhz": 572
+      },
+      {
+        "channel": "32",
+        "frequency_mhz": 578
+      },
+      {
+        "channel": "33",
+        "frequency_mhz": 584
+      },
+      {
+        "channel": "34",
+        "frequency_mhz": 590
+      },
+      {
+        "channel": "35",
+        "frequency_mhz": 596
+      },
+      {
+        "channel": "36",
+        "frequency_mhz": 602
+      },
+      {
+        "channel": "37",
+        "frequency_mhz": 608
+      },
+      {
+        "channel": "38",
+        "frequency_mhz": 614
+      },
+      {
+        "channel": "39",
+        "frequency_mhz": 620
+      },
+      {
+        "channel": "40",
+        "frequency_mhz": 626
+      },
+      {
+        "channel": "41",
+        "frequency_mhz": 632
+      },
+      {
+        "channel": "42",
+        "frequency_mhz": 638
+      },
+      {
+        "channel": "43",
+        "frequency_mhz": 644
+      },
+      {
+        "channel": "44",
+        "frequency_mhz": 650
+      },
+      {
+        "channel": "45",
+        "frequency_mhz": 656
+      },
+      {
+        "channel": "46",
+        "frequency_mhz": 662
+      },
+      {
+        "channel": "47",
+        "frequency_mhz": 668
+      },
+      {
+        "channel": "48",
+        "frequency_mhz": 674
+      },
+      {
+        "channel": "49",
+        "frequency_mhz": 680
+      },
+      {
+        "channel": "50",
+        "frequency_mhz": 686
+      },
+      {
+        "channel": "51",
+        "frequency_mhz": 692
+      },
+      {
+        "channel": "52",
+        "frequency_mhz": 698
+      },
+      {
+        "channel": "53",
+        "frequency_mhz": 704
+      },
+      {
+        "channel": "54",
+        "frequency_mhz": 710
+      },
+      {
+        "channel": "55",
+        "frequency_mhz": 716
+      },
+      {
+        "channel": "56",
+        "frequency_mhz": 722
+      },
+      {
+        "channel": "57",
+        "frequency_mhz": 728
+      },
+      {
+        "channel": "58",
+        "frequency_mhz": 734
+      },
+      {
+        "channel": "59",
+        "frequency_mhz": 740
+      },
+      {
+        "channel": "60",
+        "frequency_mhz": 746
+      },
+      {
+        "channel": "61",
+        "frequency_mhz": 752
+      },
+      {
+        "channel": "62",
+        "frequency_mhz": 758
+      },
+      {
+        "channel": "63",
+        "frequency_mhz": 764
+      },
+      {
+        "channel": "64",
+        "frequency_mhz": 770
+      },
+      {
+        "channel": "65",
+        "frequency_mhz": 776
+      },
+      {
+        "channel": "66",
+        "frequency_mhz": 782
+      },
+      {
+        "channel": "67",
+        "frequency_mhz": 788
+      },
+      {
+        "channel": "68",
+        "frequency_mhz": 794
+      },
+      {
+        "channel": "69",
+        "frequency_mhz": 800
+      }
+    ]
+  }
+]

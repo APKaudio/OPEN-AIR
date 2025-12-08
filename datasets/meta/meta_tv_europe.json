@@ -1,0 +1,174 @@
+[
+  {
+    "id": "dvb_t_uk",
+    "name": "DVB-T (UK)",
+    "description": "Digital Video Broadcasting - Terrestrial for the United Kingdom",
+    "country": "United Kingdom",
+    "region": "Europe",
+    "type": "tv",
+    "start_frequency_mhz": 470,
+    "stop_frequency_mhz": 790,
+    "channels": [
+      {
+        "channel": "21",
+        "frequency_mhz": 474
+      },
+      {
+        "channel": "22",
+        "frequency_mhz": 482
+      },
+      {
+        "channel": "23",
+        "frequency_mhz": 490
+      },
+      {
+        "channel": "24",
+        "frequency_mhz": 498
+      },
+      {
+        "channel": "25",
+        "frequency_mhz": 506
+      },
+      {
+        "channel": "26",
+        "frequency_mhz": 514
+      },
+      {
+        "channel": "27",
+        "frequency_mhz": 522
+      },
+      {
+        "channel": "28",
+        "frequency_mhz": 530
+      },
+      {
+        "channel": "29",
+        "frequency_mhz": 538
+      },
+      {
+        "channel": "30",
+        "frequency_mhz": 546
+      },
+      {
+        "channel": "31",
+        "frequency_mhz": 554
+      },
+      {
+        "channel": "32",
+        "frequency_mhz": 562
+      },
+      {
+        "channel": "33",
+        "frequency_mhz": 570
+      },
+      {
+        "channel": "34",
+        "frequency_mhz": 578
+      },
+      {
+        "channel": "35",
+        "frequency_mhz": 586
+      },
+      {
+        "channel": "36",
+        "frequency_mhz": 594
+      },
+      {
+        "channel": "37",
+        "frequency_mhz": 602
+      },
+      {
+        "channel": "38",
+        "frequency_mhz": 610
+      },
+      {
+        "channel": "39",
+        "frequency_mhz": 618
+      },
+      {
+        "channel": "40",
+        "frequency_mhz": 626
+      },
+      {
+        "channel": "41",
+        "frequency_mhz": 634
+      },
+      {
+        "channel": "42",
+        "frequency_mhz": 642
+      },
+      {
+        "channel": "43",
+        "frequency_mhz": 650
+      },
+      {
+        "channel": "44",
+        "frequency_mhz": 658
+      },
+      {
+        "channel": "45",
+        "frequency_mhz": 666
+      },
+      {
+        "channel": "46",
+        "frequency_mhz": 674
+      },
+      {
+        "channel": "47",
+        "frequency_mhz": 682
+      },
+      {
+        "channel": "48",
+        "frequency_mhz": 690
+      },
+      {
+        "channel": "49",
+        "frequency_mhz": 698
+      },
+      {
+        "channel": "50",
+        "frequency_mhz": 706
+      },
+      {
+        "channel": "51",
+        "frequency_mhz": 714
+      },
+      {
+        "channel": "52",
+        "frequency_mhz": 722
+      },
+      {
+        "channel": "53",
+        "frequency_mhz": 730
+      },
+      {
+        "channel": "54",
+        "frequency_mhz": 738
+      },
+      {
+        "channel": "55",
+        "frequency_mhz": 746
+      },
+      {
+        "channel": "56",
+        "frequency_mhz": 754
+      },
+      {
+        "channel": "57",
+        "frequency_mhz": 762
+      },
+      {
+        "channel": "58",
+        "frequency_mhz": 770
+      },
+      {
+        "channel": "59",
+        "frequency_mhz": 778
+      },
+      {
+        "channel": "60",
+        "frequency_mhz": 786
+      }
+    ]
+  }
+]

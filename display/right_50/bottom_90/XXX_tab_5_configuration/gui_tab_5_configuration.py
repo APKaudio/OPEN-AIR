@@ -26,8 +26,8 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---

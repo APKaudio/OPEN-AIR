@@ -12,7 +12,7 @@ try:
     SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
     if str(SPLASH_ROOT_DIR) not in sys.path:
         sys.path.append(str(SPLASH_ROOT_DIR))
-    from workers.worker_active_logging import console_log
+    from workers.active.worker_active_logging import console_log
 except ImportError:
     # Fallback if the path logic fails or modules are not found
     def console_log(message):

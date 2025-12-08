@@ -20,7 +20,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # --- Module Imports ---
-from workers.worker_active_logging import console_log
+from workers.active.worker_active_logging import console_log
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -40,7 +40,7 @@ class LabelCreatorMixin:
         # Creates a read-only label widget.
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            sub_frame.pack(padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, anchor='w')
 
             label_text = f"{label}: {value}"
             if units:

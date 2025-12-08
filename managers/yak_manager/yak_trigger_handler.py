@@ -4,12 +4,12 @@ import os
 import inspect
 import json
 
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs
 from managers.yak_manager.yak_command_builder import fill_scpi_placeholders
-from managers.manager_yak_tx import YakTxManager
-from managers.manager_yak_rx import YakRxManager
-from workers.worker_project_paths import YAKETY_YAK_REPO_PATH 
+from managers.yak_manager.manager_yak_tx import YakTxManager
+from managers.yak_manager.manager_yak_rx import YakRxManager
+from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 current_version = "1.0.0"
 current_file = f"{os.path.basename(__file__)}"

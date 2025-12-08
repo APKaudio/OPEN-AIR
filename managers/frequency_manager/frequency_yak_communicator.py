@@ -5,13 +5,13 @@ import json
 import os
 import inspect
 
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 def debug_log_switch(message, file, version, function, console_print_func):
     if Local_Debug_Enable:

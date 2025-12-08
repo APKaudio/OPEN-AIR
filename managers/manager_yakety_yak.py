@@ -23,15 +23,15 @@ import pathlib
 import re
 
 # --- Utility and Manager Imports ---
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
-from managers.manager_visa_dispatch_scpi import ScpiDispatcher
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
 # FIXED: Re-import YAKETY_YAK_REPO_PATH after circular dependency fix
-from workers.worker_project_paths import YAKETY_YAK_REPO_PATH 
+from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 def debug_log_switch(message, file, version, function, console_print_func):
     if Local_Debug_Enable:

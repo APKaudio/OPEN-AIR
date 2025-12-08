@@ -2,7 +2,7 @@
 
 import os
 import inspect
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 
 current_version = "1.0.0"
 current_file = f"{os.path.basename(__file__)}"

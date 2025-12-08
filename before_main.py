@@ -66,7 +66,7 @@ EXTERNAL_PACKAGES = {
     "python-usbtmc": "usbtmc",
     "python-vxi11": "vxi11",
     "pyserial": "serial",
-    "python-gpib": "Gpib", 
+   
     "psutil": "psutil",
     "zeroconf": "zeroconf",
 }
@@ -134,7 +134,7 @@ def _execute_pip_command(action, package_name, console_print_func):
         return False
 
 
-def action_check_dependancies():
+def action_check_dependancies(should_clean_install=False): # Add argument with default
     # Checks for required external library dependencies and forces a reinstall if found.
     current_function_name = inspect.currentframe().f_code.co_name
     _mock_debug_log(
@@ -145,10 +145,7 @@ def action_check_dependancies():
         console_print_func=_mock_console_log
     )
     
-    # NEW: Determine if the script is running in 'fresh' mode
-    is_fresh_mode = any("fresh" in arg.lower() for arg in sys.argv)
-  
-    _mock_console_log(f"🔍 Starting dependency check ({len(EXTERNAL_PACKAGES) + len(BUILTIN_PACKAGES)} modules required). Fresh Mode: {is_fresh_mode}")
+    _mock_console_log(f"🔍 Starting dependency check ({len(EXTERNAL_PACKAGES) + len(BUILTIN_PACKAGES)} modules required). Clean Install Mode: {should_clean_install}")
     
     missing_packages = []
 
@@ -167,8 +164,6 @@ def action_check_dependancies():
                 package_name_for_pip = "python-usbtmc"
             elif friendly_name == "python-vxi11":
                 package_name_for_pip = "python-vxi11"
-            elif friendly_name == "python-gpib":
-                package_name_for_pip = "python-gpib" 
             elif friendly_name == "pyserial":
                 package_name_for_pip = "pyserial"
             elif friendly_name == "beautifulsoup4 (bs4)":
@@ -184,7 +179,7 @@ def action_check_dependancies():
                 is_installed = False
      
             
-            if is_installed and is_fresh_mode:
+            if is_installed and should_clean_install: # Use should_clean_install here
                 # Scenario A: Installed, running in fresh mode -> Force uninstall/reinstall
                 _mock_console_log(f"✅ Found '{friendly_name}'. Forcing refresh...")
                 
@@ -199,7 +194,7 @@ def action_check_dependancies():
                 if not _execute_pip_command(ACTION_INSTALL, package_name_for_pip, _mock_console_log):
                     missing_packages.append(friendly_name)
             
-            elif is_installed and not is_fresh_mode:
+            elif is_installed and not should_clean_install: # Use should_clean_install here
                 # Scenario C: Installed, not in fresh mode -> Skip, treat as success
                 _mock_console_log(f"✅ Found '{friendly_name}'. Skipping refresh (Non-fresh mode).")
 
@@ -256,6 +251,18 @@ def action_check_dependancies():
 
 
 if __name__ == "__main__":
-    # When run directly, force a system exit on failure
-    if not action_check_dependancies():
+    _mock_console_log("🚀 Starting dependency pre-check for OPEN-AIR. 🚀")
+    
+    # Prompt user for action
+    user_choice = input("Do you want to [C]lean install (uninstall and reinstall all external libraries) or just [V]erify and install missing ones? (C/V): ").strip().lower()
+
+    should_clean_install = False
+    if user_choice == 'c':
+        should_clean_install = True
+        _mock_console_log("💡 Clean install mode selected. All external libraries will be reinstalled.")
+    else:
+        _mock_console_log("💡 Verify and install missing libraries mode selected.")
+
+    # Pass should_clean_install to the dependency check function
+    if not action_check_dependancies(should_clean_install):
         sys.exit(1)

@@ -22,8 +22,8 @@ import json
 import pathlib
 
 # Assume these are imported from a central logging utility and MQTT controller
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 current_version = "20250904.124751.1"

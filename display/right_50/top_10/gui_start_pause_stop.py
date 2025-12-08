@@ -34,7 +34,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from display.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"

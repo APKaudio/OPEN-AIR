@@ -25,8 +25,8 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from display.builder.dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 
@@ -55,7 +55,7 @@ DEFAULT_PAD_Y = 2
 DEFAULT_FRAME_PAD = 5
 BUTTON_PADDING_MULTIPLIER = 5
 BUTTON_BORDER_MULTIPLIER = 2
-Local_Debug_Enable = False # This flag is checked by the updated debug_log and console_log functions
+Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
 TITLE_FONT = ('Helvetica', 12, 'bold')
 SECTION_FONT = ('Helvetica', 11, 'bold')
 
@@ -387,8 +387,7 @@ class DynamicGuiBuilder(
                         label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
                         separator = ttk.Separator(nested_frame, orient='horizontal')
                         separator.pack(fill='x', pady=2)
-                        new_path_prefix = f"{current_path}{TOPIC_DELIMITER}fields"
-                        self._create_dynamic_widgets(nested_frame, value.get("fields", {}), path_prefix=new_path_prefix)
+                        self._create_dynamic_widgets(nested_frame, value.get("fields", {}), path_prefix=current_path)
                         continue
 
                     creation_func = self.widget_factory.get(widget_type)

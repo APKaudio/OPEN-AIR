@@ -78,7 +78,7 @@ def build():
 if __name__ == "__main__":
     build()
 =======
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 ENABLE_DEBUG = False
 
 def debug_log_switch(message, file, version, function, console_print_func):

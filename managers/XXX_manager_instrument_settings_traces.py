@@ -35,14 +35,14 @@ import inspect
 import json 
 
 # Assume these are imported from a central logging utility and MQTT controller
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 current_version = "20250901.221341.10"
 current_version_hash = (20250901 * 221341 * 10)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 
 class TracesSettingsManager:

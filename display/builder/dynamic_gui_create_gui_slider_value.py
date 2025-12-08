@@ -23,10 +23,10 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.worker_active_logging import debug_log, console_log
+from workers.active.worker_active_logging import debug_log, console_log
 
 
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 def debug_log_switch(message, file, version, function, console_print_func):
     if Local_Debug_Enable:

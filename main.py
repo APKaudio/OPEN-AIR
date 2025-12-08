@@ -37,8 +37,8 @@ import time
 
 # --- TEMPORARY IMPORTS (Only standard library imports are safe here) ---
 # Project-specific imports are commented out or moved to avoid crashing before sys.path is set.
-# from workers.worker_mqtt_controller_util import MqttControllerUtility 
-# from workers.worker_active_logging import debug_log, console_log
+# from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility 
+# from workers.active.worker_active_logging import debug_log, console_log
 # ... (rest of initial imports) ...
 
 
@@ -53,17 +53,17 @@ try:
     
     # --- Project-specific Imports (SAFE TO RUN NOW) ---
     # Import core application modules
-    from workers.worker_active_logging import debug_log, console_log
-    from workers.worker_mqtt_controller_util import MqttControllerUtility
+    from workers.active.worker_active_logging import debug_log, console_log
+    from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
     from display.styling.style import THEMES, DEFAULT_THEME
     from display.splash.splash_screen import SplashScreen
     
     # workers
-    from workers.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
-    from workers.worker_active_peak_publisher import ActivePeakPublisher  
-    from workers.worker_dataset_publisher import main as dataset_publisher_main
-    from workers.worker_meta_publisher import main as meta_publisher_main
-    from workers.worker_repository_publisher import main as repository_publisher_main
+    from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
+    from workers.active.worker_active_peak_publisher import ActivePeakPublisher  
+    from workers.publishers.worker_dataset_publisher import main as dataset_publisher_main
+    from workers.publishers.worker_meta_publisher import main as meta_publisher_main
+    from workers.publishers.worker_repository_publisher import main as repository_publisher_main
     
     # managers
     from managers.frequency_manager.frequency_state import FrequencyState
@@ -76,10 +76,10 @@ try:
     from managers.bandwidth_manager.bandwidth_callbacks import BandwidthCallbacks
     # from managers.manager_instrument_settings_bandwidth import BandwidthSettingsManager
     from managers.manager_presets_span import SpanSettingsManager
-    from managers.manager_visa_device_search import VisaDeviceManager
-    from managers.manager_visa_dispatch_scpi import ScpiDispatcher
+    from managers.connection.manager_visa_device_search import VisaDeviceManager
+    from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
     from managers.manager_yakety_yak import YaketyYakManager
-    from managers.manager_visa_reset import VisaResetManager
+    from managers.connection.manager_visa_reset import VisaResetManager
     from managers.manager_instrument_settings_markers import MarkersSettingsManager
 
     # --- Set DATA_DIR ---

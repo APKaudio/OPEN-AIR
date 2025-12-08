@@ -35,14 +35,25 @@ import inspect
 import json 
 
 # Assume these are imported from a central logging utility and MQTT controller
-from workers.worker_active_logging import debug_log, console_log
-from workers.worker_mqtt_controller_util import MqttControllerUtility
+from workers.active.worker_active_logging import debug_log, console_log
+from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
-# --- Global Scope Variables ---
+# --- Global Scope Variables ---51127.000000.1 Function: Application._on_tab_change
+anthony@APK-Shop:~/Documents/OPEN-AIR$  cd /home/anthony/Documents/OPEN-AIR ; /usr/bin/env /usr/bin/python /home/anthony/.vscode/extensions/ms-python.debugpy-2025.16.0-linux-x64/bundled/libs/debugpy/adapter/../../debugpy/launcher 53225 -- /home/anthony/Documents/OPEN-AIR/main.py 
+anthony@APK-Shop:~/Documents/OPEN-AIR$  cd /home/anthony/Documents/OPEN-AIR ; /usr/bin/env /usr/bin/python /home/anthony/.vscode/extensions/ms-python.debugpy-2025.16.0-linux-x64/bundled/libs/debugpy/adapter/../../debugpy/launcher 51389 -- /home/anthony/Documents/OPEN-AIR/main.py 
+❌ CRITICAL INITIALIZATION ERROR: No module named 'datasets.worker_dataset_publisher'
+Application halted at startup due to module import failure.
+anthony@APK-Shop:~/Documents/OPEN-AIR$  cd /home/anthony/Documents/OPEN-AIR ; /usr/bin/env /usr/bin/python /home/anthony/.vscode/extensions/ms-python.debugpy-2025.16.0-linux-x64/bundled/libs/debugpy/adapter/../../debugpy/launcher 34727 -- /home/anthony/Documents/OPEN-AIR/main.py 
+❌ CRITICAL INITIALIZATION ERROR: unterminated string literal (detected at line 152) (frequency_yak_communicator.py, line 152)
+Application halted at startup due to module import failure.
+anthony@APK-Shop:~/Documents/OPEN-AIR$  cd /home/anthony/Documents/OPEN-AIR ; /usr/bin/env /usr/bin/python /home/anthony/.vscode/extensions/ms-python.debugpy-2025.16.0-linux-x64/bundled/libs/debugpy/adapter/../../debugpy/launcher 49763 -- /home/anthony/Documents/OPEN-AIR/main.py 
+❌ CRITICAL INITIALIZATION ERROR: unterminated string literal (detected at line 152) (frequency_yak_communicator.py, line 152)
+Application halted at startup due to module import failure.
+
 current_version = "20250901.221341.10"
 current_version_hash = (20250901 * 221341 * 10)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+Local_Debug_Enable = True
 
 
 class AmplitudeSettingsManager:
