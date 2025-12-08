@@ -58,6 +58,7 @@ BUTTON_BORDER_MULTIPLIER = 2
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
 TITLE_FONT = ('Helvetica', 12, 'bold')
 SECTION_FONT = ('Helvetica', 11, 'bold')
+DATASET_ROOT_DIR = "/home/anthony/Documents/OPEN-AIR/datasets"
 
 
 # The wrapper functions debug_log_switch and console_log_switch are removed
@@ -102,10 +103,43 @@ class DynamicGuiBuilder(
             self.topic_widgets = {}
 
             self.config_data = {}
-            self.gui_built = False
+            self.gui_built = False # Flag to track if GUI has been built.
             self.log_text = None
 
-
+            # Attempt to load initial configuration from a JSON file
+            json_filepath = self._get_json_filepath(self.base_topic)
+            if json_filepath and json_filepath.is_file():
+                try:
+                    with open(json_filepath, 'r') as f:
+                        self.config_data = json.load(f)
+                    debug_log(
+                        message=f"🖥️🔵 Successfully loaded initial configuration from {json_filepath}.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    # Perform initial GUI build from the loaded JSON data
+                    self._rebuild_gui()
+                    self.gui_built = True # Mark GUI as built after initial load
+                except Exception as e:
+                    console_log(f"❌ Error loading initial config from {json_filepath}: {e}")
+                    debug_log(
+                        message=f"🖥️🔴 Failed to load initial config from {json_filepath}. Error: {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+            else:
+                debug_log(
+                    message=f"⚠️ Warning: No initial JSON config file found for base_topic: {self.base_topic}. GUI will build upon first MQTT message.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
+            
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
                 "_GuiButtonToggle": self._create_gui_button_toggle,
@@ -205,7 +239,97 @@ class DynamicGuiBuilder(
         self.canvas.unbind_all("<Button-4>")
         self.canvas.unbind_all("<Button-5>")
 
-    def _transmit_command(self, relative_topic, payload, retain=False):
+    def _unbind_mousewheel(self, event):
+        # Unbind mousewheel scrolling when the mouse leaves the scrollable area
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
+
+    def _get_json_filepath(self, base_topic: str) -> pathlib.Path | None:
+        """
+        Derives the JSON configuration file path from the base_topic.
+        Searches in 'datasets/repository' and 'datasets/configuration'.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        topic_parts = base_topic.lower().replace('/', '_')
+        
+        # Try datasets/repository
+        repo_filename = f"dataset_repository_{topic_parts}.json"
+        repo_filepath = pathlib.Path(DATASET_ROOT_DIR) / "repository" / repo_filename
+        if repo_filepath.is_file():
+            debug_log(
+                message=f"🔍🔵 Found JSON config at: {repo_filepath}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return repo_filepath
+        
+        # Try datasets/configuration
+        config_filename = f"dataset_configuration_{topic_parts}.json"
+        config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / config_filename
+        if config_filepath.is_file():
+            debug_log(
+                message=f"🔍🔵 Found JSON config at: {config_filepath}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return config_filepath
+            
+        # Special handling for "application"
+        if base_topic.lower() == "application":
+            app_config_filename = "dataset_configuration_application.json"
+            app_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_config_filename
+            if app_config_filepath.is_file():
+                debug_log(
+                    message=f"🔍🔵 Found JSON config for 'application' at: {app_config_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                return app_config_filepath
+
+        # Special handling for "application_filepaths"
+        if base_topic.lower() == "application_filepaths":
+            app_filepaths_config_filename = "dataset_configuration_application_filepaths.json"
+            app_filepaths_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_filepaths_config_filename
+            if app_filepaths_config_filepath.is_file():
+                debug_log(
+                    message=f"🔍🔵 Found JSON config for 'application_filepaths' at: {app_filepaths_config_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                return app_filepaths_config_filepath
+
+        # Handle "Start-Stop-Pause"
+        if base_topic == "Start-Stop-Pause":
+            start_stop_pause_filename = "dataset_configuration_Start-Stop-Pause.json"
+            start_stop_pause_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / start_stop_pause_filename
+            if start_stop_pause_filepath.is_file():
+                debug_log(
+                    message=f"🔍🔵 Found JSON config for 'Start-Stop-Pause' at: {start_stop_pause_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                return start_stop_pause_filepath
+                
+        debug_log(
+            message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
+        return None
         # Publishes a command to the MQTT broker.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
@@ -555,7 +679,6 @@ class DynamicGuiBuilder(
                         if isinstance(full_config, dict):
                             self.config_data = full_config
                             self.after(0, self._rebuild_gui)
-                            self.gui_built = True
                             return
                     except (json.JSONDecodeError, TypeError):
                         pass
