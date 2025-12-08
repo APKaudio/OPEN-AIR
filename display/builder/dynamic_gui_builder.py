@@ -677,8 +677,16 @@ class DynamicGuiBuilder(
                     try:
                         full_config = json.loads(payload)
                         if isinstance(full_config, dict):
+                            # Update config_data, but don't automatically rebuild GUI
+                            # GUI structure is now primarily driven by local JSON files.
                             self.config_data = full_config
-                            self.after(0, self._rebuild_gui)
+                            debug_log(
+                                message=f"🖥️🔵 Received full config via MQTT for {self.base_topic}. Updated config_data but did not auto-rebuild GUI (local JSON is authoritative).",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.current_class_name}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                             return
                     except (json.JSONDecodeError, TypeError):
                         pass
