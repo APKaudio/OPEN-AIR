@@ -185,7 +185,7 @@ def action_open_display(mqtt_util_instance):
     )
 
     try:
-        SplashScreen().run()
+        # SplashScreen().run()
         # --- Function logic goes here ---
         # CRITICAL FIX: Import the Application class *here* using importlib
         ApplicationModule = importlib.import_module("display.gui_display")
@@ -258,6 +258,7 @@ def action_open_display(mqtt_util_instance):
         repository_publisher_main(mqtt_util_instance)
 
 
+        console_log("DEBUG: Reached app.mainloop(). Attempting to display GUI.")
         app.mainloop()
         console_log("✅ The grand spectacle begins! GUI is now open.")
         return True

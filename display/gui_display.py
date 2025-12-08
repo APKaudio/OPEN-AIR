@@ -105,11 +105,11 @@ class Application(tk.Tk):
             super().__init__()
             self.title("OPEN-AIR 2")
             self.geometry("1600x1200")
-            self.lift() # Bring window to front
-            self.attributes('-topmost', True) # Keep window on top
-            self.after_idle(self.attributes, '-topmost', False) # Release topmost after idle
+            # self.lift() # Bring window to front
+            # self.attributes('-topmost', True) # Keep window on top
+            # self.after_idle(self.attributes, '-topmost', False) # Release topmost after idle
             debug_log(
-                message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. Forced to foreground.",
+                message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. (Topmost disabled for debug)",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
