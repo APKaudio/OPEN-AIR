@@ -288,7 +288,7 @@ def main():
                 time.sleep(1) # Give the broker a second to start
             
             mqtt_util_instance.connect_mqtt()
-            console_log("DEBUG: connect_mqtt() returned. Proceeding to action_open_display.")
+            print("--- DEBUG: Main thread past connect_mqtt() ---")
             action_open_display(mqtt_util_instance)
         else:
         
