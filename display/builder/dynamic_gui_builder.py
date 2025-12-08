@@ -144,7 +144,7 @@ class DynamicGuiBuilder(
             self.scroll_frame.bind("<Enter>", self._bind_mousewheel)
             self.scroll_frame.bind("<Leave>", self._unbind_mousewheel)
 
-            self.bind("<Map>", lambda event: self._rebuild_gui())
+            self.bind("<Map>", self._on_map_event)
 
             if self.base_topic:
                 self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_receive_command_message)
@@ -155,6 +155,28 @@ class DynamicGuiBuilder(
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _on_map_event(self, event=None):
+        """Builds the GUI if it hasn't been built yet."""
+        current_function_name = inspect.currentframe().f_code.co_name
+        if not self.gui_built:
+            debug_log(
+                message=f"🖥️🔵 First time mapping event for {self.base_topic}. Building GUI.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            self._rebuild_gui()
+            self.gui_built = True
+        else:
+            debug_log(
+                message=f"🖥️🔵 GUI for {self.base_topic} already built. Skipping rebuild on map event.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -270,7 +292,6 @@ class DynamicGuiBuilder(
             rebuild_button.pack(pady=10)
             rebuild_button.configure(command=self._rebuild_gui)
 
-            self.gui_built = True
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
