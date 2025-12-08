@@ -6,7 +6,6 @@ import os
 import sys
 import io
 import re
-from workers.active.worker_active_logging import debug_log, console_log
 
 Local_Debug_Enable = True
 
@@ -246,8 +245,7 @@ class CSVToJSONApp(tk.Tk):
 
             df.sort_values(by=sort_by_columns, inplace=True, kind='stable')
             
-            console_log(f"Header Configuration Map: {json.dumps(header_map, indent=2)}")
-            console_log(f"\nSorting by columns: {sort_by_columns}")
+            
             
             root_name = self.root_name_entry.get()
             final_json = {root_name: []}
@@ -258,18 +256,18 @@ class CSVToJSONApp(tk.Tk):
                 messagebox.showerror("Error", "The root 'Hierarchical Key' or 'Value as Key' must be selected to form the root of the JSON structure.")
                 return {}
             
-            console_log("\nJSON generated successfully.")
+            
             return final_json
         
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred during generation: {e}")
-            console_log(f"Error: {e}")
+            
             return {}
 
     def preview_json(self):
         """Generates and displays a preview of the JSON output."""
         if not self.csv_filepath or not os.path.exists(self.csv_filepath):
-            console_log("Please select a valid input CSV file to see a preview.")
+            
             self.update_output_with_json({})
             return
 
@@ -340,7 +338,7 @@ class CSVToJSONApp(tk.Tk):
         This version now correctly handles multiple grouping keys per level.
         """
         output_list = []
-        console_log(f"\n--- build_json_hierarchy called with parent_key: '{parent_key}' and DataFrame size: {len(df)}")
+        
         
         # Get all headers nested under the current parent_key
         current_level_configs = sorted(
@@ -353,7 +351,7 @@ class CSVToJSONApp(tk.Tk):
         
         # Base case: No more grouping keys at this level
         if first_grouping_key_config is None:
-            console_log(f"No more grouping keys for parent_key: '{parent_key}'. Processing simple key-value pairs.")
+        
             output_list = []
             if not df.empty:
                 simple_configs = [h for h in current_level_configs if h['role'] in ["Simple Value", "Sub Key"]]

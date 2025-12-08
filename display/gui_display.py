@@ -311,7 +311,10 @@ class Application(tk.Tk):
                             )
                 return
 
-            is_tab_container = any(d.name.startswith("tab_") or d.name.startswith("sub_tab_") for d in sub_dirs)
+            # Check for directories that start with a digit, which are now our tab indicators.
+            # This identifies directories like "1_Connection", "2_monitors", etc.
+            potential_tab_dirs = [d for d in sub_dirs if d.name and d.name[0].isdigit()]
+            is_tab_container = bool(potential_tab_dirs)
  
             if is_tab_container:
                 debug_log(
@@ -334,7 +337,9 @@ class Application(tk.Tk):
                 notebook.bind('<Control-Button-1>', self._tear_off_tab)
                 notebook.bind('<<NotebookTabChanged>>', self._on_tab_change)
                 
-                tab_dirs = [d for d in sub_dirs if d.name.startswith("tab_") or d.name.startswith("sub_tab_")]
+                # Filter for actual tab directories (starting with a digit) and sort them numerically.
+                tab_dirs = sorted([d for d in sub_dirs if d.name and d.name[0].isdigit()], 
+                                  key=lambda d: int(d.name.split('_')[0]))
                 for tab_dir in tab_dirs:
                     tab_frame = ttk.Frame(notebook)
                     
@@ -368,7 +373,7 @@ class Application(tk.Tk):
                     # The recursive call will place the contents (like ScanViewGUIFrame) inside the tab_frame
                     self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
 
-            if "tab_2_monitors" in str(path):
+            if "2_monitors" in str(path):
                 debug_log(
                     message=f"🔍🔵 Special handling for 'tab_2_monitors' in path: '{path}'.",
                     file=current_file,
