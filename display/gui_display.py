@@ -78,6 +78,7 @@ class Application(tk.Tk):
     The main application class that orchestrates the GUI build process.
     """
     def __init__(self):
+        print("--- DEBUG: Entering Application.__init__() ---")
         current_function_name = inspect.currentframe().f_code.co_name
         
         debug_log(
