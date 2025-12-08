@@ -66,7 +66,7 @@ class GuiDropdownOptionCreatorMixin:
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             # Label
             label_widget = ttk.Label(sub_frame, text=f"{label}:")

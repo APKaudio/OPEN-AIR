@@ -21,14 +21,14 @@
                 "set_span_freq_MHz": {
                     "scpi_inputs": {
                         "hz_value": {
-                            "value": 200000000,
+                            "value": "12345678",
                             "type": "_Value"
                         }
                     },
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": false,
+                            "trigger": "false",
                             "SCPI_value": ":FREQuency:SPAN <hz_value>"
                         }
                     }
@@ -86,7 +86,7 @@
                     },
                     "scpi_details": {
                         "generic_model": {
-                            "trigger": false,
+                            "trigger": "false",
                             "type": "_GuiActuator",
                             "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
                         }
@@ -274,7 +274,7 @@
                     },
                     "scpi_details": {
                         "generic_model": {
-                            "trigger": false,
+                            "trigger": "false",
                             "type": "_GuiActuator",
                             "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
                         }
@@ -374,7 +374,7 @@
                     "scpi_details": {
                         "generic_model": {
                             "type": "_GuiActuator",
-                            "trigger": false,
+                            "trigger": "false",
                             "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
                         }
                     }

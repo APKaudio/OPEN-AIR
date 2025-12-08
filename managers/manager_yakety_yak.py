@@ -26,7 +26,7 @@ import re
 from workers.worker_active_logging import debug_log, console_log
 from workers.worker_mqtt_controller_util import MqttControllerUtility
 from managers.manager_visa_dispatch_scpi import ScpiDispatcher
-from managers.manager_yak_on_trigger import YAK_TRIGGER_COMMAND
+from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
 # FIXED: Re-import YAKETY_YAK_REPO_PATH after circular dependency fix
 from workers.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
@@ -200,7 +200,7 @@ class YaketyYakManager:
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                YAK_TRIGGER_COMMAND(self, topic, payload)
+                handle_yak_trigger(self, topic, payload)
 
             # Deconstruct the topic to form the nested path in our repository
             path_parts = topic.replace("OPEN-AIR/repository/", "").split('/')

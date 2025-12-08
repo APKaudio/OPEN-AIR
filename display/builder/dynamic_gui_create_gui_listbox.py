@@ -64,8 +64,11 @@ class GuiListboxCreatorMixin:
         )
 
         try:
-            sub_frame = ttk.LabelFrame(parent_frame, text=label)
-            sub_frame.pack(fill=tk.BOTH, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            sub_frame = ttk.Frame(parent_frame)
+            sub_frame.pack(side=tk.LEFT, fill=tk.Y, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(sub_frame, text=label)
+            label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
 
             listbox_frame = ttk.Frame(sub_frame)
             listbox_frame.pack(fill=tk.BOTH, expand=True)

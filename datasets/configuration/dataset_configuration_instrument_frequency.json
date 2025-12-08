@@ -1,5 +1,5 @@
 {
-  "Settings": {
+  "Tuning": {
     "type": "OcaBlock",
     "AES70": "OcaFrequencyActuator",
     "description": "A block for managing all frequency-related settings.",
@@ -54,7 +54,7 @@
       }
     }
   },
-  "Presets": {
+  "Quick Span": {
     "type": "OcaBlock",
     "AES70": "OcaFrequencyActuator",
     "description": "A block for managing all frequency-related presets.",

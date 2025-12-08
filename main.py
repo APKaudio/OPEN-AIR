@@ -56,16 +56,25 @@ try:
     from workers.worker_active_logging import debug_log, console_log
     from workers.worker_mqtt_controller_util import MqttControllerUtility
     from display.styling.style import THEMES, DEFAULT_THEME
+    from display.splash.splash_screen import SplashScreen
     
     # workers
     from workers.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
     from workers.worker_active_peak_publisher import ActivePeakPublisher  
-    from datasets.worker_dataset_publisher import main as dataset_publisher_main
-    from datasets.worker_repository_publisher import main as repository_publisher_main
+    from workers.worker_dataset_publisher import main as dataset_publisher_main
+    from workers.worker_meta_publisher import main as meta_publisher_main
+    from workers.worker_repository_publisher import main as repository_publisher_main
     
     # managers
-    from managers.manager_instrument_settings_frequency import FrequencySettingsManager
-    from managers.manager_instrument_settings_bandwidth import BandwidthSettingsManager
+    from managers.frequency_manager.frequency_state import FrequencyState
+    from managers.frequency_manager.frequency_yak_communicator import FrequencyYakCommunicator
+    from managers.frequency_manager.frequency_callbacks import FrequencyCallbacks
+    # from managers.manager_instrument_settings_frequency import FrequencySettingsManager
+    from managers.bandwidth_manager.bandwidth_state import BandwidthState
+    from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCommunicator
+    from managers.bandwidth_manager.bandwidth_presets import BandwidthPresets
+    from managers.bandwidth_manager.bandwidth_callbacks import BandwidthCallbacks
+    # from managers.manager_instrument_settings_bandwidth import BandwidthSettingsManager
     from managers.manager_presets_span import SpanSettingsManager
     from managers.manager_visa_device_search import VisaDeviceManager
     from managers.manager_visa_dispatch_scpi import ScpiDispatcher
@@ -176,6 +185,7 @@ def action_open_display(mqtt_util_instance):
     )
 
     try:
+        SplashScreen().run()
         # --- Function logic goes here ---
         # CRITICAL FIX: Import the Application class *here* using importlib
         ApplicationModule = importlib.import_module("display.gui_display")
@@ -194,8 +204,21 @@ def action_open_display(mqtt_util_instance):
         )
 
 
-        frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
-        bandwidth_manager = BandwidthSettingsManager(mqtt_controller=mqtt_util_instance)
+        # Create instances for the frequency manager
+        frequency_state = FrequencyState()
+        frequency_yak_communicator = FrequencyYakCommunicator(mqtt_controller=mqtt_util_instance, state=frequency_state)
+        frequency_callbacks = FrequencyCallbacks(mqtt_controller=mqtt_util_instance, state=frequency_state, yak_communicator=frequency_yak_communicator)
+        frequency_callbacks.subscribe_to_topics()
+
+        # frequency_manager = FrequencySettingsManager(mqtt_controller=mqtt_util_instance)
+        # Create instances for the bandwidth manager
+        bandwidth_state = BandwidthState()
+        bandwidth_yak_communicator = BandwidthYakCommunicator(mqtt_controller=mqtt_util_instance, state=bandwidth_state)
+        bandwidth_presets = BandwidthPresets(mqtt_controller=mqtt_util_instance, state=bandwidth_state, yak_communicator=bandwidth_yak_communicator)
+        bandwidth_callbacks = BandwidthCallbacks(mqtt_controller=mqtt_util_instance, state=bandwidth_state, yak_communicator=bandwidth_yak_communicator, presets=bandwidth_presets)
+        bandwidth_callbacks.subscribe_to_topics()
+
+        # bandwidth_manager = BandwidthSettingsManager(mqtt_controller=mqtt_util_instance)
 
         span_manager = SpanSettingsManager(mqtt_controller=mqtt_util_instance)
 
@@ -231,6 +254,7 @@ def action_open_display(mqtt_util_instance):
 
         # Publish the dataset after the GUI is created but before mainloop() starts
         dataset_publisher_main(mqtt_util_instance)
+        meta_publisher_main(mqtt_util_instance)
         repository_publisher_main(mqtt_util_instance)
 
 

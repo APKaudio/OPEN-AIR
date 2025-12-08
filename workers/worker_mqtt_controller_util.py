@@ -300,3 +300,33 @@ class MqttControllerUtility:
         # [A] The old logic here is no longer needed. The on_connect callback handles subscriptions.
         # [A] This method existed as a simple wrapper. The core logic has been moved to add_subscriber and on_connect.
         pass
+
+    def purge_branch(self, base_topic):
+        """Publishes a null, retained payload to all seen topics under a base topic."""
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🟢 Entering '{current_function_name}' to purge topics under '{base_topic}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=self._print_to_gui_console
+        )
+        try:
+            if self.mqtt_client and self.mqtt_client.is_connected():
+                
+                topics_to_purge = [t for t in self.topics_seen if t.startswith(base_topic)]
+                
+                if not topics_to_purge:
+                    # Also try to purge the base topic itself just in case
+                    self.mqtt_client.publish(base_topic, payload=b'', retain=True)
+                
+                for topic in topics_to_purge:
+                    self.mqtt_client.publish(topic, payload=b'', retain=True)
+
+                self._print_to_gui_console(f"✅ Purge signal sent for {len(topics_to_purge)} topics under '{base_topic}'.")
+
+            else:
+                self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
+
+        except Exception as e:
+            self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")

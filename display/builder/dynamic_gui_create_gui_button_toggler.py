@@ -60,8 +60,11 @@ class GuiButtonTogglerCreatorMixin:
         )
 
         try:
-            group_frame = ttk.LabelFrame(parent_frame, text=label)
+            group_frame = ttk.Frame(parent_frame)
             group_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+
+            label_widget = ttk.Label(group_frame, text=label)
+            label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
 
             button_container = ttk.Frame(group_frame)
             button_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)

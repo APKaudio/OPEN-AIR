@@ -1,0 +1,208 @@
+{
+  "All Marker On": {
+    "type": "OcaBlock",
+    "AES70": "OcaMarkerManager",
+    "description": "A block for managing global marker settings.",
+    "fields": {
+      "All_Markers_On": {
+        "label_active": "All Markers ON",
+        "label_inactive": "All Markers ON",
+        "type": "_GuiButtonToggle",
+        "AES70": "OcaBooleanActuator",
+        "handler": "turn_all_markers_on",
+        "options": {
+          "ON": {
+            "label_active": "All Markers ON",
+            "label_inactive": "All Markers ON",
+            "selected": true
+          },
+          "OFF": {
+            "label_active": "All Markers OFF",
+            "label_inactive": "All Markers OFF",
+            "selected": false
+          }
+        }
+      }
+    }
+  },
+  "Marker 1": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 1",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 1 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  },
+  "Marker 2": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 2",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 2 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  },
+  "Marker 3": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 3",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 3 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  },
+  "Marker 4": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 4",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 4 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  },
+  "Marker 5": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 5",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 5 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  },
+  "Marker 6": {
+    "type": "OcaBlock",
+    "description": "Settings for Marker 6",
+    "fields": {
+      "Active": {
+        "label_active": "Active",
+        "label_inactive": "Active",
+        "type": "_GuiCheckbox",
+        "AES70": "OcaSwitch",
+        "handler": "toggle Marker 6 Active",
+        "value": false
+      },
+      "X_MHz": {
+        "label_active": "X",
+        "label_inactive": "X",
+        "type": "_Value",
+        "AES70": "OcaFrequencyActuator",
+        "value": "111",
+        "units": "MHz"
+      },
+      "Y_dBm": {
+        "label_active": "Y",
+        "label_inactive": "Y",
+        "type": "_Label",
+        "AES70": "OcaLevelSensor",
+        "value": "-30",
+        "units": "dBm"
+      }
+    }
+  }
+}

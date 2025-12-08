@@ -117,7 +117,7 @@ def publish_recursive(mqtt_util, base_topic, data):
 
 def main(mqtt_util: MqttControllerUtility):
     """
-    Publishes the contents of JSON files that start with 'repository_' in the current
+    Publishes the contents of JSON files from the 'datasets/repository'
     directory to the MQTT broker, flattening the JSON structure into detailed topics.
     
     Args:
@@ -134,23 +134,20 @@ def main(mqtt_util: MqttControllerUtility):
     )
     
     try:
-        current_directory = os.path.dirname(os.path.abspath(__file__))
+        data_directory = os.path.join(project_root, 'datasets', 'repository')
         
-        # MODIFIED: Filter for files starting with 'repository_' and ending with '.json'
-        json_files = [f for f in os.listdir(current_directory) if f.startswith('repository_') and f.endswith('.json')]
+        json_files = [f for f in os.listdir(data_directory) if f.endswith('.json')]
             
         if not json_files:
-            console_log("No JSON files starting with 'repository_' found in the current directory.")
+            console_log("No JSON files found in the 'datasets/repository' directory.")
             return
 
-        console_log(f"Found {len(json_files)} 'repository_' JSON file(s) to publish. Publishing recursively...")
+        console_log(f"Found {len(json_files)} JSON file(s) to publish. Publishing recursively...")
 
         for file_name in json_files:
-            file_path = os.path.join(current_directory, file_name)
+            file_path = os.path.join(data_directory, file_name)
             
             base_name = os.path.splitext(os.path.basename(file_name))[0]
-            if base_name.startswith("repository_"):
-                base_name = base_name.replace("repository_", "", 1)
             
             base_name_clean = base_name.replace(' ', '_')
             

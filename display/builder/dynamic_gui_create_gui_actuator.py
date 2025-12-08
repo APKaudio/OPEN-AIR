@@ -66,7 +66,7 @@ class GuiActuatorCreatorMixin:
         try:
             # Create a frame to hold the label and button
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             button_text = config.get('label', label)
 
@@ -75,7 +75,7 @@ class GuiActuatorCreatorMixin:
                 text=button_text,
                 style='Custom.TButton' 
             )
-            button.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+            button.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
             def on_press(event):
                 # FIXED: The actuator now correctly publishes to the "actions" topic.

@@ -245,23 +245,28 @@ class Application(tk.Tk):
                 sorted_layout_dirs = sorted(layout_dirs, key=lambda d: sort_order.index(d.name.split('_')[0]))
                 
                 if is_horizontal:
-                    current_relx = 0.0
+                    paned_window = ttk.PanedWindow(parent_widget, orient=tk.HORIZONTAL)
+                    paned_window.pack(fill=tk.BOTH, expand=True)
+                    
+                    def on_sash_drag(event):
+                        self.update_idletasks()
+
+                    paned_window.bind("<B1-Motion>", on_sash_drag)
+
                     for sub_dir in sorted_layout_dirs:
                         if sub_dir.name.split('_')[0] not in ['left', 'right']: continue
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
-                            rel_width = percentage / 100.0
-                            new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
-                            new_frame.place(relx=current_relx, rely=0, relwidth=rel_width, relheight=1.0)
+                            new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
+                            paned_window.add(new_frame, weight=percentage)
                             debug_log(
-                                message=f"🔍🔵 Created horizontal frame for '{sub_dir.name}' placed at relx={current_relx}, relwidth={rel_width}.",
+                                message=f"🔍🔵 Created horizontal pane for '{sub_dir.name}' with weight {percentage}.",
                                 file=current_file,
                                 version=current_version,
                                 function=f"{self.__class__.__name__}.{current_function_name}",
                                 console_print_func=console_log
                             )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
-                            current_relx += rel_width
                         except (IndexError, ValueError) as e:
                             console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
                             debug_log(
@@ -273,23 +278,28 @@ class Application(tk.Tk):
                             )
                 
                 elif is_vertical:
-                    current_rely = 0.0
+                    paned_window = ttk.PanedWindow(parent_widget, orient=tk.VERTICAL)
+                    paned_window.pack(fill=tk.BOTH, expand=True)
+
+                    def on_sash_drag(event):
+                        self.update_idletasks()
+
+                    paned_window.bind("<B1-Motion>", on_sash_drag)
+
                     for sub_dir in sorted_layout_dirs:
                         if sub_dir.name.split('_')[0] not in ['top', 'bottom']: continue
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
-                            rel_height = percentage / 100.0
-                            new_frame = ttk.Frame(parent_widget, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
-                            new_frame.place(relx=0, rely=current_rely, relwidth=1.0, relheight=rel_height)
+                            new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
+                            paned_window.add(new_frame, weight=percentage)
                             debug_log(
-                                message=f"🔍🔵 Created vertical frame for '{sub_dir.name}' placed at rely={current_rely}, relheight={rel_height}.",
+                                message=f"🔍🔵 Created vertical pane for '{sub_dir.name}' with weight {percentage}.",
                                 file=current_file,
                                 version=current_version,
                                 function=f"{self.__class__.__name__}.{current_function_name}",
                                 console_print_func=console_log
                             )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
-                            current_rely += rel_height
                         except (IndexError, ValueError) as e:
                             console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
                             debug_log(
@@ -609,7 +619,7 @@ class Application(tk.Tk):
                 console_print_func=console_log
             )
             
-            notebook.hide(tab_id)
+            notebook.forget(tab_id)
             frame_id.pack(in_=new_window, fill=tk.BOTH, expand=True)
             debug_log(
                 message=f"🔍🔵 Hid original tab and packed frame into new window.",
@@ -673,8 +683,6 @@ class Application(tk.Tk):
             window = state["window"]
             
             frame.pack_forget()
-            frame.pack(in_=notebook, fill=tk.BOTH, expand=True)
-            
             notebook.add(frame, text=tab_title)
             debug_log(
                 message=f"🔍🔵 Re-packed frame into notebook and re-added tab '{tab_title}'.",

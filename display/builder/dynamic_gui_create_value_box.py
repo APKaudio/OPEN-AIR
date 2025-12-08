@@ -51,14 +51,14 @@ class ValueBoxCreatorMixin:
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
 
             entry_value = tk.StringVar(value=config.get('value', ''))
             entry = ttk.Entry(sub_frame, textvariable=entry_value, style="Custom.TEntry")
-            entry.pack(side=tk.LEFT, fill=tk.X, expand=True, padx=DEFAULT_PAD_X)
+            entry.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
             if config.get('units'):
                 units_label = ttk.Label(sub_frame, text=config['units'])

@@ -98,7 +98,7 @@ class GuiCheckboxCreatorMixin:
                 variable=state_var,
                 command=toggle_and_publish
             )
-            checkbox.pack(side=tk.TOP, fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
+            checkbox.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
             
             # Store the widget and its state variable for external updates.
             if path:

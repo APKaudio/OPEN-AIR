@@ -16,6 +16,7 @@
 # Version 20251127.000000.1
 
 import os
+import sys
 import inspect
 import datetime
 import tkinter as tk
@@ -139,6 +140,10 @@ class DynamicGuiBuilder(
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+            # --- Bind Mousewheel Scrolling ---
+            self.scroll_frame.bind("<Enter>", self._bind_mousewheel)
+            self.scroll_frame.bind("<Leave>", self._unbind_mousewheel)
+
             self.bind("<Map>", lambda event: self._rebuild_gui())
 
             if self.base_topic:
@@ -155,6 +160,28 @@ class DynamicGuiBuilder(
                 function=f"{self.current_class_name}.{current_function_name}",
                 console_print_func=console_log
             )
+
+    def _on_mousewheel(self, event):
+        # Platform-specific mouse wheel scrolling
+        if sys.platform == "linux":
+            if event.num == 4:
+                self.canvas.yview_scroll(-1, "units")
+            elif event.num == 5:
+                self.canvas.yview_scroll(1, "units")
+        else:
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def _bind_mousewheel(self, event):
+        # Bind mousewheel scrolling when the mouse enters the scrollable area
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self._on_mousewheel)
+        self.canvas.bind_all("<Button-5>", self._on_mousewheel)
+
+    def _unbind_mousewheel(self, event):
+        # Unbind mousewheel scrolling when the mouse leaves the scrollable area
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")
 
     def _transmit_command(self, relative_topic, payload, retain=False):
         # Publishes a command to the MQTT broker.
@@ -288,7 +315,7 @@ class DynamicGuiBuilder(
                             foreground=actuator_colors["foreground"],
                             padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER,
                             relief=colors["relief"],
-                            borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER,
+                            borderwidth=0,
                             justify=tk.CENTER)
 
             style.map('Custom.TButton',
@@ -302,7 +329,7 @@ class DynamicGuiBuilder(
                             foreground=toggle_colors["Button_Selected_Fg"],
                             padding=colors["padding"] * BUTTON_PADDING_MULTIPLIER,
                             relief=tk.SUNKEN,
-                            borderwidth=colors["border_width"] * BUTTON_BORDER_MULTIPLIER,
+                            borderwidth=0,
                             justify=tk.CENTER)
             
             style.map('Custom.Selected.TButton',
@@ -354,8 +381,12 @@ class DynamicGuiBuilder(
                     label_text = value.get("label", key.replace('_', ' ').title())
 
                     if widget_type == "OcaBlock":
-                        nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
-                        nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+                        nested_frame = ttk.Frame(parent_frame)
+                        nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=(DEFAULT_FRAME_PAD, DEFAULT_FRAME_PAD * 2))
+                        label_widget = ttk.Label(nested_frame, text=label_text, font=TITLE_FONT)
+                        label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
+                        separator = ttk.Separator(nested_frame, orient='horizontal')
+                        separator.pack(fill='x', pady=2)
                         new_path_prefix = f"{current_path}{TOPIC_DELIMITER}fields"
                         self._create_dynamic_widgets(nested_frame, value.get("fields", {}), path_prefix=new_path_prefix)
                         continue
@@ -368,8 +399,12 @@ class DynamicGuiBuilder(
                             creation_func(parent_frame=parent_frame, label=label_text, config=value, path=current_path)
                         continue
 
-                    nested_frame = ttk.LabelFrame(parent_frame, text=label_text)
-                    nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=DEFAULT_FRAME_PAD)
+                    nested_frame = ttk.Frame(parent_frame)
+                    nested_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_FRAME_PAD, pady=(DEFAULT_FRAME_PAD, DEFAULT_FRAME_PAD * 2))
+                    label_widget = ttk.Label(nested_frame, text=label_text, font=TITLE_FONT)
+                    label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
+                    separator = ttk.Separator(nested_frame, orient='horizontal')
+                    separator.pack(fill='x', pady=2)
                     self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
                 else:
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)

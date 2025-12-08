@@ -106,6 +106,7 @@ class MqttConductorFrame(ttk.Frame):
             
             self.topics_in_table = defaultdict(lambda: None)
             self.clients_in_table = set()
+            self.purge_confirmation = False
 
             # FIX: Create widgets first before subscribing to prevent AttributeError.
             self._create_widgets()
@@ -220,11 +221,33 @@ class MqttConductorFrame(ttk.Frame):
         bottom_btn_frame.pack(side=tk.BOTTOM, fill=tk.X, padx=5, pady=5)
         self.log_btn = ttk.Button(master=bottom_btn_frame, text="Log", command=lambda: console_log("A sample log message from the Conductor."))
         self.debug_btn = ttk.Button(master=bottom_btn_frame, text="Debug", command=lambda: debug_log(message="A sample debug message.", file=current_file, version=current_version, function="_create_widgets", console_print_func=console_log))
+        self.purge_mqtt_btn = ttk.Button(master=bottom_btn_frame, text="Purge OPEN-AIR MQTT", command=self._on_purge_button_clicked)
         self.clear_btn = ttk.Button(master=bottom_btn_frame, text=CLEAR_BUTTON_TEXT, command=self._clear_log)
         self.log_btn.pack(side=tk.LEFT, padx=5, pady=5)
         self.debug_btn.pack(side=tk.LEFT, padx=5, pady=5)
+        self.purge_mqtt_btn.pack(side=tk.LEFT, padx=5, pady=5)
         self.clear_btn.pack(side=tk.RIGHT, padx=5, pady=5)
     
+    def _on_purge_button_clicked(self):
+        if not self.purge_confirmation:
+            self.purge_confirmation = True
+            self.purge_mqtt_btn.config(text="Are you sure? Purge OPEN-AIR.")
+            self.after(5000, self._reset_purge_button_state)
+        else:
+            console_log("🔥 Purging all 'OPEN-AIR' MQTT topics...")
+            try:
+                self.mqtt_util.purge_branch('OPEN-AIR')
+                console_log("✅ Purge command sent successfully.")
+            except Exception as e:
+                console_log(f"❌ Failed to send purge command: {e}")
+            finally:
+                self._reset_purge_button_state()
+
+    def _reset_purge_button_state(self):
+        self.purge_confirmation = False
+        if self.purge_mqtt_btn.winfo_exists():
+            self.purge_mqtt_btn.config(text="Purge OPEN-AIR MQTT")
+
     def log_to_gui(self, message):
         """Allows the utility to log messages to the console."""
         # A brief, one-sentence description of the function's purpose.

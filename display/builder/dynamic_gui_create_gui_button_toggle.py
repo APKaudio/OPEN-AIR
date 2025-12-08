@@ -63,7 +63,7 @@ class GuiButtonToggleCreatorMixin:
             state_var = tk.BooleanVar(value=is_on)
             
             button = ttk.Button(parent_frame, text=on_text if is_on else off_text)
-            button.pack(fill=tk.X, expand=True, padx=5, pady=2)
+            button.pack(side=tk.LEFT, padx=5, pady=2)
 
             def update_button_state():
                 # Updates the button's appearance based on its current state.
