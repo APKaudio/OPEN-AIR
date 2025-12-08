@@ -252,76 +252,116 @@ class DynamicGuiBuilder(
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        topic_parts = base_topic.lower().replace('/', '_')
-        
-        # Try datasets/repository
-        repo_filename = f"dataset_repository_{topic_parts}.json"
-        repo_filepath = pathlib.Path(DATASET_ROOT_DIR) / "repository" / repo_filename
-        if repo_filepath.is_file():
-            debug_log(
-                message=f"🔍🔵 Found JSON config at: {repo_filepath}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
-            )
-            return repo_filepath
-        
-        # Try datasets/configuration
-        config_filename = f"dataset_configuration_{topic_parts}.json"
-        config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / config_filename
-        if config_filepath.is_file():
-            debug_log(
-                message=f"🔍🔵 Found JSON config at: {config_filepath}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
-            )
-            return config_filepath
+        # Determine the relevant subdirectory and base filename part
+        core_topic_name = ""
+        target_subdir = ""
+        filename_prefix = ""
+
+        if base_topic.lower().startswith("open-air/repository/"):
+            core_topic_name = base_topic[len("open-air/repository/"):].lower().replace('/', '_')
+            target_subdir = "repository"
+            filename_prefix = "dataset_repository_"
+        elif base_topic.lower().startswith("open-air/configuration/"):
+            core_topic_name = base_topic[len("open-air/configuration/"):].lower().replace('/', '_')
+            target_subdir = "configuration"
+            filename_prefix = "dataset_configuration_"
+        else:
+            # Handle topics that don't fit the OPEN-AIR/repository or OPEN-AIR/configuration pattern
+            # This might include special cases like "application", "Start-Stop-Pause", etc.
+
+            # Special handling for "application"
+            if base_topic.lower() == "application":
+                app_config_filename = "dataset_configuration_application.json"
+                app_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_config_filename
+                if app_config_filepath.is_file():
+                    debug_log(
+                        message=f"🔍🔵 Found JSON config for 'application' at: {app_config_filepath}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    return app_config_filepath
+
+            # Special handling for "application_filepaths"
+            if base_topic.lower() == "application_filepaths":
+                app_filepaths_config_filename = "dataset_configuration_application_filepaths.json"
+                app_filepaths_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_filepaths_config_filename
+                if app_filepaths_config_filepath.is_file():
+                    debug_log(
+                        message=f"🔍🔵 Found JSON config for 'application_filepaths' at: {app_filepaths_config_filepath}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    return app_filepaths_config_filepath
+
+            # Handle "Start-Stop-Pause"
+            if base_topic == "Start-Stop-Pause":
+                start_stop_pause_filename = "dataset_configuration_Start-Stop-Pause.json"
+                start_stop_pause_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / start_stop_pause_filename
+                if start_stop_pause_filepath.is_file():
+                    debug_log(
+                        message=f"🔍🔵 Found JSON config for 'Start-Stop-Pause' at: {start_stop_pause_filepath}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    return start_stop_pause_filepath
             
-        # Special handling for "application"
-        if base_topic.lower() == "application":
-            app_config_filename = "dataset_configuration_application.json"
-            app_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_config_filename
-            if app_config_filepath.is_file():
+            # Fallback for other cases (e.g., if topic structure is simpler or unknown prefix)
+            # Try to match a file in 'repository' or 'configuration' with just the topic parts
+            simple_topic_parts = base_topic.lower().replace('/', '_')
+            
+            repo_filename = f"dataset_repository_{simple_topic_parts}.json"
+            repo_filepath = pathlib.Path(DATASET_ROOT_DIR) / "repository" / repo_filename
+            if repo_filepath.is_file():
                 debug_log(
-                    message=f"🔍🔵 Found JSON config for 'application' at: {app_config_filepath}",
+                    message=f"🔍🔵 Found JSON config (fallback repo) at: {repo_filepath}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
                     console_print_func=console_log
                 )
-                return app_config_filepath
+                return repo_filepath
+            
+            config_filename = f"dataset_configuration_{simple_topic_parts}.json"
+            config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / config_filename
+            if config_filepath.is_file():
+                debug_log(
+                    message=f"🔍🔵 Found JSON config (fallback config) at: {config_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
+                return config_filepath
 
-        # Special handling for "application_filepaths"
-        if base_topic.lower() == "application_filepaths":
-            app_filepaths_config_filename = "dataset_configuration_application_filepaths.json"
-            app_filepaths_config_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / app_filepaths_config_filename
-            if app_filepaths_config_filepath.is_file():
+            debug_log(
+                message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            return None
+            
+        # If a specific prefix was matched (OPEN-AIR/repository or OPEN-AIR/configuration)
+        if core_topic_name: # This condition is redundant if core_topic_name is always set.
+            final_filename = f"{filename_prefix}{core_topic_name}.json"
+            final_filepath = pathlib.Path(DATASET_ROOT_DIR) / target_subdir / final_filename
+            if final_filepath.is_file():
                 debug_log(
-                    message=f"🔍🔵 Found JSON config for 'application_filepaths' at: {app_filepaths_config_filepath}",
+                    message=f"🔍🔵 Found JSON config (prefixed match) at: {final_filepath}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
                     console_print_func=console_log
                 )
-                return app_filepaths_config_filepath
+                return final_filepath
 
-        # Handle "Start-Stop-Pause"
-        if base_topic == "Start-Stop-Pause":
-            start_stop_pause_filename = "dataset_configuration_Start-Stop-Pause.json"
-            start_stop_pause_filepath = pathlib.Path(DATASET_ROOT_DIR) / "configuration" / start_stop_pause_filename
-            if start_stop_pause_filepath.is_file():
-                debug_log(
-                    message=f"🔍🔵 Found JSON config for 'Start-Stop-Pause' at: {start_stop_pause_filepath}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
-                )
-                return start_stop_pause_filepath
-                
         debug_log(
             message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
             file=current_file,
