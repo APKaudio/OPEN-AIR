@@ -44,10 +44,11 @@ import sys
 import pathlib
 
 #// --- REQUIRED IMPORTS FOR PLOTTING INTEGRATION (FIX) ---
-import numpy as np #// Needed for numerical base
-import seaborn as sns# // Preload seaborn context and dependencies
-import matplotlib.pyplot as plt #// Preload Matplotlib context
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+#// --- REQUIRED IMPORTS FOR PLOTTING INTEGRATION (FIX) ---
+#import numpy as np #// Needed for numerical base
+#import seaborn as sns# // Preload seaborn context and dependencies
+#import matplotlib.pyplot as plt #// Preload Matplotlib context
+#from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 #// --------------------------------------------------------
 
 # --- Module Imports ---
@@ -126,8 +127,8 @@ class Application(tk.Tk):
                 console_print_func=console_log
             )
 
-            self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
-            self.mqtt_util.connect_mqtt()
+            # self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
+            # self.mqtt_util.connect_mqtt()
 
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             debug_log(
