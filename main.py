@@ -185,7 +185,7 @@ def action_open_display(mqtt_util_instance):
     )
 
     try:
-        SplashScreen().run()
+        # SplashScreen().run()
         # --- Function logic goes here ---
         # CRITICAL FIX: Import the Application class *here* using importlib
         ApplicationModule = importlib.import_module("display.gui_display")
