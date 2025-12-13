@@ -78,7 +78,7 @@ class Application(tk.Tk):
     """
     The main application class that orchestrates the GUI build process.
     """
-    def __init__(self):
+    def __init__(self, mqtt_util_instance: MqttControllerUtility):
         print("--- DEBUG: Entering Application.__init__() ---")
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -94,6 +94,7 @@ class Application(tk.Tk):
         self._frames_by_path = {}
         self._detached_windows = {}
         self.last_selected_tab_name = None
+        self.mqtt_util = mqtt_util_instance
 
         try:
             # --- CRITICAL FIX: Explicitly disable PIL/ImageTk handling ---
@@ -126,9 +127,6 @@ class Application(tk.Tk):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-            # self.mqtt_util = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
-            # self.mqtt_util.connect_mqtt()
 
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             debug_log(
