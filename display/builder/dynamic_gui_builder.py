@@ -23,6 +23,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext
 import json
 import paho.mqtt.client as mqtt
+import pathlib # CRITICAL FIX: Missing import
 
 # --- Module Imports ---
 from workers.active.worker_active_logging import debug_log, console_log
