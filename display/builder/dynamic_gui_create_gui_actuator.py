@@ -110,6 +110,13 @@ class GuiActuatorCreatorMixin:
                 self.topic_widgets[path] = button
 
             console_log(f"✅ Celebration of success! The actuator button '{label}' did appear.")
+            debug_log(
+                message=f"🛠️🟢 Exiting '{current_function_name}'. Actuator button '{label}' created.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return sub_frame
 
         except Exception as e:

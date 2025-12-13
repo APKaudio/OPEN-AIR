@@ -156,6 +156,13 @@ class GuiDropdownOptionCreatorMixin:
                 self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
             console_log_switch("✅ Celebration of success! The dropdown menu did appear.")
+            debug_log_switch(
+                message=f"🛠️🟢 Exiting '{current_function_name}'. Dropdown '{label}' created.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return sub_frame
 
         except Exception as e:
@@ -173,6 +180,14 @@ class GuiDropdownOptionCreatorMixin:
         """
         NEW: Rebuilds the option list for a dropdown based on a new configuration.
         """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log_switch(
+            message=f"🛠️🟢 Entering '{current_function_name}' to rebuild options for dropdown.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         options_map = config.get('options', {})
 
         # Filter out options that are not active
@@ -191,3 +206,10 @@ class GuiDropdownOptionCreatorMixin:
         if current_selection not in option_labels and option_labels:
             dropdown.set(option_labels[0])
             self._last_selected_option = next((key for key, opt in active_options.items() if opt.get('label_active', key) == option_labels[0]), None)
+        debug_log_switch(
+            message=f"🛠️🟢 Exiting '{current_function_name}'. Options rebuilt for dropdown.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )

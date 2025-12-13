@@ -23,6 +23,7 @@ except ImportError:
 
 class SplashScreen:
     def __init__(self):
+        console_log("DEBUG: Entering SplashScreen.__init__().")
         self.splash_root = tk.Tk()
         self.splash_root.withdraw()
         
@@ -82,30 +83,39 @@ class SplashScreen:
         # Status Bar
         self.status_label = tk.Label(self.splash_window, text="", fg="white", bg="black", font=("Helvetica", 10))
         self.status_label.pack(fill=tk.X, side=tk.BOTTOM)
+        console_log("DEBUG: Exiting SplashScreen.__init__().")
 
     def _update_status(self):
+        console_log("DEBUG: Entering _update_status().")
         if self.current_status_index < len(self.status_messages):
             self.status_label.config(text=self.status_messages[self.current_status_index])
             self.current_status_index += 1
             # The total duration of messages is 10 * 800ms = 8 seconds.
             self.splash_window.after(800, self._update_status)
+        console_log("DEBUG: Exiting _update_status().")
 
     def _fade_in(self, alpha=0.0):
+        console_log(f"DEBUG: Entering _fade_in(). Alpha: {alpha}")
         if alpha <= 1.0:
             self.splash_window.attributes('-alpha', alpha)
             self.splash_window.after(20, lambda: self._fade_in(alpha + 0.05)) # Faster fade in
         else:
             self.splash_window.after(1000, self._fade_out) # Hold for 8 seconds while status updates
+        console_log(f"DEBUG: Exiting _fade_in(). Alpha: {alpha}")
 
     def _fade_out(self, alpha=1.0):
+        console_log(f"DEBUG: Entering _fade_out(). Alpha: {alpha}")
         if alpha >= 0.0:
             self.splash_window.attributes('-alpha', alpha)
             self.splash_window.after(20, lambda: self._fade_out(alpha - 0.05)) # Faster fade out
         else:
             self.splash_root.destroy()
+        console_log(f"DEBUG: Exiting _fade_out(). Alpha: {alpha}")
     
     def run(self):
+        console_log("DEBUG: Entering SplashScreen.run().")
         if not hasattr(self, 'splash_window'): # If init failed
+            console_log("DEBUG: SplashScreen.run() skipping due to failed initialization.")
             return
             
         # Start animations and status updates
@@ -113,6 +123,7 @@ class SplashScreen:
         self.splash_window.after(1000, self._update_status) # Start status updates after 1 sec
         
         self.splash_root.mainloop()
+        console_log("DEBUG: Exiting SplashScreen.run().")
 
 if __name__ == '__main__':
     # For testing the splash screen directly

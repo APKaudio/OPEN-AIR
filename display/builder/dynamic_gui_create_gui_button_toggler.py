@@ -149,6 +149,13 @@ class GuiButtonTogglerCreatorMixin:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
 
             console_log("✅ Celebration of success! The button toggler did appear.")
+            debug_log(
+                message=f"🛠️🟢 Exiting '{current_function_name}'. Button toggler '{label}' created.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return group_frame
 
         except Exception as e:

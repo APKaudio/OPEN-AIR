@@ -194,7 +194,13 @@ class Application(tk.Tk):
             function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
-        
+        debug_log(
+            message=f"🔍🔵 Exiting _apply_styles. Theme: {theme_name} applied.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         return colors
 
 
@@ -455,6 +461,13 @@ class Application(tk.Tk):
                         console_print_func=console_log
                     )
                     self._build_child_container(path=py_file, parent_widget=parent_widget)
+            debug_log(
+                message=f"🔍🔵 Exiting _build_from_directory for path: '{path}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for path {path}: {e}")
@@ -578,6 +591,13 @@ class Application(tk.Tk):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+        debug_log(
+            message=f"🔍🔵 Exiting _build_child_container for path: '{path}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
 
     def _tear_off_tab(self, event):
         """Tears a tab off of its Notebook and places it into a new Toplevel window."""
@@ -652,6 +672,13 @@ class Application(tk.Tk):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+            debug_log(
+                message=f"🔍🔵 Exiting _tear_off_tab().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -717,6 +744,13 @@ class Application(tk.Tk):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+            debug_log(
+                message=f"🔍🔵 Exiting _re_attach_tab().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -765,6 +799,13 @@ class Application(tk.Tk):
             console_log("✅ Celebration of success!")
             debug_log(
                 message="✅ Tab change logged successfully.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+            debug_log(
+                message=f"🔍🔵 Exiting _on_tab_change().",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

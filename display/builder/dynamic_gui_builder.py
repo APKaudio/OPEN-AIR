@@ -184,6 +184,13 @@ class DynamicGuiBuilder(
                 self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_receive_command_message)
 
             console_log("✅ Celebration of success! The Dynamic GUI builder did initialize successfully!")
+            debug_log(
+                message=f"🖥️🟢 Exiting {self.current_class_name}.__init__().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -295,6 +302,13 @@ class DynamicGuiBuilder(
                         function=f"{self.current_class_name}.{current_function_name}",
                         console_print_func=console_log
                     )
+                    debug_log(
+                        message=f"🔍🔵 Exiting _get_json_filepath() with path: {app_filepaths_config_filepath}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                     return app_filepaths_config_filepath
 
             # Handle "Start-Stop-Pause"
@@ -304,6 +318,13 @@ class DynamicGuiBuilder(
                 if start_stop_pause_filepath.is_file():
                     debug_log(
                         message=f"🔍🔵 Found JSON config for 'Start-Stop-Pause' at: {start_stop_pause_filepath}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    debug_log(
+                        message=f"🔍🔵 Exiting _get_json_filepath() with path: {start_stop_pause_filepath}",
                         file=current_file,
                         version=current_version,
                         function=f"{self.current_class_name}.{current_function_name}",
@@ -325,6 +346,13 @@ class DynamicGuiBuilder(
                     function=f"{self.current_class_name}.{current_function_name}",
                     console_print_func=console_log
                 )
+                debug_log(
+                    message=f"🔍🔵 Exiting _get_json_filepath() with path: {repo_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return repo_filepath
             
             config_filename = f"dataset_configuration_{simple_topic_parts}.json"
@@ -337,10 +365,24 @@ class DynamicGuiBuilder(
                     function=f"{self.current_class_name}.{current_function_name}",
                     console_print_func=console_log
                 )
+                debug_log(
+                    message=f"🔍🔵 Exiting _get_json_filepath() with path: {config_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return config_filepath
 
             debug_log(
                 message=f"⚠️ Warning: No JSON config file found for base_topic: {base_topic}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
+            debug_log(
+                message=f"🔍🔵 Exiting _get_json_filepath() with path: None (No file found)",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -360,6 +402,13 @@ class DynamicGuiBuilder(
                     function=f"{self.current_class_name}.{current_function_name}",
                     console_print_func=console_log
                 )
+                debug_log(
+                    message=f"🔍🔵 Exiting _get_json_filepath() with path: {final_filepath}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return final_filepath
 
         debug_log(
@@ -369,8 +418,14 @@ class DynamicGuiBuilder(
             function=f"{self.current_class_name}.{current_function_name}",
             console_print_func=console_log
         )
+        debug_log(
+            message=f"🔍🔵 Exiting _get_json_filepath() with path: None (No file found)",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
         return None
-        # Publishes a command to the MQTT broker.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🖥️🔵 Preparing to transmit! The payload is '{payload}' for topic '{relative_topic}'.",
@@ -457,6 +512,13 @@ class DynamicGuiBuilder(
             rebuild_button.configure(command=self._rebuild_gui)
 
             console_log("✅ Celebration of success! The GUI did rebuild itself from the aggregated data!")
+            debug_log(
+                message=f"🖥️🔵 Exiting _rebuild_gui(). GUI rebuild completed.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
@@ -547,8 +609,22 @@ class DynamicGuiBuilder(
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix=""):
         # Recursively creates widgets, tracking the topic path.
         current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Entering _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.current_class_name}.{current_function_name}",
+            console_print_func=console_log
+        )
         try:
             if not isinstance(data, dict):
+                debug_log(
+                    message=f"⚠️ Skipping _create_dynamic_widgets as data is not a dict for path_prefix: '{path_prefix}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
                 return
 
             for key, value in data.items():
@@ -592,6 +668,13 @@ class DynamicGuiBuilder(
                     self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
                 else:
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)
+            debug_log(
+                message=f"🖥️🔵 Exiting _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=console_log
+            )
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
 

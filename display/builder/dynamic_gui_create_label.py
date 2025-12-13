@@ -16,13 +16,24 @@
 # Version 20251127.000000.1
 
 import os
+
 import tkinter as tk
+
 from tkinter import ttk
 
-# --- Module Imports ---
-from workers.active.worker_active_logging import console_log
+import inspect
 
-# --- Global Scope Variables ---
+
+
+# --- Module Imports ---
+
+from workers.active.worker_active_logging import console_log, debug_log
+
+
+
+
+
+Local_Debug_Enable = True
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
@@ -37,7 +48,14 @@ class LabelCreatorMixin:
     A mixin class that provides the functionality for creating a label widget.
     """
     def _create_label(self, parent_frame, label, value, units=None, path=None):
-        # Creates a read-only label widget.
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🛠️🟢 Entering '{current_function_name}' to create a label: '{label}' with value '{value}'.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
         try:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, anchor='w')
@@ -53,8 +71,22 @@ class LabelCreatorMixin:
             if path:
                 self.topic_widgets[path] = label_widget
             
+            debug_log(
+                message=f"🛠️🟢 Exiting '{current_function_name}'. Label '{label}' created.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return label_widget, sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in _create_label for '{label}': {e}")
+            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
+            debug_log(
+                message=f"🛠️🔴 Arrr, the code be capsized! Label creation has failed! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
             return None, None
