@@ -106,40 +106,6 @@ class DynamicGuiBuilder(
             self.config_data = {}
             self.gui_built = False # Flag to track if GUI has been built.
             self.log_text = None
-
-            # Attempt to load initial configuration from a JSON file
-            json_filepath = self._get_json_filepath(self.base_topic)
-            if json_filepath and json_filepath.is_file():
-                try:
-                    with open(json_filepath, 'r') as f:
-                        self.config_data = json.load(f)
-                    debug_log(
-                        message=f"🖥️🔵 Successfully loaded initial configuration from {json_filepath}.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
-                    )
-                    # Perform initial GUI build from the loaded JSON data
-                    self._rebuild_gui()
-                    self.gui_built = True # Mark GUI as built after initial load
-                except Exception as e:
-                    console_log(f"❌ Error loading initial config from {json_filepath}: {e}")
-                    debug_log(
-                        message=f"🖥️🔴 Failed to load initial config from {json_filepath}. Error: {e}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
-                    )
-            else:
-                debug_log(
-                    message=f"⚠️ Warning: No initial JSON config file found for base_topic: {self.base_topic}. GUI will build upon first MQTT message.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
-                )
             
             self.widget_factory = {
                 "_sliderValue": self._create_slider_value,
@@ -178,6 +144,40 @@ class DynamicGuiBuilder(
             # --- Bind Mousewheel Scrolling ---
             self.scroll_frame.bind("<Enter>", self._bind_mousewheel)
             self.scroll_frame.bind("<Leave>", self._unbind_mousewheel)
+
+            # Attempt to load initial configuration from a JSON file
+            json_filepath = self._get_json_filepath(self.base_topic)
+            if json_filepath and json_filepath.is_file():
+                try:
+                    with open(json_filepath, 'r') as f:
+                        self.config_data = json.load(f)
+                    debug_log(
+                        message=f"🖥️🔵 Successfully loaded initial configuration from {json_filepath}.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    # Perform initial GUI build from the loaded JSON data
+                    self._rebuild_gui()
+                    self.gui_built = True # Mark GUI as built after initial load
+                except Exception as e:
+                    console_log(f"❌ Error loading initial config from {json_filepath}: {e}")
+                    debug_log(
+                        message=f"🖥️🔴 Failed to load initial config from {json_filepath}. Error: {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+            else:
+                debug_log(
+                    message=f"⚠️ Warning: No initial JSON config file found for base_topic: {self.base_topic}. GUI will build upon first MQTT message.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
             self.bind("<Map>", self._on_map_event)
 
