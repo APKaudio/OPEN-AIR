@@ -30,6 +30,10 @@ from workers.Showtime.worker_showtime_group import process_and_sort_markers
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 from workers.Showtime.worker_showtime_create_group_buttons import create_group_buttons
 from workers.Showtime.worker_showtime_create_device_buttons import create_device_buttons
+from workers.Showtime.worker_showtime_on_marker_button_click import on_marker_button_click
+from workers.Showtime.worker_showtime_clear_group_buttons import clear_group_buttons
+from workers.Showtime.worker_showtime_on_zone_toggle import on_zone_toggle
+from workers.Showtime.worker_showtime_on_group_toggle import on_group_toggle
 
 
 Local_Debug_Enable = True
@@ -44,6 +48,11 @@ def console_log_switch(message):
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parents[5]
 current_file = str(current_file_path.relative_to(project_root)).replace("/", "/")
+Current_Date = 20251213
+Current_Time = 120000
+Current_iteration = 44
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 
 class ShowtimeTab(ttk.Frame):
     """
@@ -51,14 +60,6 @@ class ShowtimeTab(ttk.Frame):
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
-            debug_log(
-                message="🛠️🟢 Initializing ShowtimeTab. Ready for showtime!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
         if 'config' in kwargs:
             kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
@@ -74,6 +75,8 @@ class ShowtimeTab(ttk.Frame):
         self.Local_Debug_Enable = Local_Debug_Enable
         self.current_file = current_file
         self.current_version = current_version
+
+
 
 
         self._apply_styles(theme_name=DEFAULT_THEME)
@@ -256,7 +259,7 @@ class ShowtimeTab(ttk.Frame):
             button = ttk.Button(
                 self.zone_frame,
                 text=button_text,
-                command=lambda z=zone_name: self._on_zone_toggle(z),
+                command=lambda z=zone_name: on_zone_toggle(self, z),
                 style='Custom.TButton' if not is_selected else 'Custom.Selected.TButton'
             )
             row = i // 4
@@ -274,121 +277,164 @@ class ShowtimeTab(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-        
 
 
+        style.configure('Zone.TLabel',
+                        background=colors["primary"],
+                        foreground=colors["fg"],
+                        font=('Helvetica', 14, 'bold'))
 
-            
-    def _on_zone_toggle(self, zone_name):
+    def _create_widgets(self):
         current_function = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
             debug_log(
-                message=f"🛠️🔵 Zone toggle clicked for: {zone_name}. Current selection: {self.selected_zone}.",
+                message="🛠️🟢 Creating the three-pane filter layout.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-        if self.selected_zone == zone_name:
-            self.selected_zone = None
-            self.selected_group = None
-            if Local_Debug_Enable:
-                debug_log(
-                    message="🛠️🟡 Deselected Zone. Clearing Group selection.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    console_print_func=console_log
-                )
-        else:
-            self.selected_zone = zone_name
-            self.selected_group = None
-            if Local_Debug_Enable:
-                debug_log(
-                    message=f"🛠️🟢 Selected new Zone: {self.selected_zone}. Clearing Group selection.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    console_print_func=console_log
-                )
         
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        
+        self.main_scroll_frame = ttk.Frame(self, padding=(5,5,5,5))
+        self.main_scroll_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+        self.canvas = tk.Canvas(self.main_scroll_frame, bg=THEMES[DEFAULT_THEME]["bg"], highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self.main_scroll_frame, orient="vertical", command=self.canvas.yview)
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+        
+        self.filter_frame = ttk.Frame(self.scrollable_frame)
+        self.filter_frame.pack(fill=tk.X, padx=5, pady=5)
+        self.filter_frame.grid_columnconfigure(0, weight=1)
+        
+        reset_button = ttk.Button(self.filter_frame, text="Reset All Filters", command=self._reset_filters)
+        reset_button.grid(row=0, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
+
+        self.zone_frame = ttk.LabelFrame(self.filter_frame, text="ZONES")
+        self.zone_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
+        self.zone_frame.grid_columnconfigure(0, weight=1)
+        self.zone_frame.grid_columnconfigure(1, weight=1)
+        self.zone_frame.grid_columnconfigure(2, weight=1)
+        self.zone_frame.grid_columnconfigure(3, weight=1)
+        
+        self.group_frame = ttk.LabelFrame(self.filter_frame, text="GROUPS")
+        self.group_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        self.group_frame.grid_columnconfigure(0, weight=1)
+        self.group_frame.grid_columnconfigure(1, weight=1)
+        self.group_frame.grid_columnconfigure(2, weight=1)
+        self.group_frame.grid_columnconfigure(3, weight=1)
+
+        self.device_frame = ttk.LabelFrame(self.filter_frame, text="DEVICES")
+        self.device_frame.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
+        self.device_frame.grid_columnconfigure(0, weight=1)
+        self.device_frame.grid_columnconfigure(1, weight=1)
+        self.device_frame.grid_columnconfigure(2, weight=1)
+        self.device_frame.grid_columnconfigure(3, weight=1)
+        
+    def _reset_filters(self):
+        current_function = inspect.currentframe().f_code.co_name
+        if Local_Debug_Enable:
+            debug_log(
+                message="🛠️🔵 Resetting all filters and rebuilding the UI.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                console_print_func=console_log
+            )
+        self.selected_zone = None
+        self.selected_group = None
+        if self.selected_device_button:
+            self.selected_device_button.config(style='Custom.TButton')
+            self.selected_device_button = None
+            
+        load_marker_data(self)
+        process_and_sort_markers(self)
         self._create_zone_buttons()
         create_group_buttons(self)
         create_device_buttons(self)
-        
-        on_tune_request_from_selection(self)
-        
-    def _on_group_toggle(self, group_name):
+        console_log_switch("✅ Filters reset. All markers displayed.")
+
+    def _on_tab_selected(self, event):
         current_function = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
-            debug_log(
-                message=f"🛠️🔵 Group toggle clicked for: {group_name}. Current selection: {self.selected_group}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
-                console_print_func=console_log
-            )
-        if self.selected_group == group_name:
-            self.selected_group = None
+        
+        if event is None or event.widget.tab(event.widget.select(), "text") == "Showtime":
             if Local_Debug_Enable:
                 debug_log(
-                    message="🛠️🟡 Deselected Group. Showing all devices for the current Zone.",
+                    message="🛠️🟢 'Showtime' tab activated. Reloading marker data and buttons.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function}",
                     console_print_func=console_log
                 )
-        else:
-            self.selected_group = group_name
-            if Local_Debug_Enable:
-                debug_log(
-                    message=f"🛠️🟢 Selected new Group: {self.selected_group}.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    console_print_func=console_log
-                )
-            
-        create_group_buttons(self)
-        create_device_buttons(self)
-        
-        on_tune_request_from_selection(self)
-        
-    def _clear_group_buttons(self):
+            load_marker_data(self)
+            process_and_sort_markers(self)
+            self._create_zone_buttons()
+            create_group_buttons(self)
+            create_device_buttons(self)
+
+    def _create_zone_buttons(self):
         current_function = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
             debug_log(
-                message="🛠️🔵 Clearing group buttons.",
+                message="🛠️🟢 Creating Zone filter buttons.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-        for widget in self.group_frame.winfo_children():
+        for widget in self.zone_frame.winfo_children():
             widget.destroy()
 
-    def _on_marker_button_click(self, button):
-        current_function = inspect.currentframe().f_code.co_name
+        sorted_zones = sorted(self.grouped_markers.keys())
+        for i, zone_name in enumerate(sorted_zones):
+            is_selected = self.selected_zone == zone_name
+            
+            all_zone_devices = []
+            for group in self.grouped_markers[zone_name].values():
+                all_zone_devices.extend(group)
+            # UPDATED: Use the imported utility function
+            min_freq, max_freq = calculate_frequency_range(all_zone_devices)
+            
+            freq_range_text = ""
+            if min_freq is not None and max_freq is not None:
+                freq_range_text = f"\n{min_freq} MHz - {max_freq} MHz"
+
+            button_text = f"{zone_name}{freq_range_text}"
+
+            button = ttk.Button(
+                self.zone_frame,
+                text=button_text,
+                command=lambda z=zone_name: on_zone_toggle(self, z),
+                style='Custom.TButton' if not is_selected else 'Custom.Selected.TButton'
+            )
+            row = i // 4
+            col = i % 4
+            button.grid(row=row, column=col, padx=5, pady=5, sticky="ew")
+        
+        for i in range(4):
+            self.zone_frame.grid_columnconfigure(i, weight=1)
+        
         if Local_Debug_Enable:
             debug_log(
-                message="🛠️🔵 Device button clicked. Toggling selection.",
+                message=f"✅ Zone buttons created for {len(sorted_zones)} zones.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-        marker_data = button.marker_data
-        
-        if self.selected_device_button == button:
-            self.selected_device_button.config(style='Custom.TButton')
-            self.selected_device_button = None
-            console_log_switch(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
-        else:
-            if self.selected_device_button:
-                self.selected_device_button.config(style='Custom.TButton')
-            
-            self.selected_device_button = button
-            self.selected_device_button.config(style='Custom.Selected.TButton')
-            console_log_switch(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
-        
-        on_tune_request_from_selection(self)
+

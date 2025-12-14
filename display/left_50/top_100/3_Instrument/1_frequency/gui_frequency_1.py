@@ -2,13 +2,6 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/instrument/frequency"
 
 
 
-
-
-
-
-
-
-
 # display_gui_child_pusher.py
 
 #

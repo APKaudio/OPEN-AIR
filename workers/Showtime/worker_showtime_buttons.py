@@ -25,7 +25,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-from workers.ui.worker_draw_bargraph import create_bar_graph_image
+from workers.Showtime.worker_showtime_draw_bargraph import create_bar_graph_image
 
 def create_button_with_bar_graph(parent, value, text):
     """
