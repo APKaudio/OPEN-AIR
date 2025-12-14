@@ -1,3 +1,5 @@
+Local_Debug_Enable = True
+
 # managers/bandwidth_manager/bandwidth_state.py
 
 class BandwidthState:

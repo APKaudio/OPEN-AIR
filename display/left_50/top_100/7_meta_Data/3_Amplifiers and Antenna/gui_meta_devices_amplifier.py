@@ -27,7 +27,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -36,9 +36,6 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if Local_Debug_Enable:
-        debug_log(message, file, version, function, console_print_func)
 
 def console_log_switch(message):
     if Local_Debug_Enable:
@@ -72,13 +69,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log_switch(
-            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             super().__init__(parent, *args, **kwargs)
@@ -147,13 +145,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
     
     def _apply_styles(self, theme_name: str):
         """
@@ -189,13 +188,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log_switch(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
-            file=self.current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
+                file=self.current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         try:
             pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
@@ -238,26 +238,28 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _export_table_data(self):
         """
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log_switch(
-            message=f"🖥️🔵 Preparing to export table data to CSV.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🔵 Preparing to export table data to CSV.",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             file_path = filedialog.asksaveasfilename(
@@ -282,10 +284,11 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )

@@ -32,8 +32,9 @@ import tkinter as tk
 from tkinter import ttk
 
 # --- Module Imports ---
-from display.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.active.worker_active_logging import debug_log, console_log
+from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
+from display.logger import debug_log, console_log, log_visa_command
+import pathlib
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -45,10 +46,12 @@ class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, mqtt_util, *args, **kwargs):
+    def __init__(self, parent, mqtt_util, config=None, *args, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 

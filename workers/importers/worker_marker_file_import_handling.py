@@ -42,7 +42,7 @@ import numpy as np
 from tkinter import filedialog, messagebox
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.importers.worker_marker_file_import_converter import (
     Marker_convert_IAShtml_report_to_csv,
     Marker_convert_SB_PDF_File_report_to_csv,

@@ -1,16 +1,53 @@
 # display/splash/splash_screen.py
+#
+# This file (splash_screen.py) provides the SplashScreen class for displaying a customizable splash screen on application startup.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+
 import tkinter as tk
 from tkinter import ttk
 import os
 import sys
 import pathlib
+import threading
+import queue # For thread-safe status updates
 
 # --- Path Setup ---
 # This defines the absolute, true root path of the project, irrespective of the CWD.
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
 # Assuming sys.path is already set up by main.py
-from workers.active.worker_active_logging import console_log
+from display.logger import debug_log, console_log, log_visa_command
+
+# --- Global Scope Variables ---
+current_version = "UNKNOWN_VERSION.000000.0" # Placeholder, update as needed
+current_version_hash = 0
+current_file_path = pathlib.Path(__file__).resolve()
+project_root = current_file_path.parent.parent.parent
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+Local_Debug_Enable = True
 
 try:
     from PIL import Image, ImageTk
@@ -19,27 +56,75 @@ except ImportError:
     Image = None
     ImageTk = None
     PIL_AVAILABLE = False
-    console_log("WARNING: Pillow (PIL) not available. Splash screen will not display image.")
+    if Local_Debug_Enable:
+        debug_log(
+            message="WARNING: Pillow (PIL) not available. Splash screen will not display image.",
+            file=current_file,
+            version=current_version,
+            function="SplashScreen Module", # Module level function for logging
+            console_print_func=console_log
+        )
 
-class SplashScreen:
+class SplashScreen(threading.Thread):
     def __init__(self):
-        console_log("DEBUG: Entering SplashScreen.__init__().")
-        self.splash_root = tk.Tk()
-        self.splash_root.withdraw()
-        
-        # --- Faked Status Messages ---
-        self.status_messages = [
+        super().__init__()
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Entering SplashScreen.__init__().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.__init__",
+                console_print_func=console_log
+            )
+        self.daemon = True # Allow main program to exit even if splash is still running
+        self.splash_root = None # Will be created in the thread
+        self.splash_window = None
+        self.status_label = None
+        self.status_queue = queue.Queue() # For thread-safe status updates
+        self._fade_animation_id = None # To store after_id for fade animation
+        self._status_update_id = None # To store after_id for status updates
+        self._destroyed = False # Flag to prevent multiple destructions
+
+        # --- Faked Status Messages (initial set) ---
+        self.status_messages_list = [
             "Created by: Anthony Peter Kuzub",
             "www.like.audio",
             "Initializing...",
-
             "Loading GUI modules...",
-
         ]
         self.current_status_index = 0
 
-        # --- Load Image ---
+        # Enqueue initial status messages
+        for msg in self.status_messages_list:
+            self.status_queue.put(msg)
+
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Exiting SplashScreen.__init__().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.__init__",
+                console_print_func=console_log
+            )
+
         self.splash_image = None
+        
+    def _init_ui(self):
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Entering SplashScreen._init_ui().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._init_ui",
+                console_print_func=console_log
+            )
+        self.splash_root = tk.Tk()
+        self.splash_root.withdraw()
+        
+        self.splash_window = tk.Toplevel(self.splash_root)
+        self.splash_window.overrideredirect(True)
+        self.splash_window.attributes('-alpha', 0.0)
+
         image_path = None # Initialize image_path to avoid UnboundLocalError
         if PIL_AVAILABLE:
             try:
@@ -47,17 +132,18 @@ class SplashScreen:
                 pil_image = Image.open(image_path)
                 self.splash_image = ImageTk.PhotoImage(pil_image)
             except Exception as e:
-                console_log(f"Splash screen error: Could not load image '{image_path}'. {e}")
-                # Don't destroy root here, fallback to text
-                PIL_AVAILABLE = False # Force fallback if image loading fails even with PIL
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"Splash screen error: Could not load image '{image_path}'. {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}._init_ui",
+                        console_print_func=console_log
+                    )
+                self.splash_image = None
         
-        # --- Window Setup ---
-        self.splash_window = tk.Toplevel(self.splash_root)
-        self.splash_window.overrideredirect(True)
-        self.splash_window.attributes('-alpha', 0.0)
-
         # Widgets and sizing based on image availability
-        if self.splash_image and PIL_AVAILABLE:
+        if self.splash_image:
             label = tk.Label(self.splash_window, image=self.splash_image, bd=0)
             label.pack()
             img_width = self.splash_image.width()
@@ -83,49 +169,246 @@ class SplashScreen:
         # Status Bar
         self.status_label = tk.Label(self.splash_window, text="", fg="white", bg="black", font=("Helvetica", 10))
         self.status_label.pack(fill=tk.X, side=tk.BOTTOM)
-        console_log("DEBUG: Exiting SplashScreen.__init__().")
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Exiting SplashScreen._init_ui().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._init_ui",
+                console_print_func=console_log
+            )
 
     def _update_status(self):
-        console_log("DEBUG: Entering _update_status().")
-        if self.current_status_index < len(self.status_messages):
-            self.status_label.config(text=self.status_messages[self.current_status_index])
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Entering _update_status().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._update_status",
+                console_print_func=console_log
+            )
+        if not self.splash_window or not self.splash_window.winfo_exists():
+            if Local_Debug_Enable:
+                debug_log(
+                    message="DEBUG: Splash window does not exist, stopping status updates.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}._update_status",
+                    console_print_func=console_log
+                )
+            return
+
+        try:
+            message = self.status_queue.get_nowait()
+            self.status_label.config(text=message)
             self.current_status_index += 1
-            # The total duration of messages is 10 * 800ms = 8 seconds.
-            self.splash_window.after(800, self._update_status)
-        console_log("DEBUG: Exiting _update_status().")
+            # Reschedule itself
+            self._status_update_id = self.splash_window.after(800, self._update_status)
+        except queue.Empty:
+            # If no new messages, just reschedule to check again
+            self._status_update_id = self.splash_window.after(800, self._update_status)
+        
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Exiting _update_status().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._update_status",
+                console_print_func=console_log
+            )
 
     def _fade_in(self, alpha=0.0):
-        console_log(f"DEBUG: Entering _fade_in(). Alpha: {alpha}")
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"DEBUG: Entering _fade_in(). Alpha: {alpha}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._fade_in",
+                console_print_func=console_log
+            )
+        if not self.splash_window or not self.splash_window.winfo_exists():
+            if Local_Debug_Enable:
+                debug_log(
+                    message="DEBUG: Splash window does not exist, stopping fade-in.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}._fade_in",
+                    console_print_func=console_log
+                )
+            return
+
         if alpha <= 1.0:
             self.splash_window.attributes('-alpha', alpha)
-            self.splash_window.after(20, lambda: self._fade_in(alpha + 0.05)) # Faster fade in
+            self._fade_animation_id = self.splash_window.after(20, lambda: self._fade_in(alpha + 0.05))
         else:
-            self.splash_window.after(1000, self._fade_out) # Hold for 8 seconds while status updates
-        console_log(f"DEBUG: Exiting _fade_in(). Alpha: {alpha}")
+            self._start_status_updates()
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"DEBUG: Exiting _fade_in(). Alpha: {alpha}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._fade_in",
+                console_print_func=console_log
+            )
+
+    def _start_status_updates(self):
+        # Start status updates after fade-in is complete
+        if self.splash_window and self.splash_window.winfo_exists():
+            self._status_update_id = self.splash_window.after(100, self._update_status)
 
     def _fade_out(self, alpha=1.0):
-        console_log(f"DEBUG: Entering _fade_out(). Alpha: {alpha}")
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"DEBUG: Entering _fade_out(). Alpha: {alpha}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._fade_out",
+                console_print_func=console_log
+            )
+        if not self.splash_window or not self.splash_window.winfo_exists():
+            if Local_Debug_Enable:
+                debug_log(
+                    message="DEBUG: Splash window does not exist, stopping fade-out.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}._fade_out",
+                    console_print_func=console_log
+                )
+            return
+
         if alpha >= 0.0:
             self.splash_window.attributes('-alpha', alpha)
-            self.splash_window.after(20, lambda: self._fade_out(alpha - 0.05)) # Faster fade out
+            self._fade_animation_id = self.splash_window.after(20, lambda: self._fade_out(alpha - 0.05))
         else:
-            self.splash_root.destroy()
-        console_log(f"DEBUG: Exiting _fade_out(). Alpha: {alpha}")
-    
-    def run(self):
-        console_log("DEBUG: Entering SplashScreen.run().")
-        if not hasattr(self, 'splash_window'): # If init failed
-            console_log("DEBUG: SplashScreen.run() skipping due to failed initialization.")
+            self._destroy_splash()
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"DEBUG: Exiting _fade_out(). Alpha: {alpha}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._fade_out",
+                console_print_func=console_log
+            )
+
+    def _destroy_splash(self):
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Entering _destroy_splash().",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._destroy_splash",
+                console_print_func=console_log
+            )
+        if self._destroyed:
+            if Local_Debug_Enable:
+                debug_log(
+                    message="DEBUG: _destroy_splash() called, but splash screen already destroyed.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}._destroy_splash",
+                    console_print_func=console_log
+                )
             return
-            
-        # Start animations and status updates
+
+        if self.splash_root and self.splash_root.winfo_exists():
+            # Cancel any pending after calls
+            if self._fade_animation_id:
+                self.splash_root.after_cancel(self._fade_animation_id)
+            if self._status_update_id:
+                self.splash_root.after_cancel(self._status_update_id)
+            try:
+                self.splash_root.destroy()
+            except tk.TclError as e:
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"ERROR: Tkinter TclError during splash screen destruction: {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}._destroy_splash",
+                        console_print_func=console_log
+                    )
+            finally:
+                self._destroyed = True # Set the flag even if an error occurred during destroy
+        else:
+            self._destroyed = True # If root doesn't exist or already gone, mark as destroyed
+
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Exiting _destroy_splash()..",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}._destroy_splash",
+                console_print_func=console_log
+            )
+
+    def run(self):
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Entering SplashScreen.run() thread.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.run",
+                console_print_func=console_log
+            )
+        self._init_ui()
         self.splash_window.after(10, self._fade_in)
-        self.splash_window.after(1000, self._update_status) # Start status updates after 1 sec
-        
         self.splash_root.mainloop()
-        console_log("DEBUG: Exiting SplashScreen.run().")
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Exiting SplashScreen.run() thread.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.run",
+                console_print_func=console_log
+            )
+
+    def hide(self):
+        if Local_Debug_Enable:
+            debug_log(
+                message="DEBUG: Request to hide splash screen received.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.hide",
+                console_print_func=console_log
+            )
+        if self.splash_root and self.splash_root.winfo_exists():
+            self.splash_root.after(0, self._destroy_splash) # Use after(0) for immediate execution in Tkinter's event loop
+        else:
+            if Local_Debug_Enable:
+                debug_log(
+                    message="DEBUG: Splash screen root not found or already destroyed, cannot hide.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.hide",
+                    console_print_func=console_log
+                )
+
+    def set_status(self, message):
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"DEBUG: Setting splash screen status: {message}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.set_status",
+                console_print_func=console_log
+            )
+        self.status_queue.put(message)
 
 if __name__ == '__main__':
     # For testing the splash screen directly
     splash = SplashScreen()
-    splash.run()
+    splash.start() # Start the splash screen in a new thread
+    
+    # Simulate some work
+    import time
+    time.sleep(1)
+    splash.set_status("Doing important work...")
+    time.sleep(2)
+    splash.set_status("Almost done...")
+    time.sleep(1)
+    
+    splash.hide() # Hide the splash screen
+    
+    # Keep the main thread alive for a bit to see if splash closes cleanly
+    time.sleep(1)
+    console_log("Main thread exiting.")

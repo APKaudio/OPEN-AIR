@@ -30,7 +30,7 @@ import csv
 import inspect
 import os
 
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824

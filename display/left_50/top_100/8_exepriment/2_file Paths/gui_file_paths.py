@@ -22,7 +22,8 @@ from tkinter import ttk
 
 # --- Module Imports ---
 # It's crucial that this path correctly points to the new modular builder
-from display.builder.dynamic_gui_builder import DynamicGuiBuilder
+from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
+import pathlib
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -37,10 +38,12 @@ class PresetPusherGui(ttk.Frame):
     A container frame that instantiates the DynamicGuiBuilder for the Presets configuration.
     This replaces the old, monolithic code with a call to the reusable, modular component.
     """
-    def __init__(self, parent, mqtt_util, *args, **kwargs):
+    def __init__(self, parent, mqtt_util, config=None, *args, **kwargs):
         """
         Initializes the Presets frame and the dynamic GUI builder.
         """
+        if 'config' in kwargs:
+            kwargs.pop('config')
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
@@ -50,5 +53,5 @@ class PresetPusherGui(ttk.Frame):
         self.dynamic_gui = DynamicGuiBuilder(
             parent=self,
             mqtt_util=mqtt_util,
-            base_topic=MQTT_TOPIC_FILTER
+            config={"base_topic": MQTT_TOPIC_FILTER} # Pass config as a dictionary
         )

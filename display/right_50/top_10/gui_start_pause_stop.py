@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/Start-Stop-Pause"
+MQTT_TOPIC_FILTER = "OPEN-AIR/dataset/Orchestration"
 
 
 
@@ -33,18 +33,21 @@ import tkinter as tk
 from tkinter import ttk
 
 # --- Module Imports ---
-from display.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.active.worker_active_logging import debug_log, console_log
+from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
+from display.logger import debug_log, console_log, log_visa_command
+import pathlib
 
 # --- Global Scope Variables ---
-current_version = "20251127.000000.1"
-current_version_hash = (20251127 * 0 * 1)
-current_file = f"{os.path.basename(__file__)}"
+current_version = "20251213.000000.1" # Updated version based on current date
+current_version_hash = (20251213 * 0 * 1) # Updated hash
+current_file_path = pathlib.Path(__file__).resolve()
+project_root = current_file_path.parent.parent.parent
+current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", "/")
 
 
-class PresetPusherGui(ttk.Frame):
+class StartPauseStopGui(ttk.Frame):
     """
-    A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
+    A GUI component for Start/Pause/Stop functionality, instantiating DynamicGuiBuilder.
     """
     def __init__(self, parent, mqtt_util, *args, **kwargs):
         """
@@ -57,7 +60,7 @@ class PresetPusherGui(ttk.Frame):
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to initialize the PresetPusherGui.",
+            message=f"🛠️🟢 Entering {current_function_name} to initialize the StartPauseStopGui.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -75,7 +78,7 @@ class PresetPusherGui(ttk.Frame):
                 mqtt_util=mqtt_util,
                 config=config
             )
-            console_log("✅ Celebration of success! The PresetPusherGui did initialize its dynamic GUI builder.")
+            console_log("✅ Celebration of success! The StartPauseStopGui did initialize its dynamic GUI builder.")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(

@@ -33,7 +33,7 @@ import json
 import time
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
@@ -46,28 +46,28 @@ HZ_TO_MHZ = 1_000_000
 
 # --- MQTT Topic Constants (No Magic Numbers) ---
 # Frequency
-FREQ_START_INPUT = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
-FREQ_STOP_INPUT = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/stop_freq/value"
-FREQ_TRIGGER = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/generic_model/trigger"
+FREQ_START_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
+FREQ_STOP_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/stop_freq/value"
+FREQ_TRIGGER = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/generic_model/trigger"
 
 # Bandwidth
-RBW_INPUT = "OPEN-AIR/repository/yak/Bandwidth/set/Set_RBW/scpi_inputs/hz_value/value"
-RBW_TRIGGER = "OPEN-AIR/repository/yak/Bandwidth/set/Set_RBW/scpi_details/generic_model/trigger"
-VBW_INPUT = "OPEN-AIR/repository/yak/Bandwidth/set/Set_VBW/scpi_inputs/hz_value/value"
-VBW_TRIGGER = "OPEN-AIR/repository/yak/Bandwidth/set/Set_VBW/scpi_details/generic_model/trigger"
+RBW_INPUT = "OPEN-AIR/yak/Bandwidth/set/Set_RBW/scpi_inputs/hz_value/value"
+RBW_TRIGGER = "OPEN-AIR/yak/Bandwidth/set/Set_RBW/scpi_details/generic_model/trigger"
+VBW_INPUT = "OPEN-AIR/yak/Bandwidth/set/Set_VBW/scpi_inputs/hz_value/value"
+VBW_TRIGGER = "OPEN-AIR/yak/Bandwidth/set/Set_VBW/scpi_details/generic_model/trigger"
 
 # Amplitude
-AMP_TRIGGER = "OPEN-AIR/repository/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_details/generic_model/trigger"
-AMP_REF_LEVEL = "OPEN-AIR/repository/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Ref_Level_dBm/value"
-AMP_ATTENUATION = "OPEN-AIR/repository/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Attenuation_dB/value"
-AMP_PREAMP = "OPEN-AIR/repository/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Preamp_On/value"
+AMP_TRIGGER = "OPEN-AIR/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_details/generic_model/trigger"
+AMP_REF_LEVEL = "OPEN-AIR/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Ref_Level_dBm/value"
+AMP_ATTENUATION = "OPEN-AIR/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Attenuation_dB/value"
+AMP_PREAMP = "OPEN-AIR/yak/Amplitude/rig/rig_Ref_Level_dBm/scpi_inputs/Preamp_On/value"
 
 # Trace Modes
-TRACE_TRIGGER = "OPEN-AIR/repository/yak/Trace/rig/rig_All_trace_modes/scpi_details/generic_model/trigger"
-TRACE_MODE_1_INPUT = "OPEN-AIR/repository/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode1/value"
-TRACE_MODE_2_INPUT = "OPEN-AIR/repository/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode2/value"
-TRACE_MODE_3_INPUT = "OPEN-AIR/repository/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode3/value"
-TRACE_MODE_4_INPUT = "OPEN-AIR/repository/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode4/value"
+TRACE_TRIGGER = "OPEN-AIR/yak/Trace/rig/rig_All_trace_modes/scpi_details/generic_model/trigger"
+TRACE_MODE_1_INPUT = "OPEN-AIR/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode1/value"
+TRACE_MODE_2_INPUT = "OPEN-AIR/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode2/value"
+TRACE_MODE_3_INPUT = "OPEN-AIR/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode3/value"
+TRACE_MODE_4_INPUT = "OPEN-AIR/yak/Trace/rig/rig_All_trace_modes/scpi_inputs/mode4/value"
 
 
 class PresetPusherWorker:

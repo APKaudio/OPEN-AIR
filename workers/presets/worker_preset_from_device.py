@@ -37,7 +37,7 @@ import time
 
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables (as per your instructions) ---
 current_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -49,7 +49,7 @@ current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = True
 
 # --- MQTT Topic Constants (No Magic Numbers) ---
-ROOT_TOPIC = "OPEN-AIR/repository/yak/Memory"
+ROOT_TOPIC = "OPEN-AIR/yak/Memory"
 NAB_TRIGGER_TOPIC = f"{ROOT_TOPIC}/Nab/Nab_Preset_Catalog/scpi_details/N9342CN/trigger"
 NAB_OUTPUT_TOPIC = f"{ROOT_TOPIC}/Nab/Nab_Preset_Catalog/scpi_outputs/preset_catalog_list/value"
 SET_FILENAME_TOPIC = f"{ROOT_TOPIC}/Set/Set_Store_Preset/scpi_inputs/preset_fileName/value"

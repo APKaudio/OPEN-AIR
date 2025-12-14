@@ -1,3 +1,5 @@
+Local_Debug_Enable = True
+
 # managers/frequency_manager/frequency_state.py
 
 class FrequencyState:

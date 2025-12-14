@@ -37,7 +37,7 @@ import datetime
 import math
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables (as per your instructions) ---
@@ -50,8 +50,8 @@ Local_Debug_Enable = True
 
 # --- Constants (No Magic Numbers) ---
 # FIX: Using the single-level wildcard '+' to match the dynamic 'Marker_X' or 'Marker_X_freq' segment.
-TOPIC_MARKER_PEAK_WILDCARD = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
-TOPIC_MARKER_FREQ_WILDCARD = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
+TOPIC_MARKER_PEAK_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
+TOPIC_MARKER_FREQ_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/+/value"
 TOPIC_MEASUREMENTS_ROOT = "OPEN-AIR/measurements"
 TOPIC_DELIMITER = "/"
 

@@ -23,6 +23,7 @@ import pyvisa
 import tkinter as tk
 import json
 import datetime
+import time
 import threading
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_dispatch_scpi import ScpiDispatcher
@@ -31,7 +32,7 @@ from managers.frequency_manager.frequency_yak_communicator import FrequencyYakCo
 from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCommunicator
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables --

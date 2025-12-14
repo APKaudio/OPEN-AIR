@@ -1,0 +1,93 @@
+# workers/builder/dynamic_gui_mousewheel_mixin.py
+#
+# This file (dynamic_gui_mousewheel_mixin.py) provides the MousewheelScrollMixin class, adding mousewheel scrolling functionality to Tkinter Canvas widgets.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+
+
+import sys
+import inspect
+import datetime
+import pathlib
+import os
+
+from display.logger import debug_log, console_log, log_visa_command
+
+
+# --- Global Scope Variables ---
+current_file_path = pathlib.Path(__file__).resolve()
+project_root = current_file_path.parent.parent.parent
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+
+
+class MousewheelScrollMixin:
+    """
+    Mixin to add mousewheel scrolling functionality to a Tkinter Canvas.
+    Assumes the presence of `self.canvas` and logging utilities.
+    """
+    def _on_mousewheel(self, event):
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Mousewheel event detected: {event.num}. Scrolling canvas.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        # Platform-specific mouse wheel scrolling
+        if sys.platform == "linux":
+            if event.num == 4: # Scroll up
+                self.canvas.yview_scroll(-1, "units")
+            elif event.num == 5: # Scroll down
+                self.canvas.yview_scroll(1, "units")
+        else: # Windows and macOS
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+    def _bind_mousewheel(self, event):
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Binding mousewheel scrolling for canvas.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        # Bind mousewheel scrolling when the mouse enters the scrollable area
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        self.canvas.bind_all("<Button-4>", self._on_mousewheel) # Linux scroll up
+        self.canvas.bind_all("<Button-5>", self._on_mousewheel) # Linux scroll down
+
+    def _unbind_mousewheel(self, event):
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"🖥️🔵 Unbinding mousewheel scrolling for canvas.",
+            file=current_file,
+            version=current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}",
+            console_print_func=console_log
+        )
+        # Unbind mousewheel scrolling when the mouse leaves the scrollable area
+        self.canvas.unbind_all("<MouseWheel>")
+        self.canvas.unbind_all("<Button-4>")
+        self.canvas.unbind_all("<Button-5>")

@@ -1,7 +1,4 @@
 # workers/worker_active_marker_tune_and_collect.py
-#
-# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# As the current hour is 20, no change is needed.
 
 Current_Date = 20251129  ##Update on the day the change was made
 Current_Time = 120000  ## update at the time it was edited and compiled
@@ -25,8 +22,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 20251006.225130.6
+
 
 import os
 import inspect
@@ -36,7 +32,7 @@ import threading
 import time
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 
@@ -48,9 +44,6 @@ current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
 Local_Debug_Enable = True
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if Local_Debug_Enable:
-        debug_log(message, file, version, function, console_print_func)
 
 def console_log_switch(message):
     if Local_Debug_Enable:
@@ -75,17 +68,17 @@ TOPIC_DEVICE_FREQ_WILDCARD = f"{TOPIC_MARKERS_ROOT}/+/IDENTITY/FREQ_MHZ"
 
 
 # YAK Frequency Topics
-TOPIC_FREQ_START_INPUT = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
-TOPIC_FREQ_STOP_INPUT = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/stop_freq/value"
-TOPIC_FREQ_TRIGGER = "OPEN-AIR/repository/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/generic_model/trigger"
+TOPIC_FREQ_START_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/start_freq/value"
+TOPIC_FREQ_STOP_INPUT = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_inputs/stop_freq/value"
+TOPIC_FREQ_TRIGGER = "OPEN-AIR/yak/Frequency/rig/Rig_freq_start_stop/scpi_details/generic_model/trigger"
 
 # YAK Marker Placement Topics
-TOPIC_MARKER_PLACE_BASE = "OPEN-AIR/repository/yak/Markers/beg/Beg_Place_All_markers/scpi_inputs"
-TOPIC_MARKER_PLACE_TRIGGER = "OPEN-AIR/repository/yak/Markers/beg/Beg_Place_All_markers/scpi_details/generic_model/trigger"
+TOPIC_MARKER_PLACE_BASE = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/scpi_inputs"
+TOPIC_MARKER_PLACE_TRIGGER = "OPEN-AIR/yak/Markers/beg/Beg_Place_All_markers/scpi_details/generic_model/trigger"
 
 # YAK Marker Value Retrieval (NAB) Topics
-TOPIC_MARKER_NAB_TRIGGER = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_details/generic_model/trigger"
-TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/repository/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_*/value"
+TOPIC_MARKER_NAB_TRIGGER = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_details/generic_model/trigger"
+TOPIC_MARKER_NAB_OUTPUT_WILDCARD = "OPEN-AIR/yak/Markers/nab/NAB_all_marker_settings/scpi_outputs/Marker_*/value"
 
 
 class MarkerGoGetterWorker:
@@ -96,7 +89,7 @@ class MarkerGoGetterWorker:
         # Initializes the worker, sets up state variables, and subscribes to topics.
         current_function_name = inspect.currentframe().f_code.co_name
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message=f"🛠️🟢 Initializing the tireless Marker Go-Getter!",
                 file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
@@ -214,7 +207,7 @@ class MarkerGoGetterWorker:
             self.mqtt_util.publish_message(topic=marker_topic, subtopic="", value=freq_hz, retain=True)
             
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
@@ -259,7 +252,7 @@ class MarkerGoGetterWorker:
             not self.first_run):
             
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
@@ -335,7 +328,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
     """
     current_function = inspect.currentframe().f_code.co_name
     if Local_Debug_Enable:
-        debug_log_switch(
+        debug_log(
             message="🛠️🟢 Received request to tune to marker. Processing data...",
             file=current_file,
             version=current_version,
@@ -345,16 +338,16 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
 
     try:
         # Define the MQTT topics as constants
-        CENTER_FREQ_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/center_freq/value"
-        SPAN_FREQ_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/span_freq/value"
-        TRIGGER_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_center_span/scpi_details/generic_model/trigger"
+        CENTER_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/center_freq/value"
+        SPAN_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_inputs/span_freq/value"
+        TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_center_span/scpi_details/generic_model/trigger"
         
         DEFAULT_SPAN_HZ = 1000000 # 1 MHz
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
                     version=current_version,
@@ -370,7 +363,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             center_freq_hz = int(freq_mhz * HZ_TO_MHZ)
         except (ValueError, TypeError) as e:
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
                     version=current_version,
@@ -381,7 +374,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             return
 
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message=f"🔍 Freq from marker: {freq_mhz} MHz -> {center_freq_hz} Hz. Setting Span to {DEFAULT_SPAN_HZ} Hz.",
                 file=current_file,
                 version=current_version,
@@ -398,7 +391,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=True)
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
@@ -408,7 +401,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=False)
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message="🛠️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
@@ -420,7 +413,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
 
     except Exception as e:
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message=f"❌🔴 Critical error during marker tuning: {e}",
                 file=current_file,
                 version=current_version,
@@ -436,7 +429,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
     """
     current_function = inspect.currentframe().f_code.co_name
     if Local_Debug_Enable:
-        debug_log_switch(
+        debug_log(
             message=f"🛠️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
             file=current_file,
             version=current_version,
@@ -446,14 +439,14 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
 
     try:
         # Define the MQTT topics as constants
-        START_FREQ_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/start_freq/value"
-        STOP_FREQ_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/stop_freq/value"
-        START_STOP_TRIGGER_TOPIC = "OPEN-AIR/repository/yak/Frequency/beg/Beg_freq_start_stop/scpi_details/generic_model/trigger"
+        START_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/start_freq/value"
+        STOP_FREQ_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_inputs/stop_freq/value"
+        START_STOP_TRIGGER_TOPIC = "OPEN-AIR/yak/Frequency/beg/Beg_freq_start_stop/scpi_details/generic_model/trigger"
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
                     version=current_version,
@@ -468,7 +461,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
             center_freq_hz = freq_mhz * HZ_TO_MHZ
         except (ValueError, TypeError) as e:
             if Local_Debug_Enable:
-                debug_log_switch(
+                debug_log(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
                     version=current_version,
@@ -484,7 +477,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         stop_freq_hz = int(center_freq_hz + buffer)
 
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",
                 file=current_file,
                 version=current_version,
@@ -503,7 +496,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         # Trigger SCPI command
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=True)
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
@@ -514,7 +507,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         # Reset the trigger
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=False)
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message="🛠️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
@@ -526,7 +519,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
 
     except Exception as e:
         if Local_Debug_Enable:
-            debug_log_switch(
+            debug_log(
                 message=f"❌🔴 Critical error during marker tuning with buffer: {e}",
                 file=current_file,
                 version=current_version,

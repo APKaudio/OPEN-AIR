@@ -24,7 +24,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 from PIL import Image, ImageDraw, ImageFont
-import workers.worker_project_paths as project_paths
+import workers.utils.worker_project_paths as project_paths
 
 def create_bar_graph_image(value, text, width=200, height=60, bg_color=(200, 200, 200), bar_color=(0, 0, 255), text_color=(0, 0, 0)):
     """

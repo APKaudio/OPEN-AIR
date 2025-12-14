@@ -51,7 +51,7 @@ Local_Debug_Enable = True
 headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added Peak header
 
 # Updated imports for new logging functions
-from workers.active.worker_active_logging import debug_log,console_log
+from display.logger import debug_log, console_log, log_visa_command
 
 
 def Marker_convert_IAShtml_report_to_csv(html_content):

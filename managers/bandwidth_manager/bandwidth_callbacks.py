@@ -6,6 +6,8 @@ from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from .bandwidth_presets import BandwidthPresets
 
+Local_Debug_Enable = True
+
 class BandwidthCallbacks:
     """Handles MQTT message callbacks and logic for bandwidth settings."""
 

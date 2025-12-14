@@ -1,10 +1,22 @@
 MQTT_TOPIC_FILTER = "OPEN-AIR/meta/components"
 
-# display/gui_marker_editor.py
+# display/left_50/top_100/7_meta_Data/2_wireless_components/gui_wireless_components.py
 #
-# A GUI component for editing markers, designed to handle both full data sets
-# and single-value updates intelligently via MQTT.
+# This file (gui_wireless_components.py) provides the GUI component for displaying MQTT data in a table related to wireless components and exporting it.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
 #
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -15,8 +27,6 @@ MQTT_TOPIC_FILTER = "OPEN-AIR/meta/components"
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 20251127.000000.1
 
 import os
 import inspect
@@ -27,7 +37,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -36,9 +46,6 @@ from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if Local_Debug_Enable:
-        debug_log(message, file, version, function, console_print_func)
 
 def console_log_switch(message):
     if Local_Debug_Enable:
@@ -46,14 +53,9 @@ def console_log_switch(message):
 
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20251127
-CURRENT_TIME = 0
-REVISION_NUMBER = 1
-current_version = "20251127.000000.1"
-current_version_hash = 20251127 * 0 * 1
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("/", "/")
 
 # --- No Magic Numbers (as per your instructions) ---
 
@@ -72,13 +74,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log_switch(
-            message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             super().__init__(parent, *args, **kwargs)
@@ -147,13 +150,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
     
     def _apply_styles(self, theme_name: str):
         """
@@ -189,13 +193,14 @@ class InstrumentTranslatorGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log_switch(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
-            file=self.current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🔵 Received MQTT message on topic '{topic}'. Processing message...",
+                file=self.current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         try:
             pivoted_rows = self.data_flattener.process_mqtt_message_and_pivot(
@@ -238,26 +243,28 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 The data table construction has failed! A plague upon this error: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _export_table_data(self):
         """
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log_switch(
-            message=f"🖥️🔵 Preparing to export table data to CSV.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🖥️🔵 Preparing to export table data to CSV.",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             file_path = filedialog.asksaveasfilename(
@@ -282,10 +289,11 @@ class InstrumentTranslatorGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log_switch(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=self.current_file,
+                    version=self.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )

@@ -32,14 +32,15 @@ import tkinter as tk
 from tkinter import ttk
 
 # --- Module Imports ---
-from display.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.active.worker_active_logging import debug_log, console_log
+from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
+from display.logger import debug_log, console_log, log_visa_command
+import pathlib
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
-MQTT_TOPIC_FILTER = "OPEN-AIR/repository/yak/Markers"
+MQTT_TOPIC_FILTER = "OPEN-AIR/yak/Markers"
 
 
 class YakMarkersGui(ttk.Frame):

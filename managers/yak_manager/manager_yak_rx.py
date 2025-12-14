@@ -1,28 +1,45 @@
-# managers/manager_yak_rx.py
+# managers/yak_manager/manager_yak_rx.py
 #
-# This manager processes the response from an SCPI query and publishes
-# the parsed output values to MQTT.
+# This file (manager_yak_rx.py) processes the response from an SCPI query and publishes the parsed output values to MQTT.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
 
 import os
 import inspect
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 import json
 
 
 Local_Debug_Enable = True
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if Local_Debug_Enable:
-        debug_log(message, file, version, function, console_print_func)
 
 def console_log_switch(message):
     if Local_Debug_Enable:
         console_log(message)
 
 
-# --- Global Scope Variables ---
-current_version = "20251019.222302.1"
-current_version_hash = (20251019 * 222302 * 1)
 current_file = f"{os.path.basename(__file__)}"
 
 class YakRxManager:
@@ -38,28 +55,33 @@ class YakRxManager:
         Parses the response and publishes the results to MQTT topics.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log_switch(
-            message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
-            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )
 
         outputs = command_details.get("scpi_outputs", {})
-        debug_log_switch(
-            message=f"ℹ️ YakRxManager received a response from the device.",
-            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-        )
-        debug_log_switch(
-            message=f"ℹ️ Path Parts: {path_parts}",
-            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-        )
-        debug_log_switch(
-            message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
-            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-        )
-        debug_log_switch(
-            message=f"ℹ️ Raw Response: {response}",
-            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"ℹ️ YakRxManager received a response from the device.",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"ℹ️ Path Parts: {path_parts}",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"ℹ️ Raw Response: {response}",
+                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+            )
         
         try:
             # Split the response into individual parts
@@ -70,10 +92,11 @@ class YakRxManager:
             
             # Check if this is the specific command with the known key swap issue
             if path_parts == self.NAB_BANDWIDTH_TRIGGER_PATH and len(output_keys) >= 5:
-                debug_log_switch(
-                    message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
-                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
+                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                    )
                 
                 # Check the order of the 4th and 5th items in the output_keys list
                 # Based on the device response, the order is: ..., Continuous_Mode_On, Sweep_Time_s
@@ -113,26 +136,28 @@ class YakRxManager:
                          # SWAP REQUIRED: Swap the 4th and 5th keys in the list to match SCPI order
                         temp_keys[3], temp_keys[4] = temp_keys[4], temp_keys[3]
                         output_keys = temp_keys
-                        debug_log_switch(
-                            message=f"🛠️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
-                            file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-                        )
+                        if Local_Debug_Enable:
+                            debug_log(
+                                message=f"🛠️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
+                                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                            )
                     
             # --- END FIX ---
 
 
             if len(response_parts) != len(output_keys):
-                debug_log_switch(
-                    message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
-                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
+                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                    )
                 return
 
             # FIX: Correctly rebuild the base topic by joining the initial path parts
             # The base output topic should be constructed up to '/scpi_outputs'
             # path_parts looks like: ['yak', 'Bandwidth', 'nab', 'NAB_bandwidth_settings', 'scpi_details', 'generic_model', 'trigger']
             # We want: OPEN-AIR/repository/yak/Bandwidth/nab/NAB_bandwidth_settings/scpi_outputs
-            base_output_topic_parts = ['OPEN-AIR', 'repository'] + path_parts[:4] + ['scpi_outputs']
+            base_output_topic_parts = ['OPEN-AIR', 'yak'] + path_parts[:4] + ['scpi_outputs']
             base_output_topic = '/'.join(base_output_topic_parts)
             
             # Match and publish each part of the response
@@ -149,16 +174,18 @@ class YakRxManager:
                     value=raw_value,
                     retain=True
                 )
-                debug_log_switch(
-                    message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
-                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
+                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                    )
             
             console_log_switch("✅ Response processed and all output values published to MQTT.")
 
         except Exception as e:
             console_log(f"❌ Error processing response: {e}")
-            debug_log_switch(
-                message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
+                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                )

@@ -25,7 +25,7 @@ import time
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
@@ -152,7 +152,7 @@ def main(mqtt_util: MqttControllerUtility):
                 with open(file_path, 'r') as f:
                     data = json.load(f)
 
-                mqtt_util.publish_message(topic=f"{root_topic}/#", subtopic="", value="", retain=True)
+                mqtt_util.purge_branch(root_topic)
                 
                 publish_recursive(mqtt_util, root_topic, data)
                 console_log(f"✅ Finished processing file: '{file_name}'")

@@ -35,7 +35,7 @@ import pathlib
 from collections import defaultdict
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
 
@@ -177,7 +177,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
     try:
         # First, clear any old data under the base topic by publishing a null, retained message.
         # This will remove all the old topics (Device-001/Name, Device-001/active, etc.)
-        mqtt_util.publish_message(topic=f"{MQTT_BASE_TOPIC}/#", subtopic="", value=None, retain=True)
+        mqtt_util.purge_branch(MQTT_BASE_TOPIC)
         console_log(f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
 
         # Now, publish the new, complete structure recursively.

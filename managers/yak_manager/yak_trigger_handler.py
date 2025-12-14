@@ -1,18 +1,47 @@
 # managers/yak_manager/yak_trigger_handler.py
+#
+# This file (yak_trigger_handler.py) orchestrates command execution by processing YAK triggers from MQTT, looking up SCPI command details, building the final command, and dispatching it to the instrument.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+
 
 import os
 import inspect
 import json
 
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs
 from managers.yak_manager.yak_command_builder import fill_scpi_placeholders
 from managers.yak_manager.manager_yak_tx import YakTxManager
 from managers.yak_manager.manager_yak_rx import YakRxManager
 from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
-current_version = "1.0.0"
+Local_Debug_Enable = True
+
 current_file = f"{os.path.basename(__file__)}"
+
 
 def handle_yak_trigger(yak_manager, topic, payload):
     """
@@ -20,13 +49,14 @@ def handle_yak_trigger(yak_manager, topic, payload):
     and then calling the specialized lookup functions.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="TRIGGER TRIGGER TRIGGER",
-        file=current_file,
-        version=current_version,
-        function=current_function_name,
-        console_print_func=console_log
-    )
+    if Local_Debug_Enable:
+        debug_log(
+            message="TRIGGER TRIGGER TRIGGER",
+            file=current_file,
+            version=current_version,
+            function=current_function_name,
+            console_print_func=console_log
+        )
 
     try:
         if not YAKETY_YAK_REPO_PATH.is_file():
@@ -60,19 +90,22 @@ def handle_yak_trigger(yak_manager, topic, payload):
                 yak_rx_manager = YakRxManager(mqtt_controller=yak_manager.mqtt_util)
                 yak_rx_manager.process_response(path_parts=repo_path_parts, command_details={"scpi_outputs": command_outputs}, response=response_value)
         
-        debug_log(
-            message=f"🔍 Processed trigger for topic: {topic}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍 Processed trigger for topic: {topic}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
     except Exception as e:
         console_log(f"❌ Error processing trigger for topic {topic}: {e}")
-        debug_log(
-            message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                file=current_file,
+                version=current_version,
+                function=current_function_name,
+                console_print_func=console_log
+            )
+    

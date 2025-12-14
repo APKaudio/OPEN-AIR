@@ -22,7 +22,7 @@ import inspect
 import json
 
 # --- Utility and Worker Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_dispatch_scpi import ScpiDispatcher
 

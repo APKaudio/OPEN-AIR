@@ -1,4 +1,4 @@
-# OPEN-AIR/datasets/worker_repository_publisher.py
+# OPEN-AIR/workers/publishers/worker_meta_publisher.py
 #
 # A script to read and publish JSON datasets from the local directory to an MQTT broker.
 # This version includes enhanced logging and versioning to aid in debugging and tracking.
@@ -15,7 +15,7 @@
 #
 #
 # Version 20250919.214648.5
-# UPDATED: The main function now exclusively publishes files that start with the prefix 'repository_'.
+# UPDATED: The main function now exclusively publishes files that start with the prefix 'YAK_'.
 # FIXED: Added a check to skip publishing a preset's sub-tree if its "Active" flag is false.
 
 import os
@@ -27,20 +27,17 @@ import time
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250919
-CURRENT_TIME = 214648
-REVISION_NUMBER = 5
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
-current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME * REVISION_NUMBER)
+current_version = "20251213.000000.2"
+current_version_hash = (20251213 * 0 * 2) # Updated hash
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", "/")
 
 def publish_recursive(mqtt_util, base_topic, data):
     """
@@ -57,6 +54,9 @@ def publish_recursive(mqtt_util, base_topic, data):
             # NEW FIX: Check for the 'Active' flag and skip the rest of the tree if it's false.
             if isinstance(value, dict) and 'Active' in value and str(value.get('Active')).lower() == 'false':
                 debug_log(
+                    message=f"🛠️🟡 Skipping inactive branch for topic: {base_topic}/{clean_key}",
+                    file=current_file,
+                    version=current_version,
                     function=f"meta_publisher.{current_function_name}",
                     console_print_func=console_log
                 )
@@ -108,7 +108,7 @@ def publish_recursive(mqtt_util, base_topic, data):
                 
     else:
         cleaned_topic = base_topic.replace("#", "").replace("+", "")
-        mqtt_util.publish_message(topic=cleaned_topic, subtopic="", value=json.dumps(data), retain=True)
+        mqtt_util.publish_message(topic=cleaned_topic, subtopic="", value=data, retain=True)
         console_log(f"Published topic: '{cleaned_topic}' with value: '{json.dumps(data)}'")
 
 def main(mqtt_util: MqttControllerUtility):
@@ -166,7 +166,7 @@ def main(mqtt_util: MqttControllerUtility):
                 with open(file_path, 'r') as f:
                     data = json.load(f)
 
-                mqtt_util.publish_message(topic=f"{root_topic}/#", subtopic="", value="", retain=True)
+                mqtt_util.purge_branch(root_topic)
                 
                 publish_recursive(mqtt_util, root_topic, data)
                 console_log(f"✅ Finished processing file: '{file_name}'")

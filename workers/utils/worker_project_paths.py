@@ -31,7 +31,7 @@ import os
 import inspect
 import pathlib
 import sys
-# DELETED: from workers.active.worker_active_logging import debug_log, console_log
+
 
 # --- Global Scope Variables (as per your instructions) ---
 current_version = "20251013.212800.2"

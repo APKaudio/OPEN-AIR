@@ -37,8 +37,8 @@ import re
 
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
-from workers.active.worker_active_logging import debug_log, console_log
-import workers.worker_project_paths
+from display.logger import debug_log, console_log, log_visa_command
+import workers.utils.worker_project_paths
 
 # --- Global Scope Variables ---
 CURRENT_DATE = datetime.datetime.now().strftime("%Y%m%d")

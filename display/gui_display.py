@@ -52,14 +52,14 @@ import pathlib
 #// --------------------------------------------------------
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
 Local_Debug_Enable = True
 
-# The wrapper functions debug_log_switch and console_log_switch are removed
+# The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
@@ -82,13 +82,14 @@ class Application(tk.Tk):
         print("--- DEBUG: Entering Application.__init__() ---")
         current_function_name = inspect.currentframe().f_code.co_name
         
-        debug_log(
-            message="🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message="🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         self._notebooks = {}
         self._frames_by_path = {}
@@ -111,52 +112,58 @@ class Application(tk.Tk):
             # self.lift() # Bring window to front
             # self.attributes('-topmost', True) # Keep window on top
             # self.after_idle(self.attributes, '-topmost', False) # Release topmost after idle
-            debug_log(
-                message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. (Topmost disabled for debug)",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            self.attributes('-topmost', False) # Release topmost after idle
+            if Local_Debug_Enable:
+                debug_log(
+                    message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. (Topmost disabled for debug)",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
             self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
-            debug_log(
-                message=f"🔍🔵 Applied theme: {DEFAULT_THEME}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍🔵 Applied theme: {DEFAULT_THEME}.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
-            debug_log(
-                message="🔍🔵 Finished building GUI from directory structure.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message="🔍🔵 Finished building GUI from directory structure.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application using ttk.Style."""
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🔍🔵 Applying styles for theme: {theme_name}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Applying styles for theme: {theme_name}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         colors = THEMES.get(theme_name, THEMES["dark"])
         style = ttk.Style(self)
         style.theme_use("clam")
@@ -185,66 +192,72 @@ class Application(tk.Tk):
                         borderwidth=0)
 
         self.configure(background=colors["bg"])
-        debug_log(
-            message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        debug_log(
-            message=f"🔍🔵 Exiting _apply_styles. Theme: {theme_name} applied.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Exiting _apply_styles. Theme: {theme_name} applied.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         return colors
 
 
     def _build_from_directory(self, path: pathlib.Path, parent_widget):
         """Recursively builds the GUI based on folder structure."""
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🔍🔵 Entering _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        try:
-            sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
+        if Local_Debug_Enable:
             debug_log(
-                message=f"🔍🔵 Found sub_dirs in '{path}': {[d.name for d in sub_dirs]}.",
+                message=f"🔍🔵 Entering _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-  
-            layout_dirs = [d for d in sub_dirs if d.name.split('_')[0] in ['left', 'right', 'top', 'bottom']]
-            
-            if layout_dirs:
+        
+        try:
+            sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
+            if Local_Debug_Enable:
                 debug_log(
-                    message=f"🔍🔵 Found layout_dirs in '{path}': {[d.name for d in layout_dirs]}. Applying layout logic.",
+                    message=f"🔍🔵 Found sub_dirs in '{path}': {[d.name for d in sub_dirs]}.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                is_horizontal = any(d.name.startswith('left_') or d.name.startswith('right_') for d in layout_dirs)
-                is_vertical = any(d.name.startswith('top_') or d.name.startswith('bottom_') for d in layout_dirs)
-
-                if is_horizontal and is_vertical:
-                    console_log(f"❌ Layout Error: Cannot mix horizontal and vertical layouts in '{path}'.")
+  
+            layout_dirs = [d for d in sub_dirs if d.name.split('_')[0] in ['left', 'right', 'top', 'bottom']]
+            
+            if layout_dirs:
+                if Local_Debug_Enable:
                     debug_log(
-                        message=f"❌🔴 Layout Error: Mixed horizontal and vertical layouts detected in '{path}'.",
+                        message=f"🔍🔵 Found layout_dirs in '{path}': {[d.name for d in layout_dirs]}. Applying layout logic.",
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}",
                         console_print_func=console_log
                     )
+                is_horizontal = any(d.name.startswith('left_') or d.name.startswith('right_') for d in layout_dirs)
+                is_vertical = any(d.name.startswith('top_') or d.name.startswith('bottom_') for d in layout_dirs)
+
+                if is_horizontal and is_vertical:
+                    console_log(f"❌ Layout Error: Cannot mix horizontal and vertical layouts in '{path}'.")
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"❌🔴 Layout Error: Mixed horizontal and vertical layouts detected in '{path}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                     return
 
                 sort_order = ['left', 'top', 'right', 'bottom']
@@ -265,23 +278,25 @@ class Application(tk.Tk):
                             percentage = int(sub_dir.name.split('_')[1])
                             new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             paned_window.add(new_frame, weight=percentage)
-                            debug_log(
-                                message=f"🔍🔵 Created horizontal pane for '{sub_dir.name}' with weight {percentage}.",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
-                            )
+                            if Local_Debug_Enable:
+                                debug_log(
+                                    message=f"🔍🔵 Created horizontal pane for '{sub_dir.name}' with weight {percentage}.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                         except (IndexError, ValueError) as e:
                             console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
-                            debug_log(
-                                message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
-                            )
+                            if Local_Debug_Enable:
+                                debug_log(
+                                    message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
                 
                 elif is_vertical:
                     paned_window = ttk.PanedWindow(parent_widget, orient=tk.VERTICAL)
@@ -298,23 +313,25 @@ class Application(tk.Tk):
                             percentage = int(sub_dir.name.split('_')[1])
                             new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             paned_window.add(new_frame, weight=percentage)
-                            debug_log(
-                                message=f"🔍🔵 Created vertical pane for '{sub_dir.name}' with weight {percentage}.",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
-                            )
+                            if Local_Debug_Enable:
+                                debug_log(
+                                    message=f"🔍🔵 Created vertical pane for '{sub_dir.name}' with weight {percentage}.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
                             self._build_from_directory(path=sub_dir, parent_widget=new_frame)
                         except (IndexError, ValueError) as e:
                             console_log(f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}")
-                            debug_log(
-                                message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
-                            )
+                            if Local_Debug_Enable:
+                                debug_log(
+                                    message=f"⚠️ Warning: Layout parsing failed for '{sub_dir.name}'. Error: {e}",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
                 return
 
             # Check for directories that start with a digit, which are now our tab indicators.
@@ -323,22 +340,24 @@ class Application(tk.Tk):
             is_tab_container = bool(potential_tab_dirs)
  
             if is_tab_container:
-                debug_log(
-                    message=f"🔍🔵 Found tab container directories in '{path}'. Creating ttk.Notebook.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🔍🔵 Found tab container directories in '{path}'. Creating ttk.Notebook.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 notebook = ttk.Notebook(parent_widget)
                 notebook.pack(fill=tk.BOTH, expand=True)
-                debug_log(
-                    message="🔍🔵 ttk.Notebook packed (fill=BOTH, expand=True).",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message="🔍🔵 ttk.Notebook packed (fill=BOTH, expand=True).",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 
                 notebook.bind('<Control-Button-1>', self._tear_off_tab)
                 notebook.bind('<<NotebookTabChanged>>', self._on_tab_change)
@@ -354,13 +373,14 @@ class Application(tk.Tk):
                     tab_frame.grid_rowconfigure(0, weight=1)
                     tab_frame.grid_columnconfigure(0, weight=1)
                     tab_frame.grid(row=0, column=0, sticky="nsew") # Place the frame in the notebook area
-                    debug_log(
-                        message=f"🔍🔵 Created tab frame for '{tab_dir.name}'. Grid configured and placed.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Created tab frame for '{tab_dir.name}'. Grid configured and placed.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                     
                     self._frames_by_path[tab_dir] = tab_frame
                     
@@ -368,25 +388,27 @@ class Application(tk.Tk):
                     start_index = next((i for i, part in enumerate(parts) if part.isdigit()), -1)
                     display_name = " ".join(parts[start_index + 1:]).title() if start_index != -1 else tab_dir.name
                     notebook.add(tab_frame, text=display_name)
-                    debug_log(
-                        message=f"🔍🔵 Added tab '{display_name}' to notebook.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Added tab '{display_name}' to notebook.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                     
                     # The recursive call will place the contents (like ScanViewGUIFrame) inside the tab_frame
                     self._build_from_directory(path=tab_dir, parent_widget=tab_frame)
 
             if "2_monitors" in str(path):
-                debug_log(
-                    message=f"🔍🔵 Special handling for 'tab_2_monitors' in path: '{path}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🔍🔵 Special handling for 'tab_2_monitors' in path: '{path}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
                 parent_widget.grid_rowconfigure(0, weight=1)
                 parent_widget.grid_rowconfigure(1, weight=1)
@@ -395,13 +417,14 @@ class Application(tk.Tk):
                 
                 for i, py_file in enumerate(py_files):
                     module_name = py_file.stem
-                    debug_log(
-                        message=f"🔍🔵 Dynamically importing module '{module_name}' for monitor frame.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Dynamically importing module '{module_name}' for monitor frame.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                     spec = importlib.util.spec_from_file_location(module_name, py_file)
                     module = importlib.util.module_from_spec(spec)
                     sys.modules[module_name] = module
@@ -413,69 +436,77 @@ class Application(tk.Tk):
                                 config = {"theme_colors": self.theme_colors}
                                 frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
                                 frame_instance.grid(row=i, column=0, sticky="nsew")
-                                debug_log(
-                                    message=f"🔍🔵 Instantiated and gridded '{name}' from '{py_file.name}'.",
-                                    file=current_file,
-                                    version=current_version,
-                                    function=f"{self.__class__.__name__}.{current_function_name}",
-                                    console_print_func=console_log
-                                )
+                                if Local_Debug_Enable:
+                                    debug_log(
+                                        message=f"🔍🔵 Instantiated and gridded '{name}' from '{py_file.name}'.",
+                                        file=current_file,
+                                        version=current_version,
+                                        function=f"{self.__class__.__name__}.{current_function_name}",
+                                        console_print_func=console_log
+                                    )
                             except Exception as e:
                                 console_log(f"❌ Failed to instantiate '{name}' from '{py_file.name}': {e}")
-                                debug_log(
-                                    message=f"❌🔴 Error instantiating '{name}' from '{py_file.name}': {e}",
-                                    file=current_file,
-                                    version=current_version,
-                                    function=f"{self.__class__.__name__}.{current_function_name}",
-                                    console_print_func=console_log
-                                )
+                                if Local_Debug_Enable:
+                                    debug_log(
+                                        message=f"❌🔴 Error instantiating '{name}' from '{py_file.name}': {e}",
+                                        file=current_file,
+                                        version=current_version,
+                                        function=f"{self.__class__.__name__}.{current_function_name}",
+                                        console_print_func=console_log
+                                    )
+                        
                 return
             else:
-                debug_log(
-                    message=f"🔍🔵 Applying general build logic for path: '{path}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-                for sub_dir in sub_dirs:
-                    if sub_dir.name.startswith("child_"):
-                        debug_log(
-                            message=f"🔍🔵 Building child container for subdirectory: '{sub_dir.name}'.",
-                            file=current_file,
-                            version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
-                        )
-                        self._build_child_container(path=sub_dir, parent_widget=parent_widget)
-
-                py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
-                for py_file in py_files:
+                if Local_Debug_Enable:
                     debug_log(
-                        message=f"🔍🔵 Building child container for Python file: '{py_file.name}'.",
+                        message=f"🔍🔵 Applying general build logic for path: '{path}'.",
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}",
                         console_print_func=console_log
                     )
+                for sub_dir in sub_dirs:
+                    if sub_dir.name.startswith("child_"):
+                        if Local_Debug_Enable:
+                            debug_log(
+                                message=f"🔍🔵 Building child container for subdirectory: '{sub_dir.name}'.",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
+                        self._build_child_container(path=sub_dir, parent_widget=parent_widget)
+
+                py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
+                for py_file in py_files:
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Building child container for Python file: '{py_file.name}'.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
                     self._build_child_container(path=py_file, parent_widget=parent_widget)
-            debug_log(
-                message=f"🔍🔵 Exiting _build_from_directory for path: '{path}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍🔵 Exiting _build_from_directory for path: '{path}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for path {path}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
 
             
@@ -491,13 +522,14 @@ class Application(tk.Tk):
 
             module_name = gui_file.stem
             
-            debug_log(
-                message=f"🔍🔵 Preparing to dynamically import module: '{module_name}' from path: '{gui_file}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍🔵 Preparing to dynamically import module: '{module_name}' from path: '{gui_file}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
            
             spec = importlib.util.spec_from_file_location(module_name, gui_file)
             module = importlib.util.module_from_spec(spec)
@@ -507,73 +539,77 @@ class Application(tk.Tk):
             # --- START FIXED, ROBUST INSTANTIATION LOGIC ---
             for name, obj in inspect.getmembers(module):
                 if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)) and obj.__module__ == module.__name__:
-                    debug_log(
-                        message=f"🔍🔵 Found a valid GUI class: '{name}'. Attempting safe instantiation.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
-                    )
+                    if Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Found a valid GUI class: '{name}'. Attempting safe instantiation.",
+                            file=current_file,
+                            version=current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
 
                     frame_instance = None
                     try:
-                        # Special handling for DynamicGuiBuilder
+                        # Determine which arguments the constructor accepts
+                        sig = inspect.signature(obj.__init__)
+                        init_params = sig.parameters.keys()
+
+                        # Prepare arguments to pass, based on availability in self and config needs
+                        kwargs_to_pass = {}
+                        if 'mqtt_util' in init_params and hasattr(self, 'mqtt_util'):
+                            kwargs_to_pass['mqtt_util'] = self.mqtt_util
+                        
+                        config = {"theme_colors": self.theme_colors}
                         if name == "DynamicGuiBuilder" and hasattr(module, "MQTT_TOPIC_FILTER"):
-                            config = {
+                            config.update({
                                 "base_topic": module.MQTT_TOPIC_FILTER,
                                 "log_to_gui_console": console_log,
-                                "log_to_gui_treeview": None,
-                                "theme_colors": self.theme_colors
-                            }
-                            frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
-                        else:
-                            # General handling for other components
-                            config = {"theme_colors": self.theme_colors}
-                            try:
-                                # 1. Attempt with config
-                                frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
-                            except TypeError:
-                                try:
-                                    # 2. Fallback to standard
-                                    frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util)
-                                except TypeError:
-                                    # 3. Fallback to minimal
-                                    frame_instance = obj(parent_widget)
+                                "log_to_gui_treeview": None
+                            })
+                        if 'config' in init_params:
+                            kwargs_to_pass['config'] = config
+
+                        # Attempt instantiation with dynamically determined arguments
+                        # 'parent' is typically the first positional argument
+                        frame_instance = obj(parent_widget, **kwargs_to_pass)
 
                         # If instantiation was successful
                         if frame_instance:
                             frame_instance.pack(fill=tk.BOTH, expand=True)
-                            debug_log(
-                                message=f"🔍🔵 Successfully instantiated and packed '{name}'.",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
-                            )
+                            if Local_Debug_Enable:
+                                debug_log(
+                                    message=f"🔍🔵 Successfully instantiated and packed '{name}'.",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.__class__.__name__}.{current_function_name}",
+                                    console_print_func=console_log
+                                )
                             return
                         else:
                             raise RuntimeError(f"Instantiation failed for class '{name}'.")
 
                     except Exception as e:
                         console_log(f"❌ Failed to instantiate '{name}' from '{gui_file.name}': {e}")
-                        debug_log(
-                            message=f"❌🔴 Silent Crash Avoided: Instantiation of '{name}' failed. The error be: {e}",
-                            file=current_file,
-                            version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
-                        )
+                        if Local_Debug_Enable:
+                            debug_log(
+                                message=f"❌🔴 Silent Crash Avoided: Instantiation of '{name}' failed. The error be: {e}",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                         # Display an error message frame instead of leaving a blank spot
                         error_frame = ttk.Frame(parent_widget)
                         error_frame.pack(fill=tk.BOTH, expand=True)
                         ttk.Label(error_frame, text=f"ERROR LOADING: {gui_file.name}", foreground="red").pack(pady=10)
-                        debug_log(
-                            message=f"🔍🔵 Displayed error frame for '{gui_file.name}'.",
-                            file=current_file,
-                            version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
-                        )
+                        if Local_Debug_Enable:
+                            debug_log(
+                                message=f"🔍🔵 Displayed error frame for '{gui_file.name}'.",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.__class__.__name__}.{current_function_name}",
+                                console_print_func=console_log
+                            )
                         return
 
             # If we iterate all members and find no class
@@ -582,77 +618,84 @@ class Application(tk.Tk):
 
         except Exception as e:
             console_log(f"❌ Error importing or executing module at {path}: {e}")
-            debug_log(
-                message=f"❌🔴 Fatal error during dynamic load: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-        debug_log(
-            message=f"🔍🔵 Exiting _build_child_container for path: '{path}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-
-    def _tear_off_tab(self, event):
-        """Tears a tab off of its Notebook and places it into a new Toplevel window."""
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🔍🔵 Attempting to tear off tab from event: {event}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        
-        try:
-            notebook = event.widget
-            tab_id = notebook.identify(event.x, event.y)
-            if not tab_id:
+            if Local_Debug_Enable:
                 debug_log(
-                    message="⚠️ No tab identified at click location.",
+                    message=f"❌🔴 Fatal error during dynamic load: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Exiting _build_child_container for path: '{path}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+
+    def _tear_off_tab(self, event):
+        """Tears a tab off of its Notebook and places it into a new Toplevel window."""
+        current_function_name = inspect.currentframe().f_code.co_name
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Attempting to tear off tab from event: {event}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+        
+        try:
+            notebook = event.widget
+            tab_id = notebook.identify(event.x, event.y)
+            if not tab_id:
+                if Local_Debug_Enable:
+                    debug_log(
+                        message="⚠️ No tab identified at click location.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 return 
             frame_id = notebook.tab(tab_id, "id")
             tab_title = notebook.tab(tab_id, "text")
             
             if frame_id in self._detached_windows:
                 console_log(f"⚠️ Tab '{tab_title}' is already in a detached window.")
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"⚠️ Tab '{tab_title}' is already detached.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                return
+
+            new_window = tk.Toplevel(self)
+            new_window.title(tab_title)
+            if Local_Debug_Enable:
                 debug_log(
-                    message=f"⚠️ Tab '{tab_title}' is already detached.",
+                    message=f"🔍🔵 Created new Toplevel window for detached tab '{tab_title}'.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
-                return
-
-            new_window = tk.Toplevel(self)
-            new_window.title(tab_title)
-            debug_log(
-                message=f"🔍🔵 Created new Toplevel window for detached tab '{tab_title}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
             
             notebook.forget(tab_id)
             frame_id.pack(in_=new_window, fill=tk.BOTH, expand=True)
-            debug_log(
-                message=f"🔍🔵 Hid original tab and packed frame into new window.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍🔵 Hid original tab and packed frame into new window.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
             self._detached_windows[frame_id] = {
                 "window": new_window,
@@ -663,41 +706,45 @@ class Application(tk.Tk):
             new_window.protocol("WM_DELETE_WINDOW", lambda: self._re_attach_tab(frame_id))
 
             console_log(f"✅ Celebration of success! Tab '{tab_title}' has been detached and is now a new window.")
-            debug_log(
-                message=f"✅ Tab '{tab_title}' successfully detached.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-            debug_log(
-                message=f"🔍🔵 Exiting _tear_off_tab().",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"✅ Tab '{tab_title}' successfully detached.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🔍🔵 Exiting _tear_off_tab().",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _re_attach_tab(self, frame):
         """Re-attaches a detached frame back to its original Notebook."""
         current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🔍🔵 Attempting to re-attach tab for frame: {frame}.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🔍🔵 Attempting to re-attach tab for frame: {frame}.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
   
         try:
             if frame not in self._detached_windows:

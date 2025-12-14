@@ -1,11 +1,38 @@
 # managers/frequency_manager/frequency_yak_communicator.py
+#
+# This file (frequency_yak_communicator.py) handles communication with the YAK repository for frequency settings within the frequency manager.
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 44 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+
 
 import time
 import json
 import os
 import inspect
 
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 
@@ -13,9 +40,6 @@ from .frequency_state import FrequencyState
 current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = True
 
-def debug_log_switch(message, file, version, function, console_print_func):
-    if Local_Debug_Enable:
-        debug_log(message, file, version, function, console_print_func)
 
 def console_log_switch(message):
     if Local_Debug_Enable:
@@ -26,7 +50,7 @@ class FrequencyYakCommunicator:
     """Handles communication with the YAK repository for frequency settings."""
     
     HZ_TO_MHZ = 1_000_000
-    YAK_BASE = "OPEN-AIR/repository/yak/Frequency"
+    YAK_BASE = "OPEN-AIR/yak/Frequency"
     YAK_UPDATE_TOPIC = f"{YAK_BASE}/nab/NAB_Frequency_settings/scpi_details/generic_model/trigger"
     
     YAK_CENTER_INPUT = f"{YAK_BASE}/set/set_center_freq_MHz/scpi_inputs/hz_value/value"
@@ -80,35 +104,38 @@ class FrequencyYakCommunicator:
                 retain=False
             )
             
-            debug_log_switch(
-                message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
-                file=current_file,
-                version="N/A",
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🐐✅ YAK command dispatched. Sent {value_hz} Hz to {input_topic}.",
+                    file=current_file,
+                    version="N/A",
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             
             self.update_all_from_device()
 
         except Exception as e:
             console_log(f"❌ Error dispatching YAK command: {e}")
-            debug_log_switch(
-                message=f"🛠️🔴 YAK dispatch failed! The error be: {e}",
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 YAK dispatch failed! The error be: {e}",
+                    file=current_file,
+                    version="N/A",
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
+
+    def update_all_from_device(self):
+        current_function_name = inspect.currentframe().f_code.co_name
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
                 file=current_file,
                 version="N/A",
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-    def update_all_from_device(self):
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log_switch(
-            message=f"🐐🟢 Triggering NAB_Frequency_settings to synchronize all 4 frequency values.",
-            file=current_file,
-            version="N/A",
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
         
         self.mqtt_controller.publish_message(
             topic=self.YAK_UPDATE_TOPIC,
@@ -134,13 +161,14 @@ class FrequencyYakCommunicator:
             gui_suffix = self.YAK_NAB_OUTPUTS.get(yak_suffix)
             
             if not gui_suffix:
-                debug_log_switch(
-                    message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
-                    file=current_file,
-                    version="N/A",
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🟡 Unknown YAK output suffix: {yak_suffix}. Ignoring.",
+                        file=current_file,
+                        version="N/A",
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 return
 
             try:
@@ -151,31 +179,44 @@ class FrequencyYakCommunicator:
 
             cleaned_value = str(value_str).strip().strip('"').strip("'").strip('\\').strip()
             
-            value_hz = float(cleaned_value)
-            value_mhz = value_hz / self.HZ_TO_MHZ
+            try:
+                value_hz = float(cleaned_value)
+                value_mhz = value_hz / self.HZ_TO_MHZ
+                
+                full_gui_topic = f"{self.base_topic}/{gui_suffix}"
+                self.state._locked_state[full_gui_topic] = True
+                
+                self._publish_update(topic_suffix=gui_suffix, value=value_mhz)
+                
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
+                        file=current_file,
+                        version="N/A",
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+            except ValueError:
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"🛠️🟡 Could not convert YAK output '{cleaned_value}' to float for topic {topic}. Skipping update.",
+                        file=current_file,
+                        version="N/A",
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
             
-            full_gui_topic = f"{self.base_topic}/{gui_suffix}"
-            self.state._locked_state[full_gui_topic] = True
-            
-            self._publish_update(topic_suffix=gui_suffix, value=value_mhz)
-            
-            debug_log_switch(
-                message=f"🐐✅ YAK output processed. Synced {gui_suffix} with {value_mhz} MHz.",
-                file=current_file,
-                version="N/A",
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
             
         except Exception as e:
             console_log(f"❌ Error processing YAK output for {topic}: {e}")
-            debug_log_switch(
-                message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
-                file=current_file,
-                version="N/A",
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 NAB synchronization failed! The error be: {e}",
+                    file=current_file,
+                    version="N/A",
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
 
     def _publish_update(self, topic_suffix, value):
         full_topic = f"{self.base_topic}/{topic_suffix}"

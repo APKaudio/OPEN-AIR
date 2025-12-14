@@ -39,7 +39,7 @@ except ImportError:
     NUMPY_AVAILABLE = False
     
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables (as per Section 4.4) ---
 current_version = "20251005.230247.1"
