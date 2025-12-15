@@ -94,12 +94,8 @@ def maker_file_check_for_markers_file():
             )
         try:
             with open(target_path, 'r', newline='') as csvfile:
-                reader = csv.reader(csvfile)
-                # Use canonical headers if the file is empty or headers are bad
-                try:
-                    headers = next(reader)
-                except StopIteration:
-                    headers = CANONICAL_HEADERS
+                reader = csv.DictReader(csvfile)
+                headers = reader.fieldnames if reader.fieldnames else CANONICAL_HEADERS
                 data = list(reader)
             
             if Local_Debug_Enable:
@@ -168,6 +164,12 @@ def maker_file_load_markers_file():
             console_log("❌ Failed to process CSV file or no data found.")
             return [], []
 
+        # Convert list of lists to list of dictionaries
+        dict_data = []
+        if headers:
+            for row in data:
+                dict_data.append(dict(zip(headers, row)))
+
         if Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
@@ -178,7 +180,7 @@ def maker_file_load_markers_file():
             )
         if Local_Debug_Enable:
             debug_log(
-                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -194,7 +196,7 @@ def maker_file_load_markers_file():
                 console_print_func=console_log
             )
         # Ensure we return canonical headers so the GUI knows what columns to show.
-        return CANONICAL_HEADERS, data
+        return CANONICAL_HEADERS, dict_data
     except Exception as e:
         if Local_Debug_Enable:
             debug_log(
@@ -241,6 +243,11 @@ def maker_file_load_ias_html():
 
         headers, data = Marker_convert_IAShtml_report_to_csv(html_content)
 
+        dict_data = []
+        if headers:
+            for row in data:
+                dict_data.append(dict(zip(headers, row)))
+
         if Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
@@ -251,7 +258,7 @@ def maker_file_load_ias_html():
             )
         if Local_Debug_Enable:
             debug_log(
-                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -266,7 +273,7 @@ def maker_file_load_ias_html():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        return CANONICAL_HEADERS, data
+        return CANONICAL_HEADERS, dict_data
     except Exception as e:
         if Local_Debug_Enable:
             debug_log(
@@ -310,6 +317,11 @@ def maker_file_load_wwb_shw():
     try:
         headers, data = Marker_convert_WWB_SHW_File_report_to_csv(file_path)
 
+        dict_data = []
+        if headers:
+            for row in data:
+                dict_data.append(dict(zip(headers, row)))
+
         if Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
@@ -320,7 +332,7 @@ def maker_file_load_wwb_shw():
             )
         if Local_Debug_Enable:
             debug_log(
-                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -335,7 +347,7 @@ def maker_file_load_wwb_shw():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        return CANONICAL_HEADERS, data
+        return CANONICAL_HEADERS, dict_data
     except Exception as e:
         if Local_Debug_Enable:
             debug_log(
@@ -379,6 +391,11 @@ def maker_file_load_sb_pdf():
     try:
         headers, data = Marker_convert_SB_PDF_File_report_to_csv(file_path)
 
+        dict_data = []
+        if headers:
+            for row in data:
+                dict_data.append(dict(zip(headers, row)))
+
         if Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
@@ -389,7 +406,7 @@ def maker_file_load_sb_pdf():
             )
         if Local_Debug_Enable:
             debug_log(
-                message=f"🔍🔵 Received first {min(len(data), 5)} data points: {data[:5]}",
+                message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -404,7 +421,7 @@ def maker_file_load_sb_pdf():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        return CANONICAL_HEADERS, data
+        return CANONICAL_HEADERS, dict_data
     except Exception as e:
         if Local_Debug_Enable:
             debug_log(

@@ -32,9 +32,7 @@ from workers.markers.worker_marker_logic import calculate_frequency_range
 
 Local_Debug_Enable = True
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 def on_tune_request_from_selection(showtime_tab_instance):
     """
@@ -80,7 +78,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            console_log_switch("❌ Failed to tune: No valid frequencies found in selected group.")
+            console_log("❌ Failed to tune: No valid frequencies found in selected group.")
             
     elif showtime_tab_instance.selected_zone:
         # Case 3: A zone is selected, but no group or device
@@ -102,7 +100,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            console_log_switch("❌ Failed to tune: No valid frequencies found in selected zone.")
+            console_log("❌ Failed to tune: No valid frequencies found in selected zone.")
     else:
         # Case 4: No filters selected, tune to all markers
         if Local_Debug_Enable:
@@ -120,4 +118,4 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            console_log_switch("❌ Failed to tune: No valid frequencies found in marker data.")
+            console_log("❌ Failed to tune: No valid frequencies found in marker data.")

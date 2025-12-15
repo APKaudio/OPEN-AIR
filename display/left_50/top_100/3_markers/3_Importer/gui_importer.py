@@ -34,18 +34,13 @@ except ImportError:
 # --- Module Imports ---
 from display.logger import debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import (
-    maker_file_check_for_markers_file,
-    maker_file_save_open_air_file,
-    maker_file_save_intermediate_file
-)
-from workers.importers.worker_marker_file_import_converter import (
-    Marker_convert_wwb_zip_report_to_csv,
-    Marker_convert_SB_v2_PDF_File_report_to_csv
+    maker_file_check_for_markers_file
 )
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.Importer.worker_importer_loader import *
 from workers.Importer.worker_importer_appender import *
 from workers.Importer.worker_importer_editor import *
+from workers.Importer.worker_importer_saver import *
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -89,7 +84,7 @@ class MarkerImporterTab(ttk.Frame):
         self._create_widgets()
 
         if not PANDAS_AVAILABLE:
-            console_log("❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.")
+            console_log("❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.", local_debug_enabled=Local_Debug_Enable)
             # Optionally, disable the whole tab or show an error message
             error_label = ttk.Label(self, text="Error: NumPy and Pandas libraries are required for this tab.", foreground="red")
             error_label.pack(pady=20)
@@ -144,7 +139,7 @@ class MarkerImporterTab(ttk.Frame):
                         padding=10, relief=colors["relief"],
                         borderwidth=colors["border_width"])
         style.map('TButton',
-                  background=[('pressed', colors["accent"]),
+                  background=[('pressed', colors["accent"]), 
                               ('active', colors["hover_blue"])])
         
         style.configure('Green.TButton', background='#6a9955', foreground='#ffffff')
@@ -245,17 +240,31 @@ class MarkerImporterTab(ttk.Frame):
         self.append_sb_v2_pdf_button = ttk.Button(append_markers_frame, text="Append SB V2.pdf", style='Action.TButton', command=lambda: append_sb_v2_pdf_action(self))
         self.append_sb_v2_pdf_button.pack(side=tk.LEFT, padx=2, pady=2, fill=tk.X, expand=True)
 
-        self.save_open_air_button = ttk.Button(self, text="Save Markers as Open Air.csv", style='Orange.TButton', command=self._save_open_air_file_action)
+        self.save_open_air_button = ttk.Button(self, text="Save Markers as Open Air.csv", style='Orange.TButton', command=lambda: save_open_air_file_action(self))
         self.save_open_air_button.pack(fill=tk.X, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
     def _update_treeview(self):
-        populate_marker_tree(self)
+        self.marker_tree.delete(*self.marker_tree.get_children())
+        standardized_headers = self.tree_headers if self.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
+        self.marker_tree["columns"] = standardized_headers
+        debug_log(
+            message=f"🔁🔵 Now adding {len(self.tree_data)} rows to the Treeview. Headers: {standardized_headers}",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}",
+            console_print_func=console_log
+        )
+        for col in standardized_headers:
+            self.marker_tree.heading(col, text=col, command=lambda c=col: on_tree_header_click(self, None))
+            self.marker_tree.column(col, width=100)
 
-    def _save_open_air_file_action(self):
-        maker_file_save_open_air_file(self.tree_headers, self.tree_data)
-        if self.mqtt_util:
-            self._publish_markers_to_mqtt()
-
-    def _publish_markers_to_mqtt(self):
-        from workers.importers.worker_marker_csv_to_json_mqtt import csv_to_json_and_publish
-        csv_to_json_and_publish(mqtt_util=self.mqtt_util)
+        for row in self.tree_data:
+            if isinstance(row, list):
+                # Convert list to dictionary using headers
+                row_dict = dict(zip(standardized_headers, row))
+                values = [row_dict.get(raw_header, '') for raw_header in standardized_headers]
+            elif isinstance(row, dict):
+                values = [row.get(raw_header, '') for raw_header in standardized_headers]
+            else:
+                values = ["Error: Invalid row format"] * len(standardized_headers)
+            self.marker_tree.insert("", "end", values=values)

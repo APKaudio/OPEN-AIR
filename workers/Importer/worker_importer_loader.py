@@ -38,12 +38,9 @@ from workers.importers.worker_marker_file_import_converter import (
     Marker_convert_wwb_zip_report_to_csv,
     Marker_convert_SB_v2_PDF_File_report_to_csv
 )
+from workers.Importer.worker_importer_saver import save_markers_file_internally
 
 Local_Debug_Enable = True
-
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
 
 def load_markers_file_action(importer_tab_instance):
     headers, data = maker_file_load_markers_file()
@@ -51,7 +48,7 @@ def load_markers_file_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)
 
 def load_ias_html_action(importer_tab_instance):
     headers, data = maker_file_load_ias_html()
@@ -59,7 +56,7 @@ def load_ias_html_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)
 
 def load_wwb_shw_action(importer_tab_instance):
     headers, data = maker_file_load_wwb_shw()
@@ -67,7 +64,7 @@ def load_wwb_shw_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)
 
 def load_wwb_zip_action(importer_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
@@ -89,7 +86,7 @@ def load_wwb_zip_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)
 
 def load_sb_pdf_action(importer_tab_instance):
     headers, data = maker_file_load_sb_pdf()
@@ -97,7 +94,7 @@ def load_sb_pdf_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)
 
 def load_sb_v2_pdf_action(importer_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
@@ -119,4 +116,4 @@ def load_sb_v2_pdf_action(importer_tab_instance):
         importer_tab_instance.tree_headers = headers
         importer_tab_instance.tree_data = data
         importer_tab_instance._update_treeview()
-        importer_tab_instance._save_markers_file_internally()
+        save_markers_file_internally(importer_tab_instance)

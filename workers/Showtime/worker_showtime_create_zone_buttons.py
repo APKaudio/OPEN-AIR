@@ -1,4 +1,4 @@
-# workers/Showtime/worker_showtime_read.py
+# workers/Showtime/worker_showtime_create_zone_buttons.py
 #
 # A complete and comprehensive pre-amble that describes the file and the functions within.
 # The purpose is to provide clear documentation and versioning.
@@ -26,40 +26,44 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 import inspect
+import tkinter as tk
+from tkinter import ttk
 from display.logger import debug_log, console_log
-from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
+from workers.Showtime.worker_showtime_on_zone_toggle import on_zone_toggle
 
 Local_Debug_Enable = True
 
-
-
-def load_marker_data(showtime_tab_instance):
+def create_zone_buttons(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
     if Local_Debug_Enable:
         debug_log(
-            message="🛠️🟢 Loading raw marker data from file.",
+            message="🛠️🟢 Creating Zone buttons.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
-            function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+            function=f"{current_function}",
             console_print_func=console_log
         )
     
-    raw_headers, raw_data = maker_file_check_for_markers_file()
-    
-    if not raw_data:
-        showtime_tab_instance.marker_data = []
-        showtime_tab_instance.column_headers = []
-        console_log("🟡 No marker data found in MARKERS.csv. No buttons will be created.")
-        return
+    # Clear existing zone buttons
+    for widget in showtime_tab_instance.zones_frame.winfo_children():
+        widget.destroy()
 
-    showtime_tab_instance.marker_data = [dict(zip(raw_headers, row)) for row in raw_data if len(row) == len(raw_headers)]
-    showtime_tab_instance.column_headers = raw_headers
+    zone_buttons_frame = ttk.Frame(showtime_tab_instance.zones_frame)
+    zone_buttons_frame.pack(fill=tk.X, padx=5, pady=2)
 
-    if Local_Debug_Enable:
-        debug_log(
-            message=f"✅ Loaded {len(showtime_tab_instance.marker_data)} rows. Converted to dictionaries for sorting and display.",
-            file=showtime_tab_instance.current_file,
-            version=showtime_tab_instance.current_version,
-            function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
-            console_print_func=console_log
+    for zone_name in sorted(showtime_tab_instance.grouped_markers.keys()):
+        zone_button = ttk.Button(
+            zone_buttons_frame,
+            text=zone_name,
+            command=lambda zn=zone_name: on_zone_toggle(showtime_tab_instance, zn),
+            style='Custom.TButton'
         )
+        zone_button.pack(side=tk.LEFT, padx=2, pady=2)
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"✅ Created button for Zone: {zone_name}.",
+                file=showtime_tab_instance.current_file,
+                version=showtime_tab_instance.current_version,
+                function=f"{current_function}",
+                console_print_func=console_log
+            )

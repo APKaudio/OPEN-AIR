@@ -1,6 +1,6 @@
 
 import inspect
-from display.logger import debug_log, console_log_switch
+from display.logger import debug_log, console_log
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_marker_button_click(showtime_tab_instance, button):
@@ -18,13 +18,13 @@ def on_marker_button_click(showtime_tab_instance, button):
     if showtime_tab_instance.selected_device_button == button:
         showtime_tab_instance.selected_device_button.config(style='Custom.TButton')
         showtime_tab_instance.selected_device_button = None
-        console_log_switch(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
+        console_log(f"🟡 Deselected device: {marker_data.get('NAME', 'N/A')}.")
     else:
         if showtime_tab_instance.selected_device_button:
             showtime_tab_instance.selected_device_button.config(style='Custom.TButton')
         
         showtime_tab_instance.selected_device_button = button
         showtime_tab_instance.selected_device_button.config(style='Custom.Selected.TButton')
-        console_log_switch(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
+        console_log(f"✅ Selected device: {marker_data.get('NAME', 'N/A')} at {marker_data.get('FREQ_MHZ', 'N/A')} MHz.")
     
     on_tune_request_from_selection(showtime_tab_instance)

@@ -39,9 +39,7 @@ from display.logger import debug_log, console_log, log_visa_command
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 # --- Global Scope Variables ---
@@ -138,7 +136,7 @@ class SliderValueCreatorMixin:
                             )
                         self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
-                    console_log_switch("Invalid input, please enter a number.")
+                    console_log("Invalid input, please enter a number.")
 
             slider.config(command=on_slider_move)
             slider.bind("<ButtonRelease-1>", on_slider_release)
@@ -148,7 +146,7 @@ class SliderValueCreatorMixin:
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
 
-            console_log_switch("✅ Celebration of success! The slider value box did appear.")
+            console_log("✅ Celebration of success! The slider value box did appear.")
             if Local_Debug_Enable:
                 debug_log(
                     message=f"🛠️🟢 Exiting '{current_function_name}'. Slider '{label}' created.",

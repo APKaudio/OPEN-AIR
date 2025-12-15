@@ -37,9 +37,7 @@ from display.styling.style import THEMES, DEFAULT_THEME
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 # --- Global Scope Variables ---
@@ -141,7 +139,7 @@ class InstrumentTranslatorGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log_switch("✅ Instrument Translator GUI initialized successfully!")
+            console_log("✅ Instrument Translator GUI initialized successfully!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -229,12 +227,12 @@ class InstrumentTranslatorGUI(ttk.Frame):
                         # Update the existing row
                         new_values = [row.get(col, '') for col in self.commands_table["columns"]]
                         self.commands_table.item(item_id_to_update, values=new_values)
-                        console_log_switch(f"✅ Updated existing row for '{parameter_path}'.")
+                        console_log(f"✅ Updated existing row for '{parameter_path}'.")
                     else:
                         # Insert a new row if it doesn't exist
                         new_values = [row.get(col, '') for col in self.commands_table["columns"]]
                         self.commands_table.insert('', tk.END, values=new_values)
-                        console_log_switch(f"✅ Added new row for '{parameter_path}'.")
+                        console_log(f"✅ Added new row for '{parameter_path}'.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -278,9 +276,9 @@ class InstrumentTranslatorGUI(ttk.Frame):
                     data.append(row_dict)
                     
                 self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
-                console_log_switch(f"✅ Data successfully exported to {file_path}!")
+                console_log(f"✅ Data successfully exported to {file_path}!")
             else:
-                console_log_switch("🟡 CSV export canceled by user.")
+                console_log("🟡 CSV export canceled by user.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

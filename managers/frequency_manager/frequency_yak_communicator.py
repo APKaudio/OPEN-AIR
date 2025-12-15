@@ -41,9 +41,7 @@ current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 class FrequencyYakCommunicator:
@@ -151,7 +149,7 @@ class FrequencyYakCommunicator:
             retain=False
         )
         
-        console_log_switch("✅ UPDATE ALL command sent to refresh frequency values from device.")
+        console_log("✅ UPDATE ALL command sent to refresh frequency values from device.")
 
     def process_yak_output(self, topic, payload):
         current_function_name = inspect.currentframe().f_code.co_name

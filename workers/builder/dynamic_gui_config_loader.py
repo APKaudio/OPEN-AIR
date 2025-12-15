@@ -60,9 +60,9 @@ def get_json_filepath_from_base_topic(
     filename_prefix = ""
 
     if base_topic.lower().startswith("open-air/yak/"):
-        core_topic_name = base_topic[len("open-air/yak/"):].lower().replace('/', '_')
+        core_topic_name = base_topic[len("open-air/"):].lower().replace('/', '_')
         target_subdir = "YAK"
-        filename_prefix = "dataset_YAK_"
+        filename_prefix = "dataset_"
     elif base_topic.lower().startswith("open-air/configuration/"):
         core_topic_name = base_topic[len("open-air/configuration/"):].lower().replace('/', '_')
         target_subdir = "configuration"

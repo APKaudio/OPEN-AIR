@@ -31,9 +31,7 @@ from display.logger import debug_log, console_log
 
 Local_Debug_Enable = True
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 def process_and_sort_markers(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name

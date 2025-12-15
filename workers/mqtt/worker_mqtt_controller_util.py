@@ -54,9 +54,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", 
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 # --- Constant Variables (No Magic Numbers) ---
 # MQTT Broker settings
@@ -103,7 +101,7 @@ class MqttControllerUtility:
             self._paused = False
             self._pause_lock = threading.Lock()
 
-            console_log_switch("✅ Celebration of success!")
+            console_log("✅ Celebration of success!")
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
@@ -172,7 +170,7 @@ class MqttControllerUtility:
 
         # We subscribe to a wildcard topic once to catch everything.
         client.subscribe("#")
-        console_log_switch(f"✅ Connected to broker with rc={rc}") # Informational
+        console_log(f"✅ Connected to broker with rc={rc}") # Informational
 
     def on_message(self, client, userdata, msg):
         """Callback for when an MQTT message is received."""
@@ -233,7 +231,7 @@ class MqttControllerUtility:
 
             transmitter_thread = threading.Thread(target=self._transmitter_thread, daemon=True)
             transmitter_thread.start()
-            console_log_switch("✅ MQTT client connection initiated in a background thread.") # Informational
+            console_log("✅ MQTT client connection initiated in a background thread.") # Informational
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if Local_Debug_Enable:
@@ -257,7 +255,7 @@ class MqttControllerUtility:
                     payload = json.dumps({"value": value})
                     self.mqtt_client.publish(full_topic, payload, retain=retain)
                     if Local_Debug_Enable:
-                        console_log_switch(f"Published to {full_topic}: {payload} with retain={retain}")
+                        console_log(f"Published to {full_topic}: {payload} with retain={retain}")
                 else:
                     self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
             except Exception as e:
@@ -277,9 +275,9 @@ class MqttControllerUtility:
             )
         try:
             if self.topics_seen:
-                                console_log_switch(f"Observed Topics:\n{'\n'.join(sorted(self.topics_seen))}") # Informational
+                                console_log(f"Observed Topics:\n{'\n'.join(sorted(self.topics_seen))}") # Informational
             else:
-                console_log_switch("⚠️ No topics observed yet.") # Warning
+                console_log("⚠️ No topics observed yet.") # Warning
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors

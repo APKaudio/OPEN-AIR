@@ -1,4 +1,4 @@
-# workers/worker_marker_peak_publisher.py
+# workers/markers/worker_marker_peak_re_publisher.py
 #
 # This worker listens to the immediate output of the NAB marker command (Marker_1/value, etc.)
 # and republishes the received peak value to the final markers repository location.
@@ -15,10 +15,7 @@
 # Feature Requests can be emailed to i @ like . audio
 #
 #
-# Version 20250928.221500.5
-# FIXED: Removed time.sleep from __init__ to prevent blocking the main thread.
-# MODIFIED: Added verbose debug logs to confirm when the handler fires.
-# MODIFIED: Added aggressive error handling to publish an ERROR string if conversion fails.
+# Version 20251213.120000.44
 
 import os
 import inspect
@@ -28,13 +25,18 @@ import re
 import time 
 
 # --- Module Imports ---
-from workers.active.worker_active_logging import debug_log, console_log
+from display.logger import debug_log, console_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
-current_version = "20250928.221500.5"
-current_version_hash = (20250928 * 221500 * 5)
+Current_Date = 20251213
+Current_Time = 120000
+Current_iteration = 44
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
 current_file = f"{os.path.basename(__file__)}"
+
 
 # --- MQTT Topic Constants ---
 TOPIC_MARKERS_ROOT = "OPEN-AIR/measurements"

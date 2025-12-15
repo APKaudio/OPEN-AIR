@@ -77,8 +77,8 @@ class SpanSettingsManager:
         """
         try:
             # FIX: Replaced fragile os.path.join with a robust pathlib implementation.
-            current_dir = pathlib.Path(__file__).parent
-            config_file_path = current_dir.parent / "datasets" / "dataset_configuration_instrument_frequency.json"
+            project_root = pathlib.Path(__file__).resolve().parents[2]
+            config_file_path = project_root / "datasets" / "configuration" / "dataset_configuration_instrument_frequency.json"
 
             if not config_file_path.is_file():
                 if Local_Debug_Enable:

@@ -45,9 +45,7 @@ from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 current_file = f"{os.path.basename(__file__)}"
@@ -109,7 +107,7 @@ class YaketyYakManager:
                     console_print_func=console_log
                 )
             
-            console_log_switch("✅ The YaketyYak Manager has initialized and is listening for commands.")
+            console_log("✅ The YaketyYak Manager has initialized and is listening for commands.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -167,7 +165,7 @@ class YaketyYakManager:
             with open(YAKETY_YAK_REPO_PATH, 'w') as f:
                 json.dump(self.repo_memory, f, indent=4)
             
-            console_log_switch("✅ Repository saved successfully!")
+            console_log("✅ Repository saved successfully!")
             return True
         except Exception as e:
             console_log(f"❌ Error saving repository to file: {e}")
@@ -248,7 +246,7 @@ class YaketyYakManager:
             # NOW THE AUTOMATIC SAVE OCCURS HERE
             self._save_repo_to_file()
             
-            console_log_switch(f"✅ Repository updated in memory and saved to file from message on topic: {topic}")
+            console_log(f"✅ Repository updated in memory and saved to file from message on topic: {topic}")
         
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

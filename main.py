@@ -77,10 +77,10 @@ try:
     from managers.bandwidth_manager.bandwidth_presets import BandwidthPresets
     from managers.bandwidth_manager.bandwidth_callbacks import BandwidthCallbacks
     # from managers.manager_instrument_settings_bandwidth import BandwidthSettingsManager
-    from managers.manager_presets_span import SpanSettingsManager
+    from managers.yak_manager.manager_presets_span import SpanSettingsManager
     from managers.connection.manager_visa_device_search import VisaDeviceManager
     from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
-    from managers.manager_yakety_yak import YaketyYakManager
+    from managers.yak_manager.manager_yakety_yak import YaketyYakManager
     from managers.connection.manager_visa_reset import VisaResetManager
     from managers.manager_instrument_settings_markers import MarkersSettingsManager
 

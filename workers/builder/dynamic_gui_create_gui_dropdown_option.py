@@ -40,9 +40,7 @@ from display.logger import debug_log, console_log, log_visa_command
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 # --- Global Scope Variables ---
@@ -140,7 +138,7 @@ class GuiDropdownOptionCreatorMixin:
                         )
 
                 except ValueError:
-                    console_log_switch("❌ Invalid selection in dropdown.")
+                    console_log("❌ Invalid selection in dropdown.")
 
             # Set the listbox foreground color to black.
             parent_frame.option_add('*TCombobox*Listbox.foreground', 'black')
@@ -162,7 +160,7 @@ class GuiDropdownOptionCreatorMixin:
                 # FIX: Storing the rebuild_options method in the tuple
                 self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
-            console_log_switch("✅ Celebration of success! The dropdown menu did appear.")
+            console_log("✅ Celebration of success! The dropdown menu did appear.")
             if Local_Debug_Enable:
                 debug_log(
                     message=f"🛠️🟢 Exiting '{current_function_name}'. Dropdown '{label}' created.",

@@ -153,13 +153,13 @@ def _truncate_message(message: str) -> str:
 # PUBLIC LOGGING API (Called by other modules)
 # =========================================================================
 
-def console_log(message: str):
+def console_log(message: str, local_debug_enabled: bool = None):
     # Logs a user-facing message to the console and conditionally to the debug file.
-
-    frame = inspect.currentframe().f_back
-    # Check if Local_Debug_Enable is defined and True in the calling frame
-    # If not, assume it's true for console_log for now or provide a default
-    local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', True) 
+    if local_debug_enabled is None:
+        frame = inspect.currentframe().f_back
+        if frame:
+            frame = frame.f_back # Go up one more frame to get the caller of console_log
+        local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', False) if frame else False
 
     if local_debug_enabled:
         # 1. Log to console output
@@ -168,12 +168,10 @@ def console_log(message: str):
             
         # 2. Log to main debug file
         if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
-            # We don't prepend file/version/function for console logs
             _log_to_file(f"🖥️ {message}", get_log_filename())
 
     # 3. Log to errors file if it contains the marker (always, regardless of debug flag)
     _log_to_error_file(message)
-
 
 def debug_log(message: str, file: str, version: str, function: str, console_print_func):
     # Logs a detailed debug message to the specified outputs.
@@ -184,10 +182,9 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     frame = inspect.currentframe().f_back
     
     # Check if Local_Debug_Enable is defined and True in the calling frame
-    local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', True)
+    local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', False)
 
-    if local_debug_enabled:
-        # Truncate the message before prepending metadata
+    if local_debug_enabled:        # Truncate the message before prepending metadata
         truncated_message = _truncate_message(message)
         
         # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]

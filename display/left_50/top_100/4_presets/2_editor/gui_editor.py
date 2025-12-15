@@ -49,9 +49,7 @@ import workers.utils.worker_project_paths
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20251129
@@ -182,7 +180,7 @@ class PresetEditorGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log_switch("✅ Preset Editor GUI initialized successfully!")
+            console_log("✅ Preset Editor GUI initialized successfully!")
             
             # --- Load initial data from CSV and render ---
             self._load_data_from_csv()
@@ -227,7 +225,7 @@ class PresetEditorGUI(ttk.Frame):
         csv_file_path = self._resolve_preset_repo_path()
         
         if not csv_file_path.exists():
-            console_log_switch("🟡 presets.csv not found. Starting with an empty table.")
+            console_log("🟡 presets.csv not found. Starting with an empty table.")
             return
 
         try:
@@ -249,7 +247,7 @@ class PresetEditorGUI(ttk.Frame):
                             else:
                                 self.normalized_data[preset_key][attribute] = value
                         
-            console_log_switch(f"✅ Data successfully loaded from {csv_file_path} and normalized in memory.")
+            console_log(f"✅ Data successfully loaded from {csv_file_path} and normalized in memory.")
         except Exception as e:
             console_log(f"❌ Error loading data from presets.csv: {e}")
             if Local_Debug_Enable:
@@ -322,7 +320,7 @@ class PresetEditorGUI(ttk.Frame):
                 for attribute in ATTRIBUTES:
                     self.normalized_data[preset_key][attribute] = preset_data.get(attribute, 'N/A')
                     
-                console_log_switch(f"✅ Updated preset '{preset_key}' from monolithic MQTT topic.")
+                console_log(f"✅ Updated preset '{preset_key}' from monolithic MQTT topic.")
                 
                 # Trigger immediate save after successful update
                 self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
@@ -336,7 +334,7 @@ class PresetEditorGUI(ttk.Frame):
                 # 1. Update normalized_data model
                 if preset_key in self.normalized_data and attribute in self.normalized_data[preset_key]:
                     self.normalized_data[preset_key][attribute] = payload_value
-                    console_log_switch(f"✅ Updated attribute '{attribute}' for preset '{preset_key}'.")
+                    console_log(f"✅ Updated attribute '{attribute}' for preset '{preset_key}'.")
                     
                 # Trigger immediate save after single field update
                 self._save_data_to_csv_from_normalized_model(file_path=self._resolve_preset_repo_path())
@@ -411,7 +409,7 @@ class PresetEditorGUI(ttk.Frame):
                     topic = f"{MQTT_TOPIC_FILTER}/{preset_key}"
                     self.mqtt_util.publish_message(topic=topic, subtopic="", value=monolithic_blob, retain=True)
 
-                    console_log_switch(f"✅ Full blob for '{preset_key}' republished after '{attribute}' edit.")
+                    console_log(f"✅ Full blob for '{preset_key}' republished after '{attribute}' edit.")
                 except Exception as e:
                     console_log(f"❌ Error sending cell update to MQTT. Error: {e}")
 
@@ -450,9 +448,9 @@ class PresetEditorGUI(ttk.Frame):
             if file_path:
                 # Use the core saving logic, passing the path for user export
                 self._save_data_to_csv_from_normalized_model(file_path=file_path)
-                console_log_switch(f"✅ Data successfully exported to {file_path}!")
+                console_log(f"✅ Data successfully exported to {file_path}!")
             else:
-                console_log_switch("🟡 CSV export canceled by user.")
+                console_log("🟡 CSV export canceled by user.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -493,9 +491,9 @@ class PresetEditorGUI(ttk.Frame):
                 writer.writerows(final_csv_rows)
 
             if file_path == self._resolve_preset_repo_path():
-                 console_log_switch(f"✅ Internal preset repository synchronized (Normalized format).")
+                 console_log(f"✅ Internal preset repository synchronized (Normalized format).")
             else:
-                console_log_switch(f"✅ Table data exported to '{file_path}'.")
+                console_log(f"✅ Table data exported to '{file_path}'.")
 
         except Exception as e:
             console_log(f"❌ Error saving normalized CSV: {e}")

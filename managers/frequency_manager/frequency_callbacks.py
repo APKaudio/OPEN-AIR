@@ -41,9 +41,7 @@ current_file = f"{os.path.basename(__file__)}"
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 class FrequencyCallbacks:
@@ -150,7 +148,7 @@ class FrequencyCallbacks:
                     self._update_center_and_span_from_start_stop()
                     self.yak_communicator.publish_to_yak_and_trigger(new_val, self.yak_communicator.YAK_STOP_INPUT, self.yak_communicator.YAK_STOP_TRIGGER)
             
-            console_log_switch("✅ Celebration of success! The frequency settings did synchronize!")
+            console_log("✅ Celebration of success! The frequency settings did synchronize!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")

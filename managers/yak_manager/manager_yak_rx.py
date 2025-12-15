@@ -35,9 +35,7 @@ import json
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 current_file = f"{os.path.basename(__file__)}"
@@ -180,7 +178,7 @@ class YakRxManager:
                         file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                     )
             
-            console_log_switch("✅ Response processed and all output values published to MQTT.")
+            console_log("✅ Response processed and all output values published to MQTT.")
 
         except Exception as e:
             console_log(f"❌ Error processing response: {e}")

@@ -31,12 +31,9 @@ import re
 import tkinter as tk
 from tkinter import ttk
 from display.logger import debug_log, console_log
+from workers.Importer.worker_importer_saver import save_markers_file_internally
 
 Local_Debug_Enable = True
-
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
 
 def on_tree_double_click(importer_tab_instance, event):
     current_function = inspect.currentframe().f_code.co_name
@@ -79,7 +76,7 @@ def start_editing_cell(importer_tab_instance, item, col_index, initial_value="")
             importer_tab_instance.tree_data[row_idx][importer_tab_instance.tree_headers[col_index]] = new_value
             console_log(f"Updated cell: Row {row_idx+1}, Column '{importer_tab_instance.tree_headers[col_index]}' to '{new_value}'")
             debug_log(f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{importer_tab_instance.tree_headers[col_index]}'] to '{new_value}'.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
-            importer_tab_instance._save_markers_file_internally()
+            save_markers_file_internally(importer_tab_instance)
         else:
             debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
         if navigate_direction:
@@ -239,4 +236,4 @@ def delete_selected_row(importer_tab_instance, event):
             console_log(f"✅ Deleted row {index_in_tree + 1}.")
         else:
             console_log(f"❌ Error: Row {index_in_tree + 1} not found in data.")
-    importer_tab_instance._save_markers_file_internally()
+    save_markers_file_internally(importer_tab_instance)

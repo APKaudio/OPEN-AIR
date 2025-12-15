@@ -268,14 +268,18 @@ class Application(tk.Tk):
                     paned_window.pack(fill=tk.BOTH, expand=True)
                     
                     def on_sash_drag(event):
+                        sash_pos = paned_window.sashpos(0)
+                        debug_log(f"Sash dragged. New position: {sash_pos}", file=current_file, version=current_version, function="_build_from_directory.<locals>.on_sash_drag", console_print_func=console_log)
                         self.update_idletasks()
 
                     paned_window.bind("<B1-Motion>", on_sash_drag)
 
+                    percentages = []
                     for sub_dir in sorted_layout_dirs:
                         if sub_dir.name.split('_')[0] not in ['left', 'right']: continue
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
+                            percentages.append(percentage)
                             new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             paned_window.add(new_frame, weight=percentage)
                             if Local_Debug_Enable:
@@ -297,20 +301,33 @@ class Application(tk.Tk):
                                     function=f"{self.__class__.__name__}.{current_function_name}",
                                     console_print_func=console_log
                                 )
+                    
+                    def configure_sash(event):
+                        total_percentage = sum(percentages)
+                        if len(percentages) > 1 and total_percentage > 0:
+                            sash_pos = int(event.width * (percentages[0] / total_percentage))
+                            paned_window.tk.call(paned_window._w, 'sashpos', 0, sash_pos)
+                            paned_window.unbind("<Configure>")
+
+                    paned_window.bind("<Configure>", configure_sash)
                 
                 elif is_vertical:
                     paned_window = ttk.PanedWindow(parent_widget, orient=tk.VERTICAL)
                     paned_window.pack(fill=tk.BOTH, expand=True)
 
                     def on_sash_drag(event):
+                        sash_pos = paned_window.sashpos(0)
+                        debug_log(f"Sash dragged. New position: {sash_pos}", file=current_file, version=current_version, function="_build_from_directory.<locals>.on_sash_drag", console_print_func=console_log)
                         self.update_idletasks()
 
                     paned_window.bind("<B1-Motion>", on_sash_drag)
 
+                    percentages = []
                     for sub_dir in sorted_layout_dirs:
                         if sub_dir.name.split('_')[0] not in ['top', 'bottom']: continue
                         try:
                             percentage = int(sub_dir.name.split('_')[1])
+                            percentages.append(percentage)
                             new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                             paned_window.add(new_frame, weight=percentage)
                             if Local_Debug_Enable:
@@ -332,6 +349,15 @@ class Application(tk.Tk):
                                     function=f"{self.__class__.__name__}.{current_function_name}",
                                     console_print_func=console_log
                                 )
+
+                    def configure_sash(event):
+                        total_percentage = sum(percentages)
+                        if len(percentages) > 1 and total_percentage > 0:
+                            sash_pos = int(event.height * (percentages[0] / total_percentage))
+                            paned_window.tk.call(paned_window._w, 'sashpos', 0, sash_pos)
+                            paned_window.unbind("<Configure>")
+                    
+                    paned_window.bind("<Configure>", configure_sash)
                 return
 
             # Check for directories that start with a digit, which are now our tab indicators.

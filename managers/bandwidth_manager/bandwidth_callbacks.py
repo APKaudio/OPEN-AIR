@@ -1,4 +1,29 @@
 # managers/bandwidth_manager/bandwidth_callbacks.py
+#
+# This file is part of the OPEN-AIR project.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20251213.120000.44
+
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213
+Current_Time = 120000
+Current_iteration = 44
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import json
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility

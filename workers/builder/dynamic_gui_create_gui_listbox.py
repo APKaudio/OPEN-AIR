@@ -40,9 +40,7 @@ from display.logger import debug_log, console_log, log_visa_command
 Local_Debug_Enable = True
 
 
-def console_log_switch(message):
-    if Local_Debug_Enable:
-        console_log(message)
+
 
 
 # --- Global Scope Variables ---
@@ -149,14 +147,14 @@ class GuiListboxCreatorMixin:
                             console_print_func=console_log
                         )
                 except (ValueError, StopIteration):
-                    console_log_switch("❌ Invalid selection in listbox.")
+                    console_log("❌ Invalid selection in listbox.")
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
             if path:
                 self.topic_widgets[path] = (listbox, rebuild_options_for_listbox, options_map)
 
-            console_log_switch("✅ Celebration of success! The listbox menu did appear.")
+            console_log("✅ Celebration of success! The listbox menu did appear.")
             if Local_Debug_Enable:
                 debug_log(
                     message=f"🛠️🟢 Exiting '{current_function_name}'. Listbox '{label}' created.",
