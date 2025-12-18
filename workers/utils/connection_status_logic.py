@@ -33,12 +33,16 @@ import tkinter as tk
 import inspect
 import os
 
-from display.debug_logic import debug_log
-from display.console_logic import console_log
+from display.logger import debug_log, console_log
 
 # --- Version Information ---
-current_version = "20250813.163700.1"
-current_version_hash = (20250813 * 163700 * 1)
+Current_Date = 20251215  ##Update on the day the change was made
+Current_Time = 120000  ## update at the time it was edited and compiled
+Current_iteration = 2 ## a running version number - incriments by one each time 
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
 Local_Debug_Enable = True
 
 

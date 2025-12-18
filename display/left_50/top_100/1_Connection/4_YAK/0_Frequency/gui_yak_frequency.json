@@ -1,0 +1,137 @@
+{
+  "NAB_Settings": {
+    "type": "OcaBlock",
+    "description": "NAB Frequency Monitoring",
+    "fields": {
+      "NAB_Frequency_settings": {
+        "type": "OcaBlock",
+        "description": "Primary Frequency Monitoring",
+        "scpi_details": {
+          "generic_model": {
+            "type": "_GuiActuator",
+            "trigger": false,
+            "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
+          }
+        },
+        "fields": {
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "start_freq": {
+                "value": "The current start frequency in Hz.",
+                "type": "_Value"
+              },
+              "stop_freq": {
+                "value": "The current stop frequency in Hz.",
+                "type": "_Value"
+              },
+              "center_freq": {
+                "value": "The current center frequency in Hz.",
+                "type": "_Value"
+              },
+              "span_freq": {
+                "value": "The current span frequency in Hz.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "RIG_Settings": {
+    "type": "OcaBlock",
+    "description": "RIG Frequency commands",
+    "fields": {
+      "Rig_freq_start_stop": {
+        "type": "OcaBlock",
+        "description": "Frequency Range Commands",
+        "scpi_details": {
+          "generic_model": {
+            "type": "_GuiActuator",
+            "trigger": false,
+            "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "start_freq": {
+                "value": "12345678",
+                "type": "_Value"
+              },
+              "stop_freq": {
+                "value": "12345678",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Set_Span_Frequency": {
+        "type": "OcaBlock",
+        "scpi_details": {
+          "generic_model": {
+            "type": "_GuiActuator",
+            "trigger": false,
+            "SCPI_value": ":FREQuency:SPAN <hz_value>"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "hz_value": {
+                "value": "12345678",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Set_Start_Freq_MHz": {
+        "type": "OcaBlock",
+        "scpi_details": {
+          "generic_model": {
+            "type": "_GuiActuator",
+            "trigger": false,
+            "SCPI_value": ":FREQuency:STARt <hz_value>"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "hz_value": {
+                "value": "12345678",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Set_Stop_Freq_MHz": {
+        "type": "OcaBlock",
+        "scpi_details": {
+          "generic_model": {
+            "type": "_GuiActuator",
+            "trigger": false,
+            "SCPI_value": ":FREQuency:STOP <hz_value>"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "hz_value": {
+                "value": "987654321",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

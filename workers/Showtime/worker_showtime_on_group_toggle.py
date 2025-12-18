@@ -1,8 +1,6 @@
 
 import inspect
 from display.logger import debug_log, console_log
-from workers.Showtime.worker_showtime_create_group_buttons import create_group_buttons
-from workers.Showtime.worker_showtime_create_device_buttons import create_device_buttons
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_group_toggle(showtime_tab_instance, group_name):
@@ -36,7 +34,7 @@ def on_group_toggle(showtime_tab_instance, group_name):
                 console_print_func=console_log
             )
     
-    create_group_buttons(showtime_tab_instance)
-    create_device_buttons(showtime_tab_instance)
+    showtime_tab_instance._create_group_buttons()
+    showtime_tab_instance._create_device_buttons()
     
     on_tune_request_from_selection(showtime_tab_instance)

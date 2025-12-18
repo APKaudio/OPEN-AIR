@@ -53,7 +53,6 @@ import pathlib
 
 # --- Module Imports ---
 from display.logger import debug_log, console_log, log_visa_command
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
@@ -63,9 +62,9 @@ Local_Debug_Enable = True
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20251127.000000.1"
+current_version = "20251127.000000.3"
 # The hash calculation drops the leading zero from the hour (23 -> 23)
-current_version_hash = (20251127 * 0 * 1)
+current_version_hash = (20251127 * 0 * 3)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Constants (Pulled from old global state) ---
@@ -74,14 +73,15 @@ CURRENT_TIME = 0
 CURRENT_TIME_HASH = 0
 REVISION_NUMBER = 1
 
-class Application(tk.Tk):
+class Application(ttk.Frame):
     """
     The main application class that orchestrates the GUI build process.
     """
-    def __init__(self, mqtt_util_instance: MqttControllerUtility):
-        print("--- DEBUG: Entering Application.__init__() ---")
+    def __init__(self, parent):
         current_function_name = inspect.currentframe().f_code.co_name
         
+        super().__init__(parent)
+
         if Local_Debug_Enable:
             debug_log(
                 message="🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built!",
@@ -95,7 +95,6 @@ class Application(tk.Tk):
         self._frames_by_path = {}
         self._detached_windows = {}
         self.last_selected_tab_name = None
-        self.mqtt_util = mqtt_util_instance
 
         try:
             # --- CRITICAL FIX: Explicitly disable PIL/ImageTk handling ---
@@ -106,22 +105,6 @@ class Application(tk.Tk):
             except (KeyError, AttributeError):
                 pass
             
-            super().__init__()
-            self.title("OPEN-AIR 2")
-            self.geometry("1600x1200")
-            # self.lift() # Bring window to front
-            # self.attributes('-topmost', True) # Keep window on top
-            # self.after_idle(self.attributes, '-topmost', False) # Release topmost after idle
-            self.attributes('-topmost', False) # Release topmost after idle
-            if Local_Debug_Enable:
-                debug_log(
-                    message="🔍🔵 Tkinter main window created with title 'OPEN-AIR 2' and geometry '1600x1200'. (Topmost disabled for debug)",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-
             self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
             if Local_Debug_Enable:
                 debug_log(
@@ -141,6 +124,9 @@ class Application(tk.Tk):
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
+            
+            # After the GUI is built, ensure initial tab selection is processed
+            self.after_idle(self._trigger_initial_tab_selection)
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
@@ -152,6 +138,48 @@ class Application(tk.Tk):
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
+
+    def _trigger_initial_tab_selection(self):
+        """
+        Triggers the _on_tab_change event for the initially selected tab of each notebook.
+        This ensures that the content of the first tab is initialized even if the 
+        <<NotebookTabChanged>> event doesn't fire on startup.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        if Local_Debug_Enable:
+            debug_log(
+                message="🔍🔵 Triggering initial tab selection for all notebooks.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
+        for notebook_path, notebook_widget in self._notebooks.items():
+            try:
+                # Create a dummy event object for consistency
+                # The event.widget property is particularly important
+                dummy_event = type('Event', (object,), {'widget': notebook_widget})()
+                self._on_tab_change(dummy_event)
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"✅ Triggered initial tab selection for notebook at {notebook_path}.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+            except Exception as e:
+                console_log(f"❌ Error triggering initial tab selection for notebook {notebook_path}: {e}")
+                if Local_Debug_Enable:
+                    debug_log(
+                        message=f"❌🔴 Error triggering initial tab selection: {e}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+        console_log("✅ All initial tab selections triggered.") # Added log
+
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application using ttk.Style."""
@@ -191,7 +219,6 @@ class Application(tk.Tk):
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
 
-        self.configure(background=colors["bg"])
         if Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
@@ -376,6 +403,8 @@ class Application(tk.Tk):
                     )
                 notebook = ttk.Notebook(parent_widget)
                 notebook.pack(fill=tk.BOTH, expand=True)
+                # Store the notebook instance for later access (e.g., to trigger initial tab selection)
+                self._notebooks[path] = notebook
                 if Local_Debug_Enable:
                     debug_log(
                         message="🔍🔵 ttk.Notebook packed (fill=BOTH, expand=True).",
@@ -460,7 +489,7 @@ class Application(tk.Tk):
                         if inspect.isclass(obj) and issubclass(obj, (ttk.Frame, tk.Frame)) and obj.__module__ == module.__name__:
                             try:
                                 config = {"theme_colors": self.theme_colors}
-                                frame_instance = obj(parent_widget, mqtt_util=self.mqtt_util, config=config)
+                                frame_instance = obj(parent_widget, config=config)
                                 frame_instance.grid(row=i, column=0, sticky="nsew")
                                 if Local_Debug_Enable:
                                     debug_log(
@@ -582,18 +611,15 @@ class Application(tk.Tk):
 
                         # Prepare arguments to pass, based on availability in self and config needs
                         kwargs_to_pass = {}
-                        if 'mqtt_util' in init_params and hasattr(self, 'mqtt_util'):
-                            kwargs_to_pass['mqtt_util'] = self.mqtt_util
                         
                         config = {"theme_colors": self.theme_colors}
-                        if name == "DynamicGuiBuilder" and hasattr(module, "MQTT_TOPIC_FILTER"):
-                            config.update({
-                                "base_topic": module.MQTT_TOPIC_FILTER,
-                                "log_to_gui_console": console_log,
-                                "log_to_gui_treeview": None
-                            })
+
                         if 'config' in init_params:
                             kwargs_to_pass['config'] = config
+                        
+                        # Pass mqtt_util_instance if the constructor expects it
+ #                       if 'mqtt_util' in init_params:
+  #                          kwargs_to_pass['mqtt_util'] = None
 
                         # Attempt instantiation with dynamically determined arguments
                         # 'parent' is typically the first positional argument
@@ -866,6 +892,27 @@ class Application(tk.Tk):
             )
             
             self.last_selected_tab_name = newly_selected_tab_name
+            
+            # Get the frame widget associated with the newly selected tab
+            selected_tab_frame = notebook.nametowidget(newly_selected_tab_id)
+            
+            # Find the actual content widget (e.g., ShowtimeTab instance) inside the tab_frame
+            # Assuming the content widget is the first child of the tab_frame
+            if selected_tab_frame.winfo_children():
+                content_widget = selected_tab_frame.winfo_children()[0]
+                # Check if the content widget has an _on_tab_selected method and call it
+                if hasattr(content_widget, '_on_tab_selected'):
+                    console_log(f"--> Calling _on_tab_selected for {content_widget.__class__.__name__}...")
+                    debug_log(
+                        message=f"🔍🔵 Calling _on_tab_selected for {content_widget.__class__.__name__}.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                    content_widget._on_tab_selected(event)
+                    console_log(f"<-- Called _on_tab_selected for {content_widget.__class__.__name__}.")
+
             
             console_log("✅ Celebration of success!")
             debug_log(

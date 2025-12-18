@@ -24,13 +24,6 @@ import pathlib
 import json # Used for JSON logging if a payload is passed
 import sys
 
-# project_root should be defined globally, or passed. For now, assume it's available.
-# In a real scenario, this would likely be passed from a central configuration.
-# For consistency with other modules, we will define it here relative to this file.
-current_file_path = pathlib.Path(__file__).resolve()
-# Define GLOBAL_PROJECT_ROOT directly here to break circular dependency
-GLOBAL_PROJECT_ROOT = current_file_path.parent.parent # Assuming 'display' is directly under project root
-
 
 # Record the application start time for relative timestamps
 APP_START_TIME = datetime.datetime.now()
@@ -57,7 +50,7 @@ global_settings = {
     "include_timestamp_in_debug": True, # NEW: Include MM.SS timestamp in debug output
 }
 # Log file paths (relative to the project root for safety)
-FILE_LOG_DIR = GLOBAL_PROJECT_ROOT / "DATA" / "debug" # Using locally defined GLOBAL_PROJECT_ROOT
+FILE_LOG_DIR: pathlib.Path = None # This will be set by the main application
 
 VISA_LOG_FILENAME = "visa_commands.log"
 DEBUG_FILE_PATH = None  # This will be dynamically set/updated
@@ -78,6 +71,19 @@ GUI_CONSOLE_PRINT_FUNC = print
 GUI_LOG_TO_DEBUG_CONSOLE_FUNC = lambda x: print(f"GUI_DEBUG: {x}") 
 GUI_CLEAR_CONSOLE_FUNC = lambda: None
 # =========================================================================
+
+def set_log_directory(path: pathlib.Path):
+    """Sets the base directory for log files and ensures it exists."""
+    global FILE_LOG_DIR
+    FILE_LOG_DIR = path
+    try:
+        if not FILE_LOG_DIR.exists():
+            FILE_LOG_DIR.mkdir(parents=True, exist_ok=True)
+            _safe_print(f"✅ Created missing log directory: {FILE_LOG_DIR}")
+    except Exception as e:
+        print(f"❌ Critical Error: Failed to create log directory '{FILE_LOG_DIR}': {e}")
+        FILE_LOG_DIR = None # Invalidate if creation fails
+
 
 def _log_to_error_file(message: str):
     # Logs the message to the dedicated ERRORS.log file if it contains a failure marker.
@@ -113,25 +119,17 @@ def _safe_print(message: str):
         
 def _log_to_file(message: str, log_filename: str):
     # Helper to safely write a message to a file.
+    if FILE_LOG_DIR is None:
+        print(f"❌ Error: Log directory not set. Cannot write to file '{log_filename}'.")
+        return
+
     log_path = FILE_LOG_DIR / log_filename
-    
-    # --- NEW FIX: Ensure the log directory exists before trying to open the file. ---
-    try:
-        if not FILE_LOG_DIR.exists():
-            FILE_LOG_DIR.mkdir(parents=True, exist_ok=True)
-            _safe_print(f"✅ Created missing log directory: {FILE_LOG_DIR}")
-    except Exception as e:
-        # FALLBACK FIX: Use simple print.
-        print(f"❌ Critical Error: Failed to create log directory '{FILE_LOG_DIR}': {e}")
-        return # Abort logging if directory creation fails
-    # --- END NEW FIX ---
     
     try:
         with open(log_path, "a", encoding="utf-8") as log_file:
             log_file.write(message + "\n")
             
     except Exception as e:
-        # FALLBACK FIX: Use simple print.
         print(f"❌ Error writing to log file '{log_path}': {e}")
 
 def _truncate_message(message: str) -> str:
@@ -141,9 +139,6 @@ def _truncate_message(message: str) -> str:
 
     # Simplified check for a long string that looks like a data dump
     if len(message) > MAX_LOG_LENGTH and all(c.isdigit() or c in '.-+e' for c in message.replace(' ', '').replace(',', '').replace(';', '')):
-        return message[:MAX_LOG_LENGTH] + TRUNCATION_SUFFIX
-    elif len(message) > MAX_LOG_LENGTH and message.count('/') > 5:
-        # Also truncate long MQTT topic paths
         return message[:MAX_LOG_LENGTH] + TRUNCATION_SUFFIX
         
     return message

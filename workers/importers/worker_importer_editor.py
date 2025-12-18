@@ -1,0 +1,239 @@
+# workers/importers/worker_importer_editor.py
+#
+# A complete and comprehensive pre-amble that describes the file and the functions within.
+# The purpose is to provide clear documentation and versioning.
+#
+# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
+# As the current hour is 20, no change is needed.
+
+Current_Date = 20251213
+Current_Time = 120000
+Current_iteration = 44
+
+current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+
+
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+
+import inspect
+import os
+import re
+import tkinter as tk
+from tkinter import ttk
+from display.logger import debug_log, console_log
+from workers.importers.worker_importer_saver import save_markers_file_internally
+
+Local_Debug_Enable = True
+
+def on_tree_double_click(importer_tab_instance, event):
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    debug_log(f"[{current_file} - {current_function}] Treeview double-clicked for editing.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    if not importer_tab_instance.marker_tree.identify_region(event.x, event.y) == "cell":
+        return
+    column_id = importer_tab_instance.marker_tree.identify_column(event.x)
+    item_id = importer_tab_instance.marker_tree.identify_row(event.y)
+    if not item_id or not column_id:
+        return
+    col_index = int(column_id[1:]) - 1
+    if col_index < 0 or col_index >= len(importer_tab_instance.tree_headers):
+        debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for editing.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        return
+    current_value = importer_tab_instance.marker_tree.item(item_id, 'values')[col_index]
+    start_editing_cell(importer_tab_instance, item_id, col_index, initial_value=current_value)
+
+def start_editing_cell(importer_tab_instance, item, col_index, initial_value=""):
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    for widget in importer_tab_instance.marker_tree.winfo_children():
+        if isinstance(widget, ttk.Entry) and widget.winfo_name() == "cell_editor":
+            widget.destroy()
+    entry_editor = ttk.Entry(importer_tab_instance.marker_tree, style="Markers.TEntry", name="cell_editor")
+    entry_editor.insert(0, initial_value)
+    entry_editor.focus_force()
+    x, y, width, height = importer_tab_instance.marker_tree.bbox(item, importer_tab_instance.marker_tree["columns"][col_index])
+    entry_editor.place(x=x, y=y, width=width, height=height)
+    entry_editor.current_item = item
+    entry_editor.current_col_index = col_index
+    def on_edit_complete_and_navigate(event, navigate_direction=None):
+        new_value = entry_editor.get()
+        entry_editor.destroy()
+        current_values = list(importer_tab_instance.marker_tree.item(item, 'values'))
+        current_values[col_index] = new_value
+        importer_tab_instance.marker_tree.item(item, values=current_values)
+        row_idx = importer_tab_instance.marker_tree.index(item)
+        if row_idx < len(importer_tab_instance.tree_data) and isinstance(importer_tab_instance.tree_data[row_idx], dict):
+            importer_tab_instance.tree_data[row_idx][importer_tab_instance.tree_headers[col_index]] = new_value
+            console_log(f"Updated cell: Row {row_idx+1}, Column '{importer_tab_instance.tree_headers[col_index]}' to '{new_value}'")
+            debug_log(f"[{current_file} - {current_function}] Updated tree_data[{row_idx}]['{importer_tab_instance.tree_headers[col_index]}'] to '{new_value}'.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            save_markers_file_internally(importer_tab_instance)
+        else:
+            debug_log(f"[{current_file} - {current_function}] Error: Row index {row_idx} out of bounds or data not a dictionary for self.tree_data.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if navigate_direction:
+            navigate_cells(importer_tab_instance, item, col_index, navigate_direction)
+    entry_editor.bind("<Return>", lambda e: on_edit_complete_and_navigate(e, "down"))
+    entry_editor.bind("<Tab>", lambda e: on_edit_complete_and_navigate(e, "right"))
+    entry_editor.bind("<Shift-Tab>", lambda e: on_edit_complete_and_navigate(e, "left"))
+    entry_editor.bind("<Control-Return>", lambda e: on_edit_complete_and_navigate(e, "ctrl_down"))
+    entry_editor.bind("<FocusOut>", lambda e: on_edit_complete_and_navigate(e, None))
+    entry_editor.bind("<Up>", lambda e: on_edit_complete_and_navigate(e, "up"))
+    entry_editor.bind("<Down>", lambda e: on_edit_complete_and_navigate(e, "down"))
+    entry_editor.bind("<Left>", lambda e: on_edit_complete_and_navigate(e, "left"))
+    entry_editor.bind("<Right>", lambda e: on_edit_complete_and_navigate(e, "right"))
+
+def navigate_cells(importer_tab_instance, current_item, current_col_index, direction):
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    debug_log(f"[{current_file} - {current_function}] Navigating cells.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    items = importer_tab_instance.marker_tree.get_children()
+    num_rows = len(items)
+    num_cols = len(importer_tab_instance.tree_headers)
+    current_row_idx = items.index(current_item) if current_item in items else -1
+    next_item = None
+    next_col_index = -1
+    initial_value_for_next_cell = ""
+    if current_row_idx == -1:
+        debug_log(f"[{current_file} - {current_function}] Current item not found in tree for navigation.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        return
+    if direction == "down":
+        next_row_idx = current_row_idx + 1
+        next_col_index = current_col_index
+        if next_row_idx < num_rows:
+            next_item = items[next_row_idx]
+    elif direction == "up":
+        next_row_idx = current_row_idx - 1
+        next_col_index = current_col_index
+        if next_row_idx >= 0:
+            next_item = items[next_row_idx]
+    elif direction == "right":
+        next_col_index = current_col_index + 1
+        if next_col_index < num_cols:
+            next_item = current_item
+        else:
+            next_row_idx = current_row_idx + 1
+            if next_row_idx < num_rows:
+                next_item = items[next_row_idx]
+                next_col_index = 0
+    elif direction == "left":
+        next_col_index = current_col_index - 1
+        if next_col_index >= 0:
+            next_item = current_item
+        else:
+            next_row_idx = current_row_idx - 1
+            if next_row_idx >= 0:
+                next_item = items[next_row_idx]
+                next_col_index = num_cols - 1
+    elif direction == "ctrl_down":
+        next_row_idx = current_row_idx + 1
+        next_col_index = current_col_index
+        if next_row_idx < num_rows:
+            next_item = items[next_row_idx]
+            prev_cell_value = importer_tab_instance.marker_tree.item(current_item, 'values')[current_col_index]
+            initial_value_for_next_cell = increment_string_with_trailing_digits(prev_cell_value)
+            new_values = list(importer_tab_instance.marker_tree.item(next_item, 'values'))
+            new_values[next_col_index] = initial_value_for_next_cell
+            importer_tab_instance.marker_tree.item(next_item, values=new_values)
+            if next_row_idx < len(importer_tab_instance.tree_data) and isinstance(importer_tab_instance.tree_data[next_row_idx], dict):
+                importer_tab_instance.tree_data[next_row_idx][importer_tab_instance.tree_headers[next_col_index]] = initial_value_for_next_cell
+            else:
+                debug_log(f"[{current_file} - {current_function}] Cannot Ctrl+Enter: No row below.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                return
+    if next_item is not None and next_col_index != -1:
+        if direction != "ctrl_down":
+            try:
+                next_item_values = importer_tab_instance.marker_tree.item(next_item, 'values')
+                if 0 <= next_col_index < len(next_item_values):
+                    initial_value_for_next_cell = next_item_values[next_col_index]
+                else:
+                    debug_log(f"[{current_file} - {current_function}] Next column index {next_col_index} out of bounds for next item values. Setting empty.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    initial_value_for_next_cell = ""
+            except Exception as e:
+                debug_log(f"[{current_file} - {current_function}] Error getting initial value for next cell: {e}. Setting empty.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                initial_value_for_next_cell = ""
+        importer_tab_instance.marker_tree.focus(next_item)
+        importer_tab_instance.marker_tree.selection_set(next_item)
+        importer_tab_instance.after(10, lambda: start_editing_cell(importer_tab_instance, next_item, next_col_index, initial_value_for_next_cell))
+    else:
+        debug_log(f"[{current_file} - {current_function}] No cell to navigate to in direction: {direction}", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+
+def increment_string_with_trailing_digits(text):
+    match = re.search(r'(\d+)$', text)
+    if match:
+        num_str = match.group(1)
+        num_int = int(num_str)
+        incremented_num = num_int + 1
+        new_num_str = str(incremented_num).zfill(len(num_str))
+        return text[:-len(num_str)] + new_num_str
+    return text
+
+def on_tree_header_click(importer_tab_instance, event):
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    debug_log(f"[{current_file} - {current_function}] Treeview header clicked for sorting.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    region = importer_tab_instance.marker_tree.identify_region(event.x, event.y)
+    if region == "heading":
+        column_id = importer_tab_instance.marker_tree.identify_column(event.x)
+        col_index = int(column_id[1:]) - 1
+        if col_index < 0 or col_index >= len(importer_tab_instance.tree_headers):
+            debug_log(f"[{current_file} - {current_function}] Invalid column index {col_index} for sorting.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            return
+        column_name = importer_tab_instance.tree_headers[col_index]
+        if importer_tab_instance.sort_column == column_name:
+            importer_tab_instance.sort_direction = not importer_tab_instance.sort_direction
+        else:
+            importer_tab_instance.sort_column = column_name
+            importer_tab_instance.sort_direction = True
+        sort_treeview(importer_tab_instance, column_name, importer_tab_instance.sort_direction)
+
+def sort_treeview(importer_tab_instance, column_name, ascending):
+    current_function = inspect.currentframe().f_code.co_name
+    current_file = os.path.basename(__file__)
+    debug_log(f"[{current_file} - {current_function}] Sorting treeview by '{column_name}', ascending: {ascending}.", file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    def get_sort_key(item):
+        value = item.get(column_name, "")
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return str(value)
+    importer_tab_instance.tree_data.sort(key=get_sort_key, reverse=not ascending)
+    populate_marker_tree(importer_tab_instance)
+    console_log(f"Sorted by '{column_name}' {'Ascending' if ascending else 'Descending'}.")
+
+def populate_marker_tree(importer_tab_instance):
+    """Re-populates the treeview from the internal data model."""
+    importer_tab_instance.marker_tree.delete(*importer_tab_instance.marker_tree.get_children())
+    standardized_headers = importer_tab_instance.tree_headers if importer_tab_instance.tree_headers else ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"]
+    importer_tab_instance.marker_tree["columns"] = standardized_headers
+    for col in standardized_headers:
+        importer_tab_instance.marker_tree.heading(col, text=col, command=lambda c=col: sort_treeview(importer_tab_instance, c, importer_tab_instance.sort_column != c or not importer_tab_instance.sort_direction))
+        importer_tab_instance.marker_tree.column(col, width=100)
+    for row in importer_tab_instance.tree_data:
+        values = [row.get(raw_header, '') for raw_header in standardized_headers]
+        importer_tab_instance.marker_tree.insert("", "end", values=values)
+
+def delete_selected_row(importer_tab_instance, event):
+    current_function = inspect.currentframe().f_code.co_name
+    debug_log(f"[{importer_tab_instance.current_file} - {current_function}] Delete key pressed.", file=importer_tab_instance.current_file, version=importer_tab_instance.current_version, function=current_function, console_print_func=console_log)
+    selected_items = importer_tab_instance.marker_tree.selection()
+    if not selected_items:
+        console_log("🟡 No row selected to delete.")
+        return
+    for item in selected_items:
+        index_in_tree = importer_tab_instance.marker_tree.index(item)
+        if index_in_tree < len(importer_tab_instance.tree_data):
+            importer_tab_instance.marker_tree.delete(item)
+            del importer_tab_instance.tree_data[index_in_tree]
+            console_log(f"✅ Deleted row {index_in_tree + 1}.")
+        else:
+            console_log(f"❌ Error: Row {index_in_tree + 1} not found in data.")
+    save_markers_file_internally(importer_tab_instance)

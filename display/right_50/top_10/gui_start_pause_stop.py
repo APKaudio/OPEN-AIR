@@ -1,14 +1,3 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/dataset/Orchestration"
-
-
-
-
-
-
-
-
-
-
 # display_gui_child_pusher.py
 
 #
@@ -49,7 +38,7 @@ class StartPauseStopGui(ttk.Frame):
     """
     A GUI component for Start/Pause/Stop functionality, instantiating DynamicGuiBuilder.
     """
-    def __init__(self, parent, mqtt_util, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
@@ -67,16 +56,8 @@ class StartPauseStopGui(ttk.Frame):
             console_print_func=console_log
         )
         try:
-            config = {
-                "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": console_log,
-                "log_to_gui_treeview": None  # Assuming no treeview for this component
-            }
-
             self.dynamic_gui = DynamicGuiBuilder(
-                parent=self,
-                mqtt_util=mqtt_util,
-                config=config
+                parent=self
             )
             console_log("✅ Celebration of success! The StartPauseStopGui did initialize its dynamic GUI builder.")
         except Exception as e:

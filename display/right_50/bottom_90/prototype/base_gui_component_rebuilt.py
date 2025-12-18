@@ -24,11 +24,9 @@ from tkinter import ttk
 import pathlib
 import sys
 import json
-import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
 from display.logger import debug_log, console_log, log_visa_command
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -49,7 +47,7 @@ class BaseGUIFrame(ttk.Frame):
     A reusable base class for GUI frames with common button-driven logging and MQTT functionality.
     This class is now designed as a self-contained "island" that manages its own MQTT state.
     """
-    def __init__(self, parent, mqtt_util, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         
@@ -70,62 +68,12 @@ class BaseGUIFrame(ttk.Frame):
             self.current_version = current_version
             self.current_version_hash = current_version_hash
 
-            # We now accept a shared MQTT utility instance from the orchestrator.
-            self.mqtt_util = mqtt_util
-
             # We apply the style at the top of the __init__ to affect all child widgets.
             self._apply_styles(theme_name=DEFAULT_THEME)
 
             # Create a label for the frame
             frame_label = ttk.Label(self, text=f"Application Frame: {self.__class__.__name__}", font=("Arial", 16))
             frame_label.pack(pady=10)
-            
-            # --- New MQTT Section ---
-            mqtt_frame = ttk.LabelFrame(self, text="MQTT Controls")
-            mqtt_frame.pack(fill=tk.X, padx=10, pady=10)
-
-            # Button 3: Publish Version
-            self.publish_version_button = ttk.Button(
-                mqtt_frame,
-                text="Publish Version",
-                command=self._publish_version_message
-            )
-            self.publish_version_button.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # Custom MQTT Publish
-            self.custom_topic_entry = ttk.Entry(mqtt_frame, style="Custom.TEntry")
-            self.custom_topic_entry.insert(0, f"Custom Message")
-            self.custom_topic_entry.pack(side=tk.LEFT, padx=5, pady=5, fill=tk.X, expand=True)
-            
-            self.publish_custom_button = ttk.Button(
-                mqtt_frame,
-                command=self._publish_custom_message
-            )
-            self.publish_custom_button.pack(side=tk.LEFT, padx=5, pady=5)
-            
-            # Subscription label
-            self.mqtt_topic_var = tk.StringVar(value="Waiting for MQTT message...")
-            self.subscription_label = ttk.Label(mqtt_frame, textvariable=self.mqtt_topic_var)
-            self.subscription_label.pack(side=tk.LEFT, padx=5, pady=5)
-
-            # We now register our callback with the central utility instead of overwriting the client's callback.
-            parent_folder = str(pathlib.Path(self.current_file).parent)
-            subscription_topic = f"{parent_folder.replace('\\', '/')}/#"
-            self.mqtt_util.add_subscriber(topic_filter=subscription_topic, callback_func=self._on_mqtt_message)
-
-
-            # --- New MQTT Message Log Table ---
-            self.subscriptions_table_frame = ttk.Frame(self)
-            self.subscriptions_table_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-            
-            self.subscriptions_table = ttk.Treeview(self.subscriptions_table_frame, columns=("Topic", "Message Content"), show="headings", style="Custom.Treeview")
-            self.subscriptions_table.heading("Topic", text="Topic")
-            self.subscriptions_table.heading("Message Content", text="Message Content")
-            self.subscriptions_table.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-
-            table_scrollbar = ttk.Scrollbar(self.subscriptions_table_frame, orient=tk.VERTICAL, command=self.subscriptions_table.yview)
-            self.subscriptions_table.configure(yscrollcommand=table_scrollbar.set)
-            table_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
             
             # New frame for log buttons, placed at the bottom below the table.
             log_button_frame = ttk.Frame(self)
@@ -266,94 +214,3 @@ class BaseGUIFrame(ttk.Frame):
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-
-    def _publish_version_message(self):
-        # Publishes the file's version to MQTT.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Entering '{current_function_name}' to publish the version.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            # The topic is now the file path itself, and the subtopic is "version"
-            topic = self.current_file
-            message = self.current_version
-            self.mqtt_util.publish_message(topic=topic, subtopic="version", value=message)
-            console_log("✅ Version message published successfully!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _on_mqtt_message(self, topic, payload):
-        # Callback for when an MQTT message is received.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🔵 Received MQTT message on topic '{topic}'.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            message_content = json.loads(payload)["value"]
-            self.subscriptions_table.insert('', 'end', values=(topic, message_content))
-            self.subscriptions_table.yview_moveto(1) # Scroll to the bottom
-            self.mqtt_topic_var.set(f"Last Message: {topic} -> {message_content}")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-    def _publish_custom_message(self):
-        # Publishes a custom message from the wildcard text box.
-        current_function_name = inspect.currentframe().f_code.co_name
-        debug_log(
-            message=f"🖥️🟢 Entering '{current_function_name}' to publish a custom message.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            # The topic is the file path, and the subtopic is "textbox"
-            topic = self.current_file
-            subtopic = "textbox"
-            message = self.custom_topic_entry.get()
-            self.mqtt_util.publish_message(topic=topic, subtopic=subtopic, value=message)
-            console_log(f"✅ Custom message published successfully to '{topic}/{subtopic}'!")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    root.title("Base Component Test")
-    
-    # We now must manually create and pass the MQTT utility instance for the standalone test.
-    mqtt_utility = MqttControllerUtility(print_to_gui_func=console_log, log_treeview_func=lambda *args: None)
-    mqtt_utility.connect_mqtt()
-
-    app_frame = BaseGUIFrame(parent=root, mqtt_util=mqtt_utility)
-    
-    root.mainloop()

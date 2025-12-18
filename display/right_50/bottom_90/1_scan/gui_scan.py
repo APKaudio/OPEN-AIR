@@ -25,7 +25,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", 
 
 class ScanViewGUIFrame(ttk.Frame):
     
-    def __init__(self, parent, mqtt_util=None, config=None):
+    def __init__(self, parent, config=None):
         super().__init__(parent)
         
         # The parent will use .pack() or .grid() on this frame.

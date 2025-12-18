@@ -1,0 +1,82 @@
+# workers/Worker_Launcher.py
+#
+# This file orchestrates the initialization of all background worker processes for the application.
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
+#
+# Build Log: https://like.audio/category/software/spectrum-scanner/
+# Source Code: https://github.com/APKaudio/
+# Feature Requests can be emailed to i @ like . audio
+#
+#
+# Version 20251215.120000.1
+
+import os
+import inspect
+from datetime import datetime
+
+# --- Imports for logging and workers ---
+from display.logger import debug_log, console_log
+# from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
+# from workers.active.worker_active_peak_publisher import ActivePeakPublisher
+
+# --- Global Scope Variables ---
+current_date = 20251215
+current_time = 120000
+current_iteration = 2
+
+current_version = f"{current_date}.{current_time}.{current_iteration}"
+current_version_hash = (current_date * current_time * current_iteration)
+current_file = f"{os.path.basename(__file__)}"
+Local_Debug_Enable = True
+
+class WorkerLauncher:
+    """
+    Manages the initialization and launching of all application workers.
+    """
+    def __init__(self, splash_screen, console_print_func):
+        # Adhering to 'No Magic Numbers' principle
+        self.splash = splash_screen
+        self._print_to_gui_console = console_print_func
+        self.current_class_name = self.__class__.__name__
+
+    def launch_all_workers(self):
+        # Initializes and starts all registered worker processes.
+        current_function_name = inspect.currentframe().f_code.co_name
+        
+        if Local_Debug_Enable:
+            debug_log(
+                message=f"🛠️🟢 Eureka! We are kicking off the worker engines from '{current_function_name}'!",
+                file=current_file,
+                version=current_version,
+                function=f"{self.current_class_name}.{current_function_name}",
+                console_print_func=self._print_to_gui_console
+            )
+
+        try:
+            self.splash.set_status("Initializing workers...")
+            
+            active_peak_publisher = ActivePeakPublisher()
+            self.splash.set_status("Active Peak Publisher initialized.")
+            if Local_Debug_Enable:
+                debug_log(message="🛠️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)
+
+            # --- Celebration of Success ---
+            console_log("✅ All workers have been successfully conjured and set to their tasks!")
+            return True
+
+        except Exception as e:
+            console_log(f"❌ A dreadful error occurred in '{current_function_name}': {e}")
+            if Local_Debug_Enable:
+                debug_log(
+                    message=f"🛠️🔴 Great Scott! The worker initialization has gone haywire in '{current_function_name}'! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.current_class_name}.{current_function_name}",
+                    console_print_func=self._print_to_gui_console
+                )
+            return False

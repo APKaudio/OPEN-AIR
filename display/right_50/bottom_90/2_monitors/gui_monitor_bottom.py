@@ -54,7 +54,7 @@ class MonitorTopGUIFrame(ttk.Frame):
     """
     PLOT_ID = "top" 
     
-    def __init__(self, parent, mqtt_util=None, config=None, *args, **kwargs):
+    def __init__(self, parent, config=None, *args, **kwargs):
         """
         Initializes the GUI frame with a blank plot.
         """
