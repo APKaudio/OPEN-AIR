@@ -48,4 +48,4 @@ class IncDecButtonsCreatorMixin:
             except (ValueError, TypeError):
                 pass
         
-        self.mqtt_callbacks[path] = _update_value
+        # self.mqtt_callbacks[path] = _update_value

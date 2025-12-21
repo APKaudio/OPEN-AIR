@@ -27,7 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from display.logger import debug_log, console_log
-# from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
+## from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from workers.markers.worker_marker_logic import calculate_frequency_range
 
 Local_Debug_Enable = True
@@ -59,7 +59,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
                 function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
                 console_print_func=console_log
             )
-        Push_Marker_to_Center_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=marker_data)
+        ## Push_Marker_to_Center_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=marker_data)
     elif showtime_tab_instance.selected_group:
         # Case 2: A group is selected, but no device
         if Local_Debug_Enable:
@@ -76,7 +76,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
         
         if min_freq is not None and max_freq is not None:
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
-            Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
             console_log("❌ Failed to tune: No valid frequencies found in selected group.")
             
@@ -98,7 +98,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
         
         if min_freq is not None and max_freq is not None:
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
-            Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
             console_log("❌ Failed to tune: No valid frequencies found in selected zone.")
     else:
@@ -116,6 +116,6 @@ def on_tune_request_from_selection(showtime_tab_instance):
         
         if min_freq is not None and max_freq is not None:
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
-            Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
+            ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
             console_log("❌ Failed to tune: No valid frequencies found in marker data.")

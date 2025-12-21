@@ -44,8 +44,8 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 
 class BaseGUIFrame(ttk.Frame):
     """
-    A reusable base class for GUI frames with common button-driven logging and MQTT functionality.
-    This class is now designed as a self-contained "island" that manages its own MQTT state.
+    A reusable base class for GUI frames with common button-driven logging functionality.
+    This class is now designed as a self-contained "island".
     """
     def __init__(self, parent, *args, **kwargs):
         # A brief, one-sentence description of the function's purpose.

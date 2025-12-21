@@ -30,17 +30,17 @@ from workers.importers.worker_marker_file_import_handling import (
     maker_file_save_intermediate_file,
     maker_file_save_open_air_file
 )
-from workers.importers.worker_marker_csv_to_json_mqtt import csv_to_json_and_publish
+## from workers.importers.worker_marker_csv_to_json_mqtt import csv_to_json_and_publish
 
 def save_markers_file_internally(importer_tab_instance):
     maker_file_save_intermediate_file(importer_tab_instance.tree_headers, importer_tab_instance.tree_data)
-    if importer_tab_instance.mqtt_util:
-        publish_markers_to_mqtt(importer_tab_instance)
+    ## if importer_tab_instance.mqtt_util:
+    ##     publish_markers_to_mqtt(importer_tab_instance)
 
-def publish_markers_to_mqtt(importer_tab_instance):
-    csv_to_json_and_publish(mqtt_util=importer_tab_instance.mqtt_util)
+## def publish_markers_to_mqtt(importer_tab_instance):
+##     csv_to_json_and_publish(mqtt_util=importer_tab_instance.mqtt_util)
 
 def save_open_air_file_action(importer_tab_instance):
     maker_file_save_open_air_file(importer_tab_instance.tree_headers, importer_tab_instance.tree_data)
-    if importer_tab_instance.mqtt_util:
-        publish_markers_to_mqtt(importer_tab_instance)
+    ## if importer_tab_instance.mqtt_util:
+    ##     publish_markers_to_mqtt(importer_tab_instance)

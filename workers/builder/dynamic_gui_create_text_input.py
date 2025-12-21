@@ -42,4 +42,4 @@ class TextInputCreatorMixin:
             except (ValueError, TypeError):
                 pass # Or log an error
 
-        self.mqtt_callbacks[path] = _update_text
+        # self.mqtt_callbacks[path] = _update_text

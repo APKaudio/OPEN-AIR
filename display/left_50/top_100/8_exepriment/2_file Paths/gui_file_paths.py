@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/application/filepaths"
+## MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/application/filepaths"
 # display/tabs/gui_child_1_pusher.py
 #
 # A GUI frame for displaying and controlling Presets via MQTT using the modular DynamicGuiBuilder.
@@ -29,6 +29,8 @@ import pathlib
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
+current_path = pathlib.Path(__file__).resolve()
+JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 
 
@@ -38,7 +40,7 @@ class PresetPusherGui(ttk.Frame):
     A container frame that instantiates the DynamicGuiBuilder for the Presets configuration.
     This replaces the old, monolithic code with a call to the reusable, modular component.
     """
-    def __init__(self, parent, mqtt_util, config=None, *args, **kwargs):
+    def __init__(self, parent, config=None, *args, **kwargs):
         """
         Initializes the Presets frame and the dynamic GUI builder.
         """
@@ -52,6 +54,5 @@ class PresetPusherGui(ttk.Frame):
         # passing the specific base topic for this GUI component.
         self.dynamic_gui = DynamicGuiBuilder(
             parent=self,
-            mqtt_util=mqtt_util,
-            config={"base_topic": MQTT_TOPIC_FILTER} # Pass config as a dictionary
+            json_path=JSON_CONFIG_FILE
         )

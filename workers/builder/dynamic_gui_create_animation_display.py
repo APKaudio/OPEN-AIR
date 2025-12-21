@@ -42,4 +42,4 @@ class AnimationDisplayCreatorMixin:
             except (ValueError, TypeError):
                 pass # Or log an error
 
-        self.mqtt_callbacks[path] = _update_frame
+        # self.mqtt_callbacks[path] = _update_frame

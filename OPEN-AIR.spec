@@ -7,7 +7,7 @@ hidden_imports = [
     'pandas',
     'matplotlib',
     'PIL',
-    'paho.mqtt.client',
+    ## 'paho.mqtt.client',
     'pdfplumber',
     'bs4',
     'pyvisa',

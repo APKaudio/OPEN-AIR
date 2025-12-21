@@ -3,12 +3,7 @@
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-Current_Date = 20251129  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 1 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
+import workers.setup.app_constants as app_constants
 
 
 # A script that dynamically builds the application's Tkinter GUI based on the
@@ -61,18 +56,6 @@ Local_Debug_Enable = True
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
 
-# --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20251127.000000.3"
-# The hash calculation drops the leading zero from the hour (23 -> 23)
-current_version_hash = (20251127 * 0 * 3)
-current_file = f"{os.path.basename(__file__)}"
-
-# --- Constants (Pulled from old global state) ---
-CURRENT_DATE = 20251127
-CURRENT_TIME = 0
-CURRENT_TIME_HASH = 0
-REVISION_NUMBER = 1
-
 class Application(ttk.Frame):
     """
     The main application class that orchestrates the GUI build process.
@@ -82,11 +65,11 @@ class Application(ttk.Frame):
         
         super().__init__(parent)
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable:
             debug_log(
                 message="🖥️ 🟢 The grand orchestrator is waking up! Let's get this GUI built!",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
@@ -106,21 +89,20 @@ class Application(ttk.Frame):
                 pass
             
             self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
-            if Local_Debug_Enable:
-                debug_log(
-                    message=f"🔍🔵 Applied theme: {DEFAULT_THEME}.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
-
+                    if app_constants.Local_Debug_Enable:
+                        debug_log(
+                            message=f"🔍🔵 Applied theme: {DEFAULT_THEME}.",
+                            file=os.path.basename(__file__),
+                            version=app_constants.current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}",
+                            console_print_func=console_log
+                        )
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable:
                 debug_log(
                     message="🔍🔵 Finished building GUI from directory structure.",
-                    file=current_file,
-                    version=current_version,
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
@@ -130,11 +112,11 @@ class Application(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
                     console_print_func=console_log
                 )
@@ -146,11 +128,11 @@ class Application(ttk.Frame):
         <<NotebookTabChanged>> event doesn't fire on startup.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable:
             debug_log(
                 message="🔍🔵 Triggering initial tab selection for all notebooks.",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
@@ -219,19 +201,19 @@ class Application(ttk.Frame):
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable:
             debug_log(
                 message=f"🔍🔵 Exiting _apply_styles. Theme: {theme_name} applied.",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
@@ -618,8 +600,11 @@ class Application(ttk.Frame):
                             kwargs_to_pass['config'] = config
                         
                         # Pass mqtt_util_instance if the constructor expects it
- #                       if 'mqtt_util' in init_params:
-  #                          kwargs_to_pass['mqtt_util'] = None
+               #         if 'mqtt_util' in init_params:
+               #             # This is a temporary fix. A proper solution would be to
+                            # have the mqtt_util available in the Application class.
+                #            from workers.builder.dynamic_gui_builder import GhostMqtt
+                 #           kwargs_to_pass['mqtt_util'] = GhostMqtt()
 
                         # Attempt instantiation with dynamically determined arguments
                         # 'parent' is typically the first positional argument

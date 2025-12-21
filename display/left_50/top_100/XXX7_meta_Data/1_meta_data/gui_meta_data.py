@@ -1,4 +1,4 @@
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/report"
+## MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/report"
 
 
 
@@ -39,13 +39,15 @@ import pathlib
 current_version = "20251127.000000.1"
 current_version_hash = (20251127 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
+current_path = pathlib.Path(__file__).resolve()
+JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 
 class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, mqtt_util, config=None, *args, **kwargs):
+    def __init__(self, parent, config=None, *args, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
@@ -65,14 +67,14 @@ class PresetPusherGui(ttk.Frame):
         )
         try:
             config = {
-                "base_topic": MQTT_TOPIC_FILTER,
+                ## "base_topic": MQTT_TOPIC_FILTER,
                 "log_to_gui_console": console_log,
                 "log_to_gui_treeview": None  # Assuming no treeview for this component
             }
 
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                mqtt_util=mqtt_util,
+                json_path=JSON_CONFIG_FILE,
                 config=config
             )
             console_log("✅ Celebration of success! The PresetPusherGui did initialize its dynamic GUI builder.")

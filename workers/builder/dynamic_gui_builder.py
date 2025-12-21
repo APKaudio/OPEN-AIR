@@ -24,7 +24,7 @@ import inspect
 # --- Module Imports ---
 from display.logger import debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
+## from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 
 # --- Widget Creator Mixins ---
@@ -48,6 +48,8 @@ from .dynamic_gui_create_fader import FaderCreatorMixin
 from .dynamic_gui_create_knob import KnobCreatorMixin
 from .dynamic_gui_create_inc_dec_buttons import IncDecButtonsCreatorMixin
 from .dynamic_gui_create_directional_buttons import DirectionalButtonsCreatorMixin
+from .dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
+from .dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
 
 # --- Protocol Global Variables ---
 LOCAL_DEBUG_ENABLE = True
@@ -61,7 +63,7 @@ current_file = f"{os.path.basename(__file__)}"
 
 class DynamicGuiBuilder(
     ttk.Frame,
-    MqttSubscriberMixin,
+    ## MqttSubscriberMixin,
     MousewheelScrollMixin,
     LabelFromConfigCreatorMixin,
     LabelCreatorMixin,
@@ -82,43 +84,45 @@ class DynamicGuiBuilder(
     FaderCreatorMixin,
     KnobCreatorMixin,
     IncDecButtonsCreatorMixin,
-    DirectionalButtonsCreatorMixin
+    DirectionalButtonsCreatorMixin,
+    CustomFaderCreatorMixin,
+    NeedleVUMeterCreatorMixin
 ):
     """
     Manages the dynamic generation of GUI elements based on OcaBlock definitions.
     """
-    def __init__(self, parent, mqtt_util=None, base_topic=None, json_path=None, *args, **kwargs):
+    def __init__(self, parent, json_path=None, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
 
-        if LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"🖥️🟢 Eureka! Igniting the DynamicGuiBuilder for topic: {base_topic}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=None
-            )
+        ## if LOCAL_DEBUG_ENABLE:
+        ##     debug_log(
+        ##         message=f"🖥️🟢 Eureka! Igniting the DynamicGuiBuilder for topic: {base_topic}",
+        ##         file=current_file,
+        ##         version=current_version,
+        ##         function=f"{self.current_class_name}.{current_function_name}",
+        ##         console_print_func=console_log
+        ##     )
 
         # Validation: Ensure critical arguments are present to prevent crashes
-        if mqtt_util is None or base_topic is None or json_path is None:
-            console_log(f"❌ Error in __init__: Missing critical arguments (mqtt={mqtt_util}, topic={base_topic}, path={json_path})")
+        if json_path is None:
+            console_log(f"❌ Error in __init__: Missing critical argument: json_path")
             if LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🖥️🔴 Blast! The builder was summoned without its required artifacts!",
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=None
+                    console_print_func=console_log
                 )
             # We continue but don't build to avoid hard recursion errors in the dynamic loader
             return
 
         self.pack(fill=tk.BOTH, expand=True)
 
-        self.mqtt_util = mqtt_util
-        self.base_topic = base_topic
+        ## self.mqtt_util = mqtt_util
+        ## self.base_topic = base_topic
         self.json_filepath = Path(json_path)
         self.topic_widgets = {}
         self.config_data = {}
@@ -146,7 +150,9 @@ class DynamicGuiBuilder(
             "_Fader": self._create_fader,
             "_Knob": self._create_knob,
             "_IncDecButtons": self._create_inc_dec_buttons,
-            "_DirectionalButtons": self._create_directional_buttons
+            "_DirectionalButtons": self._create_directional_buttons,
+            "_CustomFader": self._create_custom_fader,
+            "_NeedleVUMeter": self._create_needle_vu_meter
         }
 
         try:
@@ -168,12 +174,15 @@ class DynamicGuiBuilder(
             # Build immediately from the authoritative file
             self._load_and_build_from_file()
 
-            # Connect MQTT for state updates
-            if self.mqtt_util and self.base_topic:
-                self.mqtt_util.add_subscriber(
-                    topic=f"{self.base_topic}/#", 
-                    callback=self._on_receive_command_message
-                )
+            # Manual Rebuild Trigger
+            ttk.Button(self, text="Reload Config", command=self._rebuild_gui).pack(side=tk.BOTTOM, pady=10)
+
+            ## Connect MQTT for state updates
+            ## if self.mqtt_util and self.base_topic:
+            ##     self.mqtt_util.add_subscriber(
+            ##         topic=f"{self.base_topic}/#", 
+            ##         callback=self._on_receive_command_message
+            ##     )
             
             console_log("✅ Celebration of success! GUI Builder initialized.")
 
@@ -185,7 +194,7 @@ class DynamicGuiBuilder(
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=None
+                    console_print_func=console_log
                 )
 
     def _apply_styles(self, theme_name):
@@ -200,7 +209,7 @@ class DynamicGuiBuilder(
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=None
+                console_print_func=console_log
             )
         # Placeholder for style application logic
         pass
@@ -220,7 +229,7 @@ class DynamicGuiBuilder(
                         file=current_file,
                         version=current_version,
                         function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=None
+                        console_print_func=console_log
                     )
                     
                 self._rebuild_gui()
@@ -243,7 +252,7 @@ class DynamicGuiBuilder(
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=None
+                    console_print_func=console_log
                 )
 
             for child in self.scroll_frame.winfo_children():
@@ -251,9 +260,6 @@ class DynamicGuiBuilder(
             
             self.topic_widgets.clear()
             self._create_dynamic_widgets(parent_frame=self.scroll_frame, data=self.config_data)
-            
-            # Manual Rebuild Trigger
-            ttk.Button(self.scroll_frame, text="Reload Config", command=self._rebuild_gui).pack(pady=10)
             
             console_log("✅ GUI Reconstruction complete!")
 
@@ -269,7 +275,7 @@ class DynamicGuiBuilder(
                 return
 
             for key, value in data.items():
-                # Construct MQTT path
+                ## Construct MQTT path
                 current_path = f"{path_prefix}/{key}".strip("/")
                 
                 if isinstance(value, dict):
@@ -292,7 +298,7 @@ class DynamicGuiBuilder(
                                     file=current_file,
                                     version=current_version,
                                     function=f"{self.current_class_name}.{current_function_name}",
-                                    console_print_func=None
+                                    console_print_func=console_log
                                 )
                             # The actuator needs a config. Merge the block's config with the generic model's.
                             config = value.copy()
@@ -324,7 +330,7 @@ class DynamicGuiBuilder(
                                 file=current_file,
                                 version=current_version,
                                 function=f"{self.current_class_name}.{current_function_name}",
-                                console_print_func=None
+                                console_print_func=console_log
                             )
                         # Execute specific widget creation via mixin
                         self.widget_factory[widget_type](

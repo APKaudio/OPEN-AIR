@@ -1,6 +1,6 @@
 # managers/bandwidth_manager/bandwidth_presets.py
 #
-# This file (bandwidth_presets.py) handles preset logic for bandwidth settings, including RBW and VBW, and applies them via MQTT.
+## This file (bandwidth_presets.py) handles preset logic for bandwidth settings, including RBW and VBW, and applies them via MQTT.
 # A complete and comprehensive pre-amble that describes the file and the functions within.
 # The purpose is to provide clear documentation and versioning.
 #
@@ -28,7 +28,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 
 import os
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from display.logger import debug_log, console_log, log_visa_command
@@ -47,8 +47,8 @@ class BandwidthPresets:
     TOPIC_RBW_UNITS_WILDCARD = "OPEN-AIR/configuration/instrument/bandwidth/Settings/fields/Resolution Bandwidth/fields/Resolution Band Width/options/+/units"
     TOPIC_VBW_UNITS_WILDCARD = "OPEN-AIR/configuration/instrument/bandwidth/Settings/fields/Video Bandwidth/fields/Video Band Width /options/+/units"
 
-    def __init__(self, mqtt_controller: MqttControllerUtility, state: BandwidthState, yak_communicator: BandwidthYakCommunicator):
-        self.mqtt_controller = mqtt_controller
+    def __init__(self, mqtt_controller, state: BandwidthState, yak_communicator: BandwidthYakCommunicator):
+        ## self.mqtt_controller = mqtt_controller
         self.state = state
         self.yak_communicator = yak_communicator
         self.base_topic = self.state.base_topic
@@ -98,14 +98,14 @@ class BandwidthPresets:
                     self.state._locked_state[full_target_topic] = True
                 
                 self.yak_communicator._publish_update(topic_suffix=target_suffix, value=new_value_mhz)
-                self.mqtt_controller.publish_message(topic=topic, subtopic="", value=True, retain=False)
+                ## self.mqtt_controller.publish_message(topic=topic, subtopic="", value=True, retain=False)
                 
                 yak_input = self.yak_communicator.YAK_RBW_INPUT if is_rbw else self.yak_communicator.YAK_VBW_INPUT
                 yak_trigger = self.yak_communicator.YAK_RBW_TRIGGER if is_rbw else self.yak_communicator.YAK_VBW_TRIGGER
                 self.yak_communicator.publish_to_yak_and_trigger(value=final_value_hz, input_topic=yak_input, trigger_topic=yak_trigger)
             else:
                 console_log(f"❌ Error: Preset data missing for option {option_number}.")
-                self.mqtt_controller.publish_message(topic=topic, subtopic="", value=False, retain=False)
+                ## self.mqtt_controller.publish_message(topic=topic, subtopic="", value=False, retain=False)
                 self.yak_communicator.update_all_from_device()
         except Exception as e:
             console_log(f"❌ Error applying preset: {e}")

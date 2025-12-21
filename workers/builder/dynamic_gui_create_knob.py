@@ -57,7 +57,7 @@ class KnobCreatorMixin:
             except (ValueError, TypeError):
                 pass
         
-        self.mqtt_callbacks[path] = _update_knob
+        # self.mqtt_callbacks[path] = _update_knob
 
     def _draw_knob(self, canvas, size, value, min_val, max_val):
         canvas.delete("all")

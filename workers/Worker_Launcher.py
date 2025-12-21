@@ -22,7 +22,7 @@ from datetime import datetime
 # --- Imports for logging and workers ---
 from display.logger import debug_log, console_log
 # from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
-# from workers.active.worker_active_peak_publisher import ActivePeakPublisher
+## from workers.active.worker_active_peak_publisher import ActivePeakPublisher
 
 # --- Global Scope Variables ---
 current_date = 20251215
@@ -60,7 +60,7 @@ class WorkerLauncher:
         try:
             self.splash.set_status("Initializing workers...")
             
-            active_peak_publisher = ActivePeakPublisher()
+            ## active_peak_publisher = ActivePeakPublisher()
             self.splash.set_status("Active Peak Publisher initialized.")
             if Local_Debug_Enable:
                 debug_log(message="🛠️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", file=current_file, version=current_version, function=current_function_name, console_print_func=self._print_to_gui_console)

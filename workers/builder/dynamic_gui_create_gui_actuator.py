@@ -55,7 +55,7 @@ TOPIC_DELIMITER = "/"
 class GuiActuatorCreatorMixin:
     """
     A mixin class that provides the functionality for creating a simple
-    actuator button widget that triggers an action via MQTT.
+    actuator button widget that triggers an action.
     """
     def _create_gui_actuator(self, parent_frame, label, config, path):
         # Creates a button that acts as a simple actuator.

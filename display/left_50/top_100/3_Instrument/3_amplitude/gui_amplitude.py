@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.235800.11
+# Version 20251217.23580.12
 
 import os
 import pathlib
@@ -43,10 +43,10 @@ JSON_CONFIG_FILE = current_path.with_suffix('.json')
 module_name = current_path.stem.replace('gui_', '')
 MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 
-class GhostMqtt:
-    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
-    def add_subscriber(self, *args, **kwargs): pass
-    def publish(self, *args, **kwargs): pass
+#class GhostMqtt:
+#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
+ #   def add_subscriber(self, *args, **kwargs): pass
+ #   def publish(self, *args, **kwargs): pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
@@ -123,18 +123,18 @@ class GenericInstrumentGui(ttk.Frame):
 
             # If mqtt_util is None because it was shut off in the orchestrator, 
             # we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+       #     effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
 
             # --- Presentation Layer ---
             # Instantiate the builder.
-            print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
+            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
             
-            self.dynamic_gui = DynamicGuiBuilder(
-                parent=self,
-                mqtt_util=effective_mqtt,
-                base_topic=MQTT_TOPIC_FILTER,
-                json_path=processed_path
-            )
+            #self.dynamic_gui = DynamicGuiBuilder(
+             #   parent=self,
+              #  mqtt_util=effective_mqtt,
+               # base_topic=MQTT_TOPIC_FILTER,
+                #json_path=processed_path
+            #)
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()

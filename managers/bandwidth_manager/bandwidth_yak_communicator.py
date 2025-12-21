@@ -32,7 +32,7 @@ import json
 import os
 
 from display.logger import debug_log, console_log, log_visa_command
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 
 Local_Debug_Enable = True
@@ -66,8 +66,8 @@ class BandwidthYakCommunicator:
         "Sweep_Time_s/value": "Settings/fields/Sweep_time_s/value",
     }
 
-    def __init__(self, mqtt_controller: MqttControllerUtility, state: BandwidthState):
-        self.mqtt_controller = mqtt_controller
+    def __init__(self, mqtt_controller, state: BandwidthState):
+        ## self.mqtt_controller = mqtt_controller
         self.state = state
         self.base_topic = self.state.base_topic
 
@@ -96,22 +96,22 @@ class BandwidthYakCommunicator:
 
     def publish_vbw_auto_and_trigger(self, is_auto_on):
         trigger_topic = self.YAK_VBW_AUTO_ON_TRIGGER if is_auto_on else self.YAK_VBW_AUTO_OFF_TRIGGER
-        self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
+        ## self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
         time.sleep(0.01)
-        self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
+        ## self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
         self.update_all_from_device()
 
     def publish_to_yak_and_trigger(self, value, input_topic, trigger_topic):
-        self.mqtt_controller.publish_message(topic=input_topic, subtopic="", value=value, retain=True)
-        self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
+        ## self.mqtt_controller.publish_message(topic=input_topic, subtopic="", value=value, retain=True)
+        ## self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=True, retain=False)
         time.sleep(0.01)
-        self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
+        ## self.mqtt_controller.publish_message(topic=trigger_topic, subtopic="", value=False, retain=False)
         self.update_all_from_device()
             
     def update_all_from_device(self):
-        self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=True, retain=False)
+        ## self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=True, retain=False)
         time.sleep(0.01)
-        self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=False, retain=False)
+        ## self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=False, retain=False)
         console_log("✅ UPDATE ALL command sent to refresh bandwidth settings from device.")
 
     def process_yak_output(self, topic, payload):

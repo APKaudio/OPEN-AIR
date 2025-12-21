@@ -1,3 +1,4 @@
+'''
 # display/builder/dynamic_gui_MQTT_subscriber.py
 #
 # A mixin for DynamicGuiBuilder that handles MQTT subscription and message processing.
@@ -145,3 +146,4 @@ def log_to_gui(builder_instance, message):
             function=current_function_name,
             console_print_func=console_log
         )
+'''

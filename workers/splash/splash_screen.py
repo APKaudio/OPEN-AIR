@@ -7,12 +7,7 @@
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-Current_Date = 20251215  ##Update on the day the change was made
-Current_Time = 200500  ## update at the time it was edited and compiled
-Current_iteration = 3 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
+import workers.setup.app_constants as app_constants
 
 
 # Author: Anthony Peter Kuzub
@@ -37,15 +32,9 @@ import pathlib
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
 # Assuming sys.path is already set up by main.py
-from display.logger import debug_log, console_log, log_visa_command
 
-# --- Global Scope Variables ---
-current_version = "UNKNOWN_VERSION.000000.0" # Placeholder, update as needed
-current_version_hash = 0
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
-Local_Debug_Enable = True
+
+
 
 try:
     from PIL import Image, ImageTk
@@ -54,27 +43,31 @@ except ImportError:
     Image = None
     ImageTk = None
     PIL_AVAILABLE = False
-    if Local_Debug_Enable:
-        debug_log(
+    if self.debug_enabled:
+        self.debug_log_func(
             message="WARNING: Pillow (PIL) not available. Splash screen will not display image.",
-            file=current_file,
-            version=current_version,
+            file=os.path.basename(__file__), # Use os.path.basename(__file__)
+            version=self.app_version,
             function="SplashScreen Module", # Module level function for logging
-            console_print_func=console_log
+            console_print_func=self.console_log_func
         )
 
 class SplashScreen:
-    def __init__(self, parent):
-        if Local_Debug_Enable:
-            debug_log(
+    def __init__(self, parent, app_version, debug_enabled, console_log_func, debug_log_func):
+        if debug_enabled:
+            debug_log_func(
                 message="DEBUG: Entering SplashScreen.__init__().",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__), # Use os.path.basename(__file__) as current_file
+                version=app_version,
                 function=f"{self.__class__.__name__}.__init__",
-                console_print_func=console_log
+                console_print_func=console_log_func
             )
         
         self.parent = parent
+        self.app_version = app_version
+        self.debug_enabled = debug_enabled
+        self.console_log_func = console_log_func
+        self.debug_log_func = debug_log_func
         self.splash_window = tk.Toplevel(self.parent)
         self.splash_window.overrideredirect(True)
         self.splash_window.attributes('-alpha', 0.0)
@@ -83,17 +76,17 @@ class SplashScreen:
         image_path = None # Initialize image_path to avoid UnboundLocalError
         if PIL_AVAILABLE:
             try:
-                image_path = os.path.join(SPLASH_ROOT_DIR, 'display', 'splash', 'OPEN AIR LOGO.png')
+                image_path = os.path.join(SPLASH_ROOT_DIR, 'workers', 'splash', 'OPEN AIR LOGO.png')
                 pil_image = Image.open(image_path)
                 self.splash_image = ImageTk.PhotoImage(pil_image)
             except Exception as e:
-                if Local_Debug_Enable:
-                    debug_log(
+                if self.debug_enabled:
+                    self.debug_log_func(
                         message=f"Splash screen error: Could not load image '{image_path}'. {e}",
-                        file=current_file,
-                        version=current_version,
+                        file=os.path.basename(__file__),
+                        version=self.app_version,
                         function=f"{self.__class__.__name__}._init_ui",
-                        console_print_func=console_log
+                        console_print_func=self.console_log_func
                     )
                 self.splash_image = None
         
@@ -126,15 +119,39 @@ class SplashScreen:
         self.status_label = tk.Label(self.splash_window, text="", fg="white", bg="black", font=("Helvetica", 10))
         self.status_label.pack(fill=tk.X, side=tk.BOTTOM)
 
+        self.lyrics = [
+            "Breathe, breathe in the air",
+            "Don't be afraid to care",
+            "Leave, but don't leave me",
+            "Look around, choose your own ground",
+            "Long you live and high you fly",
+            "Smiles you'll give and tears you'll cry",
+            "And all you touch and all you see",
+            "Is all your life will ever be",
+            "Run, rabbit, run",
+            "Dig that hole, forget the sun",
+            "When, at last, the work is done",
+            "Don't sit down, it's time to dig another one",
+            "Long you live and high you fly",
+            "But only if you ride the tide",
+            "Balanced on the biggest wave",
+            "You race towards an early grave"
+        ]
+        self.lyric_index = 0
+        self.status_call_count = 0
+        self.current_lyric = ""
+        self.status_message = "Initializing..."
+        self._cycle_lyrics()
+
         self.parent.after(10, self._fade_in)
 
-        if Local_Debug_Enable:
-            debug_log(
+        if self.debug_enabled:
+            self.debug_log_func(
                 message="DEBUG: Exiting SplashScreen.__init__().",
-                file=current_file,
-                version=current_version,
+                file=os.path.basename(__file__),
+                version=self.app_version,
                 function=f"{self.__class__.__name__}.__init__",
-                console_print_func=console_log
+                console_print_func=self.console_log_func
             )
 
     def _fade_in(self, alpha=0.0):
@@ -155,9 +172,17 @@ class SplashScreen:
             else:
                 self.splash_window.destroy()
 
+    def _cycle_lyrics(self):
+        if self.splash_window.winfo_exists():
+            self.current_lyric = self.lyrics[self.lyric_index % len(self.lyrics)]
+            self.lyric_index += 1
+            self.status_label.config(text=f"{self.status_message}\n{self.current_lyric}")
+            self.parent.after(1000, self._cycle_lyrics)
+
     def set_status(self, message):
         if self.splash_window.winfo_exists():
-            self.status_label.config(text=message)
+            self.status_message = message
+            self.status_label.config(text=f"{message}\n{self.current_lyric}")
             self.parent.update_idletasks()
 
 if __name__ == '__main__':

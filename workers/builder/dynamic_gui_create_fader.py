@@ -54,4 +54,4 @@ class FaderCreatorMixin:
             except (ValueError, TypeError):
                 pass # Or log an error
 
-        self.mqtt_callbacks[path] = _update_fader
+        # self.mqtt_callbacks[path] = _update_fader

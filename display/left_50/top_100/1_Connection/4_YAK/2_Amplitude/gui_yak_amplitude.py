@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.235800.11
+# Version 20251217.23580.12
 
 import os
 import pathlib
@@ -41,19 +41,21 @@ JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
-MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
+# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
+module_name = current_path.stem.replace('gui_', '')
+## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 
-class GhostMqtt:
-    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
-    def add_subscriber(self, *args, **kwargs): pass
-    def publish(self, *args, **kwargs): pass
+#class GhostMqtt:
+#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
+ #   def add_subscriber(self, *args, **kwargs): pass
+ #   def publish(self, *args, **kwargs): pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, mqtt_util=None, *args, **kwargs):
+    def __init__(self, parent, config=None, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
         kwargs.pop('config', None)
@@ -99,6 +101,41 @@ class GenericInstrumentGui(ttk.Frame):
                     break
             
             processed_path = str(abs_json_path)
+            
+            # --- Generic JSON Normalization ---
+            # If the JSON doesn't contain an 'OcaBlock' or known widget at the root,
+            # we wrap the whole thing in a Virtual Block so the builder knows to drill down.
+            with open(abs_json_path, 'r') as f:
+                raw_data = json.load(f)
+            
+            needs_wrapping = True
+            if isinstance(raw_data, dict):
+                for k, v in raw_data.items():
+                    if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
+                        needs_wrapping = False
+                        break
+            
+            if needs_wrapping:
+                if LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.current_class_name}.{current_function_name}",
+                        console_print_func=console_log
+                    )
+                # Create a temporary normalized file
+                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
+                norm_data = {
+                    "Generic_Display_Block": { # Generic name for the wrapper block
+                        "type": "OcaBlock",
+                        "description": f"Dynamic Content for {module_name}",
+                        "fields": raw_data
+                    }
+                }
+                with open(temp_path, 'w') as tf:
+                    json.dump(norm_data, tf, indent=4)
+                processed_path = str(temp_path)
             if needs_wrapping:
                 if LOCAL_DEBUG_ENABLE:
                     debug_log(
@@ -123,18 +160,20 @@ class GenericInstrumentGui(ttk.Frame):
 
             # If mqtt_util is None because it was shut off in the orchestrator, 
             # we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+       #     effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
 
             # --- Presentation Layer ---
             # Instantiate the builder.
-            print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
+            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
             
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
-                mqtt_util=effective_mqtt,
-                base_topic=MQTT_TOPIC_FILTER,
                 json_path=processed_path
             )
+            
+            # If we reach here, the builder at least started.
+            self.status_label.destroy()
+            console_log(f"✅ Success! {module_name} GUI construction requested.")
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()

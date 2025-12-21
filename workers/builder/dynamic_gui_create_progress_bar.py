@@ -44,4 +44,4 @@ class ProgressBarCreatorMixin:
             except (ValueError, TypeError):
                 pass # Or log an error
 
-        self.mqtt_callbacks[path] = _update_progress
+        # self.mqtt_callbacks[path] = _update_progress

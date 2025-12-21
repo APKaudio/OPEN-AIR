@@ -52,7 +52,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("/", "/"
 
 class MarkerPeakHunterGUI(ttk.Frame):
     """
-    A GUI component for displaying MQTT data in a table and exporting it.
+    A GUI component for displaying marker data in a table and exporting it.
     """
     def __init__(self, parent, *args, **kwargs):
         """
