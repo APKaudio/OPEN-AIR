@@ -29,6 +29,7 @@ from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 
 # --- Widget Creator Mixins ---
 from .dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
+from .dynamic_gui_create_label import LabelCreatorMixin
 from .dynamic_gui_create_value_box import ValueBoxCreatorMixin
 from .dynamic_gui_create_gui_slider_value import SliderValueCreatorMixin
 from .dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
@@ -37,6 +38,16 @@ from .dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixi
 from .dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
 from .dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
 from .dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
+from .dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
+from .dynamic_gui_create_text_input import TextInputCreatorMixin
+from .dynamic_gui_create_web_link import WebLinkCreatorMixin
+from .dynamic_gui_create_image_display import ImageDisplayCreatorMixin
+from .dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
+from .dynamic_gui_create_vu_meter import VUMeterCreatorMixin
+from .dynamic_gui_create_fader import FaderCreatorMixin
+from .dynamic_gui_create_knob import KnobCreatorMixin
+from .dynamic_gui_create_inc_dec_buttons import IncDecButtonsCreatorMixin
+from .dynamic_gui_create_directional_buttons import DirectionalButtonsCreatorMixin
 
 # --- Protocol Global Variables ---
 LOCAL_DEBUG_ENABLE = True
@@ -53,6 +64,7 @@ class DynamicGuiBuilder(
     MqttSubscriberMixin,
     MousewheelScrollMixin,
     LabelFromConfigCreatorMixin,
+    LabelCreatorMixin,
     ValueBoxCreatorMixin,
     SliderValueCreatorMixin,
     GuiButtonToggleCreatorMixin,
@@ -60,7 +72,17 @@ class DynamicGuiBuilder(
     GuiDropdownOptionCreatorMixin,
     GuiActuatorCreatorMixin,
     GuiCheckboxCreatorMixin,
-    GuiListboxCreatorMixin
+    GuiListboxCreatorMixin,
+    ProgressBarCreatorMixin,
+    TextInputCreatorMixin,
+    WebLinkCreatorMixin,
+    ImageDisplayCreatorMixin,
+    AnimationDisplayCreatorMixin,
+    VUMeterCreatorMixin,
+    FaderCreatorMixin,
+    KnobCreatorMixin,
+    IncDecButtonsCreatorMixin,
+    DirectionalButtonsCreatorMixin
 ):
     """
     Manages the dynamic generation of GUI elements based on OcaBlock definitions.
@@ -101,6 +123,8 @@ class DynamicGuiBuilder(
         self.topic_widgets = {}
         self.config_data = {}
         self.gui_built = False
+        self.mqtt_callbacks = {}
+
 
         # Protocol: No Magic Numbers - Widget Factory Mapping
         self.widget_factory = {
@@ -112,7 +136,17 @@ class DynamicGuiBuilder(
             "_Label": self._create_label_from_config,
             "_GuiActuator": self._create_gui_actuator,
             "_GuiCheckbox": self._create_gui_checkbox,
-            "_GuiListbox": self._create_gui_listbox
+            "_GuiListbox": self._create_gui_listbox,
+            "_ProgressBar": self._create_progress_bar,
+            "_TextInput": self._create_text_input,
+            "_WebLink": self._create_web_link,
+            "_ImageDisplay": self._create_image_display,
+            "_AnimationDisplay": self._create_animation_display,
+            "_VUMeter": self._create_vu_meter,
+            "_Fader": self._create_fader,
+            "_Knob": self._create_knob,
+            "_IncDecButtons": self._create_inc_dec_buttons,
+            "_DirectionalButtons": self._create_directional_buttons
         }
 
         try:
@@ -245,6 +279,36 @@ class DynamicGuiBuilder(
                         # Create a visually distinct group for the block
                         block = ttk.LabelFrame(parent_frame, text=key)
                         block.pack(fill=tk.X, padx=10, pady=5)
+                        
+                        # Check for a nested actuator within the OcaBlock's scpi_details
+                        scpi_details = value.get("scpi_details", {})
+                        generic_model = scpi_details.get("generic_model", {})
+                        nested_widget_type = generic_model.get("type")
+
+                        if nested_widget_type in self.widget_factory:
+                            if LOCAL_DEBUG_ENABLE:
+                                debug_log(
+                                    message=f"🖥️🔵 Found nested widget. Fabricating a {nested_widget_type} widget for {current_path}",
+                                    file=current_file,
+                                    version=current_version,
+                                    function=f"{self.current_class_name}.{current_function_name}",
+                                    console_print_func=None
+                                )
+                            # The actuator needs a config. Merge the block's config with the generic model's.
+                            config = value.copy()
+                            config.update(generic_model)
+
+                            # Use the block's key as the primary label, but the actuator creator will look for better labels inside config.
+                            label = key
+
+                            # Create the actuator inside the OcaBlock's frame.
+                            self.widget_factory[nested_widget_type](
+                                parent_frame=block,
+                                label=label,
+                                config=config,
+                                path=current_path
+                            )
+
                         # Drill into 'fields' container
                         inner_data = value.get("fields", value)
                         self._create_dynamic_widgets(

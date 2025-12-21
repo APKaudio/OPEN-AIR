@@ -7,7 +7,7 @@
         "type": "OcaBlock",
         "description": "System Error Check",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SYSTem:ERRor?"
@@ -29,7 +29,7 @@
         "type": "OcaBlock",
         "description": "Instrument ID",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": "*IDN?"
@@ -57,7 +57,7 @@
         "type": "_GuiActuator",
         "label_inactive": "Update Display",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "trigger": false,
             "SCPI_value": ":SYSTem:DISPlay:UPDate"
           }
@@ -71,7 +71,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Clear Status (*CLS)",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": "*CLS"
               }
@@ -81,7 +81,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Reset Device (*RST)",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": "*RST"
               }
@@ -91,7 +91,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Power Cycle",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": ":SYSTem:POWer:RESet"
               }

@@ -7,7 +7,7 @@
         "type": "OcaBlock",
         "description": "Marker Amplitude and Frequency Readbacks",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":CALCulate:MARKer1:Y?;:CALCulate:MARKer2:Y?;:CALCulate:MARKer3:Y?;:CALCulate:MARKer4:Y?;:CALCulate:MARKer5:Y?;:CALCulate:MARKer6:Y?;:CALCulate:MARKer1:X?;:CALCulate:MARKer2:X?;:CALCulate:MARKer3:X?;:CALCulate:MARKer4:X?;:CALCulate:MARKer5:X?;:CALCulate:MARKer6:X?"
@@ -80,7 +80,7 @@
         "type": "OcaBlock",
         "description": "Enable Marker",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":CALCulate:MARKer<marker_number>:STATe ON"
@@ -102,7 +102,7 @@
         "type": "OcaBlock",
         "description": "Disable Marker",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":CALCulate:MARKer<marker_number>:STATe OFF"
@@ -124,7 +124,7 @@
         "type": "OcaBlock",
         "description": "Set Marker Frequency",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":CALCulate:MARKer<marker_number>:X <x_value>"

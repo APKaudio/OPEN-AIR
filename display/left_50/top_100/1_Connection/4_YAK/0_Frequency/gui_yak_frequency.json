@@ -7,7 +7,7 @@
         "type": "OcaBlock",
         "description": "Primary Frequency Monitoring",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:FREQuency:CENTer?;:FREQuency:SPAN?"
@@ -47,7 +47,7 @@
         "type": "OcaBlock",
         "description": "Frequency Range Commands",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:STARt <start_freq>;:FREQuency:STOP <stop_freq>"
@@ -72,7 +72,7 @@
       "Set_Span_Frequency": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:SPAN <hz_value>"
@@ -93,7 +93,7 @@
       "Set_Start_Freq_MHz": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:STARt <hz_value>"
@@ -114,7 +114,7 @@
       "Set_Stop_Freq_MHz": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:STOP <hz_value>"

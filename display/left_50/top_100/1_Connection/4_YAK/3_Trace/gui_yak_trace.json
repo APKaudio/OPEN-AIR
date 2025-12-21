@@ -3,7 +3,7 @@
     "type": "OcaBlock",
     "description": "NAB Trace Monitoring",
     "fields": {
-      "NAB_traces_1_2_3": {
+      "NAB_traces_1_2_3_N9340B": {
         "type": "OcaBlock",
         "description": "Primary Trace Monitoring",
         "scpi_details": {
@@ -11,7 +11,53 @@
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":FREQuency:STARt?;:FREQuency:STOP?;:TRACe1:MODE?;:TRACe2:MODE?;:TRACe3:MODE?;:TRACe1:DATA?;:TRACe2:DATA?;:TRACe3:DATA?"
-          },
+          }
+        },
+        "fields": {
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "description": "Trace Settings and Data",
+            "fields": {
+              "StartFreq": {
+                "value": "The starting frequency in Hz.",
+                "type": "_Value"
+              },
+              "StopFreq": {
+                "value": "The stopping frequency in Hz.",
+                "type": "_Value"
+              },
+              "TraceMode1": {
+                "value": "The trace modes for each trace.",
+                "type": "_Value"
+              },
+              "TraceMode2": {
+                "value": "The trace modes for each trace.",
+                "type": "_Value"
+              },
+              "TraceMode3": {
+                "value": "The trace modes for each trace.",
+                "type": "_Value"
+              },
+              "TraceData1": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              },
+              "TraceData2": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              },
+              "TraceData3": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "NAB_traces_1_2_3_N9342CN": {
+        "type": "OcaBlock",
+        "description": "Primary Trace Monitoring",
+        "scpi_details": {
           "N9342CN": {
             "type": "_GuiActuator",
             "trigger": false,
@@ -65,14 +111,40 @@
     "type": "OcaBlock",
     "description": "Trace Data Queries",
     "fields": {
-      "Get_Trace_1_Data": {
+      "Get_Trace_1_Data_N9340B": {
         "type": "OcaBlock",
         "scpi_details": {
           "N9340B": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":TRACe<trace_number>:DATA?"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_number": {
+                "value": "1",
+                "type": "_Value",
+                "description": "The trace number."
+              }
+            }
           },
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_data": {
+                "value": "Processed trace data or False.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Get_Trace_1_Data_N9342CN": {
+        "type": "OcaBlock",
+        "scpi_details": {
           "N9342CN": {
             "type": "_GuiActuator",
             "trigger": false,
@@ -101,14 +173,39 @@
           }
         }
       },
-      "Get_Trace_2_Data": {
+      "Get_Trace_2_Data_N9340B": {
         "type": "OcaBlock",
         "scpi_details": {
           "N9340B": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":TRACe<trace_number>:DATA?"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_number": {
+                "value": "2",
+                "type": "_Value"
+              }
+            }
           },
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_data": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Get_Trace_2_Data_N9342CN": {
+        "type": "OcaBlock",
+        "scpi_details": {
           "N9342CN": {
             "type": "_GuiActuator",
             "trigger": false,
@@ -136,14 +233,39 @@
           }
         }
       },
-      "Get_Trace_3_Data": {
+      "Get_Trace_3_Data_N9340B": {
         "type": "OcaBlock",
         "scpi_details": {
           "N9340B": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":TRACe<trace_number>:DATA?"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_number": {
+                "value": "3",
+                "type": "_Value"
+              }
+            }
           },
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_data": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Get_Trace_3_Data_N9342CN": {
+        "type": "OcaBlock",
+        "scpi_details": {
           "N9342CN": {
             "type": "_GuiActuator",
             "trigger": false,
@@ -171,14 +293,39 @@
           }
         }
       },
-      "Get_Trace_4_Data": {
+      "Get_Trace_4_Data_N9340B": {
         "type": "OcaBlock",
         "scpi_details": {
           "N9340B": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":TRACe<trace_number>:DATA?"
+          }
+        },
+        "fields": {
+          "scpi_inputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_number": {
+                "value": "4",
+                "type": "_Value"
+              }
+            }
           },
+          "scpi_outputs": {
+            "type": "OcaBlock",
+            "fields": {
+              "trace_data": {
+                "value": "Processed trace data.",
+                "type": "_Value"
+              }
+            }
+          }
+        }
+      },
+      "Get_Trace_4_Data_N9342CN": {
+        "type": "OcaBlock",
+        "scpi_details": {
           "N9342CN": {
             "type": "_GuiActuator",
             "trigger": false,

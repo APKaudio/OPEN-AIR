@@ -78,7 +78,7 @@ class GuiActuatorCreatorMixin:
             sub_frame = ttk.Frame(parent_frame)
             sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
-            button_text = config.get('label', label)
+            button_text = config.get('label', config.get('label_active', config.get('label_inactive', label)))
 
             button = ttk.Button(
                 sub_frame,

@@ -7,7 +7,7 @@
         "type": "OcaBlock",
         "description": "Bandwidth and Sweep Monitoring",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSe:BANDwidth:RESolution?;:SENSe:BANDwidth:VIDeo?;:SENSe:BANDwidth:VIDeo:AUTO?;:INITiate:CONTinuous?;:SENSe:SWEep:TIME?"
@@ -52,7 +52,7 @@
         "type": "OcaBlock",
         "description": "Set Resolution and Video BW",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSe:BANDwidth:RESolution <rbw_hz_value>;:SENSe:BANDwidth:VIDeo <vbw_hz_value>"
@@ -85,7 +85,7 @@
       "Set_Sweep_time": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSe:SWEep:TIME <sweep_time_s>"
@@ -106,7 +106,7 @@
       "Set_VBW": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSe:BANDwidth:VIDeo <hz_value>"
@@ -127,7 +127,7 @@
       "Set_RBW": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSe:BANDwidth:RESolution <hz_value>"
@@ -158,7 +158,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Sweep Auto ON",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:SWEep:TIME:AUTO ON"
               }
             }
@@ -167,7 +167,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Sweep Auto OFF",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:SWEep:TIME:AUTO OFF"
               }
             }
@@ -181,7 +181,7 @@
             "type": "_GuiActuator",
             "label_inactive": "VBW Auto ON",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO ON"
               }
             }
@@ -190,7 +190,7 @@
             "type": "_GuiActuator",
             "label_inactive": "VBW Auto OFF",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:BANDwidth:VIDeo:AUTO OFF"
               }
             }
@@ -204,7 +204,7 @@
             "type": "_GuiActuator",
             "label_inactive": "RBW Auto ON",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO ON"
               }
             }
@@ -213,7 +213,7 @@
             "type": "_GuiActuator",
             "label_inactive": "RBW Auto OFF",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "SCPI_value": ":SENSe:BANDwidth:RESolution:AUTO OFF"
               }
             }

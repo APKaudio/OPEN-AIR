@@ -7,7 +7,7 @@
         "type": "OcaBlock",
         "description": "Power and Attenuation Readbacks",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?;:POWer:ATTenuation?;:POWer:GAIN?"
@@ -44,7 +44,7 @@
         "type": "OcaBlock",
         "description": "Set Power Levels",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>;:POWer:RF:ATTenuation <Attenuation_dB>;:POWer:GAIN <Preamp_On>"
@@ -82,7 +82,7 @@
       "Get_Reference_Level": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel?"
@@ -103,7 +103,7 @@
       "Get_Attenuation": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":POWer:RF:ATTenuation?"
@@ -124,7 +124,7 @@
       "Get_Preamp_State": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":SENSE:POWer:RF:GAIN:STATe?"
@@ -151,7 +151,7 @@
       "Set_Reference_Level": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel <Ref_Level_dBm>"
@@ -172,7 +172,7 @@
       "Set_Power_Attenuation": {
         "type": "OcaBlock",
         "scpi_details": {
-          "generic_model": {
+          "Generic_Model": {
             "type": "_GuiActuator",
             "trigger": false,
             "SCPI_value": ":POWer:ATTenuation <Power_Attenuation>"
@@ -197,7 +197,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Auto Atten ON",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": ":POWer:ATTenuation:AUTO ON"
               }
@@ -207,7 +207,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Auto Atten OFF",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": ":POWer:ATTenuation:AUTO OFF"
               }
@@ -222,7 +222,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Preamp ON",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": ":POWer:GAIN ON"
               }
@@ -232,7 +232,7 @@
             "type": "_GuiActuator",
             "label_inactive": "Preamp OFF",
             "scpi_details": {
-              "generic_model": {
+              "Generic_Model": {
                 "trigger": false,
                 "SCPI_value": ":POWer:GAIN OFF"
               }
@@ -244,28 +244,40 @@
         "type": "OcaBlock",
         "description": "Quick sensitivity presets",
         "fields": {
-          "Set_High_Sensitive_Power_ON": {
+          "Set_High_Sensitive_Power_ON_N9340B": {
             "type": "_GuiActuator",
             "label_inactive": "High Sensitivity ON",
             "scpi_details": {
               "N9340B": {
                 "trigger": false,
                 "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel -50; :POWer:ATTenuation 0; :POWer:GAIN ON"
-              },
+              }
+            }
+          },
+          "Set_High_Sensitive_Power_ON_N9342CN": {
+            "type": "_GuiActuator",
+            "label_inactive": "High Sensitivity ON",
+            "scpi_details": {
               "N9342CN": {
                 "trigger": false,
                 "SCPI_value": ":POWer:HSENsitive ON"
               }
             }
           },
-          "Set_High_Sensitive_Power_OFF": {
+          "Set_High_Sensitive_Power_OFF_N9340B": {
             "type": "_GuiActuator",
             "label_inactive": "High Sensitivity OFF",
             "scpi_details": {
               "N9340B": {
                 "trigger": false,
                 "SCPI_value": ":DISPlay:WINDow:TRACe:Y:RLEVel 0; :POWer:ATTenuation 20; :POWer:GAIN OFF"
-              },
+              }
+            }
+          },
+          "Set_High_Sensitive_Power_OFF_N9342CN": {
+            "type": "_GuiActuator",
+            "label_inactive": "High Sensitivity OFF",
+            "scpi_details": {
               "N9342CN": {
                 "trigger": false,
                 "SCPI_value": ":POWer:HSENsitive OFF"
