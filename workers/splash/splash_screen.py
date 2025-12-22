@@ -9,7 +9,6 @@
 
 import workers.setup.app_constants as app_constants
 
-
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -20,12 +19,22 @@ import workers.setup.app_constants as app_constants
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
+# Version 20251222.005500.1
 
 import tkinter as tk
 from tkinter import ttk
 import os
 import sys
 import pathlib
+
+# --- Global Scope Variables ---
+Current_Date = 20251222
+Current_Time = 5500
+Current_iteration = 1
+
+current_version = "20251222.005500.1"
+current_version_hash = (Current_Date * Current_Time * Current_iteration)
+current_file = os.path.basename(__file__)
 
 # --- Path Setup ---
 # This defines the absolute, true root path of the project, irrespective of the CWD.
@@ -43,13 +52,19 @@ except ImportError:
     PIL_AVAILABLE = False
 
 # Import lyrics data from a dedicated file
+# MODIFIED: Added fallback to local import for robustness
 try:
     from workers.splash import lyrics_data
     LYRICS_AVAILABLE = True
 except ImportError:
-    lyrics_data = None
-    LYRICS_AVAILABLE = False
-    # This error might occur if lyrics_data.py is missing or has syntax errors.
+    try:
+        # Fallback: Try importing from the same directory
+        import lyrics_data
+        LYRICS_AVAILABLE = True
+    except ImportError:
+        lyrics_data = None
+        LYRICS_AVAILABLE = False
+        # This error might occur if lyrics_data.py is missing or has syntax errors.
 
 class SplashScreen:
     def __init__(self, parent, app_version, debug_enabled, console_log_func, debug_log_func):
@@ -187,7 +202,7 @@ class SplashScreen:
                     file=os.path.basename(__file__),
                     version=self.app_version,
                     function=f"{self.__class__.__name__}.__init__",
-                    console_print_func=self    .console_log_func
+                    console_print_func=self.console_log_func
                 )
         
         self.lyrics_label.config(text=self.current_lyric)
@@ -198,7 +213,9 @@ class SplashScreen:
 
         # Fading animation uses self.parent.after directly, avoiding lambdas.
         self.parent.after(10, self._fade_in)
-        self.splash_window.after(5000, self.cycle_lyrics_async)
+        
+        # MODIFIED: Reduced cycle time from 5000ms to 1500ms to ensure lyrics cycle during short load times.
+        self.splash_window.after(1500, self.cycle_lyrics_async)
 
         if debug_enabled:
             debug_log_func(
@@ -253,7 +270,8 @@ class SplashScreen:
                 function=f"{self.__class__.__name__}.cycle_lyrics_async",
                 console_print_func=self.console_log_func
             )
-            self.splash_window.after(5000, self.cycle_lyrics_async) # Cycle every 5 seconds (5000ms)
+            # MODIFIED: Reduced cycle time from 5000ms to 1500ms
+            self.splash_window.after(1500, self.cycle_lyrics_async) 
 
 if __name__ == '__main__':
     # For testing the splash screen directly
@@ -261,7 +279,7 @@ if __name__ == '__main__':
     root.withdraw() # Hide the main root window
 
     # Dummy values for testing
-    app_version_val = "20251215.120000.58"
+    app_version_val = "20251222.005500.1"
     debug_enabled_val = True
     # Dummy logger functions
     def dummy_debug_log(*args, **kwargs): print(f"DEBUG: {kwargs.get('message')}")
@@ -281,9 +299,10 @@ if __name__ == '__main__':
     root.after(3000, lambda: splash.set_status("All systems go!"))
     
     # Hide splash screen after simulated work
-    root.after(4000, splash.hide)
+    # MODIFIED: Extended test duration to 6000ms to allow lyrics to cycle at least 3 times
+    root.after(6000, splash.hide)
     
     # Ensure the main window is set up if needed, or just end the demo
-    root.after(4500, root.destroy) # Destroy root after splash closes
+    root.after(6500, root.destroy) # Destroy root after splash closes
     root.mainloop()
     dummy_console_log("Main thread exiting.")

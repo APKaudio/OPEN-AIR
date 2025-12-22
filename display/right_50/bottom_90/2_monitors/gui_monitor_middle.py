@@ -1,4 +1,4 @@
-# gui_monitor_1_top_blank_graph.py 
+# gui_monitor_middle.py 
 #
 # A base class for common GUI components, re-written to work with the centralized orchestrator.
 # This version is simplified to only display a blank Matplotlib plot.
@@ -13,9 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-#
-# Version 20251026.220340.3 (Blank Graph)
-# MODIFIED: Removed all plot-specific colors, titles, and axis styling to create a blank graph.
+# Version 20251222.004400.1
 
 import os
 import inspect
@@ -35,11 +33,11 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250823
-CURRENT_TIME = 1500
-REVISION_NUMBER = 21
+CURRENT_DATE = 20251222
+CURRENT_TIME = 4400
+REVISION_NUMBER = 1
 
-current_version = "20251026.220340.3" # Updated version number
+current_version = "20251222.004400.1" 
 # Dynamically get the file path relative to the project root
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
@@ -52,7 +50,7 @@ class MonitorTopGUIFrame(ttk.Frame):
     """
     A reusable base class for GUI frames now focused on displaying a Matplotlib plot.
     """
-    PLOT_ID = "top" 
+    PLOT_ID = "middle" 
     
     def __init__(self, parent, config=None, *args, **kwargs):
         """
@@ -79,9 +77,11 @@ class MonitorTopGUIFrame(ttk.Frame):
             plot_frame.grid_columnconfigure(0, weight=1)
             plot_frame.grid_rowconfigure(0, weight=1)
 
+            # FIX: Ensure config is not None before calling .get()
+            safe_config = config if config is not None else {}
+
             # This section creates the matplotlib figure and canvas.
-            # RETAINED: Figure creation, but removed all color styling for a blank look.
-            self.theme_colors = config.get("theme_colors", {
+            self.theme_colors = safe_config.get("theme_colors", {
                 "bg": "#2b2b2b", "fg": "#dcdcdc", "fg_alt": "#888888", "accent": "#f4902c"
             })
             figure = Figure(figsize=(8, 6), dpi=100, facecolor=self.theme_colors["bg"])

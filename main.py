@@ -29,7 +29,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # Setup modules (ensure they are imported correctly)
 import workers.setup.app_constants as app_constants
-from workers.setup.app_constants import LOCAL_DEBUG_ENABLE 
+
 import workers.setup.path_initializer as path_initializer 
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
@@ -165,7 +165,7 @@ def main():
     
 
     console_log("DEBUG: Initializing SplashScreen...")
-    splash = SplashScreen(root, app_constants.current_version, LOCAL_DEBUG_ENABLE, console_log, debug_log)
+    splash = SplashScreen(root, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE, console_log, debug_log)
     splash.set_status("Initializing application...") # Initial status update
     console_log("DEBUG: SplashScreen initialized.")
     
