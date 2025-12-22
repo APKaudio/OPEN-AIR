@@ -33,7 +33,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 

@@ -32,7 +32,7 @@ import datetime
 import pathlib
 import os
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables ---

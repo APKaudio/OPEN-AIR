@@ -33,7 +33,7 @@ import tkinter as tk
 import inspect
 import os
 
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 # --- Version Information ---
 Current_Date = 20251215  ##Update on the day the change was made

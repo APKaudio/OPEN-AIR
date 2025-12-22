@@ -25,7 +25,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 

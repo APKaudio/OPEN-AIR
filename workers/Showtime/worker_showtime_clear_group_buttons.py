@@ -1,6 +1,6 @@
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 def clear_group_buttons(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name

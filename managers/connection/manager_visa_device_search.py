@@ -32,7 +32,7 @@ from managers.frequency_manager.frequency_yak_communicator import FrequencyYakCo
 from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCommunicator
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables --

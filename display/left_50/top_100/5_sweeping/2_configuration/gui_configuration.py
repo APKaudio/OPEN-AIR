@@ -28,7 +28,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"

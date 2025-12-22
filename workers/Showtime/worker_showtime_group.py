@@ -27,7 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from collections import defaultdict
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 Local_Debug_Enable = True
 

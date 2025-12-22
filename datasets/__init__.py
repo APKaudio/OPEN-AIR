@@ -26,7 +26,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 # Feature Requests can be emailed to i @ like . audio
 #
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 Local_Debug_Enable = True
 
 # The wrapper functions debug_log and console_log_switch are removed

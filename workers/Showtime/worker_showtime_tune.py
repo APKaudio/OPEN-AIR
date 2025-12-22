@@ -26,7 +26,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 ## from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from workers.markers.worker_marker_logic import calculate_frequency_range
 

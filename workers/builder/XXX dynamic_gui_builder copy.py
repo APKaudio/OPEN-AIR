@@ -38,7 +38,7 @@ import paho.mqtt.client as mqtt
 import pathlib # CRITICAL FIX: Missing import
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin

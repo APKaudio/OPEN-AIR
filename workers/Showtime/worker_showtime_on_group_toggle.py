@@ -1,6 +1,6 @@
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_group_toggle(showtime_tab_instance, group_name):

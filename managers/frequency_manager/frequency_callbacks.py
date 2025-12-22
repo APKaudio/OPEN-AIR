@@ -31,7 +31,7 @@ import json
 import os
 import inspect
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 from .frequency_yak_communicator import FrequencyYakCommunicator

@@ -7,7 +7,7 @@ import pathlib
 GLOBAL_PROJECT_ROOT = None
 DATA_DIR = None
 
-def initialize_paths(console_log_func, watchdog_instance):
+def initialize_paths(console_log_func):
     global GLOBAL_PROJECT_ROOT, DATA_DIR
 
     # --- GLOBAL PATH ANCHOR (CRITICAL FIX: Ensure this runs first!) ---
@@ -20,7 +20,6 @@ def initialize_paths(console_log_func, watchdog_instance):
         sys.path.append(str(GLOBAL_PROJECT_ROOT))
     console_log_func(f"DEBUG: sys.path updated. Current sys.path: {sys.path}")
 
-    watchdog_instance.pet("initialize_app: global path set")
 
     # --- Set DATA_DIR ---
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):

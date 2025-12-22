@@ -31,7 +31,7 @@ import os
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 

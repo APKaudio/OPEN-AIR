@@ -2307,7 +2307,7 @@ import time
 # --- TEMPORARY IMPORTS (Only standard library imports are safe here) ---
 # Project-specific imports are commented out or moved to avoid crashing before sys.path is set.
 # from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 # ... (rest of initial imports) ...
 
 
@@ -2322,7 +2322,7 @@ try:
     
     # --- Project-specific Imports (SAFE TO RUN NOW) ---
     # Import core application modules
-    from display.logger import debug_log, console_log, log_visa_command
+    from workers.logger.logger import debug_log, console_log, log_visa_command
     from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
     from display.styling.style import THEMES, DEFAULT_THEME
     from display.splash.splash_screen import SplashScreen
@@ -3164,7 +3164,7 @@ import os
 import inspect
 import json
 
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
@@ -3278,7 +3278,7 @@ import pyvisa
 import os
 import inspect
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 
@@ -3408,7 +3408,7 @@ import json
 import os
 import inspect
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 from .frequency_yak_communicator import FrequencyYakCommunicator
@@ -3674,7 +3674,7 @@ import json
 import os
 import inspect
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .frequency_state import FrequencyState
 
@@ -3908,7 +3908,7 @@ import json
 import pathlib
 
 # Assume these are imported from a central logging utility and MQTT controller
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 Local_Debug_Enable = True
@@ -4127,7 +4127,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import json
 
 
@@ -4321,7 +4321,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 
@@ -4400,7 +4400,7 @@ import pathlib
 import re
 
 # --- Utility and Manager Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
@@ -4689,7 +4689,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 
@@ -4775,7 +4775,7 @@ import os
 import inspect
 import json
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 
@@ -4927,7 +4927,7 @@ import os
 import inspect
 import json
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs
 from managers.yak_manager.yak_command_builder import fill_scpi_placeholders
 from managers.yak_manager.manager_yak_tx import YakTxManager
@@ -5158,7 +5158,7 @@ import os
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 Local_Debug_Enable = True
 
@@ -5341,7 +5341,7 @@ import time
 import json
 import os
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 
@@ -5505,7 +5505,7 @@ from managers.frequency_manager.frequency_yak_communicator import FrequencyYakCo
 from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCommunicator
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables --
@@ -5839,7 +5839,7 @@ import time
 
 # --- Utility and Worker Imports ---
 # UPDATED: Import the centralized log_visa_command
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
@@ -6062,7 +6062,7 @@ import inspect
 import json
 
 # --- Utility and Worker Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_dispatch_scpi import ScpiDispatcher
 
@@ -6718,7 +6718,7 @@ def create_button_with_bar_graph(parent, value, text):
 #####################################
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 def clear_group_buttons(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
@@ -6741,7 +6741,7 @@ def clear_group_buttons(showtime_tab_instance):
 import inspect
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 def create_device_buttons(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
@@ -6832,7 +6832,7 @@ def create_device_buttons(showtime_tab_instance):
 import inspect
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.markers.worker_marker_logic import calculate_frequency_range
 
 def create_group_buttons(showtime_tab_instance):
@@ -6922,7 +6922,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import inspect
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Showtime.worker_showtime_on_zone_toggle import on_zone_toggle
 
 Local_Debug_Enable = True
@@ -7074,7 +7074,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from collections import defaultdict
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 Local_Debug_Enable = True
 
@@ -7116,7 +7116,7 @@ def process_and_sort_markers(showtime_tab_instance):
 #####################################
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Showtime.worker_showtime_create_group_buttons import create_group_buttons
 from workers.Showtime.worker_showtime_create_device_buttons import create_device_buttons
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
@@ -7163,7 +7163,7 @@ def on_group_toggle(showtime_tab_instance, group_name):
 #####################################
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
 
 def on_marker_button_click(showtime_tab_instance, button):
@@ -7198,7 +7198,7 @@ def on_marker_button_click(showtime_tab_instance, button):
 #####################################
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Showtime.worker_showtime_create_group_buttons import create_group_buttons
 from workers.Showtime.worker_showtime_create_device_buttons import create_device_buttons
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection
@@ -7274,7 +7274,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
 
 Local_Debug_Enable = True
@@ -7343,7 +7343,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 import inspect
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from workers.markers.worker_marker_logic import calculate_frequency_range
 
@@ -7483,7 +7483,7 @@ import queue
 
 # --- Module Imports ---
 # Path manipulation is now handled by main.py
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 print(f"DEBUG: Loading MqttControllerUtility from: {__file__}")
 
@@ -7860,7 +7860,7 @@ import inspect
 import json
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
@@ -8080,7 +8080,7 @@ import threading
 import time
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 
@@ -8616,7 +8616,7 @@ import datetime
 import math
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables (as per your instructions) ---
@@ -9070,7 +9070,7 @@ import re
 
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import workers.utils.worker_project_paths
 
 # --- Global Scope Variables ---
@@ -9413,7 +9413,7 @@ import os
 import inspect # Import inspect module
 
 # Updated imports for new logging functions
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode=False, console_print_func=None):
     """
@@ -9554,7 +9554,7 @@ import csv
 import inspect
 import os
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
@@ -9648,7 +9648,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
@@ -9813,7 +9813,7 @@ import paho.mqtt.client as mqtt
 import pathlib # CRITICAL FIX: Missing import
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
@@ -10466,7 +10466,7 @@ import pathlib
 import os # For os.path.basename and os.getcwd
 
 # Assuming sys.path is already set up by main.py
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
@@ -10701,7 +10701,7 @@ import inspect
 import json
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -10846,7 +10846,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import os
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import inspect
 import json
 
@@ -10988,7 +10988,7 @@ import inspect
 import time # CRITICAL: Import time for necessary delay
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -11173,7 +11173,7 @@ import inspect
 import json
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -11312,7 +11312,7 @@ import inspect
 from decimal import Decimal
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -11540,7 +11540,7 @@ import inspect
 from decimal import Decimal
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -11721,7 +11721,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True
@@ -11889,7 +11889,7 @@ import inspect
 
 # --- Module Imports ---
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 
@@ -11977,7 +11977,7 @@ import os
 import inspect
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -12068,7 +12068,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -12186,7 +12186,7 @@ import datetime
 import pathlib
 import os
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables ---
@@ -12285,7 +12285,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 
@@ -12623,7 +12623,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
@@ -12819,7 +12819,7 @@ import time
 
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables (as per your instructions) ---
 current_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -13110,7 +13110,7 @@ import json
 import time
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
@@ -13323,7 +13323,7 @@ except ImportError:
     NUMPY_AVAILABLE = False
     
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables (as per Section 4.4) ---
 current_version = "20251005.230247.1"
@@ -13423,7 +13423,7 @@ import re
 import time 
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
@@ -13605,7 +13605,7 @@ import time
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
@@ -13810,7 +13810,7 @@ import time
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
@@ -13996,7 +13996,7 @@ import time
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 Local_Debug_Enable = True # This flag is checked by the updated debug_log and console_log functions
@@ -14194,7 +14194,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from tkinter import filedialog
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_load_markers_file,
     maker_file_load_ias_html,
@@ -14321,7 +14321,7 @@ import os
 import re
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.Importer.worker_importer_saver import save_markers_file_internally
 
 Local_Debug_Enable = True
@@ -14562,7 +14562,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from tkinter import filedialog
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_load_markers_file,
     maker_file_load_ias_html,
@@ -14684,7 +14684,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 # Feature Requests can be emailed to i @ like . audio
 #
 
-from display.logger import console_log
+from workers.logger.logger import  console_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_save_intermediate_file,
     maker_file_save_open_air_file
@@ -14745,7 +14745,7 @@ import pathlib
 from collections import defaultdict
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
 
@@ -14961,7 +14961,7 @@ Local_Debug_Enable = True
 headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added Peak header
 
 # Updated imports for new logging functions
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 def Marker_convert_IAShtml_report_to_csv(html_content):
@@ -15844,7 +15844,7 @@ import numpy as np
 from tkinter import filedialog, messagebox
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.importers.worker_marker_file_import_converter import (
     Marker_convert_IAShtml_report_to_csv,
     Marker_convert_SB_PDF_File_report_to_csv,
@@ -16808,7 +16808,7 @@ import pathlib
 #// --------------------------------------------------------
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -17922,7 +17922,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 # FIXED: Import the formalized BaseGUIFrame
@@ -18114,7 +18114,7 @@ import seaborn as sns
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 import os
 
@@ -18220,7 +18220,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -18378,7 +18378,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -18536,7 +18536,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -18690,7 +18690,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -19053,7 +19053,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -19417,7 +19417,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -19600,7 +19600,7 @@ import json
 from collections import defaultdict
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -20044,7 +20044,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -20396,7 +20396,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -20492,7 +20492,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -20784,7 +20784,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -21090,7 +21090,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -21392,7 +21392,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -21478,7 +21478,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -21569,7 +21569,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -21661,7 +21661,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -21759,7 +21759,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -21853,7 +21853,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -22145,7 +22145,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -22242,7 +22242,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -22539,7 +22539,7 @@ except ImportError:
     PANDAS_NUMPY_AVAILABLE = False
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
 # FIXED: Importing tuning functions from the correct location.
 from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
@@ -22735,7 +22735,7 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file
 )
@@ -23011,7 +23011,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -23097,7 +23097,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -23463,7 +23463,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -23813,7 +23813,7 @@ from tkinter import ttk
 import pathlib
 import os
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
@@ -23929,7 +23929,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -24015,7 +24015,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -24447,7 +24447,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -24812,7 +24812,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -25177,7 +25177,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -25542,7 +25542,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -25907,7 +25907,7 @@ import json
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 
@@ -26339,7 +26339,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26432,7 +26432,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 
@@ -26521,7 +26521,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26613,7 +26613,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26705,7 +26705,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26797,7 +26797,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26889,7 +26889,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -26981,7 +26981,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -27073,7 +27073,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
 
 # --- Global Scope Variables ---
@@ -27161,7 +27161,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from workers.mqtt.worker_mqtt_data_flattening import MqttDataFlattenerUtility
@@ -27467,7 +27467,7 @@ import pathlib
 import json
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.presets.worker_preset_pusher import PresetPusherWorker
@@ -27798,7 +27798,7 @@ from decimal import Decimal
 from tkinter import TclError
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
@@ -28374,7 +28374,7 @@ from collections import defaultdict
 from datetime import datetime
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 from workers.presets.worker_preset_from_device import PresetFromDeviceWorker
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
@@ -28508,7 +28508,7 @@ import queue # For thread-safe status updates
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
 # Assuming sys.path is already set up by main.py
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_version = "UNKNOWN_VERSION.000000.0" # Placeholder, update as needed

@@ -36,7 +36,7 @@ import os
 import inspect # Import inspect module
 
 # Updated imports for new logging functions
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mode=False, console_print_func=None):
     """

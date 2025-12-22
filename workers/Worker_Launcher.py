@@ -20,7 +20,7 @@ import inspect
 from datetime import datetime
 
 # --- Imports for logging and workers ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 # from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
 ## from workers.active.worker_active_peak_publisher import ActivePeakPublisher
 

@@ -32,7 +32,7 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file
 )

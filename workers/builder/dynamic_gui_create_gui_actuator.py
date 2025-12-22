@@ -34,7 +34,7 @@ import inspect
 import json
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 Local_Debug_Enable = True

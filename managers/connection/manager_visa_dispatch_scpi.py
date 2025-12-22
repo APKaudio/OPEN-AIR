@@ -25,7 +25,7 @@ import time
 
 # --- Utility and Worker Imports ---
 # UPDATED: Import the centralized log_visa_command
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 # --- Global Scope Variables (as per Protocol 4.4) ---

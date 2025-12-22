@@ -23,7 +23,7 @@ from tkinter import ttk
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 
 # --- Protocol: Global Variables ---
 LOCAL_DEBUG_ENABLE = True

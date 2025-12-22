@@ -22,7 +22,7 @@ from pathlib import Path
 import inspect
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 ## from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin

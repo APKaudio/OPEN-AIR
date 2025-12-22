@@ -34,7 +34,7 @@ import pathlib
 import re
 
 # --- Utility and Manager Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
 from managers.yak_manager.yak_trigger_handler import handle_yak_trigger

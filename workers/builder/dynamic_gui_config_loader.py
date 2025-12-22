@@ -32,7 +32,7 @@ import pathlib
 import os # For os.path.basename and os.getcwd
 
 # Assuming sys.path is already set up by main.py
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()

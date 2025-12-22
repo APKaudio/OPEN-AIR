@@ -31,7 +31,7 @@ import os
 import inspect
 import json
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs
 from managers.yak_manager.yak_command_builder import fill_scpi_placeholders
 from managers.yak_manager.manager_yak_tx import YakTxManager

@@ -33,7 +33,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):

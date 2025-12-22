@@ -41,7 +41,7 @@ import queue
 
 # --- Module Imports ---
 # Path manipulation is now handled by main.py
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 
 print(f"DEBUG: Loading MqttControllerUtility from: {__file__}")
 

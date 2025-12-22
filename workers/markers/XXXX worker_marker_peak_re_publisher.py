@@ -25,7 +25,7 @@ import re
 import time 
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---

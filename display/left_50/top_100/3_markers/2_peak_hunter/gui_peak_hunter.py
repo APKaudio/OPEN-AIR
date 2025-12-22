@@ -35,7 +35,7 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 

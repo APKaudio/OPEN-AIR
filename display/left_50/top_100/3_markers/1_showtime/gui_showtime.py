@@ -31,7 +31,7 @@ except ImportError:
     PANDAS_NUMPY_AVAILABLE = False
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
 # FIXED: Importing tuning functions from the correct location.
 # from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq

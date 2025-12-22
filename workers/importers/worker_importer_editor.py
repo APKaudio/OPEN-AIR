@@ -30,7 +30,7 @@ import os
 import re
 import tkinter as tk
 from tkinter import ttk
-from display.logger import debug_log, console_log
+from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_importer_saver import save_markers_file_internally
 
 Local_Debug_Enable = True

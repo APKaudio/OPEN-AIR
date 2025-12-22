@@ -36,7 +36,7 @@ import pathlib
 from collections import defaultdict
 
 # --- Module Imports ---
-from display.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
 
