@@ -33,7 +33,7 @@ APP_START_TIME = datetime.datetime.now()
 current_version = "20251213.000000.1" # Version for this specific logging module
 current_version_hash = (20251213 * 0 * 1)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
@@ -54,7 +54,7 @@ FILE_LOG_DIR: pathlib.Path = None # This will be set by the main application
 
 VISA_LOG_FILENAME = "visa_commands.log"
 DEBUG_FILE_PATH = None  # This will be dynamically set/updated
-ERRORS_LOG_FILENAME = "ERRORS.log" # NEW CONSTANT FOR ERROR LOGGING
+ERRORS_LOG_FILENAME = "🔴 ERRORS.log" # NEW CONSTANT FOR ERROR LOGGING
 
 # Global variable to store the current log filename
 current_debug_log_filename = None
@@ -100,8 +100,8 @@ def get_log_filename():
     global current_debug_log_filename
     
     current_minute = datetime.datetime.now().strftime("%Y%m%d_%H%M")
-    if current_debug_log_filename is None or not current_debug_log_filename.startswith(f"debug_log_{current_minute}"):
-        current_debug_log_filename = f"debug_log_{current_minute}.log"
+    if current_debug_log_filename is None or not current_debug_log_filename.startswith(f"📍🐛{current_minute}"):
+        current_debug_log_filename = f"📍🐛{current_minute}.log"
         
     return current_debug_log_filename
 
@@ -155,10 +155,7 @@ def _truncate_message(message: str) -> str:
 def console_log(message: str, local_debug_enabled: bool = None):
     # Logs a user-facing message to the console and conditionally to the debug file.
     if local_debug_enabled is None:
-        frame = inspect.currentframe().f_back
-        if frame:
-            frame = frame.f_back # Go up one more frame to get the caller of console_log
-        local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', False) if frame else False
+        local_debug_enabled = global_settings.get("general_debug_enabled", False)
 
     if local_debug_enabled:
         # 1. Log to console output
@@ -174,39 +171,33 @@ def console_log(message: str, local_debug_enabled: bool = None):
 
 def debug_log(message: str, file: str, version: str, function: str, console_print_func):
     # Logs a detailed debug message to the specified outputs.
-    if not global_settings["general_debug_enabled"]:
+    if not global_settings.get("general_debug_enabled", False):
         return
         
-    # Get the calling frame
-    frame = inspect.currentframe().f_back
+    # Truncate the message before prepending metadata
+    truncated_message = _truncate_message(message)
     
-    # Check if Local_Debug_Enable is defined and True in the calling frame
-    local_debug_enabled = frame.f_globals.get('Local_Debug_Enable', False)
+    # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
+    timestamp_prefix = ""
+    if global_settings.get("include_timestamp_in_debug"):
+        elapsed_seconds = (datetime.datetime.now() - APP_START_TIME).total_seconds()
+        minutes = int(elapsed_seconds // 60)
+        seconds = int(elapsed_seconds % 60)
+        milliseconds = int((elapsed_seconds - int(elapsed_seconds)) * 1000)
+        timestamp_prefix = f"{minutes:02d}.{seconds:02d}.{milliseconds:03d} "
+    
+    log_entry = f"{timestamp_prefix}{truncated_message} | {file} | {version} Function: {function}"
 
-    if local_debug_enabled:        # Truncate the message before prepending metadata
-        truncated_message = _truncate_message(message)
+    # 1. Log to console output
+    if global_settings["debug_to_terminal"]:
+        console_print_func(log_entry)
+
+    # 2. Log to main debug file
+    if global_settings["debug_to_file"]:
+        _log_to_file(log_entry, get_log_filename())
         
-        # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
-        timestamp_prefix = ""
-        if global_settings.get("include_timestamp_in_debug"):
-            elapsed_seconds = (datetime.datetime.now() - APP_START_TIME).total_seconds()
-            minutes = int(elapsed_seconds // 60)
-            seconds = int(elapsed_seconds % 60)
-            milliseconds = int((elapsed_seconds - int(elapsed_seconds)) * 1000)
-            timestamp_prefix = f"{minutes:02d}.{seconds:02d}.{milliseconds:03d} "
-        
-        log_entry = f"{timestamp_prefix}{truncated_message} | {file} | {version} Function: {function}"
-
-        # 1. Log to console output
-        if global_settings["debug_to_terminal"]:
-            console_print_func(log_entry)
-
-        # 2. Log to main debug file
-        if global_settings["debug_to_file"]:
-            _log_to_file(log_entry, get_log_filename())
-            
-        # 3. Log to errors file if it contains the marker
-        _log_to_error_file(message)
+    # 3. Log to errors file if it contains the marker
+    _log_to_error_file(message)
 
 
 # PUBLIC API: Implemented as per the user's explicit request.

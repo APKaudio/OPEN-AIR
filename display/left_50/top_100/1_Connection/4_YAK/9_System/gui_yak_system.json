@@ -17,7 +17,7 @@
           "scpi_outputs": {
             "type": "OcaBlock",
             "fields": {
-              "error": {
+              "🔴 ERROR": {
                 "value": "The number of errors in the queue.",
                 "type": "_Value"
               }

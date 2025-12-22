@@ -59,7 +59,7 @@ class VisaDeviceManager:
         # Initializes the manager, sets up state variables and MQTT subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟢 Initiating the grand VISA device management experiment!",
+            message=f"🟢️️️🟢 Initiating the grand VISA device management experiment!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -76,7 +76,7 @@ class VisaDeviceManager:
         except Exception as e:
             console_log(f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
             debug_log(
-                message=f"🛠️🔴 By Jove, the initialization has gone haywire! The error be: {e}",
+                message=f"🟢️️️🔴 By Jove, the initialization has gone haywire! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -125,7 +125,7 @@ class VisaDeviceManager:
     ##     # Subscribes to MQTT topics for receiving commands from the GUI.
     ##     current_function_name = inspect.currentframe().f_code.co_name
     ##     debug_log(
-    ##         message=f"🛠️🔵 My minions are tuning the receivers! Subscribing to command topics.",
+    ##         message=f"🟢️️️🔵 My minions are tuning the receivers! Subscribing to command topics.",
     ##         file=current_file,
     ##         version=current_version,
     ##         function=f"{self.__class__.__name__}.{current_function_name}",
@@ -255,7 +255,7 @@ class VisaDeviceManager:
     ##             thread.start()
     ##     except json.JSONDecodeError:
     ##         console_log("❌ Failed to decode JSON payload for connect request.")
-
+    
     def connect_instrument_logic(self, resource_name, console_print_func):
         # Handles the full connection sequence to a VISA instrument.
         try:

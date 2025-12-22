@@ -26,6 +26,7 @@ from workers.logger.logger import  debug_log, console_log
 from display.styling.style import THEMES, DEFAULT_THEME
 ## from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
+import workers.setup.app_constants as app_constants
 
 # --- Widget Creator Mixins ---
 from .dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
@@ -52,7 +53,6 @@ from .dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
 from .dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
 
 # --- Protocol Global Variables ---
-LOCAL_DEBUG_ENABLE = True
 CURRENT_DATE = 20251217
 CURRENT_TIME = 231500
 CURRENT_ITERATION = 2
@@ -96,21 +96,23 @@ class DynamicGuiBuilder(
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
 
-        ## if LOCAL_DEBUG_ENABLE:
-        ##     debug_log(
-        ##         message=f"🖥️🟢 Eureka! Igniting the DynamicGuiBuilder for topic: {base_topic}",
-        ##         file=current_file,
-        ##         version=current_version,
-        ##         function=f"{self.current_class_name}.{current_function_name}",
-        ##         console_print_func=console_log
-        ##     )
+        if app_constants.Local_Debug_Enable: 
+             debug_log(
+                 message=f"🖥️🟢 Eureka! Igniting the DynamicGuiBuilder with json_path: {json_path}",
+                 file=current_file,
+                 version=current_version,
+                 function=f"{self.current_class_name}.{current_function_name}",
+                 console_print_func=console_log
+             )
 
         # Validation: Ensure critical arguments are present to prevent crashes
         if json_path is None:
-            console_log(f"❌ Error in __init__: Missing critical argument: json_path")
-            if LOCAL_DEBUG_ENABLE:
+            caller_frame = inspect.stack()[1]
+            caller_filename = caller_frame.filename
+            console_log(f"❌ Error in __init__: Missing critical argument: json_path. Called from {caller_filename}")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🖥️🔴 Blast! The builder was summoned without its required artifacts!",
+                    message=f"🖥️🔴 Blast! The builder was summoned without its required artifacts! Called from {caller_filename}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
@@ -184,11 +186,11 @@ class DynamicGuiBuilder(
             ##         callback=self._on_receive_command_message
             ##     )
             
-            console_log("✅ Celebration of success! GUI Builder initialized.")
+            console_log("✅ GUI Builder initialized.")
 
         except Exception as e:
             console_log(f"❌ Error in __init__: {e}")
-            if LOCAL_DEBUG_ENABLE:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🖥️🔴 Arrr, the gears of the builder be jammed! {e}",
                     file=current_file,
@@ -203,7 +205,7 @@ class DynamicGuiBuilder(
         Note: Per protocol, logic for 'how' to style should reside in Utility files.
         """
         current_function_name = "_apply_styles"
-        if LOCAL_DEBUG_ENABLE:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🔍 Inspecting the aesthetics for theme: {theme_name}",
                 file=current_file,
@@ -223,7 +225,7 @@ class DynamicGuiBuilder(
                 with open(self.json_filepath, 'r') as f:
                     self.config_data = json.load(f)
                 
-                if LOCAL_DEBUG_ENABLE:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🖥️📂 Reading the sacred scrolls at {self.json_filepath}",
                         file=current_file,
@@ -246,7 +248,7 @@ class DynamicGuiBuilder(
         current_function_name = "_rebuild_gui"
         
         try:
-            if LOCAL_DEBUG_ENABLE:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="🖥️🔁 Tearing down the old world to build a new one!",
                     file=current_file,
@@ -269,6 +271,8 @@ class DynamicGuiBuilder(
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix=""):
         """Recursive parser for OcaBlocks and fields."""
         current_function_name = "_create_dynamic_widgets"
+        if app_constants.Local_Debug_Enable:
+            debug_log(message=f"Creating widgets in {parent_frame} with data: {data}", file=current_file, version=current_version, function=current_function_name, console_print_func=console_log)
         
         try:
             if not isinstance(data, dict):
@@ -292,7 +296,7 @@ class DynamicGuiBuilder(
                         nested_widget_type = generic_model.get("type")
 
                         if nested_widget_type in self.widget_factory:
-                            if LOCAL_DEBUG_ENABLE:
+                            if app_constants.Local_Debug_Enable: 
                                 debug_log(
                                     message=f"🖥️🔵 Found nested widget. Fabricating a {nested_widget_type} widget for {current_path}",
                                     file=current_file,
@@ -324,9 +328,18 @@ class DynamicGuiBuilder(
                         )
                     
                     elif widget_type in self.widget_factory:
-                        if LOCAL_DEBUG_ENABLE:
+                        if app_constants.Local_Debug_Enable: 
                             debug_log(
                                 message=f"🖥️🔵 Fabricating a {widget_type} widget for {current_path}",
+                                file=current_file,
+                                version=current_version,
+                                function=f"{self.current_class_name}.{current_function_name}",
+                                console_print_func=console_log
+                            )
+                            # Log arguments for debugging
+                            label_for_log = value.get("label_active", key)
+                            debug_log(
+                                message=f"  -> Widget Type: {widget_type}, Path: {current_path}, Parent: {parent_frame}, Label: {label_for_log}",
                                 file=current_file,
                                 version=current_version,
                                 function=f"{self.current_class_name}.{current_function_name}",

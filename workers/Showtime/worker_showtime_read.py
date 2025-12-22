@@ -29,15 +29,15 @@ import inspect
 from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_marker_file_import_handling import maker_file_check_for_markers_file
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
 def load_marker_data(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message="🛠️🟢 Loading raw marker data from file.",
+            message="🟢️️️🟢 Loading raw marker data from file.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
             function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -55,7 +55,7 @@ def load_marker_data(showtime_tab_instance):
     showtime_tab_instance.marker_data = [dict(zip(raw_headers, row)) for row in raw_data if len(row) == len(raw_headers)]
     showtime_tab_instance.column_headers = raw_headers
 
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message=f"✅ Loaded {len(showtime_tab_instance.marker_data)} rows. Converted to dictionaries for sorting and display.",
             file=showtime_tab_instance.current_file,

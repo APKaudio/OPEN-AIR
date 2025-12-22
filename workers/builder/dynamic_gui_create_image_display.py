@@ -3,10 +3,17 @@
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
+import workers.setup.app_constants as app_constants
+from workers.logger.logger import debug_log, console_log
+import os
 
 class ImageDisplayCreatorMixin:
     def _create_image_display(self, parent_frame, label, config, path):
         """Creates an image display widget."""
+        current_function_name = "_create_image_display"
+        if app_constants.Local_Debug_Enable:
+            debug_log(message=f"Creating image display for {label}", file=os.path.basename(__file__), function=current_function_name)
+
         frame = ttk.Frame(parent_frame)
         frame.pack(fill=tk.X, padx=10, pady=5)
 
@@ -23,7 +30,9 @@ class ImageDisplayCreatorMixin:
         except Exception as e:
             # Handle image loading errors, maybe display a placeholder
             tk_image = None
-            print(f"Error loading image: {e}")
+            console_log(f"🔴 ERROR loading image: {e}")
+            if app_constants.Local_Debug_Enable:
+                debug_log(message=f"🔴 ERROR loading image: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
 
 
         image_label = ttk.Label(frame, image=tk_image)

@@ -35,9 +35,9 @@ import json
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
+import workers.setup.app_constants as app_constants
 
-
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
@@ -64,9 +64,9 @@ class GuiActuatorCreatorMixin:
         # A trigger path is used to differentiate the trigger from other state values.
         trigger_path = path + "/trigger"
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering {current_function_name} to conjure an actuator button for '{label}'.",
+                message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to conjure an actuator button for '{label}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -91,7 +91,7 @@ class GuiActuatorCreatorMixin:
                 # FIXED: The actuator now correctly publishes to the "actions" topic.
                 action_path = trigger_path.replace("repository", "actions")
 
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"GUI ACTION: Publishing actuator command to '{action_path}' with value 'true'",
                         file=current_file,
@@ -105,7 +105,7 @@ class GuiActuatorCreatorMixin:
                 # FIXED: The actuator now correctly publishes to the "actions" topic.
                 action_path = trigger_path.replace("repository", "actions")
 
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"GUI ACTION: Publishing actuator command release to '{action_path}' with value 'false'",
                         file=current_file,
@@ -121,10 +121,10 @@ class GuiActuatorCreatorMixin:
             if path:
                 self.topic_widgets[path] = button
 
-            console_log(f"✅ Celebration of success! The actuator button '{label}' did appear.")
-            if Local_Debug_Enable:
+            console_log(f"✅ The actuator button '{label}' did appear.")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Actuator button '{label}' created.",
+                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Actuator button '{label}' created.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -134,9 +134,9 @@ class GuiActuatorCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The actuator button creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The actuator button creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=current_function_name,

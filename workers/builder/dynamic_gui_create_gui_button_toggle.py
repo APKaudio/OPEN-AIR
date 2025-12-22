@@ -33,9 +33,7 @@ from tkinter import ttk
 from workers.logger.logger import debug_log, console_log, log_visa_command
 import inspect
 import json
-
-
-Local_Debug_Enable = True
+import workers.setup.app_constants as app_constants
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
@@ -51,9 +49,9 @@ class GuiButtonToggleCreatorMixin:
         # Creates a single button that toggles between two states (e.g., ON/OFF).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to conjure a button widget for '{label}' on path '{path}'.",
+                message=f"🟢️️️🟢 '{current_function_name}' to conjure a button widget for '{label}' on path '{path}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -96,7 +94,7 @@ class GuiButtonToggleCreatorMixin:
                 on_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}ON{TOPIC_DELIMITER}selected"
                 self._transmit_command(relative_topic=on_path, payload=str(new_state).lower())
                 
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"GUI ACTION: Publishing state change for '{label}' with new state '{new_state}'.",
                         file=current_file,
@@ -110,10 +108,10 @@ class GuiButtonToggleCreatorMixin:
             
             self.topic_widgets[path] = (state_var, update_button_state)
 
-            console_log("✅ Celebration of success! the " + label + " did toggle its function with robust, new logic!")
-            if Local_Debug_Enable:
+            console_log("✅ the " + label + " did toggle its function with robust, new logic!")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Toggle button '{label}' created.",
+                    message=f"🟢️️️🟢 Exiting '{current_function_name}'. Toggle button '{label}' created.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -123,9 +121,9 @@ class GuiButtonToggleCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The toggle button creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The toggle button creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",

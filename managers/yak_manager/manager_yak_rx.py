@@ -32,7 +32,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 import json
 
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
@@ -53,29 +53,29 @@ class YakRxManager:
         Parses the response and publishes the results to MQTT topics.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
 
         outputs = command_details.get("scpi_outputs", {})
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"ℹ️ YakRxManager received a response from the device.",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"ℹ️ Path Parts: {path_parts}",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"ℹ️ Raw Response: {response}",
                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
@@ -90,7 +90,7 @@ class YakRxManager:
             
             # Check if this is the specific command with the known key swap issue
             if path_parts == self.NAB_BANDWIDTH_TRIGGER_PATH and len(output_keys) >= 5:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
                         file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
@@ -134,9 +134,9 @@ class YakRxManager:
                          # SWAP REQUIRED: Swap the 4th and 5th keys in the list to match SCPI order
                         temp_keys[3], temp_keys[4] = temp_keys[4], temp_keys[3]
                         output_keys = temp_keys
-                        if Local_Debug_Enable:
+                        if app_constants.Local_Debug_Enable: 
                             debug_log(
-                                message=f"🛠️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
+                                message=f"🟢️️️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
                                 file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                             )
                     
@@ -144,7 +144,7 @@ class YakRxManager:
 
 
             if len(response_parts) != len(output_keys):
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
                         file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
@@ -172,7 +172,7 @@ class YakRxManager:
                     value=raw_value,
                     retain=True
                 )
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
                         file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
@@ -182,7 +182,7 @@ class YakRxManager:
 
         except Exception as e:
             console_log(f"❌ Error processing response: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log

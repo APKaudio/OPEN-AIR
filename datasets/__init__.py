@@ -27,7 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 from workers.logger.logger import debug_log, console_log, log_visa_command
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.

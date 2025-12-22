@@ -24,9 +24,9 @@ from tkinter import ttk
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log, console_log
+import workers.setup.app_constants as app_constants
 
 # --- Protocol: Global Variables ---
-LOCAL_DEBUG_ENABLE = True
 CURRENT_DATE = 20251217
 CURRENT_TIME = 235800
 CURRENT_ITERATION = 11
@@ -62,13 +62,13 @@ class GenericInstrumentGui(ttk.Frame):
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
 
-        if LOCAL_DEBUG_ENABLE:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=None
+                console_print_func=console_log
             )
 
         # Immediate visual feedback in the GUI
@@ -101,7 +101,7 @@ class GenericInstrumentGui(ttk.Frame):
                         break
             
             if needs_wrapping:
-                if LOCAL_DEBUG_ENABLE:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
                         file=current_file,
@@ -139,13 +139,13 @@ class GenericInstrumentGui(ttk.Frame):
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
             console_log(error_msg)
             self.status_label.config(text=error_msg, foreground="red")
-            if LOCAL_DEBUG_ENABLE:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=None
+                    console_print_func=console_log
                 )
 
     def _on_tab_selected(self, *args, **kwargs):
@@ -155,13 +155,13 @@ class GenericInstrumentGui(ttk.Frame):
         """
         current_function_name = "_on_tab_selected"
         
-        if LOCAL_DEBUG_ENABLE:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=None
+                console_print_func=console_log
             )
         
         # Add logic here if specific refresh actions are needed on tab focus

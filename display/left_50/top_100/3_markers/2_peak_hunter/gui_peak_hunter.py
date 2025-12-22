@@ -38,9 +38,9 @@ from tkinter import filedialog
 from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
+import workers.setup.app_constants as app_constants
 
-
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
@@ -63,7 +63,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
                 file=current_file,
@@ -129,7 +129,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=self.current_file,
@@ -170,7 +170,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🔵 Preparing to export table data to CSV.",
                 file=self.current_file,
@@ -202,7 +202,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=self.current_file,

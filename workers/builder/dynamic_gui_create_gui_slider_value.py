@@ -34,13 +34,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-
-
-Local_Debug_Enable = True
-
-
-
-
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -58,9 +52,9 @@ class SliderValueCreatorMixin:
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to create a slider and value box for '{label}'.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a slider and value box for '{label}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -80,7 +74,7 @@ class SliderValueCreatorMixin:
             min_val = float(config.get('min', '0'))
             max_val = float(config.get('max', '100'))
             
-            # 🛠️ New fix: Create a custom style for a thicker slider
+            # 🟢️️️ New fix: Create a custom style for a thicker slider
             style = ttk.Style(sub_frame)
             style_name = 'Thicker.Horizontal.TScale'
             style.configure(style_name, sliderlength=40)
@@ -111,7 +105,7 @@ class SliderValueCreatorMixin:
 
             def on_slider_release(event):
                 new_val = float(slider.get())
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                         file=current_file,
@@ -126,7 +120,7 @@ class SliderValueCreatorMixin:
                     new_val = float(entry.get())
                     if min_val <= new_val <= max_val:
                         slider.set(new_val)
-                        if Local_Debug_Enable:
+                        if app_constants.Local_Debug_Enable: 
                             debug_log(
                                 message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                                 file=current_file,
@@ -146,10 +140,10 @@ class SliderValueCreatorMixin:
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
 
-            console_log("✅ Celebration of success! The slider value box did appear.")
-            if Local_Debug_Enable:
+            console_log("✅ The slider value box did appear.")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Slider '{label}' created.",
+                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Slider '{label}' created.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -159,9 +153,9 @@ class SliderValueCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The slider value box creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The slider value box creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",

@@ -7,7 +7,7 @@ import sys
 import io
 import re
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 class CSVToJSONApp(tk.Tk):
     """
@@ -137,7 +137,7 @@ class CSVToJSONApp(tk.Tk):
         self.header_widgets.clear()
         
         if not self.csv_filepath or not os.path.exists(self.csv_filepath):
-            messagebox.showerror("Error", "Please select a valid CSV file.")
+            messagebox.showerror("🔴 ERROR", "Please select a valid CSV file.")
             return
 
         try:
@@ -197,7 +197,7 @@ class CSVToJSONApp(tk.Tk):
             self.headers_canvas.config(scrollregion=self.headers_canvas.bbox("all"))
 
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to read CSV headers: {e}")
+            messagebox.showerror("🔴 ERROR", f"Failed to read CSV headers: {e}")
 
     def update_nested_under_dropdowns(self):
         """Updates the options in the Nested Under dropdowns based on current roles."""
@@ -253,14 +253,14 @@ class CSVToJSONApp(tk.Tk):
             final_json[root_name] = self.build_json_hierarchy(df, header_map, "root")
             
             if final_json[root_name] == []:
-                messagebox.showerror("Error", "The root 'Hierarchical Key' or 'Value as Key' must be selected to form the root of the JSON structure.")
+                messagebox.showerror("🔴 ERROR", "The root 'Hierarchical Key' or 'Value as Key' must be selected to form the root of the JSON structure.")
                 return {}
             
             
             return final_json
         
         except Exception as e:
-            messagebox.showerror("Error", f"An error occurred during generation: {e}")
+            messagebox.showerror("🔴 ERROR", f"An error occurred during generation: {e}")
             
             return {}
 
@@ -280,7 +280,7 @@ class CSVToJSONApp(tk.Tk):
         """Converts the CSV to JSON and saves the file."""
         json_filepath = self.json_path_entry.get()
         if not json_filepath:
-            messagebox.showerror("Error", "Please specify an output JSON file name.")
+            messagebox.showerror("🔴 ERROR", "Please specify an output JSON file name.")
             return
 
         json_data = self.generate_json_from_config()
@@ -294,7 +294,7 @@ class CSVToJSONApp(tk.Tk):
             self.update_output_with_json(json_data)
             messagebox.showinfo("Success", f"Successfully converted and saved to {json_filepath}")
         except Exception as e:
-            messagebox.showerror("Error", f"Failed to save JSON file: {e}")
+            messagebox.showerror("🔴 ERROR", f"Failed to save JSON file: {e}")
 
     def update_output_with_json(self, data):
         """
@@ -328,7 +328,7 @@ class CSVToJSONApp(tk.Tk):
             formatted_json = json.dumps(data, indent=4)
             self.raw_json_text.insert(tk.END, formatted_json)
         except Exception as e:
-            self.raw_json_text.insert(tk.END, f"Error formatting JSON: {e}")
+            self.raw_json_text.insert(tk.END, f"🔴 ERROR formatting JSON: {e}")
         
 
 

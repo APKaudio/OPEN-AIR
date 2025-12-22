@@ -48,19 +48,18 @@ class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        if 'config' in kwargs:
-            kwargs.pop('config')
+        config_data = kwargs.pop('config', None)
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to initialize the PresetPusherGui.",
+            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -78,7 +77,7 @@ class PresetPusherGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=config
             )
-            console_log("✅ Celebration of success! The PresetPusherGui did initialize its dynamic GUI builder.")
+            console_log("✅ The PresetPusherGui did initialize its dynamic GUI builder.")
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(

@@ -35,13 +35,7 @@ from decimal import Decimal
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-
-
-Local_Debug_Enable = True
-
-
-
-
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -59,9 +53,9 @@ class GuiDropdownOptionCreatorMixin:
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to create a dropdown for '{label}'.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a dropdown for '{label}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -128,7 +122,7 @@ class GuiDropdownOptionCreatorMixin:
                         self._last_selected_option = selected_key
                         selected_value_var.set(selected_value) # Update the value var
 
-                    if Local_Debug_Enable:
+                    if app_constants.Local_Debug_Enable: 
                         debug_log(
                             message=f"GUI ACTION: Publishing to '{new_path}' with value 'true'",
                             file=current_file,
@@ -160,10 +154,10 @@ class GuiDropdownOptionCreatorMixin:
                 # FIX: Storing the rebuild_options method in the tuple
                 self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
-            console_log("✅ Celebration of success! The dropdown menu did appear.")
-            if Local_Debug_Enable:
+            console_log("✅ The dropdown menu did appear.")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Dropdown '{label}' created.",
+                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Dropdown '{label}' created.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -173,9 +167,9 @@ class GuiDropdownOptionCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The dropdown creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The dropdown creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -188,9 +182,9 @@ class GuiDropdownOptionCreatorMixin:
         NEW: Rebuilds the option list for a dropdown based on a new configuration.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to rebuild options for dropdown.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to rebuild options for dropdown.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -214,9 +208,9 @@ class GuiDropdownOptionCreatorMixin:
         if current_selection not in option_labels and option_labels:
             dropdown.set(option_labels[0])
             self._last_selected_option = next((key for key, opt in active_options.items() if opt.get('label_active', key) == option_labels[0]), None)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Exiting '{current_function_name}'. Options rebuilt for dropdown.",
+                message=f"🟢️️️🟢⬅️ '{current_function_name}'. Options rebuilt for dropdown.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

@@ -33,7 +33,7 @@ from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from workers.logger.logger import debug_log, console_log, log_visa_command
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 

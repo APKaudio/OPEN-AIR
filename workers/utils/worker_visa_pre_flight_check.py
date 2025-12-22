@@ -60,7 +60,7 @@ current_version = "20251013.202759.4"
 # The hash calculation drops the leading zero from the hour (20 -> 20)
 current_version_hash = (20251013 * 202759 * 4)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # --- Mock Logging Functions (for standalone operation) ---
 def console_log(message):
@@ -75,7 +75,7 @@ def debug_log(message, file, version, function, console_print_func):
 def list_visa_resources():
     # Lists all available VISA resources using PyVISA.
     current_function_name = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
             file=current_file,
@@ -154,7 +154,7 @@ def list_visa_resources():
         console_log(f"  Details: {e}")
     except Exception as e:
         console_log(f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}")
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🖥️🔴 VISA scan failed: {e}",
                 file=current_file,

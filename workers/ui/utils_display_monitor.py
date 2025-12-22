@@ -41,7 +41,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
     # [A brief, one-sentence description of the function's purpose.]
     # Finds and plots local peaks on a Matplotlib axis.
-    debug_log(f"Entering _find_and_plot_peaks with {len(data) if data else 0} data points.",
+    debug_log(f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
                 file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
@@ -85,7 +85,7 @@ def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
 def _setup_zoom_events(ax, canvas, original_xlim):
     # [A brief, one-sentence description of the function's purpose.]
     # Sets up event handlers for horizontal zooming on the plot.
-    debug_log(f"Entering _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         drag_start_x = None
@@ -121,12 +121,12 @@ def _setup_zoom_events(ax, canvas, original_xlim):
 def reset_zoom(ax, canvas):
     # [A brief, one-sentence description of the function's purpose.]
     # Resets the plot to its original, full x-axis view.
-    debug_log(f"Entering reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     try:
         if hasattr(ax, 'original_xlim'):
             ax.set_xlim(ax.original_xlim)
             canvas.draw_idle()
-        console_log("✅ Celebration of success! Zoom reset.")
+        console_log("✅ Zoom reset.")
     except Exception as e:
         console_log(f"❌ Error in reset_zoom: {e}")
         debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
@@ -135,7 +135,7 @@ def reset_zoom(ax, canvas):
 def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the top plot in the Scan Monitor tab with new data.
-    debug_log(f"Entering update_top_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ update_top_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
         
     try:
         plot_info = scan_monitor_tab_instance.plots["top"]
@@ -183,7 +183,7 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MH
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
 
         canvas.draw()
-        console_log("✅ Celebration of success! Top plot updated.")
+        console_log("✅ Top plot updated.")
     except Exception as e:
         console_log(f"❌ Error in update_top_plot: {e}")
         debug_log(f"Arrr, the top plot be capsized! The error be: {e}\n{traceback.format_exc()}",
@@ -192,7 +192,7 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MH
 def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the middle plot in the Scan Monitor tab with new data.
-    debug_log(f"Entering update_middle_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ update_middle_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
         plot_info = scan_monitor_tab_instance.plots["middle"]
@@ -240,7 +240,7 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
-        console_log("✅ Celebration of success! Middle plot updated.")
+        console_log("✅ Middle plot updated.")
     except Exception as e:
         console_log(f"❌ Error in update_middle_plot: {e}")
         debug_log(f"It's alive! Oh wait, no, the middle plot is dead. Error: {e}\n{traceback.format_exc()}",
@@ -249,7 +249,7 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
 def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the bottom plot in the Scan Monitor tab with new data.
-    debug_log(f"Entering update_bottom_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ update_bottom_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         plot_info = scan_monitor_tab_instance.plots["bottom"]
@@ -298,7 +298,7 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
-        console_log("✅ Celebration of success! Bottom plot updated.")
+        console_log("✅ Bottom plot updated.")
     except Exception as e:
         console_log(f"❌ Error in update_bottom_plot: {e}")
         debug_log(f"Shiver me timbers, the bottom plot has been scuttled! Error: {e}\n{traceback.format_exc()}",
@@ -307,7 +307,7 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
 def clear_monitor_plots(scan_monitor_tab_instance):
     # [A brief, one-sentence description of the function's purpose.]
     # Clears all three plots in the Scan Monitor tab.
-    debug_log(f"Entering clear_monitor_plots.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ clear_monitor_plots.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
                 
     try:
         if not scan_monitor_tab_instance:
@@ -327,7 +327,7 @@ def clear_monitor_plots(scan_monitor_tab_instance):
                 ax.grid(True, linestyle='--', color='gray', alpha=0.5)
                 canvas.draw()
         
-        console_log("✅ Celebration of success! All monitor plots cleared.")
+        console_log("✅ All monitor plots cleared.")
     except Exception as e:
         console_log(f"❌ Error in clear_monitor_plots: {e}")
         debug_log(f"My creation! It refuses to be cleared! Error: {e}\n{traceback.format_exc()}",

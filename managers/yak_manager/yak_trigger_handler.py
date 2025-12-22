@@ -38,7 +38,7 @@ from managers.yak_manager.manager_yak_tx import YakTxManager
 from managers.yak_manager.manager_yak_rx import YakRxManager
 from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 
@@ -49,7 +49,7 @@ def handle_yak_trigger(yak_manager, topic, payload):
     and then calling the specialized lookup functions.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message="TRIGGER TRIGGER TRIGGER",
             file=current_file,
@@ -90,7 +90,7 @@ def handle_yak_trigger(yak_manager, topic, payload):
                 yak_rx_manager = YakRxManager(mqtt_controller=yak_manager.mqtt_util)
                 yak_rx_manager.process_response(path_parts=repo_path_parts, command_details={"scpi_outputs": command_outputs}, response=response_value)
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍 Processed trigger for topic: {topic}",
                 file=current_file,
@@ -100,7 +100,7 @@ def handle_yak_trigger(yak_manager, topic, payload):
             )
     except Exception as e:
         console_log(f"❌ Error processing trigger for topic {topic}: {e}")
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,

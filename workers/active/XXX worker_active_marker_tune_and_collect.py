@@ -42,7 +42,7 @@ current_version = "20251006.225130.6"
 current_version_hash = (20251006 * 225130 * 6)
 current_file = f"{os.path.basename(__file__)}"
 HZ_TO_MHZ = 1_000_000
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
@@ -86,9 +86,9 @@ class MarkerGoGetterWorker:
     def __init__(self, mqtt_util: MqttControllerUtility):
         # Initializes the worker, sets up state variables, and subscribes to topics.
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initializing the tireless Marker Go-Getter!",
+                message=f"🟢️️️🟢 Initializing the tireless Marker Go-Getter!",
                 file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
@@ -204,7 +204,7 @@ class MarkerGoGetterWorker:
             
             self.mqtt_util.publish_message(topic=marker_topic, subtopic="", value=freq_hz, retain=True)
             
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🔵 Place Marker {j}: {device_id} sent {freq_mhz} MHz ({freq_hz} Hz).",
                     file=current_file, version=current_version, function=current_function_name,
@@ -249,9 +249,9 @@ class MarkerGoGetterWorker:
             self.max_frequency_mhz == self.last_max_freq and
             not self.first_run):
             
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message="🛠️🟡 Min/Max frequencies unchanged. Skipping span update.",
+                    message="🟢️️️🟡 Min/Max frequencies unchanged. Skipping span update.",
                     file=current_file, version=current_version, function=current_function_name,
                     console_print_func=console_log
                 )
@@ -325,9 +325,9 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
     based on a selected marker, and then triggers the SCPI command.
     """
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message="🛠️🟢 Received request to tune to marker. Processing data...",
+            message="🟢️️️🟢 Received request to tune to marker. Processing data...",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -344,7 +344,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
@@ -360,7 +360,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             # FIX: Convert to integer for HZ value
             center_freq_hz = int(freq_mhz * HZ_TO_MHZ)
         except (ValueError, TypeError) as e:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
@@ -371,7 +371,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             console_log("❌ Failed to tune: Invalid frequency value.")
             return
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍 Freq from marker: {freq_mhz} MHz -> {center_freq_hz} Hz. Setting Span to {DEFAULT_SPAN_HZ} Hz.",
                 file=current_file,
@@ -388,9 +388,9 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         console_log(f"✅ Set SPAN_FREQ to {int(DEFAULT_SPAN_HZ)} Hz.")
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=True)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
+                message="🟢️️️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -398,9 +398,9 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
             )
         
         mqtt_controller.publish_message(topic=TRIGGER_TOPIC, subtopic="", value=False)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🔵 Trigger reset to False. Command sequence complete.",
+                message="🟢️️️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -410,7 +410,7 @@ def Push_Marker_to_Center_Freq(mqtt_controller, marker_data):
         console_log("✅ Tuning command sequence complete.")
 
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌🔴 Critical error during marker tuning: {e}",
                 file=current_file,
@@ -426,9 +426,9 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
     then publishes the values and triggers the SCPI command.
     """
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
+            message=f"🟢️️️🟢 Received request to tune with a buffer. Buffer is {buffer} Hz. Processing data...",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -443,7 +443,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         freq_mhz = marker_data.get('FREQ_MHZ', None)
         if freq_mhz is None:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="❌🔴 Error: Marker data is missing the 'FREQ_MHZ' key.",
                     file=current_file,
@@ -458,7 +458,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
             freq_mhz = float(freq_mhz)
             center_freq_hz = freq_mhz * HZ_TO_MHZ
         except (ValueError, TypeError) as e:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Error converting frequency to float: {e}",
                     file=current_file,
@@ -474,7 +474,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         start_freq_hz = int(center_freq_hz - buffer)
         stop_freq_hz = int(center_freq_hz + buffer)
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍 Calculated range: Start={start_freq_hz} Hz, Stop={stop_freq_hz} Hz.",
                 file=current_file,
@@ -493,9 +493,9 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         # Trigger SCPI command
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=True)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🔵 Trigger set to True. Awaiting instrument response.",
+                message="🟢️️️🔵 Trigger set to True. Awaiting instrument response.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -504,9 +504,9 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         
         # Reset the trigger
         mqtt_controller.publish_message(topic=START_STOP_TRIGGER_TOPIC, subtopic="", value=False)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🔵 Trigger reset to False. Command sequence complete.",
+                message="🟢️️️🔵 Trigger reset to False. Command sequence complete.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -516,7 +516,7 @@ def Push_Marker_to_Start_Stop_Freq(mqtt_controller, marker_data, buffer=1e6):
         console_log("✅ Tuning command sequence complete.")
 
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌🔴 Critical error during marker tuning with buffer: {e}",
                 file=current_file,

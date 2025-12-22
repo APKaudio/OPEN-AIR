@@ -9,12 +9,6 @@ print("main.py started!")
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-
-
-
-
-
-
 import inspect
 import importlib
 import tkinter as tk
@@ -23,9 +17,11 @@ import sys
 
 # --- Module Imports ---
 # Core utilities and components
+
 from workers.splash.splash_screen import SplashScreen
 from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
 from workers.Worker_Launcher import WorkerLauncher
+
 
 # Application display module
 import display.gui_display # Import the module, not just the class
@@ -33,6 +29,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 
 # Setup modules (ensure they are imported correctly)
 import workers.setup.app_constants as app_constants
+from workers.setup.app_constants import LOCAL_DEBUG_ENABLE 
 import workers.setup.path_initializer as path_initializer 
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
@@ -43,17 +40,17 @@ import before_main
 # Import initialize_app directly
 from workers.setup.application_initializer import initialize_app 
 
+LOCAL_DEBUG_ENABLE = False
 
 current_file = f"{os.path.basename(__file__)}"
 
-
-
 def action_open_display(root, splash): 
+    console_log("DEBUG: entering action_open_display")
     # Initializes and opens the main graphical user interface and then publishes the dataset.
     current_function_name = inspect.currentframe().f_code.co_name
     console_log("DEBUG: Entering action_open_display...") # Added log
     
-    if app_constants.Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message=f"🖥️🟢 The final step! Activating the main display in '{current_function_name}'!",
             file=current_file,
@@ -69,7 +66,8 @@ def action_open_display(root, splash):
         console_log("--> [2/10] Importing Application module...")
         ApplicationModule = importlib.import_module("display.gui_display")
         Application = getattr(ApplicationModule, "Application")
-        
+        console_log("<-- [2/10] Application module imported.")
+
         console_log("--> [3/10] Instantiating Application...")
         app = Application(parent=root)
         app.pack(fill=tk.BOTH, expand=True)
@@ -84,8 +82,6 @@ def action_open_display(root, splash):
         )
         splash.set_status("SCPI Dispatcher initialized.")
         console_log("<-- [4/10] ScpiDispatcher instantiated.")
-
-
 
         console_log("--> [5/10] Launching managers...")
       #  launch_managers(scpi_dispatcher, app, splash)
@@ -103,8 +99,6 @@ def action_open_display(root, splash):
         splash.set_status("Dataset published.")
         console_log("<-- [7/10] Initial dataset published.")
 
-
-
         console_log("--> [9/10] Hiding splash screen...")
         splash.hide() # Hide splash screen
         console_log("<-- [9/10] Splash screen hidden.")
@@ -115,11 +109,12 @@ def action_open_display(root, splash):
         console_log("<-- [10/10] Root window deiconified.")
 
         console_log("✅ The grand spectacle begins! GUI is now open.")
+        console_log("DEBUG: leaving action_open_display")
         return True
 
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔴 Blast and barnacles! The display has failed to materialize! The error be: {e}",
                 file=current_file,
@@ -128,30 +123,31 @@ def action_open_display(root, splash):
                 console_print_func=console_log
             )
         splash.hide() # Hide splash on error
+        console_log("DEBUG: leaving action_open_display with error")
         return False
 
 def main():
     """The main execution function for the application."""
-    console_log("DEBUG: Entering main function.") # Added log
+    console_log("DEBUG: Entering main function.")
 
     # Call path_initializer early to set up DATA_DIR needed for logger
-    console_log("DEBUG: Calling path_initializer.initialize_paths...") # Added log
+    console_log("DEBUG: Calling path_initializer.initialize_paths...")
     global_project_root, data_dir = path_initializer.initialize_paths(console_log)
-    console_log(f"DEBUG: path_initializer.initialize_paths completed. data_dir is: {data_dir}") # Added data_dir logging
+    console_log(f"DEBUG: path_initializer.initialize_paths completed. data_dir is: {data_dir}")
 
     # Configure logger
-    console_log("DEBUG: Calling logger_config.configure_logger...") # Added log
+    console_log("DEBUG: Calling logger_config.configure_logger...")
     logger_config.configure_logger(data_dir, console_log)
-    console_log("DEBUG: logger_config.configure_logger completed.") # Added log
+    console_log("DEBUG: logger_config.configure_logger completed.")
     
-    console_log("DEBUG: Calling debug_cleaner.clear_debug_directory...") # Added log
+    console_log("DEBUG: Calling debug_cleaner.clear_debug_directory...")
     debug_cleaner.clear_debug_directory(data_dir, console_log)
-    console_log("DEBUG: debug_cleaner.clear_debug_directory completed.") # Added log
+    console_log("DEBUG: debug_cleaner.clear_debug_directory completed.")
 
-    console_log("DEBUG: Calling console_encoder.configure_console_encoding...") # Added log
+    console_log("DEBUG: Calling console_encoder.configure_console_encoding...")
     # Corrected call: Pass console_log and debug_log to configure_console_encoding
     console_encoder.configure_console_encoding( console_log, debug_log)
-    console_log("DEBUG: console_encoder.configure_console_encoding completed.") # Added log
+    console_log("DEBUG: console_encoder.configure_console_encoding completed.")
 
     console_log("🚀 Running pre-flight dependency checks...")
     if not before_main.action_check_dependancies(console_log, debug_log):
@@ -160,20 +156,24 @@ def main():
     console_log("✅ Pre-flight dependency checks passed.")
 
     # Initialize and start splash screen early
+    console_log("DEBUG: Initializing Tk root window...")
     root = tk.Tk()
     root.title("OPEN-AIR 2")
     root.geometry("1600x1200")
     root.withdraw()
+    console_log("DEBUG: Tk root window initialized.")
     
 
-    splash = SplashScreen(root, app_constants.current_version, app_constants.Local_Debug_Enable, console_log, debug_log)
+    console_log("DEBUG: Initializing SplashScreen...")
+    splash = SplashScreen(root, app_constants.current_version, LOCAL_DEBUG_ENABLE, console_log, debug_log)
     splash.set_status("Initializing application...") # Initial status update
+    console_log("DEBUG: SplashScreen initialized.")
     
 
-    console_log("DEBUG: Calling initialize_app...") # Added log
+    console_log("DEBUG: Calling initialize_app...")
     # Corrected call: Use imported function directly
     if initialize_app(console_log, debug_log): # <-- initialize_app is called here directly
-        console_log("DEBUG: initialize_app returned True. Calling action_open_display...") # Added log
+        console_log("DEBUG: initialize_app returned True. Calling action_open_display...")
        
         action_open_display(root, splash)
        
@@ -182,10 +182,11 @@ def main():
         splash.hide() # Hide splash on error
         console_log("❌ Halting startup due to initialization errors.")
 
-    console_log("DEBUG: About to enter root.mainloop()...") # Added log
+    console_log("DEBUG: About to enter root.mainloop()...")
     
     root.mainloop()
     
+    console_log("DEBUG: root.mainloop() has exited.")  
 
 if __name__ == "__main__":
     print("DEBUG: Calling main()...")

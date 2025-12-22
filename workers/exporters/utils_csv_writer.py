@@ -29,7 +29,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 current_version = "20250810.134500.1" # this variable should always be defined below the header to make the debugging better
 current_version_hash = 20250810 * 134500 * 1 # Example hash, adjust as needed
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 import csv
 import os
@@ -61,7 +61,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
     """
     console_print_func = console_print_func if console_print_func else console_log # Use console_log as default
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(f"Attempting to write scan data to CSV: {file_path}, append_mode={append_mode}. Let's save this data!",
                     file=__file__,
                     version=current_version,
@@ -72,8 +72,8 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
     if output_dir and not os.path.exists(output_dir):
         try:
             os.makedirs(output_dir)
-            if Local_Debug_Enable:
-                debug_log(f"Created directory: {output_dir}. Path cleared!",
+            if app_constants.Local_Debug_Enable: 
+                debug_log(f"✅🔨 directory: {output_dir}. Path cleared!",
                             file=__file__,
                             version=current_version,
                             function=current_function)
@@ -81,7 +81,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
             error_msg = f"❌ Error creating directory '{output_dir}': {e}. This is a disaster!"
             # WRAPPED WITH after() to prevent cross-thread access
             app_instance_ref.after(0, lambda: console_print_func(error_msg))
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(error_msg,
                             file=__file__,
                             version=current_version,
@@ -105,7 +105,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
             
             if write_header:
                 csv_writer.writerow(header)
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(f"Wrote header to CSV file: {file_path}. Header added!",
                                 file=__file__,
                                 version=current_version,
@@ -116,7 +116,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
                 csv_writer.writerow([f"{freq_MHz:.3f}", f"{level_dBm:.3f}"])
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(f"✅ Scan data written to CSV: {file_path}. Data saved!"))
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(f"Scan data written to CSV: {file_path}. Mission accomplished!",
                         file=__file__,
                         version=current_version,
@@ -125,7 +125,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
         error_msg = f"❌ I/O Error writing to CSV file {file_path}: {e}. This is a disaster!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(error_msg,
                         file=__file__,
                         version=current_version,
@@ -135,7 +135,7 @@ def write_scan_data_to_csv(file_path, header, data, app_instance_ref, append_mod
         error_msg = f"❌ An unexpected error occurred while writing to CSV file {file_path}: {e}. What a mess!"
         # WRAPPED WITH after() to prevent cross-thread access
         app_instance_ref.after(0, lambda: console_print_func(error_msg))
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(error_msg,
                         file=__file__,
                         version=current_version,

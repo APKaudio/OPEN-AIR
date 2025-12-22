@@ -47,7 +47,7 @@ current_version = "20251006.223430.3"
 # The hash calculation removes leading zeros, if any.
 current_version_hash = (20251006 * 223430 * 3)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # --- Constants (No Magic Numbers) ---
 # FIX: Using the single-level wildcard '+' to match the dynamic 'Marker_X' or 'Marker_X_freq' segment.
@@ -66,9 +66,9 @@ class ActivePeakPublisher:
         # Initializes the publisher and sets up subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
+                message=f"🟢️️️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -88,7 +88,7 @@ class ActivePeakPublisher:
         self.mqtt_util.add_subscriber(TOPIC_MARKER_PEAK_WILDCARD, self._on_marker_message)
         self.mqtt_util.add_subscriber(TOPIC_MARKER_FREQ_WILDCARD, self._on_marker_message)
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍 Subscribed to both peak and frequency wildcards.",
                 file=current_file,
@@ -124,9 +124,9 @@ class ActivePeakPublisher:
             # a) Invalid JSON structure (JSONDecodeError)
             # b) Missing 'value' key (TypeError/AttributeError from get("value") )
             # c) Unparsable number string (ValueError)
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟡 Silent Skip: Unparsable payload '{payload}'.",
+                    message=f"🟢️️️🟡 Silent Skip: Unparsable payload '{payload}'.",
                     file=current_file,
                     version=current_version,
                     function=f"{__class__.__name__}.{current_function_name}",
@@ -146,9 +146,9 @@ class ActivePeakPublisher:
             self.marker_data_buffer[marker_id]['peak'] = numeric_value
             data_type = "Peak"
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
+                message=f"🟢️️️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
                 file=current_file,
                 version=current_version,
                 function=f"{__class__.__name__}.{current_function_name}",
@@ -241,7 +241,7 @@ class ActivePeakPublisher:
                 retain=True
             )
 
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐💾 Reposted {marker_id} data to hierarchical topic.",
                     file=current_file,
@@ -253,7 +253,7 @@ class ActivePeakPublisher:
 
         except Exception as e:
             console_log(f"❌ Error during hierarchical republishing for {marker_id}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
                     file=current_file,

@@ -26,7 +26,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
@@ -220,7 +220,7 @@ class Application(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         # Corrected call: Replaced self._log_debug with the imported debug_log function.
         debug_log( 
-            message=f"Entering _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
+            message=f"▶️ _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
             file=os.path.basename(__file__),
             version=app_constants.current_version, # Corrected: Use app_constants.current_version
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -268,7 +268,7 @@ class Application(ttk.Frame):
 
                     # Corrected call: Replaced self._log_debug with the imported debug_log function.
                     debug_log( 
-                        message=f"Created {layout_type} pane for '{panel_info['name']}' with weight {weight}.",
+                        message=f"✅🔨 {layout_type} pane for '{panel_info['name']}' with weight {weight}.",
                         file=os.path.basename(__file__),
                         version=app_constants.current_version, # Corrected: Use app_constants.current_version
                         function=f"{self.__class__.__name__}.{current_function_name}",
@@ -299,7 +299,7 @@ class Application(ttk.Frame):
                 notebook.bind('<<NotebookTabChanged>>', self._on_tab_change) # Event for tab switching
                 # Corrected call: Replaced self._log_debug with the imported debug_log function.
                 debug_log( 
-                    message=f"Created ttk.Notebook for path '{path}'. Bound tear-off and tab change events.",
+                    message=f"✅🔨 ttk.Notebook for path '{path}'. Bound tear-off and tab change events.",
                     file=os.path.basename(__file__),
                     version=app_constants.current_version, # Corrected: Use app_constants.current_version
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -323,7 +323,7 @@ class Application(ttk.Frame):
                     notebook.add(tab_frame, text=display_name)
                     # Corrected call: Replaced self._log_debug with the imported debug_log function.
                     debug_log( 
-                        message=f"Added tab '{display_name}' to notebook.",
+                        message=f"📑📑'{display_name}' to notebook.",
                         file=os.path.basename(__file__),
                         version=app_constants.current_version, # Corrected: Use app_constants.current_version
                         function=f"{self.__class__.__name__}.{current_function_name}",
@@ -389,16 +389,18 @@ class Application(ttk.Frame):
                 for gui_file_path in layout_data['gui_files']:
                     # Corrected call: Replaced self._log_debug with the imported debug_log function.
                     debug_log( 
-                        message=f"Building GUI file: '{gui_file_path.name}'.",
+                        message=f"🟢️🧱🪟💾: '{gui_file_path.name}'.",
                         file=os.path.basename(__file__),
                         version=app_constants.current_version, # Corrected: Use app_constants.current_version
                         function=f"{self.__class__.__name__}.{current_function_name}",
                         console_print_func=console_log
                     )
-                    self.module_loader.load_and_instantiate_gui(
+                    instance = self.module_loader.load_and_instantiate_gui(
                         path=gui_file_path, 
                         parent_widget=parent_widget
                     )
+                    if instance:
+                        instance.pack(fill=tk.BOTH, expand=True)
             
             else: # Fallback for any unhandled directory structures or empty folders.
                 # Corrected call: Replaced self._log_debug with the imported debug_log function.
@@ -428,7 +430,7 @@ class Application(ttk.Frame):
 
             # Corrected call: Replaced self._log_debug with the imported debug_log function.
             debug_log( 
-                message=f"Exiting _build_from_directory for path: '{path}'.",
+                message=f"⏹️_build_from_directory for path: '{path}'.",
                 file=os.path.basename(__file__),
                 version=app_constants.current_version, # Corrected: Use app_constants.current_version
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -452,7 +454,7 @@ class Application(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         # Corrected call: Replaced self._log_debug with the imported debug_log function.
         debug_log( 
-            message=f"Entering '{current_function_name}' to log a tab change.",
+            message=f"▶️ '{current_function_name}' to log a tab change.",
             file=os.path.basename(__file__),
             version=app_constants.current_version, # Corrected: Use app_constants.current_version
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -517,7 +519,7 @@ class Application(ttk.Frame):
             )
             # Corrected call: Replaced self._log_debug with the imported debug_log function.
             debug_log( 
-                message=f"Exiting _on_tab_change().",
+                message=f"⏹️_on_tab_change().",
                 file=os.path.basename(__file__),
                 version=app_constants.current_version, # Corrected: Use app_constants.current_version
                 function=f"{self.__class__.__name__}.{current_function_name}",

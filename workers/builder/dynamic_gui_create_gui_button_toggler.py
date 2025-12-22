@@ -35,9 +35,7 @@ import time # CRITICAL: Import time for necessary delay
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-
-
-Local_Debug_Enable = True
+import workers.setup.app_constants as app_constants
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
@@ -58,9 +56,9 @@ class GuiButtonTogglerCreatorMixin:
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to create a button toggler for '{label}'.",
+                message=f"🟢️️️🟢 Entering '{current_function_name}' to create a button toggler for '{label}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -156,10 +154,10 @@ class GuiButtonTogglerCreatorMixin:
             if path:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
 
-            console_log("✅ Celebration of success! The button toggler did appear.")
-            if Local_Debug_Enable:
+            console_log("✅ The button toggler did appear.")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Button toggler '{label}' created.",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -169,9 +167,9 @@ class GuiButtonTogglerCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",

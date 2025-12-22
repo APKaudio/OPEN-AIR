@@ -36,7 +36,7 @@ import pathlib
 from workers.logger.logger import debug_log, console_log, log_visa_command
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 
@@ -58,9 +58,9 @@ class SpanSettingsManager:
         # Dictionary to store preset values dynamically
         self.preset_values = {}
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initializing SpanSettingsManager and setting up subscriptions.",
+                message=f"🟢️️️🟢 Initializing SpanSettingsManager and setting up subscriptions.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -81,7 +81,7 @@ class SpanSettingsManager:
             config_file_path = project_root / "datasets" / "configuration" / "dataset_configuration_instrument_frequency.json"
 
             if not config_file_path.is_file():
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"❌ Configuration file not found at '{config_file_path}'. Cannot load presets.",
                         file=current_file,
@@ -98,7 +98,7 @@ class SpanSettingsManager:
             for key, option in span_options.items():
                 self.preset_values[int(key)] = float(option.get('value'))
 
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"💾 Successfully loaded {len(self.preset_values)} span preset values.",
                     file=current_file,
@@ -108,9 +108,9 @@ class SpanSettingsManager:
                 )
 
         except Exception as e:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Failed to load preset values from file. The error be: {e}",
+                    message=f"🟢️️️🔴 Failed to load preset values from file. The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}._load_preset_values",
@@ -126,7 +126,7 @@ class SpanSettingsManager:
         for i in range(1, 8):
             self.mqtt_controller.add_subscriber(topic_filter=f"{self.span_presets_topic}/{i}/selected", callback_func=self._on_preset_message)
 
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🔍 Subscribed to span preset topics for option {i}.",
                     file=current_file,
@@ -146,13 +146,13 @@ class SpanSettingsManager:
             if topic.endswith("/selected") and str(value).lower() == 'true':
                 self._update_span_from_preset(topic=topic)
 
-            console_log("✅ Celebration of success! The span settings did synchronize!")
+            console_log("✅ The span settings did synchronize!")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The span preset logic has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The span preset logic has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -169,7 +169,7 @@ class SpanSettingsManager:
 
             if new_span_value is not None:
                 self._publish_update(topic=self.target_span_topic, value=new_span_value)
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🔁 Preset selected! Published new span value to '{self.target_span_topic}'.",
                         file=current_file,
@@ -178,7 +178,7 @@ class SpanSettingsManager:
                         console_print_func=console_log
                     )
             else:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🟡 Warning: Preset value for option {option_number} has not been received yet.",
                         file=current_file,
@@ -188,9 +188,9 @@ class SpanSettingsManager:
                     )
 
         except Exception as e:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Failed to apply preset from topic '{topic}'. The error be: {e}",
+                    message=f"🟢️️️🔴 Failed to apply preset from topic '{topic}'. The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -203,7 +203,7 @@ class SpanSettingsManager:
 
         rounded_value = round(value, 3)
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"💾 Publishing new value '{rounded_value}' to topic '{topic}'.",
                 file=current_file,

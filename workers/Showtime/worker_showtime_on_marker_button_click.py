@@ -7,7 +7,7 @@ def on_marker_button_click(showtime_tab_instance, button):
     current_function = inspect.currentframe().f_code.co_name
     if showtime_tab_instance.Local_Debug_Enable:
         debug_log(
-            message="🛠️🔵 Device button clicked. Toggling selection.",
+            message="🟢️️️🔵 Device button clicked. Toggling selection.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
             function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",

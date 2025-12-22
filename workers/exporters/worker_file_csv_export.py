@@ -40,7 +40,7 @@ REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 class CsvExportUtility:
@@ -60,9 +60,9 @@ class CsvExportUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to save data to CSV at '{file_path}'.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to save data to CSV at '{file_path}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -86,7 +86,7 @@ class CsvExportUtility:
             
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,

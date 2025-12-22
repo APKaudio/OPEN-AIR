@@ -42,7 +42,7 @@ from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
 from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
@@ -60,7 +60,7 @@ class YaketyYakManager:
     """
     def __init__(self, mqtt_controller: MqttControllerUtility, dispatcher_instance: ScpiDispatcher, app_instance):
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🐐🐐🐐🟢 Entering {current_function_name}. The Yakety Yak manager is coming to life! My creation awakens!",
                 file=current_file,
@@ -84,7 +84,7 @@ class YaketyYakManager:
                 topic_filter=repo_topic_filter,
                 callback_func=self.YAK_LISTEN_TO_MQTT
             )
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🔍 I've set a trap! Listening for all repository messages on topic '{repo_topic_filter}'.",
                     file=current_file,
@@ -98,7 +98,7 @@ class YaketyYakManager:
                 topic_filter=save_action_topic,
                 callback_func=self.YAK_SAVE_REPOSITORY
             )
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐💾 A new trap is set! Listening for an explicit save command on topic '{save_action_topic}'.",
                     file=current_file,
@@ -111,7 +111,7 @@ class YaketyYakManager:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🔴 Initialization failed! The error be: {e}",
                     file=current_file,
@@ -133,7 +133,7 @@ class YaketyYakManager:
                 with open(YAKETY_YAK_REPO_PATH, 'r') as f:
                     return json.load(f)
             except json.JSONDecodeError as e:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"🐐🐐🐐🟡 Failed to decode JSON from file. Creating an empty repository. The error be: {e}",
                         file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
@@ -147,7 +147,7 @@ class YaketyYakManager:
         Writes the current in-memory repository to the JSON file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 # UPDATED: Use the imported path constant
                 message=f"🐐🐐🐐💾 Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
@@ -169,7 +169,7 @@ class YaketyYakManager:
             return True
         except Exception as e:
             console_log(f"❌ Error saving repository to file: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🔴 The quill broke! Failed to save the repository! The error be: {e}",
                     file=current_file,
@@ -184,7 +184,7 @@ class YaketyYakManager:
         Processes incoming MQTT messages and updates the in-memory repository.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🐐🐐🐐⚡️ An announcement has arrived! Topic: '{topic}', Payload: '{payload}'",
                 file=current_file,
@@ -204,7 +204,7 @@ class YaketyYakManager:
                 
             # Check for a "trigger" in the topic AND the value being explicitly True
             if "trigger" in topic.lower() and isinstance(parsed_payload, dict) and parsed_payload.get('value', False) is True:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message="🐐🐐🐐🟢 Trigger event detected with a 'true' value. Initiating command orchestration!",
                         file=current_file,
@@ -250,7 +250,7 @@ class YaketyYakManager:
         
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🔴 A fatal error occurred while processing the MQTT message! The error be: {e}",
                     file=current_file,
@@ -265,7 +265,7 @@ class YaketyYakManager:
         This is an explicit action triggered by an MQTT command.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 # UPDATED: Use the imported path constant
                 message=f"🐐🐐🐐💾 An explicit save command has been received! Writing the current repository to '{YAKETY_YAK_REPO_PATH}'.",
@@ -280,7 +280,7 @@ class YaketyYakManager:
                 self._save_repo_to_file()
         except Exception as e:
             console_log(f"❌ Error saving repository to file: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🔴 The quill broke! Failed to save the repository! The error be: {e}",
                     file=current_file,

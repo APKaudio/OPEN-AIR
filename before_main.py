@@ -62,10 +62,10 @@ def _execute_pip_command(action, package_name, console_log_func, debug_log_func,
     if action == ACTION_UNINSTALL:
         command.append(FLAG_ASSUME_YES) # Assume yes for uninstall
         
-    log_message = f"🛠️ Running 'pip {action}' for {package_name}..."
+    log_message = f"🟢️️️ Running 'pip {action}' for {package_name}..."
     console_log_func(log_message)
     debug_log_func(
-        message=f"🛠️🟢 Running pip command: {' '.join(command)}",
+        message=f"🟢️️️🟢 Running pip command: {' '.join(command)}",
         file=current_file,
         version=current_version,
         function=current_function_name,

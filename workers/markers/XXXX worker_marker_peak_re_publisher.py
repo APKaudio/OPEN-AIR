@@ -53,7 +53,7 @@ class MarkerPeakPublisher:
         current_function_name = inspect.currentframe().f_code.co_name
         
         debug_log(
-            message=f"🛠️🟢 Initializing Peak Publisher for batch starting with {starting_device_id}. STARTING MAP GENERATION.",
+            message=f"🟢️️️🟢 Initializing Peak Publisher for batch starting with {starting_device_id}. STARTING MAP GENERATION.",
             file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
@@ -63,7 +63,7 @@ class MarkerPeakPublisher:
         
         self.marker_to_device_map = self._generate_device_map(starting_device_id)
         debug_log(
-            message=f"🛠️🔍 Generated Map: {self.marker_to_device_map}",
+            message=f"🟢️️️🔍 Generated Map: {self.marker_to_device_map}",
             file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
             console_print_func=console_log
         )
@@ -152,7 +152,7 @@ class MarkerPeakPublisher:
             
             except ValueError:
                 # This block handles "nan" or non-numeric strings, which is your requested error spot.
-                error_message = "ERROR: Peak Value Invalid"
+                error_message = "🔴 ERROR: Peak Value Invalid"
                 self.mqtt_util.publish_message(final_peak_topic, "", error_message, retain=True)
                 
                 debug_log(

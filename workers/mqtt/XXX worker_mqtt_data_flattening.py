@@ -43,7 +43,7 @@ REVISION_NUMBER = 21
 current_version = "20250825.151032.21"
 current_version_hash = 63895914278400
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 class MqttDataFlattenerUtility:
@@ -62,9 +62,9 @@ class MqttDataFlattenerUtility:
         """
         Clears the internal data buffer.
         """
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
+                message="🟢️️️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.clear_buffer",
@@ -94,9 +94,9 @@ class MqttDataFlattenerUtility:
             if self.data_buffer:
                 return self._flush_buffer()
             else:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
-                        message="🛠️🟡 Flush command received, but buffer is empty. Nothing to do.",
+                        message="🟢️️️🟡 Flush command received, but buffer is empty. Nothing to do.",
                         file=current_file,
                         version=current_version,
                         function=f"{self.__class__.__name__}.{current_function_name}",
@@ -113,9 +113,9 @@ class MqttDataFlattenerUtility:
                 self.clear_buffer()
                 return []
             
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
+                    message=f"🟢️️️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -142,9 +142,9 @@ class MqttDataFlattenerUtility:
             
         except json.JSONDecodeError as e:
             console_log(f"❌ Error decoding JSON payload for topic '{topic}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 The JSON be a-sailing to its doom! The error be: {e}",
+                    message=f"🟢️️️🔴 The JSON be a-sailing to its doom! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -154,9 +154,9 @@ class MqttDataFlattenerUtility:
             return []
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -171,9 +171,9 @@ class MqttDataFlattenerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟢 Processing buffer and commencing pivoting and flattening!",
+                message="🟢️️️🟢 Processing buffer and commencing pivoting and flattening!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -204,9 +204,9 @@ class MqttDataFlattenerUtility:
             self.data_buffer[new_topic] = new_data
             self.last_unique_identifier = new_identifier
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️✅ Behold! I have transmogrified the data! The final payload is below.",
+                message="🟢️️️✅ Behold! I have transmogrified the data! The final payload is below.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

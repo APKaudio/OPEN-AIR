@@ -31,7 +31,7 @@ import os
 import inspect
 from workers.logger.logger import debug_log, console_log, log_visa_command
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 
@@ -41,7 +41,7 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
     Takes an SCPI command template and replaces placeholders with values from inputs.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(f"🔍🔵 Entering {current_function_name} to fill SCPI placeholders.",
                   file=current_file,
                   version=current_version,
@@ -68,7 +68,7 @@ def fill_scpi_placeholders(scpi_command_template: str, scpi_inputs: dict):
             
             if placeholder in filled_command:
                 filled_command = filled_command.replace(placeholder, value_to_substitute)
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(f"🔁 Replaced placeholder '{placeholder}' with value '{value_to_substitute}'.",
                               file=current_file,
                               version=current_version,

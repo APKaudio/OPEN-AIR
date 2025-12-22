@@ -46,7 +46,7 @@ current_version = "20251005.230247.1"
 # The hash calculation drops the leading zero from the hour (23 -> 23)
 current_version_hash = (20251005 * 230247 * 1)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 def calculate_frequency_range(marker_data_list):
@@ -54,9 +54,9 @@ def calculate_frequency_range(marker_data_list):
     current_function_name = inspect.currentframe().f_code.co_name
     
     # [A brief, one-sentence description of the function's purpose.]
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
+            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
             file=current_file,
             version=current_version,
             function=current_function_name,
@@ -64,9 +64,9 @@ def calculate_frequency_range(marker_data_list):
         )
 
     if not marker_data_list:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 The marker list is an empty void! Returning null range.",
+                message="🟢️️️🟡 The marker list is an empty void! Returning null range.",
                 file=current_file,
                 version=current_version,
                 function=current_function_name,
@@ -99,9 +99,9 @@ def calculate_frequency_range(marker_data_list):
 
     except Exception as e:
         console_log(f"❌ Error in {current_function_name}: {e}")
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! Calculation failed: {e}",
+                message=f"🟢️️️🔴 Arrr, the code be capsized! Calculation failed: {e}",
                 file=current_file,
                 version=current_version,
                 function=current_function_name,

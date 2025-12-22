@@ -23,7 +23,7 @@ import json
 
 # --- Utility and Worker Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+#from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_dispatch_scpi import ScpiDispatcher
 
 # --- Global Scope Variables (as per Protocol 4.4) ---
@@ -42,7 +42,7 @@ class VisaResetManager:
         self.current_class_name = self.__class__.__name__
 
         debug_log(
-            message=f"🛠️🟢 Initiating the {self.current_class_name}. The enforcer of resets is online!",
+            message=f"🟢️️️🟢 Initiating the {self.current_class_name}. The enforcer of resets is online!",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
@@ -67,7 +67,7 @@ class VisaResetManager:
         except Exception as e:
             console_log(f"❌ Error in {self.current_class_name}.{current_function_name}: {e}")
             debug_log(
-                message=f"🛠️🔴 Catastrophic failure during {self.current_class_name} initialization! The error be: {e}",
+                message=f"🟢️️️🔴 Catastrophic failure during {self.current_class_name} initialization! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -78,7 +78,7 @@ class VisaResetManager:
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Entering {current_function_name} to subscribe to reset/reboot topics.",
+            message=f"▶️ {current_function_name} to subscribe to reset/reboot topics.",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
@@ -88,12 +88,12 @@ class VisaResetManager:
             # FIXED: Subscribing to the new '/trigger' subtopic
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_RESET, callback_func=self._on_reset_request)
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_REBOOT, callback_func=self._on_reboot_request)
-            console_log("✅ Celebration of success! The reset manager did subscribe to its topics.")
+            console_log("✅ The reset manager did subscribe to its topics.")
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"🛠️🔴 The subscription circuits are fried! The error be: {e}",
+                message=f"🟢️️️🔴 The subscription circuits are fried! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -104,7 +104,7 @@ class VisaResetManager:
         # Handles a request to perform a soft reset (*RST) on the instrument.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Entering {current_function_name} due to message on topic: {topic}",
+            message=f"▶️ {current_function_name} due to message on topic: {topic}",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
@@ -120,7 +120,7 @@ class VisaResetManager:
         except (json.JSONDecodeError, AttributeError) as e:
             console_log(f"❌ Error processing reset request payload: {payload}. Error: {e}")
             debug_log(
-                message=f"🛠️🔴 A garbled message! The reset contraption is confused! The error be: {e}",
+                message=f"🟢️️️🔴 A garbled message! The reset contraption is confused! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",
@@ -131,7 +131,7 @@ class VisaResetManager:
         # Handles a request to perform a power cycle on the instrument.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"Entering {current_function_name} due to message on topic: {topic}",
+            message=f"▶️ {current_function_name} due to message on topic: {topic}",
             file=current_file,
             version=current_version,
             function=f"{self.current_class_name}.{current_function_name}",
@@ -147,7 +147,7 @@ class VisaResetManager:
         except (json.JSONDecodeError, AttributeError) as e:
             console_log(f"❌ Error processing reboot request payload: {payload}. Error: {e}")
             debug_log(
-                message=f"🛠️🔴 The reboot sequence has short-circuited! The error be: {e}",
+                message=f"🟢️️️🔴 The reboot sequence has short-circuited! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.current_class_name}.{current_function_name}",

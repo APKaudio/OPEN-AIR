@@ -33,7 +33,7 @@ from tkinter import ttk
 from workers.logger.logger import  debug_log, console_log
 from workers.importers.worker_importer_saver import save_markers_file_internally
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 def on_tree_double_click(importer_tab_instance, event):
     current_function = inspect.currentframe().f_code.co_name

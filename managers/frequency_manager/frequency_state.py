@@ -1,4 +1,4 @@
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # managers/frequency_manager/frequency_state.py
 

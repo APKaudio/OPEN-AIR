@@ -29,15 +29,15 @@ import inspect
 from collections import defaultdict
 from workers.logger.logger import  debug_log, console_log
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
 def process_and_sort_markers(showtime_tab_instance):
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message="🛠️🔵 Processing and sorting marker data by Zone, Group, and Device.",
+            message="🟢️️️🔵 Processing and sorting marker data by Zone, Group, and Device.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
             function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -55,7 +55,7 @@ def process_and_sort_markers(showtime_tab_instance):
         for group, devices in groups.items():
             devices.sort(key=lambda x: x.get('NAME', ''))
     
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message="✅ Markers grouped and sorted successfully.",
             file=showtime_tab_instance.current_file,

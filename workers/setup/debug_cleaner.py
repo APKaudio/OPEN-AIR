@@ -23,7 +23,7 @@ def clear_debug_directory(data_dir, console_log_func):
                     console_log_func(f"Failed to delete {file_path}. Reason: {e}")
             console_log_func("DEBUG: Finished attempting to clear debug directory.")
         except Exception as e:
-            console_log_func(f"Error listing or deleting files in {debug_dir}. Reason: {e}")
+            console_log_func(f"🔴 ERROR listing or deleting files in {debug_dir}. Reason: {e}")
 
             
     else:

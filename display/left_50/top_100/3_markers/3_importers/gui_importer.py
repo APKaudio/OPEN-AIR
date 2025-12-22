@@ -41,6 +41,7 @@ from workers.importers.worker_importer_loader import *
 from workers.importers.worker_importer_appender import *
 from workers.importers.worker_importer_editor import *
 from workers.importers.worker_importer_saver import *
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_version = "20251127.000000.1"
@@ -61,7 +62,7 @@ class MarkerImporterTab(ttk.Frame):
     def __init__(self, master=None, app_instance=None, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
-            message="🛠️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
+            message="🟢️️️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function}",
@@ -85,7 +86,7 @@ class MarkerImporterTab(ttk.Frame):
         if not PANDAS_AVAILABLE:
             console_log("❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.", local_debug_enabled=Local_Debug_Enable)
             # Optionally, disable the whole tab or show an error message
-            error_label = ttk.Label(self, text="Error: NumPy and Pandas libraries are required for this tab.", foreground="red")
+            error_label = ttk.Label(self, text="🔴 ERROR: NumPy and Pandas libraries are required for this tab.", foreground="red")
             error_label.pack(pady=20)
             return
 
@@ -94,7 +95,7 @@ class MarkerImporterTab(ttk.Frame):
         self._update_treeview()
 
         debug_log(
-            message="🛠️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
+            message="🟢️️️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function}",
@@ -265,5 +266,5 @@ class MarkerImporterTab(ttk.Frame):
             elif isinstance(row, dict):
                 values = [row.get(raw_header, '') for raw_header in standardized_headers]
             else:
-                values = ["Error: Invalid row format"] * len(standardized_headers)
+                values = ["🔴 ERROR: Invalid row format"] * len(standardized_headers)
             self.marker_tree.insert("", "end", values=values)

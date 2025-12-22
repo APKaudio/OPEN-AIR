@@ -41,7 +41,7 @@ class WindowManager:
         into its own Toplevel window.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self._log_debug(f"Entering '{current_function_name}' for event.", current_function_name)
+        self._log_debug(f"▶️ '{current_function_name}' for event.", current_function_name)
 
         notebook = event.widget
         
@@ -103,7 +103,7 @@ class WindowManager:
 
         except Exception as e:
             self.console_log(f"❌ Error tearing off tab: {e}")
-            self._log_debug(f"Error during tear-off: {e}", current_function_name)
+            self._log_debug(f"🔴 ERROR during tear-off: {e}", current_function_name)
 
     def _on_tear_off_window_close(self, top_level_window, original_tab_id, original_notebook):
         """
@@ -112,7 +112,7 @@ class WindowManager:
         Re-attachment logic would be added here.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self._log_debug(f"Entering '_on_tear_off_window_close' for window {original_tab_id}.", current_function_name)
+        self._log_debug(f"▶️ '_on_tear_off_window_close' for window {original_tab_id}.", current_function_name)
 
         if original_tab_id in self.torn_off_windows:
             tab_info = self.torn_off_windows[original_tab_id]

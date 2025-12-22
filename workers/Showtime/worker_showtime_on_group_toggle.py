@@ -7,7 +7,7 @@ def on_group_toggle(showtime_tab_instance, group_name):
     current_function = inspect.currentframe().f_code.co_name
     if showtime_tab_instance.Local_Debug_Enable:
         debug_log(
-            message=f"🛠️🔵 Group toggle clicked for: {group_name}. Current selection: {showtime_tab_instance.selected_group}.",
+            message=f"🟢️️️🔵 Group toggle clicked for: {group_name}. Current selection: {showtime_tab_instance.selected_group}.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
             function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -17,7 +17,7 @@ def on_group_toggle(showtime_tab_instance, group_name):
         showtime_tab_instance.selected_group = None
         if showtime_tab_instance.Local_Debug_Enable:
             debug_log(
-                message="🛠️🟡 Deselected Group. Showing all devices for the current Zone.",
+                message="🟢️️️🟡 Deselected Group. Showing all devices for the current Zone.",
                 file=showtime_tab_instance.current_file,
                 version=showtime_tab_instance.current_version,
                 function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -27,7 +27,7 @@ def on_group_toggle(showtime_tab_instance, group_name):
         showtime_tab_instance.selected_group = group_name
         if showtime_tab_instance.Local_Debug_Enable:
             debug_log(
-                message=f"🛠️🟢 Selected new Group: {showtime_tab_instance.selected_group}.",
+                message=f"🟢️️️🟢 Selected new Group: {showtime_tab_instance.selected_group}.",
                 file=showtime_tab_instance.current_file,
                 version=showtime_tab_instance.current_version,
                 function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",

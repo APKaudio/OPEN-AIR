@@ -34,6 +34,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -51,13 +52,14 @@ class ValueBoxCreatorMixin:
         # Creates an editable text box (_Value).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to conjure an entry box for '{label}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if app_constants.Local_Debug_Enable:
+            debug_log(
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to conjure an entry box for '{label}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
 
         try:
             sub_frame = ttk.Frame(parent_frame)
@@ -76,13 +78,14 @@ class ValueBoxCreatorMixin:
 
             def on_entry_change(event):
                 new_val = entry_value.get()
-                debug_log(
-                    message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if app_constants.Local_Debug_Enable:
+                    debug_log(
+                        message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 # CORRECTED: This now correctly uses the central transmit method.
                 self._transmit_command(relative_topic=path, payload=new_val)
 
@@ -93,23 +96,25 @@ class ValueBoxCreatorMixin:
             if path:
                 self.topic_widgets[path] = entry
 
-            console_log(f"✅ Celebration of success! The value box did appear.")
-            debug_log(
-                message=f"🛠️🟢 Exiting '{current_function_name}'. Value box '{label}' created.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            console_log(f"✅ The value box did appear.")
+            if app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Value box '{label}' created.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return sub_frame
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The value box creation has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The value box creation has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return None

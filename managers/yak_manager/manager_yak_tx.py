@@ -31,7 +31,7 @@ import os
 import inspect
 from workers.logger.logger import debug_log, console_log, log_visa_command
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 
@@ -55,14 +55,14 @@ class YakTxManager:
         
         # Check if the command string contains a '?' to identify it as a query
         if '?' in cleaned_command:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching query command now!",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                 )
             return self.dispatcher.query_safe(cleaned_command)
         else:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🐐🐐🐐🚀 Engaging the '{command_type}' API! Dispatching write command now!",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log

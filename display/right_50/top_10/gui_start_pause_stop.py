@@ -25,13 +25,15 @@ from tkinter import ttk
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_log, console_log, log_visa_command
 import pathlib
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_version = "20251213.000000.1" # Updated version based on current date
 current_version_hash = (20251213 * 0 * 1) # Updated hash
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", "/")
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+JSON_CONFIG_FILE = current_file_path.with_suffix('.json')
 
 
 class StartPauseStopGui(ttk.Frame):
@@ -48,24 +50,27 @@ class StartPauseStopGui(ttk.Frame):
 
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
-        debug_log(
-            message=f"🛠️🟢 Entering {current_function_name} to initialize the StartPauseStopGui.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
-        try:
-            self.dynamic_gui = DynamicGuiBuilder(
-                parent=self
-            )
-            console_log("✅ Celebration of success! The StartPauseStopGui did initialize its dynamic GUI builder.")
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+        if app_constants.Local_Debug_Enable:
             debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the StartPauseStopGui.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
                 console_print_func=console_log
             )
+        try:
+            self.dynamic_gui = DynamicGuiBuilder(
+                parent=self,
+                json_path=JSON_CONFIG_FILE
+            )
+            console_log("✅ The StartPauseStopGui did initialize its dynamic GUI builder.")
+        except Exception as e:
+            console_log(f"❌ Error in {current_function_name}: {e}")
+            if app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )

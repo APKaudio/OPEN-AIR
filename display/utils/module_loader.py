@@ -115,7 +115,7 @@ class ModuleLoader:
                 # Instantiate the class. The constructor expects parent_widget as the first argument
                 # and potentially a 'config' keyword argument.
                 # This assumes the target GUI classes accept this signature.
-                instance = target_class(parent_widget, config=config_dict)
+                instance = target_class(parent_widget)
                 
                 self._log_debug(f"Successfully instantiated '{target_class.__name__}' for parent '{parent_widget}'.", current_function_name)
                 return instance
@@ -138,7 +138,7 @@ class ModuleLoader:
         and instantiates the first found GUI class within it, optionally filtered by class_filter.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self._log_debug(f"Entering 'load_and_instantiate_gui' for path: '{path}'", current_function_name)
+        self._log_debug(f"▶️ 'load_and_instantiate_gui' for path: '{path}'", current_function_name)
 
         module_path = None
         module_name = None

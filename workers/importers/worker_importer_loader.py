@@ -40,7 +40,7 @@ from workers.importers.worker_marker_file_import_converter import (
 )
 from workers.importers.worker_importer_saver import save_markers_file_internally
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 def load_markers_file_action(importer_tab_instance):
     headers, data = maker_file_load_markers_file()
@@ -74,7 +74,7 @@ def load_wwb_zip_action(importer_tab_instance):
     )
     if not file_path:
         debug_log(
-            message="🛠️🟡 'Load WWB.zip' action cancelled by user.",
+            message="🟢️️️🟡 'Load WWB.zip' action cancelled by user.",
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,
             function=f"{current_function}",
@@ -104,7 +104,7 @@ def load_sb_v2_pdf_action(importer_tab_instance):
     )
     if not file_path:
         debug_log(
-            message="🛠️🟡 'Load SB V2.pdf' action cancelled by user.",
+            message="🟢️️️🟡 'Load SB V2.pdf' action cancelled by user.",
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,
             function=f"{current_function}",

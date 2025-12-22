@@ -7,7 +7,7 @@ def on_zone_toggle(showtime_tab_instance, zone_name):
     current_function = inspect.currentframe().f_code.co_name
     if showtime_tab_instance.Local_Debug_Enable:
         debug_log(
-            message=f"🛠️🔵 Zone toggle clicked for: {zone_name}. Current selection: {showtime_tab_instance.selected_zone}.",
+            message=f"🟢️️️🔵 Zone toggle clicked for: {zone_name}. Current selection: {showtime_tab_instance.selected_zone}.",
             file=showtime_tab_instance.current_file,
             version=showtime_tab_instance.current_version,
             function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -18,7 +18,7 @@ def on_zone_toggle(showtime_tab_instance, zone_name):
         showtime_tab_instance.selected_group = None
         if showtime_tab_instance.Local_Debug_Enable:
             debug_log(
-                message="🛠️🟡 Deselected Zone. Clearing Group selection.",
+                message="🟢️️️🟡 Deselected Zone. Clearing Group selection.",
                 file=showtime_tab_instance.current_file,
                 version=showtime_tab_instance.current_version,
                 function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
@@ -29,7 +29,7 @@ def on_zone_toggle(showtime_tab_instance, zone_name):
         showtime_tab_instance.selected_group = None
         if showtime_tab_instance.Local_Debug_Enable:
             debug_log(
-                message=f"🛠️🟢 Selected new Zone: {showtime_tab_instance.selected_zone}. Clearing Group selection.",
+                message=f"🟢️️️🟢 Selected new Zone: {showtime_tab_instance.selected_zone}. Clearing Group selection.",
                 file=showtime_tab_instance.current_file,
                 version=showtime_tab_instance.current_version,
                 function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",

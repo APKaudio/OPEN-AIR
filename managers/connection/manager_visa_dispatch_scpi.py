@@ -42,7 +42,7 @@ class ScpiDispatcher:
         # Initializes the SCPI dispatcher manager.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟢 Entering {current_function_name}. The grand SCPI experiment begins!",
+            message=f"🟢️️️🟢 ➡️➡️ {current_function_name}. The grand SCPI experiment begins!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -61,7 +61,7 @@ class ScpiDispatcher:
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"🛠️🔴 By Jove, the apparatus has failed to initialize! The error be: {e}",
+                message=f"🟢️️️🔴 By Jove, the apparatus has failed to initialize! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -77,7 +77,7 @@ class ScpiDispatcher:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🔵 Received new instrument instance. It's now my time to shine!",
+            message=f"🟢️️️🔵 Received new instrument instance. It's now my time to shine!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -94,7 +94,7 @@ class ScpiDispatcher:
         # Sends a soft reset command to the instrument to restore a known state after an error.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟠 Entering {current_function_name}. Attempting a system-wide reset!",
+            message=f"🟢️️️🟠 Entering {current_function_name}. Attempting a system-wide reset!",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -113,7 +113,7 @@ class ScpiDispatcher:
         except Exception as e:
             console_log(f"❌ Error in {current_function_name}: {e}")
             debug_log(
-                message=f"🛠️🔴 The reset protocol has failed catastrophically! The error be: {e}",
+                message=f"🟢️️️🔴 The reset protocol has failed catastrophically! The error be: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

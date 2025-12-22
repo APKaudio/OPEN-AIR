@@ -43,7 +43,7 @@ Current_iteration = 2 ## a running version number - incriments by one each time
 current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 def update_connection_status_logic(app_instance, is_connected, is_running, console_print_func):
@@ -53,7 +53,7 @@ def update_connection_status_logic(app_instance, is_connected, is_running, conso
     This function acts as a central dispatcher for UI state changes.
     """
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(f"Updating connection status. Connected: {is_connected}, Running: {is_running}. Version: {current_version}",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,
@@ -69,13 +69,13 @@ def update_connection_status_logic(app_instance, is_connected, is_running, conso
     # CHANGED: Reference the new orchestrator_gui attribute
     if hasattr(app_instance, 'orchestrator_gui'):
         app_instance.orchestrator_gui._update_button_states()
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log("Orchestrator GUI buttons updated.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
                         function=current_function)
     else:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log("Orchestrator GUI instance not found during status update.",
                         file=f"{os.path.basename(__file__)} - {current_version}",
                         version=current_version,
@@ -86,13 +86,13 @@ def update_connection_status_logic(app_instance, is_connected, is_running, conso
         device_presets_tab = app_instance.presets_parent_tab.device_presets_tab
         if hasattr(device_presets_tab, 'handle_connection_status_change_event'):
             device_presets_tab.handle_connection_status_change_event()
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log("Device Presets Tab notified of connection change.",
                             file=f"{os.path.basename(__file__)} - {current_version}",
                             version=current_version,
                             function=current_function)
 
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log("Finished updating all UI elements based on connection status. UI is now responsive!",
                     file=f"{os.path.basename(__file__)} - {current_version}",
                     version=current_version,

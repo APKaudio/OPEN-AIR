@@ -6,7 +6,7 @@ from tkinter import ttk
 import pathlib
 from tkinter import filedialog
 from collections import defaultdict
-
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
@@ -47,7 +47,7 @@ from workers.Showtime.worker_showtime_on_zone_toggle import on_zone_toggle
 from workers.Showtime.worker_showtime_on_group_toggle import on_group_toggle
 
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 
@@ -78,9 +78,9 @@ class ShowtimeTab(ttk.Frame):
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initialized ShowtimeTab.",
+                message=f"🟢️️️🟢 Initialized ShowtimeTab.",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function}",
@@ -144,7 +144,7 @@ class ShowtimeTab(ttk.Frame):
         if event is None or event.widget.tab(event.widget.select(), "text") == "Showtime":
             if self.Local_Debug_Enable:
                 debug_log(
-                    message="🛠️🟢 'Showtime' tab activated. Reloading marker data and buttons.",
+                    message="🟢️️️🟢 'Showtime' tab activated. Reloading marker data and buttons.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function}",
@@ -171,7 +171,7 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         if self.Local_Debug_Enable:
             debug_log(
-                message="🛠️🟢 Creating Zone buttons.",
+                message="🟢️️️🟢 Creating Zone buttons.",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{current_function}",
@@ -206,7 +206,7 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         if self.Local_Debug_Enable:
             debug_log(
-                message="🛠️🟢 Creating Group filter buttons.",
+                message="🟢️️️🟢 Creating Group filter buttons.",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function}",
@@ -259,7 +259,7 @@ class ShowtimeTab(ttk.Frame):
         current_function = inspect.currentframe().f_code.co_name
         if self.Local_Debug_Enable:
             debug_log(
-                message="🛠️🟢 Creating Device buttons.",
+                message="🟢️️️🟢 Creating Device buttons.",
                 file=self.current_file,
                 version=self.current_version,
                 function=f"{self.__class__.__name__}.{current_function}",

@@ -51,7 +51,7 @@ current_version_hash = (20251213 * 0 * 1) # Updated hash
 current_file_path = pathlib.Path(__file__).resolve()
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", "/")
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 
 
@@ -79,9 +79,9 @@ class MqttControllerUtility:
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
+                message=f"🟢️️️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -104,7 +104,7 @@ class MqttControllerUtility:
             console_log("✅ Celebration of success!")
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
@@ -123,9 +123,9 @@ class MqttControllerUtility:
         # [A] First, we store the subscription request.
         self._subscribers[topic_filter] = callback_func
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
+                message=f"🟢️️️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
                 file=current_file,
                 version=current_version,
                 function=current_function_name,
@@ -135,7 +135,7 @@ class MqttControllerUtility:
         # [A] Only subscribe immediately if the client is already connected.
         if self.mqtt_client and self.mqtt_client.is_connected():
             self.mqtt_client.subscribe(topic_filter)
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"🔍 Subscribed immediately to '{topic_filter}'.",
                     file=current_file,
@@ -153,9 +153,9 @@ class MqttControllerUtility:
         We now subscribe to all stored topics here.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
+                message=f"🟢️️️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -179,7 +179,7 @@ class MqttControllerUtility:
         
         with self._pause_lock:
             if self._paused:
-                if Local_Debug_Enable:
+                if app_constants.Local_Debug_Enable: 
                     debug_log(
                         message=f"MQTT message for topic '{msg.topic}' received but processing is paused.",
                         file=current_file,
@@ -199,7 +199,7 @@ class MqttControllerUtility:
             # The paho-mqtt library provides a topic_matches_sub function to check for wildcards.
             if mqtt.topic_matches_sub(topic_filter, topic):
                 #debug_log(
-                #    message=f"🛠️🔵 Dispatching message to subscriber for topic '{topic_filter}'.",
+                #    message=f"🟢️️️🔵 Dispatching message to subscriber for topic '{topic_filter}'.",
                 #    file=current_file,
                 #    version=current_version,
                 #    function=f"{self.__class__.__name__}.on_message",
@@ -212,9 +212,9 @@ class MqttControllerUtility:
         """Connects the MQTT client to the broker in a separate thread."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to connect MQTT client.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to connect MQTT client.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -234,7 +234,7 @@ class MqttControllerUtility:
             console_log("✅ MQTT client connection initiated in a background thread.") # Informational
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
@@ -254,7 +254,7 @@ class MqttControllerUtility:
                     full_topic = f"{topic}/{subtopic}" if subtopic else topic
                     payload = json.dumps({"value": value})
                     self.mqtt_client.publish(full_topic, payload, retain=retain)
-                    if Local_Debug_Enable:
+                    if app_constants.Local_Debug_Enable: 
                         console_log(f"Published to {full_topic}: {payload} with retain={retain}")
                 else:
                     self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
@@ -265,9 +265,9 @@ class MqttControllerUtility:
         """Displays a list of all topics seen by the MQTT client."""
         # A brief, one-sentence description of the function's purpose.
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to display topics.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to display topics.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -281,7 +281,7 @@ class MqttControllerUtility:
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
@@ -300,7 +300,7 @@ class MqttControllerUtility:
             self.publish_queue.put((topic, subtopic, value, retain))
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
@@ -319,7 +319,7 @@ class MqttControllerUtility:
         """Publishes a null, retained payload to all seen topics under a base topic."""
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to purge topics under '{base_topic}'.",
+            message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to purge topics under '{base_topic}'.",
             file=current_file,
             version=current_version,
             function=f"{self.__class__.__name__}.{current_function_name}",
@@ -353,7 +353,7 @@ class MqttControllerUtility:
         current_function_name = inspect.currentframe().f_code.co_name
         with self._pause_lock:
             self._paused = True
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="MQTT message processing paused.",
                     file=current_file,
@@ -369,7 +369,7 @@ class MqttControllerUtility:
         current_function_name = inspect.currentframe().f_code.co_name
         with self._pause_lock:
             self._paused = False
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="MQTT message processing resumed.",
                     file=current_file,

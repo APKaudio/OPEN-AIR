@@ -59,7 +59,7 @@ current_file_path = pathlib.Path(__file__).resolve()
 # FIX: The project root is one level up from the 'workers' folder.
 project_root = current_file_path.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # --- Constants ---
 DEFAULT_PAD_X = 5
@@ -74,9 +74,9 @@ def maker_file_check_for_markers_file():
     # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
     target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🕵️‍♂️ Checking for existing markers file at: {target_path}",
+            message=f"🟢️️️🕵️‍♂️ Checking for existing markers file at: {target_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -84,7 +84,7 @@ def maker_file_check_for_markers_file():
         )
     
     if target_path.is_file():
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"✅ Found an existing MARKERS.csv file. Attempting to load.",
                 file=current_file,
@@ -98,7 +98,7 @@ def maker_file_check_for_markers_file():
                 headers = reader.fieldnames if reader.fieldnames else CANONICAL_HEADERS
                 data = list(reader)
             
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message="✅ Successfully loaded MARKERS.csv on startup.",
                     file=current_file,
@@ -108,7 +108,7 @@ def maker_file_check_for_markers_file():
                 )
             return headers, data
         except Exception as e:
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
                     message=f"❌ Error loading existing MARKERS.csv on startup: {e}",
                     file=current_file,
@@ -116,11 +116,11 @@ def maker_file_check_for_markers_file():
                     function=f"{current_function}",
                     console_print_func=console_log
                 )
-            console_log(f"Error: Failed to load existing MARKERS.csv. {e}")
+            console_log(f"🔴 ERROR: Failed to load existing MARKERS.csv. {e}")
     else:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 No existing MARKERS.csv found. Starting with a blank table.",
+                message="🟢️️️🟡 No existing MARKERS.csv found. Starting with a blank table.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -136,9 +136,9 @@ def maker_file_load_markers_file():
         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
     )
     if not file_path:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Load CSV Marker Set' action cancelled by user.",
+                message="🟢️️️🟡 'Load CSV Marker Set' action cancelled by user.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -146,9 +146,9 @@ def maker_file_load_markers_file():
             )
         return [], []
 
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 'Load CSV Marker Set' button clicked. Opening file: {file_path}",
+            message=f"🟢️️️🟢 'Load CSV Marker Set' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -170,7 +170,7 @@ def maker_file_load_markers_file():
             for row in data:
                 dict_data.append(dict(zip(headers, row)))
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
                 file=current_file,
@@ -178,7 +178,7 @@ def maker_file_load_markers_file():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
@@ -187,7 +187,7 @@ def maker_file_load_markers_file():
                 console_print_func=console_log
             )
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message="✅ CSV file loaded successfully.",
                 file=current_file,
@@ -198,7 +198,7 @@ def maker_file_load_markers_file():
         # Ensure we return canonical headers so the GUI knows what columns to show.
         return CANONICAL_HEADERS, dict_data
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌ Error loading CSV file: {e}",
                 file=current_file,
@@ -206,7 +206,7 @@ def maker_file_load_markers_file():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        console_log(f"Error: Failed to process CSV file. {e}")
+        console_log(f"🔴 ERROR: Failed to process CSV file. {e}")
         return [], []
 
 def maker_file_load_ias_html():
@@ -217,9 +217,9 @@ def maker_file_load_ias_html():
         filetypes=[("HTML files", "*.html;*.htm"), ("All files", "*.*")]
     )
     if not file_path:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Load IAS HTML' action cancelled by user.",
+                message="🟢️️️🟡 'Load IAS HTML' action cancelled by user.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -227,9 +227,9 @@ def maker_file_load_ias_html():
             )
         return [], []
         
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 'Load IAS HTML' button clicked. Opening file: {file_path}",
+            message=f"🟢️️️🟢 'Load IAS HTML' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -248,7 +248,7 @@ def maker_file_load_ias_html():
             for row in data:
                 dict_data.append(dict(zip(headers, row)))
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
                 file=current_file,
@@ -256,7 +256,7 @@ def maker_file_load_ias_html():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
@@ -265,7 +265,7 @@ def maker_file_load_ias_html():
                 console_print_func=console_log
             )
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message="✅ HTML report converted successfully.",
                 file=current_file,
@@ -275,7 +275,7 @@ def maker_file_load_ias_html():
             )
         return CANONICAL_HEADERS, dict_data
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌ Error converting HTML report: {e}",
                 file=current_file,
@@ -283,7 +283,7 @@ def maker_file_load_ias_html():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        console_log(f"Error: Failed to convert HTML file. {e}")
+        console_log(f"🔴 ERROR: Failed to convert HTML file. {e}")
         return [], []
 
 def maker_file_load_wwb_shw():
@@ -294,9 +294,9 @@ def maker_file_load_wwb_shw():
         filetypes=[("Shure Wireless Workbench files", "*.shw"), ("All files", "*.*")]
     )
     if not file_path:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Load WWB.shw' action cancelled by user.",
+                message="🟢️️️🟡 'Load WWB.shw' action cancelled by user.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -304,9 +304,9 @@ def maker_file_load_wwb_shw():
             )
         return [], []
         
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 'Load WWB.shw' button clicked. Opening file: {file_path}",
+            message=f"🟢️️️🟢 'Load WWB.shw' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -322,7 +322,7 @@ def maker_file_load_wwb_shw():
             for row in data:
                 dict_data.append(dict(zip(headers, row)))
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
                 file=current_file,
@@ -330,7 +330,7 @@ def maker_file_load_wwb_shw():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
@@ -339,7 +339,7 @@ def maker_file_load_wwb_shw():
                 console_print_func=console_log
             )
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message="✅ SHW file converted successfully.",
                 file=current_file,
@@ -349,7 +349,7 @@ def maker_file_load_wwb_shw():
             )
         return CANONICAL_HEADERS, dict_data
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌ Error converting SHW file: {e}",
                 file=current_file,
@@ -357,7 +357,7 @@ def maker_file_load_wwb_shw():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        console_log(f"Error: Failed to convert SHW file. {e}")
+        console_log(f"🔴 ERROR: Failed to convert SHW file. {e}")
         return [], []
 
 def maker_file_load_sb_pdf():
@@ -368,9 +368,9 @@ def maker_file_load_sb_pdf():
         filetypes=[("PDF files", "*.pdf"), ("All files", "*.*")]
     )
     if not file_path:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Load SB PDF' action cancelled by user.",
+                message="🟢️️️🟡 'Load SB PDF' action cancelled by user.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -378,9 +378,9 @@ def maker_file_load_sb_pdf():
             )
         return [], []
         
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 'Load SB PDF' button clicked. Opening file: {file_path}",
+            message=f"🟢️️️🟢 'Load SB PDF' button clicked. Opening file: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -396,7 +396,7 @@ def maker_file_load_sb_pdf():
             for row in data:
                 dict_data.append(dict(zip(headers, row)))
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received Headers: {headers}",
                 file=current_file,
@@ -404,7 +404,7 @@ def maker_file_load_sb_pdf():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"🔍🔵 Received first {min(len(dict_data), 5)} data points: {dict_data[:5]}",
                 file=current_file,
@@ -413,7 +413,7 @@ def maker_file_load_sb_pdf():
                 console_print_func=console_log
             )
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message="✅ PDF report converted successfully.",
                 file=current_file,
@@ -423,7 +423,7 @@ def maker_file_load_sb_pdf():
             )
         return CANONICAL_HEADERS, dict_data
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌ Error converting PDF report: {e}",
                 file=current_file,
@@ -431,7 +431,7 @@ def maker_file_load_sb_pdf():
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        console_log(f"Error: Failed to convert PDF file. {e}")
+        console_log(f"🔴 ERROR: Failed to convert PDF file. {e}")
         return [], []
     
 def maker_file_save_intermediate_file(tree_headers, tree_data):
@@ -440,7 +440,7 @@ def maker_file_save_intermediate_file(tree_headers, tree_data):
     # ANCHOR FIX: Use the stable GLOBAL_PROJECT_ROOT now available.
     target_path = GLOBAL_PROJECT_ROOT / 'DATA' / 'MARKERS.csv'
     
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
             message=f"💾🟢 Saving data to intermediate file: {target_path}. Headers: {tree_headers}, first row: {tree_data[0] if tree_data else 'N/A'}",
             file=current_file,
@@ -460,16 +460,16 @@ def maker_file_save_intermediate_file(tree_headers, tree_data):
             
         console_log(f"Intermediate file saved as {target_path}")
     except Exception as e:
-        console_log(f"Error: Failed to save intermediate MARKERS.csv file. {e}")
+        console_log(f"🔴 ERROR: Failed to save intermediate MARKERS.csv file. {e}")
         
 def maker_file_save_open_air_file(tree_headers, tree_data):
     # Saves the current tree data to a file named 'OpenAir.csv' in the DATA directory.
     current_function = inspect.currentframe().f_code.co_name
     
     if not tree_headers or not tree_data:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Save Open Air' action aborted: no data in treeview.",
+                message="🟢️️️🟡 'Save Open Air' action aborted: no data in treeview.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -484,9 +484,9 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
         filetypes=[("CSV files", "*.csv"), ("All files", "*.*")]
     )
     if not file_path:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message="🛠️🟡 'Save Open Air' action cancelled by user.",
+                message="🟢️️️🟡 'Save Open Air' action cancelled by user.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
@@ -494,9 +494,9 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
             )
         return
 
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(
-            message=f"🛠️🟢 'Save Open Air' button clicked. Saving to: {file_path}",
+            message=f"🟢️️️🟢 'Save Open Air' button clicked. Saving to: {file_path}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
@@ -511,7 +511,7 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
             writer.writerows(tree_data)
         
         console_log(f"File saved successfully to {file_path}")
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message="✅ File saved successfully.",
                 file=current_file,
@@ -520,7 +520,7 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
                 console_print_func=console_log
             )
     except Exception as e:
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
                 message=f"❌ Error saving Open Air CSV file: {e}",
                 file=current_file,
@@ -528,4 +528,4 @@ def maker_file_save_open_air_file(tree_headers, tree_data):
                 function=f"{current_function}",
                 console_print_func=console_log
             )
-        console_log(f"Error: Failed to save file. {e}")
+        console_log(f"🔴 ERROR: Failed to save file. {e}")

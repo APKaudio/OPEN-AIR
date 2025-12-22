@@ -35,9 +35,7 @@ import json
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-
-
-Local_Debug_Enable = True
+import workers.setup.app_constants as app_constants
 
 # The wrapper functions debug_log and console_log_switch are removed
 # as the core debug_log and console_log now directly handle Local_Debug_Enable.
@@ -59,13 +57,14 @@ class GuiCheckboxCreatorMixin:
         # Creates a checkbox widget.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        debug_log(
-            message=f"🛠️🟢 Entering '{current_function_name}' to create a checkbox for '{label}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
-        )
+        if app_constants.Local_Debug_Enable:
+            debug_log(
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a checkbox for '{label}'.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}",
+                console_print_func=console_log
+            )
         
         try:
             # We use a BooleanVar to track the state of the checkbox.
@@ -89,13 +88,14 @@ class GuiCheckboxCreatorMixin:
                 new_state = state_var.get()
                 # Pass raw boolean instead of JSON string
                 payload = new_state
-                debug_log(
-                    message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
-                )
+                if app_constants.Local_Debug_Enable:
+                    debug_log(
+                        message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
+                        file=current_file,
+                        version=current_version,
+                        function=f"{self.__class__.__name__}.{current_function_name}",
+                        console_print_func=console_log
+                    )
                 self._transmit_command(relative_topic=path, payload=payload)
                 # Update the label after the state change
                 update_label()
@@ -113,23 +113,25 @@ class GuiCheckboxCreatorMixin:
             if path:
                 self.topic_widgets[path] = (state_var, checkbox)
 
-            console_log(f"✅ Celebration of success! The checkbox '{label}' did appear.")
-            debug_log(
-                message=f"🛠️🟢 Exiting '{current_function_name}'. Checkbox '{label}' created.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            console_log(f"✅ The checkbox '{label}' did appear.")
+            if app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"🟢️️️🟢 🚪 '{current_function_name}'. Checkbox '{label}' created.",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return checkbox
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            debug_log(
-                message=f"🛠️🔴 Arrr, the code be capsized! The checkbox creation has failed! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+            if app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The checkbox creation has failed! The error be: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}",
+                    console_print_func=console_log
+                )
             return None

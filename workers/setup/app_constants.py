@@ -8,4 +8,6 @@ Current_iteration = 58 ## a running version number - incriments by one each time
 current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
+
+LOCAL_DEBUG_ENABLE = Local_Debug_Enable

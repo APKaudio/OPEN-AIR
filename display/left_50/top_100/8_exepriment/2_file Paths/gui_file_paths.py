@@ -40,12 +40,11 @@ class PresetPusherGui(ttk.Frame):
     A container frame that instantiates the DynamicGuiBuilder for the Presets configuration.
     This replaces the old, monolithic code with a call to the reusable, modular component.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         """
         Initializes the Presets frame and the dynamic GUI builder.
         """
-        if 'config' in kwargs:
-            kwargs.pop('config')
+        config_data = kwargs.pop('config', None)
         super().__init__(parent, *args, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 

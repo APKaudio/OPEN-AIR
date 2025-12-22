@@ -39,7 +39,7 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
     # [A brief, one-sentence description of the function's purpose.]
     # Finds and plots local peaks on a Matplotlib axis.
-    debug_log(f"Entering _find_and_plot_peaks with {len(data) if data else 0} data points.",
+    debug_log(f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
                 file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
@@ -83,7 +83,7 @@ def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
 def _setup_zoom_events(ax, canvas, original_xlim):
     # [A brief, one-sentence description of the function's purpose.]
     # Sets up event handlers for horizontal zooming on the plot.
-    debug_log(f"Entering _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         drag_start_x = None
@@ -119,12 +119,12 @@ def _setup_zoom_events(ax, canvas, original_xlim):
 def reset_zoom(ax, canvas):
     # [A brief, one-sentence description of the function's purpose.]
     # Resets the plot to its original, full x-axis view.
-    debug_log(f"Entering reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     try:
         if hasattr(ax, 'original_xlim'):
             ax.set_xlim(ax.original_xlim)
             canvas.draw_idle()
-        console_log("✅ Celebration of success! Zoom reset.")
+        console_log("✅ Zoom reset.")
     except Exception as e:
         console_log(f"❌ Error in reset_zoom: {e}")
         debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
@@ -133,7 +133,7 @@ def reset_zoom(ax, canvas):
 def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title, line_color='yellow'):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the single plot in the Scan View tab with new data.
-    debug_log(f"Entering update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(f"▶️ update_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
         
     try:
         plot_info = scan_view_tab_instance.plot
@@ -181,7 +181,7 @@ def update_single_plot(scan_view_tab_instance, data, start_freq_MHz, end_freq_MH
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
 
         canvas.draw()
-        console_log("✅ Celebration of success! Plot updated.")
+        console_log("✅ Plot updated.")
     except Exception as e:
         console_log(f"❌ Error in update_plot: {e}")
         debug_log(f"Arrr, the plot be capsized! The error be: {e}\n{traceback.format_exc()}",

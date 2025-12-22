@@ -40,7 +40,7 @@ from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 current_version = "20250919.231000.1"
 current_version_hash = (20250919 * 231000 * 1)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 HZ_TO_MHZ = 1_000_000
 
@@ -80,9 +80,9 @@ class PresetPusherWorker:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.mqtt_controller = mqtt_controller
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 The preset pusher has been summoned!",
+                message=f"🟢️️️🟢 The preset pusher has been summoned!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -97,9 +97,9 @@ class PresetPusherWorker:
             preset_values (list): A list of values for the selected preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Attuning the instrument to the selected preset. Ready the coils!",
+                message=f"🟢️️️🟢 Attuning the instrument to the selected preset. Ready the coils!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -129,9 +129,9 @@ class PresetPusherWorker:
             console_log("✅ Start/Stop frequencies set.")
         except Exception as e:
             console_log(f"❌ Error setting Start/Stop frequencies: {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 The frequency setter is on the fritz! The error be: {e}",
+                    message=f"🟢️️️🔴 The frequency setter is on the fritz! The error be: {e}",
                     file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
                 )
 
@@ -172,9 +172,9 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=False)
             console_log("✅ Trace modes set.")
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️✅ The tuning sequence is complete! All command triggers have been sent.",
+                message=f"🟢️️️✅ The tuning sequence is complete! All command triggers have been sent.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",

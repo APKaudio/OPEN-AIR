@@ -35,13 +35,7 @@ from decimal import Decimal
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log, console_log, log_visa_command
-
-
-Local_Debug_Enable = True
-
-
-
-
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -60,9 +54,9 @@ class GuiListboxCreatorMixin:
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Entering '{current_function_name}' to create a listbox for '{label}'.",
+                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a listbox for '{label}'.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -138,7 +132,7 @@ class GuiListboxCreatorMixin:
                         
                         self._last_selected_option_listbox = selected_key
 
-                    if Local_Debug_Enable:
+                    if app_constants.Local_Debug_Enable: 
                         debug_log(
                             message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
                             file=current_file,
@@ -154,10 +148,10 @@ class GuiListboxCreatorMixin:
             if path:
                 self.topic_widgets[path] = (listbox, rebuild_options_for_listbox, options_map)
 
-            console_log("✅ Celebration of success! The listbox menu did appear.")
-            if Local_Debug_Enable:
+            console_log("✅ The listbox menu did appear.")
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🟢 Exiting '{current_function_name}'. Listbox '{label}' created.",
+                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Listbox '{label}' created.",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",
@@ -167,9 +161,9 @@ class GuiListboxCreatorMixin:
 
         except Exception as e:
             console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(
-                    message=f"🛠️🔴 Arrr, the code be capsized! The listbox creation has failed! The error be: {e}",
+                    message=f"🟢️️️🔴 Arrr, the code be capsized! The listbox creation has failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{self.__class__.__name__}.{current_function_name}",

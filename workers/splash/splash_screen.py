@@ -44,7 +44,7 @@ except ImportError:
 
 # Import lyrics data from a dedicated file
 try:
-    import lyrics_data as lyrics_data
+    from workers.splash import lyrics_data
     LYRICS_AVAILABLE = True
 except ImportError:
     lyrics_data = None
@@ -156,7 +156,7 @@ class SplashScreen:
             except Exception as e:
                 if self.debug_enabled:
                     self.debug_log_func(
-                        message=f"Error loading lyrics data: {e}",
+                        message=f"🔴 ERROR loading lyrics data: {e}",
                         file=os.path.basename(__file__),
                         version=self.app_version,
                         function=f"{self.__class__.__name__}.__init__",
@@ -190,6 +190,7 @@ class SplashScreen:
                     console_print_func=self    .console_log_func
                 )
         
+        self.lyrics_label.config(text=self.current_lyric)
         self.status_message = "Initializing..."
         
         # Set initial status and lyric by calling set_status to ensure both are updated
@@ -197,7 +198,7 @@ class SplashScreen:
 
         # Fading animation uses self.parent.after directly, avoiding lambdas.
         self.parent.after(10, self._fade_in)
-        self.cycle_lyrics_async()
+        self.splash_window.after(5000, self.cycle_lyrics_async)
 
         if debug_enabled:
             debug_log_func(
@@ -245,14 +246,13 @@ class SplashScreen:
             self.lyric_index = (self.lyric_index + 1) % len(self.lyrics)
             self.current_lyric = self.lyrics[self.lyric_index]
             self.lyrics_label.config(text=self.current_lyric)
-            if self.debug_enabled:
-                self.debug_log_func(
-                    message=f"Lyric changed to: {self.current_lyric}",
-                    file=os.path.basename(__file__),
-                    version=self.app_version,
-                    function=f"{self.__class__.__name__}.cycle_lyrics_async",
-                    console_print_func=self.console_log_func
-                )
+            self.debug_log_func(
+                message=f"Lyric changed to: {self.current_lyric}",
+                file=os.path.basename(__file__),
+                version=self.app_version,
+                function=f"{self.__class__.__name__}.cycle_lyrics_async",
+                console_print_func=self.console_log_func
+            )
             self.splash_window.after(5000, self.cycle_lyrics_async) # Cycle every 5 seconds (5000ms)
 
 if __name__ == '__main__':

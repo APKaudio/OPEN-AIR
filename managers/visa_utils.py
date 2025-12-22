@@ -33,7 +33,7 @@ import inspect
 
 from workers.logger.logger import debug_log, console_log, log_visa_command
 
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 current_file = f"{os.path.basename(__file__)}"
 
@@ -41,7 +41,7 @@ def list_visa_resources(console_print_func=None):
     # Lists available VISA resources (instruments).
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(message="Listing VISA resources... Let's find some devices!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     try:
         rm = pyvisa.ResourceManager()
@@ -67,13 +67,13 @@ def list_visa_resources(console_print_func=None):
         resources = usb_resources + tcpip_resources + other_resources
         # --- End Resource Reordering Logic ---
         
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(message=f"Found VISA resources (Reordered): {resources}.", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return list(resources)
     except Exception as e:
         error_msg = f"❌ Error listing VISA resources: {e}."
         console_print_func(error_msg)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return []
 
@@ -81,7 +81,7 @@ def connect_to_instrument(resource_name, console_print_func=None):
     # Establishes a connection to a VISA instrument.
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(message=f"Connecting to instrument: {resource_name}. Fingers crossed!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     try:
         rm = pyvisa.ResourceManager()
@@ -91,13 +91,13 @@ def connect_to_instrument(resource_name, console_print_func=None):
         inst.write_termination = '\n'
         inst.query_delay = 0.1
         console_print_func(f"✅ Successfully connected to {resource_name}.")
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(message=f"Connection successful to {resource_name}. We're in!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return inst
     except Exception as e:
         error_msg = f"❌ An unexpected error occurred while connecting to {resource_name}: {e}."
         console_print_func(error_msg)
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
         return None
 
@@ -105,21 +105,21 @@ def disconnect_instrument(inst, console_print_func=None):
     # Closes the connection to a VISA instrument.
     console_print_func = console_print_func if console_print_func else console_log
     current_function = inspect.currentframe().f_code.co_name
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(message="Disconnecting instrument... Saying goodbye!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     if inst:
         try:
             inst.close()
             console_print_func("✅ Instrument disconnected.")
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(message="Instrument connection closed. All done!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
             return True
         except Exception as e:
             error_msg = f"❌ An unexpected error occurred while disconnecting instrument: {e}."
             console_print_func(error_msg)
-            if Local_Debug_Enable:
+            if app_constants.Local_Debug_Enable: 
                 debug_log(message=error_msg, file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
             return False
-    if Local_Debug_Enable:
+    if app_constants.Local_Debug_Enable: 
         debug_log(message="No instrument to disconnect. Already gone!", file=f"{os.path.basename(__file__)}", version=current_version, function=current_function, console_print_func=console_print_func)
     return False

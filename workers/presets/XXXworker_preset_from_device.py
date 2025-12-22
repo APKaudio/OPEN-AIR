@@ -46,7 +46,7 @@ current_time = datetime.datetime.now().strftime("%H%M%S")
 current_version = f"{current_date}.{current_time}.3" 
 current_version_hash = (int(current_date) * int(current_time) * 3)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = True
+Local_Debug_Enable = False
 
 # --- MQTT Topic Constants (No Magic Numbers) ---
 ROOT_TOPIC = "OPEN-AIR/yak/Memory"
@@ -71,9 +71,9 @@ class PresetFromDeviceWorker:
         self.last_preset_list = None
         self.preset_list_event = threading.Event()
 
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Initializing preset worker and subscribing to root topic.",
+                message=f"🟢️️️🟢 Initializing preset worker and subscribing to root topic.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -104,9 +104,9 @@ class PresetFromDeviceWorker:
         The result is handled by the _on_mqtt_message callback.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Triggering device to send preset catalog.",
+                message=f"🟢️️️🟢 Triggering device to send preset catalog.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -135,9 +135,9 @@ class PresetFromDeviceWorker:
         of valid filenames ending in '.STA'.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Parsing raw preset string for valid '.STA' files.",
+                message=f"🟢️️️🟢 Parsing raw preset string for valid '.STA' files.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -169,9 +169,9 @@ class PresetFromDeviceWorker:
         dictionary as a single JSON payload to one topic per preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
+                message=f"🟢️️️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
@@ -225,9 +225,9 @@ class PresetFromDeviceWorker:
         Sets the specified preset filename and triggers the device to store it.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if Local_Debug_Enable:
+        if app_constants.Local_Debug_Enable: 
             debug_log(
-                message=f"🛠️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
+                message=f"🟢️️️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.{current_function_name}",
