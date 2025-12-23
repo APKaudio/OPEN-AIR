@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.12
+# Version 20251217.23580.13
 
 import os
 import pathlib
@@ -26,30 +26,7 @@ import inspect
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.current_version,
-        "function": function_full_name
-    }
+from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -60,23 +37,26 @@ JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
+# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
+module_name = current_path.stem.replace('gui_', '')
 ## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 
-##class GhostMqtt:
-##    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
-##   def add_subscriber(self, *args, **kwargs): pass
-##   def publish(self, *args, **kwargs): pass
+#class GhostMqtt:
+#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
+ #   def add_subscriber(self, *args, **kwargs): pass
+ #   def publish(self, *args, **kwargs): pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, config, *args, **kwargs):
+    def __init__(self, parent, config=None, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
+        # Consume 'config' and other non-standard keys passed by the orchestrator 
+        kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
-        self.config = config # Store the config for later use
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
@@ -168,9 +148,9 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf)
                 processed_path = str(temp_path)
 
-            # If mqtt_util is None because it was shut off in the orchestrator, 
-            # we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-       ##     effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+            ## If mqtt_util is None because it was shut off in the orchestrator, 
+            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
+            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
 
             # --- Presentation Layer ---
             # Instantiate the builder.
@@ -183,17 +163,15 @@ class GenericInstrumentGui(ttk.Frame):
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()
-            debug_log(
-                message=f"✅ Success! {module_name} GUI construction requested.",
-                **_get_log_args()
-            )
+
+            
+            # If we reach here, the builder at least started.
+            self.status_label.destroy()
+
 
         except Exception as e:
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            debug_log(
-                message=error_msg,
-                **_get_log_args()
-            )
+            
             self.status_label.config(text=error_msg, foreground="red")
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
@@ -213,5 +191,6 @@ class GenericInstrumentGui(ttk.Frame):
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 **_get_log_args()
             )
+        
         # Add logic here if specific refresh actions are needed on tab focus
         pass

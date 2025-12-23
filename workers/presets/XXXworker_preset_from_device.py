@@ -38,6 +38,7 @@ import time
 # --- Module Imports ---
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 
 # --- Global Scope Variables (as per your instructions) ---
 current_date = datetime.datetime.now().strftime("%Y%m%d")
@@ -74,9 +75,7 @@ class PresetFromDeviceWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Initializing preset worker and subscribing to root topic.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -109,9 +108,7 @@ class PresetFromDeviceWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Triggering device to send preset catalog.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -142,9 +139,7 @@ class PresetFromDeviceWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Parsing raw preset string for valid '.STA' files.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -178,9 +173,7 @@ class PresetFromDeviceWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Publishing {len(preset_list)} presets as monolithic JSON blobs to repository.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -236,9 +229,7 @@ class PresetFromDeviceWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Pushing preset filename '{preset_filename}' to device and triggering save.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 

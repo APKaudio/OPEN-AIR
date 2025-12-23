@@ -38,6 +38,7 @@ from collections import defaultdict
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -88,9 +89,7 @@ class MqttConductorFrame(ttk.Frame):
         
         debug_log(
             message=f"🐐🟢 Initializing the '{self.__class__.__name__}' GUI frame. This one's a masterpiece of form over function!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
             
 
 
@@ -107,9 +106,7 @@ class MqttConductorFrame(ttk.Frame):
             debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 

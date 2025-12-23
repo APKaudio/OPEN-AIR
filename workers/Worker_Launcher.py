@@ -22,6 +22,7 @@ from datetime import datetime
 # --- Imports for logging and workers ---
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args 
 # from workers.active.worker_active_marker_tune_and_collect import MarkerGoGetterWorker
 ## from workers.active.worker_active_peak_publisher import ActivePeakPublisher
 
@@ -52,10 +53,7 @@ class WorkerLauncher:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Eureka! We are kicking off the worker engines from '{current_function_name}'!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+                **_get_log_args()    
             )
 
         try:
@@ -64,7 +62,7 @@ class WorkerLauncher:
             ## active_peak_publisher = ActivePeakPublisher()
             self.splash.set_status("Active Peak Publisher initialized.")
             if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", file=current_file, version=current_version, function=current_function_name )
+                debug_log(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", **_get_log_args())
 
             # --- Celebration of Success ---
             debug_log(message="✅ All workers have been successfully conjured and set to their tasks!")
@@ -75,9 +73,7 @@ class WorkerLauncher:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 Great Scott! The worker initialization has gone haywire in '{current_function_name}'! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
             return False

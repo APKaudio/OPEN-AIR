@@ -24,6 +24,7 @@ import inspect
 import json
 
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 from managers.yak_manager.yak_repository_parser import get_command_node, lookup_scpi_command, lookup_inputs, lookup_outputs
 from managers.yak_manager.yak_command_builder import fill_scpi_placeholders

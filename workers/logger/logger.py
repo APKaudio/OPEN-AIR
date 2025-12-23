@@ -24,6 +24,7 @@ import pathlib
 import json # Used for JSON logging if a payload is passed
 import sys
 import workers.setup.app_constants as app_constants
+from datetime import datetime
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
 # NOTE: These are temporary global placeholders that a Configuration Manager will eventually set.
@@ -78,7 +79,7 @@ def get_log_filename():
     # Returns a unique filename based on the current date and minute.
     global current_debug_log_filename
     
-    current_minute = datetime.datetime.now().strftime("%Y%m%d_%H%M")
+    current_minute = datetime.now().strftime("%Y%m%d%H%M")
     if current_debug_log_filename is None or not current_debug_log_filename.startswith(f"📍🐛{current_minute}"):
         current_debug_log_filename = f"📍🐛{current_minute}.log"
         
@@ -134,11 +135,11 @@ def debug_log(message: str, file: str = "N/A", version: str = "N/A", function: s
         
     # Truncate the message before prepending metadata
     truncated_message = _truncate_message(message)
-    
+    now = datetime.now()
     # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
-    timestamp_prefix = "" # No timestamp prefix as per user's request.
+    timestamp_prefix = now.strftime("%Y%m%d%H%M%S")
     
-    log_entry = f"{timestamp_prefix}{truncated_message} | {file} | {version} Function: {function}"
+    log_entry = f"{timestamp_prefix}💬{truncated_message}📄{file}🗄️{version}🧩{function}"
 
     # 1. Log to console output
     if global_settings["debug_to_terminal"]:
@@ -151,12 +152,16 @@ def debug_log(message: str, file: str = "N/A", version: str = "N/A", function: s
             else:
                 print(log_entry)
 
-    # 2. Log to main debug file
-    if global_settings["debug_to_file"]:
+    # Determine if this is an error log entry
+    is_error_message = ERROR_MARKER_USER in truncated_message or ERROR_MARKER_CRITICAL in truncated_message
+
+    # 2. Log to main debug file (always if debug_to_file is enabled)
+    if global_settings["debug_to_file"] and not is_error_message: # Only log to main debug if not an error message
         _log_to_file(log_entry, get_log_filename())
-        
+    
     # 3. Log to errors file if it contains the marker
-    _log_to_error_file(message)
+    if is_error_message:
+        _log_to_file(log_entry, ERRORS_LOG_FILENAME) # Directly call _log_to_file with ERRORS_LOG_FILENAME
 
 
 # PUBLIC API: Implemented as per the user's explicit request.

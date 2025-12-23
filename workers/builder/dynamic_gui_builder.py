@@ -27,6 +27,8 @@ from display.styling.style import THEMES, DEFAULT_THEME
 ## from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args 
+
 
 # --- Widget Creator Mixins ---
 from .dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
@@ -92,6 +94,7 @@ class DynamicGuiBuilder(
     Manages the dynamic generation of GUI elements based on OcaBlock definitions.
     """
     def __init__(self, parent, json_path=None, *args, **kwargs):
+        _ = kwargs.pop('config', None) # Consume config argument
         super().__init__(parent, *args, **kwargs)
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
@@ -115,9 +118,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 Blast! The builder was summoned without its required artifacts! Called from {caller_filename}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -197,9 +198,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 Arrr, the gears of the builder be jammed! {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -214,10 +213,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔍 Inspecting the aesthetics for theme: {theme_name}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+**_get_log_args()    
 
 
             )
@@ -261,9 +257,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message="🖥️🔁 Tearing down the old world to build a new one!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -284,9 +278,9 @@ class DynamicGuiBuilder(
         """Recursive parser for OcaBlocks and fields that now uses a grid layout for wrapping."""
         current_function_name = "_create_dynamic_widgets"
         if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message=f"Creating widgets in {parent_frame} with data: {data}", file=current_file, version=current_version, function=current_function_name 
+            debug_log(message=f"Creating widgets in {parent_frame} with data: {data}", **_get_log_args())
 
-)
+
         
         try:
             if not isinstance(data, dict):

@@ -39,6 +39,7 @@ import pathlib # CRITICAL FIX: Missing import
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
@@ -102,10 +103,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🟢 Eureka! The grand experiment begins! Initializing the {self.current_class_name} for topic '{config.get('base_topic')}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+**_get_log_args()    
 
 
             )
@@ -219,9 +217,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🟢 Exiting {self.current_class_name}.__init__().",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -232,9 +228,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -247,9 +241,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 First time mapping event for {self.base_topic}. Building GUI.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -260,9 +252,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 GUI for {self.base_topic} already built. Skipping rebuild on map event.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -278,9 +268,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"MQTT TX: Publishing '{payload}' to '{relative_topic}' (retain={retain}).",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -337,10 +325,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 It's alive! Rebuilding the GUI with the latest configuration data.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+**_get_log_args()    
 
 
             )
@@ -358,9 +343,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 Exiting _rebuild_gui(). GUI rebuild completed.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -370,9 +353,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -384,10 +365,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"▶️ {current_function_name} with arguments: {theme_name}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+**_get_log_args()    
 
 
             )
@@ -453,9 +431,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 By Jove, the style potion has curdled! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 
@@ -467,10 +443,7 @@ class DynamicGuiBuilder(
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Entering _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
+**_get_log_args()    
 
 
             )
@@ -532,9 +505,7 @@ class DynamicGuiBuilder(
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 Exiting _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
+              **_get_log_args()
                     
 
 

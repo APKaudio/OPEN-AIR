@@ -28,6 +28,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import inspect
 from tkinter import filedialog
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_load_markers_file,
     maker_file_load_ias_html,

@@ -26,6 +26,7 @@ import pathlib
 
 # Assume these are imported from a central logging utility and MQTT controller
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 

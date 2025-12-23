@@ -20,8 +20,9 @@ import pyvisa
 import os
 import inspect
 
-from workers.logger.logger import debug_log
-from workers.utils.log_utils import _get_log_args
+from workers.logger.logger import debug_log                                                                                                          
+from workers.utils.log_utils import _get_log_args 
+
 import workers.setup.app_constants as app_constants
 
 LOCAL_DEBUG_ENABLE = False

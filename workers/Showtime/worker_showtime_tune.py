@@ -3,17 +3,6 @@
 # A complete and comprehensive pre-amble that describes the file and the functions within.
 # The purpose is to provide clear documentation and versioning.
 #
-# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# As the current hour is 20, no change is needed.
-
-Current_Date = 20251213
-Current_Time = 120000
-Current_iteration = 44
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -27,6 +16,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from workers.logger.logger import  debug_log
+from workers.utils.log_utils import _get_log_args
 ## from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 from workers.markers.worker_marker_logic import calculate_frequency_range
 import workers.setup.app_constants as app_constants
@@ -43,9 +33,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message="🟢️️️🟢 Initiating tuning request based on current selection.",
-            file=showtime_tab_instance.current_file,
-            version=showtime_tab_instance.current_version,
-            function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+            **_get_log_args()
             
 
 
@@ -57,9 +45,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🔍 Device button selected. Tuning to center frequency of {marker_data.get('NAME', 'N/A')}.",
-                file=showtime_tab_instance.current_file,
-                version=showtime_tab_instance.current_version,
-                function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+                **_get_log_args()
                 
 
 
@@ -70,9 +56,7 @@ def on_tune_request_from_selection(showtime_tab_instance):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🔍 No device selected. Tuning to start/stop frequency of selected Group: {showtime_tab_instance.selected_group}.",
-                file=showtime_tab_instance.current_file,
-                version=showtime_tab_instance.current_version,
-                function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+                **_get_log_args()
                 
 
 
@@ -85,16 +69,14 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            debug_log(message="❌ Failed to tune: No valid frequencies found in selected group.")
+            debug_log(message="❌ Failed to tune: No valid frequencies found in selected group.", **_get_log_args())
             
     elif showtime_tab_instance.selected_zone:
         # Case 3: A zone is selected, but no group or device
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🔍 No group selected. Tuning to start/stop frequency of selected Zone: {showtime_tab_instance.selected_zone}.",
-                file=showtime_tab_instance.current_file,
-                version=showtime_tab_instance.current_version,
-                function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+                **_get_log_args()
                 
 
 
@@ -109,15 +91,13 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            debug_log(message="❌ Failed to tune: No valid frequencies found in selected zone.")
+            debug_log(message="❌ Failed to tune: No valid frequencies found in selected zone.", **_get_log_args())
     else:
         # Case 4: No filters selected, tune to all markers
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🔍 No filters selected. Tuning to start/stop frequency of all markers.",
-                file=showtime_tab_instance.current_file,
-                version=showtime_tab_instance.current_version,
-                function=f"{showtime_tab_instance.__class__.__name__}.{current_function}",
+                **_get_log_args()
                 
 
 
@@ -129,4 +109,4 @@ def on_tune_request_from_selection(showtime_tab_instance):
             mock_marker_data = {'FREQ_MHZ': (min_freq + max_freq) / 2}
             ## Push_Marker_to_Start_Stop_Freq(mqtt_controller=showtime_tab_instance.mqtt_util, marker_data=mock_marker_data, buffer=(max_freq - min_freq) * 1e6)
         else:
-            debug_log(message="❌ Failed to tune: No valid frequencies found in marker data.")
+            debug_log(message="❌ Failed to tune: No valid frequencies found in marker data.", **_get_log_args())

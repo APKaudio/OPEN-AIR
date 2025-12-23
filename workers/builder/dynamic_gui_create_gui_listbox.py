@@ -35,6 +35,7 @@ from decimal import Decimal
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -57,9 +58,7 @@ class GuiListboxCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to materialize a listbox for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -154,9 +153,7 @@ class GuiListboxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The listbox '{label}' has been successfully generated!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -168,9 +165,7 @@ class GuiListboxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The listbox for '{label}' has vanished into a different dimension! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

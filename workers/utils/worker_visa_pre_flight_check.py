@@ -74,9 +74,7 @@ def list_visa_resources():
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
+**_get_log_args()
             
 
         )
@@ -250,9 +248,7 @@ def list_visa_resources():
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔴 VISA scan failed: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 

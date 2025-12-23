@@ -33,6 +33,7 @@ import pathlib
 import os
 
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 
@@ -61,9 +62,7 @@ class MousewheelScrollMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Mousewheel event detected: {event.num}. Scrolling canvas.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         # Platform-specific mouse wheel scrolling
@@ -80,9 +79,7 @@ class MousewheelScrollMixin:
         if app_cBLE:
             debug_log(
                 message=f"🖥️🔵 Binding mousewheel scrolling for canvas.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         # Bind mousewheel scrolling when the mouse enters the scrollable area
@@ -95,9 +92,7 @@ class MousewheelScrollMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message="🖥️🔵 Unbinding mousewheel scrolling for canvas.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         # Unbind mousewheel scrolling when the mouse leaves the scrollable area

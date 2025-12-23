@@ -37,6 +37,7 @@ from collections import defaultdict
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
 
@@ -74,9 +75,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 Initiating device-centric CSV to JSON conversion and MQTT publish. Applying new nested structure.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
+**_get_log_args()
             
 
 
@@ -150,9 +149,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 
@@ -171,9 +168,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 
@@ -196,9 +191,7 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 

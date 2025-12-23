@@ -27,6 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 LOCAL_DEBUG_ENABLE = False
 
 # The wrapper functions debug_log and _switch are removed

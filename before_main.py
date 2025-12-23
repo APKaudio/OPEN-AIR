@@ -6,6 +6,8 @@ import sys
 import inspect
 import subprocess
 
+from workers.utils.log_utils import _get_log_args
+
 current_file = f"{os.path.basename(__file__)}"
 current_version = app_constants.current_version
 
@@ -144,7 +146,7 @@ def action_check_dependancies(console_print_func, debug_log_func, should_clean_i
             
             if is_installed and should_clean_install: # Use should_clean_install here
                 # Scenario A: Installed, running in fresh mode -> Force uninstall/reinstall
-                console_print_func(f"✅ Found '{friendly_name}'. Forcing refresh...")
+                
                 
                 _execute_pip_command(ACTION_UNINSTALL, package_name_for_pip, console_print_func, debug_log_func, current_file, current_version)
                 
@@ -193,22 +195,16 @@ def action_check_dependancies(console_print_func, debug_log_func, should_clean_i
         #console_print_func("\n✅ A most glorious success! All critical dependencies are verified and refreshed.")
         debug_log_func(
             message="🖥️✅ All raw materials secured! Proceeding to next phase.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
-          
- )
+            **_get_log_args()
+            )
         return True
 
     except Exception as e:
         console_print_func(f"\n❌ UNEXPECTED FATAL ERROR during dependency check: {e}")
         debug_log_func(
             message=f"🖥️🔴 Heavens to Betsy! An unknown error has torpedoed the dependency check! The error be: {e}",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
-          
- )
+            **_get_log_args()
+                            )   
         # Allows the main application to handle the error
         return False
 

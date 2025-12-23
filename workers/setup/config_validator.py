@@ -2,6 +2,7 @@
 
 import inspect
 import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args 
 
 
 def validate_configuration(print, debug_log_func, current_version, current_file):
@@ -12,12 +13,8 @@ def validate_configuration(print, debug_log_func, current_version, current_file)
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log_func(
             message=f"🖥️🟢 Ahem, commencing the configuration validation experiment in '{current_function_name}'.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
-            
- )
-
+            **_get_log_args()
+        )
    
     try:
 
@@ -30,9 +27,6 @@ def validate_configuration(print, debug_log_func, current_version, current_file)
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log_func(
                 message=f"🖥️🔴 By Jove! The configuration is in shambles! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
-                
-            )
-        return False
+                **_get_log_args()
+                            )
+    return False

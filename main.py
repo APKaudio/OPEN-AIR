@@ -1,4 +1,4 @@
-print("main.py started!")
+
 
 # main.py
 #
@@ -25,7 +25,9 @@ from workers.Worker_Launcher import WorkerLauncher
 
 # Application display module
 import display.gui_display # Import the module, not just the class
-from workers.logger.logger import debug_log
+
+from workers.logger.logger import debug_log, _safe_print                                                                                                        
+from workers.utils.log_utils import _get_log_args 
 
 # Setup modules (ensure they are imported correctly)
 import workers.setup.app_constants as app_constants
@@ -42,7 +44,7 @@ from workers.setup.application_initializer import initialize_app
 
 from workers.utils.log_utils import _get_log_args
 
-current_file = f"{os.path.basename(__file__)}"
+
 
 def action_open_display(root, splash): 
     current_function_name = inspect.currentframe().f_code.co_name
@@ -51,12 +53,8 @@ def action_open_display(root, splash):
         **_get_log_args()
         
     )
-    # Initializes and opens the main graphical user interface and then publishes the dataset.
-    debug_log(
-        message=f"DEBUG: Entering action_open_display...",
-        **_get_log_args()
-        
-    )
+
+    
     
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
@@ -129,9 +127,6 @@ def action_open_display(root, splash):
 
 def main():
     """The main execution function for the application."""
-    current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(message="DEBUG: Entering main function.", **_get_log_args() )
-
     # Call path_initializer early to set up DATA_DIR needed for logger
     debug_log(message="DEBUG: Calling path_initializer.initialize_paths...", **_get_log_args() )
     global_project_root, data_dir = path_initializer.initialize_paths(print)
@@ -142,6 +137,8 @@ def main():
     logger_config.configure_logger(data_dir, print)
     debug_log(message="DEBUG: logger_config.configure_logger completed.", **_get_log_args() )
     
+    debug_log(message="DEBUG: Entering main function.", **_get_log_args() )
+
     debug_log(message="DEBUG: Calling debug_cleaner.clear_debug_directory...", **_get_log_args() )
     debug_cleaner.clear_debug_directory(data_dir, print)
     debug_log(message="DEBUG: debug_cleaner.clear_debug_directory completed.", **_get_log_args() )
@@ -191,5 +188,5 @@ def main():
     debug_log(message="DEBUG: root.mainloop() has exited.", **_get_log_args() )  
 
 if __name__ == "__main__":
-    print("DEBUG: Calling main()...")
+    _safe_print("DEBUG: Calling main()...")
     main()

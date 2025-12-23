@@ -36,6 +36,7 @@ from tkinter import filedialog
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 import workers.setup.app_constants as app_constants
@@ -66,9 +67,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
             )
 
         try:

@@ -31,6 +31,7 @@ import os
 import tkinter as tk
 from tkinter import ttk
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import inspect
 import json
 import workers.setup.app_constants as app_constants
@@ -52,9 +53,7 @@ class GuiButtonToggleCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to engineer a toggle button for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -117,9 +116,7 @@ class GuiButtonToggleCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The toggle button '{label}' is alive!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -131,9 +128,7 @@ class GuiButtonToggleCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The toggle button for '{label}' went into a paradoxical state! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

@@ -5,6 +5,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import workers.setup.app_constants as app_constants
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import os
 
 class ImageDisplayCreatorMixin:
@@ -14,9 +15,7 @@ class ImageDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to render an image for '{label}'.",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                 
 
 
@@ -49,9 +48,7 @@ class ImageDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"✅ SUCCESS! The image for '{label}' has been rendered!",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                 
 
 

@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.12
+# Version 20251217.23580.13
 
 import os
 import pathlib
@@ -26,30 +26,7 @@ import inspect
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.current_version,
-        "function": function_full_name
-    }
+from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -74,10 +51,10 @@ class GenericInstrumentGui(ttk.Frame):
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
-        kwargs.pop('config', None)
+        _ = kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
         current_function_name = inspect.currentframe().f_code.co_name

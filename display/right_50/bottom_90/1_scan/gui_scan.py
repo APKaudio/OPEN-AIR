@@ -27,6 +27,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -50,12 +51,8 @@ class ScanViewGUIFrame(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🟢 Initializing {self.__class__.__name__}. Preparing to scan the ether!",
-                file=current_file,
-                version=current_version,
-                                               
-                                                from workers.logger.logger import debug_log
-                                            )
-
+              **_get_log_args()
+            )
         try:
             super().__init__(parent, *args, **kwargs)
             
@@ -77,29 +74,21 @@ class ScanViewGUIFrame(ttk.Frame):
 
             self._create_plot_widgets()
             
-            debug_log(
-                message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",
-                file=current_file,
-                version=current_version,
-               
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(
+                    message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",
+
+                )
 
         except Exception as e:
             debug_log(
                 message=f"❌ Error in {current_function_name}: {e}",
-                file=current_file,
-                version=current_version,
-               
-               
+             **_get_log_args()
             )
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! Error in {current_function_name}: {e}",
-                    file=current_file,
-                    version=current_version,
-                   
-                   
+**_get_log_args()
                 )
 
     def _create_plot_widgets(self):
@@ -150,12 +139,7 @@ class ScanViewGUIFrame(ttk.Frame):
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message="📊 Plot widgets created and rendered successfully.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                    
-
-
+**_get_log_args()
                 )
 
         except Exception as e:

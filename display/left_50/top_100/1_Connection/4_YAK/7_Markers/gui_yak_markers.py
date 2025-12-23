@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.12
+# Version 20251217.23580.13
 
 import os
 import pathlib
@@ -26,30 +26,7 @@ import inspect
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.current_version,
-        "function": function_full_name
-    }
+from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -58,6 +35,8 @@ current_file = f"{os.path.basename(__file__)}"
 current_path = pathlib.Path(__file__).resolve()
 JSON_CONFIG_FILE = current_path.with_suffix('.json') 
 
+# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
+module_name = current_path.stem.replace('gui_', '')
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
 ## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
@@ -82,10 +61,11 @@ class GenericInstrumentGui(ttk.Frame):
         self.current_class_name = self.__class__.__name__
 
         if app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(
-                                message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
-                                **_get_log_args()
-                            )
+            debug_log(
+                message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
+                **_get_log_args()
+            )
+
         # Immediate visual feedback in the GUI
         self.status_label = ttk.Label(self, text=f"Initializing {module_name}...", font=("Arial", 10, "italic"))
         self.status_label.pack(pady=20)

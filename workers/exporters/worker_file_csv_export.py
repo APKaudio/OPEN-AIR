@@ -31,6 +31,7 @@ import inspect
 import os
 
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -64,9 +65,7 @@ class CsvExportUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to save data to CSV at '{file_path}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         
@@ -90,8 +89,6 @@ class CsvExportUtility:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
                 )

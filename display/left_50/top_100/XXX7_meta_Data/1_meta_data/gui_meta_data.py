@@ -33,32 +33,9 @@ from tkinter import ttk
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import pathlib
 import workers.setup.app_constants as app_constants
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.current_version,
-        "function": function_full_name
-    }
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()

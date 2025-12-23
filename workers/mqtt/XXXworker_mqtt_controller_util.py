@@ -1,16 +1,5 @@
 # workers/worker_mqtt_controller_util.py
 #
-# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# As the current hour is 20, no change is needed.
-
-Current_Date = 20251129  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 1 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # A utility module to handle the logic for interfacing with an external MQTT broker.
 # This version refactors the client to centrally manage subscriptions and dispatch messages.
 #
@@ -42,15 +31,11 @@ import queue
 # --- Module Imports ---
 # Path manipulation is now handled by main.py
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 
 print(f"DEBUG: Loading MqttControllerUtility from: {__file__}")
 
 # --- Global Scope Variables (as per your instructions) ---
-current_version = "20251213.000000.1" # Updated version based on current date
-current_version_hash = (20251213 * 0 * 1) # Updated hash
-current_file_path = pathlib.Path(__file__).resolve()
-project_root = current_file_path.parent.parent.parent
-current_file = str(current_file_path.relative_to(project_root)).replace("\\\\", "/")
 LOCAL_DEBUG_ENABLE = False
 
 
@@ -82,10 +67,7 @@ class MqttControllerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Initializing the '{self.__class__.__name__}' utility class. Powering up the flux capacitor!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-                _to_gui_func
+              **_get_log_args()
             )
         
         try:
@@ -101,15 +83,13 @@ class MqttControllerUtility:
             self._paused = False
             self._pause_lock = threading.Lock()
 
-            debug_log(message="✅ Celebration of success!")
+            debug_log(message="✅ Celebration of success!", **_get_log_args())
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
             
@@ -126,9 +106,7 @@ class MqttControllerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Subscription request stored for topic filter: '{topic_filter}'.",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+                **_get_log_args()
                 
             )
 
@@ -138,9 +116,7 @@ class MqttControllerUtility:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🔍 Subscribed immediately to '{topic_filter}'.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.add_subscriber",
+                    **_get_log_args()
                     
                 )
         # [A] If not connected, add it to the pending list for later.
@@ -156,9 +132,7 @@ class MqttControllerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🔵 MQTT client connected with rc={rc}. Subscribing to all topics!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         
@@ -170,7 +144,7 @@ class MqttControllerUtility:
 
         # We subscribe to a wildcard topic once to catch everything.
         client.subscribe("#")
-        debug_log(message=f"✅ Connected to broker with rc={rc}") # Informational
+        debug_log(message=f"✅ Connected to broker with rc={rc}", **_get_log_args()) # Informational
 
     def on_message(self, client, userdata, msg):
         """Callback for when an MQTT message is received."""
@@ -182,9 +156,7 @@ class MqttControllerUtility:
                 if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"MQTT message for topic '{msg.topic}' received but processing is paused.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        **_get_log_args()
                         
                     )
                 return # Do not process message if paused
@@ -215,9 +187,7 @@ class MqttControllerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to connect MQTT client.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         try:
@@ -231,15 +201,13 @@ class MqttControllerUtility:
 
             transmitter_thread = threading.Thread(target=self._transmitter_thread, daemon=True)
             transmitter_thread.start()
-            debug_log(message="✅ MQTT client connection initiated in a background thread.") # Informational
+            debug_log(message="✅ MQTT client connection initiated in a background thread.", **_get_log_args()) # Informational
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
 
@@ -255,7 +223,7 @@ class MqttControllerUtility:
                     payload = json.dumps({"value": value})
                     self.mqtt_client.publish(full_topic, payload, retain=retain)
                     if app_constants.LOCAL_DEBUG_ENABLE: 
-                        debug_log(message=f"Published to {full_topic}: {payload} with retain={retain}")
+                        debug_log(message=f"Published to {full_topic}: {payload} with retain={retain}", **_get_log_args())
                 else:
                     self._print_to_gui_console(f"❌ {NOT_CONNECTED_MSG}")
             except Exception as e:
@@ -268,25 +236,21 @@ class MqttControllerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to display topics.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         try:
             if self.topics_seen:
-                                debug_log(message=f"Observed Topics:\n{'\n'.join(sorted(self.topics_seen))}") # Informational
+                                debug_log(message=f"Observed Topics:\n{'\n'.join(sorted(self.topics_seen))}", **_get_log_args()) # Informational
             else:
-                debug_log(message="⚠️ No topics observed yet.") # Warning
+                debug_log(message="⚠️ No topics observed yet.", **_get_log_args()) # Warning
 
         except Exception as e:
             self._print_to_gui_console(f"❌ Error in {current_function_name}: {e}") # Always show errors
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
 
@@ -303,9 +267,7 @@ class MqttControllerUtility:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
 
@@ -320,9 +282,7 @@ class MqttControllerUtility:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to purge topics under '{base_topic}'.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
             
         )
         try:
@@ -356,9 +316,7 @@ class MqttControllerUtility:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message="MQTT message processing paused.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
 
@@ -372,8 +330,6 @@ class MqttControllerUtility:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message="MQTT message processing resumed.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )

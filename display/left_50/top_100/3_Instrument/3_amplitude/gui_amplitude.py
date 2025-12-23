@@ -13,32 +13,30 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.12
+# Version 20251217.23580.13
 
 import os
 import pathlib
 import json
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
+from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
-CURRENT_DATE = 20251217
-CURRENT_TIME = 235800
-CURRENT_ITERATION = 11
-
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
-current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Fully Dynamic Resolution ---
 current_path = pathlib.Path(__file__).resolve()
 JSON_CONFIG_FILE = current_path.with_suffix('.json') 
 
+# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
+module_name = current_path.stem.replace('gui_', '')
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
 ## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
@@ -53,24 +51,19 @@ class GenericInstrumentGui(ttk.Frame):
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
-        kwargs.pop('config', None)
+        _ = kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
-        current_function_name = "__init__"
+        current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.LOCAL_DEBUG_ENABLE: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
-
-
+                **_get_log_args()
             )
 
         # Immediate visual feedback in the GUI
@@ -83,7 +76,10 @@ class GenericInstrumentGui(ttk.Frame):
             
             if not abs_json_path.exists():
                 error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
-                print(f"DEBUG: {error_msg}")
+                debug_log(
+                    message=error_msg,
+                    **_get_log_args()
+                )
                 self.status_label.config(text=error_msg, foreground="orange")
                 return
 
@@ -116,15 +112,10 @@ class GenericInstrumentGui(ttk.Frame):
                         break
             
             if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}"
-                        
-
-
+                        **_get_log_args()
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -139,15 +130,10 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf, indent=4)
                 processed_path = str(temp_path)
             if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE: 
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping YAK structure for {module_name}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}"
-                        
-
-
+                        **_get_log_args()
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -187,15 +173,10 @@ class GenericInstrumentGui(ttk.Frame):
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
             
             self.status_label.config(text=error_msg, foreground="red")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}"
-                    
-
-
+                    **_get_log_args()
                 )
 
     def _on_tab_selected(self, *args, **kwargs):
@@ -203,17 +184,12 @@ class GenericInstrumentGui(ttk.Frame):
         Called by the grand orchestrator (Application) when this tab is brought to focus.
         Using *args to swallow any positional events or data passed by the orchestrator.
         """
-        current_function_name = "_on_tab_selected"
+        current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.LOCAL_DEBUG_ENABLE: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}"
-                
-
-
+                **_get_log_args()
             )
         
         # Add logic here if specific refresh actions are needed on tab focus

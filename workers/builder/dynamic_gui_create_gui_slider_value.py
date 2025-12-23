@@ -34,6 +34,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -55,9 +56,7 @@ class SliderValueCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to assemble a slider for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -148,9 +147,7 @@ class SliderValueCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The slider '{label}' has materialized!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -162,9 +159,7 @@ class SliderValueCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The slider contraption for '{label}' has malfunctioned! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

@@ -27,6 +27,7 @@ import json
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -53,9 +54,7 @@ class BaseGUIFrame(ttk.Frame):
         
         debug_log(
             message="🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
         )
         
         try:

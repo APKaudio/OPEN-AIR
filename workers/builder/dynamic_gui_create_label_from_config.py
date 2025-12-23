@@ -20,6 +20,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -39,9 +40,7 @@ class LabelFromConfigCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create label from config for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -57,9 +56,7 @@ class LabelFromConfigCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🟢️️️🟢 📤 '{current_function_name}'. Label from config '{label}' created.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -70,9 +67,7 @@ class LabelFromConfigCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🟢️️️🔴 Arrr, the code be capsized! Label from config creation has failed! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

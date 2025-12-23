@@ -23,6 +23,7 @@ import pathlib
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -61,9 +62,7 @@ class PresetPusherGui(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE:
              debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                             )
 
         try:
@@ -90,9 +89,7 @@ class PresetPusherGui(ttk.Frame):
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -108,9 +105,7 @@ class PresetPusherGui(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Tab '{self.__class__.__name__}' activated! Stand back, I'm checking the data flow!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 

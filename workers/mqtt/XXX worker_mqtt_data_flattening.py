@@ -1,16 +1,5 @@
 # workers/worker_mqtt_data_flattening.py
 #
-# The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# As the current hour is 20, no change is needed.
-
-Current_Date = 20251129  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 1 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # A utility module to process and flatten nested MQTT payloads into a format
 # suitable for display in a flat table or export to CSV. It buffers incoming
 # messages until a complete set is received, then pivots the data.
@@ -34,15 +23,9 @@ import json
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 
 # --- Global Scope Variables ---
-CURRENT_DATE = 20250825
-CURRENT_TIME = 151032
-CURRENT_TIME_HASH = 151032
-REVISION_NUMBER = 21
-current_version = "20250825.151032.21"
-current_version_hash = 63895914278400
-current_file = f"{os.path.basename(__file__)}"
 LOCAL_DEBUG_ENABLE = False
 
 
@@ -65,9 +48,7 @@ class MqttDataFlattenerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.clear_buffer",
+                **_get_log_args()
                 
             )
         self.data_buffer = {}
@@ -97,9 +78,7 @@ class MqttDataFlattenerUtility:
                 if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message="🟢️️️🟡 Flush command received, but buffer is empty. Nothing to do.",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        **_get_log_args()
                         
                     )
                 return []
@@ -109,16 +88,14 @@ class MqttDataFlattenerUtility:
             
             # --- Corrected logic for 'Active' status check ---
             if topic.endswith('/Active') and isinstance(data, dict) and data.get('value') == 'false':
-                debug_log(message=f"🟡 Skipping transaction for '{topic}' because 'Active' is false.")
+                debug_log(message=f"🟡 Skipping transaction for '{topic}' because 'Active' is false.", **_get_log_args())
                 self.clear_buffer()
                 return []
             
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
 
@@ -141,25 +118,21 @@ class MqttDataFlattenerUtility:
             return []
             
         except json.JSONDecodeError as e:
-            debug_log(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}")
+            debug_log(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}", **_get_log_args())
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 The JSON be a-sailing to its doom! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
             self.clear_buffer()
             return []
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}", **_get_log_args())
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    **_get_log_args()
                     
                 )
             self.clear_buffer()
@@ -174,9 +147,7 @@ class MqttDataFlattenerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🟢 Processing buffer and commencing pivoting and flattening!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         
@@ -207,11 +178,9 @@ class MqttDataFlattenerUtility:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️✅ Behold! I have transmogrified the data! The final payload is below.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
         
-        debug_log(json.dumps(flattened_data, indent=2))
+        debug_log(message=json.dumps(flattened_data, indent=2), **_get_log_args())
         return [flattened_data]

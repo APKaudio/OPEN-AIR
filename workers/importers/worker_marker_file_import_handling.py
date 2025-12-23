@@ -44,6 +44,7 @@ import workers.setup.app_constants as app_constants
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.importers.worker_marker_file_import_converter import (
     Marker_convert_IAShtml_report_to_csv,
     Marker_convert_SB_PDF_File_report_to_csv,

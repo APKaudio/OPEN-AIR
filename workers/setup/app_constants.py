@@ -13,7 +13,7 @@ LOCAL_DEBUG_ENABLE = True  # Set to True to enable local debug logging
 # --- Global Settings ---
 global_settings = {
     "general_debug_enabled": True, # The main toggle for debug messages
-    "debug_to_terminal": True,     # Output debug to the terminal/IDE console
+    "debug_to_terminal": False,     # Output debug to the terminal/IDE console
     "debug_to_file": True,         # Output debug to the debug log file
     "log_truncation_enabled": True, # Truncate large numeric payloads
     "include_console_messages_to_debug_file": True, # Include  output in debug file

@@ -54,5 +54,6 @@ class PresetPusherGui(ttk.Frame):
         # passing the specific base topic for this GUI component.
         self.dynamic_gui = DynamicGuiBuilder(
             parent=self,
-            json_path=JSON_CONFIG_FILE
+            json_path=JSON_CONFIG_FILE,
+            config=self.config_data
         )

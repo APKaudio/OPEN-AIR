@@ -24,6 +24,7 @@ import os
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
 LOCAL_DEBUG_ENABLE = False

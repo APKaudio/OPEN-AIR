@@ -35,6 +35,7 @@ from decimal import Decimal
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -56,9 +57,7 @@ class GuiDropdownOptionCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to devise a dropdown selector for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -158,9 +157,7 @@ class GuiDropdownOptionCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The dropdown '{label}' is ready for selections!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -172,9 +169,7 @@ class GuiDropdownOptionCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The dropdown for '{label}' has fallen into the abyss! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -189,9 +184,7 @@ class GuiDropdownOptionCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to rebuild options for dropdown.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -217,9 +210,7 @@ class GuiDropdownOptionCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢⬅️ '{current_function_name}'. Options rebuilt for dropdown.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 

@@ -5,6 +5,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk, ImageSequence
 import workers.setup.app_constants as app_constants
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import os
 
 class AnimationDisplayCreatorMixin:
@@ -14,9 +15,7 @@ class AnimationDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to animate the display for '{label}'.",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                 
 
 
@@ -66,9 +65,7 @@ class AnimationDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"✅ SUCCESS! The animation for '{label}' is ready to roll!",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                 
 
 

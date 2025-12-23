@@ -34,6 +34,7 @@ import inspect
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -55,9 +56,7 @@ class ValueBoxCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to brew a value box for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -102,9 +101,7 @@ class ValueBoxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The value box '{label}' has been perfectly crafted!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -116,9 +113,7 @@ class ValueBoxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"💥 KABOOM! The value box for '{label}' has spectacularly failed! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

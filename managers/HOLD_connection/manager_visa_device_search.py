@@ -33,6 +33,7 @@ from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCo
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
 

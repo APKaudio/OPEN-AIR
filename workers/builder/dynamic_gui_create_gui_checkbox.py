@@ -35,6 +35,7 @@ import json
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 # The wrapper functions debug_log and _switch are removed
@@ -60,9 +61,7 @@ class GuiCheckboxCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to spawn a checkbox for '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -121,9 +120,7 @@ class GuiCheckboxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The checkbox '{label}' has been successfully instantiated.",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -135,9 +132,7 @@ class GuiCheckboxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"💥 KABOOM! The checkbox for '{label}' suffered a quantum entanglement failure! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

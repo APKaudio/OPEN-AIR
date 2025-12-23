@@ -28,6 +28,7 @@ import inspect
 # --- Module Imports ---
 
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import workers.setup.app_constants as app_constants
 
 current_version = "20251127.000000.1"
@@ -48,9 +49,7 @@ class LabelCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to concoct a new label: '{label}'.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
 
 
@@ -71,9 +70,7 @@ class LabelCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The label '{label}' has been successfully synthesized!",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 
@@ -85,9 +82,7 @@ class LabelCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"💥 KABOOM! The label creation for '{label}' has exploded! Error: {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
                     
 
 

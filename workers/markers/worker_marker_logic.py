@@ -41,6 +41,7 @@ except ImportError:
     
 # --- Module Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 
 # --- Global Scope Variables (as per Section 4.4) ---
 current_version = "20251005.230247.1"
@@ -58,9 +59,7 @@ def calculate_frequency_range(marker_data_list):
     if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to divine the full spectral range from {len(marker_data_list)} markers.",
-            file=current_file,
-            version=current_version,
-            function=current_function_name
+**_get_log_args()
             
 
 
@@ -70,9 +69,7 @@ def calculate_frequency_range(marker_data_list):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🟡 The marker list is an empty void! Returning null range.",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 
@@ -107,9 +104,7 @@ def calculate_frequency_range(marker_data_list):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🔴 Arrr, the code be capsized! Calculation failed: {e}",
-                file=current_file,
-                version=current_version,
-                function=current_function_name
+**_get_log_args()
                 
 
 

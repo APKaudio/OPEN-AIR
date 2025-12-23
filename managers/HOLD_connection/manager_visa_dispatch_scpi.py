@@ -26,6 +26,7 @@ import time
 # --- Utility and Worker Imports ---
 # UPDATED: Import the centralized #log_visa_command
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
 
 
@@ -40,9 +41,7 @@ class ScpiDispatcher:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name}. The grand SCPI experiment begins!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
           
         )
         try:
@@ -59,9 +58,7 @@ class ScpiDispatcher:
             
             debug_log(
                 message=f"🟢️️️🔴 By Jove, the apparatus has failed to initialize! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
 
@@ -75,9 +72,7 @@ class ScpiDispatcher:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🟢️️️🔵 Received new instrument instance. It's now my time to shine!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
             
         )
         self.inst = inst
@@ -92,9 +87,7 @@ class ScpiDispatcher:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🟢️️️🟠 Entering {current_function_name}. Attempting a system-wide reset!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+           **_get_log_args()
             
         )
         try:
@@ -111,9 +104,7 @@ class ScpiDispatcher:
             debug_log(message=f"❌ Error in {current_function_name}: {e}", **_get_log_args())
             debug_log(
                 message=f"🟢️️️🔴 The reset protocol has failed catastrophically! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+                **_get_log_args()
                 
             )
             return False
@@ -123,14 +114,12 @@ class ScpiDispatcher:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🐐 📝 Entering {current_function_name} to transmit command: {command}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+           **_get_log_args()
             
         )
         if not self.inst:
             self._print_to_gui_console("❌ Error: Instrument not connected. Cannot write command.")
-            debug_log(message=f"🐐 ❌ No instrument connected. Aborting command write.", file=current_file, version=current_version, function=current_function_name )
+            debug_log(message=f"🐐 ❌ No instrument connected. Aborting command write.")
             return False
         
         # --- Reject command if it contains placeholders. ---
@@ -139,9 +128,7 @@ class ScpiDispatcher:
             self._print_to_gui_console(error_message)
             debug_log(
                 message=f"🐐 ❌ Command rejected! Unresolved placeholders found. The offending command be: {command}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
             return False
@@ -157,9 +144,7 @@ class ScpiDispatcher:
             self._print_to_gui_console(f"❌ Error writing command '{command}': {e}")
             debug_log(
                 message=f"🐐 🔴 Blast and barnacles! The write command has gone awry! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
             # Prevent infinite loop if the reset command itself fails
@@ -172,14 +157,12 @@ class ScpiDispatcher:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🐐 📝 Entering {current_function_name} to query command: {command}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
             
         )
         if not self.inst:
             self._print_to_gui_console("❌ Error: Instrument not connected. Cannot query command.")
-            debug_log(message=f"🐐 ❌ No instrument connected. Aborting command query.", file=current_file, version=current_version, function=current_function_name )
+            debug_log(message=f"🐐 ❌ No instrument connected. Aborting command query."**_get_log_args())
             return None
             
         # --- Reject command if it contains placeholders. ---
@@ -188,9 +171,7 @@ class ScpiDispatcher:
             self._print_to_gui_console(error_message)
             debug_log(
                 message=f"🐐 ❌ Query rejected! Unresolved placeholders found. The offending command be: {command}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
             return None
@@ -210,9 +191,7 @@ class ScpiDispatcher:
             self._print_to_gui_console(f"❌ Error querying command '{command}': {e}")
             debug_log(
                 message=f"🐐 🔴 Confound it! The query has returned naught but static! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
                 
             )
             self._reset_device(inst=self.inst)

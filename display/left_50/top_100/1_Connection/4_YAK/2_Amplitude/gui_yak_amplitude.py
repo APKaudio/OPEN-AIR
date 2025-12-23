@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.12
+# Version 20251217.23580.13
 
 import os
 import pathlib
@@ -26,30 +26,7 @@ import inspect
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
-
-def _get_log_args():
-    """Helper to get common debug_log arguments, accounting for class methods."""
-    frame = inspect.currentframe().f_back.f_back
-    filename = os.path.basename(frame.f_code.co_filename)
-    func_name = frame.f_code.co_name
-
-    # Attempt to get the class name if called from a method
-    class_name = None
-    if 'self' in frame.f_locals:
-        class_name = frame.f_locals['self'].__class__.__name__
-    elif 'cls' in frame.f_locals:
-        class_name = frame.f_locals['cls'].__name__
-
-    if class_name:
-        function_full_name = f"{class_name}.{func_name}"
-    else:
-        function_full_name = func_name
-
-    return {
-        "file": filename,
-        "version": app_constants.current_version,
-        "function": function_full_name
-    }
+from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
@@ -171,9 +148,9 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf)
                 processed_path = str(temp_path)
 
-            # If mqtt_util is None because it was shut off in the orchestrator, 
-            # we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-       #     effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+            ## If mqtt_util is None because it was shut off in the orchestrator, 
+            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
+            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
 
             # --- Presentation Layer ---
             # Instantiate the builder.

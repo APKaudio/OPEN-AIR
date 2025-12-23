@@ -34,6 +34,7 @@ from tkinter import ttk
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 import pathlib
 
 # --- Global Scope Variables ---
@@ -52,18 +53,14 @@ class PresetPusherGui(ttk.Frame):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        super().__init__(parent, *args, **kwargs)
-        self.pack(fill=tk.BOTH, expand=True)
-
         self.config_data = config # Store the config for later use
+        super().__init__(parent, *args, **kwargs)
         
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
+**_get_log_args()
         )
         try:
             config = {
@@ -79,20 +76,14 @@ class PresetPusherGui(ttk.Frame):
             )
             debug_log(
                 message="✅ The PresetPusherGui did initialize its dynamic GUI builder.",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
             )
         except Exception as e:
             debug_log(
                 message=f"❌ Error in {current_function_name}: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
             )
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+              **_get_log_args()
             )

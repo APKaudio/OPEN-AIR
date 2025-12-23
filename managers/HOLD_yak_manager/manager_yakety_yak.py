@@ -27,10 +27,11 @@ import re
 
 # --- Utility and Manager Imports ---
 from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+#from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from managers.HOLD_connection.manager_visa_dispatch_scpi import ScpiDispatcher
-from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
+#from managers.yak_manager.yak_trigger_handler import handle_yak_trigger
 # FIXED: Re-import YAKETY_YAK_REPO_PATH after circular dependency fix
 from workers.utils.worker_project_paths import YAKETY_YAK_REPO_PATH 
 
