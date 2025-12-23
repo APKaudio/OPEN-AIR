@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -52,18 +52,19 @@ class ValueBoxCreatorMixin:
         # Creates an editable text box (_Value).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to conjure an entry box for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to brew a value box for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
@@ -78,13 +79,15 @@ class ValueBoxCreatorMixin:
 
             def on_entry_change(event):
                 new_val = entry_value.get()
-                if app_constants.Local_Debug_Enable:
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 # CORRECTED: This now correctly uses the central transmit method.
                 self._transmit_command(relative_topic=path, payload=new_val)
@@ -96,25 +99,28 @@ class ValueBoxCreatorMixin:
             if path:
                 self.topic_widgets[path] = entry
 
-            console_log(f"✅ The value box did appear.")
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Value box '{label}' created.",
+                    message=f"✅ SUCCESS! The value box '{label}' has been perfectly crafted!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable:
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The value box creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The value box for '{label}' has spectacularly failed! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

@@ -32,13 +32,10 @@ from managers.frequency_manager.frequency_yak_communicator import FrequencyYakCo
 from managers.bandwidth_manager.bandwidth_yak_communicator import BandwidthYakCommunicator
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 
 
-# --- Global Scope Variables --
-current_version = "20250907.002515.6"
-current_version_hash = (20250907 * 2515 * 6)
-current_file = f"{os.path.basename(__file__)}"
 
 ## Constants for MQTT Topics
 ## MQTT_TOPIC_SEARCH_TRIGGER = "OPEN-AIR/configuration/instrument/active/Instrument_Connection/Search_and_Connect/Search_For_devices/trigger"
@@ -60,10 +57,10 @@ class VisaDeviceManager:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"🟢️️️🟢 Initiating the grand VISA device management experiment!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            **_get_log_args()
+            
+
+
         )
         try:
             ## self.mqtt_util = mqtt_controller
@@ -72,15 +69,15 @@ class VisaDeviceManager:
             self.found_resources = []
             self.selected_device_resource = None
             ## self._setup_mqtt_subscriptions()
-            console_log("✅ The magnificent VISA Device Manager is online and ready for action!")
+            debug_log(message="✅ The magnificent VISA Device Manager is online and ready for action!", **_get_log_args())
         except Exception as e:
-            console_log(f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
             debug_log(
                 message=f"🟢️️️🔴 By Jove, the initialization has gone haywire! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
+                
+
+
             )
 
     def search_resources(self, console_print_func):
@@ -88,10 +85,8 @@ class VisaDeviceManager:
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"GUI command received: initiating VISA resource search.",
-            file=current_file,
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
+            **_get_log_args()
+          
         )
         resources = list_visa_resources(console_print_func)
         return resources
@@ -101,10 +96,8 @@ class VisaDeviceManager:
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"Command received: initiating connection to {resource_name}.",
-            file=current_file,
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
+            **_get_log_args()
+          
         )
         payload = json.dumps({"resource": resource_name})
         ## self.mqtt_util.publish_message(topic="OPEN-AIR/commands/instrument/connect", subtopic="", value=payload)
@@ -114,10 +107,8 @@ class VisaDeviceManager:
         current_function = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"Command received: initiating disconnection.",
-            file=current_file,
-            version=current_version,
-            function=current_function,
-            console_print_func=console_print_func
+            **_get_log_args()
+          
         )
         ## self.mqtt_util.publish_message(topic="OPEN-AIR/commands/instrument/disconnect", subtopic="", value="disconnect")
 
@@ -128,8 +119,10 @@ class VisaDeviceManager:
     ##         message=f"🟢️️️🔵 My minions are tuning the receivers! Subscribing to command topics.",
     ##         file=current_file,
     ##         version=current_version,
-    ##         function=f"{self.__class__.__name__}.{current_function_name}",
-    ##         console_print_func=console_log
+    ##         function=f"{self.__class__.__name__}.{current_function_name}"
+    ##         
+
+
     ##     )
     ##     try:
     ##         # FIXED: Subscribing to the new '/trigger' subtopic
@@ -138,9 +131,9 @@ class VisaDeviceManager:
     ##         self.mqtt_util.add_subscriber(topic_filter=MQTT_TOPIC_CONNECT_TRIGGER, callback_func=self._on_gui_connect_request)
     ##         self.mqtt_util.add_subscriber(topic_filter=MQTT_TOPIC_DISCONNECT_TRIGGER, callback_func=self._on_gui_disconnect_request)
             
-    ##         console_log("✅ VisaDeviceManager subscribed to all necessary GUI and command topics.")
+    ##         debug_log(message="✅ VisaDeviceManager subscribed to all necessary GUI and command topics.")
     ##     except Exception as e:
-    ##         console_log(f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
+    ##         debug_log(message=f"❌ Error in {self.__class__.__name__}.{current_function_name}: {e}")
 
     ## def _on_search_request(self, topic, payload):
     ##     # Handles the 'Search_For_devices' button press from the GUI.
@@ -148,8 +141,8 @@ class VisaDeviceManager:
     ##         payload_data = json.loads(payload)
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
-    ##             console_log("🔍 Search for devices initiated from GUI.")
-    ##             self.found_resources = self.search_resources(console_log)
+    ##             debug_log(message="🔍 Search for devices initiated from GUI.")
+    ##             self.found_resources = self.search_resources()
     ##             self._update_found_devices_gui(self.found_resources)
     ##     except (json.JSONDecodeError, AttributeError):
     ##         pass
@@ -164,7 +157,7 @@ class VisaDeviceManager:
     ##             option_index = int(parts[-2]) - 1
     ##             if 0 <= option_index < len(self.found_resources):
     ##                 self.selected_device_resource = self.found_resources[option_index]
-    ##                 console_log(f"✅ Device selected: {self.selected_device_resource}")
+    ##                 debug_log(message=f"✅ Device selected: {self.selected_device_resource}")
     ##             else:
     ##                 self.selected_device_resource = None
     ##     except (json.JSONDecodeError, IndexError, ValueError, AttributeError):
@@ -177,11 +170,11 @@ class VisaDeviceManager:
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             if self.selected_device_resource:
-    ##                 console_log(f"🔵 Initiating connection to {self.selected_device_resource}...")
-    ##                 thread = threading.Thread(target=self.connect_instrument_logic, args=(self.selected_device_resource, console_log,), daemon=True)
+    ##                 debug_log(message=f"🔵 Initiating connection to {self.selected_device_resource}...")
+    ##                 thread = threading.Thread(target=self.connect_instrument_logic, args=(self.selected_device_resource, ), daemon=True)
     ##                 thread.start()
     ##             else:
-    ##                 console_log("🟡 No device selected to connect.")
+    ##                 debug_log(message="🟡 No device selected to connect.")
     ##     except (json.JSONDecodeError, AttributeError):
     ##         pass
 
@@ -192,13 +185,13 @@ class VisaDeviceManager:
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             if self.inst:
-    ##                 console_log("🔵 Initiating disconnection...")
-    ##                 thread = threading.Thread(target=self.disconnect_instrument_logic, args=(console_log,), daemon=True)
+    ##                 debug_log(message="🔵 Initiating disconnection...")
+    ##                 thread = threading.Thread(target=self.disconnect_instrument_logic, args=(), daemon=True)
     ##                 thread.start()
     ##             else:
-    ##                 console_log("🟡 No device is currently connected.")
+    ##                 debug_log(message="🟡 No device is currently connected.")
     ##     except Exception as e:
-    ##         console_log(f"❌ Error in _on_gui_disconnect_request: {e}")
+    ##         debug_log(message=f"❌ Error in _on_gui_disconnect_request: {e}")
             
     def _update_found_devices_gui(self, resources):
         # Updates the GUI's `Found_devices` listbox based on the search results,
@@ -233,11 +226,11 @@ class VisaDeviceManager:
             if resources:
                 first_device_topic = f"{base_topic}/options/1/selected"
                 ## self.mqtt_util.publish_message(topic=first_device_topic, subtopic="", value='true', retain=False)
-                console_log("✅ First device automatically selected after search.")
+                debug_log(message="✅ First device automatically selected after search.", **_get_log_args())
             
-            console_log("✅ GUI device list updated with search results (up to 40 slots used).")
+            debug_log(message="✅ GUI device list updated with search results (up to 40 slots used).", **_get_log_args())
         except Exception as e:
-            console_log(f"❌ Error in _update_found_devices_gui: {e}")
+            debug_log(message=f"❌ Error in _update_found_devices_gui: {e}", **_get_log_args())
 
     def _publish_status(self, topic_suffix, value):
         # Helper function to publish a value to a specific status topic.
@@ -251,10 +244,10 @@ class VisaDeviceManager:
     ##         payload_data = json.loads(payload)
     ##         resource_name = payload_data.get('resource')
     ##         if resource_name:
-    ##             thread = threading.Thread(target=self.connect_instrument_logic, args=(resource_name, console_log,), daemon=True)
+    ##             thread = threading.Thread(target=self.connect_instrument_logic, args=(resource_name, ), daemon=True)
     ##             thread.start()
     ##     except json.JSONDecodeError:
-    ##         console_log("❌ Failed to decode JSON payload for connect request.")
+    ##         debug_log(message="❌ Failed to decode JSON payload for connect request.")
     
     def connect_instrument_logic(self, resource_name, console_print_func):
         # Handles the full connection sequence to a VISA instrument.
@@ -303,17 +296,17 @@ class VisaDeviceManager:
             ## self._publish_status("disconnected", False)
             return True
         except Exception as e:
-            console_log(f"❌ Error during connection logic: {e}")
+            debug_log(message=f"❌ Error during connection logic: {e}", **_get_log_args())
             self.disconnect_instrument_logic(console_print_func)
             return False
 
     ## def _on_disconnect_request(self, topic, payload):
     ##     # Handles an MQTT disconnect request.
     ##     if self.inst:
-    ##         thread = threading.Thread(target=self.disconnect_instrument_logic, args=(console_log,), daemon=True)
+    ##         thread = threading.Thread(target=self.disconnect_instrument_logic, args=(), daemon=True)
     ##         thread.start()
     ##     else:
-    ##         console_log("⚠️ No instrument is currently connected to disconnect.")
+    ##         debug_log(message="⚠️ No instrument is currently connected to disconnect.")
 
     def disconnect_instrument_logic(self, console_print_func):
         # Disconnects the application from the currently connected VISA instrument.

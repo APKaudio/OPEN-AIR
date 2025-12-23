@@ -8,9 +8,9 @@
 
 
 
-# display/left_50/top_100/tab_1_instrument/sub_tab_2_settings/sub_tab_1_frequency/gui_frequency_1.py
+# display/left_50/top_100/XXX7_meta_Data/1_meta_data/gui_meta_data.py
 #
-# A GUI frame that uses the DynamicGuiBuilder to create widgets for frequency settings.
+# A GUI frame that uses the DynamicGuiBuilder to create widgets for meta-data settings.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -32,18 +32,42 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import pathlib
+import workers.setup.app_constants as app_constants
+
+def _get_log_args():
+    """Helper to get common debug_log arguments, accounting for class methods."""
+    frame = inspect.currentframe().f_back.f_back
+    filename = os.path.basename(frame.f_code.co_filename)
+    func_name = frame.f_code.co_name
+
+    # Attempt to get the class name if called from a method
+    class_name = None
+    if 'self' in frame.f_locals:
+        class_name = frame.f_locals['self'].__class__.__name__
+    elif 'cls' in frame.f_locals:
+        class_name = frame.f_locals['cls'].__name__
+
+    if class_name:
+        function_full_name = f"{class_name}.{func_name}"
+    else:
+        function_full_name = func_name
+
+    return {
+        "file": filename,
+        "version": app_constants.current_version,
+        "function": function_full_name
+    }
 
 # --- Global Scope Variables ---
-current_version = "20251127.000000.1"
-current_version_hash = (20251127 * 0 * 1)
-current_file = f"{os.path.basename(__file__)}"
-current_path = pathlib.Path(__file__).resolve()
-JSON_CONFIG_FILE = current_path.with_suffix('.json')
+current_file_path = pathlib.Path(__file__).resolve()
+project_root = current_file_path.parent.parent.parent
+current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+JSON_CONFIG_FILE = current_file_path.with_suffix('.json')
 
 
-class PresetPusherGui(ttk.Frame):
+class MetaDataGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
@@ -58,16 +82,13 @@ class PresetPusherGui(ttk.Frame):
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
-            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the MetaDataGui.",
+            **_get_log_args()
         )
         try:
             config = {
                 ## "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": console_log,
+                "log_to_gui_console": None, 
                 "log_to_gui_treeview": None  # Assuming no treeview for this component
             }
 
@@ -76,13 +97,12 @@ class PresetPusherGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=config
             )
-            console_log("✅ The PresetPusherGui did initialize its dynamic GUI builder.")
+            
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}",
+                        **_get_log_args()
+                        )
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
             )

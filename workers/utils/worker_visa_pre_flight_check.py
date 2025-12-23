@@ -32,7 +32,7 @@ import inspect
 import datetime
 import pyvisa
 import sys
-
+import workers.setup.app_constants as app_constants
 # --- Check Optional Dependencies for PyVISA-py ---
 # PyVISA-py relies on these optional packages for full functionality.
 try:
@@ -54,34 +54,31 @@ except ImportError:
     NETWORK_HISLIP_SUPPORT = False
 
 
+import workers.logger.logger as logger
+# Use the global debug_log from the logger module
+debug_log = logger.debug_log
+
 # --- Global Scope Variables (as per Protocol 4.4) ---
 # W: 20251013, X: 202759, Y: 4
 current_version = "20251013.202759.4"
 # The hash calculation drops the leading zero from the hour (20 -> 20)
 current_version_hash = (20251013 * 202759 * 4)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
-# --- Mock Logging Functions (for standalone operation) ---
-def console_log(message):
-    """Prints a user-facing message."""
-    print(f"[PRE-FLIGHT] {message}")
 
-def debug_log(message, file, version, function, console_print_func):
-    """Prints a detailed debug log entry (mocked for simplicity)."""
-    if "--debug" in sys.argv:
-        print(f"DEBUG: {message} | {file} | {version} Function: {function}")
 
 def list_visa_resources():
     # Lists all available VISA resources using PyVISA.
     current_function_name = inspect.currentframe().f_code.co_name
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message="🖥️🟢 Entering list_visa_resources. Initiating full system resource scan.",
             file=current_file,
             version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
+            function=current_function_name
+            
+
         )
 
     # Determine which backend to try. We prioritize the pure-Python backend (@py).
@@ -100,67 +97,165 @@ def list_visa_resources():
             # If .library is not available, assume the pure-Python backend is loaded.
             backend_info = "PyVISA-py (pure Python backend)"
 
-        console_log("Scanning all available VISA resources (USB, TCPIP, GPIB, ASRL/Serial)...")
-        console_log(f"Using VISA Backend: {backend_info}")
+        debug_log(message="Scanning all available VISA resources (USB, TCPIP, GPIB, ASRL/Serial)...",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+        debug_log(message=f"Using VISA Backend: {backend_info}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         
-        console_log("-" * 40)
+        debug_log(message="-" * 40,
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         
         # --- Dependency Status Report ---
-        console_log("Dependency Status Report:")
+        debug_log(message="Dependency Status Report:",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         
         # 1. USB Dependency Check
         if USB_SUPPORT:
-            console_log("✅ USB Dependency (pyusb) is installed.")
+            debug_log(message="✅ USB Dependency (pyusb) is installed.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         else:
-            console_log("❌ USB Dependency (pyusb) is MISSING. USB device discovery may fail.")
-            console_log("   Action: Run 'pip install pyusb' and ensure 'libusb' is installed on your OS.")
+            debug_log(message="❌ USB Dependency (pyusb) is MISSING. USB device discovery may fail.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+            debug_log(message="   Action: Run 'pip install pyusb' and ensure 'libusb' is installed on your OS.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
             
         # 2. TCP/IP Interface Discovery Check
         if NETWORK_ALL_INTERFACES_SUPPORT:
-            console_log("✅ Network Dependency (psutil) is installed (enables all interface scanning).")
+            debug_log(message="✅ Network Dependency (psutil) is installed (enables all interface scanning).",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         else:
-            console_log("🟡 Network Dependency (psutil) is MISSING. Discovery limited to default interface.")
-            console_log("   Action: Run 'pip install psutil'.")
+            debug_log(message="🟡 Network Dependency (psutil) is MISSING. Discovery limited to default interface.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+            debug_log(message="   Action: Run 'pip install psutil'.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
 
         # 3. HiSLIP (mDNS/ZeroConf) Dependency Check
         if NETWORK_HISLIP_SUPPORT:
-            console_log("✅ HiSLIP Dependency (zeroconf) is installed.")
+            debug_log(message="✅ HiSLIP Dependency (zeroconf) is installed.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         else:
-            console_log("🟡 HiSLIP Dependency (zeroconf) is MISSING. HiSLIP resource discovery is disabled.")
-            console_log("   Action: Run 'pip install zeroconf'.")
+            debug_log(message="🟡 HiSLIP Dependency (zeroconf) is MISSING. HiSLIP resource discovery is disabled.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+            debug_log(message="   Action: Run 'pip install zeroconf'.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
             
-        console_log("-" * 40)
+        debug_log(message="-" * 40,
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         
         # list_resources() performs the actual scan.
         resources = rm.list_resources()
 
         if resources:
-            console_log(f"✅ Found {len(resources)} VISA Resource(s):")
+            debug_log(message=f"✅ Found {len(resources)} VISA Resource(s):",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
             for i, resource in enumerate(resources, 1):
                 # Attempt to determine resource type from the resource string
                 resource_type = resource.split("::")[0]
-                console_log(f"  {i}. {resource} ({resource_type})")
+                debug_log(message=f"  {i}. {resource} ({resource_type})",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         else:
-            console_log("🟡 No VISA resources found on the system.")
-            console_log("Note: If devices are connected, check device power and physical connection.")
+            debug_log(message="🟡 No VISA resources found on the system.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+            debug_log(message="Note: If devices are connected, check device power and physical connection.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         
-        console_log("-" * 40)
-        console_log("✅ Scan complete.")
+        debug_log(message="-" * 40,
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+        debug_log(message="✅ Scan complete.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
         return resources
 
     except pyvisa.errors.LibraryError as e:
-        console_log(f"❌ Error: PyVISA backend library failed to load with '{backend_to_use}'.")
-        console_log("  Ensure 'pyvisa-py' is installed and its dependencies (like 'pyusb') are met.")
-        console_log(f"  Details: {e}")
+        debug_log(message=f"❌ Error: PyVISA backend library failed to load with '{backend_to_use}'.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+        debug_log(message="  Ensure 'pyvisa-py' is installed and its dependencies (like 'pyusb') are met.",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+        debug_log(message=f"  Details: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
     except Exception as e:
-        console_log(f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}")
-        if app_constants.Local_Debug_Enable: 
+        debug_log(message=f"❌ UNEXPECTED ERROR during VISA scan: {type(e).__name__}: {e}",
+                    file=current_file,
+                    version=current_version,
+                    function=current_function_name,
+                    )
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔴 VISA scan failed: {e}",
                 file=current_file,
                 version=current_version,
-                function=current_function_name,
-                console_print_func=console_log
+                function=current_function_name
+                
+
+
             )
     return []
 

@@ -38,7 +38,7 @@ import paho.mqtt.client as mqtt
 import pathlib # CRITICAL FIX: Missing import
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
@@ -68,13 +68,13 @@ DEFAULT_PAD_Y = 2
 DEFAULT_FRAME_PAD = 5
 BUTTON_PADDING_MULTIPLIER = 5
 BUTTON_BORDER_MULTIPLIER = 2
-Local_Debug_Enable = False # This flag is checked by the updated debug_log and console_log functions
+LOCAL_DEBUG_ENABLE = False # This flag is checked by the updated debug_log and  functions
 TITLE_FONT = ('Helvetica', 12, 'bold')
 SECTION_FONT = ('Helvetica', 11, 'bold')
 
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 class DynamicGuiBuilder(
     ttk.Frame,
@@ -99,13 +99,15 @@ class DynamicGuiBuilder(
         current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🟢 Eureka! The grand experiment begins! Initializing the {self.current_class_name} for topic '{config.get('base_topic')}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
         try:
             super().__init__(parent, *args, **kwargs)
@@ -164,7 +166,9 @@ class DynamicGuiBuilder(
                 class_name=self.current_class_name,
                 calling_file=current_file,
                 calling_version=current_version,
-                console_print_func=console_log
+                
+
+
             )
             if json_filepath and json_filepath.is_file():
                 try:
@@ -174,30 +178,36 @@ class DynamicGuiBuilder(
                         message=f"🖥️🔵 Successfully loaded initial configuration from {json_filepath}.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.current_class_name}.{current_function_name}"
+                        
+
+
                     )
                     # Perform initial GUI build from the loaded JSON data
                     self._rebuild_gui()
                     self.gui_built = True # Mark GUI as built after initial load
                 except Exception as e:
-                    console_log(f"❌ Error loading initial config from {json_filepath}: {e}")
-                    if app_constants.Local_Debug_Enable: 
+                    (f"❌ Error loading initial config from {json_filepath}: {e}")
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
                         debug_log(
                             message=f"🖥️🔴 Failed to load initial config from {json_filepath}. Error: {e}",
                             file=current_file,
                             version=current_version,
-                            function=f"{self.current_class_name}.{current_function_name}",
-                            console_print_func=console_log
+                            function=f"{self.current_class_name}.{current_function_name}"
+                            
+
+
                         )
             else:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"⚠️ Warning: No initial JSON config file found for base_topic: {self.base_topic}. GUI will build upon first MQTT message.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.current_class_name}.{current_function_name}"
+                        
+
+
                     )
 
             self.bind("<Map>", self._on_map_event)
@@ -205,49 +215,57 @@ class DynamicGuiBuilder(
             if self.base_topic:
                 self.mqtt_util.add_subscriber(topic_filter=f"{self.base_topic}/#", callback_func=self._on_receive_command_message)
 
-            console_log("✅ The Dynamic GUI builder did initialize successfully!")
-            if app_constants.Local_Debug_Enable: 
+            ("✅ The Dynamic GUI builder did initialize successfully!")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🟢 Exiting {self.current_class_name}.__init__().",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            (f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
     def _on_map_event(self, event=None):
         """Builds the GUI if it hasn't been built yet."""
         current_function_name = inspect.currentframe().f_code.co_name
         if not self.gui_built:
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 First time mapping event for {self.base_topic}. Building GUI.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
             self._rebuild_gui()
             self.gui_built = True
         else:
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 GUI for {self.base_topic} already built. Skipping rebuild on map event.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
 
@@ -257,13 +275,15 @@ class DynamicGuiBuilder(
         A helper function to publish a command to the MQTT broker.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"MQTT TX: Publishing '{payload}' to '{relative_topic}' (retain={retain}).",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         self.mqtt_util.publish_message(topic=relative_topic, subtopic="", value=payload, retain=retain)
 
@@ -314,13 +334,15 @@ class DynamicGuiBuilder(
     def _rebuild_gui(self):
         # Clears the main frame and rebuilds all widgets from the current config_data.
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 It's alive! Rebuilding the GUI with the latest configuration data.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
         try:
             for widget in self.config_frame.winfo_children():
@@ -332,36 +354,42 @@ class DynamicGuiBuilder(
             rebuild_button.pack(pady=10)
             rebuild_button.configure(command=self._rebuild_gui)
 
-            console_log("✅ The GUI did rebuild itself from the aggregated data!")
-            if app_constants.Local_Debug_Enable: 
+            ("✅ The GUI did rebuild itself from the aggregated data!")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 Exiting _rebuild_gui(). GUI rebuild completed.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            (f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 The monster is throwing a tantrum! GUI rebuild failed! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
     def _apply_styles(self, theme_name):
         # Applies the specified theme to the GUI elements using ttk.Style.
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"▶️ {current_function_name} with arguments: {theme_name}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
         try:
             colors = THEMES.get(theme_name, THEMES["dark"])
@@ -418,39 +446,45 @@ class DynamicGuiBuilder(
                                  background=textbox_style["Textbox_BG_colour"],
                                  fieldbackground=textbox_style["Textbox_BG_colour"],
                                  bordercolor=textbox_style["Textbox_border_colour"])
-            console_log("✅ The styles did apply themselves beautifully!")
+            ("✅ The styles did apply themselves beautifully!")
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            (f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 By Jove, the style potion has curdled! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix=""):
         # Recursively creates widgets, tracking the topic path.
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Entering _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
         try:
             if not isinstance(data, dict):
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"⚠️ Skipping _create_dynamic_widgets as data is not a dict for path_prefix: '{path_prefix}'.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 return
 
@@ -495,16 +529,18 @@ class DynamicGuiBuilder(
                     self._create_dynamic_widgets(nested_frame, value, path_prefix=current_path)
                 else:
                     self._create_label(parent_frame=parent_frame, label=key.replace('_', ' ').title(), value=value, path=current_path)
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔵 Exiting _create_dynamic_widgets() for path_prefix: '{path_prefix}'.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            (f"❌ Error in {current_function_name}: {e}")
 
     def _update_widget_value(self, relative_topic, payload):
         current_function_name = inspect.currentframe().f_code.co_name
@@ -615,7 +651,7 @@ class DynamicGuiBuilder(
                 widget_info.config(text=f"{widget_info['text'].split(':')[0]}: {payload_value}")
 
         except Exception as e:
-            console_log(f"❌ Error updating widget for topic '{relative_topic}': {e}")
+            (f"❌ Error updating widget for topic '{relative_topic}': {e}")
 
 
     def _on_receive_command_message(self, topic, payload):
@@ -633,13 +669,15 @@ class DynamicGuiBuilder(
                             # Update config_data, but don't automatically rebuild GUI
                             # GUI structure is now primarily driven by local JSON files.
                             self.config_data = full_config
-                            if app_constants.Local_Debug_Enable: 
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
                                 debug_log(
                                     message=f"🖥️🔵 Received full config via MQTT for {self.base_topic}. Updated config_data but did not auto-rebuild GUI (local JSON is authoritative).",
                                     file=current_file,
                                     version=current_version,
-                                    function=f"{self.current_class_name}.{current_function_name}",
-                                    console_print_func=console_log
+                                    function=f"{self.current_class_name}.{current_function_name}"
+                                    
+
+
                                 )
                             return
                     except (json.JSONDecodeError, TypeError):
@@ -652,4 +690,4 @@ class DynamicGuiBuilder(
                     self.after(0, self._update_widget_value, relative_topic, payload)
 
         except Exception as e:
-            console_log(f"❌ Error in _on_receive_command_message: {e}")
+            (f"❌ Error in _on_receive_command_message: {e}")

@@ -33,7 +33,7 @@ from tkinter import ttk
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -52,18 +52,19 @@ class SliderValueCreatorMixin:
         # Creates a slider and an entry box for a numerical value.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a slider and value box for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to assemble a slider for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             # --- Layout Refactor: Start ---
             # Line 1: Label
@@ -105,13 +106,15 @@ class SliderValueCreatorMixin:
 
             def on_slider_release(event):
                 new_val = float(slider.get())
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 self._transmit_command(relative_topic=path, payload=new_val)
 
@@ -120,17 +123,19 @@ class SliderValueCreatorMixin:
                     new_val = float(entry.get())
                     if min_val <= new_val <= max_val:
                         slider.set(new_val)
-                        if app_constants.Local_Debug_Enable: 
+                        if app_constants.LOCAL_DEBUG_ENABLE: 
                             debug_log(
                                 message=f"GUI ACTION: Publishing to '{path}' with value '{new_val}'",
                                 file=current_file,
                                 version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}",
-                                console_print_func=console_log
+                                function=f"{self.__class__.__name__}.{current_function_name}"
+                                
+
+
                             )
                         self._transmit_command(relative_topic=path, payload=new_val)
                 except ValueError:
-                    console_log("Invalid input, please enter a number.")
+                    debug_log(message="Invalid input, please enter a number.")
 
             slider.config(command=on_slider_move)
             slider.bind("<ButtonRelease-1>", on_slider_release)
@@ -140,25 +145,28 @@ class SliderValueCreatorMixin:
             if path:
                 self.topic_widgets[path] = (entry_value, slider)
 
-            console_log("✅ The slider value box did appear.")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Slider '{label}' created.",
+                    message=f"✅ SUCCESS! The slider '{label}' has materialized!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The slider value box creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The slider contraption for '{label}' has malfunctioned! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

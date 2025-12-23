@@ -3,18 +3,25 @@
 import tkinter as tk
 from tkinter import ttk
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class IncDecButtonsCreatorMixin:
     def _create_inc_dec_buttons(self, parent_frame, label, config, path):
         """Creates increment/decrement buttons."""
         current_function_name = "_create_inc_dec_buttons"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating increment/decrement buttons for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to forge increment/decrement buttons for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.X, padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.LEFT, padx=(0, 10))
@@ -31,14 +38,14 @@ class IncDecButtonsCreatorMixin:
         def _increment():
             new_value = current_value.get() + increment_amount
             current_value.set(new_value)
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Incrementing {label} to {new_value}", file=os.path.basename(__file__), function="_increment")
             # self.mqtt_util.publish(path, new_value) # MQTT publish
 
         def _decrement():
             new_value = current_value.get() - increment_amount
             current_value.set(new_value)
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Decrementing {label} to {new_value}", file=os.path.basename(__file__), function="_decrement")
             # self.mqtt_util.publish(path, new_value) # MQTT publish
 
@@ -59,4 +66,15 @@ class IncDecButtonsCreatorMixin:
             except (ValueError, TypeError):
                 pass
         
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"✅ SUCCESS! The increment/decrement buttons for '{label}' are operational!",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
         # self.mqtt_callbacks[path] = _update_value
+        return frame

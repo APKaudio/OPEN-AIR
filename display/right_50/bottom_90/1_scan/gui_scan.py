@@ -26,7 +26,7 @@ import os
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -47,14 +47,14 @@ class ScanViewGUIFrame(ttk.Frame):
         current_function_name = inspect.currentframe().f_code.co_name
         
         # Log entry
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🟢 Initializing {self.__class__.__name__}. Preparing to scan the ether!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+                                               
+                                                from workers.logger.logger import debug_log
+                                            )
 
         try:
             super().__init__(parent, *args, **kwargs)
@@ -77,17 +77,29 @@ class ScanViewGUIFrame(ttk.Frame):
 
             self._create_plot_widgets()
             
-            console_log(f"✅ Celebration of success! {self.__class__.__name__} initialized.")
+            debug_log(
+                message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",
+                file=current_file,
+                version=current_version,
+               
+               
+            )
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Error in {current_function_name}: {e}",
+                file=current_file,
+                version=current_version,
+               
+               
+            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! Error in {current_function_name}: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                   
+                   
                 )
 
     def _create_plot_widgets(self):
@@ -135,15 +147,17 @@ class ScanViewGUIFrame(ttk.Frame):
 
             self.canvas.draw()
             
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message="📊 Plot widgets created and rendered successfully.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
             raise e # Re-raise to be caught by __init__

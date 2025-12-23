@@ -20,19 +20,38 @@ import pathlib
 import json
 import tkinter as tk
 from tkinter import ttk
+import inspect
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_log, console_log
+from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
 
-# --- Protocol: Global Variables ---
-CURRENT_DATE = 20251217
-CURRENT_TIME = 235800
-CURRENT_ITERATION = 11
+def _get_log_args():
+    """Helper to get common debug_log arguments, accounting for class methods."""
+    frame = inspect.currentframe().f_back.f_back
+    filename = os.path.basename(frame.f_code.co_filename)
+    func_name = frame.f_code.co_name
 
-current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
-current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
+    # Attempt to get the class name if called from a method
+    class_name = None
+    if 'self' in frame.f_locals:
+        class_name = frame.f_locals['self'].__class__.__name__
+    elif 'cls' in frame.f_locals:
+        class_name = frame.f_locals['cls'].__name__
+
+    if class_name:
+        function_full_name = f"{class_name}.{func_name}"
+    else:
+        function_full_name = func_name
+
+    return {
+        "file": filename,
+        "version": app_constants.current_version,
+        "function": function_full_name
+    }
+
+# --- Protocol: Global Variables ---
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Fully Dynamic Resolution ---
@@ -43,32 +62,28 @@ JSON_CONFIG_FILE = current_path.with_suffix('.json')
 module_name = current_path.stem.replace('gui_', '')
 ## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 
-#class GhostMqtt:
-#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
- #   def add_subscriber(self, *args, **kwargs): pass
- #   def publish(self, *args, **kwargs): pass
+##class GhostMqtt:
+##    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
+##   def add_subscriber(self, *args, **kwargs): pass
+##   def publish(self, *args, **kwargs): pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, config, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
-        # Consume 'config' and other non-standard keys passed by the orchestrator 
-        kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
-        current_function_name = "__init__"
+        self.config = config # Store the config for later use
+        current_function_name = inspect.currentframe().f_code.co_name
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
             )
 
         # Immediate visual feedback in the GUI
@@ -81,7 +96,10 @@ class GenericInstrumentGui(ttk.Frame):
             
             if not abs_json_path.exists():
                 error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
-                print(f"DEBUG: {error_msg}")
+                debug_log(
+                    message=error_msg,
+                    **_get_log_args()
+                )
                 self.status_label.config(text=error_msg, foreground="orange")
                 return
 
@@ -114,13 +132,10 @@ class GenericInstrumentGui(ttk.Frame):
                         break
             
             if needs_wrapping:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        **_get_log_args()
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -135,13 +150,10 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf, indent=4)
                 processed_path = str(temp_path)
             if needs_wrapping:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping YAK structure for {module_name}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        **_get_log_args()
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -156,9 +168,9 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf)
                 processed_path = str(temp_path)
 
-            ## If mqtt_util is None because it was shut off in the orchestrator, 
-            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
+            # If mqtt_util is None because it was shut off in the orchestrator, 
+            # we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
+       ##     effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
 
             # --- Presentation Layer ---
             # Instantiate the builder.
@@ -171,23 +183,22 @@ class GenericInstrumentGui(ttk.Frame):
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()
-            console_log(f"✅ Success! {module_name} GUI construction requested.")
-            
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-            console_log(f"✅ Success! {module_name} GUI construction requested.")
+            debug_log(
+                message=f"✅ Success! {module_name} GUI construction requested.",
+                **_get_log_args()
+            )
 
         except Exception as e:
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            console_log(error_msg)
+            debug_log(
+                message=error_msg,
+                **_get_log_args()
+            )
             self.status_label.config(text=error_msg, foreground="red")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
-                    file=current_file,
-                    version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    **_get_log_args()
                 )
 
     def _on_tab_selected(self, *args, **kwargs):
@@ -195,16 +206,12 @@ class GenericInstrumentGui(ttk.Frame):
         Called by the grand orchestrator (Application) when this tab is brought to focus.
         Using *args to swallow any positional events or data passed by the orchestrator.
         """
-        current_function_name = "_on_tab_selected"
+        current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
             )
-        
         # Add logic here if specific refresh actions are needed on tab focus
         pass

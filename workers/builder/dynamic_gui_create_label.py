@@ -27,7 +27,7 @@ import inspect
 
 # --- Module Imports ---
 
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 current_version = "20251127.000000.1"
@@ -45,18 +45,19 @@ class LabelCreatorMixin:
     """
     def _create_label(self, parent_frame, label, value, units=None, path=None):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 📥 '{current_function_name}' to create a label: '{label}' with value '{value}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to concoct a new label: '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y, anchor='w')
-
+            
             label_text = f"{label}: {value}"
             if units:
                 label_text += f" {units}"
@@ -64,28 +65,31 @@ class LabelCreatorMixin:
             label_widget = ttk.Label(sub_frame, text=label_text)
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, DEFAULT_PAD_X))
 
-            # Store the widget using its full topic path as the key for live updates.
             if path:
                 self.topic_widgets[path] = label_widget
             
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Label '{label}' created.",
+                    message=f"✅ SUCCESS! The label '{label}' has been successfully synthesized!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
-            return label_widget, sub_frame
+            return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable:
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! Label creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The label creation for '{label}' has exploded! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
-            return None, None
+            return None

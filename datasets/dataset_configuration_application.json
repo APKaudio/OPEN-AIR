@@ -110,7 +110,7 @@
                         "OFF": { "label": "OFF", "selected": false }
                     }
                 },
-                "log_visa_commands_enabled": {
+                "#log_visa_commands_enabled": {
                     "label": "Log VISA Commands",
                     "type": "_GuiButtonToggle",
                     "AES70": "OcaBooleanActuator",

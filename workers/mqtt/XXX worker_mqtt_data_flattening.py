@@ -33,7 +33,7 @@ import inspect
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250825
@@ -43,7 +43,7 @@ REVISION_NUMBER = 21
 current_version = "20250825.151032.21"
 current_version_hash = 63895914278400
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 
 class MqttDataFlattenerUtility:
@@ -62,13 +62,13 @@ class MqttDataFlattenerUtility:
         """
         Clears the internal data buffer.
         """
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🔍 The data buffer has been wiped clean. A fresh start for our experiments!",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}.clear_buffer",
-                console_print_func=self._print_to_gui_console
+                
             )
         self.data_buffer = {}
         self.last_unique_identifier = None
@@ -94,13 +94,13 @@ class MqttDataFlattenerUtility:
             if self.data_buffer:
                 return self._flush_buffer()
             else:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message="🟢️️️🟡 Flush command received, but buffer is empty. Nothing to do.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=self._print_to_gui_console
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
                     )
                 return []
         
@@ -109,17 +109,17 @@ class MqttDataFlattenerUtility:
             
             # --- Corrected logic for 'Active' status check ---
             if topic.endswith('/Active') and isinstance(data, dict) and data.get('value') == 'false':
-                console_log(f"🟡 Skipping transaction for '{topic}' because 'Active' is false.")
+                debug_log(message=f"🟡 Skipping transaction for '{topic}' because 'Active' is false.")
                 self.clear_buffer()
                 return []
             
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔵 Received data for '{topic}'. Storing in buffer. Payload: {payload}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
                 )
 
             # Extract the unique data set identifier (the second-to-last node)
@@ -141,26 +141,26 @@ class MqttDataFlattenerUtility:
             return []
             
         except json.JSONDecodeError as e:
-            console_log(f"❌ Error decoding JSON payload for topic '{topic}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 The JSON be a-sailing to its doom! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
                 )
             self.clear_buffer()
             return []
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
                 )
             self.clear_buffer()
             return []
@@ -171,13 +171,13 @@ class MqttDataFlattenerUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🟢 Processing buffer and commencing pivoting and flattening!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         
         flattened_data = {}
@@ -204,14 +204,14 @@ class MqttDataFlattenerUtility:
             self.data_buffer[new_topic] = new_data
             self.last_unique_identifier = new_identifier
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️✅ Behold! I have transmogrified the data! The final payload is below.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         
-        console_log(json.dumps(flattened_data, indent=2))
+        debug_log(json.dumps(flattened_data, indent=2))
         return [flattened_data]

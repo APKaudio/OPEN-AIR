@@ -29,7 +29,7 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -61,8 +61,10 @@ class MonitorTopGUIFrame(ttk.Frame):
             message=f"🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
         
         try:
@@ -99,16 +101,18 @@ class MonitorTopGUIFrame(ttk.Frame):
             
             self.plot = {'figure': figure, 'ax': ax, 'canvas': canvas, 'widget': canvas_widget}
 
-            console_log("✅ Celebration of success!")
+            debug_log(message="✅ Celebration of success!")
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
     def _apply_styles(self, theme_name: str):

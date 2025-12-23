@@ -32,15 +32,23 @@ import datetime
 import pathlib
 import os
 
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
-print(f"DEBUG: Loading dynamic_gui_mousewheel_mixin.py from: {current_file_path}")
 project_root = current_file_path.parent.parent.parent
 current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/")
+
+# Replace old print with debug_log
+debug_log(
+    message=f"DEBUG: Loading dynamic_gui_mousewheel_mixin.py from: {current_file_path}",
+    file=current_file,
+    version=current_version,
+    function="module_load",
+    
+)
 
 
 class MousewheelScrollMixin:
@@ -50,13 +58,13 @@ class MousewheelScrollMixin:
     """
     def _on_mousewheel(self, event):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Mousewheel event detected: {event.num}. Scrolling canvas.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         # Platform-specific mouse wheel scrolling
         if sys.platform == "linux":
@@ -69,13 +77,13 @@ class MousewheelScrollMixin:
 
     def _bind_mousewheel(self, event):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable:
+        if app_cBLE:
             debug_log(
                 message=f"🖥️🔵 Binding mousewheel scrolling for canvas.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         # Bind mousewheel scrolling when the mouse enters the scrollable area
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
@@ -84,13 +92,13 @@ class MousewheelScrollMixin:
 
     def _unbind_mousewheel(self, event):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🖥️🔵 Unbinding mousewheel scrolling for canvas.",
+                message="🖥️🔵 Unbinding mousewheel scrolling for canvas.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         # Unbind mousewheel scrolling when the mouse leaves the scrollable area
         self.canvas.unbind_all("<MouseWheel>")

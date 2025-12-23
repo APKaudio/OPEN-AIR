@@ -3,18 +3,25 @@
 import tkinter as tk
 from tkinter import ttk
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class TextInputCreatorMixin:
     def _create_text_input(self, parent_frame, label, config, path):
         """Creates a text input widget."""
         current_function_name = "_create_text_input"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating text input for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to forge a text input field for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.X, padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.LEFT, padx=(0, 10))
@@ -29,18 +36,15 @@ class TextInputCreatorMixin:
             )
             entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            # This widget can both be controlled and be a controller
-            # When the user types, it can publish the value to an MQTT topic
             def _on_text_change(*args):
                 try:
-                    # This is where you would add logic to publish the value
-                    # For example, using self.mqtt_util.publish(...)
-                    if app_constants.Local_Debug_Enable:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
                         debug_log(message=f"Text changed for {label}: {text_var.get()}", file=os.path.basename(__file__), function="_on_text_change")
                 except Exception as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change", console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _on_text_change: {e}", file=os.path.basename(__file__), function="_on_text_change", 
 
+)
 
             text_var.trace("w", _on_text_change)
 
@@ -49,16 +53,37 @@ class TextInputCreatorMixin:
                 "variable": text_var
             }
 
-            # Add logic to handle incoming MQTT messages to update the text input
             def _update_text(value):
                 try:
                     text_var.set(str(value))
                 except (ValueError, TypeError) as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _update_text: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_text: {e}", file=os.path.basename(__file__), function=current_function_name 
 
+)
+            
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The text input '{label}' has been successfully forged!",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
+                )
             # self.mqtt_callbacks[path] = _update_text
+            return frame
         except Exception as e:
-            console_log(f"🔴 ERROR creating text input: {e}")
-            if app_constants.Local_Debug_Enable:
-                debug_log(message=f"🔴 ERROR creating text input: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+            debug_log(message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"💥 KABOOM! The text input '{label}' has disintegrated! Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=current_function_name
+                    
+
+
+                )
+            return None

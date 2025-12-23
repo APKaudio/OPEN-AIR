@@ -27,7 +27,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import inspect
 from tkinter import filedialog
-from workers.logger.logger import  debug_log, console_log
+from workers.logger.logger import debug_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_load_markers_file,
     maker_file_load_ias_html,
@@ -40,7 +40,7 @@ from workers.importers.worker_marker_file_import_converter import (
 )
 from workers.importers.worker_importer_saver import save_markers_file_internally
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 def load_markers_file_action(importer_tab_instance):
     headers, data = maker_file_load_markers_file()
@@ -78,7 +78,7 @@ def load_wwb_zip_action(importer_tab_instance):
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,
             function=f"{current_function}",
-            console_print_func=console_log
+            
         )
         return
     headers, data = Marker_convert_wwb_zip_report_to_csv(file_path=file_path)
@@ -108,7 +108,7 @@ def load_sb_v2_pdf_action(importer_tab_instance):
             file=importer_tab_instance.current_file,
             version=importer_tab_instance.current_version,
             function=f"{current_function}",
-            console_print_func=console_log
+            
         )
         return
     headers, data = Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path=file_path)

@@ -4,18 +4,25 @@ import tkinter as tk
 from tkinter import ttk
 import math
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class KnobCreatorMixin:
     def _create_knob(self, parent_frame, label, config, path):
         """Creates a knob widget."""
         current_function_name = "_create_knob"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating knob for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to dial in a knob for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.TOP, pady=(0, 5))
@@ -48,8 +55,10 @@ class KnobCreatorMixin:
                     value_label.config(text=f"{int(value)}")
                     # MQTT publish logic would go here
                 except Exception as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _on_drag: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _on_drag: {e}", file=os.path.basename(__file__), function=current_function_name 
+
+)
 
                 
             canvas.bind("<B1-Motion>", _on_drag)
@@ -68,15 +77,36 @@ class KnobCreatorMixin:
                     self._draw_knob(canvas, size, float_value, min_val, max_val)
                     value_label.config(text=f"{int(float_value)}")
                 except (ValueError, TypeError) as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _update_knob: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_knob: {e}", file=os.path.basename(__file__), function=current_function_name 
 
-            
+)
+
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The knob '{label}' has been finely tuned and created!",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
+                )
             # self.mqtt_callbacks[path] = _update_knob
+            return frame
         except Exception as e:
-            console_log(f"🔴 ERROR creating knob: {e}")
-            if app_constants.Local_Debug_Enable:
-                debug_log(message=f"🔴 ERROR creating knob: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+            debug_log(message=f"💥 KABOOM! The knob for '{label}' has stripped its gears! Error: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"💥 KABOOM! The knob for '{label}' has stripped its gears! Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=current_function_name
+                    
+
+
+                )
+            return None
 
 
     def _draw_knob(self, canvas, size, value, min_val, max_val):

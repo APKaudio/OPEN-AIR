@@ -25,8 +25,8 @@ import re
 import time 
 
 # --- Module Imports ---
-from workers.logger.logger import  debug_log, console_log
-from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
+from workers.logger.logger import  debug_log
+#from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 Current_Date = 20251213
@@ -54,8 +54,10 @@ class MarkerPeakPublisher:
         
         debug_log(
             message=f"🟢️️️🟢 Initializing Peak Publisher for batch starting with {starting_device_id}. STARTING MAP GENERATION.",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
 
         self.mqtt_util = mqtt_util
@@ -64,14 +66,16 @@ class MarkerPeakPublisher:
         self.marker_to_device_map = self._generate_device_map(starting_device_id)
         debug_log(
             message=f"🟢️️️🔍 Generated Map: {self.marker_to_device_map}",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
 
         # Register Subscription
         self._setup_subscriptions()
 
-        console_log(f"✅ Peak Publisher for {starting_device_id} is active and ready to catch peak values.")
+        debug_log(message=f"✅ Peak Publisher for {starting_device_id} is active and ready to catch peak values.")
 
     def _generate_device_map(self, start_id: str) -> dict:
         """
@@ -82,7 +86,7 @@ class MarkerPeakPublisher:
         # Extract the number from the starting device ID (e.g., 025 from Device-025)
         match = re.search(r'Device-(\d+)', start_id)
         if not match:
-            console_log(f"❌ Error: Invalid starting Device ID format: {start_id}")
+            debug_log(message=f"❌ Error: Invalid starting Device ID format: {start_id}")
             return {}
 
         start_num = int(match.group(1))
@@ -112,8 +116,10 @@ class MarkerPeakPublisher:
         
         debug_log(
             message=f"🐐🟢 PUBLISHER HANDLER FIRED for topic: {topic}",
-            file=current_file, version=current_version, function=current_function_name,
-            console_print_func=console_log
+            file=current_file, version=current_version, function=current_function_name
+            
+
+
         )
         
         try:
@@ -140,14 +146,18 @@ class MarkerPeakPublisher:
                     
                     debug_log(
                         message=f"🐐💾 REPUBLISH SUCCESS: {device_id} ({marker_id}) peak: {float_peak_value} dBm. Final Topic: {final_peak_topic}",
-                        file=current_file, version=current_version, function=current_function_name,
-                        console_print_func=console_log
+                        file=current_file, version=current_version, function=current_function_name
+                        
+
+
                     )
                 else:
                     debug_log(
                         message=f"🐐🟡 REPUBLISH WARNING: Peak received for {marker_id} but no Device-ID found in batch map.",
-                        file=current_file, version=current_version, function=current_function_name,
-                        console_print_func=console_log
+                        file=current_file, version=current_version, function=current_function_name
+                        
+
+
                     )
             
             except ValueError:
@@ -157,8 +167,10 @@ class MarkerPeakPublisher:
                 
                 debug_log(
                     message=f"🐐🔴 REPUBLISH ERROR: Peak Value '{peak_value}' for {device_id} failed conversion. Published Error Status.",
-                    file=current_file, version=current_version, function=current_function_name,
-                    console_print_func=console_log
+                    file=current_file, version=current_version, function=current_function_name
+                    
+
+
                 )
 
 
@@ -169,9 +181,11 @@ class MarkerPeakPublisher:
             final_peak_topic = f"{TOPIC_MARKERS_ROOT}/{first_device_id}/Peak"
             self.mqtt_util.publish_message(final_peak_topic, "", "CRITICAL_ERROR", retain=True)
             
-            console_log(f"❌ Critical Error in Peak Publisher for {first_device_id}: {e}")
+            debug_log(message=f"❌ Critical Error in Peak Publisher for {first_device_id}: {e}")
             debug_log(
                 message=f"🐐🔴 CRITICAL FAILURE in Publisher Flow. Error: {e}",
-                file=current_file, version=current_version, function=current_function_name,
-                console_print_func=console_log
+                file=current_file, version=current_version, function=current_function_name
+                
+
+
             )

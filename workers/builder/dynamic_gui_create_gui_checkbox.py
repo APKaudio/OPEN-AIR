@@ -34,11 +34,11 @@ import inspect
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 
 # --- Global Scope Variables ---
@@ -57,16 +57,19 @@ class GuiCheckboxCreatorMixin:
         # Creates a checkbox widget.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a checkbox for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to spawn a checkbox for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
         try:
+            sub_frame = ttk.Frame(parent_frame)
             # We use a BooleanVar to track the state of the checkbox.
             initial_value = bool(config.get('value', False))
             state_var = tk.BooleanVar(value=initial_value)
@@ -88,13 +91,15 @@ class GuiCheckboxCreatorMixin:
                 new_state = state_var.get()
                 # Pass raw boolean instead of JSON string
                 payload = new_state
-                if app_constants.Local_Debug_Enable:
+                if app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
                         message=f"GUI ACTION: Publishing state change for '{label}' to path '{path}' with value '{new_state}'.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 self._transmit_command(relative_topic=path, payload=payload)
                 # Update the label after the state change
@@ -102,7 +107,7 @@ class GuiCheckboxCreatorMixin:
 
             # Create the checkbox button with an initial label.
             checkbox = ttk.Checkbutton(
-                parent_frame,
+                sub_frame,
                 text=get_label_text(),
                 variable=state_var,
                 command=toggle_and_publish
@@ -113,25 +118,28 @@ class GuiCheckboxCreatorMixin:
             if path:
                 self.topic_widgets[path] = (state_var, checkbox)
 
-            console_log(f"✅ The checkbox '{label}' did appear.")
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🟢 🚪 '{current_function_name}'. Checkbox '{label}' created.",
+                    message=f"✅ SUCCESS! The checkbox '{label}' has been successfully instantiated.",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
-            return checkbox
+            return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable:
+            (f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The checkbox creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The checkbox for '{label}' suffered a quantum entanglement failure! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

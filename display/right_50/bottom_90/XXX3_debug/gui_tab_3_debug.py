@@ -27,7 +27,7 @@ import sys
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 
@@ -55,8 +55,10 @@ class DebugTabGUIFrame(ttk.Frame):
             message="🖥️🟢 Initializing the dedicated Debug Tab GUI. Time for deep inspection!",
             file=current_file,
             version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
         
-        console_log("✅ Debug Tab GUI initialized successfully!")
+        debug_log(message="✅ Debug Tab GUI initialized successfully!")

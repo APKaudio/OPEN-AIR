@@ -31,7 +31,7 @@ from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
 from .bandwidth_presets import BandwidthPresets
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 class BandwidthCallbacks:
     """Handles message callbacks and logic for bandwidth settings."""

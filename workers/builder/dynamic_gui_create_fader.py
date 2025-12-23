@@ -3,18 +3,25 @@
 import tkinter as tk
 from tkinter import ttk
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class FaderCreatorMixin:
     def _create_fader(self, parent_frame, label, config, path):
         """Creates a fader widget."""
         current_function_name = "_create_fader"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating fader for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to sculpt a fader for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
         
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.TOP, pady=(0, 5))
@@ -48,8 +55,10 @@ class FaderCreatorMixin:
                     # Here you would add logic to publish the value via MQTT
                     # self.mqtt_util.publish(path, value)
                 except Exception as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _on_scale_move: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _on_scale_move: {e}", file=os.path.basename(__file__), function=current_function_name 
+
+)
 
             scale.config(command=_on_scale_move)
 
@@ -64,11 +73,33 @@ class FaderCreatorMixin:
                     scale.set(float_value)
                     value_label.config(text=f"{float_value:.2f}")
                 except (ValueError, TypeError) as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _update_fader: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_fader: {e}", file=os.path.basename(__file__), function=current_function_name 
 
+)
+
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The fader '{label}' is now sliding into existence!",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
+                )
             # self.mqtt_callbacks[path] = _update_fader
+            return frame
         except Exception as e:
-            console_log(f"🔴 ERROR creating fader: {e}")
-            if app_constants.Local_Debug_Enable:
-                debug_log(message=f"🔴 ERROR creating fader: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+            debug_log(message=f"💥 KABOOM! The fader for '{label}' has gone off the rails! Error: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"💥 KABOOM! The fader for '{label}' has gone off the rails! Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=current_function_name
+                    
+
+
+                )
+            return None

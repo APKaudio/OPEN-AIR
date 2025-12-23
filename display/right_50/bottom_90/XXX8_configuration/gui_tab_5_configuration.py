@@ -25,7 +25,7 @@ import sys
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -46,7 +46,9 @@ class InitialConfigurationTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"📕🟢 Initializing InitialConfigurationTab...",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
         super().__init__(master, **kwargs)
         
@@ -54,7 +56,9 @@ class InitialConfigurationTab(ttk.Frame):
         self._populate_config_table()
         
         debug_log(message=f"📕✅ InitialConfigurationTab initialized.",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
     def _create_widgets(self):
         """
@@ -63,7 +67,9 @@ class InitialConfigurationTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"📕🟢 Creating widgets for InitialConfigurationTab.",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
@@ -83,7 +89,9 @@ class InitialConfigurationTab(ttk.Frame):
         self.config_text_widget.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
         
         debug_log(message=f"📕✅ Widgets created.",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
     
     def _populate_config_table(self):
         """
@@ -91,7 +99,9 @@ class InitialConfigurationTab(ttk.Frame):
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"📕🟢 Populating config table from a mock file.",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
         try:
             mock_config_content = """[GENERAL]
@@ -116,12 +126,16 @@ marker3_freq_MHz = 333.0
             self.config_text_widget.config(state=tk.DISABLED)
             
             debug_log(message=f"📕✅ Config table populated successfully.",
-                      file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                      file=current_file, version=current_version, function=current_function, 
+
+)
 
         except Exception as e:
-            console_log(message=f"❌ Error populating config table: {e}")
+            debug_log(message=f"❌ Error populating config table: {e}")
             debug_log(message=f"📕🔴 Failed to populate config table. Error: {e}",
-                      file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                      file=current_file, version=current_version, function=current_function, 
+
+)
     
     def _save_program_configure_action(self):
         """
@@ -129,19 +143,25 @@ marker3_freq_MHz = 333.0
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"📕🟢 Attempting to save mock config file...",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
         try:
             current_content = self.config_text_widget.get('1.0', tk.END)
             # In a real app, this would write to a file. Here, we just log the action.
-            console_log("✅ Configuration saved successfully! (Mock Action)")
+            
             debug_log(message=f"📕✅ Mock configuration saved. Arrr, the treasure be safely stowed! ⚓️",
-                      file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                      file=current_file, version=current_version, function=current_function, 
+
+)
 
         except Exception as e:
-            console_log(message=f"❌ Error saving configuration: {e}")
+            
             debug_log(message=f"📕🔴 Failed to save configuration. Error: {e}",
-                      file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                      file=current_file, version=current_version, function=current_function, 
+
+)
 
     def _reload_config_action(self):
         """
@@ -149,13 +169,17 @@ marker3_freq_MHz = 333.0
         """
         current_function = inspect.currentframe().f_code.co_name
         debug_log(message=f"📕🟢 Reloading config from mock disk...",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
         
         self._populate_config_table()
         
-        console_log("✅ Configuration reloaded from mock disk.")
+        
         debug_log(message=f"📕✅ Reloaded mock config. The map be fresh! 🗺️",
-                  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                  file=current_file, version=current_version, function=current_function, 
+
+)
 
 if __name__ == "__main__":
     root = tk.Tk()

@@ -36,7 +36,7 @@ import pathlib
 from collections import defaultdict
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PATH # NEW: Import paths
 
@@ -45,7 +45,7 @@ from workers.utils.worker_project_paths import MARKERS_JSON_PATH, MARKERS_CSV_PA
 current_version = "20251005.220127.2"
 current_version_hash = (20251005 * 220127 * 2)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 MQTT_BASE_TOPIC = "OPEN-AIR/repository/markers"
 
@@ -71,17 +71,19 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
     MODIFIED: Uses the new nested structure with an 'IDENTITY' blob.
     """
     current_function_name = inspect.currentframe().f_code.co_name
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 Initiating device-centric CSV to JSON conversion and MQTT publish. Applying new nested structure.",
             file=current_file,
             version=current_version,
-            function=current_function_name,
-            console_print_func=console_log
+            function=current_function_name
+            
+
+
         )
 
     if not MARKERS_CSV_PATH.is_file():
-        console_log(f"❌ {MARKERS_CSV_PATH} not found. Aborting operation.")
+        debug_log(message=f"❌ {MARKERS_CSV_PATH} not found. Aborting operation.")
         return
 
     # --- Step 1: Read CSV and generate the flat JSON structure ---
@@ -142,16 +144,18 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
                 }
                 # --- END NEW STRUCTURE IMPLEMENTATION ---
 
-        console_log("✅ Successfully read CSV and generated nested JSON structure with summary data.")
+        debug_log(message="✅ Successfully read CSV and generated nested JSON structure with summary data.")
     except Exception as e:
-        console_log(f"❌ Error processing CSV file: {e}")
-        if app_constants.Local_Debug_Enable: 
+        debug_log(message=f"❌ Error processing CSV file: {e}")
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The CSV-to-JSON contraption has malfunctioned! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=current_function_name,
-                console_print_func=console_log
+                function=current_function_name
+                
+
+
             )
         return
 
@@ -161,16 +165,18 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         MARKERS_JSON_PATH.parent.mkdir(parents=True, exist_ok=True)
         with open(MARKERS_JSON_PATH, 'w') as f:
             json.dump(json_state, f, indent=4)
-        console_log(f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
+        debug_log(message=f"✅ Saved generated structure to {MARKERS_JSON_PATH}.")
     except Exception as e:
-        console_log(f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
-        if app_constants.Local_Debug_Enable: 
+        debug_log(message=f"❌ Error saving to {MARKERS_JSON_PATH}: {e}")
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The enchanted scroll refuses to be written! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=current_function_name,
-                console_print_func=console_log
+                function=current_function_name
+                
+
+
             )
         return
 
@@ -179,20 +185,22 @@ def csv_to_json_and_publish(mqtt_util: MqttControllerUtility):
         # First, clear any old data under the base topic by publishing a null, retained message.
         # This will remove all the old topics (Device-001/Name, Device-001/active, etc.)
         mqtt_util.purge_branch(MQTT_BASE_TOPIC)
-        console_log(f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
+        debug_log(message=f"Cleared old data under topic: {MQTT_BASE_TOPIC}/#")
 
         # Now, publish the new, complete structure recursively.
         _publish_recursive(mqtt_util, MQTT_BASE_TOPIC, json_state)
         
-        console_log("✅ Successfully published the full marker set to MQTT.")
+        debug_log(message="✅ Successfully published the full marker set to MQTT.")
     except Exception as e:
-        console_log(f"❌ Error publishing to MQTT: {e}")
-        if app_constants.Local_Debug_Enable: 
+        debug_log(message=f"❌ Error publishing to MQTT: {e}")
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌🔴 The message pigeons have flown astray! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=current_function_name,
-                console_print_func=console_log
+                function=current_function_name
+                
+
+
             )
 '''

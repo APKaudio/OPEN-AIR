@@ -34,11 +34,11 @@ import inspect
 import time # CRITICAL: Import time for necessary delay
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 
 # --- Global Scope Variables ---
@@ -56,18 +56,19 @@ class GuiButtonTogglerCreatorMixin:
         # Creates a set of custom buttons that behave like radio buttons ("bucket of buttons").
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 Entering '{current_function_name}' to create a button toggler for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to assemble a bucket of buttons for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             group_frame = ttk.Frame(parent_frame)
-            group_frame.pack(fill=tk.X, expand=True, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             label_widget = ttk.Label(group_frame, text=label)
             label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
@@ -117,8 +118,6 @@ class GuiButtonTogglerCreatorMixin:
                         self._transmit_command(relative_topic=deselect_path, payload='false')
                         
                         # CRITICAL: Add a minimal, synchronous delay to prevent race condition.
-                        # This pause allows the application's MQTT client to send the first message 
-                        # before the second one is sent on the same thread.
                         time.sleep(0.01)
 
                     # 2. Force Select the new button
@@ -154,25 +153,28 @@ class GuiButtonTogglerCreatorMixin:
             if path:
                 self.topic_widgets[path] = (selected_var, update_button_styles)
 
-            console_log("✅ The button toggler did appear.")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
+                    message=f"✅ SUCCESS! The button toggler '{label}' is fully operational!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return group_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The button toggler creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The button toggler '{label}' has suffered a catastrophic failure! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

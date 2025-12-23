@@ -3,18 +3,25 @@
 import tkinter as tk
 from tkinter import ttk
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class ProgressBarCreatorMixin:
     def _create_progress_bar(self, parent_frame, label, config, path):
         """Creates a progress bar widget."""
         current_function_name = "_create_progress_bar"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating progress bar for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to construct a progress indicator for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version, # Assuming app_constants is available
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.X, padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).pack(side=tk.LEFT, padx=(0, 10))
@@ -43,19 +50,39 @@ class ProgressBarCreatorMixin:
                 "units": units
             }
             
-            # Add logic to handle incoming MQTT messages to update the progress bar
             def _update_progress(value):
                 try:
                     float_value = float(value)
                     progressbar['value'] = float_value
                     value_label['text'] = f"{float_value} {units}"
                 except (ValueError, TypeError) as e:
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR in _update_progress: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR in _update_progress: {e}", file=os.path.basename(__file__), function=current_function_name 
+
+)
+
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The progress bar '{label}' has been successfully rendered!",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
 
 
+                )
             # self.mqtt_callbacks[path] = _update_progress
+            return frame
         except Exception as e:
-            console_log(f"🔴 ERROR creating progress bar: {e}")
-            if app_constants.Local_Debug_Enable:
-                debug_log(message=f"🔴 ERROR creating progress bar: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+            debug_log(message=f"💥 KABOOM! The progress bar '{label}' has failed to materialize! Error: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"💥 KABOOM! The progress bar '{label}' has failed to materialize! Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=current_function_name
+                    
+
+
+                )
+            return None

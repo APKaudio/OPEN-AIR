@@ -37,7 +37,7 @@ import json
 from collections import defaultdict
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -90,8 +90,10 @@ class MqttConductorFrame(ttk.Frame):
             message=f"🐐🟢 Initializing the '{self.__class__.__name__}' GUI frame. This one's a masterpiece of form over function!",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
         
         try:
@@ -102,13 +104,15 @@ class MqttConductorFrame(ttk.Frame):
             self._apply_styles(theme_name=DEFAULT_THEME)
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
     def _apply_styles(self, theme_name: str):

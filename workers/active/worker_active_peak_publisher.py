@@ -38,7 +38,7 @@ import datetime
 import math
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables (as per your instructions) ---
@@ -47,7 +47,7 @@ current_version = "20251006.223430.3"
 # The hash calculation removes leading zeros, if any.
 current_version_hash = (20251006 * 223430 * 3)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 # --- Constants (No Magic Numbers) ---
 # FIX: Using the single-level wildcard '+' to match the dynamic 'Marker_X' or 'Marker_X_freq' segment.
@@ -66,13 +66,15 @@ class ActivePeakPublisher:
         # Initializes the publisher and sets up subscriptions.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Initializing the Active Peak Publisher. Ready to pivot the data!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         self.mqtt_util = mqtt_util
@@ -81,20 +83,22 @@ class ActivePeakPublisher:
         self.marker_data_buffer = {}
 
         self._setup_subscriptions()
-        console_log("✅ Active Peak Publisher is online and listening for marker data.")
+        debug_log(message="✅ Active Peak Publisher is online and listening for marker data.")
 
     def _setup_subscriptions(self):
         # Subscribes to the wildcards for all marker peak and frequency values.
         self.mqtt_util.add_subscriber(TOPIC_MARKER_PEAK_WILDCARD, self._on_marker_message)
         self.mqtt_util.add_subscriber(TOPIC_MARKER_FREQ_WILDCARD, self._on_marker_message)
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🔍 Subscribed to both peak and frequency wildcards.",
                 file=current_file,
                 version=current_version,
                 function=f"{self.__class__.__name__}._setup_subscriptions",
-                console_print_func=console_log
+                
+
+
             )
 
     def _on_marker_message(self, topic, payload):
@@ -124,13 +128,15 @@ class ActivePeakPublisher:
             # a) Invalid JSON structure (JSONDecodeError)
             # b) Missing 'value' key (TypeError/AttributeError from get("value") )
             # c) Unparsable number string (ValueError)
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🟡 Silent Skip: Unparsable payload '{payload}'.",
                     file=current_file,
                     version=current_version,
                     function=f"{__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    
+
+
                 )
             return
 
@@ -146,13 +152,15 @@ class ActivePeakPublisher:
             self.marker_data_buffer[marker_id]['peak'] = numeric_value
             data_type = "Peak"
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🔵 Buffered {data_type} for {marker_id}: {numeric_value}. Checking for pair...",
                 file=current_file,
                 version=current_version,
                 function=f"{__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                
+
+
             )
 
         # Check if both peak and frequency are now available
@@ -241,23 +249,27 @@ class ActivePeakPublisher:
                 retain=True
             )
 
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🐐💾 Reposted {marker_id} data to hierarchical topic.",
                     file=current_file,
                     version=current_version,
                     function=f"{__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    
+
+
                 )
-            console_log(f"✅ Reposted {marker_id} ({round(freq_mhz, 3)} MHz) to {full_topic}")
+            debug_log(message=f"✅ Reposted {marker_id} ({round(freq_mhz, 3)} MHz) to {full_topic}")
 
         except Exception as e:
-            console_log(f"❌ Error during hierarchical republishing for {marker_id}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error during hierarchical republishing for {marker_id}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized in republishing! The error be: {e}",
                     file=current_file,
                     version=current_version,
                     function=f"{__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    
+
+
                 )

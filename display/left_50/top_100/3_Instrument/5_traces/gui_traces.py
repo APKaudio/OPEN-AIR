@@ -23,10 +23,10 @@ from tkinter import ttk
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_log, console_log
+from workers.logger.logger import  debug_log
 import workers.setup.app_constants as app_constants
 # --- Protocol: Global Variables ---
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 CURRENT_DATE = 20251217
 CURRENT_TIME = 235800
 CURRENT_ITERATION = 11
@@ -62,13 +62,15 @@ class GenericInstrumentGui(ttk.Frame):
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
 
         # Immediate visual feedback in the GUI
@@ -114,13 +116,15 @@ class GenericInstrumentGui(ttk.Frame):
                         break
             
             if needs_wrapping:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.current_class_name}.{current_function_name}"
+                        
+
+
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -135,13 +139,15 @@ class GenericInstrumentGui(ttk.Frame):
                     json.dump(norm_data, tf, indent=4)
                 processed_path = str(temp_path)
             if needs_wrapping:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"🖥️🔍 NORMALIZING: Wrapping YAK structure for {module_name}",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.current_class_name}.{current_function_name}"
+                        
+
+
                     )
                 # Create a temporary normalized file
                 temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
@@ -171,23 +177,25 @@ class GenericInstrumentGui(ttk.Frame):
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()
-            console_log(f"✅ Success! {module_name} GUI construction requested.")
+
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()
-            console_log(f"✅ Success! {module_name} GUI construction requested.")
+
 
         except Exception as e:
             error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            console_log(error_msg)
+            
             self.status_label.config(text=error_msg, foreground="red")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.current_class_name}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.current_class_name}.{current_function_name}"
+                    
+
+
                 )
 
     def _on_tab_selected(self, *args, **kwargs):
@@ -197,13 +205,15 @@ class GenericInstrumentGui(ttk.Frame):
         """
         current_function_name = "_on_tab_selected"
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Tab '{module_name}' activated! Stand back, I'm checking the data flow!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.current_class_name}.{current_function_name}"
+                
+
+
             )
         
         # Add logic here if specific refresh actions are needed on tab focus

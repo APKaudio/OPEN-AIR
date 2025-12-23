@@ -34,13 +34,13 @@ import inspect
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 
 # --- Global Scope Variables ---
@@ -61,22 +61,20 @@ class GuiActuatorCreatorMixin:
         # Creates a button that acts as a simple actuator.
         current_function_name = inspect.currentframe().f_code.co_name
         
-        # A trigger path is used to differentiate the trigger from other state values.
-        trigger_path = path + "/trigger"
-        
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to conjure an actuator button for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to construct an actuator for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             # Create a frame to hold the label and button
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             button_text = config.get('label', config.get('label_active', config.get('label_inactive', label)))
 
@@ -89,29 +87,33 @@ class GuiActuatorCreatorMixin:
 
             def on_press(event):
                 # FIXED: The actuator now correctly publishes to the "actions" topic.
-                action_path = trigger_path.replace("repository", "actions")
+                action_path = path.replace("repository", "actions") + "/trigger"
 
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
-                        message=f"GUI ACTION: Publishing actuator command to '{action_path}' with value 'true'",
+                        message=f"GUI ACTION: Activating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 self._transmit_command(relative_topic=action_path, payload=True, retain=False)
 
             def on_release(event):
                 # FIXED: The actuator now correctly publishes to the "actions" topic.
-                action_path = trigger_path.replace("repository", "actions")
+                action_path = path.replace("repository", "actions") + "/trigger"
 
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
-                        message=f"GUI ACTION: Publishing actuator command release to '{action_path}' with value 'false'",
+                        message=f"GUI ACTION: Deactivating actuator '{label}' to path '{action_path}'",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                 self._transmit_command(relative_topic=action_path, payload=False, retain=False)
 
@@ -121,25 +123,28 @@ class GuiActuatorCreatorMixin:
             if path:
                 self.topic_widgets[path] = button
 
-            console_log(f"✅ The actuator button '{label}' did appear.")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Actuator button '{label}' created.",
+                    message=f"✅ SUCCESS! The actuator '{label}' is ready for action!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The actuator button creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The actuator '{label}' has short-circuited! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=current_function_name,
-                    console_print_func=console_log
+                    function=current_function_name
+                    
+
+
                 )
             return None

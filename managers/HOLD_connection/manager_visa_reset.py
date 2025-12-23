@@ -22,14 +22,11 @@ import inspect
 import json
 
 # --- Utility and Worker Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 #from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .manager_visa_dispatch_scpi import ScpiDispatcher
 
-# --- Global Scope Variables (as per Protocol 4.4) ---
-current_version = "20250907.002515.4"
-current_version_hash = (20250907 * 2515 * 4)
-current_file = f"{os.path.basename(__file__)}"
 
 
 class VisaResetManager:
@@ -43,10 +40,10 @@ class VisaResetManager:
 
         debug_log(
             message=f"🟢️️️🟢 Initiating the {self.current_class_name}. The enforcer of resets is online!",
-            file=current_file,
-            version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=console_log
+            **_get_log_args()
+            
+
+
         )
         try:
             self.mqtt_controller = mqtt_controller
@@ -62,16 +59,16 @@ class VisaResetManager:
             self.TOPIC_REBOOT = f"{self.BASE_TOPIC}/Reboot_device/trigger"
 
             self._setup_mqtt_subscriptions()
-            console_log(f"✅ {self.current_class_name} initialized and listening.")
+            debug_log(message=f"✅ {self.current_class_name} initialized and listening.", **_get_log_args())
 
         except Exception as e:
-            console_log(f"❌ Error in {self.current_class_name}.{current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {self.current_class_name}.{current_function_name}: {e}")
             debug_log(
                 message=f"🟢️️️🔴 Catastrophic failure during {self.current_class_name} initialization! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
+                
+
+
             )
 
     def _setup_mqtt_subscriptions(self):
@@ -79,52 +76,51 @@ class VisaResetManager:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"▶️ {current_function_name} to subscribe to reset/reboot topics.",
-            file=current_file,
-            version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=console_log
+            **_get_log_args()
+            
+
+
         )
         try:
             # FIXED: Subscribing to the new '/trigger' subtopic
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_RESET, callback_func=self._on_reset_request)
             self.mqtt_controller.add_subscriber(topic_filter=self.TOPIC_REBOOT, callback_func=self._on_reboot_request)
-            console_log("✅ The reset manager did subscribe to its topics.")
+            debug_log(message="✅ The reset manager did subscribe to its topics.", **_get_log_args())
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"🟢️️️🔴 The subscription circuits are fried! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
+                
+
+
             )
 
     def _on_reset_request(self, topic, payload):
-        # Handles a request to perform a soft reset (*RST) on the instrument.
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"▶️ {current_function_name} due to message on topic: {topic}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=console_log
+            **_get_log_args()
+            
+
+
         )
         try:
             # FIXED: Check if the payload value is explicitly 'true'
             data = json.loads(payload)
             if str(data.get("value")).lower() == 'true':
-                console_log(f"🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.")
+                debug_log(message=f"🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.", **_get_log_args())
                 self.scpi_dispatcher.write_safe(command=self.CMD_RESET_DEVICE)
                 
         except (json.JSONDecodeError, AttributeError) as e:
-            console_log(f"❌ Error processing reset request payload: {payload}. Error: {e}")
+            debug_log(message=f"❌ Error processing reset request payload: {payload}. Error: {e}")
             debug_log(
                 message=f"🟢️️️🔴 A garbled message! The reset contraption is confused! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
+                
+
+
             )
             
     def _on_reboot_request(self, topic, payload):
@@ -132,24 +128,24 @@ class VisaResetManager:
         current_function_name = inspect.currentframe().f_code.co_name
         debug_log(
             message=f"▶️ {current_function_name} due to message on topic: {topic}",
-            file=current_file,
-            version=current_version,
-            function=f"{self.current_class_name}.{current_function_name}",
-            console_print_func=console_log
+            **_get_log_args()
+            
+
+
         )
         try:
             # FIXED: Check if the payload value is explicitly 'true'
             data = json.loads(payload)
             if str(data.get("value")).lower() == 'true':
-                console_log(f"🔵 Command received: Power Cycle. Dispatching '{self.CMD_REBOOT_DEVICE}'.")
+                debug_log(message=f"🔵 Command received: Power Cycle. Dispatching '{self.CMD_REBOOT_DEVICE}'.", **_get_log_args())
                 self.scpi_dispatcher.write_safe(command=self.CMD_REBOOT_DEVICE)
 
         except (json.JSONDecodeError, AttributeError) as e:
-            console_log(f"❌ Error processing reboot request payload: {payload}. Error: {e}")
+            debug_log(message=f"❌ Error processing reboot request payload: {payload}. Error: {e}")
             debug_log(
                 message=f"🟢️️️🔴 The reboot sequence has short-circuited! The error be: {e}",
-                file=current_file,
-                version=current_version,
-                function=f"{self.current_class_name}.{current_function_name}",
-                console_print_func=console_log
+                **_get_log_args()
+                
+
+
             )

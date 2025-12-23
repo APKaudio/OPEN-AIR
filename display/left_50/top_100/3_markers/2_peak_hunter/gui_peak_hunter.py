@@ -35,12 +35,12 @@ import pathlib
 from tkinter import filedialog
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from workers.exporters.worker_file_csv_export import CsvExportUtility
 from display.styling.style import THEMES, DEFAULT_THEME
 import workers.setup.app_constants as app_constants
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 # --- Global Scope Variables ---
 current_file_path = pathlib.Path(__file__).resolve()
@@ -63,13 +63,12 @@ class MarkerPeakHunterGUI(ttk.Frame):
         """
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🟢 Initializing the {self.__class__.__name__}.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
             )
 
         try:
@@ -80,7 +79,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
             self.current_file = current_file
             self.current_version = current_version
             self.current_version_hash = current_version_hash
-            self.csv_export_util = CsvExportUtility(print_to_gui_func=console_log)
+            self.csv_export_util = CsvExportUtility(print_to_gui_func=print)
             self.current_class_name = self.__class__.__name__
 
             self._apply_styles(theme_name=DEFAULT_THEME)
@@ -125,17 +124,19 @@ class MarkerPeakHunterGUI(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Instrument Translator GUI initialized successfully!")
-
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(
+                message=f"❌ Error in {current_function_name}: {e}",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+            )
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=self.current_file,
                     version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
                 )
     
     def _apply_styles(self, theme_name: str):
@@ -170,13 +171,12 @@ class MarkerPeakHunterGUI(ttk.Frame):
         Opens a file dialog and exports the current data from the table to a CSV file.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Preparing to export table data to CSV.",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
             )
 
         try:
@@ -196,17 +196,18 @@ class MarkerPeakHunterGUI(ttk.Frame):
                     data.append(row_dict)
                     
                 self.csv_export_util.export_data_to_csv(data=data, file_path=file_path)
-                console_log(f"✅ Data successfully exported to {file_path}!")
-            else:
-                console_log("🟡 CSV export canceled by user.")
+               
+            
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=self.current_file,
                     version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )

@@ -1,0 +1,12 @@
+I have re-examined `display/left_50/top_100/1_Connection/4_YAK/9_System/gui_yak_system.py` very carefully. I found that all calls to `debug_log` within the `GenericInstrumentGui.__init__` method (and other methods in that file) are already correctly passing the `file`, `version`, and `function` arguments.
+
+This leads me to believe that the error you are seeing (❌ Error in action_open_display: `debug_log()` missing 3 required positional arguments: 'file', 'version', and 'function' | `gui_yak_system.py` | `20251217.235800.11` Function: `GenericInstrumentGui.__init__`) might be due to one of the following:
+
+1.  **Outdated File:** Your local `gui_yak_system.py` file might be an older version that still contains an incorrect `debug_log` call, which is not reflected in the file content I am currently examining.
+2.  **Environmental Discrepancy:** There might be a difference between the file I am reading and the one being executed in your environment.
+
+I have already applied a fix for the *first* error you reported (missing `console_print_func` in `WorkerLauncher`).
+
+Given that the current content of `gui_yak_system.py` appears correct for the `debug_log` calls, I recommend trying to run `main.py` again. This will help us determine if the previous changes resolved the issue, or if there's indeed an older version of `gui_yak_system.py` causing this specific error in your environment.
+
+Would you like me to try running `python main.py` again?

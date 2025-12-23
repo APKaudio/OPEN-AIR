@@ -19,7 +19,7 @@ import workers.setup.app_constants as app_constants
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251222.005500.1
+# Version 20251222.005500.3
 
 import tkinter as tk
 from tkinter import ttk
@@ -30,17 +30,14 @@ import pathlib
 # --- Global Scope Variables ---
 Current_Date = 20251222
 Current_Time = 5500
-Current_iteration = 1
+Current_iteration = 3 # Incremented version
 
-current_version = "20251222.005500.1"
+current_version = "20251222.005500.3"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 current_file = os.path.basename(__file__)
 
 # --- Path Setup ---
-# This defines the absolute, true root path of the project, irrespective of the CWD.
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-
-# Assuming sys.path is already set up by main.py
 
 # Import necessary libraries
 try:
@@ -51,258 +48,139 @@ except ImportError:
     ImageTk = None
     PIL_AVAILABLE = False
 
-# Import lyrics data from a dedicated file
-# MODIFIED: Added fallback to local import for robustness
+# Import lyrics data from the same directory
 try:
-    from workers.splash import lyrics_data
+    from . import lyrics_data
     LYRICS_AVAILABLE = True
 except ImportError:
-    try:
-        # Fallback: Try importing from the same directory
-        import lyrics_data
-        LYRICS_AVAILABLE = True
-    except ImportError:
-        lyrics_data = None
-        LYRICS_AVAILABLE = False
-        # This error might occur if lyrics_data.py is missing or has syntax errors.
+    lyrics_data = None
+    LYRICS_AVAILABLE = False
 
 class SplashScreen:
-    def __init__(self, parent, app_version, debug_enabled, console_log_func, debug_log_func):
-        if debug_enabled:
-            debug_log_func(
-                message="DEBUG: Entering SplashScreen.__init__().",
-                file=os.path.basename(__file__), # Use os.path.basename(__file__) as current_file
-                version=app_version,
-                function=f"{self.__class__.__name__}.__init__",
-                console_print_func=console_log_func
+    def __init__(self, parent, app_version, debug_enabled, _func, debug_log_func):
+        current_function_name = "__init__"
+        self.debug_enabled = debug_enabled
+        self._func = _func
+        self.debug_log_func = debug_log_func
+        
+        if self.debug_enabled:
+            self.debug_log_func(
+                message=f"🖥️🟢 Entering '{current_function_name}'. The splash screen experiment begins!",
+                file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         
         self.parent = parent
         self.app_version = app_version
-        self.debug_enabled = debug_enabled
-        self.console_log_func = console_log_func
-        self.debug_log_func = debug_log_func
+        
         self.splash_window = tk.Toplevel(self.parent)
-        self.splash_window.overrideredirect(True) # Remove window decorations
-        self.splash_window.attributes('-alpha', 0.0) # Start fully transparent
+        self.splash_window.overrideredirect(True)
+        self.splash_window.attributes('-alpha', 0.0)
 
+        # --- Image Loading ---
         self.splash_image = None
-        image_path = None # Initialize image_path to avoid UnboundLocalError
+        img_width, img_height = 400, 200 # Default size
         if PIL_AVAILABLE:
             try:
                 image_path = os.path.join(SPLASH_ROOT_DIR, 'workers', 'splash', 'OPEN AIR LOGO.png')
                 pil_image = Image.open(image_path)
                 self.splash_image = ImageTk.PhotoImage(pil_image)
+                img_width, img_height = self.splash_image.width(), self.splash_image.height()
             except Exception as e:
                 if self.debug_enabled:
-                    self.debug_log_func(
-                        message=f"Splash screen error: Could not load image '{image_path}'. {e}",
-                        file=os.path.basename(__file__),
-                        version=self.app_version,
-                        function=f"{self.__class__.__name__}.__init__", # Logging from __init__
-                        console_print_func=self.console_log_func
-                    )
+                    self.debug_log_func(message=f"🔴 ERROR: Could not load splash image. {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}" )
                 self.splash_image = None
         
-        # Frame for the main content (image or text)
-        self.main_content_frame = tk.Frame(self.splash_window, bd=0)
-        self.main_content_frame.pack(expand=True, fill=tk.BOTH)
-
-        # Widgets and sizing based on image availability
-        if self.splash_image:
-            label = tk.Label(self.main_content_frame, image=self.splash_image, bd=0)
-            label.image = self.splash_image # Keep a reference!
-            label.pack()
-            img_width = self.splash_image.width()
-            img_height = self.splash_image.height()
-        else:
-            # Fallback text label if image not loaded
-            label = tk.Label(self.main_content_frame, text="OPEN-AIR", font=("Helvetica", 24, "bold"), fg="white", bg="black")
-            label.pack(expand=True, fill=tk.BOTH)
-            # Use a default size for text-only splash
-            img_width = 400 
-            img_height = 200
-            self.splash_window.config(bg="black") # Set background for text label if no image
-
-        status_bar_height = 30 
-        # Adjust total height calculation based on layout; ensure it accommodates all elements.
-        # Assuming main content height is img_height for this calculation.
-        total_height = img_height + status_bar_height 
-
+        # --- Window Centering ---
         screen_width = self.parent.winfo_screenwidth()
         screen_height = self.parent.winfo_screenheight()
         x = (screen_width // 2) - (img_width // 2)
-        y = (screen_height // 2) - (total_height // 2)
-        self.splash_window.geometry(f'{img_width}x{total_height}+{x}+{y}')
+        y = (screen_height // 2) - (img_height // 2)
+        self.splash_window.geometry(f'{img_width}x{img_height}+{x}+{y}')
+        
+        # --- Main Frame & Layout ---
+        self.main_content_frame = tk.Frame(self.splash_window, bg="black")
+        self.main_content_frame.pack(expand=True, fill=tk.BOTH)
 
-        # Frame for the status bar at the bottom
-        status_bar_frame = tk.Frame(self.splash_window, height=status_bar_height, bg="black")
-        status_bar_frame.pack(fill=tk.X, side=tk.BOTTOM)
-
-        # Lyrics Label at the top
-        self.lyrics_label = tk.Label(self.splash_window, text="", fg="gray", bg="black", font=("Helvetica", 9, "italic"))
-        self.lyrics_label.pack(side=tk.TOP, fill=tk.X, pady=5) # Position lyrics at the top
-
-        # Status Message Label within the status bar frame
-        self.status_label = tk.Label(status_bar_frame, text="", fg="white", bg="black", font=("Helvetica", 10))
-        self.status_label.pack(fill=tk.X, side=tk.LEFT, padx=10) # Align status to left within its frame
-
-        # Load lyrics from dedicated file and handle potential loading issues robustly
-        self.lyrics = [] # Initialize as empty list
-        if LYRICS_AVAILABLE:
-            try:
-                # Check if lyrics_data is a module and has a 'lyrics' attribute which is a list
-                if hasattr(lyrics_data, 'lyrics') and isinstance(lyrics_data.lyrics, list):
-                    self.lyrics = lyrics_data.lyrics
-                # Check if the imported object 'lyrics_data' itself is a list
-                elif isinstance(lyrics_data, list):
-                    self.lyrics = lyrics_data
-                else:
-                    # Module imported, but doesn't contain a list attribute named 'lyrics' or is not a list
-                    if self.debug_enabled:
-                        self.debug_log_func(
-                            message="WARNING: Imported lyrics data is neither a list nor a module with a 'lyrics' attribute.",
-                            file=os.path.basename(__file__),
-                            version=self.app_version,
-                            function=f"{self.__class__.__name__}.__init__",
-                            console_print_func=self.console_log_func
-                        )
-                    self.lyrics = [] # Ensure it's an empty list
-            except Exception as e:
-                if self.debug_enabled:
-                    self.debug_log_func(
-                        message=f"🔴 ERROR loading lyrics data: {e}",
-                        file=os.path.basename(__file__),
-                        version=self.app_version,
-                        function=f"{self.__class__.__name__}.__init__",
-                        console_print_func=self.console_log_func
-                    )
-                self.lyrics = [] # Fallback to empty list on error
+        # Logo or Fallback Text
+        if self.splash_image:
+            logo_label = tk.Label(self.main_content_frame, image=self.splash_image, bg="black", bd=0)
+            logo_label.image = self.splash_image
+            logo_label.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
         else:
-            # If import failed (LYRICS_AVAILABLE is False)
+            tk.Label(self.main_content_frame, text="OPEN-AIR", font=("Helvetica", 24, "bold"), fg="white", bg="black").place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+        # Lyrics Label
+        self.lyrics_label = tk.Label(self.main_content_frame, text="", fg="gray", bg="black", font=("Helvetica", 9, "italic"))
+        self.lyrics_label.place(relx=0.5, rely=0.1, anchor=tk.CENTER)
+
+        # Status Label (Centered below logo)
+        self.status_label = tk.Label(self.main_content_frame, text="", fg="white", bg="black", font=("Helvetica", 10))
+        self.status_label.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
+
+        # --- Lyrics Loading Logic ---
+        self.lyrics = []
+        if LYRICS_AVAILABLE and hasattr(lyrics_data, 'lyrics'):
+            self.lyrics = lyrics_data.lyrics
+        
+        # If lyrics are still not loaded, populate with a diagnostic message.
+        if not self.lyrics:
+            self.lyrics = ["[LYRICS FAILED TO LOAD]"]
             if self.debug_enabled:
                 self.debug_log_func(
-                    message="WARNING: Could not import lyrics module.",
-                    file=os.path.basename(__file__),
-                    version=self.app_version,
-                    function=f"{self.__class__.__name__}.__init__",
-                    console_print_func=self.console_log_func
+                    message="🔴 CRITICAL: Lyrics array is empty after attempting to load. Displaying error on screen.",
+                    file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                    
                 )
-            self.lyrics = [] # Ensure lyrics is an empty list
 
         self.lyric_index = 0
-        # Initialize current_lyric safely, handling empty lyrics list
-        if self.lyrics:
-            self.current_lyric = self.lyrics[self.lyric_index % len(self.lyrics)]
-        else:
-            self.current_lyric = "" # Default if no lyrics are loaded
-            if self.debug_enabled:
-                self.debug_log_func(
-                    message="WARNING: Lyrics list is empty. Splash screen might not show lyrics.",
-                    file=os.path.basename(__file__),
-                    version=self.app_version,
-                    function=f"{self.__class__.__name__}.__init__",
-                    console_print_func=self.console_log_func
-                )
-        
+        self.current_lyric = self.lyrics[0]
         self.lyrics_label.config(text=self.current_lyric)
-        self.status_message = "Initializing..."
-        
-        # Set initial status and lyric by calling set_status to ensure both are updated
-        self.set_status(self.status_message) 
+        self.set_status("Initializing...")
 
-        # Fading animation uses self.parent.after directly, avoiding lambdas.
+        # --- Start Animations ---
         self.parent.after(10, self._fade_in)
-        
-        # MODIFIED: Reduced cycle time from 5000ms to 1500ms to ensure lyrics cycle during short load times.
         self.splash_window.after(1500, self.cycle_lyrics_async)
 
-        if debug_enabled:
-            debug_log_func(
-                message="DEBUG: Exiting SplashScreen.__init__().",
-                file=os.path.basename(__file__),
-                version=self.app_version,
-                function=f"{self.__class__.__name__}.__init__",
-                console_print_func=console_log_func
-            )
+        if self.debug_enabled:
+            self.debug_log_func(message="✅ Exiting SplashScreen.__init__().", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}" )
 
     def _fade_in(self, alpha=0.0):
-        if self.splash_window.winfo_exists():
-            if alpha <= 1.0:
-                self.splash_window.attributes('-alpha', alpha)
-                # Use self.parent.after directly with arguments, avoiding lambdas.
-                self.parent.after(20, self._fade_in, alpha + 0.05)
+        if self.splash_window.winfo_exists() and alpha <= 1.0:
+            self.splash_window.attributes('-alpha', alpha)
+            self.parent.after(20, self._fade_in, alpha + 0.05)
 
     def hide(self):
         if self.splash_window.winfo_exists():
             self._fade_out()
 
     def _fade_out(self, alpha=1.0):
-        if self.splash_window.winfo_exists():
-            if alpha >= 0.0:
-                self.splash_window.attributes('-alpha', alpha)
-                # Use self.parent.after directly with arguments, avoiding lambdas.
-                self.parent.after(20, self._fade_out, alpha - 0.05)
-            else:
-                self.splash_window.destroy()
+        if self.splash_window.winfo_exists() and alpha >= 0.0:
+            self.splash_window.attributes('-alpha', alpha)
+            self.parent.after(20, self._fade_out, alpha - 0.05)
+        elif self.splash_window.winfo_exists():
+            self.splash_window.destroy()
 
     def set_status(self, message):
-        """
-        Updates the status message.
-        """
         if self.splash_window.winfo_exists():
-            self.status_message = message
-            self.status_label.config(text=f"{self.status_message}") # Only status message in status bar
-            self.parent.update_idletasks() # Ensure UI updates immediately
+            self.status_label.config(text=message)
+            self.parent.update_idletasks()
 
     def cycle_lyrics_async(self):
-        """
-        Asynchronously cycles through the lyrics and updates the lyrics_label.
-        """
+        current_function_name = "cycle_lyrics_async"
         if self.splash_window.winfo_exists() and self.lyrics:
             self.lyric_index = (self.lyric_index + 1) % len(self.lyrics)
             self.current_lyric = self.lyrics[self.lyric_index]
             self.lyrics_label.config(text=self.current_lyric)
-            self.debug_log_func(
-                message=f"Lyric changed to: {self.current_lyric}",
-                file=os.path.basename(__file__),
-                version=self.app_version,
-                function=f"{self.__class__.__name__}.cycle_lyrics_async",
-                console_print_func=self.console_log_func
-            )
-            # MODIFIED: Reduced cycle time from 5000ms to 1500ms
-            self.splash_window.after(1500, self.cycle_lyrics_async) 
+            if self.debug_enabled:
+                self.debug_log_func(
+                    message=f"🎶 Lyric changed to: {self.current_lyric}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+                )
+            self.splash_window.after(1500, self.cycle_lyrics_async)
 
 if __name__ == '__main__':
-    # For testing the splash screen directly
     root = tk.Tk()
-    root.withdraw() # Hide the main root window
+    root.withdraw()
 
-    # Dummy values for testing
-    app_version_val = "20251222.005500.1"
-    debug_enabled_val = True
-    # Dummy logger functions
-    def dummy_debug_log(*args, **kwargs): print(f"DEBUG: {kwargs.get('message')}")
-    def dummy_console_log(*args, **kwargs): print(f"CONSOLE: {kwargs.get('message')}")
-
-    # Pass necessary arguments to SplashScreen constructor
-    splash = SplashScreen(root, app_version=app_version_val, debug_enabled=debug_enabled_val, console_log_func=dummy_console_log, debug_log_func=dummy_debug_log)
     
-    # Simulate some work by calling set_status multiple times
-    splash.set_status("Loading core modules...")
-    # In a real app, this would be actual initialization steps.
-    # time.sleep is blocking and should not be used in the actual app's main thread.
-    # For testing, we use root.after to simulate work without blocking the event loop.
-    
-    root.after(1000, lambda: splash.set_status("Initializing GUI components..."))
-    root.after(2000, lambda: splash.set_status("Connecting to services..."))
-    root.after(3000, lambda: splash.set_status("All systems go!"))
-    
-    # Hide splash screen after simulated work
-    # MODIFIED: Extended test duration to 6000ms to allow lyrics to cycle at least 3 times
-    root.after(6000, splash.hide)
-    
-    # Ensure the main window is set up if needed, or just end the demo
-    root.after(6500, root.destroy) # Destroy root after splash closes
-    root.mainloop()
-    dummy_console_log("Main thread exiting.")

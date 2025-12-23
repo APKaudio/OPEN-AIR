@@ -33,7 +33,7 @@ import traceback
 import numpy as np
 from matplotlib.offsetbox import AnchoredText 
 
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 
 
 
@@ -41,12 +41,12 @@ from workers.logger.logger import debug_log, console_log, log_visa_command
 def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
     # [A brief, one-sentence description of the function's purpose.]
     # Finds and plots local peaks on a Matplotlib axis.
-    debug_log(f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
+    debug_log(message=f"▶️ _find_and_plot_peaks with {len(data) if data else 0} data points.",
                 file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
         if not data:
-            console_log("✅ No data to search for peaks.")
+            debug_log(message="✅ No data to search for peaks.")
             return
 
         x_data = np.array(data)[:, 0]
@@ -76,16 +76,16 @@ def _find_and_plot_peaks(ax, data, start_freq_MHz, end_freq_MHz):
         for peak_x, peak_y in sorted_peaks:
             ax.axvline(x=peak_x, color='orange', linestyle='--', linewidth=1, zorder=4)
         
-        console_log(f"✅ Found and plotted {len(sorted_peaks)} peaks.")
+        debug_log(message=f"✅ Found and plotted {len(sorted_peaks)} peaks.")
     except Exception as e:
-        console_log(f"❌ Error in _find_and_plot_peaks: {e}")
-        debug_log(f"Arrr, the code be capsized in peak finding! The error be: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in _find_and_plot_peaks: {e}")
+        debug_log(message=f"Arrr, the code be capsized in peak finding! The error be: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def _setup_zoom_events(ax, canvas, original_xlim):
     # [A brief, one-sentence description of the function's purpose.]
     # Sets up event handlers for horizontal zooming on the plot.
-    debug_log(f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ _setup_zoom_events.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         drag_start_x = None
@@ -112,30 +112,30 @@ def _setup_zoom_events(ax, canvas, original_xlim):
         canvas.mpl_connect('button_press_event', on_press)
         canvas.mpl_connect('button_release_event', on_release)
         canvas.mpl_connect('button_press_event', on_double_click)
-        console_log("✅ Zoom events are now live!")
+        debug_log(message="✅ Zoom events are now live!")
     except Exception as e:
-        console_log(f"❌ Error in _setup_zoom_events: {e}")
-        debug_log(f"Great Scott! The zoom mechanism has backfired! Error: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in _setup_zoom_events: {e}")
+        debug_log(message=f"Great Scott! The zoom mechanism has backfired! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def reset_zoom(ax, canvas):
     # [A brief, one-sentence description of the function's purpose.]
     # Resets the plot to its original, full x-axis view.
-    debug_log(f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ reset_zoom.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     try:
         if hasattr(ax, 'original_xlim'):
             ax.set_xlim(ax.original_xlim)
             canvas.draw_idle()
-        console_log("✅ Zoom reset.")
+        debug_log(message="✅ Zoom reset.")
     except Exception as e:
-        console_log(f"❌ Error in reset_zoom: {e}")
-        debug_log(f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in reset_zoom: {e}")
+        debug_log(message=f"It's madness! The zoom refused to reset! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the top plot in the Scan Monitor tab with new data.
-    debug_log(f"▶️ update_top_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ update_top_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
         
     try:
         plot_info = scan_monitor_tab_instance.plots["top"]
@@ -183,16 +183,16 @@ def update_top_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MH
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
 
         canvas.draw()
-        console_log("✅ Top plot updated.")
+        debug_log(message="✅ Top plot updated.")
     except Exception as e:
-        console_log(f"❌ Error in update_top_plot: {e}")
-        debug_log(f"Arrr, the top plot be capsized! The error be: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in update_top_plot: {e}")
+        debug_log(message=f"Arrr, the top plot be capsized! The error be: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the middle plot in the Scan Monitor tab with new data.
-    debug_log(f"▶️ update_middle_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ update_middle_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
     try:
         plot_info = scan_monitor_tab_instance.plots["middle"]
@@ -240,16 +240,16 @@ def update_middle_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
-        console_log("✅ Middle plot updated.")
+        debug_log(message="✅ Middle plot updated.")
     except Exception as e:
-        console_log(f"❌ Error in update_middle_plot: {e}")
-        debug_log(f"It's alive! Oh wait, no, the middle plot is dead. Error: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in update_middle_plot: {e}")
+        debug_log(message=f"It's alive! Oh wait, no, the middle plot is dead. Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq_MHz, plot_title):
     # [A brief, one-sentence description of the function's purpose.]
     # Updates the bottom plot in the Scan Monitor tab with new data.
-    debug_log(f"▶️ update_bottom_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ update_bottom_plot with plot_title: {plot_title}", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
     
     try:
         plot_info = scan_monitor_tab_instance.plots["bottom"]
@@ -298,20 +298,20 @@ def update_bottom_plot(scan_monitor_tab_instance, data, start_freq_MHz, end_freq
         _setup_zoom_events(ax=ax, canvas=canvas, original_xlim=(start_freq_MHz, end_freq_MHz))
         
         canvas.draw()
-        console_log("✅ Bottom plot updated.")
+        debug_log(message="✅ Bottom plot updated.")
     except Exception as e:
-        console_log(f"❌ Error in update_bottom_plot: {e}")
-        debug_log(f"Shiver me timbers, the bottom plot has been scuttled! Error: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in update_bottom_plot: {e}")
+        debug_log(message=f"Shiver me timbers, the bottom plot has been scuttled! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
 
 def clear_monitor_plots(scan_monitor_tab_instance):
     # [A brief, one-sentence description of the function's purpose.]
     # Clears all three plots in the Scan Monitor tab.
-    debug_log(f"▶️ clear_monitor_plots.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
+    debug_log(message=f"▶️ clear_monitor_plots.", file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)
                 
     try:
         if not scan_monitor_tab_instance:
-            console_log("❌ Scan Monitor tab instance could not be found. Cannot clear plots.")
+            debug_log(message="❌ Scan Monitor tab instance could not be found. Cannot clear plots.")
             return
 
         for plot_name in ["top", "middle", "bottom"]:
@@ -327,8 +327,8 @@ def clear_monitor_plots(scan_monitor_tab_instance):
                 ax.grid(True, linestyle='--', color='gray', alpha=0.5)
                 canvas.draw()
         
-        console_log("✅ All monitor plots cleared.")
+        debug_log(message="✅ All monitor plots cleared.")
     except Exception as e:
-        console_log(f"❌ Error in clear_monitor_plots: {e}")
-        debug_log(f"My creation! It refuses to be cleared! Error: {e}\n{traceback.format_exc()}",
+        debug_log(message=f"❌ Error in clear_monitor_plots: {e}")
+        debug_log(message=f"My creation! It refuses to be cleared! Error: {e}\n{traceback.format_exc()}",
                     file=f"{__name__}", version=current_version, function=inspect.currentframe().f_code.co_name)

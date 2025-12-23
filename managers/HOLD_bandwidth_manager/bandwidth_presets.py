@@ -7,14 +7,6 @@
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-Current_Date = 20251213  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 44 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -31,11 +23,10 @@ import os
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 
-Local_Debug_Enable = False
-
-current_file = f"{os.path.basename(__file__)}"
+LOCAL_DEBUG_ENABLE = False
 
 
 class BandwidthPresets:
@@ -104,8 +95,8 @@ class BandwidthPresets:
                 yak_trigger = self.yak_communicator.YAK_RBW_TRIGGER if is_rbw else self.yak_communicator.YAK_VBW_TRIGGER
                 self.yak_communicator.publish_to_yak_and_trigger(value=final_value_hz, input_topic=yak_input, trigger_topic=yak_trigger)
             else:
-                console_log(f"❌ Error: Preset data missing for option {option_number}.")
+                debug_log(message=f"❌ Error: Preset data missing for option {option_number}.", **_get_log_args())
                 ## self.mqtt_controller.publish_message(topic=topic, subtopic="", value=False, retain=False)
                 self.yak_communicator.update_all_from_device()
         except Exception as e:
-            console_log(f"❌ Error applying preset: {e}")
+            debug_log(message=f"❌ Error applying preset: {e}", **_get_log_args())

@@ -26,7 +26,7 @@ import sys
 import json
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -55,8 +55,10 @@ class BaseGUIFrame(ttk.Frame):
             message="🖥️🟢 Initializing a new GUI frame from the base class. The blueprint is in hand!",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
         
         try:
@@ -108,16 +110,18 @@ class BaseGUIFrame(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            console_log("✅ Celebration of success!")
+            debug_log(message="✅ Celebration of success!")
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
     def _apply_styles(self, theme_name: str):
@@ -162,24 +166,13 @@ class BaseGUIFrame(ttk.Frame):
             message="🖥️🟢 Entering 'log_button_press' from the GUI layer.",
             file=self.current_file,
             version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
 
-        try:
-            # --- Function logic goes here ---
-            console_log(f"Left button was clicked in {self.current_file}. Initiating a standard log entry.")
-            console_log("✅ Log entry recorded successfully!")
-
-        except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            debug_log(
-                message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+        
 
     def debug_button_press(self):
         # A brief, one-sentence description of the function's purpose.
@@ -190,8 +183,10 @@ class BaseGUIFrame(ttk.Frame):
             message="🖥️🟢 Entering 'debug_button_press' from the GUI layer.",
             file=self.current_file,
             version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+
+
         )
 
         try:
@@ -200,17 +195,21 @@ class BaseGUIFrame(ttk.Frame):
                 message="🔍🔵 The right button was clicked! Time for a deeper inspection!",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
-            console_log(f"✅ Debug entry recorded successfully in {self.current_file}!")
+            debug_log(message=f"✅ Debug entry recorded successfully in {self.current_file}!")
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=self.current_file,
                 version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )

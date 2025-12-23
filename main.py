@@ -19,13 +19,13 @@ import sys
 # Core utilities and components
 
 from workers.splash.splash_screen import SplashScreen
-from managers.connection.manager_visa_dispatch_scpi import ScpiDispatcher
+#from managers.HOLD_connection.manager_visa_dispatch_scpi import ScpiDispatcher
 from workers.Worker_Launcher import WorkerLauncher
 
 
 # Application display module
 import display.gui_display # Import the module, not just the class
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 
 # Setup modules (ensure they are imported correctly)
 import workers.setup.app_constants as app_constants
@@ -40,153 +40,155 @@ import before_main
 # Import initialize_app directly
 from workers.setup.application_initializer import initialize_app 
 
-LOCAL_DEBUG_ENABLE = False
+from workers.utils.log_utils import _get_log_args
 
 current_file = f"{os.path.basename(__file__)}"
 
 def action_open_display(root, splash): 
-    console_log("DEBUG: entering action_open_display")
-    # Initializes and opens the main graphical user interface and then publishes the dataset.
     current_function_name = inspect.currentframe().f_code.co_name
-    console_log("DEBUG: Entering action_open_display...") # Added log
+    debug_log(
+        message="DEBUG: entering action_open_display",
+        **_get_log_args()
+        
+    )
+    # Initializes and opens the main graphical user interface and then publishes the dataset.
+    debug_log(
+        message=f"DEBUG: Entering action_open_display...",
+        **_get_log_args()
+        
+    )
     
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🖥️🟢 The final step! Activating the main display in '{current_function_name}'!",
-            file=current_file,
-            version=app_constants.current_version,
-            function=current_function_name,
-            console_print_func=console_log
+            **_get_log_args()
+            
         )
 
     try:
-        console_log("--> [1/10] Setting splash status: Building GUI...")
+        debug_log(message="--> [1/10] Setting splash status: Building GUI...", **_get_log_args() )
         splash.set_status("Building GUI...")
 
-        console_log("--> [2/10] Importing Application module...")
+        debug_log(message="--> [2/10] Importing Application module...", **_get_log_args() )
         ApplicationModule = importlib.import_module("display.gui_display")
         Application = getattr(ApplicationModule, "Application")
-        console_log("<-- [2/10] Application module imported.")
+        debug_log(message="<-- [2/10] Application module imported.", **_get_log_args() )
 
-        console_log("--> [3/10] Instantiating Application...")
+        debug_log(message="--> [3/10] Instantiating Application...", **_get_log_args() )
         app = Application(parent=root)
         app.pack(fill=tk.BOTH, expand=True)
         root.update_idletasks()
         splash.set_status("GUI constructed.")
-        console_log("<-- [3/10] Application instantiated.")
+        debug_log(message="<-- [3/10] Application instantiated.", **_get_log_args() )
 
-        console_log("--> [4/10] Instantiating ScpiDispatcher...")
-        scpi_dispatcher = ScpiDispatcher(
-            app_instance=app,
-            console_print_func=console_log
-        )
+        debug_log(message="--> [4/10] Instantiating ScpiDispatcher...", **_get_log_args() )
+      # scpi_dispatcher = ScpiDispatcher(
+      #     app_instance=app,
+            
+       #)
         splash.set_status("SCPI Dispatcher initialized.")
-        console_log("<-- [4/10] ScpiDispatcher instantiated.")
+        debug_log(message="<-- [4/10] ScpiDispatcher instantiated.", **_get_log_args() )
 
-        console_log("--> [5/10] Launching managers...")
+        debug_log(message="--> [5/10] Launching managers...", **_get_log_args() )
       #  launch_managers(scpi_dispatcher, app, splash)
-        console_log("<-- [5/10] Managers launched.")
+        debug_log(message="<-- [5/10] Managers launched.", **_get_log_args() )
         
-        console_log("--> [6/10] Launching workers...")
+        debug_log(message="--> [6/10] Launching workers...", **_get_log_args() )
         worker_launcher = WorkerLauncher(
             splash_screen=splash,
-            console_print_func=console_log
+            console_print_func=app.print_to_console,
         )
         worker_launcher.launch_all_workers()
-        console_log("<-- [6/10] Workers launched.")
+        debug_log(message="<-- [6/10] Workers launched.", **_get_log_args() )
 
-        console_log("--> [7/10] Publishing initial dataset...")
+        debug_log(message="--> [7/10] Publishing initial dataset...", **_get_log_args() )
         splash.set_status("Dataset published.")
-        console_log("<-- [7/10] Initial dataset published.")
+        debug_log(message="<-- [7/10] Initial dataset published.", **_get_log_args() )
 
-        console_log("--> [9/10] Hiding splash screen...")
+        debug_log(message="--> [9/10] Hiding splash screen...", **_get_log_args() )
         splash.hide() # Hide splash screen
-        console_log("<-- [9/10] Splash screen hidden.")
+        debug_log(message="<-- [9/10] Splash screen hidden.", **_get_log_args() )
         
-        console_log("--> [10/10] Deiconifying root window...")
+        debug_log(message="--> [10/10] Deiconifying root window...", **_get_log_args() )
         root.deiconify()
         root.update_idletasks()
-        console_log("<-- [10/10] Root window deiconified.")
+        debug_log(message="<-- [10/10] Root window deiconified.", **_get_log_args() )
 
-        console_log("✅ The grand spectacle begins! GUI is now open.")
-        console_log("DEBUG: leaving action_open_display")
+        debug_log(message="✅ The grand spectacle begins! GUI is now open.", **_get_log_args() )
+        debug_log(message="DEBUG: leaving action_open_display", **_get_log_args() )
         return True
 
     except Exception as e:
-        console_log(f"❌ Error in {current_function_name}: {e}")
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"🖥️🔴 Blast and barnacles! The display has failed to materialize! The error be: {e}",
-                file=current_file,
-                version=app_constants.current_version,
-                function=current_function_name,
-                console_print_func=console_log
-            )
-        splash.hide() # Hide splash on error
-        console_log("DEBUG: leaving action_open_display with error")
-        return False
+                debug_log(
+                    message=f"❌ Error in {current_function_name}: {e}",
+                    **_get_log_args()
+                    
+                )
+    splash.hide() # Hide splash on error
+    return False
 
 def main():
     """The main execution function for the application."""
-    console_log("DEBUG: Entering main function.")
+    current_function_name = inspect.currentframe().f_code.co_name
+    debug_log(message="DEBUG: Entering main function.", **_get_log_args() )
 
     # Call path_initializer early to set up DATA_DIR needed for logger
-    console_log("DEBUG: Calling path_initializer.initialize_paths...")
-    global_project_root, data_dir = path_initializer.initialize_paths(console_log)
-    console_log(f"DEBUG: path_initializer.initialize_paths completed. data_dir is: {data_dir}")
+    debug_log(message="DEBUG: Calling path_initializer.initialize_paths...", **_get_log_args() )
+    global_project_root, data_dir = path_initializer.initialize_paths(print)
+    debug_log(message=f"DEBUG: path_initializer.initialize_paths completed. data_dir is: {data_dir}", **_get_log_args() )
 
     # Configure logger
-    console_log("DEBUG: Calling logger_config.configure_logger...")
-    logger_config.configure_logger(data_dir, console_log)
-    console_log("DEBUG: logger_config.configure_logger completed.")
+    debug_log(message="DEBUG: Calling logger_config.configure_logger...", **_get_log_args() )
+    logger_config.configure_logger(data_dir, print)
+    debug_log(message="DEBUG: logger_config.configure_logger completed.", **_get_log_args() )
     
-    console_log("DEBUG: Calling debug_cleaner.clear_debug_directory...")
-    debug_cleaner.clear_debug_directory(data_dir, console_log)
-    console_log("DEBUG: debug_cleaner.clear_debug_directory completed.")
+    debug_log(message="DEBUG: Calling debug_cleaner.clear_debug_directory...", **_get_log_args() )
+    debug_cleaner.clear_debug_directory(data_dir, print)
+    debug_log(message="DEBUG: debug_cleaner.clear_debug_directory completed.", **_get_log_args() )
 
-    console_log("DEBUG: Calling console_encoder.configure_console_encoding...")
-    # Corrected call: Pass console_log and debug_log to configure_console_encoding
-    console_encoder.configure_console_encoding( console_log, debug_log)
-    console_log("DEBUG: console_encoder.configure_console_encoding completed.")
+    debug_log(message="DEBUG: Calling console_encoder.configure_console_encoding...", **_get_log_args() )
+    # Corrected call: Pass print and debug_log to configure_console_encoding
+    console_encoder.configure_console_encoding(print, debug_log)
+    debug_log(message="DEBUG: console_encoder.configure_console_encoding completed.", **_get_log_args() )
 
-    console_log("🚀 Running pre-flight dependency checks...")
-    if not before_main.action_check_dependancies(console_log, debug_log):
-        console_log("❌ Critical dependencies missing. Application will halt.")
+    debug_log(message="🚀 Running pre-flight dependency checks...", **_get_log_args() )
+    if not before_main.action_check_dependancies(print, debug_log):
+        debug_log(message="❌ Critical dependencies missing. Application will halt.", **_get_log_args() )
         sys.exit(1)
-    console_log("✅ Pre-flight dependency checks passed.")
+    debug_log(message="✅ Pre-flight dependency checks passed.", **_get_log_args() )
 
     # Initialize and start splash screen early
-    console_log("DEBUG: Initializing Tk root window...")
+    debug_log(message="DEBUG: Initializing Tk root window...", **_get_log_args() )
     root = tk.Tk()
     root.title("OPEN-AIR 2")
     root.geometry("1600x1200")
     root.withdraw()
-    console_log("DEBUG: Tk root window initialized.")
+    debug_log(message="DEBUG: Tk root window initialized.", **_get_log_args() )
     
 
-    console_log("DEBUG: Initializing SplashScreen...")
-    splash = SplashScreen(root, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE, console_log, debug_log)
+    debug_log(message="DEBUG: Initializing SplashScreen...", **_get_log_args() )
+    splash = SplashScreen(root, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE, print, debug_log)
     splash.set_status("Initializing application...") # Initial status update
-    console_log("DEBUG: SplashScreen initialized.")
+    debug_log(message="DEBUG: SplashScreen initialized.", **_get_log_args() )
     
 
-    console_log("DEBUG: Calling initialize_app...")
+    debug_log(message="DEBUG: Calling initialize_app...", **_get_log_args() )
     # Corrected call: Use imported function directly
-    if initialize_app(console_log, debug_log): # <-- initialize_app is called here directly
-        console_log("DEBUG: initialize_app returned True. Calling action_open_display...")
+    if initialize_app(print, debug_log): # <-- initialize_app is called here directly
+        debug_log(message="DEBUG: initialize_app returned True. Calling action_open_display...", **_get_log_args() )
        
         action_open_display(root, splash)
        
     else:
         splash.set_status("Halting startup due to initialization errors.")
         splash.hide() # Hide splash on error
-        console_log("❌ Halting startup due to initialization errors.")
+        debug_log(message="❌ Halting startup due to initialization errors.", **_get_log_args() )
 
-    console_log("DEBUG: About to enter root.mainloop()...")
+    debug_log(message="DEBUG: About to enter root.mainloop()...", **_get_log_args() )
     
     root.mainloop()
     
-    console_log("DEBUG: root.mainloop() has exited.")  
+    debug_log(message="DEBUG: root.mainloop() has exited.", **_get_log_args() )  
 
 if __name__ == "__main__":
     print("DEBUG: Calling main()...")

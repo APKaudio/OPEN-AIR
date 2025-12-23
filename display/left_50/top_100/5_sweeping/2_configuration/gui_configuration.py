@@ -22,7 +22,7 @@ import pathlib
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -45,34 +45,32 @@ class PresetPusherGui(ttk.Frame):
     """
     A GUI Frame that hosts the DynamicGuiBuilder to generate frequency configuration controls.
     """
-    def __init__(self, parent, config=None, **kwargs):
+    def __init__(self, parent, config, **kwargs):
         """
         Initializes the PresetPusherGui.
-        Explicitly captures 'config' to prevent it from being passed to ttk.Frame.
         """
         # Initialize the superclass (ttk.Frame) with the remaining kwargs
         super().__init__(parent, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
-        self.config_data = config
+        self.config_data = config # Store the config for later use
         
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
              debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
-            )
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                            )
 
         try:
             # Prepare configuration for the builder
             builder_config = {
                 # "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": console_log,
+                "log_to_gui_console": None,
                 "log_to_gui_treeview": None  # Assuming no treeview for this component
             }
             
@@ -85,17 +83,19 @@ class PresetPusherGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=builder_config
             )
-            console_log("✅ The PresetPusherGui did initialize its dynamic GUI builder.")
+            
             
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable:
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
 
     def _on_tab_selected(self, *args, **kwargs):
@@ -105,13 +105,15 @@ class PresetPusherGui(ttk.Frame):
         """
         current_function_name = "_on_tab_selected"
         
-        if app_constants.Local_Debug_Enable:
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🖥️🔵 Tab '{self.__class__.__name__}' activated! Stand back, I'm checking the data flow!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
         # Add logic here if specific refresh actions are needed on tab focus

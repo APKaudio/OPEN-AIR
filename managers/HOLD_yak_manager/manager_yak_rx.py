@@ -7,14 +7,6 @@
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-Current_Date = 20251213  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 44 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -28,17 +20,12 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 import json
 
 
-Local_Debug_Enable = False
-
-
-
-
-
-current_file = f"{os.path.basename(__file__)}"
+LOCAL_DEBUG_ENABLE = False
 
 class YakRxManager:
     """
@@ -53,32 +40,41 @@ class YakRxManager:
         Parses the response and publishes the results to MQTT topics.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🐐🐐🐐📡 The agent reports back! Response from device: '{response}'",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                **_get_log_args()
+
+
             )
 
         outputs = command_details.get("scpi_outputs", {})
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ YakRxManager received a response from the device.",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
-            )
-        if app_constants.Local_Debug_Enable: 
+                **_get_log_args()
+
+
+            )        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ Path Parts: {path_parts}",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                **_get_log_args()
+
+
             )
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                **_get_log_args()
+
+
             )
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"ℹ️ Raw Response: {response}",
-                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                **_get_log_args()
+
+
             )
         
         try:
@@ -90,10 +86,12 @@ class YakRxManager:
             
             # Check if this is the specific command with the known key swap issue
             if path_parts == self.NAB_BANDWIDTH_TRIGGER_PATH and len(output_keys) >= 5:
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"🔍🔵 Detected NAB_bandwidth_settings command with key order issue. Keys before fix: {output_keys}",
-                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                        **_get_log_args()
+
+
                     )
                 
                 # Check the order of the 4th and 5th items in the output_keys list
@@ -134,20 +132,24 @@ class YakRxManager:
                          # SWAP REQUIRED: Swap the 4th and 5th keys in the list to match SCPI order
                         temp_keys[3], temp_keys[4] = temp_keys[4], temp_keys[3]
                         output_keys = temp_keys
-                        if app_constants.Local_Debug_Enable: 
+                        if app_constants.LOCAL_DEBUG_ENABLE: 
                             debug_log(
                                 message=f"🟢️️️🟡 Corrected YAK key swap. Keys after fix: {output_keys}",
-                                file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                                **_get_log_args()
+
+
                             )
                     
             # --- END FIX ---
 
 
             if len(response_parts) != len(output_keys):
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"❌🔴 Mismatched response length after potential correction! Expected {len(output_keys)} parts, but received {len(response_parts)}.",
-                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                        **_get_log_args()
+
+
                     )
                 return
 
@@ -172,18 +174,22 @@ class YakRxManager:
                     value=raw_value,
                     retain=True
                 )
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"💾 Published to '{output_topic}' with value: '{raw_value}'.",
-                        file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                        **_get_log_args()
+
+
                     )
             
-            console_log("✅ Response processed and all output values published to MQTT.")
+            debug_log(message="✅ Response processed and all output values published to MQTT.", **_get_log_args())
 
         except Exception as e:
-            console_log(f"❌ Error processing response: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error processing response: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 The response processing has been shipwrecked! The error be: {e}",
-                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                    **_get_log_args()
+
+
                 )

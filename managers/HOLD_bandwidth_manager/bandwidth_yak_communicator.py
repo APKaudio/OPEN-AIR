@@ -7,14 +7,6 @@
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
 # As the current hour is 20, no change is needed.
 
-Current_Date = 20251213  ##Update on the day the change was made
-Current_Time = 120000  ## update at the time it was edited and compiled
-Current_iteration = 44 ## a running version number - incriments by one each time 
-
-current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-
-
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
 #
@@ -31,13 +23,12 @@ import time
 import json
 import os
 
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+from workers.utils.log_utils import _get_log_args
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 
-Local_Debug_Enable = False
-
-current_file = f"{os.path.basename(__file__)}"
+LOCAL_DEBUG_ENABLE = False
 
 
 
@@ -112,7 +103,7 @@ class BandwidthYakCommunicator:
         ## self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=True, retain=False)
         time.sleep(0.01)
         ## self.mqtt_controller.publish_message(topic=self.YAK_UPDATE_TOPIC, subtopic="", value=False, retain=False)
-        console_log("✅ UPDATE ALL command sent to refresh bandwidth settings from device.")
+        
 
     def process_yak_output(self, topic, payload):
         try:
@@ -150,7 +141,7 @@ class BandwidthYakCommunicator:
                 self.state.sweep_time_value = final_value
                 self._publish_update(topic_suffix=gui_suffix, value=final_value)
         except Exception as e:
-            console_log(f"❌ Error processing YAK output for {topic}: {e}")
+            debug_log(message=f"❌ Error processing YAK output for {topic}: {e}", **_get_log_args())
 
     def _publish_update(self, topic_suffix, value):
         full_topic = f"{self.base_topic}/{topic_suffix}"

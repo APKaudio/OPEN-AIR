@@ -30,7 +30,8 @@ import csv
 import inspect
 import os
 
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
+import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20250824
@@ -40,7 +41,7 @@ REVISION_NUMBER = 1
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{REVISION_NUMBER}"
 current_version_hash = (int(CURRENT_DATE) * CURRENT_TIME_HASH * REVISION_NUMBER)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 
 class CsvExportUtility:
@@ -60,18 +61,18 @@ class CsvExportUtility:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to save data to CSV at '{file_path}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=self._print_to_gui_console
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
         
         try:
             if not data:
-                console_log("❌ No data to export.")
+                debug_log(message="❌ No data to export.")
                 return
 
             # Grab the headers from the first dictionary's keys
@@ -82,15 +83,15 @@ class CsvExportUtility:
                 writer.writeheader()
                 writer.writerows(data)
                 
-            console_log(f"✅ Data successfully exported to {file_path}")
+            debug_log(message=f"✅ Data successfully exported to {file_path}")
             
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=self._print_to_gui_console
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
                 )

@@ -7,7 +7,7 @@ import sys
 import io
 import re
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 class CSVToJSONApp(tk.Tk):
     """

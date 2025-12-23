@@ -23,32 +23,11 @@ import datetime
 import pathlib
 import json # Used for JSON logging if a payload is passed
 import sys
-
-
-# Record the application start time for relative timestamps
-APP_START_TIME = datetime.datetime.now()
-
-
-# --- Global Scope Variables (as per Section 4.4) ---
-current_version = "20251213.000000.1" # Version for this specific logging module
-current_version_hash = (20251213 * 0 * 1)
-current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
-
+import workers.setup.app_constants as app_constants
 
 # --- Configuration Placeholders (To be set by the main application's config manager) ---
 # NOTE: These are temporary global placeholders that a Configuration Manager will eventually set.
-global_settings = {
-    "general_debug_enabled": True, # The main toggle for debug messages
-    "debug_to_terminal": True,     # Output debug to the terminal/IDE console
-    "debug_to_file": True,         # Output debug to the debug log file
-    "log_truncation_enabled": True, # Truncate large numeric payloads
-    "include_console_messages_to_debug_file": True, # Include console_log output in debug file
-    "log_visa_commands_enabled": True, # Log all SCPI commands sent/received
-    "include_visa_messages_to_debug_file": True, # Include VISA logs in the main debug file
-    "debug_to_gui_console": True,  # Output debug to the in-app console
-    "include_timestamp_in_debug": True, # NEW: Include MM.SS timestamp in debug output
-}
+global_settings = app_constants.global_settings
 # Log file paths (relative to the project root for safety)
 FILE_LOG_DIR: pathlib.Path = None # This will be set by the main application
 
@@ -107,13 +86,7 @@ def get_log_filename():
 
 def _safe_print(message: str):
     # Prints to the console/GUI target, avoiding recursion issues if print is hooked.
-    timestamp_prefix = ""
-    if global_settings.get("include_timestamp_in_debug"):
-        elapsed_seconds = (datetime.datetime.now() - APP_START_TIME).total_seconds()
-        minutes = int(elapsed_seconds // 60)
-        seconds = int(elapsed_seconds % 60)
-        milliseconds = int((elapsed_seconds - int(elapsed_seconds)) * 1000)
-        timestamp_prefix = f"{minutes:02d}.{seconds:02d}.{milliseconds:03d} "
+    timestamp_prefix = "" # No timestamp prefix as per user's request.
 
     if 'GUI_CONSOLE_PRINT_FUNC' in globals() and callable(GUI_CONSOLE_PRINT_FUNC):
         GUI_CONSOLE_PRINT_FUNC(f"{timestamp_prefix}{message}")
@@ -152,24 +125,9 @@ def _truncate_message(message: str) -> str:
 # PUBLIC LOGGING API (Called by other modules)
 # =========================================================================
 
-def console_log(message: str, local_debug_enabled: bool = None):
-    # Logs a user-facing message to the console and conditionally to the debug file.
-    if local_debug_enabled is None:
-        local_debug_enabled = global_settings.get("general_debug_enabled", False)
 
-    if local_debug_enabled:
-        # 1. Log to console output
-        if global_settings["debug_to_terminal"]:
-            _safe_print(message)
-            
-        # 2. Log to main debug file
-        if global_settings["debug_to_file"] and global_settings["include_console_messages_to_debug_file"]:
-            _log_to_file(f"🖥️ {message}", get_log_filename())
 
-    # 3. Log to errors file if it contains the marker (always, regardless of debug flag)
-    _log_to_error_file(message)
-
-def debug_log(message: str, file: str, version: str, function: str, console_print_func):
+def debug_log(message: str, file: str = "N/A", version: str = "N/A", function: str = "N/A", console_print_func=None):
     # Logs a detailed debug message to the specified outputs.
     if not global_settings.get("general_debug_enabled", False):
         return
@@ -178,19 +136,20 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
     truncated_message = _truncate_message(message)
     
     # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
-    timestamp_prefix = ""
-    if global_settings.get("include_timestamp_in_debug"):
-        elapsed_seconds = (datetime.datetime.now() - APP_START_TIME).total_seconds()
-        minutes = int(elapsed_seconds // 60)
-        seconds = int(elapsed_seconds % 60)
-        milliseconds = int((elapsed_seconds - int(elapsed_seconds)) * 1000)
-        timestamp_prefix = f"{minutes:02d}.{seconds:02d}.{milliseconds:03d} "
+    timestamp_prefix = "" # No timestamp prefix as per user's request.
     
     log_entry = f"{timestamp_prefix}{truncated_message} | {file} | {version} Function: {function}"
 
     # 1. Log to console output
     if global_settings["debug_to_terminal"]:
-        console_print_func(log_entry)
+        if console_print_func and callable(console_print_func):
+            console_print_func(log_entry)
+        else:
+            # Fallback to GUI_CONSOLE_PRINT_FUNC or standard print
+            if 'GUI_CONSOLE_PRINT_FUNC' in globals() and callable(GUI_CONSOLE_PRINT_FUNC):
+                GUI_CONSOLE_PRINT_FUNC(log_entry)
+            else:
+                print(log_entry)
 
     # 2. Log to main debug file
     if global_settings["debug_to_file"]:
@@ -201,25 +160,4 @@ def debug_log(message: str, file: str, version: str, function: str, console_prin
 
 
 # PUBLIC API: Implemented as per the user's explicit request.
-def log_visa_command(command: str, direction: str):
-    # Logs SCPI commands sent to and responses received from the instrument.
-    if not global_settings["log_visa_commands_enabled"]:
-        return
-        
-    direction_emoji = "➡️" if direction == "SENT" else "⬅️"
-    
-    # Truncate command, primarily for large query responses
-    truncated_command = _truncate_message(command)
-    
-    # The log entry format for the visa file is simple
-    log_entry = f"🐐 {direction_emoji} {direction}: {truncated_command}"
 
-    # 1. Log to VISA-specific file
-    _log_to_file(log_entry, VISA_LOG_FILENAME)
-
-    # 2. Conditionally log to main debug file
-    if global_settings["include_visa_messages_to_debug_file"]:
-        _log_to_file(f"🐐 {log_entry}", get_log_filename())
-        
-    # 3. Log to errors file if it contains the marker
-    _log_to_error_file(log_entry)

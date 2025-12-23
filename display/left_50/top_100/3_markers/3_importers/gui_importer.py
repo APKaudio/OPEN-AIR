@@ -32,7 +32,7 @@ except ImportError:
     PANDAS_AVAILABLE = False
 
 # --- Module Imports ---
-from workers.logger.logger import  debug_log, console_log
+from workers.logger.logger import  debug_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file
 )
@@ -61,13 +61,6 @@ class MarkerImporterTab(ttk.Frame):
     """
     def __init__(self, master=None, app_instance=None, **kwargs):
         current_function = inspect.currentframe().f_code.co_name
-        debug_log(
-            message="🟢️️️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
-            file=current_file,
-            version=current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
-        )
         if 'config' in kwargs:
             kwargs.pop('config')
         super().__init__(master, **kwargs)
@@ -80,11 +73,25 @@ class MarkerImporterTab(ttk.Frame):
         self.current_file = current_file
         self.current_version = current_version
 
+        debug_log(
+            message="🟢️️️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
+            file=self.current_file,
+            version=self.current_version,
+            function=f"{self.__class__.__name__}.{current_function}",
+            
+        )
+
         self._apply_styles(theme_name=DEFAULT_THEME)
         self._create_widgets()
 
         if not PANDAS_AVAILABLE:
-            console_log("❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.", local_debug_enabled=Local_Debug_Enable)
+            debug_log(
+                message="❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.",
+                file=self.current_file,
+                version=self.current_version,
+                function=f"{self.__class__.__name__}.{current_function}",
+                
+            )
             # Optionally, disable the whole tab or show an error message
             error_label = ttk.Label(self, text="🔴 ERROR: NumPy and Pandas libraries are required for this tab.", foreground="red")
             error_label.pack(pady=20)
@@ -96,10 +103,10 @@ class MarkerImporterTab(ttk.Frame):
 
         debug_log(
             message="🟢️️️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
-            file=current_file,
-            version=current_version,
+            file=self.current_file,
+            version=self.current_version,
             function=f"{self.__class__.__name__}.{current_function}",
-            console_print_func=console_log
+            
         )
 
     def _apply_styles(self, theme_name: str):
@@ -252,7 +259,7 @@ class MarkerImporterTab(ttk.Frame):
             file=self.current_file,
             version=self.current_version,
             function=f"{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}",
-            console_print_func=console_log
+            
         )
         for col in standardized_headers:
             self.marker_tree.heading(col, text=col, command=lambda c=col: on_tree_header_click(self, None))

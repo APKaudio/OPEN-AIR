@@ -34,7 +34,7 @@ import inspect
 from decimal import Decimal
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -54,18 +54,19 @@ class GuiListboxCreatorMixin:
         # Creates a listbox menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a listbox for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to materialize a listbox for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(side=tk.LEFT, fill=tk.Y, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             label_widget = ttk.Label(sub_frame, text=label)
             label_widget.pack(anchor='w', padx=DEFAULT_PAD_X, pady=2)
@@ -132,41 +133,46 @@ class GuiListboxCreatorMixin:
                         
                         self._last_selected_option_listbox = selected_key
 
-                    if app_constants.Local_Debug_Enable: 
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
                         debug_log(
                             message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
                             file=current_file,
                             version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
+                            function=f"{self.__class__.__name__}.{current_function_name}"
+                            
+
+
                         )
                 except (ValueError, StopIteration):
-                    console_log("❌ Invalid selection in listbox.")
+                    debug_log(message="❌ Invalid selection in listbox.")
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
             if path:
                 self.topic_widgets[path] = (listbox, rebuild_options_for_listbox, options_map)
 
-            console_log("✅ The listbox menu did appear.")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Listbox '{label}' created.",
+                    message=f"✅ SUCCESS! The listbox '{label}' has been successfully generated!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The listbox creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The listbox for '{label}' has vanished into a different dimension! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

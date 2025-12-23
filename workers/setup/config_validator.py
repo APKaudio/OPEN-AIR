@@ -4,35 +4,35 @@ import inspect
 import workers.setup.app_constants as app_constants
 
 
-def validate_configuration(console_log_func, debug_log_func, local_debug_enable, current_version, current_file):
+def validate_configuration(print, debug_log_func, current_version, current_file):
     # Validates the application's configuration files.
     current_function_name = inspect.currentframe().f_code.co_name
 
 
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log_func(
             message=f"🖥️🟢 Ahem, commencing the configuration validation experiment in '{current_function_name}'.",
             file=current_file,
             version=current_version,
-            function=current_function_name,
-            console_print_func=console_log_func
-        )
+            function=current_function_name
+            
+ )
 
    
     try:
 
         # Placeholder for configuration validation
-        console_log_func("✅ Excellent! The configuration is quite, quite brilliant.")
+        print("✅ Excellent! The configuration is quite, quite brilliant.")
         return True
 
     except Exception as e:
-        console_log_func(f"❌ Error in {current_function_name}: {e}")
-        if app_constants.Local_Debug_Enable: 
+        print(f"❌ Error in {current_function_name}: {e}")
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log_func(
                 message=f"🖥️🔴 By Jove! The configuration is in shambles! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=current_function_name,
-                console_print_func=console_log_func
+                function=current_function_name
+                
             )
         return False

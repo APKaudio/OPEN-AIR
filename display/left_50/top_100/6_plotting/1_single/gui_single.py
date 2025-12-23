@@ -34,7 +34,7 @@ from tkinter import ttk
 
 # --- Module Imports ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import pathlib
 
 # --- Global Scope Variables ---
@@ -49,27 +49,27 @@ class PresetPusherGui(ttk.Frame):
     """
     A container frame that instantiates the DynamicGuiBuilder for the Frequency configuration.
     """
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, config, **kwargs):
         """
         Initializes the Frequency frame and the dynamic GUI builder.
         """
-        config_data = kwargs.pop('config', None)
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent, **kwargs)
         self.pack(fill=tk.BOTH, expand=True)
 
+        self.config_data = config
+        
         # --- Dynamic GUI Builder ---
         current_function_name = "__init__"
         debug_log(
             message=f"🟢️️️🟢 ➡️➡️ {current_function_name} to initialize the PresetPusherGui.",
             file=current_file,
             version=current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
         )
         try:
             config = {
                 ## "base_topic": MQTT_TOPIC_FILTER,
-                "log_to_gui_console": console_log,
+                "log_to_gui_console": print, 
                 "log_to_gui_treeview": None  # Assuming no treeview for this component
             }
 
@@ -78,13 +78,22 @@ class PresetPusherGui(ttk.Frame):
                 json_path=JSON_CONFIG_FILE,
                 config=config
             )
-            console_log("✅ The PresetPusherGui did initialize its dynamic GUI builder.")
+            debug_log(
+                message="✅ The PresetPusherGui did initialize its dynamic GUI builder.",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+            )
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name}: {e}")
+            debug_log(
+                message=f"❌ Error in {current_function_name}: {e}",
+                file=current_file,
+                version=current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+            )
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
             )

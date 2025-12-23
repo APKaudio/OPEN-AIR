@@ -25,7 +25,7 @@ Current_iteration = 44
 current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 class BandwidthState:
     """Holds the state for bandwidth-related settings."""

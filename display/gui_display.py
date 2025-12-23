@@ -34,7 +34,7 @@ from display.utils.module_loader import ModuleLoader
 from display.utils.layout_parser import LayoutParser
 
 # Import logger and styling utilities
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
@@ -46,10 +46,10 @@ current_version = "20251222.003501.1"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 current_file = f"{os.path.basename(__file__)}"
 
-Local_Debug_Enable = False
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 class Application(ttk.Frame):
     """
@@ -63,13 +63,15 @@ class Application(ttk.Frame):
         super().__init__(parent)
         self.app_constants = app_constants
 
-        if self.app_constants.Local_Debug_Enable:
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( 
                 message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         # Initialize utility classes
         # The theme colors are needed by ModuleLoader and WindowManager for certain operations.
@@ -77,12 +79,12 @@ class Application(ttk.Frame):
         self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
         
         # WindowManager likely needs 'self' to manipulate the window
-        self.window_manager = WindowManager(self, self.app_constants.current_version, self.app_constants.Local_Debug_Enable, console_log, debug_log)
+        self.window_manager = WindowManager(self, self.app_constants.current_version, self.app_constants.LOCAL_DEBUG_ENABLE, debug_log)
         
         # FIX: LayoutParser is stateless and does not accept 'self' (the Application instance)
-        self.layout_parser = LayoutParser(self.app_constants.current_version, self.app_constants.Local_Debug_Enable, console_log, debug_log)
+        self.layout_parser = LayoutParser(self.app_constants.current_version, self.app_constants.LOCAL_DEBUG_ENABLE, debug_log)
         
-        self.module_loader = ModuleLoader(self.app_constants.current_version, self.app_constants.Local_Debug_Enable, console_log, debug_log, self.theme_colors)
+        self.module_loader = ModuleLoader(self.app_constants.current_version, self.app_constants.LOCAL_DEBUG_ENABLE, debug_log, self.theme_colors)
 
         # Initialize storage for notebooks and frames
         self._notebooks = {}
@@ -90,25 +92,29 @@ class Application(ttk.Frame):
         self.last_selected_tab_name = None
 
         try:
-            if self.app_constants.Local_Debug_Enable:
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log( # Using imported logger function
                     message=f"🔍🔵Applied theme: {DEFAULT_THEME}.",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             
             # Start the GUI build process using the root directory of the current file.
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
-            if self.app_constants.Local_Debug_Enable:
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log( # Using imported logger function
                     message="🔍🔵 Finished building GUI from directory structure.",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             
             # After the GUI is built, ensure initial tab selection is processed
@@ -116,14 +122,22 @@ class Application(ttk.Frame):
             self.after_idle(self._trigger_initial_tab_selection)
 
         except Exception as e:
-            console_log(f"❌ Critical Error during application initialization: {e}")
-            if self.app_constants.Local_Debug_Enable:
+            debug_log(
+                message=f"❌ Critical Error during application initialization: {e}",
+                file=os.path.basename(__file__),
+                version=self.app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+            )
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log( # Using imported logger function
                     message=f"❌🔴 Arrr, the code be capsized! Critical error during init: {e}",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
 
     def _trigger_initial_tab_selection(self):
@@ -133,59 +147,101 @@ class Application(ttk.Frame):
         <<NotebookTabChanged>> event doesn't fire on startup.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if self.app_constants.Local_Debug_Enable:
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( # Using imported logger function
                 message="🔍🔵 Triggering initial tab selection for all notebooks.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
         notebooks_to_process = list(self._notebooks.items()) # Process notebooks iteratively
-        console_log(f"📍🐛Found {len(notebooks_to_process)} notebooks to process for initial tab selection.") # Added log
+        debug_log(
+            message=f"📍🐛Found {len(notebooks_to_process)} notebooks to process for initial tab selection.",
+            file=os.path.basename(__file__),
+            version=self.app_constants.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+        )
         for notebook_path, notebook_widget in notebooks_to_process:
-            console_log(f"📍🐛Processing notebook for path: {notebook_path}") # Added log
+            debug_log(
+                message=f"📍🐛Processing notebook for path: {notebook_path}",
+                file=os.path.basename(__file__),
+                version=self.app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+            )
             try:
                 # Create a dummy event object for consistency, mimicking Tkinter's event structure.
                 # The event.widget property is particularly important for _on_tab_change.
                 dummy_event = type('Event', (object,), {'widget': notebook_widget})()
                 
-                console_log(f"📍🐛Calling _on_tab_change for notebook {notebook_path}") # Added log
+                debug_log(
+                    message=f"📍🐛Calling _on_tab_change for notebook {notebook_path}",
+                    file=os.path.basename(__file__),
+                    version=self.app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+                )
                 self._on_tab_change(dummy_event) # Call _on_tab_change
-                console_log(f"📍🐛_on_tab_change returned for notebook {notebook_path}") # Added log
+                debug_log(
+                    message=f"📍🐛_on_tab_change returned for notebook {notebook_path}",
+                    file=os.path.basename(__file__),
+                    version=self.app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+                )
 
-                if self.app_constants.Local_Debug_Enable:
+                if self.app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log( # Using imported logger function
                         message=f"✅ Triggered initial tab selection for notebook at {notebook_path}.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
             except Exception as e:
-                console_log(f"❌ Error triggering initial tab selection for notebook {notebook_path}: {e}")
-                if self.app_constants.Local_Debug_Enable:
+                debug_log(
+                    message=f"❌ Error triggering initial tab selection for notebook {notebook_path}: {e}",
+                    file=os.path.basename(__file__),
+                    version=self.app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+                )
+                if self.app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log( # Using imported logger function
                         message=f"❌🔴 Error triggering initial tab selection: {e}",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
                     )
-        console_log("✅ All initial tab selections triggered.") # Added log
+        debug_log(
+            message="✅ All initial tab selections triggered.",
+            file=os.path.basename(__file__),
+            version=self.app_constants.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+        )
 
 
     def _apply_styles(self, theme_name: str):
         """Applies the specified theme to the entire application using ttk.Style."""
         current_function_name = inspect.currentframe().f_code.co_name
-        if self.app_constants.Local_Debug_Enable:
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( # Using imported logger function
                 message=f"🔍🔵 Applying styles for theme: {theme_name}.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
         colors = THEMES.get(theme_name, THEMES["dark"]) # Default to dark theme if not found
@@ -218,22 +274,26 @@ class Application(ttk.Frame):
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
 
-        if self.app_constants.Local_Debug_Enable:
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( # Using imported logger function
                 message=f"🔍🔵 Styles applied. Root window background set to {colors['bg']}.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
-        if self.app_constants.Local_Debug_Enable:
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( # Using imported logger function
                 message=f"🔍🔵 Exiting _apply_styles. Theme: {theme_name} applied.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         return colors
 
@@ -249,8 +309,8 @@ class Application(ttk.Frame):
             message=f"▶️ _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
             file=os.path.basename(__file__),
             version=self.app_constants.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"           
+
         )
 
         # Use the LayoutParser to understand the directory's intended structure
@@ -259,14 +319,12 @@ class Application(ttk.Frame):
         layout_data = layout_info['data']
 
         if layout_type == 'error':
-            self.console_log(f"❌ Layout Error in {path}: {layout_data.get('error_message', 'Unknown error')}")
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
             debug_log(
                 message=f"Layout parsing error for {path}: {layout_data.get('error_message')}",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
             return # Stop processing this path if there's a layout error
 
@@ -297,8 +355,10 @@ class Application(ttk.Frame):
                         message=f"✅🔨 {layout_type} pane for '{panel_info['name']}' with weight {weight}.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                     
                     # Recursively build the content of this panel
@@ -328,8 +388,10 @@ class Application(ttk.Frame):
                     message=f"✅🔨 ttk.Notebook for path '{path}'. Bound tear-off and tab change events.",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
                 
                 for tab_info in layout_data['tabs']:
@@ -352,8 +414,10 @@ class Application(ttk.Frame):
                         message=f"📑📑'{display_name}' to notebook.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                     
                     # Recursively build the content of this tab frame
@@ -365,8 +429,10 @@ class Application(ttk.Frame):
                     message=f"Handling 'monitors' layout for path: '{path}'.",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
                 # Configure the parent widget to allow grid expansion for the monitor frames
                 parent_widget.grid_rowconfigure(0, weight=1)
@@ -385,15 +451,21 @@ class Application(ttk.Frame):
                         # Grid the instance as done in the original code
                         frame_instance.grid(row=i, column=0, sticky="nsew")
                         # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                        debug_log( 
+                        debug_log(
                             message=f"Instantiated and gridded '{frame_instance.__class__.__name__}' from '{gui_file_path.name}'.",
                             file=os.path.basename(__file__),
                             version=self.app_constants.current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
+                            function=f"{self.__class__.__name__}.{current_function_name}"
+                            
                         )
                     else:
-                        self.console_log(f"❌ Failed to instantiate GUI from {gui_file_path.name}.")
+                        debug_log(
+                            message=f"❌ Failed to instantiate GUI from {gui_file_path.name}.",
+                            file=os.path.basename(__file__),
+                            version=self.app_constants.current_version,
+                            function=f"{self.__class__.__name__}.{current_function_name}"
+                            
+                        )
 
             elif layout_type == 'recursive_build':
                 # Handle 'child_' directories: these are treated as modules to load from.
@@ -403,8 +475,10 @@ class Application(ttk.Frame):
                         message=f"Building child container directory: '{child_dir_path.name}'.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                     self.module_loader.load_and_instantiate_gui(
                         path=child_dir_path, 
@@ -418,8 +492,10 @@ class Application(ttk.Frame):
                         message=f"🟢️🧱🪟💾: '{gui_file_path.name}'.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                     instance = self.module_loader.load_and_instantiate_gui(
                         path=gui_file_path, 
@@ -434,8 +510,10 @@ class Application(ttk.Frame):
                     message=f"No specific layout type matched for '{path}'. Attempting general recursive build.",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
                 # This part might be redundant if 'recursive_build' covers all cases but is kept as a safety net.
                 
@@ -459,23 +537,39 @@ class Application(ttk.Frame):
                 message=f"⏹️_build_from_directory for path: '{path}'.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         except Exception as e:
-            console_log(f"❌ Critical Error in _build_from_directory for {path}: {e}")
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
-            debug_log( 
-                message=f"Critical Error during _build_from_directory: {e}",
+            debug_log(
+                message=f"❌ Critical Error in _build_from_directory for {path}: {e}",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )
 
 
+
+    def print_to_console(self, message: str):
+        """
+        Placeholder method to print messages to a GUI console.
+        For now, it logs the message using debug_log.
+        """
+        current_function_name = inspect.currentframe().f_code.co_name
+        debug_log(
+            message=f"Console Output: {message}",
+            file=os.path.basename(__file__),
+            version=self.app_constants.current_version,
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
+        )
+
     def _on_tab_change(self, event):
+        import workers.setup.app_constants as app_constants # Temporary import for debugging
         """Logs a debug message when a tab is selected or deselected and triggers tab-specific actions."""
         current_function_name = inspect.currentframe().f_code.co_name
         # Corrected call: Replaced self._log_debug with the imported debug_log function.
@@ -483,8 +577,8 @@ class Application(ttk.Frame):
             message=f"▶️ '{current_function_name}' to log a tab change.",
             file=os.path.basename(__file__),
             version=self.app_constants.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}",
-            console_print_func=console_log
+            function=f"{self.__class__.__name__}.{current_function_name}"
+            
         )
         
         try:
@@ -499,8 +593,10 @@ class Application(ttk.Frame):
                     message=f"📘🟡 Tab '{self.last_selected_tab_name}' deselected!",
                     file=os.path.basename(__file__),
                     version=self.app_constants.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
 
             # Corrected call: Replaced self._log_debug with the imported debug_log function.
@@ -508,8 +604,10 @@ class Application(ttk.Frame):
                 message=f"📘🟢 Tab '{newly_selected_tab_name}' selected!",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
             
             self.last_selected_tab_name = newly_selected_tab_name
@@ -523,42 +621,45 @@ class Application(ttk.Frame):
                 content_widget = selected_tab_frame.winfo_children()[0]
                 # Check if the content widget has a method to handle tab selection and call it.
                 if hasattr(content_widget, '_on_tab_selected') and callable(getattr(content_widget, '_on_tab_selected')):
-                    console_log(f"--> Calling _on_tab_selected for {content_widget.__class__.__name__}...")
-                    # Corrected call: Replaced self._log_debug with the imported debug_log function.
+                    
                     debug_log( 
                         message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.",
                         file=os.path.basename(__file__),
                         version=self.app_constants.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
                     content_widget._on_tab_selected(event) # Pass the event object
-                    console_log(f"<-- Called _on_tab_selected for {content_widget.__class__.__name__}.")
+                   
             
             # Corrected call: Replaced self._log_debug with the imported debug_log function.
             debug_log( 
                 message=f"Tab change logged successfully. New tab: '{newly_selected_tab_name}'.",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
             # Corrected call: Replaced self._log_debug with the imported debug_log function.
             debug_log( 
                 message=f"⏹️_on_tab_change().",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         except Exception as e:
-            console_log(f"❌ Error in _on_tab_change: {e}")
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
-            debug_log( 
-                message=f"Critical Error during _on_tab_change: {e}",
+            debug_log(
+                message=f"❌ Error in _on_tab_change: {e}",
                 file=os.path.basename(__file__),
                 version=self.app_constants.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
             )

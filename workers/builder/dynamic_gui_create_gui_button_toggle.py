@@ -30,13 +30,13 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import os
 import tkinter as tk
 from tkinter import ttk
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import inspect
 import json
 import workers.setup.app_constants as app_constants
 
-# The wrapper functions debug_log and console_log_switch are removed
-# as the core debug_log and console_log now directly handle Local_Debug_Enable.
+# The wrapper functions debug_log and _switch are removed
+# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
 
 
 # --- Global Scope Variables ---
@@ -49,16 +49,20 @@ class GuiButtonToggleCreatorMixin:
         # Creates a single button that toggles between two states (e.g., ON/OFF).
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 '{current_function_name}' to conjure a button widget for '{label}' on path '{path}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to engineer a toggle button for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
+            sub_frame = ttk.Frame(parent_frame)
+            
             options_map = config.get('options', {})
             on_config = options_map.get('ON', {})
             off_config = options_map.get('OFF', {})
@@ -69,7 +73,7 @@ class GuiButtonToggleCreatorMixin:
             
             state_var = tk.BooleanVar(value=is_on)
             
-            button = ttk.Button(parent_frame, text=on_text if is_on else off_text)
+            button = ttk.Button(sub_frame, text=on_text if is_on else off_text)
             button.pack(side=tk.LEFT, padx=5, pady=2)
 
             def update_button_state():
@@ -94,13 +98,15 @@ class GuiButtonToggleCreatorMixin:
                 on_path = f"{path}{TOPIC_DELIMITER}options{TOPIC_DELIMITER}ON{TOPIC_DELIMITER}selected"
                 self._transmit_command(relative_topic=on_path, payload=str(new_state).lower())
                 
-                if app_constants.Local_Debug_Enable: 
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"GUI ACTION: Publishing state change for '{label}' with new state '{new_state}'.",
                         file=current_file,
                         version=current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}",
-                        console_print_func=console_log
+                        function=f"{self.__class__.__name__}.{current_function_name}"
+                        
+
+
                     )
 
             button.config(command=toggle_state_and_publish)
@@ -108,25 +114,28 @@ class GuiButtonToggleCreatorMixin:
             
             self.topic_widgets[path] = (state_var, update_button_state)
 
-            console_log("✅ the " + label + " did toggle its function with robust, new logic!")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🟢 Exiting '{current_function_name}'. Toggle button '{label}' created.",
+                    message=f"✅ SUCCESS! The toggle button '{label}' is alive!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
-            return button
+            return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The toggle button creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The toggle button for '{label}' went into a paradoxical state! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None

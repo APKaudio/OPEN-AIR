@@ -4,18 +4,25 @@ import tkinter as tk
 from tkinter import ttk
 import webbrowser
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class WebLinkCreatorMixin:
     def _create_web_link(self, parent_frame, label, config, path):
         """Creates a web link widget."""
         current_function_name = "_create_web_link"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating web link for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to open a portal (web link) for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(fill=tk.X, padx=10, pady=5)
 
         try:
             url = config.get("url", "#")
@@ -29,19 +36,42 @@ class WebLinkCreatorMixin:
             
             def _open_url(event):
                 try:
-                    if app_constants.Local_Debug_Enable:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
                         debug_log(message=f"Opening URL: {url}", file=os.path.basename(__file__), function="_open_url")
                     webbrowser.open_new(url)
                 except Exception as e:
-                    console_log(f"🔴 ERROR opening URL: {e}")
-                    if app_constants.Local_Debug_Enable:
-                        debug_log(message=f"🔴 ERROR opening URL: {e}", file=os.path.basename(__file__), function="_open_url", console_print_func=console_log)
+                    debug_log(message=f"🔴 ERROR opening URL: {e}")
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"🔴 ERROR opening URL: {e}", file=os.path.basename(__file__), function="_open_url", 
+
+)
 
 
             link_label.bind("<Button-1>", _open_url)
 
             self.topic_widgets[path] = {"widget": link_label}
+
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"✅ SUCCESS! The portal to '{label}' has been opened!",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
+                )
+            return frame
         except Exception as e:
-            console_log(f"🔴 ERROR creating web link: {e}")
-            if app_constants.Local_Debug_Enable:
-                debug_log(message=f"🔴 ERROR creating web link: {e}", file=os.path.basename(__file__), function=current_function_name, console_print_func=console_log)
+            debug_log(message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"💥 KABOOM! The web link for '{label}' has collapsed into a singularity! Error: {e}",
+                    file=os.path.basename(__file__),
+                    version=app_constants.current_version,
+                    function=current_function_name
+                    
+
+
+                )
+            return None

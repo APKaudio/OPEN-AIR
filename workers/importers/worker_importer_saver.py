@@ -25,7 +25,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 # Feature Requests can be emailed to i @ like . audio
 #
 
-from workers.logger.logger import  console_log
+from workers.logger.logger import debug_log  
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_save_intermediate_file,
     maker_file_save_open_air_file

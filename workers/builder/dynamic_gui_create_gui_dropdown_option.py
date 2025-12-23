@@ -34,7 +34,7 @@ import inspect
 from decimal import Decimal
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 
 # --- Global Scope Variables ---
@@ -53,18 +53,19 @@ class GuiDropdownOptionCreatorMixin:
         # Creates a dropdown menu for multiple choice options.
         current_function_name = inspect.currentframe().f_code.co_name
 
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to create a dropdown for '{label}'.",
+                message=f"🔬⚡️ Entering '{current_function_name}' to devise a dropdown selector for '{label}'.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
         try:
             sub_frame = ttk.Frame(parent_frame)
-            sub_frame.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
 
             # Label
             label_widget = ttk.Label(sub_frame, text=f"{label}:")
@@ -122,17 +123,19 @@ class GuiDropdownOptionCreatorMixin:
                         self._last_selected_option = selected_key
                         selected_value_var.set(selected_value) # Update the value var
 
-                    if app_constants.Local_Debug_Enable: 
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
                         debug_log(
                             message=f"GUI ACTION: Publishing to '{new_path}' with value 'true'",
                             file=current_file,
                             version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}",
-                            console_print_func=console_log
+                            function=f"{self.__class__.__name__}.{current_function_name}"
+                            
+
+
                         )
 
                 except ValueError:
-                    console_log("❌ Invalid selection in dropdown.")
+                    debug_log(message="❌ Invalid selection in dropdown.")
 
             # Set the listbox foreground color to black.
             parent_frame.option_add('*TCombobox*Listbox.foreground', 'black')
@@ -150,30 +153,31 @@ class GuiDropdownOptionCreatorMixin:
             dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
             if path:
-                # Store the widget info in a way that includes the current selection for tracking
-                # FIX: Storing the rebuild_options method in the tuple
                 self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
 
-            console_log("✅ The dropdown menu did appear.")
-            if app_constants.Local_Debug_Enable: 
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🟢⬅️ '{current_function_name}'. Dropdown '{label}' created.",
+                    message=f"✅ SUCCESS! The dropdown '{label}' is ready for selections!",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return sub_frame
 
         except Exception as e:
-            console_log(f"❌ Error in {current_function_name} for '{label}': {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error in {current_function_name} for '{label}': {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"🟢️️️🔴 Arrr, the code be capsized! The dropdown creation has failed! The error be: {e}",
+                    message=f"💥 KABOOM! The dropdown for '{label}' has fallen into the abyss! Error: {e}",
                     file=current_file,
                     version=current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}",
-                    console_print_func=console_log
+                    function=f"{self.__class__.__name__}.{current_function_name}"
+                    
+
+
                 )
             return None
 
@@ -182,13 +186,15 @@ class GuiDropdownOptionCreatorMixin:
         NEW: Rebuilds the option list for a dropdown based on a new configuration.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to rebuild options for dropdown.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         options_map = config.get('options', {})
 
@@ -208,11 +214,13 @@ class GuiDropdownOptionCreatorMixin:
         if current_selection not in option_labels and option_labels:
             dropdown.set(option_labels[0])
             self._last_selected_option = next((key for key, opt in active_options.items() if opt.get('label_active', key) == option_labels[0]), None)
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢⬅️ '{current_function_name}'. Options rebuilt for dropdown.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )

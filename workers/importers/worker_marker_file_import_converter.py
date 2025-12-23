@@ -42,16 +42,17 @@ import numpy as np
 import zipfile
 import io
 # Removed the unnecessary import: from tkinter import filedialog
+import workers.setup.app_constants as app_constants
 
 current_file = os.path.basename(__file__) # Get current file name for debug_log
 current_version = "20250815.200000.3"
 current_version_hash = (20250815 * 200000 * 3)
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 headers = ["ZONE", "GROUP", "DEVICE", "NAME", "FREQ_MHZ", "PEAK"] # NEW: Added Peak header
 
 # Updated imports for new logging functions
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 
 
 def Marker_convert_IAShtml_report_to_csv(html_content):
@@ -76,12 +77,14 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__) # Get current file name for debug_log
 
-    if app_constants.Local_Debug_Enable: 
-        debug_log("Starting HTML report conversion.", 
-                file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    if app_constants.LOCAL_DEBUG_ENABLE: 
+        debug_log(message="Starting HTML report conversion.", 
+                file=current_file, version=current_version, function=current_function, 
+
+)
 
     soup = BeautifulSoup(html_content, 'html.parser')
-    
+    import workers.setup.app_constants as app_constants
 
     
     data_rows = []
@@ -94,8 +97,10 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
     if first_zone_p:
         main_content_container = first_zone_p.find_parent('span')
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"Found main content container based on first zone paragraph.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"Found main content container based on first zone paragraph.",  file=current_file, version=current_version, function=current_function, 
+
+)
     
     if not main_content_container:
         main_table = soup.find('table', class_='MainTable')
@@ -110,13 +115,17 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                     else:
                         main_content_container = second_tr_td
                     
-                    if app_constants.Local_Debug_Enable: 
-                        debug_log(f"Found main content container based on MainTable structure.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                        debug_log(message=f"Found main content container based on MainTable structure.",  file=current_file, version=current_version, function=current_function, 
+
+)
     
     if not main_content_container:
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log("Warning: Could not find the main content container. No data will be extracted.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message="Warning: Could not find the main content container. No data will be extracted.",  file=current_file, version=current_version, function=current_function, 
+
+)
         return headers, data_rows
 
     current_zone_type = ""
@@ -129,8 +138,10 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
             if zone_text.startswith("Zone:"):
                 current_zone_type = zone_text.replace("Zone:", "").strip()
         
-                if app_constants.Local_Debug_Enable: 
-                    debug_log(f"Processing Zone: {current_zone_type}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                if app_constants.LOCAL_DEBUG_ENABLE: 
+                    debug_log(message=f"Processing Zone: {current_zone_type}",  file=current_file, version=current_version, function=current_function, 
+
+)
         
         elif element.name == 'table' and 'Assignment' in element.get('class', []):
             table = element
@@ -138,13 +149,17 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
             device_name_tag = table.find('th')
             current_group_name = device_name_tag.get_text(strip=True) if device_name_tag else ""
         
-            if app_constants.Local_Debug_Enable: 
-                debug_log(f"Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(message=f"Processing Group: {current_group_name}",  file=current_file, version=current_version, function=current_function, 
+
+)
 
             rows_in_table = table.find_all('tr')[1:] # Skip the first row as it contains the <th> (device_name)
       
-            if app_constants.Local_Debug_Enable: 
-                debug_log(f"Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(message=f"Found {len(rows_in_table)} rows in current table.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
             for row in rows_in_table:
                 data_spans = row.find_all('span')
@@ -175,18 +190,24 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                         freq_MHz = value * 1000 # GHz to MHz
                                     elif unit == 'khz':
                                         freq_MHz = value / 1000 # kHz to MHz
-                                    if app_constants.Local_Debug_Enable: 
-                                        debug_log(f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                                        debug_log(message=f"HTML Freq conversion: '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                                 else:
                                     # Fallback if regex doesn't match, assume MHz
                                     freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
-                                    if app_constants.Local_Debug_Enable: 
-                                        debug_log(f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                                        debug_log(message=f"HTML Freq conversion (fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                             except ValueError:
     
-                                if app_constants.Local_Debug_Enable: 
-                                    debug_log(f"HTML Freq conversion error: '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                                if app_constants.LOCAL_DEBUG_ENABLE: 
+                                    debug_log(message=f"HTML Freq conversion error: '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
+
+)
                                 freq_MHz = "Invalid Frequency"
 
                             row_data = {
@@ -200,8 +221,10 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                             if band_type or channel_frequency_str or channel_name:
                                 data_rows.append(row_data)
                            
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Added HTML row: {row_data}",  file=current_file, version=current_version, function=current_function, 
+
+)
                 else:
                     # Process rows that have <td>s directly (e.g., blank rows or specific structures without inner spans)
                     cells = row.find_all('td')
@@ -232,18 +255,24 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                                         freq_MHz = value / 1000
                                 else: # No unit specified, assume MHz
                                     freq_MHz = value
-                                if app_constants.Local_Debug_Enable: 
-                                    debug_log(f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                                if app_constants.LOCAL_DEBUG_ENABLE: 
+                                    debug_log(message=f"HTML Freq conversion (direct td): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                             else:
                                 # Fallback if regex doesn't match, assume MHz
                                 freq_MHz = float(channel_frequency_str) # Assume it's already in MHz
     
-                                if app_constants.Local_Debug_Enable: 
-                                    debug_log(f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                                if app_constants.LOCAL_DEBUG_ENABLE: 
+                                    debug_log(message=f"HTML Freq conversion (direct td, fallback): '{channel_frequency_str}' -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                         except ValueError:
     
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"HTML Freq conversion error (direct td): '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"HTML Freq conversion error (direct td): '{channel_frequency_str}'",  file=current_file, version=current_version, function=current_function, 
+
+)
                             freq_MHz = "Invalid Frequency"
 
                         row_data = {
@@ -257,11 +286,15 @@ def Marker_convert_IAShtml_report_to_csv(html_content):
                         }
                         if band_type or channel_frequency_str or channel_name:
                             data_rows.append(row_data)
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Added HTML row (direct td): {row_data}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Added HTML row (direct td): {row_data}",  file=current_file, version=current_version, function=current_function, 
+
+)
     
-    if app_constants.Local_Debug_Enable: 
-        debug_log(f"Finished HTML report conversion. Extracted {len(data_rows)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    if app_constants.LOCAL_DEBUG_ENABLE: 
+        debug_log(message=f"Finished HTML report conversion. Extracted {len(data_rows)} rows.",  file=current_file, version=current_version, function=current_function, 
+
+)
     return headers, data_rows
 
 
@@ -290,8 +323,10 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
 
-    if app_constants.Local_Debug_Enable: 
-        debug_log(f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    if app_constants.LOCAL_DEBUG_ENABLE: 
+        debug_log(message=f"Starting SHW report conversion for '{os.path.basename(xml_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
     
     csv_data = []
@@ -301,15 +336,19 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             tree = ET.parse(f)
         root = tree.getroot()
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log("XML file parsed successfully.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message="XML file parsed successfully.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
         # Iterate through 'freq_entry' elements
         for i, freq_entry in enumerate(root.findall('.//freq_entry')):
             if i % 100 == 0: # Print progress every 100 entries
                 
-                if app_constants.Local_Debug_Enable: 
-                    debug_log(f"Processing SHW entry {i}...",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                if app_constants.LOCAL_DEBUG_ENABLE: 
+                    debug_log(message=f"Processing SHW entry {i}...",  file=current_file, version=current_version, function=current_function, 
+
+)
 
             # Reverting ZONE and GROUP extraction to match SHOW to CSV.py prototype
             zone_element = freq_entry.find('compat_key/zone')
@@ -334,18 +373,24 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
             if freq_element is not None and freq_element.text is not None:
                 freq_str = freq_element.text 
             
-                if app_constants.Local_Debug_Enable: 
-                    debug_log(f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                if app_constants.LOCAL_DEBUG_ENABLE: 
+                    debug_log(message=f"DEBUG (SHW): Processing freq_str: '{freq_str}' for device '{name}'",  file=current_file, version=current_version, function=current_function, 
+
+)
 
                 try:
                     # Convert kHz to MHz as per user's clarification
                     freq_MHz = float(freq_str) / 1000.0 
-                    if app_constants.Local_Debug_Enable: 
-                        debug_log(f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                        debug_log(message=f"SHW Freq conversion: '{freq_str}' kHz -> {freq_MHz} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                 except ValueError:
     
-                    if app_constants.Local_Debug_Enable: 
-                        debug_log(f"SHW Freq conversion error: '{freq_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                        debug_log(message=f"SHW Freq conversion error: '{freq_str}'",  file=current_file, version=current_version, function=current_function, 
+
+)
                     freq_MHz = "Invalid Frequency"
 
             csv_data.append({
@@ -357,24 +402,32 @@ def Marker_convert_WWB_SHW_File_report_to_csv(xml_file_path):
                 "PEAK": np.nan # NEW: Added Peak column
             })
     
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"Finished SHW report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"Finished SHW report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
+
+)
         return headers, csv_data
 
     except FileNotFoundError:
     
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"🔴 ERROR: The file '{xml_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"🔴 ERROR: The file '{xml_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
+
+)
         raise FileNotFoundError(f"The file '{xml_file_path}' was not found.")
     except ET.ParseError as e:
     
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"🔴 ERROR: Malformed XML (SHW) file '{xml_file_path}': {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"🔴 ERROR: Malformed XML (SHW) file '{xml_file_path}': {e}",  file=current_file, version=current_version, function=current_function, 
+
+)
         raise ET.ParseError(f"🔴 ERROR parsing XML (SHW) file '{xml_file_path}': {e}")
     except Exception as e:
     
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"🔴 ERROR during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"🔴 ERROR during SHW conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
+
+)
         raise
 
 def Marker_convert_wwb_zip_report_to_csv(file_path):
@@ -395,23 +448,27 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
     current_file = os.path.basename(__file__)
 
     if not file_path:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message="🟢️️️🟡 No file path provided for zip conversion.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
-                console_print_func=console_log
+                
+
+
             )
         return [], []
         
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 Starting ZIP report conversion for: {os.path.basename(file_path)}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
-            console_print_func=console_log
+            
+
+
         )
     
     csv_data = []
@@ -429,32 +486,36 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
         group_match = re.search(r'([^_]+)_wwb$', zip_filename_stem)
         main_group = group_match.group(1).replace('_', ' ') if group_match else "N/A"
         
-        console_log(f"Derived from ZIP filename: ZONE='{zone}', Main Group='{main_group}'")
+        debug_log(message=f"Derived from ZIP filename: ZONE='{zone}', Main Group='{main_group}'")
 
         with zipfile.ZipFile(file_path, 'r') as zip_ref:
             csv_files = [name for name in zip_ref.namelist() if name.endswith('.csv')]
             
             if not csv_files:
-                console_log("❌ Error: No .csv file found inside the .zip archive.")
-                if app_constants.Local_Debug_Enable: 
+                debug_log(message="❌ Error: No .csv file found inside the .zip archive.")
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message="❌🔴 No CSV file found within ZIP. Mission failed!",
                         file=current_file,
                         version=current_version,
                         function=f"{current_function}",
-                        console_print_func=console_log
+                        
+
+
                     )
                 return [], []
             
             if len(csv_files) > 1:
-                console_log(f"🟡 Warning: Found multiple .csv files. Processing all of them.")
-                if app_constants.Local_Debug_Enable: 
+                debug_log(message=f"🟡 Warning: Found multiple .csv files. Processing all of them.")
+                if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"🟢️️️🟡 Found multiple CSV files. Processing all of them.",
                         file=current_file,
                         version=current_version,
                         function=f"{current_function}",
-                        console_print_func=console_log
+                        
+
+
                     )
 
             for csv_file_name in csv_files:
@@ -485,56 +546,66 @@ def Marker_convert_wwb_zip_report_to_csv(file_path):
                                 "PEAK": np.nan 
                             }
                             csv_data.append(row_data)
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Added ZIP CSV row: {row_data}",
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Added ZIP CSV row: {row_data}",
                                             file=current_file,
                                             version=current_version,
                                             function=f"{current_function}",
-                                            console_print_func=console_log)
+                                            
+
+)
                         except (ValueError, IndexError):
                             # Skip rows that are not valid frequency data
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Skipping non-frequency data row: {row}",
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Skipping non-frequency data row: {row}",
                                             file=current_file,
                                             version=current_version,
                                             function=f"{current_function}",
-                                            console_print_func=console_log)
+                                            
+
+)
             
-        console_log(f"✅ Extracted and converted {len(csv_files)} CSV files successfully!")
+        debug_log(message=f"✅ Extracted and converted {len(csv_files)} CSV files successfully!")
         return headers, csv_data
 
     except FileNotFoundError:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error: The file '{file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
-        console_log(f"🔴 ERROR: The file '{file_path}' was not found.")
+        debug_log(message=f"🔴 ERROR: The file '{file_path}' was not found.")
         return [], []
     except zipfile.BadZipFile:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error: The file '{file_path}' is not a valid zip archive.",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
-                console_print_func=console_log
+                
+
+
             )
-        console_log(f"🔴 ERROR: The file '{file_path}' is not a valid zip archive.")
+        debug_log(message=f"🔴 ERROR: The file '{file_path}' is not a valid zip archive.")
         return [], []
     except Exception as e:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error converting ZIP file: {e}",
                 file=current_file,
                 version=current_version,
                 function=f"{current_function}",
-                console_print_func=console_log
+                
+
+
             )
-        console_log(f"🔴 ERROR: Failed to convert ZIP file. {e}")
+        debug_log(message=f"🔴 ERROR: Failed to convert ZIP file. {e}")
         return [], []
     
 def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
@@ -565,8 +636,10 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
 
-    if app_constants.Local_Debug_Enable: 
-        debug_log(f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+    if app_constants.LOCAL_DEBUG_ENABLE: 
+        debug_log(message=f"Starting PDF report conversion for '{os.path.basename(pdf_file_path)}'.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
     
     csv_data = []
@@ -575,13 +648,17 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
         with pdfplumber.open(pdf_file_path) as pdf:
             last_known_group = "Uncategorized" # Default group if not found
             
-            if app_constants.Local_Debug_Enable: 
-                debug_log(f"Opened PDF with {len(pdf.pages)} pages.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(message=f"Opened PDF with {len(pdf.pages)} pages.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
             for page_num, page in enumerate(pdf.pages):
         
-                if app_constants.Local_Debug_Enable: 
-                    debug_log(f"Processing Page {page_num + 1}...",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                if app_constants.LOCAL_DEBUG_ENABLE: 
+                    debug_log(message=f"Processing Page {page_num + 1}...",  file=current_file, version=current_version, function=current_function, 
+
+)
                 # Extract text for group headers
                 lines = page.extract_text().splitlines()
                 lines = [line.strip() for line in lines if line.strip()]
@@ -590,8 +667,10 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                            if re.match(r".+\(\d+ frequencies\)", line)]
 
                 tables = page.extract_tables()
-                if app_constants.Local_Debug_Enable: 
-                    debug_log(f"Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                if app_constants.LOCAL_DEBUG_ENABLE: 
+                    debug_log(message=f"Found {len(tables)} tables on Page {page_num + 1}.",  file=current_file, version=current_version, function=current_function, 
+
+)
 
                 group_index = 0
                 for table_num, table in enumerate(tables):
@@ -601,16 +680,20 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
 
                     current_zone = last_known_group # PDF Group -> CSV ZONE
         
-                    if app_constants.Local_Debug_Enable: 
-                        debug_log(f"Processing Table {table_num + 1} for Zone: {current_zone}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                        debug_log(message=f"Processing Table {table_num + 1} for Zone: {current_zone}",  file=current_file, version=current_version, function=current_function, 
+
+)
 
                     for row_num, row in enumerate(table):
                         if not row or all(cell is None or cell.strip() == "" for cell in row):
                             continue
 
                         if "Model" in row[0] and "Frequency" in row[-1]: # Skip header rows
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Skipping header row: {row}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Skipping header row: {row}",  file=current_file, version=current_version, function=current_function, 
+
+)
                             continue
 
                         clean_row = [cell.replace("\n", " ").strip() if cell else "" for cell in row]
@@ -621,8 +704,10 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                         model_pdf, band_pdf, name_pdf, preset_pdf, spacing_pdf, frequency_pdf_str = clean_row
 
                         if model_pdf.strip() == current_zone.strip(): # Skip rows that mistakenly repeat the group name
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"Skipping duplicate group name row: {row}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"Skipping duplicate group name row: {row}",  file=current_file, version=current_version, function=current_function, 
+
+)
                             continue
 
                         # Map PDF fields to CSV fields
@@ -643,12 +728,16 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                         try:
                             # The frequency is already in MHz, so no conversion needed
                             freq_MHz_csv = float(frequency_pdf_str)
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"PDF Freq conversion: '{frequency_pdf_str}' -> {freq_MHz_csv} MHz",  file=current_file, version=current_version, function=current_function, 
+
+)
                         except ValueError:
         
-                            if app_constants.Local_Debug_Enable: 
-                                debug_log(f"PDF Freq conversion error: '{frequency_pdf_str}'",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                            if app_constants.LOCAL_DEBUG_ENABLE: 
+                                debug_log(message=f"PDF Freq conversion error: '{frequency_pdf_str}'",  file=current_file, version=current_version, function=current_function, 
+
+)
                             freq_MHz_csv = "Invalid Frequency"
 
                         csv_data.append({
@@ -660,22 +749,30 @@ def Marker_convert_SB_PDF_File_report_to_csv(pdf_file_path):
                             "FREQ_MHZ": freq_MHz_csv,
                             "PEAK": np.nan # NEW: Added Peak column
                         })
-                        if app_constants.Local_Debug_Enable: 
-                            debug_log(f"Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                        if app_constants.LOCAL_DEBUG_ENABLE: 
+                            debug_log(message=f"Added PDF row: {csv_data[-1]}",  file=current_file, version=current_version, function=current_function, 
+
+)
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"Finished PDF report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"Finished PDF report conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
+
+)
         return headers, csv_data
 
     except FileNotFoundError:
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"🔴 ERROR: The file '{pdf_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"🔴 ERROR: The file '{pdf_file_path}' was not found.",  file=current_file, version=current_version, function=current_function, 
+
+)
         raise FileNotFoundError(f"The file '{pdf_file_path}' was not found.")
     except Exception as e:
         
-        if app_constants.Local_Debug_Enable: 
-            debug_log(f"🔴 ERROR during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+        if app_constants.LOCAL_DEBUG_ENABLE: 
+            debug_log(message=f"🔴 ERROR during PDF conversion data extraction: {e}",  file=current_file, version=current_version, function=current_function, 
+
+)
         raise
 
 def Marker_convert_csv_unknow_report_to_csv(file_path):
@@ -691,13 +788,15 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                dictionaries with the matched data.
     """
     current_function = inspect.currentframe().f_code.co_name
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 Starting best-effort CSV conversion for: {file_path}",
             file=current_file,
             version=current_version,
             function=current_function,
-            console_print_func=console_log
+            
+
+
         )
     
     # Standardized headers and their common aliases
@@ -754,34 +853,40 @@ def Marker_convert_csv_unknow_report_to_csv(file_path):
                         new_row[std_header] = value
             processed_data.append(new_row)
             
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"✅ Finished best-effort conversion. Headers mapped: {header_map}",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
         return standard_headers, processed_data
   
     except FileNotFoundError:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error: The file '{file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
         return [], []
     except Exception as e:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error during best-effort CSV conversion: {e}",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
         return [], []
     
@@ -804,13 +909,15 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
     current_function = inspect.currentframe().f_code.co_name
     current_file = os.path.basename(__file__)
     
-    if app_constants.Local_Debug_Enable: 
+    if app_constants.LOCAL_DEBUG_ENABLE: 
         debug_log(
             message=f"🟢️️️🟢 Starting PDF (Sound Base v2) report conversion for: {os.path.basename(pdf_file_path)}",
             file=current_file,
             version=current_version,
             function=f"{current_function}",
-            console_print_func=console_log
+            
+
+
         )
     
     csv_data = []
@@ -822,8 +929,10 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
             # Use regex to find the ZONE
             zone_match = re.search(r'ZONE: (.+)', text)
             zone = zone_match.group(1).strip() if zone_match else 'N/A'
-            if app_constants.Local_Debug_Enable: 
-                debug_log(f"🔍 Found ZONE: {zone}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(message=f"🔍 Found ZONE: {zone}",  file=current_file, version=current_version, function=current_function, 
+
+)
             
             # The pattern to find all groups
             group_pattern = re.compile(r'^\s*([A-Z\s&]+ IEM\'S|[A-Z\s&]+ MICS & BACKLINE)\s*$', re.MULTILINE)
@@ -840,8 +949,10 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
                 group_match = group_pattern.search(line)
                 if group_match:
                     current_group = group_match.group(1).strip()
-                    if app_constants.Local_Debug_Enable: 
-                        debug_log(f"🔍 Found new GROUP: {current_group}",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+                    if app_constants.LOCAL_DEBUG_ENABLE: 
+                        debug_log(message=f"🔍 Found new GROUP: {current_group}",  file=current_file, version=current_version, function=current_function, 
+
+)
                     continue
                 
                 # Regex to find all frequency-device pairs on the current line
@@ -862,27 +973,33 @@ def Marker_convert_SB_v2_PDF_File_report_to_csv(pdf_file_path):
                                 'PEAK': np.nan 
                             })
                             
-            if app_constants.Local_Debug_Enable: 
-                debug_log(f"✅ Finished conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, console_print_func=console_log)
+            if app_constants.LOCAL_DEBUG_ENABLE: 
+                debug_log(message=f"✅ Finished conversion. Extracted {len(csv_data)} rows.",  file=current_file, version=current_version, function=current_function, 
+
+)
             return headers, csv_data
 
     except FileNotFoundError:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error: The file '{pdf_file_path}' was not found.",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
         return [], []
     except Exception as e:
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"❌ Error during PDF conversion: {e}",
                 file=current_file,
                 version=current_version,
                 function=current_function,
-                console_print_func=console_log
+                
+
+
             )
         return [], []

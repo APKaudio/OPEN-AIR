@@ -3,18 +3,25 @@
 import tkinter as tk
 from tkinter import ttk
 import workers.setup.app_constants as app_constants
-from workers.logger.logger import debug_log, console_log
+from workers.logger.logger import debug_log
 import os
 
 class DirectionalButtonsCreatorMixin:
     def _create_directional_buttons(self, parent_frame, label, config, path):
         """Creates a set of directional buttons (up, down, left, right)."""
         current_function_name = "_create_directional_buttons"
-        if app_constants.Local_Debug_Enable:
-            debug_log(message=f"Creating directional buttons for {label}", file=os.path.basename(__file__), function=current_function_name)
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬⚡️ Entering '{current_function_name}' to chart the course for directional buttons for '{label}'.",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
 
         frame = ttk.Frame(parent_frame)
-        frame.pack(padx=10, pady=5)
 
         if label:
             ttk.Label(frame, text=label).grid(row=0, column=1, pady=(0, 5))
@@ -32,22 +39,22 @@ class DirectionalButtonsCreatorMixin:
 
         # Commands (these would typically publish MQTT messages)
         def _move_up():
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Move Up for {path}", file=os.path.basename(__file__), function="_move_up")
             # self.mqtt_util.publish(path + "/up", 1)
 
         def _move_down():
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Move Down for {path}", file=os.path.basename(__file__), function="_move_down")
             # self.mqtt_util.publish(path + "/down", 1)
 
         def _move_left():
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Move Left for {path}", file=os.path.basename(__file__), function="_move_left")
             # self.mqtt_util.publish(path + "/left", 1)
 
         def _move_right():
-            if app_constants.Local_Debug_Enable:
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(message=f"Move Right for {path}", file=os.path.basename(__file__), function="_move_right")
             # self.mqtt_util.publish(path + "/right", 1)
 
@@ -65,3 +72,14 @@ class DirectionalButtonsCreatorMixin:
                 "right": right_button
             }
         }
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"✅ SUCCESS! The directional buttons for '{label}' are pointing the way!",
+                file=os.path.basename(__file__),
+                version=app_constants.current_version,
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
+            )
+        return frame

@@ -39,7 +39,7 @@ current_version = "20251013.212800.2"
 # The current time is 21:36:17
 current_version_hash = (20251013 * 212800 * 2)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 # --- Global Path Anchor ---
 # In main.py, GLOBAL_PROJECT_ROOT is defined as the parent of the script being executed.
@@ -72,14 +72,14 @@ def get_absolute_path(relative_path: str):
     # [A brief, one-sentence description of the function's purpose.]
     current_function_name = inspect.currentframe().f_code.co_name
     
-    # DELETED: debug_log(f"🟢️️️🟢 Resolving path for: {relative_path}", ...)
+    # DELETED: debug_log(message=f"🟢️️️🟢 Resolving path for: {relative_path}", ...)
               
     try:
         absolute_path = GLOBAL_PROJECT_ROOT / relative_path
-        # DELETED: console_log(f"✅ Resolved Path: {absolute_path}")
+        # DELETED: debug_log(message=f"✅ Resolved Path: {absolute_path}")
         return absolute_path
 
     except Exception as e:
-        # DELETED: console_log and debug_log calls for error handling
+        # DELETED:  and debug_log calls for error handling
         print(f"❌ Error in {current_function_name}: {e}")
         return pathlib.Path(relative_path) # Return a relative path as a fallback

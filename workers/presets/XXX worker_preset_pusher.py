@@ -33,14 +33,14 @@ import json
 import time
 
 # --- Module Imports ---
-from workers.logger.logger import debug_log, console_log, log_visa_command
+from workers.logger.logger import debug_log
 from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 
 # --- Global Scope Variables ---
 current_version = "20250919.231000.1"
 current_version_hash = (20250919 * 231000 * 1)
 current_file = f"{os.path.basename(__file__)}"
-Local_Debug_Enable = False
+LOCAL_DEBUG_ENABLE = False
 
 HZ_TO_MHZ = 1_000_000
 
@@ -80,13 +80,15 @@ class PresetPusherWorker:
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.mqtt_controller = mqtt_controller
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 The preset pusher has been summoned!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
     def Tune_to_preset(self, preset_values):
@@ -97,13 +99,15 @@ class PresetPusherWorker:
             preset_values (list): A list of values for the selected preset.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Attuning the instrument to the selected preset. Ready the coils!",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
         
         # Mapping the input list to readable variables
@@ -126,13 +130,15 @@ class PresetPusherWorker:
 
             self.mqtt_controller.publish_message(topic=FREQ_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=FREQ_TRIGGER, subtopic="", value=False)
-            console_log("✅ Start/Stop frequencies set.")
+            debug_log(message="✅ Start/Stop frequencies set.")
         except Exception as e:
-            console_log(f"❌ Error setting Start/Stop frequencies: {e}")
-            if app_constants.Local_Debug_Enable: 
+            debug_log(message=f"❌ Error setting Start/Stop frequencies: {e}")
+            if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 The frequency setter is on the fritz! The error be: {e}",
-                    file=current_file, version=current_version, function=current_function_name, console_print_func=console_log
+                    file=current_file, version=current_version, function=current_function_name 
+
+
                 )
 
         # --- Conditional: Set RBW ---
@@ -140,14 +146,14 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=RBW_INPUT, subtopic="", value=preset_dict.get('RBW'))
             self.mqtt_controller.publish_message(topic=RBW_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=RBW_TRIGGER, subtopic="", value=False)
-            console_log("✅ Resolution Bandwidth (RBW) set.")
+            debug_log(message="✅ Resolution Bandwidth (RBW) set.")
 
         # --- Conditional: Set VBW ---
         if preset_dict.get('VBW') is not None and preset_dict.get('VBW').lower() != 'null':
             self.mqtt_controller.publish_message(topic=VBW_INPUT, subtopic="", value=preset_dict.get('VBW'))
             self.mqtt_controller.publish_message(topic=VBW_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=VBW_TRIGGER, subtopic="", value=False)
-            console_log("✅ Video Bandwidth (VBW) set.")
+            debug_log(message="✅ Video Bandwidth (VBW) set.")
 
         # --- Conditional: Set Amplitude Rig ---
         ref_level = preset_dict.get('RefLevel')
@@ -159,7 +165,7 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=AMP_PREAMP, subtopic="", value=preamp)
             self.mqtt_controller.publish_message(topic=AMP_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=AMP_TRIGGER, subtopic="", value=False)
-            console_log("✅ Amplitude settings (RefLevel, Attenuation, Preamp) set.")
+            debug_log(message="✅ Amplitude settings (RefLevel, Attenuation, Preamp) set.")
         
         # --- Conditional: Set Trace Modes ---
         trace_modes = [preset_dict.get(f'Trace{i}Mode') for i in range(1, 5)]
@@ -170,15 +176,17 @@ class PresetPusherWorker:
             self.mqtt_controller.publish_message(topic=TRACE_MODE_4_INPUT, subtopic="", value=trace_modes[3])
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=True)
             self.mqtt_controller.publish_message(topic=TRACE_TRIGGER, subtopic="", value=False)
-            console_log("✅ Trace modes set.")
+            debug_log(message="✅ Trace modes set.")
         
-        if app_constants.Local_Debug_Enable: 
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️✅ The tuning sequence is complete! All command triggers have been sent.",
                 file=current_file,
                 version=current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}",
-                console_print_func=console_log
+                function=f"{self.__class__.__name__}.{current_function_name}"
+                
+
+
             )
 
 
