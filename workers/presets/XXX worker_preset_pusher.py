@@ -29,7 +29,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-import json
+import orjson
 import time
 
 # --- Module Imports ---

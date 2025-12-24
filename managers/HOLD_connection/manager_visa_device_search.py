@@ -139,7 +139,7 @@ class VisaDeviceManager:
     ## def _on_search_request(self, topic, payload):
     ##     # Handles the 'Search_For_devices' button press from the GUI.
     ##     try:
-    ##         payload_data = json.loads(payload)
+    ##         payload_data = orjson.loads(payload)
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             debug_log(message="🔍 Search for devices initiated from GUI.")
@@ -151,7 +151,7 @@ class VisaDeviceManager:
     ## def _on_device_select(self, topic, payload):
     ##     # Handles a device selection from the listbox.
     ##     try:
-    ##         payload_data = json.loads(payload)
+    ##         payload_data = orjson.loads(payload)
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             parts = topic.split('/')
@@ -167,7 +167,7 @@ class VisaDeviceManager:
     ## def _on_gui_connect_request(self, topic, payload):
     ##     # Handles the 'Connect_to_Device' button press.
     ##     try:
-    ##         payload_data = json.loads(payload)
+    ##         payload_data = orjson.loads(payload)
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             if self.selected_device_resource:
@@ -182,7 +182,7 @@ class VisaDeviceManager:
     ## def _on_gui_disconnect_request(self, topic, payload):
     ##     # Handles the 'Disconnect_device' button press.
     ##     try:
-    ##         payload_data = json.loads(payload)
+    ##         payload_data = orjson.loads(payload)
     ##         # FIXED: Look for an explicit 'true' value
     ##         if str(payload_data.get('value')).lower() == 'true':
     ##             if self.inst:
@@ -242,12 +242,12 @@ class VisaDeviceManager:
     ## def _on_connect_request(self, topic, payload):
     ##     # Handles an MQTT connect request to a specific VISA resource.
     ##     try:
-    ##         payload_data = json.loads(payload)
+    ##         payload_data = orjson.loads(payload)
     ##         resource_name = payload_data.get('resource')
     ##         if resource_name:
     ##             thread = threading.Thread(target=self.connect_instrument_logic, args=(resource_name, ), daemon=True)
     ##             thread.start()
-    ##     except json.JSONDecodeError:
+    ##     except orjson.JSONDecodeError:
     ##         debug_log(message="❌ Failed to decode JSON payload for connect request.")
     
     def connect_instrument_logic(self, resource_name, console_print_func):

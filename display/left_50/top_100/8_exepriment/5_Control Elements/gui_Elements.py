@@ -18,7 +18,7 @@
 
 import os
 import pathlib
-import json
+import orjson
 import tkinter as tk
 from tkinter import ttk
 import inspect

@@ -13,11 +13,11 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.13
+# Version 20251217.23580.14
 
 import os
 import pathlib
-import json
+import orjson
 import tkinter as tk
 from tkinter import ttk
 import inspect
@@ -51,10 +51,10 @@ class GenericInstrumentGui(ttk.Frame):
     A generic container that instantiates a DynamicGuiBuilder based on its own filename.
     Designed to render even if network utilities (MQTT) are disabled or missing.
     """
-    def __init__(self, parent, config=None, *args, **kwargs):
+    def __init__(self, parent, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
         # Consume 'config' and other non-standard keys passed by the orchestrator 
-        kwargs.pop('config', None)
+        _ = kwargs.pop('config', None)
         
         super().__init__(parent, *args, **kwargs)
         current_function_name = inspect.currentframe().f_code.co_name
@@ -87,7 +87,7 @@ class GenericInstrumentGui(ttk.Frame):
             # If the JSON doesn't contain 'OcaBlock' at the root, we wrap the whole thing 
             # in a Virtual Block so the builder knows to drill down.
             with open(abs_json_path, 'r') as f:
-                raw_data = json.load(f)
+                raw_data = orjson.loads(f.read())
             
             # Check if root keys are widgets or if it's an 'Anonymous' block structure
             needs_wrapping = True
@@ -97,19 +97,6 @@ class GenericInstrumentGui(ttk.Frame):
                     break
             
             processed_path = str(abs_json_path)
-            
-            # --- Generic JSON Normalization ---
-            # If the JSON doesn't contain an 'OcaBlock' or known widget at the root,
-            # we wrap the whole thing in a Virtual Block so the builder knows to drill down.
-            with open(abs_json_path, 'r') as f:
-                raw_data = json.load(f)
-            
-            needs_wrapping = True
-            if isinstance(raw_data, dict):
-                for k, v in raw_data.items():
-                    if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
-                        needs_wrapping = False
-                        break
             
             if needs_wrapping:
                 if app_constants.LOCAL_DEBUG_ENABLE:
@@ -127,27 +114,9 @@ class GenericInstrumentGui(ttk.Frame):
                     }
                 }
                 with open(temp_path, 'w') as tf:
-                    json.dump(norm_data, tf, indent=4)
+                    orjson.dump(norm_data, tf, indent=4)
                 processed_path = str(temp_path)
-            if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"🖥️🔍 NORMALIZING: Wrapping YAK structure for {module_name}",
-                        **_get_log_args()
-                    )
-                # Create a temporary normalized file
-                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
-                norm_data = {
-                    "Instrument_Controls": {
-                        "type": "OcaBlock",
-                        "description": f"Dynamic Controls for {module_name}",
-                        "fields": raw_data
-                    }
-                }
-                with open(temp_path, 'w') as tf:
-                    json.dump(norm_data, tf)
-                processed_path = str(temp_path)
-
+            
             ## If mqtt_util is None because it was shut off in the orchestrator, 
             ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
             #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
@@ -160,10 +129,6 @@ class GenericInstrumentGui(ttk.Frame):
                 parent=self,
                 json_path=processed_path
             )
-            
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-
             
             # If we reach here, the builder at least started.
             self.status_label.destroy()

@@ -5,6 +5,7 @@
 import os
 import inspect
 from datetime import datetime
+import workers.setup.app_constants as app_constants # Import app_constants
 
 # --- GLOBALS ---
 _log_directory = None
@@ -21,15 +22,18 @@ def set_log_directory(directory):
     if not os.path.exists(_log_directory):
         try:
             os.makedirs(_log_directory)
-            print(f"📁 Created log directory: {_log_directory}")
+            if app_constants.global_settings["debug_to_terminal"]:
+                print(f"📁 Created log directory: {_log_directory}")
         except OSError as e:
-            print(f"❌ Error creating log directory: {e}")
+            if app_constants.global_settings["debug_to_terminal"]:
+                print(f"❌ Error creating log directory: {e}")
             return
 
     # 🧪 FLUSH THE BUFFER
     if _log_buffer:
         # We use a direct print here to confirm the action in the console
-        print(f"🧪 Great Scott! Flushing {len(_log_buffer)} buffered messages to the timeline!")
+        if app_constants.global_settings["debug_to_terminal"]:
+            print(f"🧪 Great Scott! Flushing {len(_log_buffer)} buffered messages to the timeline!")
         for timestamp, level, message, args in _log_buffer:
             _write_to_file(timestamp, level, message, args)
         
@@ -52,6 +56,7 @@ def console_log(message: str):
 def _write_to_log(level: str, message: str, args: dict = None):
     """
     Internal function to handle logging. Buffers if directory is missing.
+    Checks app_constants.global_settings["debug_to_file"] before writing to file.
     """
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     
@@ -61,8 +66,9 @@ def _write_to_log(level: str, message: str, args: dict = None):
         # 🛡️ BUFFER IT!
         _log_buffer.append((timestamp, level, message, args))
     else:
-        # Write directly
-        _write_to_file(timestamp, level, message, args)
+        # Write directly, but only if file debugging is enabled
+        if app_constants.global_settings["debug_to_file"]:
+            _write_to_file(timestamp, level, message, args)
 
 def _write_to_file(timestamp, level, message, args):
     """Helper to actually write to the disk."""

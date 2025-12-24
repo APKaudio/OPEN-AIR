@@ -2,48 +2,39 @@
 
 import os
 import sys
+import workers.setup.app_constants as app_constants # Import app_constants
+from workers.logger.logger import debug_log # Import debug_log
+from workers.utils.log_utils import _get_log_args # Import _get_log_args
 
-def configure_console_encoding(_func, debug_log_func): # Added _func and debug_log_func
+def configure_console_encoding(): # Removed _func and debug_log_func arguments
     # This block ensures the console can handle UTF-8 characters, preventing encoding errors.
     if os.name == 'nt':
         try:
-            _func("DEBUG: Entering configure_console_encoding.")
+            debug_log(message="DEBUG: Entering configure_console_encoding.", **_get_log_args())
             
-            # --- FIX START ---
-            # Providing all required arguments to debug_log_func
-            debug_log_func(
+            debug_log(
                 message="DEBUG: Attempting to reconfigure stdout encoding to UTF-8.",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version, # Assuming app_constants is accessible
-                function="configure_console_encoding", # String indicating function name
-                
+                **_get_log_args()
                 )
 
-            # --- FIX END ---
             sys.stdout.reconfigure(encoding='utf-8')
-            _func("DEBUG: Successfully reconfigured stdout encoding.")
+            debug_log(message="DEBUG: Successfully reconfigured stdout encoding.", **_get_log_args())
             
-            # --- FIX START ---
-            # Providing all required arguments to debug_log_func
-            debug_log_func(
+            debug_log(
                 message="DEBUG: Attempting to reconfigure stderr encoding to UTF-8.",
-                file=os.path.basename(__file__),
-                version=app_constants.current_version,
-                function="configure_console_encoding",
-                
+                **_get_log_args()
                 )
-            # --- FIX END ---
             sys.stderr.reconfigure(encoding='utf-8')
-            _func("DEBUG: Successfully reconfigured stderr encoding.")
+            debug_log(message="DEBUG: Successfully reconfigured stderr encoding.", **_get_log_args())
         except AttributeError:
-            _func("DEBUG: sys.stdout/stderr.reconfigure not available (likely older Python version). Skipping.")
+            debug_log(message="DEBUG: sys.stdout/stderr.reconfigure not available (likely older Python version). Skipping.", **_get_log_args())
             # Fallback for older Python versions that don't have reconfigure
             pass
         except Exception as e:
-            _func(f"WARNING: Exception during console encoding reconfiguration: {e}")
+            debug_log(message=f"WARNING: Exception during console encoding reconfiguration: {e}", **_get_log_args())
             # Log the exception but continue if possible
             
     else:
-        _func("DEBUG: Not on Windows ('nt'), skipping console encoding reconfiguration.")
+        debug_log(message="DEBUG: Not on Windows ('nt'), skipping console encoding reconfiguration.", **_get_log_args())
             
-    _func("DEBUG: Exiting configure_console_encoding.")
+    debug_log(message="DEBUG: Exiting configure_console_encoding.", **_get_log_args())

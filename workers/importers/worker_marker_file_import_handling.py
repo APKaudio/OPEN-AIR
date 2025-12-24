@@ -33,7 +33,7 @@ import xml.etree.ElementTree as ET
 import sys
 import inspect
 import threading
-import json 
+import orjson 
 import datetime 
 import re 
 import pathlib

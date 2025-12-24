@@ -33,7 +33,7 @@ import datetime
 import tkinter as tk
 from tkinter import ttk
 import pathlib
-import json
+import orjson
 from collections import defaultdict
 
 # --- Module Imports ---

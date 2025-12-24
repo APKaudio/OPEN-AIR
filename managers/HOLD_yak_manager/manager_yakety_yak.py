@@ -21,7 +21,7 @@
 
 import os
 import inspect
-import json
+import orjson
 import pathlib
 import re
 
@@ -124,8 +124,8 @@ class YaketyYakManager:
             try:
                 # Use the imported path constant
                 with open(YAKETY_YAK_REPO_PATH, 'r') as f:
-                    return json.load(f)
-            except json.JSONDecodeError as e:
+                    return orjson.loads(f)
+            except orjson.JSONDecodeError as e:
                 if app_constants.LOCAL_DEBUG_ENABLE: 
                     debug_log(
                         message=f"🐐🐐🐐🟡 Failed to decode JSON from file. Creating an empty repository. The error be: {e}",
@@ -158,7 +158,7 @@ class YaketyYakManager:
 
             # UPDATED: Use the imported path constant
             with open(YAKETY_YAK_REPO_PATH, 'w') as f:
-                json.dump(self.repo_memory, f, indent=4)
+                orjson.dump(self.repo_memory, f, indent=4)
             
             debug_log(message="✅ Repository saved successfully!", **_get_log_args())
             if app_constants.LOCAL_DEBUG_ENABLE: 
@@ -188,8 +188,8 @@ class YaketyYakManager:
         try:
             # Attempt to parse payload as JSON
             try:
-                parsed_payload = json.loads(payload)
-            except json.JSONDecodeError:
+                parsed_payload = orjson.loads(payload)
+            except orjson.JSONDecodeError:
                 # If it's not valid JSON, treat it as an empty dictionary for the check.
                 # However, if the intent is to store the raw string, we'll use 'payload' directly later.
                 parsed_payload = payload # Store raw payload if not JSON
@@ -267,7 +267,7 @@ class YaketyYakManager:
 
             )
         try:
-            data = json.loads(payload)
+            data = orjson.loads(payload)
             if str(data.get("value")).lower() == 'true':
                 self._save_repo_to_file()
         except Exception as e:

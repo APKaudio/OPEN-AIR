@@ -30,7 +30,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 import os
 import inspect
 import datetime
-import json
+import orjson
 import re
 import threading
 import time

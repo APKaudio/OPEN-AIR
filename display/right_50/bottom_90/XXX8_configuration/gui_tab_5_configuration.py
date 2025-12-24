@@ -22,7 +22,7 @@ import tkinter as tk
 from tkinter import ttk, scrolledtext # Added scrolledtext
 import pathlib
 import sys
-import json
+import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log

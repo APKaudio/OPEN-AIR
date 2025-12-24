@@ -131,7 +131,7 @@ class MarkerPeakPublisher:
             # Safely extract peak value
             try:
                 # Value is stored as a JSON string by YakRxManager
-                peak_value = json.loads(payload).get("value")
+                peak_value = orjson.loads(payload).get("value")
             except (json.JSONDecodeError, AttributeError):
                 peak_value = payload # Fallback to raw payload
             

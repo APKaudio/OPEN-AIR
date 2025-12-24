@@ -33,7 +33,7 @@ from tkinter import ttk
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 import inspect
-import json
+import orjson
 import workers.setup.app_constants as app_constants
 
 # The wrapper functions debug_log and _switch are removed

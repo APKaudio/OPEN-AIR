@@ -1,4 +1,5 @@
-# main.py
+import before_main # Moved to top
+before_main.initialize_flags() # Call early to set flags
 
 import inspect
 import importlib
@@ -11,18 +12,24 @@ from workers.splash.splash_screen import SplashScreen
 from workers.Worker_Launcher import WorkerLauncher
 import display.gui_display
 from workers.logger.logger import debug_log
-import workers.setup.app_constants as app_constants
+import workers.setup.app_constants as app_constants # Original import restored
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
-import before_main
 from workers.setup.application_initializer import initialize_app
 from workers.utils.log_utils import _get_log_args
 
+# Imports moved from inside main()'s try block
+from workers.setup.path_initializer import initialize_paths
+from workers.logger.logger import set_log_directory
+from workers.setup.debug_cleaner import clear_debug_directory
+from workers.setup.console_encoder import configure_console_encoding
+import pathlib
+
 def _reveal_main_window(root, splash):
-    print("DEBUG: Revealing main window...")
-    splash.hide()
+    if app_constants.ENABLE_DEBUG_SCREEN:
+        print("DEBUG: Revealing main window...")
 
 def action_open_display(root, splash):
     """
@@ -59,39 +66,48 @@ def action_open_display(root, splash):
         root.update()
 
         # Schedule the final reveal to happen after the event loop has had a chance to start properly.
-        root.after(2000, lambda: (print("DEBUG: _reveal_main_window SCHEDULED AND EXECUTING"), _reveal_main_window(root, splash)))
+        root.after(2000, lambda: (
+            (print("DEBUG: _reveal_main_window SCHEDULED AND EXECUTING") if app_constants.ENABLE_DEBUG_SCREEN else None), 
+            _reveal_main_window(root, splash)
+        ))
 
     except Exception as e:
         debug_log(message=f"❌ CRITICAL ERROR in {current_function_name}: {e}", **_get_log_args())
         import traceback
         traceback.print_exc()
-        splash.hide()
-        root.destroy()
 
 def main():
     """The main execution function for the application."""
-    temp_print = print
+    temp_print = print # Keep temp_print for critical bootstrap failures that happen before debug_log is fully functional
     GLOBAL_PROJECT_ROOT = None
     data_dir = None
 
+    import sys # Moved import sys here
+
     # --- Fix 2: Re-sequencing the Timeline ---
     # Phase 1 & 2: Define paths and engage logger IMMEDIATELY.
-    try:
-        from workers.setup.path_initializer import initialize_paths
-        from workers.logger.logger import set_log_directory
-        import pathlib
+    from workers.setup.path_initializer import initialize_paths
+    from workers.logger.logger import set_log_directory
+    from workers.setup.debug_cleaner import clear_debug_directory
+    from workers.setup.console_encoder import configure_console_encoding
+    import pathlib
 
-        GLOBAL_PROJECT_ROOT, data_dir = initialize_paths(temp_print)
-        log_dir = pathlib.Path(data_dir) / "debug"
-        set_log_directory(log_dir)
-    except Exception as e:
-        temp_print(f"❌ CRITICAL BOOTSTRAP FAILED: Could not set up logger. {e}")
-        sys.exit(1)
+    GLOBAL_PROJECT_ROOT, data_dir = initialize_paths()
+    log_dir = pathlib.Path(data_dir) / "debug"
+    set_log_directory(log_dir)
+    clear_debug_directory(data_dir)
+    configure_console_encoding()
 
     # Now that the logger is safe, we can proceed with the rest of the setup.
-    if not initialize_app(temp_print, debug_log, data_dir):
+    if not initialize_app():
         temp_print("❌ Critical initialization failed. Application will now exit.")
         sys.exit(1)
+
+    # Perform dependency check after initial setup
+    def conditional_console_print(message):
+        if app_constants.global_settings["debug_to_terminal"]:
+            print(message)
+    before_main.run_interactive_pre_check(conditional_console_print, debug_log)
 
     # --- GUI setup starts here, after core initialization is complete ---
     root = tk.Tk()
@@ -99,6 +115,7 @@ def main():
     root.geometry("1600x1200")
     # root.withdraw() # Removed for diagnostic
     
+    print(f"DEBUG: app_constants.LOCAL_DEBUG_ENABLE before SplashScreen: {app_constants.LOCAL_DEBUG_ENABLE}")
     splash = SplashScreen(root, app_constants.current_version, app_constants.LOCAL_DEBUG_ENABLE, temp_print, debug_log)
     root.splash_window = splash.splash_window # Strong reference
     splash.set_status("Initialization complete. Loading UI...")

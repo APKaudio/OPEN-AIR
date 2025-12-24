@@ -56,7 +56,7 @@ def handle_yak_trigger(yak_manager, topic, payload):
             return
 
         with open(YAKETY_YAK_REPO_PATH, 'r') as f:
-            repo = orjson.load(f)
+            repo = orjson.loads(f)
 
         repo_path_parts = topic.replace("OPEN-AIR/repository/", "").split('/')
         

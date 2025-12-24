@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import pandas as pd
-import json
+import orjson
 import os
 import sys
 import io
@@ -289,7 +289,7 @@ class CSVToJSONApp(tk.Tk):
 
         try:
             with open(json_filepath, 'w') as f:
-                json.dump(json_data, f, indent=4)
+                orjson.dump(json_data, f, indent=4)
             
             self.update_output_with_json(json_data)
             messagebox.showinfo("Success", f"Successfully converted and saved to {json_filepath}")
@@ -325,7 +325,7 @@ class CSVToJSONApp(tk.Tk):
         # Update Raw JSON viewer
         self.raw_json_text.delete(1.0, tk.END)
         try:
-            formatted_json = json.dumps(data, indent=4)
+            formatted_json = orjson.dumps(data, indent=4)
             self.raw_json_text.insert(tk.END, formatted_json)
         except Exception as e:
             self.raw_json_text.insert(tk.END, f"🔴 ERROR formatting JSON: {e}")

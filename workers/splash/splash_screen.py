@@ -41,7 +41,7 @@ class SplashScreen:
         self._func = _func
         self.debug_log_func = debug_log_func
         
-        self._safe_log(f"🖥️🟢 Entering SplashScreen.__init__", force_print=True)
+        self._safe_log(f"🖥️🟢 Entering SplashScreen.__init__") # Removed force_print=True
 
         self.parent = parent
         self.app_version = app_version
@@ -56,6 +56,7 @@ class SplashScreen:
             self.splash_window.overrideredirect(True)
             self.splash_window.attributes('-alpha', 1.0) # Always full opacity
             self.splash_window.configure(bg='black')
+            self.parent.protocol("WM_DELETE_WINDOW", self.hide) # Add this line
             
             # --- Dimensions & Centering ---
             win_width, win_height = 600, 500
@@ -170,14 +171,16 @@ class SplashScreen:
     # _fade_in and _fade_out methods removed
     
     def hide(self):
-        try:
-            if self.gif_animation_job:
-                self.splash_window.after_cancel(self.gif_animation_job)
-                self.gif_animation_job = None
-        except Exception: pass
-        
-        if self.splash_window.winfo_exists():
+        # Ensure splash_window still exists before trying to interact with it
+        if self.splash_window and self.splash_window.winfo_exists():
+            try:
+                if self.gif_animation_job:
+                    self.splash_window.after_cancel(self.gif_animation_job)
+                    self.gif_animation_job = None
+            except Exception: pass # Ignore errors if job already cancelled or window destroyed
+            
             self.splash_window.destroy() # Destroy the splash window directly
+            self.splash_window = None # Clear the reference
 
     def set_status(self, message):
         if self.splash_window.winfo_exists() and self.status_label:

@@ -22,7 +22,7 @@ import tkinter as tk
 from tkinter import ttk
 import pathlib
 import sys
-import json
+import orjson
 
 # --- Matplotlib imports for plotting functionality ---
 from matplotlib.figure import Figure

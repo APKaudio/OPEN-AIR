@@ -84,7 +84,7 @@ class SpanSettingsManager:
                 return
 
             with open(config_file_path, 'r') as f:
-                config_data = orjson.load(f)
+                config_data = orjson.loads(f)
 
             span_options = config_data.get("Presets", {}).get("fields", {}).get("SPAN", {}).get("options", {})
             for key, option in span_options.items():

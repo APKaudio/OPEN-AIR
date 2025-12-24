@@ -4,56 +4,35 @@ import os
 import sys
 import pathlib
 
-
 import workers.logger.logger
-
 import workers.setup.app_constants as app_constants
 import workers.setup.path_initializer as path_initializer
 import workers.logger.logger_config as logger_config
 import workers.setup.console_encoder as console_encoder
 import workers.setup.debug_cleaner as debug_cleaner
 from workers.utils.log_utils import _get_log_args
+from workers.logger.logger import debug_log # Import debug_log
 
 
-def initialize_app(console_print_func, debug_log_func, data_dir):
+def initialize_app(): # Removed console_print_func, debug_log_func, data_dir arguments
     """Initializes the application's components after paths and logger are set up."""
-    debug_log_func(
+    debug_log(
         message=f"🚀 Continuing initialization sequence for version {app_constants.current_version}.",
         **_get_log_args()
     )
     
     try:
-        # NOTE: Path and logger configuration are now handled in main.py before this function is called.
+        # NOTE: Path, logger, debug directory clearing, and console encoding
+        # are now handled in main.py before this function is called.
+        # Removed redundant calls to debug_cleaner.clear_debug_directory and console_encoder.configure_console_encoding
         
-        # Clear debug directory
-        debug_log_func(
-            message="Clearing debug directory...",
-            **_get_log_args()
-        )
-        debug_cleaner.clear_debug_directory(data_dir, console_print_func)
-        debug_log_func(
-            message="Debug directory cleared.",
-            **_get_log_args()
-        )
-
-        # Configure console encoding
-        debug_log_func(
-            message="Configuring console encoding...",
-            **_get_log_args()
-        )
-        console_encoder.configure_console_encoding(console_print_func, debug_log_func)
-        debug_log_func(
-            message="Console encoding configured.",
-            **_get_log_args()
-        )
-
-        debug_log_func(
+        debug_log(
             message="✅ Application initialization completed successfully.",
             **_get_log_args()
         )
         return True
     except Exception as e:
-        debug_log_func(
+        debug_log(
             message=f"❌ Error during application initialization: {e}",
             **_get_log_args()
         )

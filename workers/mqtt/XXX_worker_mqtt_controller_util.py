@@ -23,7 +23,7 @@ import inspect
 import datetime
 import paho.mqtt.client as mqtt
 import threading
-import json
+import orjson
 import pathlib
 import sys
 import queue
@@ -221,7 +221,7 @@ class MqttControllerUtility:
                 topic, subtopic, value, retain = self.publish_queue.get()
                 if self.mqtt_client and self.mqtt_client.is_connected():
                     full_topic = f"{topic}/{subtopic}" if subtopic else topic
-                    payload = json.dumps({"value": value})
+                    payload = orjson.dumps({"value": value})
                     self.mqtt_client.publish(full_topic, payload, retain=retain)
                     if app_constants.LOCAL_DEBUG_ENABLE: 
                         debug_log(message=f"Published to {full_topic}: {payload} with retain={retain}", **_get_log_args())

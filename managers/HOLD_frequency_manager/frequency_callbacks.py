@@ -11,7 +11,7 @@
 #
 
 
-import json
+import orjson
 import os
 import inspect
 
@@ -101,7 +101,7 @@ class FrequencyCallbacks:
         
         try:
             try:
-                parsed_payload = json.loads(payload)
+                parsed_payload = orjson.loads(payload)
                 value_str = parsed_payload.get('value', payload)
             except (json.JSONDecodeError, TypeError):
                 value_str = payload
