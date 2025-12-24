@@ -1,4 +1,3 @@
-'''
 # workers/worker_active_peak_publisher.py
 #
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)

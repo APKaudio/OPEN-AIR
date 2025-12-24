@@ -39,7 +39,7 @@ from collections import defaultdict
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-from display.styling.style import THEMES, DEFAULT_THEME
+from workers.styling.style import THEMES, DEFAULT_THEME
 
 # --- Global Scope Variables ---
 CURRENT_DATE = 20251127

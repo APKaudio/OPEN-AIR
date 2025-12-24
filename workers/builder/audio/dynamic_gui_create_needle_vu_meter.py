@@ -9,7 +9,7 @@ import math
 import workers.setup.app_constants as app_constants
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-from display.styling.style import THEMES, DEFAULT_THEME
+from workers.styling.style import THEMES, DEFAULT_THEME
 import os
 
 class NeedleVUMeterCreatorMixin:

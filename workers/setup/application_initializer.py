@@ -15,35 +15,16 @@ import workers.setup.debug_cleaner as debug_cleaner
 from workers.utils.log_utils import _get_log_args
 
 
-def initialize_app(console_print_func, debug_log_func):
+def initialize_app(console_print_func, debug_log_func, data_dir):
+    """Initializes the application's components after paths and logger are set up."""
     debug_log_func(
-        message=f"🚀 Initialization sequence initiated for version {app_constants.current_version}.",
+        message=f"🚀 Continuing initialization sequence for version {app_constants.current_version}.",
         **_get_log_args()
     )
     
     try:
-        # Initialize paths
-        debug_log_func(
-            message="Initializing paths...",
-            **_get_log_args()
-        )
-        global_project_root, data_dir = path_initializer.initialize_paths(console_print_func)
-        debug_log_func(
-            message=f"Paths initialized. Data directory: {data_dir}",
-            **_get_log_args()
-        )
-
-        # Configure logger
-        debug_log_func(
-            message="Configuring logger...",
-            **_get_log_args()
-        )
-        logger_config.configure_logger(data_dir, console_print_func)
-        debug_log_func(
-            message="Logger configured.",
-            **_get_log_args()
-        )
-
+        # NOTE: Path and logger configuration are now handled in main.py before this function is called.
+        
         # Clear debug directory
         debug_log_func(
             message="Clearing debug directory...",

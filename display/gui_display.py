@@ -1,7 +1,7 @@
 # display/gui_display.py
 #
 # The hash calculation drops the leading zero from the hour (e.g., 08 -> 8)
-# Current time is 00:35, so the hash uses 35.
+# Current time is 00:10, so the hash uses 10.
 #
 # Author: Anthony Peter Kuzub
 # Blog: www.Like.audio (Contributor to this project)
@@ -13,65 +13,62 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251223.195600.2
+# Version 20251224.001000.4 (OPTIMIZED)
 
 import workers.setup.app_constants as app_constants
 
 # 📚 Python's standard library modules are our trusty sidekicks!
 import os
 import inspect
-import datetime
 import tkinter as tk
 from tkinter import ttk
-import importlib.util
-import sys
 import pathlib
-import traceback # Added for full traceback logging
+import traceback 
 
 # --- Module Imports ---
-# Import our new utility classes for modularization
-from display.utils.window_manager import WindowManager
-from display.utils.module_loader import ModuleLoader
-from display.utils.layout_parser import LayoutParser
+from workers.display.window_manager import WindowManager
+from workers.display.module_loader import ModuleLoader
+from workers.display.layout_parser import LayoutParser
 
 # Import logger and styling utilities
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
-from display.styling.style import THEMES, DEFAULT_THEME
-
-# The wrapper functions debug_log and _switch are removed
-# as the core debug_log and  now directly handle LOCAL_DEBUG_ENABLE.
+from workers.styling.style import THEMES, DEFAULT_THEME
 
 class Application(ttk.Frame):
     """
     The main application class that orchestrates the GUI build process.
-    It now acts as a lean coordinator, delegating layout parsing and module loading
-    to specialized utility classes.
+    OPTIMIZED: Implements Layout Caching and Guarded Logging.
     """
-    def __init__(self, parent):
-        current_function_name = inspect.currentframe().f_code.co_name
-        
+    def __init__(self, parent, root=None):
         super().__init__(parent)
+        self.root = root
         self.app_constants = app_constants
+        
+        # ⚡ OPTIMIZATION: Initialize Cache for Directory Layouts
+        # This prevents re-scanning the disk every time a tab is accessed.
+        self._layout_cache = {}
 
         if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log( 
-                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!", **_get_log_args()
+                message="🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!", 
+                **_get_log_args()
             )
+            
         # Initialize utility classes
-        # The theme colors are needed by ModuleLoader and WindowManager for certain operations.
-        # They are applied first to get the color dictionary.
         self.theme_colors = self._apply_styles(theme_name="DEFAULT_THEME")
-        
-        # WindowManager likely needs 'self' to manipulate the window
         self.window_manager = WindowManager(self)
         
-        # FIX: LayoutParser is stateless and does not accept 'self' (the Application instance)
-        self.layout_parser = LayoutParser(current_version=app_constants.current_version, LOCAL_DEBUG_ENABLE=self.app_constants.LOCAL_DEBUG_ENABLE, debug_log_func=debug_log)
+        # Initialize LayoutParser
+        self.layout_parser = LayoutParser(
+            current_version=app_constants.current_version, 
+            LOCAL_DEBUG_ENABLE=self.app_constants.LOCAL_DEBUG_ENABLE, 
+            debug_log_func=debug_log
+        )
         
         self.module_loader = ModuleLoader(self.theme_colors)
 
-        # Initialize storage for notebooks and frames
+        # Initialize storage
         self._notebooks = {}
         self._frames_by_path = {}
         self.last_selected_tab_name = None
@@ -83,100 +80,61 @@ class Application(ttk.Frame):
                     **_get_log_args()
                 )
             
-            # Start the GUI build process using the root directory of the current file.
+            # Start the GUI build process
             self._build_from_directory(path=pathlib.Path(__file__).parent, parent_widget=self)
             
             if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log( 
-                    message="🔍🔵 The architectural marvel is complete! Finished building GUI from directory structure. Behold!",
+                    message="🔍🔵 The architectural marvel is complete! Finished building GUI from directory structure.",
                     **_get_log_args()
                 )
             
-            # ⚡ OPTIMIZATION: Replaced after_idle with after(500)
-            # This gives the Event Loop 500ms to render the initial geometry BEFORE we slam it with tab selection logic.
-            # This prevents the "White Screen of Death" hang during startup.
+            # ⚡ OPTIMIZATION: 500ms delay to allow geometry to settle before heavy tab logic
             self.after(500, self._trigger_initial_tab_selection)
 
         except Exception as e:
-            if self.app_constants.LOCAL_DEBUG_ENABLE: # Added LOCAL_DEBUG_ENABLE check
+            # Critical errors should always log, even if debug is off (optional, but good practice)
+            # using print as fallback if logging fails
+            error_msg = f"❌ Critical Error during application initialization: {e}"
+            print(error_msg) 
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"❌ Critical Error during application initialization: {e}. The grand experiment has encountered a catastrophic anomaly!\nFull Traceback:\n{traceback.format_exc()}",
+                    message=f"{error_msg}\nFull Traceback:\n{traceback.format_exc()}",
                     **_get_log_args()
                 )
-
 
     def _trigger_initial_tab_selection(self):
-        """
-        Triggers the _on_tab_change event for the initially selected tab of each notebook.
-        This ensures that the content of the first tab is initialized even if the 
-        <<NotebookTabChanged>> event doesn't fire on startup.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
+        """Triggers the _on_tab_change event for the initially selected tab of each notebook."""
         if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message="🔍🔵 Triggering initial tab selection for all notebooks.",
-                            **_get_log_args()
-                        )        
-        notebooks_to_process = list(self._notebooks.items()) # Process notebooks iteratively
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"📑🔍 A grand collection! Found {len(notebooks_to_process)} notebooks awaiting their inaugural tab selection ritual.",
-                **_get_log_args()
-            )
+             debug_log(message="🔍🔵 Triggering initial tab selection for all notebooks.", **_get_log_args())        
+        
+        notebooks_to_process = list(self._notebooks.items())
+        
         for notebook_path, notebook_widget in notebooks_to_process:
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
-                    message=f"📑🔍 Preparing the stage for notebook at: {notebook_path}.",
-                    **_get_log_args()
-                )
-        try:
-                # Create a dummy event object for consistency, mimicking Tkinter's event structure.
-                # The event.widget property is particularly important for _on_tab_change.
+            try:
+                # Create a dummy event object
                 dummy_event = type('Event', (object,), {'widget': notebook_widget})()
-                
+                self._on_tab_change(dummy_event) 
+                         
+            except Exception as e:
                 if self.app_constants.LOCAL_DEBUG_ENABLE:
                     debug_log(
-                        message=f"📑🔄 Invoking '_on_tab_change' for notebook {notebook_path}. The wheels of fate turn!",
+                        message=f"❌🔴 Critical error during initial tab selection for {notebook_path}: {e}",
                         **_get_log_args()
-                    )
-                self._on_tab_change(dummy_event) # Call _on_tab_change
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"📑✅ Operation complete! '_on_tab_change' has returned for notebook {notebook_path}.",
-                        **_get_log_args()
-                    )
-
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log( 
-                        message=f"✅ The initial tab selection for notebook at {notebook_path} has been successfully triggered. A perfect start!",
-                        **_get_log_args()
-                    )           
-        except Exception as e:
-            if self.app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(
-                    message=f"❌🔴 Arrr, the code be capsized! Critical error during initial tab selection for notebook {notebook_path}: {e}. A tempest in a teacup!",
-                    **_get_log_args()
-                )               
+                    )               
+        
         if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message="✅ All initial tab selections triggered. The prophecy has been fulfilled!",
-                **_get_log_args()
-            )
-
+            debug_log(message="✅ All initial tab selections triggered.", **_get_log_args())
 
     def _apply_styles(self, theme_name: str):
-        """Applies the specified theme to the entire application using ttk.Style."""
-        current_function_name = inspect.currentframe().f_code.co_name
+        """Applies the specified theme to the entire application."""
         if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message=f"🔍🔵 Applying styles for theme: {theme_name}.",
-                            **_get_log_args()
-                        )        
-        colors = THEMES.get(theme_name, THEMES["dark"]) # Default to dark theme if not found
-        style = ttk.Style(self)
-        style.theme_use("clam") # Use a theme that allows for more customization
+            debug_log(message=f"🔍🔵 Applying styles for theme: {theme_name}.", **_get_log_args())        
         
-        # Configure default widget styles
+        colors = THEMES.get(theme_name, THEMES["dark"])
+        style = ttk.Style(self)
+        style.theme_use("clam")
+        
         style.configure('.',
                         background=colors["bg"],
                         foreground=colors["fg"],
@@ -186,12 +144,10 @@ class Application(ttk.Frame):
 
         style.configure('TFrame', background=colors["bg"])
 
-        # Configure Notebook and Tab styles
         style.configure('TNotebook',
                         background=colors["primary"],
                         borderwidth=0)
         
-        # Corrected line: Changed 'fg конкурса' to 'fg' and removed the extra parenthesis.
         style.map('TNotebook.Tab',
                   background=[('selected', colors["accent"]), ('!selected', colors["secondary"])],
                   foreground=[('selected', colors["text"]), ('!selected', colors["fg"])]) 
@@ -201,39 +157,50 @@ class Application(ttk.Frame):
                         padding=tab_padding,
                         font=('Helvetica', 11, 'bold'),
                         borderwidth=0)
-
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log( 
-                message=f"🔍🔵 Exiting '_apply_styles'. Theme: {theme_name} has been meticulously applied. The canvas is ready!",
-                **_get_log_args()
-            )       
+     
         return colors
 
+    def _get_layout_info(self, path: pathlib.Path):
+        """
+        ⚡ OPTIMIZATION HELPER: Checks cache before parsing directory.
+        Reduces Disk I/O significantly during recursive builds.
+        """
+        path_str = str(path)
+        # 1. Check RAM Cache
+        if path_str in self._layout_cache:
+            # Optional: Log cache hit only in verbose debug
+            # if self.app_constants.LOCAL_DEBUG_ENABLE: 
+            #    debug_log(message=f"⚡ Cache Hit: {path.name}", **_get_log_args())
+            return self._layout_cache[path_str]
+
+        # 2. Miss: Parse and Store
+        layout_info = self.layout_parser.parse_directory(path)
+        self._layout_cache[path_str] = layout_info
+        return layout_info
 
     def _build_from_directory(self, path: pathlib.Path, parent_widget):
         """
-        Recursively builds the GUI by parsing directory structure and delegating
-        layout creation and module loading to specialized utility classes.
+        Recursively builds the GUI using Cached Layouts.
         """
-        current_function_name = inspect.currentframe().f_code.co_name
-        # Corrected call: Replaced self._log_debug with the imported debug_log function.
-        debug_log( 
-            message=f"▶️ _build_from_directory for path: '{path}'. Parent widget: {parent_widget}.",
-            **_get_log_args()
-        )
+        # ⚡ OPTIMIZATION: Guarded Log Call
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
+             debug_log( 
+                message=f"▶️ _build_from_directory for path: '{path}'",
+                **_get_log_args()
+            )
 
-        # Use the LayoutParser to understand the directory's intended structure
-        layout_info = self.layout_parser.parse_directory(path)
+        # ⚡ OPTIMIZATION: Use Cached Layout Info
+        layout_info = self._get_layout_info(path)
         layout_type = layout_info['type']
         layout_data = layout_info['data']
 
         if layout_type == 'error':
             if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"❌🔴 Layout parsing failed for {path}: {layout_data.get('error_message')}. The architectural plans are flawed!",
+                    message=f"❌🔴 Layout parsing failed for {path}: {layout_data.get('error_message')}",
                     **_get_log_args()
                 )
-            return # Stop processing this path if there's a layout error
+            return
 
         try:
             if layout_type == 'horizontal_split' or layout_type == 'vertical_split':
@@ -241,138 +208,84 @@ class Application(ttk.Frame):
                 paned_window = ttk.PanedWindow(parent_widget, orient=orientation)
                 paned_window.pack(fill=tk.BOTH, expand=True)
 
-                # Sash drag event binding to update tasks, can be used for logging or state updates
                 def on_sash_drag(event):
-                    # Original code had a debug log here, can be uncommented if needed for debugging
-                    # self._log_debug(f"Sash dragged to {paned_window.sashpos(0)}", current_function_name) # This would be a problem if it were self._log_debug
-                    self.update_idletasks() # Ensure UI updates after drag
+                    self.update_idletasks()
                 paned_window.bind("<B1-Motion>", on_sash_drag)
 
                 percentages = layout_data.get('panel_percentages', [])
                 for panel_info in layout_data['panels']:
                     sub_dir_path = panel_info['path']
+
+                    # --- 🗺️ Objective 1: Temporal Crawler ---
+                    # Before building a pane, check if it contains any valid GUI files.
+                    if not self.layout_parser._scan_for_flux_capacitors(sub_dir_path):
+                        if self.app_constants.LOCAL_DEBUG_ENABLE:
+                            debug_log(message=f"⏩ Pruning empty branch: Skipping panel '{sub_dir_path.name}' as it contains no GUI files.")
+                        continue # Prune this branch
+
                     weight = panel_info['weight']
                     
-                    # Create a frame for each panel within the PanedWindow
                     new_frame = ttk.Frame(paned_window, borderwidth=self.theme_colors["border_width"], relief=self.theme_colors["relief"])
                     paned_window.add(new_frame, weight=weight)
-
-                    # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message=f"✅🔨 Constructing a magnificent '{layout_type}' pane for '{panel_info['name']}' with a formidable weight of {weight}.",
-                            **_get_log_args()
-                        )
                     
-                    # Recursively build the content of this panel
                     self._build_from_directory(path=sub_dir_path, parent_widget=new_frame)
 
-                # Configure sash position after children are added and configured
                 def configure_sash(event):
                     total_percentage = sum(percentages)
                     if len(percentages) > 1 and total_percentage > 0:
-                        # Calculate sash position based on event geometry and total percentage
                         sash_pos = int(event.width * (percentages[0] / total_percentage)) if orientation == tk.HORIZONTAL else int(event.height * (percentages[0] / total_percentage))
                         paned_window.tk.call(paned_window._w, 'sashpos', 0, sash_pos)
-                        paned_window.unbind("<Configure>") # Unbind after initial configuration to prevent multiple calls
+                        paned_window.unbind("<Configure>")
 
                 paned_window.bind("<Configure>", configure_sash)
 
             elif layout_type == 'notebook':
                 notebook = ttk.Notebook(parent_widget)
                 notebook.pack(fill=tk.BOTH, expand=True)
-                self._notebooks[path] = notebook # Store notebook instance for later access (e.g., initial tab selection)
+                self._notebooks[path] = notebook
                 
-                # Bind tear-off functionality using the WindowManager
                 notebook.bind('<Control-Button-1>', self.window_manager.tear_off_tab)
-                notebook.bind('<<NotebookTabChanged>>', self._on_tab_change) # Event for tab switching
-                # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log( 
-                        message=f"✅🔨 A grand tome takes shape! ttk.Notebook for path '{path}'. Tear-off and tab change events are now bound, ready for dynamic interaction!",
-                        **_get_log_args()
-                    )
+                notebook.bind('<<NotebookTabChanged>>', self._on_tab_change)
                 
                 for tab_info in layout_data['tabs']:
                     tab_dir_path = tab_info['path']
                     display_name = tab_info['display_name']
                     
-                    # Create a frame for each tab content. This frame will hold the GUI elements for the tab.
                     tab_frame = ttk.Frame(notebook)
-                    # Ensure the tab_frame expands to fill the notebook's allocated space
                     tab_frame.grid_rowconfigure(0, weight=1)
                     tab_frame.grid_columnconfigure(0, weight=1)
-                    # Place the frame in the notebook area using grid (as per original code)
                     tab_frame.grid(row=0, column=0, sticky="nsew") 
                     
-                    self._frames_by_path[tab_dir_path] = tab_frame # Store frame by path for reference
+                    self._frames_by_path[tab_dir_path] = tab_frame
+                    
+                    # === Lazy Loading Markers ===
+                    tab_frame.is_populated = False
+                    tab_frame.build_path = tab_dir_path
                     
                     notebook.add(tab_frame, text=display_name)
-                    # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message=f"📑📑 Behold! Tab '{display_name}' added to the notebook. Another chapter unfolds!",
-                            **_get_log_args()
-                        )
-                    
-                    # Recursively build the content of this tab frame
-                    self._build_from_directory(path=tab_dir_path, parent_widget=tab_frame)
 
-            elif layout_type == 'monitors': # Special case handling for '2_monitors' from original code structure
-                # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log( 
-                        message=f"📊🔍 Engaging 'monitors' layout for path: '{path}'. Preparing for visual surveillance!",
-                        **_get_log_args()
-                    )
-                # Configure the parent widget to allow grid expansion for the monitor frames
+            elif layout_type == 'monitors':
                 parent_widget.grid_rowconfigure(0, weight=1)
                 parent_widget.grid_rowconfigure(1, weight=1)
                 parent_widget.grid_rowconfigure(2, weight=1)
                 parent_widget.grid_columnconfigure(0, weight=1)
                 
-                # Use ModuleLoader to instantiate GUI components found in the 'gui_*.py' files
                 for i, gui_file_path in enumerate(layout_data['gui_files']):
                     frame_instance = self.module_loader.load_and_instantiate_gui(
                         path=gui_file_path, 
                         parent_widget=parent_widget
-                        # ModuleLoader automatically passes theme colors and handles finding the class.
                     )
                     if frame_instance:
-                        # Grid the instance as done in the original code
                         frame_instance.grid(row=i, column=0, sticky="nsew")
-                        # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                        if self.app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(message=f"📊✅ A new viewport! Instantiated and gridded '{frame_instance.__class__.__name__}' from '{gui_file_path.name}'.",**_get_log_args())                    
-                    else:
-                        if self.app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(
-                                message=f"❌🔴 A creation deferred! Failed to instantiate GUI from {gui_file_path.name}. Back to the drawing board!",
-                                **_get_log_args()
-                            )
 
             elif layout_type == 'recursive_build':
-                # Handle 'child_' directories: these are treated as modules to load from.
                 for child_dir_path in layout_data['child_containers']:
-                    # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message=f"🧱🟢 Assembling a miniature world! Building child container directory: '{child_dir_path.name}'.",
-                            **_get_log_args()
-                        )
                     self.module_loader.load_and_instantiate_gui(
                         path=child_dir_path, 
                         parent_widget=parent_widget
                     )
                 
-                # Handle GUI files directly within this directory.
                 for gui_file_path in layout_data['gui_files']:
-                    # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                    if self.app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log( 
-                            message=f"🧱🟢 Summoning a GUI from: '{gui_file_path.name}'. Let the visual enchantments begin!",
-                            **_get_log_args()
-                        )
                     instance = self.module_loader.load_and_instantiate_gui(
                         path=gui_file_path, 
                         parent_widget=parent_widget
@@ -380,119 +293,76 @@ class Application(ttk.Frame):
                     if instance:
                         instance.pack(fill=tk.BOTH, expand=True)
             
-            else: # Fallback for any unhandled directory structures or empty folders.
-                # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log( 
-                        message=f"🖥️🟡 A puzzle! No specific layout type matched for '{path}'. Initiating a general recursive build.",
-                        **_get_log_args()
-                    )
-                # This part might be redundant if 'recursive_build' covers all cases but is kept as a safety net.
-                
-                sub_dir = None # Initialize sub_dir to None to prevent 'unbound local variable' errors if the loop doesn't run.
-
-                # Recursively build any subdirectories not explicitly handled as layouts.
+            else: 
+                # General Recursive Fallback
                 sub_dirs = sorted([d for d in path.iterdir() if d.is_dir()])
                 for sub_dir in sub_dirs:
-                    # Avoid reprocessing directories already handled by specific layout types
                     dir_prefix = sub_dir.name.split('_')[0]
                     if not (dir_prefix in ['left', 'right', 'top', 'bottom'] or 
                             dir_prefix.isdigit() or 
                             sub_dir.name.startswith("child_")):
                         self._build_from_directory(path=sub_dir, parent_widget=parent_widget)
 
-                # Load any 'gui_*.py' files found directly in this directory.
                 py_files = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
                 for py_file in py_files:
                     self.module_loader.load_and_instantiate_gui(path=py_file, parent_widget=parent_widget)
+            
+            if self.root:
+                self.root.update()
 
-                # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                if self.app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log( 
-                        message=f"⏹️ The architectural process concludes! '_build_from_directory' for path: '{path}'.",
-                        **_get_log_args()
-                    )
         except Exception as e:
             if self.app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"❌🔴 Catastrophic structural failure in '_build_from_directory' for {path}: {e}. The foundations are crumbling!",
+                    message=f"❌🔴 Catastrophic structural failure in '_build_from_directory' for {path}: {e}",
                     **_get_log_args()
                 )
 
-
-
     def print_to_console(self, message: str):
-        """
-        Placeholder method to print messages to a GUI console.
-        This routes all console output through the debug_log system for centralized handling.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE:
+        """Placeholder method to print messages to a GUI console."""
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🖥️💬 Observer's Log: {message}. What fascinating data has surfaced now?",
+                message=f"🖥️💬 Observer's Log: {message}",
                 **_get_log_args()
             )
 
     def _on_tab_change(self, event):
-        """Logs a debug message when a tab is selected or deselected and triggers tab-specific actions."""
-        current_function_name = inspect.currentframe().f_code.co_name
-        # Corrected call: Replaced self._log_debug with the imported debug_log function.
-        debug_log( 
-            message=f"▶️ '{current_function_name}' to log a tab change.",
-            **_get_log_args()
-        )
+        """Logs a debug message, triggers lazy loading, and handles tab-specific actions."""
+        # ⚡ OPTIMIZATION: Guarded Logging - Major Performance Gain
+        if self.app_constants.LOCAL_DEBUG_ENABLE:
+             debug_log(message=f"▶️ _on_tab_change detected.", **_get_log_args())
         
         try:
             notebook = event.widget
-            newly_selected_tab_id = notebook.select() # Get the internal ID of the selected tab
-            newly_selected_tab_name = notebook.tab(newly_selected_tab_id, "text") # Get the display text of the tab
+            selected_tab_id = notebook.select()
+            selected_tab_frame = notebook.nametowidget(selected_tab_id)
+            newly_selected_tab_name = notebook.tab(selected_tab_id, "text")
 
-            # Log tab deselection if there was a previously selected tab
-            if self.last_selected_tab_name:
-                # Corrected call: Replaced self._log_debug with the imported debug_log function.
-                debug_log( 
-                    message=f"📘🟡 Tab '{self.last_selected_tab_name}' deselected!",
-                    **_get_log_args()
-                )
+            # --- LAZY LOADING ---
+            if not getattr(selected_tab_frame, "is_populated", False):
+                build_path = getattr(selected_tab_frame, "build_path", None)
+                if build_path:
+                    if self.app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(f"⚡ Lazy Loading engaged for tab: {newly_selected_tab_name}")
+                    
+                    self._build_from_directory(path=build_path, parent_widget=selected_tab_frame)
+                    
+                    selected_tab_frame.is_populated = True
+                    if self.app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(f"✅ Lazy Loading complete for tab: {newly_selected_tab_name}")
 
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
-            debug_log( 
-                message=f"📘🟢 Tab '{newly_selected_tab_name}' selected!",
-                **_get_log_args()
-            )
-            
+            # --- Standard Tab Change Logic ---
             self.last_selected_tab_name = newly_selected_tab_name
             
-            # Get the actual frame widget associated with the newly selected tab
-            selected_tab_frame = notebook.nametowidget(newly_selected_tab_id)
-            
-            # Find the primary content widget within the tab frame (assuming it's the first child)
-            # This allows dynamically loaded tab content to react to tab selection.
             if selected_tab_frame.winfo_children():
                 content_widget = selected_tab_frame.winfo_children()[0]
-                # Check if the content widget has a method to handle tab selection and call it.
                 if hasattr(content_widget, '_on_tab_selected') and callable(getattr(content_widget, '_on_tab_selected')):
-                    
-                    debug_log( 
-                        message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.",
-                        **_get_log_args()
-                    )
-                    content_widget._on_tab_selected(event) # Pass the event object
-                   
+                    if self.app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(message=f"Calling _on_tab_selected for {content_widget.__class__.__name__}.", **_get_log_args())
+                    content_widget._on_tab_selected(event)
             
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
-            debug_log( 
-                message=f"Tab change logged successfully. New tab: '{newly_selected_tab_name}'.",
-                **_get_log_args()
-            )
-            # Corrected call: Replaced self._log_debug with the imported debug_log function.
-            debug_log( 
-                message=f"⏹️_on_tab_change().",
-                **_get_log_args()
-            )
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(message=f"⏹️_on_tab_change complete for '{newly_selected_tab_name}'.", **_get_log_args())
 
         except Exception as e:
-            debug_log(
-                message=f"❌ Error in _on_tab_change: {e}",
-                **_get_log_args()
-            )
+            if self.app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(message=f"❌ Error in _on_tab_change: {e}", **_get_log_args())

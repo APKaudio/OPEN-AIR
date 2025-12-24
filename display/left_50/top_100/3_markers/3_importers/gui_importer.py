@@ -36,7 +36,7 @@ from workers.logger.logger import  debug_log
 from workers.importers.worker_marker_file_import_handling import (
     maker_file_check_for_markers_file
 )
-from display.styling.style import THEMES, DEFAULT_THEME
+from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.importers.worker_importer_loader import *
 from workers.importers.worker_importer_appender import *
 from workers.importers.worker_importer_editor import *

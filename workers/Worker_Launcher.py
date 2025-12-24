@@ -57,6 +57,7 @@ class WorkerLauncher:
             )
 
         try:
+            # These status updates will now be processed by root.update() in main.py
             self.splash.set_status("Initializing workers...")
             
             ## active_peak_publisher = ActivePeakPublisher()

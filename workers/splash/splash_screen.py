@@ -54,7 +54,7 @@ class SplashScreen:
         try:
             self.splash_window = tk.Toplevel(self.parent)
             self.splash_window.overrideredirect(True)
-            self.splash_window.attributes('-alpha', 0.0)
+            self.splash_window.attributes('-alpha', 1.0) # Always full opacity
             self.splash_window.configure(bg='black')
             
             # --- Dimensions & Centering ---
@@ -111,9 +111,9 @@ class SplashScreen:
             self.current_lyric = self.lyrics[0]
             self.lyrics_label.config(text=self.current_lyric)
 
-            # --- Start Timers ---
-            self.splash_window.after(10, self._fade_in)
-            self.splash_window.after(1500, self.cycle_lyrics_async)
+            # --- No fade-in, start animation directly ---
+            if self.photo_images:
+                self._update_gif_frame() # Start GIF immediately
             
             self._safe_log("✅ SplashScreen Init Complete.")
 
@@ -155,9 +155,6 @@ class SplashScreen:
         except Exception as e:
             self._safe_log(f"🔴 Failed to load GIF frames: {e}", is_error=True)
 
-        if self.photo_images:
-            self._update_gif_frame()
-
     def _update_gif_frame(self):
         self._safe_log(f"Updating GIF frame to index {self.gif_frame_index}")
         if not self.splash_window.winfo_exists():
@@ -170,11 +167,8 @@ class SplashScreen:
         
         self.gif_animation_job = self.splash_window.after(self.gif_frame_duration, self._update_gif_frame)
 
-    def _fade_in(self, alpha=0.0):
-        if self.splash_window.winfo_exists() and alpha <= 1.0:
-            self.splash_window.attributes('-alpha', alpha)
-            self.splash_window.after(20, self._fade_in, alpha + 0.05)
-
+    # _fade_in and _fade_out methods removed
+    
     def hide(self):
         try:
             if self.gif_animation_job:
@@ -183,14 +177,7 @@ class SplashScreen:
         except Exception: pass
         
         if self.splash_window.winfo_exists():
-            self._fade_out()
-
-    def _fade_out(self, alpha=1.0):
-        if self.splash_window.winfo_exists() and alpha >= 0.0:
-            self.splash_window.attributes('-alpha', alpha)
-            self.splash_window.after(20, self._fade_out, alpha - 0.05)
-        elif self.splash_window.winfo_exists():
-            self.splash_window.destroy()
+            self.splash_window.destroy() # Destroy the splash window directly
 
     def set_status(self, message):
         if self.splash_window.winfo_exists() and self.status_label:
@@ -198,6 +185,7 @@ class SplashScreen:
             self.parent.update_idletasks()
 
     def cycle_lyrics_async(self):
+        # This method is no longer called in init, but kept for potential future use or direct invocation
         if self.splash_window.winfo_exists() and self.lyrics:
             self.lyric_index = (self.lyric_index + 1) % len(self.lyrics)
             self.current_lyric = self.lyrics[self.lyric_index]

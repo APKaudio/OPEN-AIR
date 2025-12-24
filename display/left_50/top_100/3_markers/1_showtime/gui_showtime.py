@@ -38,7 +38,7 @@ from workers.importers.worker_marker_file_import_handling import maker_file_chec
 # from workers.active.worker_active_marker_tune_and_collect import Push_Marker_to_Center_Freq, Push_Marker_to_Start_Stop_Freq
 # NEW: Import the refactored logic function
 from workers.markers.worker_marker_logic import calculate_frequency_range
-from display.styling.style import THEMES, DEFAULT_THEME
+from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.Showtime.worker_showtime_read import load_marker_data
 from workers.Showtime.worker_showtime_group import process_and_sort_markers
 from workers.Showtime.worker_showtime_tune import on_tune_request_from_selection

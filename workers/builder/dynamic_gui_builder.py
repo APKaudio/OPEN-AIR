@@ -1,22 +1,23 @@
 # workers/builder/dynamic_gui_builder.py
 #
 # A recursive GUI engine that builds functional tkinter interfaces from JSON configurations.
-# Version 20251223.213000.8
+# Version 20251223.235500.9 (OPTIMIZED)
 #
 # UPDATES:
-# 1. CHANGED DEFAULT: 'layout_columns' now defaults to 1 (Vertical Stack).
-#    Use "layout_columns": N to create horizontal grids explicitly.
+# 1. HASH CHECK IMPLEMENTED: Prevents rebuilding GUI if JSON content hasn't changed.
+# 2. CHANGED DEFAULT: 'layout_columns' now defaults to 1 (Vertical Stack).
 
 import os
 import json
+import hashlib  # ⚡ Added for optimization
 import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 import inspect
 
 # --- Module Imports ---
-from workers.logger.logger import  debug_log
-from display.styling.style import THEMES, DEFAULT_THEME
+from workers.logger.logger import debug_log
+from workers.styling.style import THEMES, DEFAULT_THEME
 from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 import workers.setup.app_constants as app_constants
 from workers.utils.log_utils import _get_log_args 
@@ -48,8 +49,8 @@ from .audio.dynamic_gui_create_panner import PannerCreatorMixin
 
 # --- Protocol Global Variables ---
 CURRENT_DATE = 20251223
-CURRENT_TIME = 213000
-CURRENT_ITERATION = 8
+CURRENT_TIME = 235500
+CURRENT_ITERATION = 9
 
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
 current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
@@ -87,6 +88,7 @@ class DynamicGuiBuilder(
         super().__init__(parent, *args, **kwargs)
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
+        self.last_build_hash = None # ⚡ Initialize Hash Tracker
 
         if app_constants.LOCAL_DEBUG_ENABLE: 
              debug_log(
@@ -105,7 +107,7 @@ class DynamicGuiBuilder(
         self.topic_widgets = {}
         self.config_data = {}
         self.gui_built = False
-        self.mqtt_callbacks = {}
+        #self.mqtt_callbacks = {}
 
         self.widget_factory = {
             "_sliderValue": self._create_slider_value,
@@ -152,13 +154,15 @@ class DynamicGuiBuilder(
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
             self._load_and_build_from_file()
-            ttk.Button(self, text="Reload Config", command=self._rebuild_gui).pack(side=tk.BOTTOM, pady=10)
+            ttk.Button(self, text="Reload Config", command=self._force_rebuild_gui).pack(side=tk.BOTTOM, pady=10)
 
         except Exception as e:
             debug_log(message=f"❌ Error in __init__: {e}")
 
     def _transmit_command(self, *args, **kwargs):
-        debug_log(message="[DUMMY] _transmit_command called", **_get_log_args())
+        # Optimization: Avoid _get_log_args call here unless necessary
+        if app_constants.LOCAL_DEBUG_ENABLE:
+             debug_log(message="[DUMMY] _transmit_command called", **_get_log_args())
 
     def _apply_styles(self, theme_name):
         pass
@@ -169,11 +173,33 @@ class DynamicGuiBuilder(
     def _on_canvas_configure(self, event=None):
         self.canvas.itemconfig(self.canvas.find_withtag("all")[0], width=event.width)
 
+    def _force_rebuild_gui(self):
+        """Manually triggers a rebuild, bypassing the hash check."""
+        self.last_build_hash = None
+        self._load_and_build_from_file()
+
     def _load_and_build_from_file(self):
         try:
             if self.json_filepath.exists():
+                # ⚡ OPTIMIZATION STEP 1: READ RAW & HASH ⚡
                 with open(self.json_filepath, 'r') as f:
-                    self.config_data = json.load(f)
+                    raw_content = f.read()
+                
+                # Calculate MD5 Hash of the file content
+                current_hash = hashlib.md5(raw_content.encode('utf-8')).hexdigest()
+                
+                # Check if the file has changed since the last build
+                if self.last_build_hash == current_hash:
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        # Use a simple message to avoid overhead
+                        debug_log(message=f"⚡ Config unchanged for {self.json_filepath.name}. Skipping GUI rebuild.")
+                    return
+
+                # If changed, update hash and parse JSON
+                self.last_build_hash = current_hash
+                self.config_data = json.loads(raw_content)
+                
+                # Proceed to build
                 self._rebuild_gui()
                 self.gui_built = True
             else:
@@ -182,66 +208,132 @@ class DynamicGuiBuilder(
             debug_log(message=f"❌ Error in _load_and_build_from_file: {e}")
 
     def _rebuild_gui(self):
+        # Solution B: Silent Running Protocol (Log Suppression)
+        previous_debug_enable_state = app_constants.LOCAL_DEBUG_ENABLE
+        app_constants.LOCAL_DEBUG_ENABLE = False
+
+        previous_performance_mode = app_constants.PERFORMANCE_MODE
+        app_constants.PERFORMANCE_MODE = True
+
         try:
-            if app_constants.LOCAL_DEBUG_ENABLE: 
+            if previous_debug_enable_state:
                 debug_log(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
             
-            self.update_idletasks()
+            # Solution A: Layout Locking
+            self.pack_forget() 
+
             for child in self.scroll_frame.winfo_children():
                 child.destroy()
             self.topic_widgets.clear()
-            self.update_idletasks()
+            self.update_idletasks() 
 
-            self._create_dynamic_widgets(parent_frame=self.scroll_frame, data=self.config_data)
+            # Replace synchronous call with asynchronous batch processing
+            widget_configs = list(self.config_data.items())
+            self._create_widgets_in_batches(self.scroll_frame, widget_configs)
             
-            self._on_frame_configure()
-            
-            debug_log(message="✅ GUI Reconstruction complete!")
         except Exception as e:
-            debug_log(message=f"❌ Error in _rebuild_gui: {e}")
+            app_constants.LOCAL_DEBUG_ENABLE = True
+            debug_log(message=f"❌ Error in _rebuild_gui: {e}", **_get_log_args())
+            app_constants.LOCAL_DEBUG_ENABLE = False
+            
+        finally:
+            # Restore states in the final batch completion, not here.
+            # The finalization (packing, restoring logs) will happen
+            # at the end of the batch processing.
+            pass
+
+    def _create_widgets_in_batches(self, parent_frame, widget_configs, path_prefix="", override_cols=None, start_index=0, row_offset=0):
+        """
+        Creates widgets in batches to prevent freezing the GUI, implementing the 
+        "Flux Dispersal" strategy.
+        """
+        batch_size = 5 # Process 5 widgets per event loop cycle
+        index = start_index
+        
+        col = 0
+        row = row_offset
+        max_cols = int(self.config_data.get("layout_columns", 1) if override_cols is None else override_cols)
+
+        while index < len(widget_configs) and index < start_index + batch_size:
+            key, value = widget_configs[index]
+            current_path = f"{path_prefix}/{key}".strip("/")
+
+            if isinstance(value, dict):
+                widget_type = value.get("type")
+                layout = value.get("layout", {})
+                col_span = int(layout.get("col_span", 1))
+                row_span = int(layout.get("row_span", 1))
+                sticky = layout.get("sticky", "nw")
+
+                target_frame = None
+
+                if widget_type == "OcaBlock":
+                    block_cols = value.get("layout_columns", None)
+                    target_frame = ttk.LabelFrame(parent_frame, text=key)
+                    # Recursively but synchronously build sub-blocks as they are usually small.
+                    self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
+                
+                elif widget_type in self.widget_factory:
+                    target_frame = self.widget_factory[widget_type](
+                        parent_frame=parent_frame,
+                        label=value.get("label_active", key),
+                        config=value,
+                        path=current_path
+                    )
+
+                if target_frame:
+                    target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
+                    col += col_span
+                    if col >= max_cols:
+                        col = 0
+                        row += row_span
+            
+            index += 1
+
+        if index < len(widget_configs):
+            # Schedule the next batch
+            self.after(5, lambda: self._create_widgets_in_batches(parent_frame, widget_configs, path_prefix, override_cols, index, row))
+        else:
+            # --- Finalization Step (at the end of the last batch) ---
+            self._on_frame_configure()
+            self.pack(fill=tk.BOTH, expand=True) # Re-show the parent now that all widgets are created
+
+            # Restore logging state
+            previous_debug_enable_state = getattr(self, '_previous_debug_state', True) # Retrieve saved state
+            app_constants.LOCAL_DEBUG_ENABLE = previous_debug_enable_state
+            app_constants.PERFORMANCE_MODE = False
+            
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(message="✅ Batch processing complete! All widgets built.", **_get_log_args())
 
     def _create_dynamic_widgets(self, parent_frame, data, path_prefix="", override_cols=None):
+        """
+        Synchronous legacy method for building widgets, now primarily used for sub-blocks.
+        """
         try:
             if not isinstance(data, dict):
                 return
 
             col = 0
             row = 0
-            
-            if override_cols is not None:
-                max_cols = int(override_cols)
-            else:
-                # ⚡ DEFAULT CHANGED TO 1 ⚡
-                # This ensures vertical stacking by default.
-                max_cols = int(data.get("layout_columns", 1))
+            max_cols = int(data.get("layout_columns", 1) if override_cols is None else override_cols)
 
             for key, value in data.items():
                 current_path = f"{path_prefix}/{key}".strip("/")
                 
                 if isinstance(value, dict):
                     widget_type = value.get("type")
-                    
                     layout = value.get("layout", {})
                     col_span = int(layout.get("col_span", 1))
                     row_span = int(layout.get("row_span", 1))
                     sticky = layout.get("sticky", "nw")
-                    req_width = layout.get("width", None)
-                    req_height = layout.get("height", None)
-                    weight_x = int(layout.get("weight_x", 0))
-                    weight_y = int(layout.get("weight_y", 0))
 
                     target_frame = None
 
                     if widget_type == "OcaBlock":
                         block_cols = value.get("layout_columns", None)
                         target_frame = ttk.LabelFrame(parent_frame, text=key)
-                        
-                        self._create_dynamic_widgets(
-                            parent_frame=target_frame, 
-                            data=value.get("fields", {}), 
-                            path_prefix=current_path,
-                            override_cols=block_cols 
-                        )
+                        self._create_dynamic_widgets(parent_frame=target_frame, data=value.get("fields", {}), path_prefix=current_path, override_cols=block_cols)
                     
                     elif widget_type in self.widget_factory:
                         target_frame = self.widget_factory[widget_type](
@@ -252,36 +344,11 @@ class DynamicGuiBuilder(
                         )
 
                     if target_frame:
-                        if req_width or req_height:
-                            if isinstance(target_frame, (tk.Frame, ttk.Frame, ttk.LabelFrame, tk.Canvas)):
-                                target_frame.pack_propagate(False) 
-                                target_frame.grid_propagate(False)
-                            if req_width: target_frame.config(width=req_width)
-                            if req_height: target_frame.config(height=req_height)
-
-                        target_frame.grid(
-                            row=row, 
-                            column=col, 
-                            columnspan=col_span,
-                            rowspan=row_span,
-                            padx=5, 
-                            pady=5, 
-                            sticky=sticky
-                        )
-                        
-                        if weight_x > 0:
-                            parent_frame.grid_columnconfigure(col, weight=weight_x)
-                        if weight_y > 0:
-                            parent_frame.grid_rowconfigure(row, weight=weight_y)
-
+                        target_frame.grid(row=row, column=col, columnspan=col_span, rowspan=row_span, padx=5, pady=5, sticky=sticky)
                         col += col_span
                         if col >= max_cols:
                             col = 0
                             row += row_span
 
-            for i in range(max_cols):
-                if parent_frame.grid_columnconfigure(i)['weight'] == 0:
-                     parent_frame.grid_columnconfigure(i, weight=1)
-
         except Exception as e:
-            debug_log(message=f"❌ Error in _create_dynamic_widgets: {e}")
+            print(f"❌ Error in synchronous _create_dynamic_widgets: {e}")

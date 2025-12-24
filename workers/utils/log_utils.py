@@ -2,6 +2,7 @@
 import inspect
 import os
 import workers.setup.app_constants as app_constants
+from workers.setup.app_constants import PERFORMANCE_MODE # This was missing
 
 def _get_log_args():
     """Helper to get common debug_log arguments.
@@ -10,6 +11,9 @@ def _get_log_args():
         dict: A dictionary containing 'file', 'version', and 'function' 
               to be used with debug_log.
     """
+    if PERFORMANCE_MODE: # This was the line where PERFORMANCE_MODE was undefined
+        return {} # Return empty dict in performance mode
+        
     # This frame navigation is crucial.
     # inspect.currentframe() is _get_log_args
     # f_back is the caller of _get_log_args (e.g., debug_log(...))

@@ -1,11 +1,20 @@
-# display/utils/layout_parser.py
+# workers/display/layout_parser.py
+#
+# Author: Anthony Peter Kuzub
+# Blog: www.Like.audio (Contributor to this project)
+#
+# This file is part of the OPEN-AIR project.
+#
+# Professional services for customizing and tailoring this software to your specific
+# application can be negotiated. There is no charge to use, modify, or fork this software.
 
 import os
 import inspect
 import pathlib
-import tkinter as tk # Import tk for HORIZONTAL and VERTICAL constants
-from tkinter import ttk # ttk is still needed for widget classes if referenced
+import tkinter as tk
+from tkinter import ttk
 from workers.utils.log_utils import _get_log_args 
+import workers.setup.app_constants as app_constants
 
 class LayoutParser:
     """
@@ -16,12 +25,28 @@ class LayoutParser:
         self.current_version = current_version
         self.LOCAL_DEBUG_ENABLE = LOCAL_DEBUG_ENABLE
         self.debug_log = debug_log_func if debug_log_func else (lambda message, **kwargs: None)
+
+    @staticmethod
+    def _scan_for_flux_capacitors(path: pathlib.Path) -> bool:
+        """
+        Recursively checks if a folder or any of its sub-folders contain a 'gui_*.py' file.
+        This is the "Temporal Crawler" to avoid building empty containers.
+        """
+        try:
+            for item in path.iterdir():
+                if item.is_file() and item.name.startswith("gui_") and item.name.endswith(".py"):
+                    return True
+                if item.is_dir() and not item.name.startswith("__"):
+                    if LayoutParser._scan_for_flux_capacitors(item):
+                        return True
+        except (FileNotFoundError, PermissionError):
+            return False
+        return False
             
-    def parse_directory(self, path: pathlib.Path):
+    def parse_directory(self, path: pathlib.Path) -> dict:
         """
         Analyzes a directory path to determine its intended GUI layout structure.
         Returns a dictionary describing the layout and relevant parsed data.
-        Expected layout types: 'horizontal_split', 'vertical_split', 'notebook', 'monitors', 'recursive_build', 'error'.
         """
         current_function_name = inspect.currentframe().f_code.co_name
         self.debug_log(
@@ -57,62 +82,66 @@ class LayoutParser:
                 layout_data['error_message'] = "Mixed horizontal and vertical layouts."
             elif is_horizontal:
                 layout_type = 'horizontal_split'
-                # Sort by 'left', 'right' order
                 sort_order = ['left', 'right']
                 sorted_layout_dirs = sorted(layout_dirs, key=lambda d: sort_order.index(d.name.split('_')[0]))
                 
-                layout_data['orientation'] = tk.HORIZONTAL # Corrected: Use tk.HORIZONTAL
+                layout_data['orientation'] = tk.HORIZONTAL
                 layout_data['panels'] = []
                 percentages = []
                 for sub_dir in sorted_layout_dirs:
-                    if sub_dir.name.split('_')[0] not in ['left', 'right']: continue # Ensure it's a horizontal panel dir
+                    if sub_dir.name.split('_')[0] not in ['left', 'right']: continue
                     try:
                         percentage = int(sub_dir.name.split('_')[1])
-                        percentages.append(percentage)
-                        layout_data['panels'].append({'name': sub_dir.name, 'path': sub_dir, 'weight': percentage})
-                    except (IndexError, ValueError) as e:
+                    except (IndexError, ValueError):
+                        percentage = app_constants.UI_LAYOUT_SPLIT_EQUAL
                         self.debug_log(
-                            message=f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}",
+                            message=f"⚠️ Warning: Could not parse percentage from '{sub_dir.name}'. Defaulting to {percentage}.",
                             **_get_log_args()
                         )
+                    percentages.append(percentage)
+                    layout_data['panels'].append({'name': sub_dir.name, 'path': sub_dir, 'weight': percentage})
                 layout_data['panel_percentages'] = percentages
             elif is_vertical:
                 layout_type = 'vertical_split'
-                # Sort by 'top', 'bottom' order
                 sort_order = ['top', 'bottom']
                 sorted_layout_dirs = sorted(layout_dirs, key=lambda d: sort_order.index(d.name.split('_')[0]))
 
-                layout_data['orientation'] = tk.VERTICAL # Corrected: Use tk.VERTICAL
+                layout_data['orientation'] = tk.VERTICAL
                 layout_data['panels'] = []
                 percentages = []
                 for sub_dir in sorted_layout_dirs:
-                    if sub_dir.name.split('_')[0] not in ['top', 'bottom']: continue # Ensure it's a vertical panel dir
+                    if sub_dir.name.split('_')[0] not in ['top', 'bottom']: continue
                     try:
                         percentage = int(sub_dir.name.split('_')[1])
-                        percentages.append(percentage)
-                        layout_data['panels'].append({'name': sub_dir.name, 'path': sub_dir, 'weight': percentage})
-                    except (IndexError, ValueError) as e:
+                    except (IndexError, ValueError):
+                        percentage = app_constants.UI_LAYOUT_SPLIT_EQUAL
                         self.debug_log(
-                            message=f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}",
+                            message=f"⚠️ Warning: Could not parse percentage from '{sub_dir.name}'. Defaulting to {percentage}.",
                             **_get_log_args()
                         )
+                    percentages.append(percentage)
+                    layout_data['panels'].append({'name': sub_dir.name, 'path': sub_dir, 'weight': percentage})
                 layout_data['panel_percentages'] = percentages
             else:
-                 # This case should ideally not be reached if layout_dirs is not empty and logic is sound
-                self.debug_log(
+                 self.debug_log(
                     message=f"Found layout_dirs but no clear orientation detected in '{path}'.",
                     **_get_log_args()
                 )
 
         elif potential_tab_dirs:
             layout_type = 'notebook'
-            # Filter for actual tab directories (starting with a digit) and sort them numerically.
-            tab_dirs = sorted([d for d in sub_dirs if d.name and d.name[0].isdigit()], 
+            
+            valid_tab_dirs = [
+                d for d in potential_tab_dirs 
+                if LayoutParser._scan_for_flux_capacitors(d)
+            ]
+            
+            tab_dirs = sorted(valid_tab_dirs, 
                               key=lambda d: int(d.name.split('_')[0]))
+            
             layout_data['tabs'] = []
             for tab_dir in tab_dirs:
                 parts = tab_dir.name.split('_')
-                # Find the first numeric part to determine sorting. Assumes format like '1_TabName', '02_AnotherTab'
                 digit_part_index = -1
                 for i, part in enumerate(parts):
                     if part.isdigit():
@@ -122,11 +151,11 @@ class LayoutParser:
                 display_name = " ".join(parts[digit_part_index + 1:]).title() if digit_part_index != -1 else tab_dir.name
                 layout_data['tabs'].append({'name': tab_dir.name, 'path': tab_dir, 'display_name': display_name})
         
-        elif "2_monitors" in str(path): # Special case for monitors directory from original code
+        elif "2_monitors" in str(path):
             layout_type = 'monitors'
             layout_data['gui_files'] = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
 
-        else: # Default case: look for child containers or GUI files
+        else: 
             layout_type = 'recursive_build'
             layout_data['child_containers'] = [d for d in sub_dirs if d.name.startswith("child_")]
             layout_data['gui_files'] = sorted([f for f in path.iterdir() if f.is_file() and f.name.startswith("gui_") and f.suffix == '.py'])
@@ -136,4 +165,3 @@ class LayoutParser:
             **_get_log_args()
         )
         return {'type': layout_type, 'data': layout_data}
-
