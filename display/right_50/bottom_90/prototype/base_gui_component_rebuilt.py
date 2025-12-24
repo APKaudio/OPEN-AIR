@@ -109,15 +109,13 @@ class BaseGUIFrame(ttk.Frame):
             status_label = ttk.Label(status_bar, text=status_text, anchor='w')
             status_label.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
-            debug_log(message="✅ Celebration of success!")
+            debug_log(message="✅ Celebration of success!",**_get_log_args())
 
         except Exception as e:
             
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 
@@ -163,11 +161,7 @@ class BaseGUIFrame(ttk.Frame):
         # Entry log
         debug_log(
             message="🖥️🟢 Entering 'log_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-            
-
+           **_get_log_args()
 
         )
 
@@ -180,11 +174,7 @@ class BaseGUIFrame(ttk.Frame):
         # Entry log
         debug_log(
             message="🖥️🟢 Entering 'debug_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-            
-
+        **_get_log_args()
 
         )
 
@@ -192,9 +182,7 @@ class BaseGUIFrame(ttk.Frame):
             # --- Function logic goes here ---
             debug_log(
                 message="🔍🔵 The right button was clicked! Time for a deeper inspection!",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 
@@ -205,9 +193,7 @@ class BaseGUIFrame(ttk.Frame):
             debug_log(message=f"❌ Error in {current_function_name}: {e}")
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 

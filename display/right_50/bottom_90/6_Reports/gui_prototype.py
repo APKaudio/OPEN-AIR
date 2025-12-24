@@ -114,9 +114,7 @@ class BaseGUIFrame(ttk.Frame):
             
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 
@@ -162,11 +160,7 @@ class BaseGUIFrame(ttk.Frame):
         # Entry log
         debug_log(
             message="🖥️🟢 Entering 'log_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-            
-
+         **_get_log_args()
 
         )
 
@@ -179,11 +173,7 @@ class BaseGUIFrame(ttk.Frame):
         # Entry log
         debug_log(
             message="🖥️🟢 Entering 'debug_button_press' from the GUI layer.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-            
-
+            **_get_log_args()
 
         )
 
@@ -191,9 +181,7 @@ class BaseGUIFrame(ttk.Frame):
             # --- Function logic goes here ---
             debug_log(
                 message="🔍🔵 The right button was clicked! Time for a deeper inspection!",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 
@@ -204,9 +192,7 @@ class BaseGUIFrame(ttk.Frame):
             
             debug_log(
                 message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
                 
 
 

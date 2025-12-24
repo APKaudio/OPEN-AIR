@@ -76,7 +76,7 @@ class ScanViewGUIFrame(ttk.Frame):
             
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
-                    message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",
+                    message=f"✅ Celebration of success! {self.__class__.__name__} initialized.",**_get_log_args()
 
                 )
 

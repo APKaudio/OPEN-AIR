@@ -6,6 +6,9 @@ import sys
 import importlib.util
 import pathlib
 from tkinter import ttk, Frame
+import workers.setup.app_constants as app_constants # Import app_constants
+from workers.logger.logger import debug_log # Import the global debug_log
+from workers.utils.log_utils import _get_log_args
 
 # Attempt to import PIL/ImageTk, setting a flag if successful.
 # This addresses the "Critical Fix" for suppressing PIL/ImageTk errors.
@@ -24,12 +27,12 @@ class ModuleLoader:
     Handles dynamic loading of Python modules and instantiation of GUI classes.
     Includes logic for suppressing common import errors like PIL/ImageTk.
     """
-    def __init__(self, current_version, LOCAL_DEBUG_ENABLE, debug_log_func, theme_colors_func):
-        self.current_version = current_version
-        self.LOCAL_DEBUG_ENABLE = LOCAL_DEBUG_ENABLE
-        self.debug_log = debug_log_func if debug_log_func else debug_log_placeholder
+    def __init__(self, theme_colors): # Removed current_version, LOCAL_DEBUG_ENABLE, debug_log_func
+        # self.current_version = app_constants.current_version # No longer needed
+        # self.LOCAL_DEBUG_ENABLE = app_constants.LOCAL_DEBUG_ENABLE # No longer needed
+        # self.debug_log = debug_log # No longer needed, use imported debug_log directly
         # Theme colors are passed from the Application class to be available for GUI instantiation
-        self.theme_colors = theme_colors_func 
+        self.theme_colors = theme_colors
 
     def _load_module(self, module_path: pathlib.Path, module_name: str):
         """
@@ -37,56 +40,46 @@ class ModuleLoader:
         Returns the module object. Handles potential import errors.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message=f"Loading module from '{module_path}' with name '{module_name}'",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
-        )
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬🟢 Preparing to awaken a module! Loading from '{module_path}' with name '{module_name}'.",
+                **_get_log_args()
+            )
         
         try:
             spec = importlib.util.spec_from_file_location(module_name, str(module_path))
             if spec is None:
-                self.debug_log(
-                    message=f"❌ Error: Could not create module spec for {module_path}",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🔴 Catastrophic failure! Could not forge a module spec for '{module_path}'. Aborting mission!",
+                        **_get_log_args()
+                    )
                 return None
                 
             module = importlib.util.module_from_spec(spec)
             
             # Add module to sys.modules to ensure it's discoverable by other imports.
             if module_name in sys.modules:
-                 self.debug_log(
-                    message=f"Warning: Module '{module_name}' already in sys.modules. Overwriting could be risky.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                 )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🟡 Temporal anomaly detected! Module '{module_name}' already exists. Overwriting with extreme prejudice (and a warning!).",
+                        **_get_log_args()
+                    )
             sys.modules[module_name] = module
             
             spec.loader.exec_module(module)
-            self.debug_log(
-                message=f"Successfully executed module '{module_name}' from {module_path}",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🔬✅ Module '{module_name}' from '{module_path}' has sprung to life! The experiment progresses!",
+                    **_get_log_args()
+                )
             return module
         except Exception as e:
-            self.debug_log(
-                message=f"❌ Error loading module {module_path}: {e}",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🔬🔴 The module, it resists! Error loading module '{module_path}': {e}. A setback, but not defeat!",
+                    **_get_log_args()
+                )
             return None
 
     def instantiate_gui_class(self, module, parent_widget, class_filter=None):
@@ -95,13 +88,11 @@ class ModuleLoader:
         found in the given module. If class_filter is provided, it attempts to find that specific class.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message=f"Instantiating GUI class from module '{module.__name__}' for parent {parent_widget}",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
-        )
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬🟢 Preparing to conjure a GUI class from module '{module.__name__}' for parent {parent_widget}!",
+                **_get_log_args()
+            )
         
         target_class = None
         for name, obj in inspect.getmembers(module):
@@ -112,23 +103,19 @@ class ModuleLoader:
                 
                 if class_filter is None: # If no specific class name is requested, take the first one found
                     target_class = obj
-                    self.debug_log(
-                        message=f"Found GUI class: '{name}'. Selecting as default.",
-                        file=os.path.basename(__file__),
-                        version=self.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                       
-                    )
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(
+                            message=f"🔬✅ A suitable vessel found! GUI class: '{name}'. Designating as default.",
+                            **_get_log_args()
+                        )
                     break 
                 elif name == class_filter: # If a specific class name is requested and found
                     target_class = obj
-                    self.debug_log(
-                        message=f"Found explicitly requested GUI class: '{name}'.",
-                        file=os.path.basename(__file__),
-                        version=self.current_version,
-                        function=f"{self.__class__.__name__}.{current_function_name}"
-                       
-                    )
+                    if app_constants.LOCAL_DEBUG_ENABLE:
+                        debug_log(
+                            message=f"🔬✅ Target acquired! Found explicitly requested GUI class: '{name}'.",
+                            **_get_log_args()
+                        )
                     break # Found the exact class, no need to search further
 
         if target_class:
@@ -138,40 +125,32 @@ class ModuleLoader:
                 # Instantiate the class, passing the config_dict explicitly
                 instance = target_class(parent_widget, config=config_dict)
                 
-                self.debug_log(
-                    message=f"Successfully instantiated '{target_class.__name__}' for parent '{parent_widget}'.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬✅ Class '{target_class.__name__}' materialized for parent '{parent_widget}'. The creation ritual is complete!",
+                        **_get_log_args()
+                    )
                 return instance
             except Exception as e:
-                self.debug_log(
-                    message=f"❌ Error instantiating class '{target_class.__name__}': {e}",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🔴 The magic falters! Error instantiating class '{target_class.__name__}': {e}. A design flaw, perhaps?",
+                        **_get_log_args()
+                    )
                 return None
         else:
             if class_filter:
-                self.debug_log(
-                    message=f"⚠️ Warning: GUI class '{class_filter}' not found in module '{module.__name__}'.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🟡 The desired specimen is elusive! GUI class '{class_filter}' not found in module '{module.__name__}'.",
+                        **_get_log_args()
+                    )
             else:
-                self.debug_log(
-                    message=f"⚠️ Warning: No suitable GUI class (subclass of Frame) found in module '{module.__name__}'.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🟡 No suitable blueprint found! No GUI class (subclass of Frame) in module '{module.__name__}'.",
+                        **_get_log_args()
+                    )
             return None
 
     def load_and_instantiate_gui(self, path: pathlib.Path, parent_widget, class_filter=None):
@@ -180,14 +159,10 @@ class ModuleLoader:
         and instantiates the first found GUI class within it, optionally filtered by class_filter.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        
-        if self.LOCAL_DEBUG_ENABLE:
-            self.debug_log(
-                message=f"🔍🔵 Entering '{current_function_name}'. Preparing to transmogrify a GUI from path: '{path}'!",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🔬🟢 Entering '{current_function_name}'. Preparing to transmogrify a GUI from path: '{path}'!",
+                **_get_log_args()
             )
 
         module_path = None
@@ -199,25 +174,21 @@ class ModuleLoader:
                 module_path = gui_files_in_dir[0] # Load the first found gui_*.py
                 module_name = module_path.stem
             else:
-                self._log_debug(
-                    message=f"No 'gui_*.py' files found in directory '{path}'. Skipping.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬🟡 The directory '{path}' is barren! No 'gui_*.py' files found. Skipping this segment.",
+                        **_get_log_args()
+                    )
                 return None
         elif path.is_file() and path.name.startswith("gui_") and path.suffix == '.py':
             module_path = path
             module_name = path.stem
         else:
-            self.debug_log(
-                message=f"❌ Error: Path '{path}' is not a valid directory or 'gui_*.py' file for module loading.",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🔬🔴 Path '{path}' is a conundrum! Not a valid directory or 'gui_*.py' file for module loading. My sensors are baffled!",
+                    **_get_log_args()
+                )
             return None
         
         if module_path and module_name:

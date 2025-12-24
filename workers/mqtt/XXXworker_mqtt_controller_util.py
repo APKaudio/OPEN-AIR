@@ -32,6 +32,7 @@ import queue
 # Path manipulation is now handled by main.py
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
+from workers.setup.app_constants import app_constants
 
 print(f"DEBUG: Loading MqttControllerUtility from: {__file__}")
 

@@ -75,9 +75,7 @@ class MarkerImporterTab(ttk.Frame):
 
         debug_log(
             message="🟢️️️🟢 Initializing MarkerImporterTab. The GUI is now lean and mean! 🎉",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
+          **_get_log_args()
             
         )
 
@@ -87,9 +85,7 @@ class MarkerImporterTab(ttk.Frame):
         if not PANDAS_AVAILABLE:
             debug_log(
                 message="❌ Critical dependency 'pandas' or 'numpy' not found. Marker Importer will have limited functionality.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
             )
             # Optionally, disable the whole tab or show an error message
@@ -103,9 +99,7 @@ class MarkerImporterTab(ttk.Frame):
 
         debug_log(
             message="🟢️️️🟢 MarkerImporterTab has been fully instantiated. Now creating widgets!",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
+          **_get_log_args()
             
         )
 
@@ -256,9 +250,7 @@ class MarkerImporterTab(ttk.Frame):
         self.marker_tree["columns"] = standardized_headers
         debug_log(
             message=f"🔁🔵 Now adding {len(self.tree_data)} rows to the Treeview. Headers: {standardized_headers}",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{inspect.currentframe().f_code.co_name}",
+           **_get_log_args()
             
         )
         for col in standardized_headers:

@@ -6,16 +6,19 @@ import inspect
 import os
 import sys
 import pathlib
+import workers.setup.app_constants as app_constants # Import app_constants
+from workers.logger.logger import debug_log # Import the global debug_log
+from workers.utils.log_utils import _get_log_args
 
 class WindowManager:
     """
     Manages Toplevel windows for tear-off tabs and handles window management protocols.
     """
-    def __init__(self, application_instance, current_version, LOCAL_DEBUG_ENABLE, debug_log_func):
+    def __init__(self, application_instance): # Removed current_version, LOCAL_DEBUG_ENABLE, debug_log_func
         self.application = application_instance # Reference to the main Application class
-        self.current_version = current_version
-        self.LOCAL_DEBUG_ENABLE = LOCAL_DEBUG_ENABLE
-        self.debug_log = debug_log_func 
+        # self.current_version = app_constants.current_version # No longer needed
+        # self.LOCAL_DEBUG_ENABLE = app_constants.LOCAL_DEBUG_ENABLE # No longer needed
+        # self.debug_log = debug_log # No longer needed
         self.torn_off_windows = {} # To keep track of torn-off windows
 
     def tear_off_tab(self, event):
@@ -25,38 +28,32 @@ class WindowManager:
         into its own Toplevel window.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message=f"▶️ '{current_function_name}' for event.",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
-        )
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🖥️🟢 Initiating 'tear_off_tab'! Preparing to detach a fragment of the GUI for independent exploration!",
+                **_get_log_args()
+            )
 
         notebook = event.widget
         
         # Ensure the event is a Control-Left-Button click
         if not (event.state & 4 and event.num == 1): # 4 is Control mask, 1 is Left Button
-            self.debug_log(
-                message=f"Event not a Control-Left-Button click, ignoring.",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🖥️🟡 A mere distraction! Event is not a Control-Left-Button click. Ignoring the urge to tear off.",
+                    **_get_log_args()
+                )
             return
 
         try:
             # Get the currently selected tab
             selected_tab_id = notebook.select()
             if not selected_tab_id:
-                self.debug_log(
-                    message="No tab selected, cannot tear off.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message="🖥️🟡 The canvas is empty! No tab selected to tear off. My powers are limited!",
+                        **_get_log_args()
+                    )               
                 return
 
             # The widget associated with the selected tab_id is the *container frame* for that tab's content.
@@ -65,13 +62,11 @@ class WindowManager:
             
             # Check if the tab content is already a Toplevel (shouldn't happen if logic is correct)
             if isinstance(tab_content_frame, tk.Toplevel):
-                self.debug_log(
-                    message="Selected tab is already a Toplevel, ignoring tear-off.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
-                )
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message="🖥️🟡 A paradox! Selected tab is already a Toplevel window. My tearing magic is redundant!",
+                        **_get_log_args()
+                    )                
                 return
 
             # Create a new Toplevel window
@@ -106,22 +101,18 @@ class WindowManager:
                 "tab_text": tab_text
             }
             
-            self.debug_log(
-                message=f"✅ Tab '{tab_text}' torn off into a new window.",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🖥️✅ Eureka! Tab '{tab_text}' has been liberated into its own Toplevel window!",
+                    **_get_log_args()
+                )
 
         except Exception as e:
-            self.debug_log(
-                message=f"❌ Error tearing off tab: {e}",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🖥️🔴 A glitch in the matrix! Error tearing off tab: {e}. The experiment encountered unexpected resistance!",
+                    **_get_log_args()
+                )
 
     def _on_tear_off_window_close(self, top_level_window, original_tab_id, original_notebook):
         """
@@ -130,25 +121,21 @@ class WindowManager:
         Re-attachment logic would be added here.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message=f"▶️ '_on_tear_off_window_close' for window {original_tab_id}.",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
-        )
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"🖥️🟢 Observing the closing ritual! '_on_tear_off_window_close' for window {original_tab_id}.",
+                **_get_log_args()
+            )
 
         if original_tab_id in self.torn_off_windows:
             tab_info = self.torn_off_windows[original_tab_id]
             tab_text = tab_info.get("tab_text", "Unknown Tab")
             
-            self.debug_log(
-                message=f"Tear-off window for '{tab_text}' closed. Re-attachment not yet implemented.",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🖥️🟡 The detached entity '{tab_text}' has vanished! Re-attachment protocols are still in the experimental phase.",
+                    **_get_log_args()
+                )
             
             # Destroy the Toplevel window
             top_level_window.destroy()
@@ -156,13 +143,11 @@ class WindowManager:
             # Remove from tracking
             del self.torn_off_windows[original_tab_id]
         else:
-            self.debug_log(
-                message="Tear-off window closed, but not found in tracking. Destroying.",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
-            )
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message="🖥️🟡 A phantom closure! Tear-off window closed, but its tracking data is elusive. Vanishing it!",
+                    **_get_log_args()
+                )
             top_level_window.destroy()
 
     def re_attach_tab(self, torn_off_window_id):
@@ -171,13 +156,11 @@ class WindowManager:
         This is a placeholder and requires significant logic to implement fully.
         """
         current_function_name = inspect.currentframe().f_code.co_name
-        self.debug_log(
-            message="Re-attaching tab functionality is not yet implemented.",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
-        )
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message="🖥️🟡 Re-attaching tab functionality is currently a theoretical construct. Implementation pending further research!",
+                **_get_log_args()
+            )
 
 # Example of how to integrate into gui_display.py:
 # In Application.__init__:

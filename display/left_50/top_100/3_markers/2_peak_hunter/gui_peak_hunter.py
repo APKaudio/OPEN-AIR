@@ -126,16 +126,12 @@ class MarkerPeakHunterGUI(ttk.Frame):
         except Exception as e:
             debug_log(
                 message=f"❌ Error in {current_function_name}: {e}",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
             )
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
+                   **_get_log_args()
                 )
     
     def _apply_styles(self, theme_name: str):
@@ -173,9 +169,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Preparing to export table data to CSV.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
+             **_get_log_args()
             )
 
         try:
@@ -203,10 +197,7 @@ class MarkerPeakHunterGUI(ttk.Frame):
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                    
+                **_get_log_args()
 
 
                 )

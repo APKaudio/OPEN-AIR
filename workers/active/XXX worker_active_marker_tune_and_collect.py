@@ -90,7 +90,7 @@ class MarkerGoGetterWorker:
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Initializing the tireless Marker Go-Getter!",
-                file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                **_get_log_args()"
                 
 
 

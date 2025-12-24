@@ -1,13 +1,5 @@
 ## MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/report"
 
-
-
-
-
-
-
-
-
 # display/left_50/top_100/XXX7_meta_Data/1_meta_data/gui_meta_data.py
 #
 # A GUI frame that uses the DynamicGuiBuilder to create widgets for meta-data settings.

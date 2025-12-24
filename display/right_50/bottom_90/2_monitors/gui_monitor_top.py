@@ -100,7 +100,7 @@ class MonitorTopGUIFrame(ttk.Frame):
             
             self.plot = {'figure': figure, 'ax': ax, 'canvas': canvas, 'widget': canvas_widget}
 
-            debug_log(message="✅ Celebration of success!")
+            debug_log(message="✅ Celebration of success!",**_get_log_args())
 
         except Exception as e:
             debug_log(message=f"❌ Error in {current_function_name}: {e}")

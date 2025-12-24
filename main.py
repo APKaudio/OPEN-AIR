@@ -48,20 +48,12 @@ from workers.utils.log_utils import _get_log_args
 
 def action_open_display(root, splash): 
     current_function_name = inspect.currentframe().f_code.co_name
-    debug_log(
-        message="DEBUG: entering action_open_display",
-        **_get_log_args()
-        
-    )
+    debug_log(        message="DEBUG: entering action_open_display",        **_get_log_args())
 
     
     
     if app_constants.LOCAL_DEBUG_ENABLE: 
-        debug_log(
-            message=f"🖥️🟢 The final step! Activating the main display in '{current_function_name}'!",
-            **_get_log_args()
-            
-        )
+        debug_log(            message=f"🖥️🟢 The final step! Activating the main display in '{current_function_name}'!",             **_get_log_args())
 
     try:
         debug_log(message="--> [1/10] Setting splash status: Building GUI...", **_get_log_args() )
@@ -188,5 +180,4 @@ def main():
     debug_log(message="DEBUG: root.mainloop() has exited.", **_get_log_args() )  
 
 if __name__ == "__main__":
-    _safe_print("DEBUG: Calling main()...")
     main()

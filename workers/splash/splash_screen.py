@@ -27,14 +27,7 @@ import os
 import sys
 import pathlib
 
-# --- Global Scope Variables ---
-Current_Date = 20251222
-Current_Time = 5500
-Current_iteration = 3 # Incremented version
-
-current_version = "20251222.005500.3"
-current_version_hash = (Current_Date * Current_Time * Current_iteration)
-current_file = os.path.basename(__file__)
+from workers.utils.log_utils import _get_log_args 
 
 # --- Path Setup ---
 SPLASH_ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -66,7 +59,7 @@ class SplashScreen:
         if self.debug_enabled:
             self.debug_log_func(
                 message=f"🖥️🟢 Entering '{current_function_name}'. The splash screen experiment begins!",
-                file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                **_get_log_args()
                 
             )
         
@@ -88,7 +81,7 @@ class SplashScreen:
                 img_width, img_height = self.splash_image.width(), self.splash_image.height()
             except Exception as e:
                 if self.debug_enabled:
-                    self.debug_log_func(message=f"🔴 ERROR: Could not load splash image. {e}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}" )
+                    self.debug_log_func(message=f"🔴 ERROR: Could not load splash image. {e}", **_get_log_args())
                 self.splash_image = None
         
         # --- Window Centering ---
@@ -128,8 +121,7 @@ class SplashScreen:
             self.lyrics = ["[LYRICS FAILED TO LOAD]"]
             if self.debug_enabled:
                 self.debug_log_func(
-                    message="🔴 CRITICAL: Lyrics array is empty after attempting to load. Displaying error on screen.",
-                    file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                    message="🔴 CRITICAL: Lyrics array is empty after attempting to load. Displaying error on screen.", **_get_log_args()
                     
                 )
 
@@ -143,7 +135,7 @@ class SplashScreen:
         self.splash_window.after(1500, self.cycle_lyrics_async)
 
         if self.debug_enabled:
-            self.debug_log_func(message="✅ Exiting SplashScreen.__init__().", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}" )
+            self.debug_log_func(message="✅ Exiting SplashScreen.__init__().", **_get_log_args())
 
     def _fade_in(self, alpha=0.0):
         if self.splash_window.winfo_exists() and alpha <= 1.0:
@@ -174,7 +166,7 @@ class SplashScreen:
             self.lyrics_label.config(text=self.current_lyric)
             if self.debug_enabled:
                 self.debug_log_func(
-                    message=f"🎶 Lyric changed to: {self.current_lyric}", file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+                    message=f"🎶 Lyric changed to: {self.current_lyric}", **_get_log_args()
                     
                 )
             self.splash_window.after(1500, self.cycle_lyrics_async)

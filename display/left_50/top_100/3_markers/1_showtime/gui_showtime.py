@@ -82,9 +82,7 @@ class ShowtimeTab(ttk.Frame):
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🟢️️️🟢 Initialized ShowtimeTab.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
 
 
@@ -135,9 +133,7 @@ class ShowtimeTab(ttk.Frame):
 
         debug_log(
             message=f"✅ Widgets created for ShowtimeTab.",
-            file=self.current_file,
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function}",
+          **_get_log_args()
             
 
 
@@ -181,9 +177,7 @@ class ShowtimeTab(ttk.Frame):
         if self.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message="🟢️️️🟢 Creating Zone buttons.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{current_function}",
+        **_get_log_args()
                 
 
 
@@ -207,11 +201,7 @@ class ShowtimeTab(ttk.Frame):
             if self.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ Created button for Zone: {zone_name}.",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{current_function}",
-                    
-
+               **_get_log_args()
 
                 )
 
@@ -220,9 +210,7 @@ class ShowtimeTab(ttk.Frame):
         if self.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message="🟢️️️🟢 Creating Group filter buttons.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
 
 
@@ -264,9 +252,7 @@ class ShowtimeTab(ttk.Frame):
         if self.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"✅ Group buttons updated for selected zone.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
 
 
@@ -277,9 +263,7 @@ class ShowtimeTab(ttk.Frame):
         if self.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message="🟢️️️🟢 Creating Device buttons.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
 
 
@@ -298,10 +282,7 @@ class ShowtimeTab(ttk.Frame):
             if self.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🔍 Showing devices for Zone: {self.selected_zone} and Group: {self.selected_group}.",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    
+**_get_log_args()               
 
 
                 )
@@ -311,10 +292,7 @@ class ShowtimeTab(ttk.Frame):
             if self.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"🔍 Showing all devices for selected Zone: {self.selected_zone}.",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    
+**_get_log_args()               
 
 
                 )
@@ -323,10 +301,7 @@ class ShowtimeTab(ttk.Frame):
             if self.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message="🔍 Showing all devices from MARKERS.csv.",
-                    file=self.current_file,
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function}",
-                    
+**_get_log_args()               
 
 
                 )
@@ -355,9 +330,7 @@ class ShowtimeTab(ttk.Frame):
         if self.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"✅ Created {len(filtered_devices)} device buttons.",
-                file=self.current_file,
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function}",
+**_get_log_args()
                 
 
 

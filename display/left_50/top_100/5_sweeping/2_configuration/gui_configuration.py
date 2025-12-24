@@ -40,7 +40,7 @@ current_path = pathlib.Path(__file__).resolve()
 JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 # Define the topic filter for this specific module
-MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/sweeping"
+#MQTT_TOPIC_FILTER = "OPEN-AIR/configuration/sweeping"
 
 class PresetPusherGui(ttk.Frame):
     """
@@ -85,7 +85,7 @@ class PresetPusherGui(ttk.Frame):
             
             
         except Exception as e:
-            debug_log(message=f"❌ Error in {current_function_name}: {e}")
+            
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"❌🔴 Arrr, the code be capsized! The error be: {e}",
@@ -104,12 +104,7 @@ class PresetPusherGui(ttk.Frame):
         
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🖥️🔵 Tab '{self.__class__.__name__}' activated! Stand back, I'm checking the data flow!",
-              **_get_log_args()
-                
-
-
-            )
+                message=f"🖥️🔵 Tab '{self.__class__.__name__}' activated! Stand back, I'm checking the data flow!",**_get_log_args() )
         
         # Add logic here if specific refresh actions are needed on tab focus
         pass

@@ -65,11 +65,11 @@ class WorkerLauncher:
                 debug_log(message="🟢️️️🔵 Worker 'ActivePeakPublisher' initialized. The lab is buzzing with activity!", **_get_log_args())
 
             # --- Celebration of Success ---
-            debug_log(message="✅ All workers have been successfully conjured and set to their tasks!")
+            debug_log(message="✅ All workers have been successfully conjured and set to their tasks!", **_get_log_args())
             return True
 
         except Exception as e:
-            debug_log(message=f"❌ A dreadful error occurred in '{current_function_name}': {e}")
+            debug_log(message=f"❌ A dreadful error occurred in '{current_function_name}': {e}", **_get_log_args())
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"🟢️️️🔴 Great Scott! The worker initialization has gone haywire in '{current_function_name}'! The error be: {e}",

@@ -54,7 +54,7 @@ class MarkerPeakPublisher:
         
         debug_log(
             message=f"🟢️️️🟢 Initializing Peak Publisher for batch starting with {starting_device_id}. STARTING MAP GENERATION.",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+            **_get_log_args()"
             
 
 
@@ -66,7 +66,7 @@ class MarkerPeakPublisher:
         self.marker_to_device_map = self._generate_device_map(starting_device_id)
         debug_log(
             message=f"🟢️️️🔍 Generated Map: {self.marker_to_device_map}",
-            file=current_file, version=current_version, function=f"{self.__class__.__name__}.{current_function_name}"
+            **_get_log_args()"
             
 
 
