@@ -13,7 +13,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251222.003501.1
+# Version 20251223.195600.2
 
 import workers.setup.app_constants as app_constants
 
@@ -92,9 +92,10 @@ class Application(ttk.Frame):
                     **_get_log_args()
                 )
             
-            # After the GUI is built, ensure initial tab selection is processed
-            # This is important for notebooks to correctly display their first tab's content.
-            self.after_idle(self._trigger_initial_tab_selection)
+            # ⚡ OPTIMIZATION: Replaced after_idle with after(500)
+            # This gives the Event Loop 500ms to render the initial geometry BEFORE we slam it with tab selection logic.
+            # This prevents the "White Screen of Death" hang during startup.
+            self.after(500, self._trigger_initial_tab_selection)
 
         except Exception as e:
             if self.app_constants.LOCAL_DEBUG_ENABLE: # Added LOCAL_DEBUG_ENABLE check
@@ -225,12 +226,6 @@ class Application(ttk.Frame):
         layout_info = self.layout_parser.parse_directory(path)
         layout_type = layout_info['type']
         layout_data = layout_info['data']
-
-        if self.app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(
-                message=f"📊🔍 LayoutParser returned: type='{layout_type}', data='{layout_data}'.",
-                **_get_log_args()
-            )
 
         if layout_type == 'error':
             if self.app_constants.LOCAL_DEBUG_ENABLE:
@@ -439,7 +434,6 @@ class Application(ttk.Frame):
             )
 
     def _on_tab_change(self, event):
-        import workers.setup.app_constants as app_constants # Temporary import for debugging
         """Logs a debug message when a tab is selected or deselected and triggers tab-specific actions."""
         current_function_name = inspect.currentframe().f_code.co_name
         # Corrected call: Replaced self._log_debug with the imported debug_log function.

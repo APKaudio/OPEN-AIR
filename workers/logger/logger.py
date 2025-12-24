@@ -139,7 +139,7 @@ def debug_log(message: str, file: str = "N/A", version: str = "N/A", function: s
     # The full log entry format: [EMOJI] [MESSAGE] | [FILE] | [VERSION] Function: [FUNCTION]
     timestamp_prefix = now.strftime("%Y%m%d%H%M%S")
     
-    log_entry = f"{timestamp_prefix}💬{truncated_message}📄{file}🗄️{version}🧩{function}"
+    log_entry = f"{timestamp_prefix}💬{truncated_message}🧩{function}📄{file}🗄️{version}"
 
     # 1. Log to console output
     if global_settings["debug_to_terminal"]:

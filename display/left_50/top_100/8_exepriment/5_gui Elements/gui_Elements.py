@@ -1,4 +1,5 @@
-# display/gui_generic_wrapper.py
+# display/gui_Elements.py
+# (Internal Name: gui_generic_wrapper.py)
 #
 # A plug-and-play GUI wrapper that dynamically resolves its config. 
 # Decoupled from MQTT requirements for initial render to prevent stalling.
@@ -13,7 +14,7 @@
 # Source Code: https://github.com/APKaudio/
 # Feature Requests can be emailed to i @ like . audio
 #
-# Version 20251217.23580.13
+# Version 20251223.195000.2
 
 import os
 import pathlib
@@ -24,11 +25,13 @@ import inspect
 
 # --- Protocol: Integration Layer ---
 from workers.builder.dynamic_gui_builder import DynamicGuiBuilder
-from workers.logger.logger import  debug_log
+from workers.logger.logger import debug_log
 import workers.setup.app_constants as app_constants
 from workers.utils.log_utils import _get_log_args 
 
 # --- Protocol: Global Variables ---
+current_version = "20251223.195000.2"
+current_version_hash = 20251223195000
 current_file = f"{os.path.basename(__file__)}"
 
 # --- Fully Dynamic Resolution ---
@@ -37,14 +40,16 @@ JSON_CONFIG_FILE = current_path.with_suffix('.json')
 
 # Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
 module_name = current_path.stem.replace('gui_', '')
-# Automatically turns 'gui_yak_bandwidth' into 'OPEN-AIR/yak/bandwidth'
-module_name = current_path.stem.replace('gui_', '')
-## MQTT_TOPIC_FILTER = f"OPEN-AIR/{module_name.replace('_', '/')}"
 
-#class GhostMqtt:
-#    """A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks."""
- #   def add_subscriber(self, *args, **kwargs): pass
- #   def publish(self, *args, **kwargs): pass
+class GhostMqtt:
+    """
+    🧪 A harmless 'Mad Scientist' placeholder to satisfy legacy builder checks.
+    It absorbs signals like a temporal sink!
+    """
+    def add_subscriber(self, *args, **kwargs): 
+        pass
+    def publish(self, *args, **kwargs): 
+        pass
 
 class GenericInstrumentGui(ttk.Frame):
     """
@@ -53,129 +58,67 @@ class GenericInstrumentGui(ttk.Frame):
     """
     def __init__(self, parent, config=None, *args, **kwargs):
         # Protocol 2.7: Display the entire file.
-        # Consume 'config' and other non-standard keys passed by the orchestrator 
-        kwargs.pop('config', None)
+        # Consume 'config' and other non-standard keys to prevent tk error
+        super().__init__(parent, **kwargs)
         
-        super().__init__(parent, *args, **kwargs)
+        # 1. Debug Entry
         current_function_name = inspect.currentframe().f_code.co_name
-        self.current_class_name = self.__class__.__name__
-
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
-                message=f"🖥️🟢 SUMMONING: Preparing to build the GUI for '{module_name}'",
+                message=f"🧪 Great Scott! Initializing GenericInstrumentGui for '{module_name}'! Spinning up the turbines...",
                 **_get_log_args()
             )
 
-        # Immediate visual feedback in the GUI
-        self.status_label = ttk.Label(self, text=f"Initializing {module_name}...", font=("Arial", 10, "italic"))
-        self.status_label.pack(pady=20)
+        # 2. Status Label (The 'Loading...' Indicator)
+        self.status_label = ttk.Label(self, text=f"⏳ Constructing {module_name}...", foreground="blue")
+        self.status_label.pack(pady=20, padx=20)
+
+        # 3. Geometry Configuration (CRITICAL FIX!)
+        # We must tell this frame to let its children EXPAND!
+        self.columnconfigure(0, weight=1)
+        self.rowconfigure(0, weight=1)
 
         try:
-            # --- Pre-Flight Path Check ---
-            abs_json_path = JSON_CONFIG_FILE.absolute()
+            # 4. Determine Config Path
+            processed_path = JSON_CONFIG_FILE
             
-            if not abs_json_path.exists():
-                error_msg = f"🟡 WARNING: Sacred Scroll missing at {abs_json_path}"
+            if not processed_path.exists():
+                raise FileNotFoundError(f"The sacred scrolls are missing! Cannot find: {processed_path}")
+
+            if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=error_msg,
+                    message=f"🖥️📂 Reading the sacred scrolls at {processed_path}",
                     **_get_log_args()
                 )
-                self.status_label.config(text=error_msg, foreground="orange")
-                return
 
-            # --- YAK-SPECIFIC STRUCTURE NORMALIZATION ---
-            # If the JSON doesn't contain 'OcaBlock' at the root, we wrap the whole thing 
-            # in a Virtual Block so the builder knows to drill down.
-            with open(abs_json_path, 'r') as f:
-                raw_data = json.load(f)
-            
-            # Check if root keys are widgets or if it's an 'Anonymous' block structure
-            needs_wrapping = True
-            for k, v in raw_data.items():
-                if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
-                    needs_wrapping = False
-                    break
-            
-            processed_path = str(abs_json_path)
-            
-            # --- Generic JSON Normalization ---
-            # If the JSON doesn't contain an 'OcaBlock' or known widget at the root,
-            # we wrap the whole thing in a Virtual Block so the builder knows to drill down.
-            with open(abs_json_path, 'r') as f:
-                raw_data = json.load(f)
-            
-            needs_wrapping = True
-            if isinstance(raw_data, dict):
-                for k, v in raw_data.items():
-                    if isinstance(v, dict) and (v.get("type") == "OcaBlock" or v.get("type", "").startswith("_")):
-                        needs_wrapping = False
-                        break
-            
-            if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"🖥️🔍 NORMALIZING: Wrapping JSON structure for {module_name}",
-                        **_get_log_args()
-                    )
-                # Create a temporary normalized file
-                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
-                norm_data = {
-                    "Generic_Display_Block": { # Generic name for the wrapper block
-                        "type": "OcaBlock",
-                        "description": f"Dynamic Content for {module_name}",
-                        "fields": raw_data
-                    }
-                }
-                with open(temp_path, 'w') as tf:
-                    json.dump(norm_data, tf, indent=4)
-                processed_path = str(temp_path)
-            if needs_wrapping:
-                if app_constants.LOCAL_DEBUG_ENABLE:
-                    debug_log(
-                        message=f"🖥️🔍 NORMALIZING: Wrapping YAK structure for {module_name}",
-                        **_get_log_args()
-                    )
-                # Create a temporary normalized file
-                temp_path = abs_json_path.parent / f"temp_norm_{abs_json_path.name}"
-                norm_data = {
-                    "Instrument_Controls": {
-                        "type": "OcaBlock",
-                        "description": f"Dynamic Controls for {module_name}",
-                        "fields": raw_data
-                    }
-                }
-                with open(temp_path, 'w') as tf:
-                    json.dump(norm_data, tf)
-                processed_path = str(temp_path)
-
-            ## If mqtt_util is None because it was shut off in the orchestrator, 
-            ## we provide the GhostMqtt to prevent the DynamicGuiBuilder from returning early.
-            #effective_mqtt = mqtt_util if mqtt_util is not None else GhostMqtt()
-
-            # --- Presentation Layer ---
-            # Instantiate the builder.
-            #print(f"DEBUG: [Hand-off] Passing control to DynamicGuiBuilder for {module_name}")
-            
+            # 5. Ignite the Builder
+            # We pass 'self' as the parent. The builder typically creates a Canvas/Frame inside 'self'.
             self.dynamic_gui = DynamicGuiBuilder(
                 parent=self,
                 json_path=processed_path
             )
             
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-
+            # The Builder usually packs/grids itself, but if it doesn't, we ensure it fills the void here:
+            # Note: DynamicGuiBuilder usually handles its own packing, but relying on 
+            # the parent's grid configuration (step 3) is key.
             
-            # If we reach here, the builder at least started.
-            self.status_label.destroy()
-
-
-        except Exception as e:
-            error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
-            
-            self.status_label.config(text=error_msg, foreground="red")
+            # 6. Success! Destroy the loading label.
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
-                    message=f"🖥️🔴 Great Scott! The wrapper has failed to contain the builder! {e}",
+                    message=f"✅ It works! It works! The DynamicGuiBuilder has completed its task for {module_name}!",
+                    **_get_log_args()
+                )
+            
+            self.status_label.destroy()
+
+        except Exception as e:
+            # 7. Error Handling (The Bridge is Out!)
+            error_msg = f"❌ CRITICAL FAILURE in Wrapper: {e}"
+            self.status_label.config(text=error_msg, foreground="red")
+            
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🏴‍☠️💥 Great Scott! The wrapper has failed to contain the builder! Error: {e}",
                     **_get_log_args()
                 )
 

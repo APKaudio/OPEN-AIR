@@ -44,10 +44,7 @@ current_file = str(current_file_path.relative_to(project_root)).replace("\\", "/
 
 # Replace old print with debug_log
 debug_log(
-    message=f"DEBUG: Loading dynamic_gui_mousewheel_mixin.py from: {current_file_path}",
-    file=current_file,
-    version=current_version,
-    function="module_load",
+    message=f"DEBUG: Loading dynamic_gui_mousewheel_mixin.py from: {current_file_path}",              **_get_log_args()
     
 )
 
@@ -76,7 +73,7 @@ class MousewheelScrollMixin:
 
     def _bind_mousewheel(self, event):
         current_function_name = inspect.currentframe().f_code.co_name
-        if app_cBLE:
+        if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
                 message=f"🖥️🔵 Binding mousewheel scrolling for canvas.",
               **_get_log_args()

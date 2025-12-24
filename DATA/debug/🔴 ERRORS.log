@@ -1,2 +1,2 @@
-20251223190615💬🔬🔴 The magic falters! Error instantiating class 'MarkerImporterTab': name '_get_log_args' is not defined. A design flaw, perhaps?📄module_loader.py🗄️20251223.120000.proto🧩load_and_instantiate_gui
-20251223190709💬🖥️🔴 A glitch in the matrix! Error tearing off tab: can't pack .!application.!panedwindow.!frame2.!panedwindow.!frame2.!notebook.!frame inside .!toplevel2. The experiment encountered unexpected resistance!📄__init__.py🗄️20251223.120000.proto🧩__call__
+20251223215413💬❌ Error in _create_gui_button_toggler for 'Toggler': 'list' object has no attribute 'items'🧩N/A📄N/A🗄️N/A
+20251223215413💬❌ Error in _create_gui_dropdown_option for 'Dropdown': 'list' object has no attribute 'items'🧩N/A📄N/A🗄️N/A

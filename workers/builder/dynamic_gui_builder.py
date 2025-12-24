@@ -1,18 +1,11 @@
 # workers/builder/dynamic_gui_builder.py
 #
 # A recursive GUI engine that builds functional tkinter interfaces from JSON configurations.
+# Version 20251223.213000.8
 #
-# Author: Anthony Peter Kuzub
-# Blog: www.Like.audio (Contributor to this project)
-#
-# Professional services for customizing and tailoring this software to your specific
-# application can be negotiated. There is no charge to use, modify, or fork this software.
-#
-# Build Log: https://like.audio/category/software/spectrum-scanner/
-# Source Code: https://github.com/APKaudio/
-# Feature Requests can be emailed to i @ like . audio
-#
-# Version 20251217.231500.2
+# UPDATES:
+# 1. CHANGED DEFAULT: 'layout_columns' now defaults to 1 (Vertical Stack).
+#    Use "layout_columns": N to create horizontal grids explicitly.
 
 import os
 import json
@@ -24,11 +17,9 @@ import inspect
 # --- Module Imports ---
 from workers.logger.logger import  debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
-## from .dynamic_gui_MQTT_subscriber import MqttSubscriberMixin
 from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 import workers.setup.app_constants as app_constants
 from workers.utils.log_utils import _get_log_args 
-
 
 # --- Widget Creator Mixins ---
 from .dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
@@ -55,9 +46,9 @@ from .dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
 from .dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
 
 # --- Protocol Global Variables ---
-CURRENT_DATE = 20251217
-CURRENT_TIME = 231500
-CURRENT_ITERATION = 2
+CURRENT_DATE = 20251223
+CURRENT_TIME = 213000
+CURRENT_ITERATION = 8
 
 current_version = f"{CURRENT_DATE}.{CURRENT_TIME}.{CURRENT_ITERATION}"
 current_version_hash = (CURRENT_DATE * CURRENT_TIME * CURRENT_ITERATION)
@@ -65,7 +56,6 @@ current_file = f"{os.path.basename(__file__)}"
 
 class DynamicGuiBuilder(
     ttk.Frame,
-    ## MqttSubscriberMixin,
     MousewheelScrollMixin,
     LabelFromConfigCreatorMixin,
     LabelCreatorMixin,
@@ -90,54 +80,31 @@ class DynamicGuiBuilder(
     CustomFaderCreatorMixin,
     NeedleVUMeterCreatorMixin
 ):
-    """
-    Manages the dynamic generation of GUI elements based on OcaBlock definitions.
-    """
     def __init__(self, parent, json_path=None, *args, **kwargs):
-        _ = kwargs.pop('config', None) # Consume config argument
+        _ = kwargs.pop('config', None) 
         super().__init__(parent, *args, **kwargs)
         current_function_name = "__init__"
         self.current_class_name = self.__class__.__name__
 
         if app_constants.LOCAL_DEBUG_ENABLE: 
              debug_log(
-                 message=f"🖥️🟢 Eureka! Igniting the DynamicGuiBuilder with json_path: {json_path}",
+                 message=f"🖥️🟢 Igniting the DynamicGuiBuilder v{current_version}",
                  file=current_file,
                  version=current_version,
                  function=f"{self.current_class_name}.{current_function_name}"
-                 
-
-
              )
 
-        # Validation: Ensure critical arguments are present to prevent crashes
         if json_path is None:
-            caller_frame = inspect.stack()[1]
-            caller_filename = caller_frame.filename
-            debug_log(message=f"❌ Error in __init__: Missing critical argument: json_path. Called from {caller_filename}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
-                    message=f"🖥️🔴 Blast! The builder was summoned without its required artifacts! Called from {caller_filename}",
-              **_get_log_args()
-                    
-
-
-                )
-            # We continue but don't build to avoid hard recursion errors in the dynamic loader
+            debug_log(message=f"❌ Error in __init__: Missing critical argument: json_path.")
             return
 
         self.pack(fill=tk.BOTH, expand=True)
-
-        ## self.mqtt_util = mqtt_util
-        ## self.base_topic = base_topic
         self.json_filepath = Path(json_path)
         self.topic_widgets = {}
         self.config_data = {}
         self.gui_built = False
         self.mqtt_callbacks = {}
 
-
-        # Protocol: No Magic Numbers - Widget Factory Mapping
         self.widget_factory = {
             "_sliderValue": self._create_slider_value,
             "_GuiButtonToggle": self._create_gui_button_toggle,
@@ -163,10 +130,10 @@ class DynamicGuiBuilder(
         }
 
         try:
-            # --- Layout Initialization ---
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
             
+            # Canvas and Scrollbar Setup
             self.canvas = tk.Canvas(self, background=colors["bg"], borderwidth=0, highlightthickness=0)
             self.scroll_frame = ttk.Frame(self.canvas)
             self.scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
@@ -174,123 +141,73 @@ class DynamicGuiBuilder(
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
             
-            self.scroll_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+            # Event Bindings for Scrolling
+            self.scroll_frame.bind("<Configure>", self._on_frame_configure)
+            self.canvas.bind("<Configure>", self._on_canvas_configure)
+            
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            # Build immediately from the authoritative file
             self._load_and_build_from_file()
-
-            # Manual Rebuild Trigger
             ttk.Button(self, text="Reload Config", command=self._rebuild_gui).pack(side=tk.BOTTOM, pady=10)
-
-            ## Connect MQTT for state updates
-            ## if self.mqtt_util and self.base_topic:
-            ##     self.mqtt_util.add_subscriber(
-            ##         topic=f"{self.base_topic}/#", 
-            ##         callback=self._on_receive_command_message
-            ##     )
-            
-
 
         except Exception as e:
             debug_log(message=f"❌ Error in __init__: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
-                    message=f"🖥️🔴 Arrr, the gears of the builder be jammed! {e}",
-              **_get_log_args()
-                    
-
-
-                )
 
     def _apply_styles(self, theme_name):
-        """
-        Applies styling configuration to the frame.
-        Note: Per protocol, logic for 'how' to style should reside in Utility files.
-        """
-        current_function_name = "_apply_styles"
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
-                message=f"🖥️🔍 Inspecting the aesthetics for theme: {theme_name}",
-**_get_log_args()    
-
-
-            )
-        # Placeholder for style application logic
         pass
 
+    def _on_frame_configure(self, event=None):
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def _on_canvas_configure(self, event=None):
+        self.canvas.itemconfig(self.canvas.find_withtag("all")[0], width=event.width)
+
     def _load_and_build_from_file(self):
-        """Builds GUI structure strictly from local JSON."""
-        current_function_name = "_load_and_build_from_file"
-        
         try:
             if self.json_filepath.exists():
                 with open(self.json_filepath, 'r') as f:
                     self.config_data = json.load(f)
-                
-                if app_constants.LOCAL_DEBUG_ENABLE: 
-                    debug_log(
-                        message=f"🖥️📂 Reading the sacred scrolls at {self.json_filepath}",
-                        file=current_file,
-                        version=current_version,
-                        function=f"{self.current_class_name}.{current_function_name}"
-                        
-
-
-                    )
-                    
                 self._rebuild_gui()
                 self.gui_built = True
-                debug_log(message=f"✅ Success! Loaded config: {self.json_filepath.name}")
             else:
                 debug_log(message=f"🟡 Warning: Config file missing at {self.json_filepath}")
-
         except Exception as e:
             debug_log(message=f"❌ Error in _load_and_build_from_file: {e}")
 
     def _rebuild_gui(self):
-        """Clears frame and builds dynamic structure."""
-        current_function_name = "_rebuild_gui"
-        
         try:
             if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
-                    message="🖥️🔁 Tearing down the old world to build a new one!",
-              **_get_log_args()
-                    
-
-
-                )
-
+                debug_log(message="🖥️🔁 Tearing down the old world to build a new one!", **_get_log_args())
+            
+            self.update_idletasks()
             for child in self.scroll_frame.winfo_children():
                 child.destroy()
-            
             self.topic_widgets.clear()
+            self.update_idletasks()
+
             self._create_dynamic_widgets(parent_frame=self.scroll_frame, data=self.config_data)
             
+            self._on_frame_configure()
+            
             debug_log(message="✅ GUI Reconstruction complete!")
-
         except Exception as e:
             debug_log(message=f"❌ Error in _rebuild_gui: {e}")
 
-    def _create_dynamic_widgets(self, parent_frame, data, path_prefix=""):
-        """Recursive parser for OcaBlocks and fields that now uses a grid layout for wrapping."""
-        current_function_name = "_create_dynamic_widgets"
-        if app_constants.LOCAL_DEBUG_ENABLE:
-            debug_log(message=f"Creating widgets in {parent_frame} with data: {data}", **_get_log_args())
-
-
-        
+    def _create_dynamic_widgets(self, parent_frame, data, path_prefix="", override_cols=None):
         try:
             if not isinstance(data, dict):
                 return
 
-            # --- Grid Layout Variables ---
             col = 0
             row = 0
-            # Set a default and allow override from config if present
-            max_cols = data.get("layout_columns", 4) 
+            
+            if override_cols is not None:
+                max_cols = int(override_cols)
+            else:
+                # ⚡ DEFAULT CHANGED TO 1 ⚡
+                # This ensures vertical stacking by default.
+                max_cols = int(data.get("layout_columns", 1))
 
             for key, value in data.items():
                 current_path = f"{path_prefix}/{key}".strip("/")
@@ -298,60 +215,67 @@ class DynamicGuiBuilder(
                 if isinstance(value, dict):
                     widget_type = value.get("type")
                     
-                    if widget_type == "OcaBlock":
-                        # OcaBlocks act as major sections and will span the full width.
-                        # If we are in the middle of a row, move to the next one.
-                        if col != 0:
-                            row += 1
-                            col = 0
-                        
-                        block_frame = ttk.LabelFrame(parent_frame, text=key)
-                        # Use grid for the block itself
-                        block_frame.grid(row=row, column=0, columnspan=max_cols, sticky="ew", padx=10, pady=5)
-                        row += 1 # The next set of widgets will be on the row below the block label
+                    layout = value.get("layout", {})
+                    col_span = int(layout.get("col_span", 1))
+                    row_span = int(layout.get("row_span", 1))
+                    sticky = layout.get("sticky", "nw")
+                    req_width = layout.get("width", None)
+                    req_height = layout.get("height", None)
+                    weight_x = int(layout.get("weight_x", 0))
+                    weight_y = int(layout.get("weight_y", 0))
 
-                        # Recursively call to build the widgets *inside* this block
+                    target_frame = None
+
+                    if widget_type == "OcaBlock":
+                        block_cols = value.get("layout_columns", None)
+                        target_frame = ttk.LabelFrame(parent_frame, text=key)
+                        
                         self._create_dynamic_widgets(
-                            parent_frame=block_frame, 
+                            parent_frame=target_frame, 
                             data=value.get("fields", {}), 
-                            path_prefix=current_path
+                            path_prefix=current_path,
+                            override_cols=block_cols 
                         )
-                        continue # Finished processing this block
                     
                     elif widget_type in self.widget_factory:
-                        if app_constants.LOCAL_DEBUG_ENABLE:
-                            debug_log(
-                                message=f"🖥️🔵 Fabricating a {widget_type} widget for {current_path}",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.current_class_name}.{current_function_name}"
-                                
-
-
-                            )
-                        
-                        # The creation function now RETURNS the widget frame instead of packing it.
-                        widget_frame = self.widget_factory[widget_type](
-                            parent_frame=parent_frame, # Pass the direct parent
+                        target_frame = self.widget_factory[widget_type](
+                            parent_frame=parent_frame,
                             label=value.get("label_active", key),
                             config=value,
                             path=current_path
                         )
 
-                        if widget_frame:
-                            # Place the returned frame into our grid
-                            widget_frame.grid(row=row, column=col, padx=5, pady=5, sticky="nw")
-                            
-                            # Update grid position
-                            col += 1
-                            if col >= max_cols:
-                                col = 0
-                                row += 1
-                        continue
+                    if target_frame:
+                        if req_width or req_height:
+                            if isinstance(target_frame, (tk.Frame, ttk.Frame, ttk.LabelFrame, tk.Canvas)):
+                                target_frame.pack_propagate(False) 
+                                target_frame.grid_propagate(False)
+                            if req_width: target_frame.config(width=req_width)
+                            if req_height: target_frame.config(height=req_height)
 
-            # Configure column weights for the parent frame to allow expansion
+                        target_frame.grid(
+                            row=row, 
+                            column=col, 
+                            columnspan=col_span,
+                            rowspan=row_span,
+                            padx=5, 
+                            pady=5, 
+                            sticky=sticky
+                        )
+                        
+                        if weight_x > 0:
+                            parent_frame.grid_columnconfigure(col, weight=weight_x)
+                        if weight_y > 0:
+                            parent_frame.grid_rowconfigure(row, weight=weight_y)
+
+                        col += col_span
+                        if col >= max_cols:
+                            col = 0
+                            row += row_span
+
             for i in range(max_cols):
-                parent_frame.grid_columnconfigure(i, weight=1)
+                if parent_frame.grid_columnconfigure(i)['weight'] == 0:
+                     parent_frame.grid_columnconfigure(i, weight=1)
 
         except Exception as e:
             debug_log(message=f"❌ Error in _create_dynamic_widgets: {e}")
