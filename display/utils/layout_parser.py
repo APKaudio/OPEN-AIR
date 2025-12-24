@@ -5,6 +5,7 @@ import inspect
 import pathlib
 import tkinter as tk # Import tk for HORIZONTAL and VERTICAL constants
 from tkinter import ttk # ttk is still needed for widget classes if referenced
+from workers.utils.log_utils import _get_log_args 
 
 class LayoutParser:
     """
@@ -14,7 +15,7 @@ class LayoutParser:
     def __init__(self, current_version, LOCAL_DEBUG_ENABLE, debug_log_func):
         self.current_version = current_version
         self.LOCAL_DEBUG_ENABLE = LOCAL_DEBUG_ENABLE
-        self.debug_log = debug_log_func if debug_log_func else debug_log_placeholder
+        self.debug_log = debug_log_func if debug_log_func else (lambda message, **kwargs: None)
             
     def parse_directory(self, path: pathlib.Path):
         """
@@ -25,10 +26,7 @@ class LayoutParser:
         current_function_name = inspect.currentframe().f_code.co_name
         self.debug_log(
             message=f"Parsing directory: '{path}'",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
+            **_get_log_args()
         )
 
         try:
@@ -36,10 +34,7 @@ class LayoutParser:
         except FileNotFoundError:
             self.debug_log(
                 message=f"❌ Error: Directory not found for parsing: {path}",
-                file=os.path.basename(__file__),
-                version=self.current_version,
-                function=f"{self.__class__.__name__}.{current_function_name}"
-               
+                **_get_log_args()
             )
             return {'type': 'error', 'data': {'error_message': 'Directory not found.'}}
 
@@ -56,10 +51,7 @@ class LayoutParser:
             if is_horizontal and is_vertical:
                 self.debug_log(
                     message=f"❌ Layout Error: Cannot mix horizontal and vertical layouts in '{path}'.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
+                    **_get_log_args()
                 )
                 layout_type = 'error'
                 layout_data['error_message'] = "Mixed horizontal and vertical layouts."
@@ -81,12 +73,9 @@ class LayoutParser:
                     except (IndexError, ValueError) as e:
                         self.debug_log(
                             message=f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}",
-                            file=os.path.basename(__file__),
-                            version=self.current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}"
-                           
+                            **_get_log_args()
                         )
-                layout_data['panel_percentages'] = percentages 
+                layout_data['panel_percentages'] = percentages
             elif is_vertical:
                 layout_type = 'vertical_split'
                 # Sort by 'top', 'bottom' order
@@ -105,20 +94,14 @@ class LayoutParser:
                     except (IndexError, ValueError) as e:
                         self.debug_log(
                             message=f"⚠️ Warning: Could not parse percentage from folder name '{sub_dir.name}'. Error: {e}",
-                            file=os.path.basename(__file__),
-                            version=self.current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}"
-                           
+                            **_get_log_args()
                         )
                 layout_data['panel_percentages'] = percentages
             else:
                  # This case should ideally not be reached if layout_dirs is not empty and logic is sound
                 self.debug_log(
                     message=f"Found layout_dirs but no clear orientation detected in '{path}'.",
-                    file=os.path.basename(__file__),
-                    version=self.current_version,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                   
+                    **_get_log_args()
                 )
 
         elif potential_tab_dirs:
@@ -150,10 +133,7 @@ class LayoutParser:
 
         self.debug_log(
             message=f"Parsed layout for '{path}': Type='{layout_type}', Data={layout_data}",
-            file=os.path.basename(__file__),
-            version=self.current_version,
-            function=f"{self.__class__.__name__}.{current_function_name}"
-           
+            **_get_log_args()
         )
         return {'type': layout_type, 'data': layout_data}
 
