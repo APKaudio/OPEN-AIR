@@ -1,0 +1,149 @@
+{
+  "1_tutorial_intro": {
+    "type": "OcaBlock",
+    "description": "Introduction",
+    "fields": {
+      "title": { "type": "_Label", "label_active": "The 'Flux Capacitor' Widget Showcase" },
+      "desc_main": { "type": "_Label", "label_active": "Now featuring Hybrid Metering (Analog + Digital) and Custom Faders!" }
+    }
+  },
+  "2_standard_widgets": {
+    "type": "OcaBlock",
+    "description": "Standard Controls (4-Column Grid)",
+    "layout_columns": 4,
+    "fields": {
+      "w01": { "type": "_GuiActuator", "label_active": "Actuator", "trigger": false },
+      "w02": { "type": "_GuiButtonToggle", "label_active": "Toggle", "state_default": true },
+      "w03": { "type": "_GuiButtonToggler", "label_active": "Toggler", "options": ["A", "B"] },
+      "w04": { "type": "_GuiCheckbox", "label_active": "Check", "state_default": true },
+      "w05": { "type": "_GuiDropDownOption", "label_active": "Dropdown", "options": ["1", "2"] },
+      "w06": { "type": "_GuiListbox", "label_active": "List", "items": ["A", "B"], "layout": {"height": 60} },
+      "w07": { "type": "_TextInput", "label_active": "Input", "value_default": "Text" },
+      "w08": { "type": "_Value", "label_active": "Value", "value": "1.21" },
+      "w09": { "type": "_Label", "label_active": "Label" },
+      "w10": { "type": "_WebLink", "label_active": "Link", "url": "http://localhost" },
+      "w11": { "type": "_ProgressBar", "label_active": "Load", "value_default": 65 },
+      "w12": { "type": "_sliderValue", "label_active": "Slider", "value_default": 50 },
+      "w13": { "type": "_IncDecButtons", "label_active": "Inc/Dec", "value_default": 10 },
+      "w14": { "type": "_DirectionalButtons", "label_active": "Nav Pad" }
+    }
+  },
+  "3_media_and_specialty": {
+    "type": "OcaBlock",
+    "description": "Media & Specialty Controls (2-Column Grid)",
+    "layout_columns": 2,
+    "fields": {
+      "media_panel": {
+        "type": "OcaBlock",
+        "description": "Visuals",
+        "fields": {
+            "img": { "type": "_ImageDisplay", "label_active": "Image", "image_path": "assets/images/flux_capacitor.png", "layout": {"width": 150, "height": 100} },
+            "anim": { "type": "_AnimationDisplay", "label_active": "Animation", "gif_path": "assets/images/time_circuits.gif", "layout": {"width": 150, "height": 100} }
+        }
+      },
+      "custom_controls": {
+        "type": "OcaBlock",
+        "description": "Advanced Metering",
+        "fields": {
+            "needle": { "type": "_NeedleVUMeter", "label_active": "Analog VU", "value_default": -5, "min": -20, "max": 3, "size": 200 },
+            "custom_fader": { "type": "_CustomFader", "label_active": "Custom Fader", "value_default": 75, "layout": {"height": 200, "width": 60} }
+        }
+      }
+    }
+  },
+  "4_console_demo": {
+    "type": "OcaBlock",
+    "description": "8-Channel Hybrid Console",
+    "layout_columns": 8,
+    "fields": {
+        "ch1": { "type": "OcaBlock", "description": "CH 1", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -20, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -60 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch2": { "type": "OcaBlock", "description": "CH 2", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -10, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -40 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 10, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 20, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": -32 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -20, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch3": { "type": "OcaBlock", "description": "CH 3", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -3, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -12 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 50, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 75, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 32 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -5, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch4": { "type": "OcaBlock", "description": "CH 4", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": 0, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -3 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 100, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": 0, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch5": { "type": "OcaBlock", "description": "CH 5", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -10, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -6 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -10, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch6": { "type": "OcaBlock", "description": "CH 6", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -20, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -20 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 0 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -30, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch7": { "type": "OcaBlock", "description": "CH 7", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -40, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -40 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": -64 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -50, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } },
+        "ch8": { "type": "OcaBlock", "description": "CH 8", "fields": { 
+            "needle": { "type": "_NeedleVUMeter", "label_active": "VU", "value_default": -60, "size": 80 }, 
+            "meter": { "type": "_VUMeter", "label_active": "Pk", "value_default": -60 }, 
+            "aux1": { "type": "_Knob", "label_active": "Aux 1", "value_default": 0, "min": 0, "max": 100 },
+            "aux2": { "type": "_Knob", "label_active": "Aux 2", "value_default": 0, "min": 0, "max": 100 },
+            "aux3": { "type": "_Knob", "label_active": "Aux 3", "value_default": 0, "min": 0, "max": 100 },
+            "aux4": { "type": "_Knob", "label_active": "Aux 4", "value_default": 0, "min": 0, "max": 100 },
+            "pan": { "type": "_Panner", "label_active": "Pan", "value_default": 64 }, 
+            "fader": { "type": "_CustomFader", "label_active": "Vol", "value_default": -100, "layout": {"height": 250, "weight_y": 1, "sticky": "nsew"} }, 
+            "mute": { "type": "_GuiButtonToggle", "label_active": "MUTE" } 
+        } }
+    }
+  }
+}

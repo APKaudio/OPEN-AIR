@@ -49,7 +49,8 @@ class SplashScreen:
         self.gif_frames = []
         self.gif_frame_index = 0
         self.gif_animation_job = None
-        
+        self.status_label = None # Initialize to None
+
         try:
             self.splash_window = tk.Toplevel(self.parent)
             self.splash_window.overrideredirect(True)
@@ -58,49 +59,40 @@ class SplashScreen:
             
             # --- Dimensions & Centering ---
             win_width, win_height = 600, 400
-            screen_width = self.parent.winfo_screenwidth()
-            screen_height = self.parent.winfo_screenheight()
-            x = (screen_width // 2) - (win_width // 2)
-            y = (screen_height // 2) - (win_height // 2)
-            self.splash_window.geometry(f'{win_width}x{win_height}+{x}+{y}')
+            self.splash_window.geometry(f'{win_width}x{win_height}')
+            self.splash_window.tk.call('tk::PlaceWindow', str(self.splash_window), 'center')
             
-            self.main_content_frame = tk.Frame(self.splash_window, bg="black")
-            self.main_content_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
-
-            # --- 1. Header ---
-            header_frame = tk.Frame(self.main_content_frame, bg="black")
-            header_frame.pack(side=tk.TOP, pady=(10, 5)) 
-
-            tk.Label(header_frame, text="Open ", font=("Helvetica", 36, "normal"), fg="#FF6B35", bg="black").pack(side=tk.LEFT)
-            tk.Label(header_frame, text="Air", font=("Helvetica", 36, "bold"), fg="#33A1FD", bg="black").pack(side=tk.LEFT)
-
-            # --- 2. Lyrics ---
-            self.lyrics_label = tk.Label(self.main_content_frame, text="", fg="gray", bg="black", font=("Helvetica", 10, "italic"))
-            self.lyrics_label.pack(side=tk.TOP, pady=(0, 10))
-
-            # --- 3. Animation Area (Now a GIF) ---
-            vis_frame = tk.Frame(self.main_content_frame, bg="black", height=150)
-            vis_frame.pack(side=tk.TOP, fill=tk.X, expand=True)
-            vis_frame.pack_propagate(False)
+            # --- GIF Background ---
+            self.gif_label = tk.Label(self.splash_window, bg="black")
+            self.gif_label.place(x=0, y=0, relwidth=1, relheight=1)
 
             if PIL_AVAILABLE:
                 self._safe_log("Initializing GIF Animation...")
                 try:
-                    self._init_gif_animation(vis_frame)
+                    self._init_gif_animation()
                 except Exception as e:
                     self._safe_log(f"🔴 GIF FAILED: {e}", is_error=True)
                     traceback.print_exc()
-                    tk.Label(vis_frame, text="[GIF Error]", fg="red", bg="black").pack(expand=True)
+                    tk.Label(self.splash_window, text="[GIF Error]", fg="red", bg="black").place(relx=0.5, rely=0.5, anchor=tk.CENTER)
             else:
-                tk.Label(vis_frame, text="[Image Libraries Missing]", fg="#333", bg="black").pack(expand=True)
+                tk.Label(self.splash_window, text="[Image Libraries Missing]", fg="#333", bg="black").place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
-            # --- 4. Footer ---
-            tk.Label(self.main_content_frame, text="Zone Awareness Processor", font=("Helvetica", 14), fg="white", bg="black").pack(side=tk.TOP, pady=(20, 5))
+            # --- Widgets on top of the GIF ---
+            header_frame = tk.Frame(self.splash_window, bg="black")
+            header_frame.place(relx=0.5, rely=0.2, anchor=tk.CENTER)
+
+            tk.Label(header_frame, text="Open ", font=("Helvetica", 36, "normal"), fg="#FF6B35", bg="black").pack(side=tk.LEFT)
+            tk.Label(header_frame, text="Air", font=("Helvetica", 36, "bold"), fg="#33A1FD", bg="black").pack(side=tk.LEFT)
+
+            self.lyrics_label = tk.Label(self.splash_window, text="", fg="gray", bg="black", font=("Helvetica", 10, "italic"))
+            self.lyrics_label.place(relx=0.5, rely=0.4, anchor=tk.CENTER)
+
+            tk.Label(self.splash_window, text="Zone Awareness Processor", font=("Helvetica", 14), fg="white", bg="black").place(relx=0.5, rely=0.8, anchor=tk.CENTER)
             
-            self.status_label = tk.Label(self.main_content_frame, text="Initializing...", fg="white", bg="black", font=("Helvetica", 10))
-            self.status_label.pack(side=tk.BOTTOM, pady=5)
+            self.status_label = tk.Label(self.splash_window, text="Initializing...", fg="white", bg="black", font=("Helvetica", 10))
+            self.status_label.place(relx=0.5, rely=0.9, anchor=tk.CENTER)
 
-            # --- 5. Data & Logic ---
+            # --- Data & Logic ---
             self.lyrics = []
             if LYRICS_AVAILABLE and hasattr(lyrics_data, 'lyrics'):
                 self.lyrics = lyrics_data.lyrics
@@ -110,9 +102,9 @@ class SplashScreen:
             self.current_lyric = self.lyrics[0]
             self.lyrics_label.config(text=self.current_lyric)
 
-            # --- 6. Start Timers ---
+            # --- Start Timers ---
             self.parent.after(10, self._fade_in)
-            self.splash_window.after(1500, self.cycle_lyrics_async)
+            self.parent.after(1500, self.cycle_lyrics_async)
             
             self._safe_log("✅ SplashScreen Init Complete.")
 
@@ -128,21 +120,15 @@ class SplashScreen:
                 self.debug_log_func(message=message, **_get_log_args())
         except Exception: pass
 
-    def _init_gif_animation(self, parent_frame):
+    def _init_gif_animation(self):
+        self.photo_images = []
         gif_path = pathlib.Path(__file__).parent / 'splash_logo.gif'
         if not gif_path.exists():
             self._safe_log(f"🔴 GIF not found at {gif_path}", is_error=True)
-            tk.Label(parent_frame, text="[splash_logo.gif not found]", fg="red", bg="black").pack(expand=True)
             return
-
-        self.gif_label = tk.Label(parent_frame, bg="black")
-        self.gif_label.pack(expand=True)
 
         try:
             with Image.open(gif_path) as img:
-                self.gif_frames = []
-                # It's crucial to keep a reference to the PhotoImage objects
-                self.photo_images = []
                 for i in range(img.n_frames):
                     img.seek(i)
                     frame_image = img.copy().convert("RGBA")
@@ -150,15 +136,17 @@ class SplashScreen:
                     self.photo_images.append(photo_image)
                 
                 self.gif_frame_duration = img.info.get('duration', 50)
+                # FIX: Keep a reference to the images on the label itself
+                self.gif_label.photo_images = self.photo_images
 
         except Exception as e:
             self._safe_log(f"🔴 Failed to load GIF frames: {e}", is_error=True)
-            raise
 
         if self.photo_images:
             self._update_gif_frame()
 
     def _update_gif_frame(self):
+        self._safe_log(f"Updating GIF frame to index {self.gif_frame_index}")
         if not self.splash_window.winfo_exists():
             return
             
@@ -167,7 +155,7 @@ class SplashScreen:
         
         self.gif_frame_index = (self.gif_frame_index + 1) % len(self.photo_images)
         
-        self.gif_animation_job = self.splash_window.after(self.gif_frame_duration, self._update_gif_frame)
+        self.gif_animation_job = self.parent.after(self.gif_frame_duration, self._update_gif_frame)
 
     def _fade_in(self, alpha=0.0):
         if self.splash_window.winfo_exists() and alpha <= 1.0:
@@ -192,7 +180,7 @@ class SplashScreen:
             self.splash_window.destroy()
 
     def set_status(self, message):
-        if self.splash_window.winfo_exists():
+        if self.splash_window.winfo_exists() and self.status_label:
             self.status_label.config(text=message)
             self.parent.update_idletasks()
 
@@ -201,7 +189,7 @@ class SplashScreen:
             self.lyric_index = (self.lyric_index + 1) % len(self.lyrics)
             self.current_lyric = self.lyrics[self.lyric_index]
             self.lyrics_label.config(text=self.current_lyric)
-            self.splash_window.after(1500, self.cycle_lyrics_async)
+            self.parent.after(1500, self.cycle_lyrics_async)
 
 if __name__ == '__main__':
     root = tk.Tk()

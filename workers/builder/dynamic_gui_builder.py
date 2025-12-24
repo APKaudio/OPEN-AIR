@@ -17,33 +17,34 @@ import inspect
 # --- Module Imports ---
 from workers.logger.logger import  debug_log
 from display.styling.style import THEMES, DEFAULT_THEME
-from .dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
+from workers.builder.input.dynamic_gui_mousewheel_mixin import MousewheelScrollMixin
 import workers.setup.app_constants as app_constants
 from workers.utils.log_utils import _get_log_args 
 
 # --- Widget Creator Mixins ---
-from .dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
-from .dynamic_gui_create_label import LabelCreatorMixin
-from .dynamic_gui_create_value_box import ValueBoxCreatorMixin
-from .dynamic_gui_create_gui_slider_value import SliderValueCreatorMixin
-from .dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
-from .dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
-from .dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
-from .dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
-from .dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
-from .dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
-from .dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
-from .dynamic_gui_create_text_input import TextInputCreatorMixin
-from .dynamic_gui_create_web_link import WebLinkCreatorMixin
-from .dynamic_gui_create_image_display import ImageDisplayCreatorMixin
-from .dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
-from .dynamic_gui_create_vu_meter import VUMeterCreatorMixin
-from .dynamic_gui_create_fader import FaderCreatorMixin
-from .dynamic_gui_create_knob import KnobCreatorMixin
-from .dynamic_gui_create_inc_dec_buttons import IncDecButtonsCreatorMixin
-from .dynamic_gui_create_directional_buttons import DirectionalButtonsCreatorMixin
-from .dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
-from .dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
+from .text.dynamic_gui_create_label_from_config import LabelFromConfigCreatorMixin
+from .text.dynamic_gui_create_label import LabelCreatorMixin
+from .text.dynamic_gui_create_value_box import ValueBoxCreatorMixin
+from .input.dynamic_gui_create_gui_slider_value import SliderValueCreatorMixin
+from .input.dynamic_gui_create_gui_button_toggle import GuiButtonToggleCreatorMixin
+from .input.dynamic_gui_create_gui_button_toggler import GuiButtonTogglerCreatorMixin
+from .text.dynamic_gui_create_gui_dropdown_option import GuiDropdownOptionCreatorMixin
+from .input.dynamic_gui_create_gui_actuator import GuiActuatorCreatorMixin
+from .input.dynamic_gui_create_gui_checkbox import GuiCheckboxCreatorMixin
+from .text.dynamic_gui_create_gui_listbox import GuiListboxCreatorMixin
+from .graphical.dynamic_gui_create_progress_bar import ProgressBarCreatorMixin
+from .text.dynamic_gui_create_text_input import TextInputCreatorMixin
+from .text.dynamic_gui_create_web_link import WebLinkCreatorMixin
+from .graphical.dynamic_gui_create_image_display import ImageDisplayCreatorMixin
+from .graphical.dynamic_gui_create_animation_display import AnimationDisplayCreatorMixin
+from .audio.dynamic_gui_create_vu_meter import VUMeterCreatorMixin
+from .input.dynamic_gui_create_fader import FaderCreatorMixin
+from .audio.dynamic_gui_create_knob import KnobCreatorMixin
+from .input.dynamic_gui_create_inc_dec_buttons import IncDecButtonsCreatorMixin
+from .input.dynamic_gui_create_directional_buttons import DirectionalButtonsCreatorMixin
+from .audio.dynamic_gui_create_custom_fader import CustomFaderCreatorMixin
+from .audio.dynamic_gui_create_needle_vu_meter import NeedleVUMeterCreatorMixin
+from .audio.dynamic_gui_create_panner import PannerCreatorMixin
 
 # --- Protocol Global Variables ---
 CURRENT_DATE = 20251223
@@ -78,7 +79,8 @@ class DynamicGuiBuilder(
     IncDecButtonsCreatorMixin,
     DirectionalButtonsCreatorMixin,
     CustomFaderCreatorMixin,
-    NeedleVUMeterCreatorMixin
+    NeedleVUMeterCreatorMixin,
+    PannerCreatorMixin
 ):
     def __init__(self, parent, json_path=None, *args, **kwargs):
         _ = kwargs.pop('config', None) 
@@ -126,7 +128,8 @@ class DynamicGuiBuilder(
             "_IncDecButtons": self._create_inc_dec_buttons,
             "_DirectionalButtons": self._create_directional_buttons,
             "_CustomFader": self._create_custom_fader,
-            "_NeedleVUMeter": self._create_needle_vu_meter
+            "_NeedleVUMeter": self._create_needle_vu_meter,
+            "_Panner": self._create_panner
         }
 
         try:

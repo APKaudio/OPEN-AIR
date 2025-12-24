@@ -31,16 +31,16 @@ class ImageDisplayCreatorMixin:
         try:
             pil_image = Image.open(image_path)
             tk_image = ImageTk.PhotoImage(pil_image)
+            image_label = ttk.Label(frame, image=tk_image)
+            image_label.image = tk_image 
+        except FileNotFoundError:
+            image_label = ttk.Label(frame, text=f"Image not found:\n{image_path}")
+            tk_image = None
         except Exception as e:
+            image_label = ttk.Label(frame, text=f"Error loading image:\n{e}")
             tk_image = None
             debug_log(message=f"🔴 ERROR loading image: {e}")
-            if app_constants.LOCAL_DEBUG_ENABLE:
-                debug_log(message=f"🔴 ERROR loading image: {e}", file=os.path.basename(__file__), function=current_function_name 
 
-)
-
-        image_label = ttk.Label(frame, image=tk_image)
-        image_label.image = tk_image 
         image_label.pack(side=tk.LEFT)
 
         self.topic_widgets[path] = {"widget": image_label}
