@@ -71,7 +71,11 @@ class GuiDropdownOptionCreatorMixin:
             label_widget.pack(side=tk.LEFT, padx=(DEFAULT_PAD_X, 0))
 
             options_map = config.get('options', {})
-
+            # Ensure options_map is a dictionary
+            if isinstance(options_map, list):
+                debug_log(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
+                options_map = {} # Fallback to empty dict to prevent crash
+            
             # Filter out inactive options for initial display
             active_options = {k: v for k, v in options_map.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
 

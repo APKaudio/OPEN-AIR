@@ -76,6 +76,11 @@ class GuiButtonTogglerCreatorMixin:
             button_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
             options_data = config.get('options', {})
+            # Ensure options_data is a dictionary
+            if isinstance(options_data, list):
+                debug_log(message=f"⚠️ WARNING: 'options' for '{label}' in config is a list, expected a dictionary. Falling back to empty dict.", **_get_log_args())
+                options_data = {} # Fallback to empty dict to prevent crash
+            
             buttons = {}
 
             selected_key = next((key for key, opt in options_data.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
