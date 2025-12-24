@@ -20,7 +20,7 @@
 
 
 import time
-import json
+import orjson
 import os
 import inspect
 
@@ -163,7 +163,7 @@ class FrequencyYakCommunicator:
                 return
 
             try:
-                parsed_payload = json.loads(payload)
+                parsed_payload = orjson.loads(payload)
                 value_str = parsed_payload.get('value', payload)
             except (json.JSONDecodeError, ValueError, TypeError):
                 value_str = payload

@@ -21,7 +21,7 @@
 
 import os
 import inspect
-import json
+import orjson
 import pathlib
 
 # Assume these are imported from a central logging utility and MQTT controller
@@ -84,7 +84,7 @@ class SpanSettingsManager:
                 return
 
             with open(config_file_path, 'r') as f:
-                config_data = json.load(f)
+                config_data = orjson.load(f)
 
             span_options = config_data.get("Presets", {}).get("fields", {}).get("SPAN", {}).get("options", {})
             for key, option in span_options.items():
@@ -132,7 +132,7 @@ class SpanSettingsManager:
         current_function_name = inspect.currentframe().f_code.co_name
 
         try:
-            parsed_payload = json.loads(payload)
+            parsed_payload = orjson.loads(payload)
             value = parsed_payload.get('value', payload)
 
             if topic.endswith("/selected") and str(value).lower() == 'true':

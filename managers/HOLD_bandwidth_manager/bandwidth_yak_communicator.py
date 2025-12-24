@@ -20,7 +20,7 @@
 
 
 import time
-import json
+import orjson
 import os
 
 from workers.logger.logger import debug_log
@@ -113,8 +113,8 @@ class BandwidthYakCommunicator:
             if not gui_suffix: return
 
             try:
-                raw_value = json.loads(payload).get('value', payload)
-            except (json.JSONDecodeError, TypeError):
+                raw_value = orjson.loads(payload).get('value', payload)
+            except (orjson.JSONDecodeError, TypeError):
                 raw_value = payload
             
             full_gui_topic = f"{self.base_topic}/{gui_suffix}"

@@ -21,7 +21,7 @@ import os
 import traceback
 import pyvisa
 import tkinter as tk
-import json
+import orjson
 import datetime
 import time
 import threading
@@ -100,7 +100,7 @@ class VisaDeviceManager:
             **_get_log_args()
           
         )
-        payload = json.dumps({"resource": resource_name})
+        payload = orjson.dumps({"resource": resource_name})
         ## self.mqtt_util.publish_message(topic="OPEN-AIR/commands/instrument/connect", subtopic="", value=payload)
 
     def disconnect_instrument(self, console_print_func):

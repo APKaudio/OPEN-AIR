@@ -26,7 +26,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-import json
+import orjson
 import pathlib
 import threading
 import time
@@ -144,8 +144,8 @@ class MarkerGoGetterWorker:
         try:
             # Safely attempt to extract value from a potential JSON payload
             try:
-                value = json.loads(payload).get("value")
-            except (json.JSONDecodeError, AttributeError):
+                value = orjson.loads(payload).get("value")
+            except (orjson.JSONDecodeError, AttributeError):
                 value = payload # Fallback to raw payload if not a JSON object
 
             if topic == TOPIC_TOTAL_DEVICES:
@@ -161,7 +161,7 @@ class MarkerGoGetterWorker:
                 if len(topic_parts) >= 4 and topic_parts[-3].startswith("Device-"):
                     device_id = topic_parts[-3]
                     self.marker_frequencies[device_id] = float(value)
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
+        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
             debug_log(message=f"🟡 Warning: Could not process marker data update from topic '{topic}': {e}")
 
     def _handle_start_stop(self, topic, payload):
@@ -169,8 +169,8 @@ class MarkerGoGetterWorker:
         try:
             # Safely extract boolean value
             try:
-                is_start_command = str(json.loads(payload).get("value")).lower() == 'true'
-            except (json.JSONDecodeError, AttributeError):
+                is_start_command = str(orjson.loads(payload).get("value")).lower() == 'true'
+            except (orjson.JSONDecodeError, AttributeError):
                 is_start_command = str(payload).lower() == 'true'
 
             if is_start_command and (self.processing_thread is None or not self.processing_thread.is_alive()):
@@ -188,7 +188,7 @@ class MarkerGoGetterWorker:
                     self.processing_thread.join(timeout=0.5) 
                 self.processing_thread = None
 
-        except (json.JSONDecodeError, ValueError, TypeError) as e:
+        except (orjson.JSONDecodeError, ValueError, TypeError) as e:
             debug_log(message=f"❌ Error processing start/stop command: {e}")
 
     

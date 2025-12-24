@@ -19,7 +19,7 @@
 
 import os
 import inspect
-import json
+import orjson
 
 # --- Utility and Worker Imports ---
 from workers.logger.logger import debug_log
@@ -109,12 +109,12 @@ class VisaResetManager:
         )
         try:
             # FIXED: Check if the payload value is explicitly 'true'
-            data = json.loads(payload)
+            data = orjson.loads(payload)
             if str(data.get("value")).lower() == 'true':
                 debug_log(message=f"🔵 Command received: Soft Reset. Dispatching '{self.CMD_RESET_DEVICE}'.", **_get_log_args())
                 self.scpi_dispatcher.write_safe(command=self.CMD_RESET_DEVICE)
                 
-        except (json.JSONDecodeError, AttributeError) as e:
+        except (orjson.JSONDecodeError, AttributeError) as e:
             debug_log(message=f"❌ Error processing reset request payload: {payload}. Error: {e}")
             debug_log(
                 message=f"🟢️️️🔴 A garbled message! The reset contraption is confused! The error be: {e}",
@@ -136,12 +136,12 @@ class VisaResetManager:
         )
         try:
             # FIXED: Check if the payload value is explicitly 'true'
-            data = json.loads(payload)
+            data = orjson.loads(payload)
             if str(data.get("value")).lower() == 'true':
                 debug_log(message=f"🔵 Command received: Power Cycle. Dispatching '{self.CMD_REBOOT_DEVICE}'.", **_get_log_args())
                 self.scpi_dispatcher.write_safe(command=self.CMD_REBOOT_DEVICE)
 
-        except (json.JSONDecodeError, AttributeError) as e:
+        except (orjson.JSONDecodeError, AttributeError) as e:
             debug_log(message=f"❌ Error processing reboot request payload: {payload}. Error: {e}")
             debug_log(
                 message=f"🟢️️️🔴 The reboot sequence has short-circuited! The error be: {e}",

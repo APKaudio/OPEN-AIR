@@ -21,7 +21,7 @@
 
 import os
 import inspect
-import json
+import orjson
 
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 

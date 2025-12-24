@@ -19,7 +19,7 @@
 
 import os
 import inspect
-import json
+import orjson
 
 # --- Module Imports ---
 from workers.logger.logger import debug_log
@@ -84,7 +84,7 @@ class MqttDataFlattenerUtility:
                 return []
         
         try:
-            data = json.loads(payload)
+            data = orjson.loads(payload)
             
             # --- Corrected logic for 'Active' status check ---
             if topic.endswith('/Active') and isinstance(data, dict) and data.get('value') == 'false':
@@ -117,7 +117,7 @@ class MqttDataFlattenerUtility:
 
             return []
             
-        except json.JSONDecodeError as e:
+        except orjson.JSONDecodeError as e:
             debug_log(message=f"❌ Error decoding JSON payload for topic '{topic}': {e}", **_get_log_args())
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
@@ -182,5 +182,5 @@ class MqttDataFlattenerUtility:
                 
             )
         
-        debug_log(message=json.dumps(flattened_data, indent=2), **_get_log_args())
+        debug_log(message=orjson.dumps(flattened_data, indent=2), **_get_log_args())
         return [flattened_data]

@@ -25,7 +25,7 @@ Current_iteration = 44
 current_version = f"{Current_Date}.{Current_Time}.{Current_iteration}"
 current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
-import json
+import orjson
 ## from workers.mqtt.worker_mqtt_controller_util import MqttControllerUtility
 from .bandwidth_state import BandwidthState
 from .bandwidth_yak_communicator import BandwidthYakCommunicator
@@ -79,8 +79,8 @@ class BandwidthCallbacks:
         ##     return
         
         try:
-            value = json.loads(payload).get('value', payload)
-        except (json.JSONDecodeError, TypeError):
+            value = orjson.loads(payload).get('value', payload)
+        except (orjson.JSONDecodeError, TypeError):
             value = payload
 
         if self.state._locked_state.get(topic, False):
@@ -106,5 +106,5 @@ class BandwidthCallbacks:
 
         if "Video Bandwidth/fields/VBW_Automatic/options" in topic and topic.endswith("/selected") and str(value).lower() == 'true':
             is_on = "ON" in topic
-            self.yak_communicator.publish_vbw_auto_and_trigger(is_auto_on=is_on)
+            self.yak_communicator.publish_vbw_auto_and_trigger(is_on=is_on)
             return

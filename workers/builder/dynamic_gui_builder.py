@@ -8,7 +8,7 @@
 # 2. CHANGED DEFAULT: 'layout_columns' now defaults to 1 (Vertical Stack).
 
 import os
-import json
+import orjson
 import hashlib  # ⚡ Added for optimization
 import tkinter as tk
 from tkinter import ttk
@@ -197,7 +197,7 @@ class DynamicGuiBuilder(
 
                 # If changed, update hash and parse JSON
                 self.last_build_hash = current_hash
-                self.config_data = json.loads(raw_content)
+                self.config_data = orjson.loads(raw_content)
                 
                 # Proceed to build
                 self._rebuild_gui()

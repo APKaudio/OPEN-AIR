@@ -20,7 +20,7 @@ import inspect
 import datetime
 import tkinter as tk
 from tkinter import ttk, scrolledtext
-import json
+import orjson
 import paho.mqtt.client as mqtt
 
 # --- Module Imports ---
@@ -66,7 +66,7 @@ class MqttSubscriberMixin:
                 if not relative_topic:
                     # Case 1: The full configuration JSON is received on the base topic.
                     try:
-                        full_config = json.loads(payload)
+                        full_config = orjson.loads(payload)
                         if isinstance(full_config, dict):
                             self.config_data = full_config
                             # Note: _rebuild_gui is NOT called here by design, as local JSON is authoritative.
@@ -81,7 +81,7 @@ class MqttSubscriberMixin:
 
                                 )
                             return
-                    except (json.JSONDecodeError, TypeError):
+                    except (orjson.JSONDecodeError, TypeError):
                         pass
 
                 # Case 2: An incremental update is received on a subtopic.

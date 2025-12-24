@@ -30,7 +30,7 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 
 import os
 import inspect
-import json
+import orjson
 import threading
 import re
 import datetime
@@ -112,7 +112,7 @@ class ActivePeakPublisher:
         # Extract the value safely
         try:
             # 1. Decode the entire JSON payload to a Python dictionary
-            payload_dict = json.loads(payload)
+            payload_dict = orjson.loads(payload)
             # 2. Extract the string value (e.g., "-6.219589233E+01")
             value_str = payload_dict.get("value")
             
@@ -237,7 +237,7 @@ class ActivePeakPublisher:
             self.mqtt_util.publish_message(
                 topic=full_topic,
                 subtopic="",
-                value=json.dumps(final_payload),
+                value=orjson.dumps(final_payload),
                 retain=True
             )
 

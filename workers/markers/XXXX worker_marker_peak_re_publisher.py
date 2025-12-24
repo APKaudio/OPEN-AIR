@@ -19,7 +19,7 @@
 
 import os
 import inspect
-import json
+import orjson
 import threading
 import re
 import time 

@@ -23,7 +23,7 @@ import inspect
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
 from workers.utils.log_utils import _get_log_args
-import json
+import orjson
 
 
 LOCAL_DEBUG_ENABLE = False
@@ -65,7 +65,7 @@ class YakRxManager:
             )
         if app_constants.LOCAL_DEBUG_ENABLE: 
             debug_log(
-                message=f"ℹ️ Command Details: {json.dumps(outputs, indent=2)}",
+                message=f"ℹ️ Command Details: {orjson.dumps(outputs, indent=2)}",
                 **_get_log_args()
 
 
