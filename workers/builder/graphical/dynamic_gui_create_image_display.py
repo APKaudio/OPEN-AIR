@@ -15,10 +15,7 @@ class ImageDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"🔬⚡️ Entering '{current_function_name}' to render an image for '{label}'.",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
 
         frame = ttk.Frame(parent_frame)
@@ -34,10 +31,10 @@ class ImageDisplayCreatorMixin:
             image_label = ttk.Label(frame, image=tk_image)
             image_label.image = tk_image 
         except FileNotFoundError:
-            image_label = ttk.Label(frame, text=f"Image not found:\n{image_path}")
+            image_label = ttk.Label(frame, text=f"Image not found:\n{image_path}", wraplength=150)
             tk_image = None
         except Exception as e:
-            image_label = ttk.Label(frame, text=f"Error loading image:\n{e}")
+            image_label = ttk.Label(frame, text=f"Error loading image:\n{e}", wraplength=150)
             tk_image = None
             debug_log(message=f"🔴 ERROR loading image: {e}")
 
@@ -48,9 +45,6 @@ class ImageDisplayCreatorMixin:
         if app_constants.LOCAL_DEBUG_ENABLE:
             debug_log(
                 message=f"✅ SUCCESS! The image for '{label}' has been rendered!",
-**_get_log_args()
-                
-
-
+                **_get_log_args()
             )
         return frame

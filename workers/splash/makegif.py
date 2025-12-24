@@ -10,7 +10,7 @@ FILENAME = os.path.join(SCRIPT_DIR, "splash_logo.gif")
 
 FRAMES = 50
 FPS = 20
-WIDTH, HEIGHT = 6, 4 
+WIDTH, HEIGHT = 6, 2.5 
 BG_COLOR = "black"
 
 # --- Setup Figure ---
@@ -110,5 +110,5 @@ def update(frame):
 # --- 5. Generate and Save ---
 print(f"Generating {FRAMES} frames (Standard Colors)...")
 ani = animation.FuncAnimation(fig, update, frames=FRAMES, blit=False)
-ani.save(FILENAME, writer='pillow', fps=FPS, savefig_kwargs={'facecolor': BG_COLOR})
+ani.save(FILENAME, writer='pillow', fps=FPS, savefig_kwargs={'facecolor': BG_COLOR}, dpi=100)
 print(f"✅ Saved to: {FILENAME}")

@@ -1,0 +1,373 @@
+20251223225305💬Debug directory cleared.🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬Configuring console encoding...🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬Console encoding configured.🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬✅ Application initialization completed successfully.🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬DEBUG: initialize_app returned True. Calling action_open_display...🧩<module>📄main.py🗄️20251223.120000.proto
+20251223225305💬DEBUG: entering action_open_display🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬🖥️🟢 The final step! Activating the main display in 'action_open_display'!🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬--> [1/10] Setting splash status: Building GUI...🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬--> [2/10] Importing Application module...🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬<-- [2/10] Application module imported.🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬--> [3/10] Instantiating Application...🧩main📄main.py🗄️20251223.120000.proto
+20251223225305💬🖥️🚦 The grand orchestrator is waking up! Let'S get this GUI built!🧩action_open_display📄main.py🗄️20251223.120000.proto
+20251223225305💬🔍🔵 Applying styles for theme: DEFAULT_THEME.🧩__init__📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬🔍🔵 Exiting '_apply_styles'. Theme: DEFAULT_THEME has been meticulously applied. The canvas is ready!🧩__init__📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬🔍🔵 Applied theme: dark. The aesthetic enchantments are complete!🧩action_open_display📄main.py🗄️20251223.120000.proto
+20251223225305💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display'. Parent widget: .!application.🧩__init__📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display': Type='horizontal_split', Data={'orientation': 'horizontal', 'panels': [{'name': 'left_50', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50'), 'weight': 50}, {'name': 'right_50', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/right_50'), 'weight': 50}], 'panel_percentages': [50, 50]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬✅🔨 Constructing a magnificent 'horizontal_split' pane for 'left_50' with a formidable weight of 50.🧩__init__📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50'. Parent widget: .!application.!panedwindow.!frame.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50': Type='vertical_split', Data={'orientation': 'vertical', 'panels': [{'name': 'top_100', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100'), 'weight': 100}], 'panel_percentages': [100]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬✅🔨 Constructing a magnificent 'vertical_split' pane for 'top_100' with a formidable weight of 100.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100': Type='notebook', Data={'tabs': [{'name': '1_Connection', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection'), 'display_name': 'Connection'}, {'name': '3_Instrument', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_Instrument'), 'display_name': 'Instrument'}, {'name': '3_markers', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/3_markers'), 'display_name': 'Markers'}, {'name': '4_presets', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/4_presets'), 'display_name': 'Presets'}, {'name': '5_sweeping', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/5_sweeping'), 'display_name': 'Sweeping'}, {'name': '6_plotting', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/6_plotting'), 'display_name': 'Plotting'}, {'name': '8_exepriment', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/8_exepriment'), 'display_name': 'Exepriment'}]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬✅🔨 A grand tome takes shape! ttk.Notebook for path '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100'. Tear-off and tab change events are now bound, ready for dynamic interaction!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬📑📑 Behold! Tab 'Connection' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection': Type='notebook', Data={'tabs': [{'name': '1_Device', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device'), 'display_name': 'Device'}, {'name': '4_YAK', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK'), 'display_name': 'Yak'}]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225305💬✅🔨 A grand tome takes shape! ttk.Notebook for path '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection'. Tear-off and tab change events are now bound, ready for dynamic interaction!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬📑📑 Behold! Tab 'Device' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device/gui_Device.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬🧱🟢 Summoning a GUI from: 'gui_Device.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device/gui_Device.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225306💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device/gui_Device.py' with name 'gui_Device'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225306💬DEBUG: Loading dynamic_gui_mousewheel_mixin.py from: /home/anthony/Documents/OPEN-AIR/workers/builder/input/dynamic_gui_mousewheel_mixin.py🧩_call_with_frames_removed📄<frozen importlib._bootstrap>🗄️20251223.120000.proto
+20251223225306💬🔬✅ Module 'gui_Device' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/1_Device/gui_Device.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225306💬🔬🟢 Preparing to conjure a GUI class from module 'gui_Device' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225306💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225306💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'Device'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225306💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225306💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Searching for devices...'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The actuator 'Searching for devices...' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_listbox' to materialize a listbox for 'Found_devices'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The listbox 'Found_devices' has been successfully generated!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Connecting to device...'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The actuator 'Connecting to device...' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Disconnecting device...'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The actuator 'Disconnecting device...' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'connected'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'connected'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'connected' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'connected' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'disconnected'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'disconnected'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'disconnected' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'disconnected' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'brand'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'brand'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'brand' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'brand' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'device_model'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'device_model'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'device_model' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'device_model' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'device_series'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'device_series'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'device_series' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'device_series' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'device_serial_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'device_serial_number'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'device_serial_number' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'device_serial_number' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'device_firmware'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'device_firmware'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'device_firmware' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'device_firmware' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'visa_resource'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'visa_resource'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'visa_resource' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'visa_resource' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 ➡️➡️ '_create_label_from_config' to create label from config for 'Time_connected'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_label' to concoct a new label: 'Time_connected'.🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The label 'Time_connected' has been successfully synthesized!🧩_create_label_from_config📄dynamic_gui_create_label_from_config.py🗄️20251223.120000.proto
+20251223225308💬🟢️️️🟢 📤 '_create_label_from_config'. Label from config 'Time_connected' created.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Resetting device...'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The actuator 'Resetting device...' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Rebooting device...'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ SUCCESS! The actuator 'Rebooting device...' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225308💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225308💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬📑📑 Behold! Tab 'Yak' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK': Type='notebook', Data={'tabs': [{'name': '0_Frequency', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency'), 'display_name': 'Frequency'}, {'name': '1_Bandwidth', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth'), 'display_name': 'Bandwidth'}, {'name': '2_Amplitude', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude'), 'display_name': 'Amplitude'}, {'name': '3_Trace', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace'), 'display_name': 'Trace'}, {'name': '7_Markers', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers'), 'display_name': 'Markers'}, {'name': '8_Memory', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory'), 'display_name': 'Memory'}, {'name': '9_System', 'path': PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/9_System'), 'display_name': 'System'}]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬✅🔨 A grand tome takes shape! ttk.Notebook for path '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK'. Tear-off and tab change events are now bound, ready for dynamic interaction!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬📑📑 Behold! Tab 'Frequency' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency/gui_yak_frequency.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬🧱🟢 Summoning a GUI from: 'gui_yak_frequency.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency/gui_yak_frequency.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225308💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency/gui_yak_frequency.py' with name 'gui_yak_frequency'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬🔬✅ Module 'gui_yak_frequency' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/0_Frequency/gui_yak_frequency.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_frequency' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_frequency'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225308💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225308💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'start_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬✅ SUCCESS! The value box 'start_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'stop_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬✅ SUCCESS! The value box 'stop_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'center_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬✅ SUCCESS! The value box 'center_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'span_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225313💬✅ SUCCESS! The value box 'span_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'start_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ SUCCESS! The value box 'start_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'stop_freq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ SUCCESS! The value box 'stop_freq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ SUCCESS! The value box 'hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ SUCCESS! The value box 'hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ SUCCESS! The value box 'hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225314💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225314💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬📑📑 Behold! Tab 'Bandwidth' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame2.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth/gui_yak_bandwidth.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬🧱🟢 Summoning a GUI from: 'gui_yak_bandwidth.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth/gui_yak_bandwidth.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225314💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth/gui_yak_bandwidth.py' with name 'gui_yak_bandwidth'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬🔬✅ Module 'gui_yak_bandwidth' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/1_Bandwidth/gui_yak_bandwidth.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_bandwidth' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame2!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_bandwidth'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225314💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225314💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'RBW_Hz'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'RBW_Hz' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'VBW_Hz'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'VBW_Hz' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'VBW_Auto_On'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'VBW_Auto_On' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Continuous_Mode_On'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'Continuous_Mode_On' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Sweep_Time_s'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'Sweep_Time_s' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'rbw_hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'rbw_hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'vbw_hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'vbw_hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'sweep_time_s'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225319💬✅ SUCCESS! The value box 'sweep_time_s' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The value box 'hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'hz_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The value box 'hz_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Sweep_Time_Auto_ON'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'Do_Sweep_Time_Auto_ON' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Do_Sweep_Time_Auto_OFF'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'Do_Sweep_Time_Auto_OFF' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'do_Video_Bandwidth_Auto_ON'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'do_Video_Bandwidth_Auto_ON' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'do_Video_Bandwidth_Auto_OFF'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'do_Video_Bandwidth_Auto_OFF' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Resolution_Bandwidth_Auto_ON'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'Set_Resolution_Bandwidth_Auto_ON' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Resolution_Bandwidth_Auto_OFF'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ SUCCESS! The actuator 'Set_Resolution_Bandwidth_Auto_OFF' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225320💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225320💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame2'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬📑📑 Behold! Tab 'Amplitude' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame3.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬🧱🟢 Summoning a GUI from: 'gui_yak_amplitude.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225320💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py' with name 'gui_yak_amplitude'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬🔬✅ Module 'gui_yak_amplitude' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/2_Amplitude/gui_yak_amplitude.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_amplitude' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame3!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_amplitude'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225320💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225320💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Attenuation_dB'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬✅ SUCCESS! The value box 'Attenuation_dB' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Preamp_On'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225326💬✅ SUCCESS! The value box 'Preamp_On' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Attenuation_dB'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬✅ SUCCESS! The value box 'Attenuation_dB' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Preamp_On'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬✅ SUCCESS! The value box 'Preamp_On' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'ref_level'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬✅ SUCCESS! The value box 'ref_level' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'attenuation'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225327💬✅ SUCCESS! The value box 'attenuation' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'preamp_state'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬✅ SUCCESS! The value box 'preamp_state' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Ref_Level_dBm'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬✅ SUCCESS! The value box 'Ref_Level_dBm' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Power_Attenuation'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225328💬✅ SUCCESS! The value box 'Power_Attenuation' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Input_Auto_Attenuation_ON'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_Input_Auto_Attenuation_ON' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Input_Auto_Attenuation_OFF'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_Input_Auto_Attenuation_OFF' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Power_Gain_ON'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_Power_Gain_ON' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_Power_Gain_OFF'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_Power_Gain_OFF' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_ON_N9340B'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_ON_N9340B' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_ON_N9342CN'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_ON_N9342CN' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_OFF_N9340B'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_OFF_N9340B' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬🔬⚡️ Entering '_create_gui_actuator' to construct an actuator for 'Set_High_Sensitive_Power_OFF_N9342CN'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ SUCCESS! The actuator 'Set_High_Sensitive_Power_OFF_N9342CN' is ready for action!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225329💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225329💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame3'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬📑📑 Behold! Tab 'Trace' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame4.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬🧱🟢 Summoning a GUI from: 'gui_yak_trace.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225329💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py' with name 'gui_yak_trace'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬🔬✅ Module 'gui_yak_trace' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/3_Trace/gui_yak_trace.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_trace' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame4!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_trace'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225329💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225329💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'StartFreq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'StartFreq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'StopFreq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'StopFreq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode1'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode1' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode2'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode2' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode3'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode3' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData1'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData1' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData2'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData2' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData3'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData3' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'StartFreq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'StartFreq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'StopFreq'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'StopFreq' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode1'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode1' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode2'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode2' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceMode3'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceMode3' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData1'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData1' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData2'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData2' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'TraceData3'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'TraceData3' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225336💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225337💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225338💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ SUCCESS! The value box 'trace_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'trace_data'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ SUCCESS! The value box 'trace_data' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225339💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225339💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame4'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬📑📑 Behold! Tab 'Markers' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame5.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers/gui_yak_markers.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬🧱🟢 Summoning a GUI from: 'gui_yak_markers.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers/gui_yak_markers.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225339💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers/gui_yak_markers.py' with name 'gui_yak_markers'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬🔬✅ Module 'gui_yak_markers' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/7_Markers/gui_yak_markers.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬🔬🟢 Preparing to conjure a GUI class from module 'gui_yak_markers' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame5!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'yak_markers'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225339💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225339💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_1'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_1' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_2'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_2' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_3'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_3' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_4'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_4' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_5'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_5' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_6'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_6' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_1_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_1_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_2_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_2_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_3_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_3_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_4_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_4_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_5_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_5_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'Marker_6_X'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'Marker_6_X' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'marker_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225353💬✅ SUCCESS! The value box 'marker_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'marker_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬✅ SUCCESS! The value box 'marker_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'marker_number'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬✅ SUCCESS! The value box 'marker_number' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬🔬⚡️ Entering '_create_value_box' to brew a value box for 'x_value'.🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬✅ SUCCESS! The value box 'x_value' has been perfectly crafted!🧩_create_dynamic_widgets📄dynamic_gui_builder.py🗄️20251223.120000.proto
+20251223225354💬✅ GUI Reconstruction complete!🧩N/A📄N/A🗄️N/A
+20251223225354💬🔬✅ Class 'GenericInstrumentGui' materialized for parent '.!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame5'. The creation ritual is complete!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬📑📑 Behold! Tab 'Memory' added to the notebook. Another chapter unfolds!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬▶️ _build_from_directory for path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory'. Parent widget: .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame6.🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬Parsing directory: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory'🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬Parsed layout for '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory': Type='recursive_build', Data={'child_containers': [], 'gui_files': [PosixPath('/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py')]}🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬🧱🟢 Summoning a GUI from: 'gui_memory.py'. Let the visual enchantments begin!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬🔬🟢 Entering 'load_and_instantiate_gui'. Preparing to transmogrify a GUI from path: '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py'!🧩_build_from_directory📄gui_display.py🗄️20251223.120000.proto
+20251223225354💬🔬🟢 Preparing to awaken a module! Loading from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py' with name 'gui_memory'.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬🔬✅ Module 'gui_memory' from '/home/anthony/Documents/OPEN-AIR/display/left_50/top_100/1_Connection/4_YAK/8_Memory/gui_memory.py' has sprung to life! The experiment progresses!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬🔬🟢 Preparing to conjure a GUI class from module 'gui_memory' for parent .!application.!panedwindow.!frame.!panedwindow.!frame.!notebook.!frame.!notebook.!frame2.!notebook.!frame6!🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬🔬✅ A suitable vessel found! GUI class: 'GenericInstrumentGui'. Designating as default.🧩load_and_instantiate_gui📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬🖥️🟢 SUMMONING: Preparing to build the GUI for 'memory'🧩instantiate_gui_class📄module_loader.py🗄️20251223.120000.proto
+20251223225354💬🖥️🟢 Igniting the DynamicGuiBuilder v20251223.213000.8🧩DynamicGuiBuilder.__init__📄dynamic_gui_builder.py🗄️20251223.213000.8
+20251223225354💬🖥️🔁 Tearing down the old world to build a new one!🧩_load_and_build_from_file📄dynamic_gui_builder.py🗄️20251223.120000.proto

@@ -157,6 +157,9 @@ class DynamicGuiBuilder(
         except Exception as e:
             debug_log(message=f"❌ Error in __init__: {e}")
 
+    def _transmit_command(self, *args, **kwargs):
+        debug_log(message="[DUMMY] _transmit_command called", **_get_log_args())
+
     def _apply_styles(self, theme_name):
         pass
 
