@@ -138,10 +138,14 @@ class DynamicGuiBuilder(
             self._apply_styles(theme_name=DEFAULT_THEME)
             colors = THEMES.get(DEFAULT_THEME, THEMES["dark"])
             
+            # --- Main Content Frame (holds canvas and scrollbar) ---
+            self.main_content_frame = ttk.Frame(self)
+            self.main_content_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
             # Canvas and Scrollbar Setup
-            self.canvas = tk.Canvas(self, background=colors["bg"], borderwidth=0, highlightthickness=0)
+            self.canvas = tk.Canvas(self.main_content_frame, background=colors["bg"], borderwidth=0, highlightthickness=0)
             self.scroll_frame = ttk.Frame(self.canvas)
-            self.scrollbar = ttk.Scrollbar(self, orient=tk.VERTICAL, command=self.canvas.yview)
+            self.scrollbar = ttk.Scrollbar(self.main_content_frame, orient=tk.VERTICAL, command=self.canvas.yview)
             
             self.canvas.create_window((0, 0), window=self.scroll_frame, anchor="nw")
             self.canvas.configure(yscrollcommand=self.scrollbar.set)
@@ -153,8 +157,13 @@ class DynamicGuiBuilder(
             self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+            # --- Button Frame (holds control buttons at the bottom) ---
+            self.button_frame = ttk.Frame(self)
+            self.button_frame.pack(side=tk.BOTTOM, fill=tk.X, pady=(5, 10), padx=10) # Add some padding
+
+            ttk.Button(self.button_frame, text="Reload Config", command=self._force_rebuild_gui).pack(side=tk.LEFT, pady=10)
+
             self._load_and_build_from_file()
-            ttk.Button(self, text="Reload Config", command=self._force_rebuild_gui).pack(side=tk.BOTTOM, pady=10)
 
         except Exception as e:
             debug_log(message=f"❌ Error in __init__: {e}")
