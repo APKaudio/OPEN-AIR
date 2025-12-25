@@ -174,7 +174,56 @@ class DynamicGuiBuilder(
              debug_log(message="[DUMMY] _transmit_command called", **_get_log_args())
 
     def _apply_styles(self, theme_name):
-        pass
+        style = ttk.Style()
+        colors = THEMES.get(theme_name, THEMES["dark"]) # Fallback to dark theme
+
+        # General colors
+        bg = colors.get("bg", "#2b2b2b")
+        fg = colors.get("fg", "#dcdcdc")
+        entry_bg = colors.get("entry_bg", "#dcdcdc")
+        entry_fg = colors.get("entry_fg", "#000000")
+        accent = colors.get("accent", "#f4902c") # Use accent for selected/highlighted elements
+
+        # Configure general theme elements (Frames, Labels)
+        style.configure('TFrame', background=bg)
+        style.configure('TLabel', background=bg, foreground=fg)
+
+        # Configure TEntry (for TextInput and general Entry widgets)
+        style.configure('TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
+        style.map('TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
+                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))]) # Apply background to the entire widget
+
+        # Configure Custom.TEntry (for ValueBox)
+        style.configure('Custom.TEntry', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"))
+        style.map('Custom.TEntry', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
+                                   background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+
+        # Configure TCombobox (for Dropdown)
+        style.configure('TCombobox', fieldbackground=entry_bg, background=bg, foreground=entry_fg, bordercolor=colors.get("border", "#555555"), selectbackground=accent, selectforeground=entry_fg)
+        style.map('TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
+                             background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+        
+        # Configure the Listbox part of the Combobox (for dropdown options)
+        style.configure("TCombobox.Listbox", background=entry_bg, foreground=entry_fg, selectbackground=accent, selectforeground=fg)
+        
+        # Configure the 'BlackText.TCombobox' style that was defined in dynamic_gui_create_gui_dropdown_option.py
+        style.configure('BlackText.TCombobox', foreground=entry_fg)
+        style.map('BlackText.TCombobox', fieldbackground=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))],
+                                   background=[('readonly', entry_bg), ('disabled', colors.get("fg_alt", "#888888"))])
+        
+        # --- Tab Styling ---
+        tab_style_config = colors.get("tab_style", {}).get("tab_base_style", {})
+        style.configure('TNotebook', background=bg, borderwidth=0) # General Notebook background
+        style.configure('TNotebook.Tab', 
+                        background=tab_style_config.get("background", colors.get("primary", bg)),
+                        foreground=tab_style_config.get("foreground", fg),
+                        font=tab_style_config.get("font", ("Helvetica", 10)),
+                        padding=tab_style_config.get("padding", [5, 2]),
+                        borderwidth=tab_style_config.get("borderwidth", 0),
+                        relief=tab_style_config.get("relief", "flat"))
+        style.map('TNotebook.Tab',
+                  background=[('selected', accent), ('!selected', colors.get("secondary", bg))], # Orange when selected
+                  foreground=[('selected', fg), ('!selected', fg)]) # White text for both selected/unselected tabs
 
     def _on_frame_configure(self, event=None):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))

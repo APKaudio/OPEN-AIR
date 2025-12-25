@@ -9,23 +9,65 @@
   },
   "2_standard_widgets": {
     "type": "OcaBlock",
-    "description": "Standard Controls (4-Column Grid)",
-    "layout_columns": 4,
+    "description": "Standard Controls (2-Column Grid)",
+    "layout_columns": 2,
     "fields": {
       "w01": { "type": "_GuiActuator", "label_active": "Actuator", "trigger": false },
-      "w02": { "type": "_GuiButtonToggle", "label_active": "Toggle", "state_default": true },
-      "w03": { "type": "_GuiButtonToggler", "label_active": "Toggler", "options": ["A", "B"] },
+      "w02": { "type": "_GuiButtonToggle", "label_active": "Toggle Button with Title", "state_default": true },
+      "w03": { "type": "_GuiButtonToggler", "label_active": "Multi-Button Toggler", "options": ["Option 1", "Option 2", "Option 3", "Option 4"] },
       "w04": { "type": "_GuiCheckbox", "label_active": "Check", "state_default": true },
-      "w05": { "type": "_GuiDropDownOption", "label_active": "Dropdown", "options": ["1", "2"] },
+      "w05": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_value",
+        "label_active": "Dropdown with 10 Choices",
+        "options": {
+          "1": { "label_active": "Choice 1", "label_inactive": "Choice 1", "value": "1", "units": "text", "selected": false },
+          "2": { "label_active": "Choice 2", "label_inactive": "Choice 2", "value": "2", "units": "text", "selected": false },
+          "3": { "label_active": "Choice 3", "label_inactive": "Choice 3", "value": "3", "units": "text", "selected": false },
+          "4": { "label_active": "Choice 4", "label_inactive": "Choice 4", "value": "4", "units": "text", "selected": false },
+          "5": { "label_active": "Choice 5", "label_inactive": "Choice 5", "value": "5", "units": "text", "selected": false },
+          "6": { "label_active": "Choice 6", "label_inactive": "Choice 6", "value": "6", "units": "text", "selected": false },
+          "7": { "label_active": "Choice 7", "label_inactive": "Choice 7", "value": "7", "units": "text", "selected": false },
+          "8": { "label_active": "Choice 8", "label_inactive": "Choice 8", "value": "8", "units": "text", "selected": false },
+          "9": { "label_active": "Choice 9", "label_inactive": "Choice 9", "value": "9", "units": "text", "selected": false },
+          "10": { "label_active": "Choice 10", "label_inactive": "Choice 10", "value": "10", "units": "text", "selected": false }
+        }
+      },
       "w06": { "type": "_GuiListbox", "label_active": "List", "items": ["A", "B"], "layout": {"height": 60} },
       "w07": { "type": "_TextInput", "label_active": "Input", "value_default": "Text" },
       "w08": { "type": "_Value", "label_active": "Value", "value": "1.21" },
       "w09": { "type": "_Label", "label_active": "Label" },
-      "w10": { "type": "_WebLink", "label_active": "Link", "url": "http://localhost" },
+      "w10": { "type": "_WebLink", "label_active": "Link to Like.audio", "url": "http://Like.audio" },
       "w11": { "type": "_ProgressBar", "label_active": "Load", "value_default": 65 },
       "w12": { "type": "_sliderValue", "label_active": "Slider", "value_default": 50 },
       "w13": { "type": "_IncDecButtons", "label_active": "Inc/Dec", "value_default": 10 },
-      "w14": { "type": "_DirectionalButtons", "label_active": "Nav Pad" }
+      "w14": { "type": "_DirectionalButtons", "label_active": "Nav Pad" },
+      "w15": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_value",
+        "label_active": "Dropdown - Numbers",
+        "options": {
+          "1": { "label_active": "10", "label_inactive": "10", "value": "10", "units": "num", "selected": false },
+          "2": { "label_active": "20", "label_inactive": "20", "value": "20", "units": "num", "selected": false },
+          "3": { "label_active": "30", "label_inactive": "30", "value": "30", "units": "num", "selected": false },
+          "4": { "label_active": "40", "label_inactive": "40", "value": "40", "units": "num", "selected": false },
+          "5": { "label_active": "50", "label_inactive": "50", "value": "50", "units": "num", "selected": false }
+        }
+      },
+      "w16": {
+        "type": "_GuiDropDownOption",
+        "AES70": "OcaSwitch",
+        "handler": "set_value",
+        "label_active": "Dropdown - Default Value",
+        "options": {
+          "1": { "label_active": "Apple", "label_inactive": "Apple", "value": "1", "units": "fruit", "selected": false },
+          "2": { "label_active": "Banana", "label_inactive": "Banana", "value": "2", "units": "fruit", "selected": true },
+          "3": { "label_active": "Cherry", "label_inactive": "Cherry", "value": "3", "units": "fruit", "selected": false }
+        },
+        "value_default": "2"
+      }
     }
   },
   "3_media_and_specialty": {
@@ -38,14 +80,19 @@
         "description": "Visuals",
         "fields": {
             "img": { "type": "_ImageDisplay", "label_active": "Image", "image_path": "assets/images/flux_capacitor.png", "layout": {"width": 150, "height": 100} },
-            "anim": { "type": "_AnimationDisplay", "label_active": "Animation", "gif_path": "assets/images/time_circuits.gif", "layout": {"width": 150, "height": 100} }
+            "anim_gif": { "type": "_AnimationDisplay", "label_active": "GIF Animation", "gif_path": "assets/images/time_circuits.gif", "layout": {"width": 150, "height": 100} },
+            "anim_static": { "type": "_ImageDisplay", "label_active": "GIF Static Frame", "image_path": "assets/images/time_circuits.gif.png", "layout": {"width": 150, "height": 100} }
         }
       },
       "custom_controls": {
         "type": "OcaBlock",
-        "description": "Advanced Metering",
+        "description": "Advanced Metering & Controls",
         "fields": {
+            "fader_standard": { "type": "_Fader", "label_active": "Standard Fader", "value_default": 50, "layout": {"height": 200, "width": 60} },
             "needle": { "type": "_NeedleVUMeter", "label_active": "Analog VU", "value_default": -5, "min": -20, "max": 3, "size": 200 },
+            "vu_meter": { "type": "_VUMeter", "label_active": "Digital VU", "value_default": -10, "min": -40, "max": 0, "layout": {"width": 60, "height": 200} },
+            "knob_example": { "type": "_Knob", "label_active": "Knob Control", "value_default": 0.5, "min": 0.0, "max": 1.0, "resolution": 0.01, "size": 100 },
+            "panner_example": { "type": "_Panner", "label_active": "Panner Control", "value_default": 0, "min": -100, "max": 100, "size": 100 },
             "custom_fader": { "type": "_CustomFader", "label_active": "Custom Fader", "value_default": 75, "layout": {"height": 200, "width": 60} }
         }
       }

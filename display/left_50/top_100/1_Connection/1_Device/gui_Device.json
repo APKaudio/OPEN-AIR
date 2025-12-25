@@ -21,363 +21,48 @@
             "handler": "handle_device_1_options",
             "options": {
               "1": {
-                "active": false,
-                "label_active": "Placeholder 1",
-                "label_inactive": "Placeholder 1",
-                "description": "Generic description for option 1.",
-                "value": "VALUE_1",
-                "units": "mode",
+                "active": true,
+                "label_active": "Keysight Oscilloscope DSOX2000",
+                "label_inactive": "Keysight Oscilloscope DSOX2000",
+                "description": "Keysight DSOX2000 series, connected via USB",
+                "value": "USB0::0x2A8D::0x1C02::MY58463131::INSTR",
+                "units": "INSTR",
                 "selected": true
               },
               "2": {
-                "active": false,
-                "label_active": "Placeholder 2",
-                "label_inactive": "Placeholder 2",
-                "description": "Generic description for option 2.",
-                "value": "VALUE_2",
-                "units": "mode",
+                "active": true,
+                "label_active": "Tektronix DMM DMM4050",
+                "label_inactive": "Tektronix DMM DMM4050",
+                "description": "Tektronix DMM4050, connected via GPIB",
+                "value": "GPIB0::1::INSTR",
+                "units": "INSTR",
                 "selected": false
               },
               "3": {
-                "active": false,
-                "label_active": "Placeholder 3",
-                "label_inactive": "Placeholder 3",
-                "description": "Generic description for option 3.",
-                "value": "VALUE_3",
-                "units": "mode",
+                "active": true,
+                "label_active": "Rohde & Schwarz SpecAn FSV3000",
+                "label_inactive": "Rohde & Schwarz SpecAn FSV3000",
+                "description": "Rohde & Schwarz FSV3000, connected via LAN",
+                "value": "TCPIP0::192.168.1.10::inst0::INSTR",
+                "units": "INSTR",
                 "selected": false
               },
               "4": {
-                "active": false,
-                "label_active": "Placeholder 4",
-                "label_inactive": "Placeholder 4",
-                "description": "Generic description for option 4.",
-                "value": "VALUE_4",
-                "units": "mode",
+                "active": true,
+                "label_active": "Rigol Power Supply DP832",
+                "label_inactive": "Rigol Power Supply DP832",
+                "description": "Rigol DP832, connected via Serial",
+                "value": "ASRL1::INSTR",
+                "units": "INSTR",
                 "selected": false
               },
               "5": {
-                "active": false,
-                "label_active": "Placeholder 5",
-                "label_inactive": "Placeholder 5",
-                "description": "Generic description for option 5.",
-                "value": "VALUE_5",
-                "units": "mode",
-                "selected": false
-              },
-              "6": {
-                "active": false,
-                "label_active": "Placeholder 6",
-                "label_inactive": "Placeholder 6",
-                "description": "Generic description for option 6.",
-                "value": "VALUE_6",
-                "units": "mode",
-                "selected": false
-              },
-              "7": {
-                "active": false,
-                "label_active": "Placeholder 7",
-                "label_inactive": "Placeholder 7",
-                "description": "Generic description for option 7.",
-                "value": "VALUE_7",
-                "units": "mode",
-                "selected": false
-              },
-              "8": {
-                "active": false,
-                "label_active": "Placeholder 8",
-                "label_inactive": "Placeholder 8",
-                "description": "Generic description for option 8.",
-                "value": "VALUE_8",
-                "units": "mode",
-                "selected": false
-              },
-              "9": {
-                "active": false,
-                "label_active": "Placeholder 9",
-                "label_inactive": "Placeholder 9",
-                "description": "Generic description for option 9.",
-                "value": "VALUE_9",
-                "units": "mode",
-                "selected": false
-              },
-              "10": {
-                "active": false,
-                "label_active": "Placeholder 10",
-                "label_inactive": "Placeholder 10",
-                "description": "Generic description for option 10.",
-                "value": "VALUE_10",
-                "units": "mode",
-                "selected": false
-              },
-              "11": {
-                "active": false,
-                "label_active": "Placeholder 11",
-                "label_inactive": "Placeholder 11",
-                "description": "Generic description for option 11.",
-                "value": "VALUE_11",
-                "units": "mode",
-                "selected": false
-              },
-              "12": {
-                "active": false,
-                "label_active": "Placeholder 12",
-                "label_inactive": "Placeholder 12",
-                "description": "Generic description for option 12.",
-                "value": "VALUE_12",
-                "units": "mode",
-                "selected": false
-              },
-              "13": {
-                "active": false,
-                "label_active": "Placeholder 13",
-                "label_inactive": "Placeholder 13",
-                "description": "Generic description for option 13.",
-                "value": "VALUE_13",
-                "units": "mode",
-                "selected": false
-              },
-              "14": {
-                "active": false,
-                "label_active": "Placeholder 14",
-                "label_inactive": "Placeholder 14",
-                "description": "Generic description for option 14.",
-                "value": "VALUE_14",
-                "units": "mode",
-                "selected": false
-              },
-              "15": {
-                "active": false,
-                "label_active": "Placeholder 15",
-                "label_inactive": "Placeholder 15",
-                "description": "Generic description for option 15.",
-                "value": "VALUE_15",
-                "units": "mode",
-                "selected": false
-              },
-              "16": {
-                "active": false,
-                "label_active": "Placeholder 16",
-                "label_inactive": "Placeholder 16",
-                "description": "Generic description for option 16.",
-                "value": "VALUE_16",
-                "units": "mode",
-                "selected": false
-              },
-              "17": {
-                "active": false,
-                "label_active": "Placeholder 17",
-                "label_inactive": "Placeholder 17",
-                "description": "Generic description for option 17.",
-                "value": "VALUE_17",
-                "units": "mode",
-                "selected": false
-              },
-              "18": {
-                "active": false,
-                "label_active": "Placeholder 18",
-                "label_inactive": "Placeholder 18",
-                "description": "Generic description for option 18.",
-                "value": "VALUE_18",
-                "units": "mode",
-                "selected": false
-              },
-              "19": {
-                "active": false,
-                "label_active": "Placeholder 19",
-                "label_inactive": "Placeholder 19",
-                "description": "Generic description for option 19.",
-                "value": "VALUE_19",
-                "units": "mode",
-                "selected": false
-              },
-              "20": {
-                "active": false,
-                "label_active": "Placeholder 20",
-                "label_inactive": "Placeholder 20",
-                "description": "Generic description for option 20.",
-                "value": "VALUE_20",
-                "units": "mode",
-                "selected": false
-              },
-              "21": {
-                "active": false,
-                "label_active": "Placeholder 21",
-                "label_inactive": "Placeholder 21",
-                "description": "Generic description for option 21.",
-                "value": "VALUE_21",
-                "units": "mode",
-                "selected": false
-              },
-              "22": {
-                "active": false,
-                "label_active": "Placeholder 22",
-                "label_inactive": "Placeholder 22",
-                "description": "Generic description for option 22.",
-                "value": "VALUE_22",
-                "units": "mode",
-                "selected": false
-              },
-              "23": {
-                "active": false,
-                "label_active": "Placeholder 23",
-                "label_inactive": "Placeholder 23",
-                "description": "Generic description for option 23.",
-                "value": "VALUE_23",
-                "units": "mode",
-                "selected": false
-              },
-              "24": {
-                "active": false,
-                "label_active": "Placeholder 24",
-                "label_inactive": "Placeholder 24",
-                "description": "Generic description for option 24.",
-                "value": "VALUE_24",
-                "units": "mode",
-                "selected": false
-              },
-              "25": {
-                "active": false,
-                "label_active": "Placeholder 25",
-                "label_inactive": "Placeholder 25",
-                "description": "Generic description for option 25.",
-                "value": "VALUE_25",
-                "units": "mode",
-                "selected": false
-              },
-              "26": {
-                "active": false,
-                "label_active": "Placeholder 26",
-                "label_inactive": "Placeholder 26",
-                "description": "Generic description for option 26.",
-                "value": "VALUE_26",
-                "units": "mode",
-                "selected": false
-              },
-              "27": {
-                "active": false,
-                "label_active": "Placeholder 27",
-                "label_inactive": "Placeholder 27",
-                "description": "Generic description for option 27.",
-                "value": "VALUE_27",
-                "units": "mode",
-                "selected": false
-              },
-              "28": {
-                "active": false,
-                "label_active": "Placeholder 28",
-                "label_inactive": "Placeholder 28",
-                "description": "Generic description for option 28.",
-                "value": "VALUE_28",
-                "units": "mode",
-                "selected": false
-              },
-              "29": {
-                "active": false,
-                "label_active": "Placeholder 29",
-                "label_inactive": "Placeholder 29",
-                "description": "Generic description for option 29.",
-                "value": "VALUE_29",
-                "units": "mode",
-                "selected": false
-              },
-              "30": {
-                "active": false,
-                "label_active": "Placeholder 30",
-                "label_inactive": "Placeholder 30",
-                "description": "Generic description for option 30.",
-                "value": "VALUE_30",
-                "units": "mode",
-                "selected": false
-              },
-              "31": {
-                "active": false,
-                "label_active": "Placeholder 31",
-                "label_inactive": "Placeholder 31",
-                "description": "Generic description for option 31.",
-                "value": "VALUE_31",
-                "units": "mode",
-                "selected": false
-              },
-              "32": {
-                "active": false,
-                "label_active": "Placeholder 32",
-                "label_inactive": "Placeholder 32",
-                "description": "Generic description for option 32.",
-                "value": "VALUE_32",
-                "units": "mode",
-                "selected": false
-              },
-              "33": {
-                "active": false,
-                "label_active": "Placeholder 33",
-                "label_inactive": "Placeholder 33",
-                "description": "Generic description for option 33.",
-                "value": "VALUE_33",
-                "units": "mode",
-                "selected": false
-              },
-              "34": {
-                "active": false,
-                "label_active": "Placeholder 34",
-                "label_inactive": "Placeholder 34",
-                "description": "Generic description for option 34.",
-                "value": "VALUE_34",
-                "units": "mode",
-                "selected": false
-              },
-              "35": {
-                "active": false,
-                "label_active": "Placeholder 35",
-                "label_inactive": "Placeholder 35",
-                "description": "Generic description for option 35.",
-                "value": "VALUE_35",
-                "units": "mode",
-                "selected": false
-              },
-              "36": {
-                "active": false,
-                "label_active": "Placeholder 36",
-                "label_inactive": "Placeholder 36",
-                "description": "Generic description for option 36.",
-                "value": "VALUE_36",
-                "units": "mode",
-                "selected": false
-              },
-              "37": {
-                "active": false,
-                "label_active": "Placeholder 37",
-                "label_inactive": "Placeholder 37",
-                "description": "Generic description for option 37.",
-                "value": "VALUE_37",
-                "units": "mode",
-                "selected": false
-              },
-              "38": {
-                "active": false,
-                "label_active": "Placeholder 38",
-                "label_inactive": "Placeholder 38",
-                "description": "Generic description for option 38.",
-                "value": "VALUE_38",
-                "units": "mode",
-                "selected": false
-              },
-              "39": {
-                "active": false,
-                "label_active": "Placeholder 39",
-                "label_inactive": "Placeholder 39",
-                "description": "Generic description for option 39.",
-                "value": "VALUE_39",
-                "units": "mode",
-                "selected": false
-              },
-              "40": {
-                "active": false,
-                "label_active": "Placeholder 40",
-                "label_inactive": "Placeholder 40",
-                "description": "Generic description for option 40.",
-                "value": "VALUE_40",
-                "units": "mode",
+                "active": true,
+                "label_active": "Generic Device Simulation",
+                "label_inactive": "Generic Device Simulation",
+                "description": "Software simulated instrument for testing",
+                "value": "SIM::DEV::001::INSTR",
+                "units": "SIM",
                 "selected": false
               }
             }

@@ -27,12 +27,11 @@ current_version_hash = (Current_Date * Current_Time * Current_iteration)
 #
 
 
-import os
 import tkinter as tk
 from tkinter import ttk
+import os
 import inspect
-from decimal import Decimal
-
+from decimal import Decimal, InvalidOperation # Add InvalidOperation
 # --- Module Imports ---
 from workers.logger.logger import debug_log
 from workers.utils.log_utils import _get_log_args 
@@ -44,7 +43,6 @@ current_file = f"{os.path.basename(__file__)}"
 # --- Constants ---
 DEFAULT_PAD_X = 5
 DEFAULT_PAD_Y = 2
-
 
 class GuiListboxCreatorMixin:
     """
@@ -89,10 +87,11 @@ class GuiListboxCreatorMixin:
                 
                 active_options = {k: v for k, v in options_map_local.items() if str(v.get('active', 'false')).lower() in ['true', 'yes']}
                 
-                try:
-                    sorted_options = sorted(active_options.items(), key=lambda item: Decimal(item[1].get('value')))
-                except:
-                    sorted_options = sorted(active_options.items(), key=lambda item: item[1].get('value', item[0]))
+                def sort_key(item):
+                    value = item[1].get('value')
+                    return str(value)
+
+                sorted_options = sorted(active_options.items(), key=sort_key)
 
                 for key, opt in sorted_options:
                     lb.insert(tk.END, opt.get('label_active', key))

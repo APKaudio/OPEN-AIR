@@ -51,15 +51,15 @@ THEMES = {
         "table_fg": "#dcdcdc",
         "table_heading_bg": "#4e5254",
         "table_border": "#555555",
-        "entry_bg": "#4e5254",
-        "entry_fg": "#dcdcdc",
+        "entry_bg": "#dcdcdc",
+        "entry_fg": "#000000",
         # ----------------------------------------------------
         "textbox_style": {
             "Textbox_Font": "Segoe UI",
             "Textbox_Font_size": 13,
-            "Textbox_Font_colour": "#ffffff",
+            "Textbox_Font_colour": "#000000",
             "Textbox_border_colour": "#555555",
-            "Textbox_BG_colour": "#4e5254"
+            "Textbox_BG_colour": "#dcdcdc"
         },
         "button_base_style": {
             "borderwidth": 2,

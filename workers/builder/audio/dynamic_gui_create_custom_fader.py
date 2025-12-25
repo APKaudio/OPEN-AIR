@@ -36,7 +36,7 @@ class CustomFaderCreatorMixin:
 
         try:
             # Layout logic handles size, but we need defaults for the canvas
-            width = config.get("width", 40)
+            width = config.get("width", 60)
             height = config.get("height", 200)
             min_val = config.get("min", 0)
             max_val = config.get("max", 100)
@@ -93,12 +93,20 @@ class CustomFaderCreatorMixin:
         
         # Handle (Fader Cap)
         # Make it look like a real fader cap
-        cap_width = 20
+        cap_width = width * 0.7 # Make cap width 70% of the canvas width
         cap_height = 30
         canvas.create_rectangle(
             cx - cap_width/2, y_pos - cap_height/2, 
             cx + cap_width/2, y_pos + cap_height/2, 
             fill=handle_col, outline=track_col
         )
-        # Little line on the cap
-        canvas.create_line(cx - 8, y_pos, cx + 8, y_pos, fill=track_col, width=2)
+        # Main center line on the cap
+        line_length_half = cap_width * 0.4 # Roughly 80% of current cap_width
+        canvas.create_line(cx - line_length_half, y_pos, cx + line_length_half, y_pos, fill=track_col, width=2)
+
+        # Additional smaller lines above and below
+        small_line_length_half = line_length_half * 0.6 # 60% of the main line's half length
+        line_offset = 6 # Vertical offset for the small lines
+
+        canvas.create_line(cx - small_line_length_half, y_pos - line_offset, cx + small_line_length_half, y_pos - line_offset, fill=track_col, width=1)
+        canvas.create_line(cx - small_line_length_half, y_pos + line_offset, cx + small_line_length_half, y_pos + line_offset, fill=track_col, width=1)
