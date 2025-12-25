@@ -42,55 +42,61 @@ class CustomFaderCreatorMixin:
             height = config.get("height", 200)
             min_val = config.get("min", 0)
             max_val = config.get("max", 100)
-            value_default = config.get("value_default", 75)
+            value_default = float(config.get("value_default", 75)) # Ensure float
+
+            fader_value_var = tk.DoubleVar(value=value_default)
 
             # Force canvas to match theme background so it blends in
             canvas = tk.Canvas(frame, width=width, height=height, bg=bg_color, highlightthickness=0)
             canvas.pack(fill=tk.BOTH, expand=True)
 
-            self._draw_fader(canvas, width, height, value_default, min_val, max_val, secondary_color, accent_color)
+            def update_fader_visuals(*args):
+                current_fader_val = fader_value_var.get()
+                self._draw_fader(canvas, canvas.winfo_width(), canvas.winfo_height(), 
+                                 current_fader_val, min_val, max_val, secondary_color, accent_color)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"⚡ fluxing... Custom Fader '{label}' updated visually to {current_fader_val} from MQTT.",
+                        **_get_log_args()
+                    )
+
+            fader_value_var.trace_add("write", update_fader_visuals)
+            
+            # Initial draw based on default value
+            update_fader_visuals()
 
             # Interaction
             def on_drag(event):
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"➡️ Custom Fader '{label}' on_drag event triggered (y={event.y}).",
+                        **_get_log_args()
+                    )
                 # Map Y position to Value
-                # Y=0 is Top (Max), Y=Height is Bottom (Min)
                 h = canvas.winfo_height()
                 y = max(10, min(h-10, event.y))
                 norm = 1 - ((y - 10) / (h - 20)) # 0.0 to 1.0
                 new_val = min_val + (norm * (max_val - min_val))
                 
-                self._draw_fader(canvas, canvas.winfo_width(), h, new_val, min_val, max_val, secondary_color, accent_color)
-                self._transmit_command(widget_name=path, value=new_val)
+                # Update the StringVar, which will trigger the trace for visual update
+                if fader_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
+                    fader_value_var.set(new_val)
+                    self._transmit_command(widget_name=path, value=new_val)
 
             canvas.bind("<B1-Motion>", on_drag)
             canvas.bind("<Button-1>", on_drag)
             
             # Handle Resize
-            canvas.bind("<Configure>", lambda e: self._draw_fader(canvas, e.width, e.height, value_default, min_val, max_val, secondary_color, accent_color))
+            canvas.bind("<Configure>", lambda e: update_fader_visuals()) # Redraw on resize
 
-            # Store necessary info for update function
-            self.topic_widgets[path] = {
-                "widget": canvas,
-                "min": min_val,
-                "max": max_val,
-                "colors": (secondary_color, accent_color) # Pass colors needed for drawing
-            }
-
-            def _update_fader(topic, payload):
-                import orjson
-                try:
-                    data = orjson.loads(payload)
-                    float_value = float(data.get("value"))
-                    # Update the canvas directly
-                    self._draw_fader(canvas, canvas.winfo_width(), canvas.winfo_height(), 
-                                     float_value, min_val, max_val, secondary_color, accent_color)
-                except (ValueError, TypeError, orjson.JSONDecodeError) as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_fader for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
-
-            # Subscribe to MQTT updates for this fader
-            if self.subscriber_router:
-                self.subscriber_router.subscribe_to_topic(path, _update_fader)
+            # Register the StringVar with the StateMirrorEngine for MQTT updates
+            if path and self.state_mirror_engine:
+                self.state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
+                        **_get_log_args()
+                    )
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
