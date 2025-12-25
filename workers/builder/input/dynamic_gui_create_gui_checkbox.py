@@ -116,8 +116,14 @@ class GuiCheckboxCreatorMixin:
             checkbox.pack(side=tk.LEFT, padx=DEFAULT_PAD_X, pady=DEFAULT_PAD_Y)
             
             # Store the widget and its state variable for external updates.
-            if path:
-                self.topic_widgets[path] = (state_var, checkbox)
+            if path and self.state_mirror_engine:
+                self.state_mirror_engine.register_widget(path, state_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (BooleanVar: {state_var.get()}).",
+                        **_get_log_args()
+                    )
+
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(

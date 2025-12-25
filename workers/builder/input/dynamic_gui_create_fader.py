@@ -29,13 +29,15 @@ class FaderCreatorMixin:
 
         try:
             orient = config.get("orientation", "vertical")
-            
+            value_default = float(config.get("value_default", 0)) # Ensure float
+            fader_value_var = tk.DoubleVar(value=value_default)
+
             scale = ttk.Scale(
                 frame,
                 from_=config.get("min", 0),
                 to=config.get("max", 100),
                 orient=orient,
-                value=config.get("value_default", 0)
+                variable=fader_value_var # Bind the StringVar to the scale
             )
             
             if orient == "vertical":
@@ -43,53 +45,49 @@ class FaderCreatorMixin:
             else:
                 scale.pack(side=tk.TOP, fill=tk.X, expand=True)
 
-            value_label = ttk.Label(frame, text=f"{scale.get():.2f}")
+            value_label = ttk.Label(frame, text=f"{fader_value_var.get():.2f}")
             if orient == "vertical":
                 value_label.pack(side=tk.BOTTOM, pady=(5,0))
             else:
                 value_label.pack(side=tk.RIGHT, padx=(10,0))
 
+            def update_fader_visuals(*args):
+                current_fader_val = fader_value_var.get()
+                value_label.config(text=f"{current_fader_val:.2f}")
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"⚡ fluxing... Fader '{label}' updated visually to {current_fader_val} from MQTT.",
+                        **_get_log_args()
+                    )
+            fader_value_var.trace_add("write", update_fader_visuals)
+            
+            # Initial update of the label
+            update_fader_visuals()
 
-            def _on_scale_move(value):
-                try:
-                    value_label.config(text=f"{float(value):.2f}")
-                    # Here you would add logic to publish the value via MQTT
-                    # self.mqtt_util.publish(path, value)
-                except Exception as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _on_scale_move: {e}", file=os.path.basename(__file__), function=current_function_name 
+            def _on_scale_change(*args):
+                # This is triggered by user interaction AND tk_var.set
+                # Only publish if it's a user interaction (not an MQTT sync)
+                # The _silent_update flag in StateMirrorEngine handles the suppression
+                
+                # Publish the value via MQTT
+                self._transmit_command(widget_name=path, value=fader_value_var.get())
 
-)
+            scale.config(command=_on_scale_change) # Bind command to the trace
 
-            scale.config(command=_on_scale_move)
-
-            self.topic_widgets[path] = {
-                "widget": scale,
-                "value_label": value_label
-            }
-
-            def _update_fader(value):
-                try:
-                    float_value = float(value)
-                    scale.set(float_value)
-                    value_label.config(text=f"{float_value:.2f}")
-                except (ValueError, TypeError) as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_fader: {e}", file=os.path.basename(__file__), function=current_function_name 
-
-)
+            if path and self.state_mirror_engine:
+                # Register the StringVar with the StateMirrorEngine for MQTT updates
+                self.state_mirror_engine.register_widget(path, fader_value_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {fader_value_var.get()}).",
+                        **_get_log_args()
+                    )
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(
                     message=f"✅ SUCCESS! The fader '{label}' is now sliding into existence!",
-                    file=os.path.basename(__file__),
-                    version=app_constants.CURRENT_VERSION,
-                    function=f"{self.__class__.__name__}.{current_function_name}"
-                    
-
-
+                    **_get_log_args()
                 )
-            # self.mqtt_callbacks[path] = _update_fader
             return frame
         except Exception as e:
             debug_log(message=f"💥 KABOOM! The fader for '{label}' has gone off the rails! Error: {e}")

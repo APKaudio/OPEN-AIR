@@ -124,22 +124,23 @@ class GuiDropdownOptionCreatorMixin:
             self._current_selected_key_for_path = None
             if initial_selected_value:
                  self._current_selected_key_for_path = next((k for k,v in options_map.items() if str(v.get('value', k)) == str(initial_selected_value)), None)
+            
+            def update_displayed_text_from_value_var(*args):
+                """Callback for when selected_value_var changes (e.g., from MQTT)."""
+                new_value = selected_value_var.get()
+                found_label = ""
+                for key, opt in options_map.items():
+                    if str(opt.get('value', key)) == str(new_value):
+                        found_label = opt.get('label_active', key)
+                        break
+                displayed_text_var.set(found_label)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"⚡ fluxing... Dropdown '{label}' visually updated to '{found_label}' (value: {new_value}) from MQTT.",
+                        **_get_log_args()
+                    )
 
-
-            def update_displayed_text(value):
-                # Helper to update the dropdown's displayed text based on its value.
-                try:
-                    selected_key = None
-                    for k, opt in options_map.items():
-                        if str(opt.get('value', k)) == str(value):
-                            selected_key = k
-                            break
-
-                    displayed_text = options_map.get(selected_key, {}).get('label_active', selected_key)
-                    displayed_text_var.set(displayed_text)
-                    self._current_selected_key_for_path = selected_key # Update for transmit
-                except StopIteration:
-                    displayed_text_var.set("") # Set to blank if value not found.
+            selected_value_var.trace_add("write", update_displayed_text_from_value_var)
 
             def on_select(event):
                 try:
@@ -149,18 +150,17 @@ class GuiDropdownOptionCreatorMixin:
 
                     # Only transmit if a valid selection was made and it changed
                     if selected_key:
-                        # Find the actual topic path for this widget, it should be the main 'path' for the dropdown
-                        # and the payload should be the selected value.
+                        # Update the StringVar directly. This will trigger the trace.
+                        if selected_value_var.get() != str(selected_value): # Prevent unnecessary trace trigger
+                            selected_value_var.set(selected_value)
+
                         # The 'AES70' and 'handler' from config imply the 'path' is the target for the value.
                         if app_constants.LOCAL_DEBUG_ENABLE: 
                             debug_log(
                                 message=f"GUI ACTION: Publishing to '{path}' with value '{selected_value}'",
-                                file=current_file,
-                                version=current_version,
-                                function=f"{self.__class__.__name__}.{current_function_name}"
+                                **_get_log_args()
                             )
                         self._transmit_command(widget_name=path, value=selected_value)
-                        selected_value_var.set(selected_value) # Update the value var
                         self._current_selected_key_for_path = selected_key # Update for consistency
 
                 except ValueError:
@@ -173,15 +173,14 @@ class GuiDropdownOptionCreatorMixin:
             dropdown.bind("<<ComboboxSelected>>", on_select)
             dropdown.pack(side=tk.LEFT, padx=DEFAULT_PAD_X)
 
-            if path:
-                # Store (tk.StringVar, Combobox_Widget, rebuild_options_method)
-                self.topic_widgets[path] = (selected_value_var, dropdown, self.rebuild_options)
-
-            if app_constants.LOCAL_DEBUG_ENABLE: 
-                debug_log(
-                    message=f"✅ SUCCESS! The dropdown '{label}' is ready for selections!",
-                    **_get_log_args()
-                )
+            if path and self.state_mirror_engine:
+                # Register the StringVar with the StateMirrorEngine for MQTT updates
+                self.state_mirror_engine.register_widget(path, selected_value_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_value_var.get()}).",
+                        **_get_log_args()
+                    )
             return sub_frame
 
         except Exception as e:
@@ -192,60 +191,3 @@ class GuiDropdownOptionCreatorMixin:
                     **_get_log_args()
                 )
             return None
-
-    def rebuild_options(self, dropdown, config):
-        """
-        NEW: Rebuilds the option list for a dropdown based on a new configuration.
-        """
-        current_function_name = inspect.currentframe().f_code.co_name
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
-                message=f"🟢️️️🟢 ➡️➡️ '{current_function_name}' to rebuild options for dropdown.",
-                **_get_log_args()
-            )
-        options_map = config.get('options', {})
-
-        # Use all options from options_map, as 'active' status is not consistently used
-        active_options = options_map 
-
-        sorted_options = sorted(active_options.items(), key=lambda item: str(item[1].get('value', item[0])))
-
-        option_labels = [opt.get('label_active', key) for key, opt in sorted_options]
-        dropdown['values'] = option_labels
-
-        # Find the currently selected value to retain it if possible
-        current_value = dropdown.cget('textvariable').get() # Get current value from the StringVar
-        
-        # Try to find the label corresponding to the current value
-        current_label_from_value = ""
-        for key, opt in active_options.items():
-            if str(opt.get('value', key)) == str(current_value):
-                current_label_from_value = opt.get('label_active', key)
-                break
-
-        # If current label is not in new options, or no current value was set,
-        # try to use value_default from new config or first option
-        if current_label_from_value not in option_labels or not current_value:
-            new_default_value = config.get('value_default')
-            if new_default_value is not None:
-                # Find label for new_default_value
-                for key, opt in active_options.items():
-                    if str(opt.get('value', key)) == str(new_default_value):
-                        dropdown.set(opt.get('label_active', key))
-                        dropdown.cget('textvariable').set(new_default_value) # Update internal StringVar
-                        self._current_selected_key_for_path = key
-                        break
-            elif option_labels:
-                dropdown.set(option_labels[0])
-                # Also update the actual value in the StringVar if we default to the first option
-                first_option_value = active_options[sorted_options[0][0]].get('value')
-                dropdown.cget('textvariable').set(first_option_value)
-                self._current_selected_key_for_path = sorted_options[0][0]
-            else:
-                dropdown.set("") # No options, clear dropdown
-
-        if app_constants.LOCAL_DEBUG_ENABLE: 
-            debug_log(
-                message=f"🟢️️️🟢⬅️ '{current_function_name}'. Options rebuilt for dropdown.",
-                **_get_log_args()
-            )

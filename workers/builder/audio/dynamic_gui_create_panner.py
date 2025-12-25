@@ -41,73 +41,62 @@ class PannerCreatorMixin:
             height = config.get("height", 50)
             min_val = config.get("min", -100)
             max_val = config.get("max", 100)
-            value_default = config.get("value_default", 0)
+            value_default = float(config.get("value_default", 0)) # Ensure float
+
+            panner_value_var = tk.DoubleVar(value=value_default)
 
             # Canvas with Theme Background
             canvas = tk.Canvas(frame, width=width, height=height, bg=bg_color, highlightthickness=0)
             canvas.pack()
 
-            self._draw_knob(canvas, width, height, value_default, min_val, max_val, fg_color, accent_color, secondary_color)
-
-            # Value Label
-            value_label = ttk.Label(frame, text=str(value_default), font=("Helvetica", 8))
+            # Value Label (initially based on default value var)
+            value_label = ttk.Label(frame, text=f"{int(panner_value_var.get())}", font=("Helvetica", 8))
             value_label.pack(side=tk.BOTTOM)
 
-            self.topic_widgets[path] = (value_label, canvas)
+            def update_panner_visuals(*args):
+                current_panner_val = panner_value_var.get()
+                value_label.config(text=f"{int(current_panner_val)}")
+                self._draw_knob(canvas, width, height, current_panner_val, min_val, max_val, fg_color, accent_color, secondary_color)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"⚡ fluxing... Panner '{label}' updated visually to {current_panner_val} from MQTT.",
+                        **_get_log_args()
+                    )
+
+            panner_value_var.trace_add("write", update_panner_visuals)
+            
+            # Initial draw based on default value
+            update_panner_visuals()
 
             # Drag Interaction
             def on_drag(event):
-                # Calculate angle from center
-                dx = event.x - width / 2
-                dy = height / 2 - event.y # Invert Y for standard cartesian
-                angle = math.degrees(math.atan2(dy, dx))
-                
-                # Normalize angle (0-180 is top half, -180 to 0 is bottom)
-                # This is a simple approximation; a real knob needs start/end angle limits
-                if angle < 0: angle += 360
-                
-                # Map angle to value (Simplified 0-100 logic for demo)
-                # For better control, use delta-y dragging:
                 delta = 0
-                if hasattr(self, '_last_drag_y'):
-                    delta = self._last_drag_y - event.y
-                self._last_drag_y = event.y
+                if hasattr(self, '_last_drag_y_panner'): # Use a unique name to avoid conflicts
+                    delta = self._last_drag_y_panner - event.y
+                self._last_drag_y_panner = event.y
                 
-                current_val = float(value_label.cget("text"))
-                new_val = current_val + (delta * (max_val - min_val) / 100)
+                new_val = panner_value_var.get() + (delta * (max_val - min_val) / 100)
                 new_val = max(min_val, min(max_val, new_val))
                 
-                value_label.config(text=f"{int(new_val)}")
-                self._draw_knob(canvas, width, height, new_val, min_val, max_val, fg_color, accent_color, secondary_color)
-                
-                self._transmit_command(widget_name=path, value=new_val)
+                # Update the StringVar, which will trigger the trace for visual update
+                if panner_value_var.get() != new_val: # Only update if value changed to prevent unnecessary MQTT messages
+                    panner_value_var.set(new_val)
+                    self._transmit_command(widget_name=path, value=new_val)
 
             def on_click(event):
-                self._last_drag_y = event.y
+                self._last_drag_y_panner = event.y # Initialize drag start position
 
             canvas.bind("<Button-1>", on_click)
             canvas.bind("<B1-Motion>", on_drag)
 
-            # Store necessary info for update function
-            # self.topic_widgets[path] already stores (value_label, canvas)
-            # but we need to ensure min_val, max_val, fg_color, accent_color, secondary_color are accessible.
-            # It's better to pass them explicitly to _draw_knob.
-
-            def _update_panner(topic, payload):
-                import orjson
-                try:
-                    data = orjson.loads(payload)
-                    float_value = float(data.get("value"))
-                    
-                    value_label.config(text=f"{int(float_value)}")
-                    self._draw_knob(canvas, width, height, float_value, min_val, max_val, fg_color, accent_color, secondary_color)
-                except (ValueError, TypeError, orjson.JSONDecodeError) as e:
-                    if app_constants.LOCAL_DEBUG_ENABLE:
-                        debug_log(message=f"🔴 ERROR in _update_panner for topic {topic}: {e}", file=os.path.basename(__file__), function=current_function_name)
-
-            # Subscribe to MQTT updates for this panner
-            if self.subscriber_router:
-                self.subscriber_router.subscribe_to_topic(path, _update_panner)
+            # Register the StringVar with the StateMirrorEngine for MQTT updates
+            if path and self.state_mirror_engine:
+                self.state_mirror_engine.register_widget(path, panner_value_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (DoubleVar: {panner_value_var.get()}).",
+                        **_get_log_args()
+                    )
 
             if app_constants.LOCAL_DEBUG_ENABLE:
                 debug_log(

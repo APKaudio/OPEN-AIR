@@ -81,8 +81,9 @@ class GuiListboxCreatorMixin:
             listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
             options_map = config.get('options', {})
-
-            def rebuild_options_for_listbox(lb, cfg):
+            selected_option_var = tk.StringVar(sub_frame)
+            
+            def rebuild_options_for_listbox(lb, cfg, current_selection_var):
                 # Rebuilds the option list for the listbox based on a new configuration.
                 lb.delete(0, tk.END)
                 options_map_local = cfg.get('options', {})
@@ -95,24 +96,54 @@ class GuiListboxCreatorMixin:
 
                 sorted_options = sorted(active_options.items(), key=sort_key)
 
+                current_selection_label = ""
                 for key, opt in sorted_options:
                     lb.insert(tk.END, opt.get('label_active', key))
+                    if str(opt.get('selected', 'no')).lower() in ['yes', 'true']:
+                        current_selection_label = opt.get('label_active', key)
 
-                initial_selected_key = next((key for key, opt in options_map_local.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
-                if initial_selected_key:
-                    initial_label = options_map_local[initial_selected_key].get('label_active', initial_selected_key)
-                    if initial_label in lb.get(0, tk.END):
-                        idx = lb.get(0, tk.END).index(initial_label)
+                if current_selection_label:
+                    if current_selection_label in lb.get(0, tk.END):
+                        idx = lb.get(0, tk.END).index(current_selection_label)
                         lb.select_set(idx)
                         lb.see(idx)
+                        current_selection_var.set(current_selection_label) # Update the StringVar
 
-            rebuild_options_for_listbox(listbox, config)
-            self._last_selected_option_listbox = next((key for key, opt in options_map.items() if str(opt.get('selected', 'no')).lower() in ['yes', 'true']), None)
+            rebuild_options_for_listbox(listbox, config, selected_option_var)
+            self._last_selected_option_listbox = selected_option_var.get() # Initialize from var
+
+            def update_listbox_from_var(*args):
+                new_selection_label = selected_option_var.get()
+                if new_selection_label:
+                    if new_selection_label in listbox.get(0, tk.END):
+                        idx = listbox.get(0, tk.END).index(new_selection_label)
+                        listbox.select_clear(0, tk.END) # Clear previous selections
+                        listbox.select_set(idx)
+                        listbox.see(idx)
+                        if app_constants.LOCAL_DEBUG_ENABLE:
+                            debug_log(
+                                message=f"⚡ fluxing... Listbox '{label}' updated visually to '{new_selection_label}' from MQTT.",
+                                **_get_log_args()
+                            )
+                elif new_selection_label == "": # Handle case where selection is cleared
+                    listbox.select_clear(0, tk.END)
+
+            selected_option_var.trace_add("write", update_listbox_from_var)
 
             def on_select(event):
                 widget = event.widget
                 selection_indices = widget.curselection()
                 if not selection_indices:
+                    # If nothing is selected, clear the var
+                    if selected_option_var.get():
+                        selected_option_var.set("") # Clear selection in var
+                        # And potentially publish 'false' for previously selected
+                        if self._last_selected_option_listbox:
+                            old_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == self._last_selected_option_listbox), None)
+                            if old_key:
+                                old_path = f"{path}/options/{old_key}/selected"
+                                self._transmit_command(widget_name=old_path, value='false')
+                                self._last_selected_option_listbox = ""
                     return
 
                 selected_index = selection_indices[0]
@@ -121,43 +152,48 @@ class GuiListboxCreatorMixin:
                 try:
                     selected_key = next((key for key, opt in options_map.items() if opt.get('label_active', key) == selected_label), None)
                     
-                    if selected_key and selected_key != self._last_selected_option_listbox:
-                        # Deselect the previous option
-                        if self._last_selected_option_listbox:
-                            old_path = f"{path}/options/{self._last_selected_option_listbox}/selected"
-                            self._transmit_command(widget_name=old_path, value='false')
+                    if selected_key:
+                        # Update the StringVar directly. This will trigger the trace.
+                        selected_option_var.set(selected_label)
 
-                        # Select the new option
-                        new_path = f"{path}/options/{selected_key}/selected"
-                        self._transmit_command(widget_name=new_path, value='true')
-                        
-                        self._last_selected_option_listbox = selected_key
+                        # Publish MQTT messages only if the selection actually changed for state synchronization
+                        if selected_key != self._last_selected_option_listbox:
+                            # Deselect the previous option
+                            if self._last_selected_option_listbox:
+                                old_key_to_deselect = next((key for key, opt in options_map.items() if opt.get('label_active', key) == self._last_selected_option_listbox), None)
+                                if old_key_to_deselect:
+                                    old_path = f"{path}/options/{old_key_to_deselect}/selected"
+                                    self._transmit_command(widget_name=old_path, value='false')
 
-                    if app_constants.LOCAL_DEBUG_ENABLE: 
-                        debug_log(
-                            message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
-                            file=current_file,
-                            version=current_version,
-                            function=f"{self.__class__.__name__}.{current_function_name}"
+                            # Select the new option
+                            new_path = f"{path}/options/{selected_key}/selected"
+                            self._transmit_command(widget_name=new_path, value='true')
                             
+                            self._last_selected_option_listbox = selected_key # Update for the next comparison
 
-
-                        )
+                        if app_constants.LOCAL_DEBUG_ENABLE: 
+                            debug_log(
+                                message=f"GUI ACTION: Publishing selection for '{selected_key}' to path '{path}'.",
+                                **_get_log_args()
+                            )
                 except (ValueError, StopIteration):
                     debug_log(message="❌ Invalid selection in listbox.")
 
             listbox.bind("<<ListboxSelect>>", on_select)
 
-            if path:
-                self.topic_widgets[path] = (listbox, rebuild_options_for_listbox, options_map)
+            if path and self.state_mirror_engine:
+                # Register the StringVar with the StateMirrorEngine for MQTT updates
+                self.state_mirror_engine.register_widget(path, selected_option_var, self.tab_name)
+                if app_constants.LOCAL_DEBUG_ENABLE:
+                    debug_log(
+                        message=f"🔬 Widget '{label}' ({path}) registered with StateMirrorEngine (StringVar: {selected_option_var.get()}).",
+                        **_get_log_args()
+                    )
 
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"✅ SUCCESS! The listbox '{label}' has been successfully generated!",
 **_get_log_args()
-                    
-
-
                 )
             return sub_frame
 
@@ -166,9 +202,6 @@ class GuiListboxCreatorMixin:
             if app_constants.LOCAL_DEBUG_ENABLE: 
                 debug_log(
                     message=f"💥 KABOOM! The listbox for '{label}' has vanished into a different dimension! Error: {e}",
-**_get_log_args()
-                    
-
-
+                    **_get_log_args()
                 )
             return None

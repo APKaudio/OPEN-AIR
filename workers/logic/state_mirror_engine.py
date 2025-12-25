@@ -30,6 +30,7 @@ class StateMirrorEngine:
         self.subscriber_router = subscriber_router
         self.registered_widgets = {} # Map topic -> (tk_variable, tab_name)
         self.instance_id = str(uuid.uuid4()) # Unique ID for this GUI instance
+        self._silent_update = False # Flag to prevent feedback loops when updating GUI from MQTT
 
         # 🧪 FIX: IMMEDIATE SUBSCRIPTION
         # We must listen to the very timeline we are creating!
@@ -78,6 +79,19 @@ class StateMirrorEngine:
         Called when the GUI changes (User Input).
         It broadcasts the change to the MQTT broker, including the instance_id.
         """
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"➡️ Entering broadcast_gui_change_to_mqtt for widget '{widget_id}'. _silent_update: {self._silent_update}",
+                **_get_log_args()
+            )
+        if self._silent_update:
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🤫 Suppressing broadcast for widget '{widget_id}' due to _silent_update flag.",
+                    **_get_log_args()
+                )
+            return
+
         found_widget_info = None
         found_full_topic = None
 
@@ -127,6 +141,19 @@ class StateMirrorEngine:
 
     def publish_command(self, topic: str, payload: str):
         """Publishes a command to the MQTT broker."""
+        if app_constants.LOCAL_DEBUG_ENABLE:
+            debug_log(
+                message=f"➡️ Entering publish_command for topic '{topic}'. _silent_update: {self._silent_update}",
+                **_get_log_args()
+            )
+        if self._silent_update:
+            if app_constants.LOCAL_DEBUG_ENABLE:
+                debug_log(
+                    message=f"🤫 Suppressing command publication for topic '{topic}' due to _silent_update flag.",
+                    **_get_log_args()
+                )
+            return
+
         mqtt_publisher_service.publish_payload(topic, payload)
         debug_log(message=f"Published command to topic {topic}", **_get_log_args())
 
@@ -200,7 +227,12 @@ class StateMirrorEngine:
                             message=f"⚡ fluxing... Updating GUI Widget '{widget_info['id']}' to {new_value}",
                             **_get_log_args()
                         )
-                    tk_var.set(new_value)
+                    # Temporarily disable broadcasting to prevent feedback loop
+                    self._silent_update = True
+                    try:
+                        tk_var.set(new_value)
+                    finally:
+                        self._silent_update = False
             else:
                 # Topic not registered to a specific widget
                 pass
